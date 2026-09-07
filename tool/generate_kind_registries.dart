@@ -51,6 +51,7 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
     final facetModule = RegExp(
       r'(?:const|final)\s+(\w+LibraryFacetModule)\s*=',
     ).firstMatch(moduleSource)?.group(1);
+    final metadataDecoder = _discoverMetadataDecoder(entity);
 
     descriptors.add(
       _KindDescriptor(
@@ -94,12 +95,54 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_owned_details_codec.dart',
           'OwnedDetailsCodec<',
         ),
+        metadataDecoder: metadataDecoder,
         facetModule: facetModule,
       ),
     );
   }
   descriptors.sort((left, right) => left.folder.compareTo(right.folder));
   return descriptors;
+}
+
+_MetadataDecoder? _discoverMetadataDecoder(Directory kindDirectory) {
+  final folder = kindDirectory.path.split(Platform.pathSeparator).last;
+  final file = File('${kindDirectory.path}/domain/${folder}_metadata.dart');
+  if (!file.existsSync()) return null;
+  final source = file.readAsStringSync();
+  final classNames = RegExp(
+    r'(?:final\s+class|class)\s+(\w+)',
+  ).allMatches(source).map((match) => match.group(1)!).toList();
+  final candidates = [
+    for (final className in classNames)
+      if ((className.endsWith('Metadata') || className.endsWith('Media')) &&
+          RegExp('factory\\s+$className\\.fromJson').hasMatch(source))
+        className,
+  ];
+  candidates.sort((left, right) {
+    final rightScore = _metadataClassScore(folder, right);
+    final leftScore = _metadataClassScore(folder, left);
+    return rightScore.compareTo(leftScore);
+  });
+  if (candidates.isNotEmpty) {
+    final className = candidates.first;
+    return _MetadataDecoder(
+      importPath: _packageImportPath(file),
+      expression: '$className.fromJson',
+    );
+  }
+  return null;
+}
+
+int _metadataClassScore(String folder, String className) {
+  final normalizedFolder = folder.replaceAll('_', '').toLowerCase();
+  final normalizedClass = className.toLowerCase();
+  if (normalizedClass == '$normalizedFolder metadata'.replaceAll(' ', '')) {
+    return 100;
+  }
+  if (normalizedClass.endsWith('catalogmetadata')) return 95;
+  if (normalizedClass.endsWith('seriesmetadata')) return 90;
+  if (normalizedClass.endsWith('media')) return 85;
+  return 10;
 }
 
 _Contributor? _discoverContributor(
@@ -197,6 +240,13 @@ import 'package:flutter/material.dart';
   buffer.writeln(
     "import 'package:collectarr_app/features/library/config/owned_details_codec.dart';",
   );
+  for (final descriptor in descriptors) {
+    final metadataDecoder = descriptor.metadataDecoder;
+    if (metadataDecoder == null) continue;
+    buffer.writeln(
+      "import 'package:collectarr_app/${metadataDecoder.importPath}';",
+    );
+  }
   buffer.writeln();
   buffer.writeln('final List<LibraryKindModule> collectarrKindModules = [');
   for (final descriptor in descriptors) {
@@ -254,6 +304,7 @@ import 'package:flutter/material.dart';
     field: (descriptor) => descriptor.ownedDetailsCodec,
   );
   _renderFacetMap(buffer, descriptors);
+  _renderMetadataDecoderMap(buffer, descriptors);
   buffer.writeln();
   buffer
       .writeln('LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {');
@@ -346,6 +397,23 @@ void _renderFacetMap(
   buffer.writeln('};');
 }
 
+void _renderMetadataDecoderMap(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'final collectarrKindMetadataDecoders = <CatalogMediaKind, Object? Function(Map<String, dynamic>)>{',
+  );
+  for (final descriptor in descriptors) {
+    final decoder = descriptor.metadataDecoder;
+    if (decoder == null) continue;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: ${decoder.expression},',
+    );
+  }
+  buffer.writeln('};');
+}
+
 final class _KindDescriptor {
   const _KindDescriptor({
     required this.folder,
@@ -358,6 +426,7 @@ final class _KindDescriptor {
     this.collectionCsvProjection,
     this.providerMapper,
     this.ownedDetailsCodec,
+    this.metadataDecoder,
     this.facetModule,
   });
 
@@ -371,6 +440,7 @@ final class _KindDescriptor {
   final _Contributor? collectionCsvProjection;
   final _Contributor? providerMapper;
   final _Contributor? ownedDetailsCodec;
+  final _MetadataDecoder? metadataDecoder;
   final String? facetModule;
 
   Iterable<_Contributor> get contributors sync* {
@@ -393,6 +463,13 @@ final class _Contributor {
 
   final String importPath;
   final String className;
+}
+
+final class _MetadataDecoder {
+  const _MetadataDecoder({required this.importPath, required this.expression});
+
+  final String importPath;
+  final String expression;
 }
 
 String _packageImportPath(File file) {

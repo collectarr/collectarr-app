@@ -96,6 +96,15 @@ import 'package:collectarr_app/features/library/config/library_barcode_resolver.
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 final List<LibraryKindModule> collectarrKindModules = [
   animeKindModule,
@@ -196,6 +205,17 @@ final collectarrKindFacetModules = <CatalogMediaKind, LibraryFacetModule>{
   CatalogMediaKind.movie: movieLibraryFacetModule,
   CatalogMediaKind.music: musicLibraryFacetModule,
   CatalogMediaKind.tv: tvLibraryFacetModule,
+};
+final collectarrKindMetadataDecoders = <CatalogMediaKind, Object? Function(Map<String, dynamic>)>{
+  CatalogMediaKind.anime: AnimeMetadata.fromJson,
+  CatalogMediaKind.boardgame: BoardGameMetadata.fromJson,
+  CatalogMediaKind.book: BookCatalogMetadata.fromJson,
+  CatalogMediaKind.comic: ComicMedia.fromJson,
+  CatalogMediaKind.game: GameCatalogMetadata.fromJson,
+  CatalogMediaKind.manga: MangaMetadata.fromJson,
+  CatalogMediaKind.movie: MovieCatalogMetadata.fromJson,
+  CatalogMediaKind.music: MusicCatalogMetadata.fromJson,
+  CatalogMediaKind.tv: TvSeriesMetadata.fromJson,
 };
 
 LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {
