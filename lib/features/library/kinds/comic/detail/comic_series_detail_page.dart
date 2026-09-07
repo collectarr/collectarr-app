@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_relation_strip.dart';
+import 'package:collectarr_app/features/library/kinds/comic/detail/comic_routes.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/ui/loading_indicator.dart';
@@ -164,7 +165,10 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
                 return;
               }
               context.push(
-                '/comic/series/${Uri.encodeComponent(relation.targetId)}?title=${Uri.encodeQueryComponent(relation.targetTitle)}',
+                comicSeriesLocation(
+                  seriesId: relation.targetId,
+                  title: relation.targetTitle,
+                ),
               );
             },
           ),

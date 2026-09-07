@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
@@ -81,6 +82,7 @@ import 'package:collectarr_app/features/library/kinds/comic/barcode/comic_barcod
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/catalog/comic_catalog_lookup.dart';
+import 'package:collectarr_app/features/library/kinds/comic/detail/comic_route_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
@@ -279,6 +281,10 @@ final collectarrKindExportPreviewContributors =
     <CatalogMediaKind, LibraryExportPreviewContributor>{
   CatalogMediaKind.comic: const ComicExportPreviewContributor(),
 };
+
+final List<GoRoute> collectarrKindRoutes = [
+  ComicRouteContributor().build(),
+];
 
 List<CatalogKindLookup> collectarrCatalogKindLookups(LocalDatabase db) => [
       AnimeCatalogLookup(db),

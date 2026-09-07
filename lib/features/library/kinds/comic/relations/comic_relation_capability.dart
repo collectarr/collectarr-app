@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/detail/comic_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,6 +37,6 @@ void _openComicRelationTarget(
   LibraryRelationTarget target,
 ) {
   context.push(
-    '/comic/series/${Uri.encodeComponent(target.id)}?title=${Uri.encodeQueryComponent(target.title)}',
+    comicSeriesLocation(seriesId: target.id, title: target.title),
   );
 }

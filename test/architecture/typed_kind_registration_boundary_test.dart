@@ -11,6 +11,7 @@ void main() {
       'lib/features/library/kinds/registry/collectarr_kind_modules.dart';
   const registrationsPath =
       'lib/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+  const routerPath = 'lib/core/routing/app_router.dart';
   const productionRoot = 'lib';
   const homePath = 'lib/features/library/home/home_page.dart';
 
@@ -55,6 +56,16 @@ void main() {
     expect(source, contains('library_kind_registrations.dart'));
     expect(registrations, contains('collectarrKindRegistrations'));
     expect(registrations, contains('libraryKindRegistrationForKind'));
+    expect(registrations, contains('collectarrKindRoutes'));
+  });
+
+  test('application router consumes generated kind routes', () {
+    final source = File(routerPath).readAsStringSync();
+
+    expect(source, contains('collectarr_kind_routes.dart'));
+    expect(source, contains('...collectarrKindRoutes'));
+    expect(source, isNot(contains('comic_series_detail_page.dart')));
+    expect(source, isNot(contains("AppRoutes.comicSeries")));
   });
 
   test('home dispatches through registration instead of page type', () {

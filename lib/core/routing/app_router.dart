@@ -8,9 +8,9 @@ import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
-import 'package:collectarr_app/features/library/kinds/comic/detail/comic_series_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_routes.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
@@ -33,7 +33,6 @@ abstract final class AppRoutes {
   static const admin = '/admin';
   static const settings = '/settings';
   static const detail = '/detail';
-  static const comicSeries = '/comic/series/:seriesId';
   static const creator = '/creator/:name';
   static const character = '/character/:name';
   static const storyArc = '/story-arc/:name';
@@ -181,13 +180,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.activity,
         builder: (context, state) => const GlobalActivityPage(),
       ),
-      GoRoute(
-        path: AppRoutes.comicSeries,
-        builder: (context, state) => ComicSeriesDetailPage(
-          seriesId: state.pathParameters['seriesId']!,
-          seriesTitle: state.uri.queryParameters['title'] ?? '',
-        ),
-      ),
+      ...collectarrKindRoutes,
       GoRoute(
         path: AppRoutes.creator,
         builder: (context, state) => CreatorDetailPage(

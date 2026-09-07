@@ -109,6 +109,10 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'CatalogKindLookup',
         ),
+        routeContributor: _discoverIntegrationContributor(
+          entity,
+          'LibraryRouteContributor',
+        ),
         trackingEntryCodec: _discoverContributor(
           entity,
           'tracking',
@@ -329,9 +333,7 @@ _Contributor? _discoverIntegrationContributor(
   Directory kindDirectory,
   String marker,
 ) {
-  final integrations = Directory('${kindDirectory.path}/integrations');
-  if (!integrations.existsSync()) return null;
-  for (final entity in integrations.listSync(recursive: true)) {
+  for (final entity in kindDirectory.listSync(recursive: true)) {
     if (entity is! File || !entity.path.endsWith('.dart')) continue;
     final source = entity.readAsStringSync();
     if (!source.contains(marker)) continue;
@@ -373,6 +375,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 ''');
   for (final descriptor in descriptors) {
     buffer.writeln(
@@ -540,6 +543,7 @@ import 'package:flutter/material.dart';
     type: 'LibraryExportPreviewContributor',
     field: (descriptor) => descriptor.exportPreviewContributor,
   );
+  _renderRouteContributors(buffer, descriptors);
   _renderCatalogKindLookups(buffer, descriptors);
   _renderCodecList(
     buffer,
@@ -923,6 +927,20 @@ void _renderCatalogKindLookups(
   buffer.writeln();
 }
 
+void _renderRouteContributors(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln('final List<GoRoute> collectarrKindRoutes = [');
+  for (final descriptor in descriptors) {
+    final contributor = descriptor.routeContributor;
+    if (contributor == null) continue;
+    buffer.writeln('  ${contributor.className}().build(),');
+  }
+  buffer.writeln('];');
+  buffer.writeln();
+}
+
 void _renderSerialAuthorityContributors(
   StringBuffer buffer,
   List<_KindDescriptor> descriptors,
@@ -973,6 +991,7 @@ final class _KindDescriptor {
     this.shelfExtension,
     this.exportPreviewContributor,
     this.catalogLookup,
+    this.routeContributor,
     this.trackingEntryCodec,
     this.trackingUnitCodec,
     this.watchSessionCodec,
@@ -998,6 +1017,7 @@ final class _KindDescriptor {
   final _Contributor? shelfExtension;
   final _Contributor? exportPreviewContributor;
   final _Contributor? catalogLookup;
+  final _Contributor? routeContributor;
   final _Contributor? trackingEntryCodec;
   final _Contributor? trackingUnitCodec;
   final _Contributor? watchSessionCodec;
@@ -1021,6 +1041,7 @@ final class _KindDescriptor {
       shelfExtension,
       exportPreviewContributor,
       catalogLookup,
+      routeContributor,
       trackingEntryCodec,
       trackingUnitCodec,
       watchSessionCodec,
