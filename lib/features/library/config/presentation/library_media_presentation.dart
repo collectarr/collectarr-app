@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 import 'library_filter_presentation.dart';
 import 'library_metadata_presentation.dart';
 import 'library_personal_filter_presentation.dart';
 import 'library_search_presentation.dart';
 import 'library_sort_presentation.dart';
+
+typedef LibraryCardPresentationBuilder = LibraryCardPresentation Function(
+  LibraryProjectionRuntime item, {
+  required bool musicVertical,
+});
 
 class LibraryMediaPresentation {
   const LibraryMediaPresentation({
@@ -14,6 +21,7 @@ class LibraryMediaPresentation {
     required this.groupLabels,
     required this.builder,
     required this.bucketLabelBuilder,
+    this.cardPresentationBuilder,
     this.usesCompactTableLayout = false,
     this.compactBucketIcon = Icons.folder,
     this.emptyStateProviderSummarySuffix = '',
@@ -33,6 +41,7 @@ class LibraryMediaPresentation {
   final LibraryPresentationLabels groupLabels;
   final LibraryMediaPresentationBuilder builder;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
+  final LibraryCardPresentationBuilder? cardPresentationBuilder;
   final bool usesCompactTableLayout;
   final IconData compactBucketIcon;
   final String emptyStateProviderSummarySuffix;
@@ -45,4 +54,19 @@ class LibraryMediaPresentation {
   final LibraryPresentationLabels referenceLabels;
   final LibraryPresentationLabels statusLabels;
   final LibraryPresentationLabels bucketLabelOverrides;
+
+  /// Builds the kind-owned card contribution for a projected item.
+  ///
+  /// The media presentation is the presentation boundary; the kind module
+  /// registration remains limited to navigation and capability dispatch.
+  LibraryCardPresentation buildCardPresentation(
+    LibraryProjectionRuntime item, {
+    required bool musicVertical,
+  }) {
+    return cardPresentationBuilder?.call(
+          item,
+          musicVertical: musicVertical,
+        ) ??
+        const LibraryCardPresentation();
+  }
 }

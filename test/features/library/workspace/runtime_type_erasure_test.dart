@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,7 +12,6 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Isolated Runtime Type Erasure Tests', () {
-    final comicModule = libraryKindModuleForKind(CatalogMediaKind.comic);
     final comicWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.comic);
     final bookWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.book);
 
@@ -70,7 +70,10 @@ void main() {
 
     test('runtime builds card presentation via behavior boundary', () {
       final item = createComicItem('1', 'Saga');
-      final card = comicModule.buildCard(item, musicVertical: false);
+      final card = comicLibraryMediaPresentation.buildCardPresentation(
+        item,
+        musicVertical: false,
+      );
       expect(card, isNotNull);
     });
 

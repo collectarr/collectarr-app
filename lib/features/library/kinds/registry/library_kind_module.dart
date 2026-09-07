@@ -14,13 +14,10 @@ import 'package:collectarr_app/features/library/config/library_edit_capability.d
 import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
 import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
@@ -69,16 +66,6 @@ abstract interface class LibraryKindModule {
   List<LibrarySearchTarget> get searchTargetOptions;
 
   LibraryWorkspaceViewProfile get viewProfile;
-
-  LibraryCardPresentation buildCard(
-    LibraryProjectionRuntime item, {
-    required bool musicVertical,
-  });
-
-  LibraryCardPresentation? buildCardPresentation(
-    LibraryProjectionRuntime item, {
-    required bool musicVertical,
-  });
 }
 
 class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
@@ -104,12 +91,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
     this.toolbar,
     this.searchTargetOptions = const [],
     LibraryWorkspaceViewProfile? viewProfile,
-    LibraryCardPresentation Function(
-      LibraryProjectionRuntime item, {
-      required bool musicVertical,
-    })? buildCardPresentation,
-  })  : _viewProfile = viewProfile,
-        _buildCardPresentation = buildCardPresentation;
+  }) : _viewProfile = viewProfile;
 
   @override
   final LibraryKindIdentity identity;
@@ -164,34 +146,4 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   final LibraryKindToolbarModule? toolbar;
   @override
   final List<LibrarySearchTarget> searchTargetOptions;
-
-  final LibraryCardPresentation Function(
-    LibraryProjectionRuntime item, {
-    required bool musicVertical,
-  })? _buildCardPresentation;
-
-  @override
-  LibraryCardPresentation buildCard(
-    LibraryProjectionRuntime item, {
-    required bool musicVertical,
-  }) {
-    if (item.dto is! TDto) {
-      throw ArgumentError(
-        'Invalid projection item DTO "${item.dto.runtimeType}". '
-        'Expected "$TDto".',
-      );
-    }
-    final custom =
-        _buildCardPresentation?.call(item, musicVertical: musicVertical);
-    if (custom != null) return custom;
-    return const LibraryCardPresentation();
-  }
-
-  @override
-  LibraryCardPresentation? buildCardPresentation(
-    LibraryProjectionRuntime item, {
-    required bool musicVertical,
-  }) {
-    return buildCard(item, musicVertical: musicVertical);
-  }
 }

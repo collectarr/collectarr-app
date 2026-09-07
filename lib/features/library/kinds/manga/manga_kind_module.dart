@@ -30,7 +30,6 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draf
 import 'package:collectarr_app/features/library/kinds/manga/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
@@ -375,7 +374,6 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     ownedDetailsResetPayloadBuilder: () =>
         MangaOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),
-  buildCardPresentation: buildMangaCardPresentation,
 );
 
 Iterable<String> _getFacetValues(

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:flutter/material.dart';
@@ -131,6 +132,7 @@ final moviesLibraryMediaPresentation = LibraryMediaPresentation(
   groupLabels: moviesLibraryGroupLabels,
   builder: moviesLibraryMediaBuilder,
   bucketLabelBuilder: moviesLibraryBucketLabelBuilder,
+  cardPresentationBuilder: buildMovieCardPresentation,
   compactBucketIcon: Icons.movie_filter_outlined,
   emptyStateProviderSummarySuffix: ' Physical formats are tracked as editions.',
   previewLabels: moviesPreviewLabels,

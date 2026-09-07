@@ -16,7 +16,6 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
@@ -385,7 +384,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       ),
     ],
   ),
-  buildCardPresentation: buildComicCardPresentation,
 );
 
 String _comicChildrenTitle(int count) => 'Volumes ($count)';

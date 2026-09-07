@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -145,6 +146,7 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   groupLabels: mangaLibraryGroupLabels,
   builder: mangaLibraryMediaBuilder,
   bucketLabelBuilder: mangaLibraryBucketLabelBuilder,
+  cardPresentationBuilder: buildMangaCardPresentation,
   usesCompactTableLayout: true,
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,

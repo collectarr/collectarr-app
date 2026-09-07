@@ -21,7 +21,6 @@ import 'package:collectarr_app/features/library/kinds/music/tracking/music_track
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -260,7 +259,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     ownedDetailsResetPayloadBuilder: () =>
         MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),
-  buildCardPresentation: buildMusicCardPresentation,
 );
 
 String _musicChildrenTitle(int count) => 'Discs ($count)';

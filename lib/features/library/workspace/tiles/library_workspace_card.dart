@@ -146,7 +146,8 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final rawEditions = editionsPayload != null
         ? editionsPayload
             .whereType<Map<String, dynamic>>()
-            .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList()
         : const <CatalogEditionDto>[];
     final referenceHierarchy = libraryReferenceHierarchySegments(
@@ -161,7 +162,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final kind = catalogMediaKindFromValue(item.source.catalogItem?.kind);
     final module = libraryKindModuleForKind(kind);
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
-    final presentation = module.buildCard(
+    final presentation = module.presentation.buildCardPresentation(
       item,
       musicVertical: musicVertical,
     );

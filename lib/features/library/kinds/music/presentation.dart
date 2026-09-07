@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -134,6 +135,7 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   groupLabels: musicLibraryGroupLabels,
   builder: musicLibraryMediaBuilder,
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
+  cardPresentationBuilder: buildMusicCardPresentation,
   compactBucketIcon: Icons.person_2_outlined,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,

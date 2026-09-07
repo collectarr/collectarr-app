@@ -32,7 +32,6 @@ import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.d
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
@@ -353,7 +352,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     ownedDetailsResetPayloadBuilder: () =>
         MovieOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),
-  buildCardPresentation: buildMovieCardPresentation,
 );
 
 List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(

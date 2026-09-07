@@ -33,7 +33,6 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_editor_extension.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
@@ -334,7 +333,6 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     ownedDetailsResetPayloadBuilder: () =>
         TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),
-  buildCardPresentation: buildTvCardPresentation,
 );
 
 String _tvChildrenTitle(int count) => 'Seasons ($count)';

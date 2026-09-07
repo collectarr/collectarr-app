@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
@@ -117,6 +118,7 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   groupLabels: tvLibraryGroupLabels,
   builder: const TvLibraryMediaPresentationBuilder(),
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
+  cardPresentationBuilder: buildTvCardPresentation,
   compactBucketIcon: Icons.tv_outlined,
   emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
   previewLabels: tvPreviewLabels,
