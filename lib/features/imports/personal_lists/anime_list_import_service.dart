@@ -134,7 +134,7 @@ class AnimeListImportService {
     CatalogMediaKind kind,
     String title,
   ) {
-    final candidates = kind == CatalogMediaKind.manga
+    final candidates = kind.apiValue == 'manga'
         ? const ['series_mangadb_id', 'series_animedb_id', 'id']
         : const ['series_animedb_id', 'series_mangadb_id', 'id'];
     for (final key in candidates) {
@@ -182,7 +182,7 @@ class AnimeListImportService {
   }
 
   int? _progressForEntry(XmlElement entry, CatalogMediaKind kind) {
-    final keys = kind == CatalogMediaKind.manga
+    final keys = kind.apiValue == 'manga'
         ? const ['my_read_chapters', 'my_read_volumes', 'chapters', 'volumes']
         : const ['my_watched_episodes', 'episodes'];
     for (final key in keys) {
