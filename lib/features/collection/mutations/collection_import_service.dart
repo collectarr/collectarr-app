@@ -61,7 +61,7 @@ final class CollectionImportService {
     ));
     final importedCatalogItems = <CatalogItemDto>[];
     for (final row in resolvedRows) {
-      final snapshot = _catalogItemFromCsvRow(
+      final snapshot = _catalogSnapshotFromCsvRow(
         row,
         existing: catalogItems[row.itemId],
       );
@@ -358,7 +358,13 @@ final class CollectionImportService {
     );
   }
 
-  CatalogItemDto? _catalogItemFromCsvRow(
+  /// Lets the owning CSV projection create the catalog snapshot.
+  ///
+  /// Collection only normalizes the structural identity/title cells needed by
+  /// the serialization boundary. It must not reconstruct a rich
+  /// [CatalogItemDto] from semantic CSV columns; those meanings belong to the
+  /// selected kind's import profile.
+  CatalogItemDto? _catalogSnapshotFromCsvRow(
     CollectionCsvRow row, {
     CatalogItemDto? existing,
   }) {
@@ -368,19 +374,29 @@ final class CollectionImportService {
     final projection = libraryCollectionCsvProjectionForKind(
       catalogMediaKindFromValue(row.kind),
     );
-    if (projection != null &&
-        row.kindCatalogCells.length == libraryCollectionCsvCatalogCellCount) {
-      final imported =
-          projection.catalogItemFromImportCells(row.kindCatalogCells);
-      if (imported != null) {
-        return imported;
-      }
+    if (projection == null || row.itemId.trim().isEmpty) {
+      return null;
     }
-    return CatalogItemDto.fromJson({
-      'id': row.itemId,
-      'kind': row.kind ?? CatalogMediaKind.unknown.apiValue,
-      'title': row.title ?? row.itemId,
-    });
+    return projection.catalogItemFromImportCells(
+      _catalogImportCells(row),
+    );
+  }
+
+  List<String> _catalogImportCells(CollectionCsvRow row) {
+    if (row.kindCatalogCells.length == libraryCollectionCsvCatalogCellCount) {
+      final cells = [...row.kindCatalogCells];
+      if (cells[0].trim().isEmpty) {
+        cells[0] = row.itemId;
+      }
+      return cells;
+    }
+
+    return [
+      row.itemId,
+      row.kind ?? '',
+      row.title ?? row.itemId,
+      ...List<String>.filled(libraryCollectionCsvCatalogCellCount - 3, ''),
+    ];
   }
 
   String? _importRowPrimaryLookupValue(CollectionCsvRow row) {

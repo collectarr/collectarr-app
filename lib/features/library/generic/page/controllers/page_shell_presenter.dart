@@ -6,7 +6,6 @@ abstract final class LibraryPageShellPresenter {
     BuildContext context,
   ) {
     final shelf = state.ref.watch(shelfProvider);
-    final ownedCopiesValue = state.ref.watch(collectionProvider);
     final wishlistValue = state.ref.watch(wishlistProvider);
     final switchSnapshot = state.widget.switchLayoutSnapshot;
     final baseViewState = state._viewState ?? state._viewProfile.defaults();
@@ -14,7 +13,6 @@ abstract final class LibraryPageShellPresenter {
         ? baseViewState
         : baseViewState.withLayoutSnapshot(switchSnapshot);
     final shelfState = shelf.asData?.value;
-    final allOwnedCopies = state._activeOwnedCopies(ownedCopiesValue);
     final allWishlistItems = state._activeWishlistItems(wishlistValue);
     final projection = shelfState == null
         ? null
@@ -69,7 +67,15 @@ abstract final class LibraryPageShellPresenter {
                             state._projectionForShelf(stateValue, viewState),
                         viewState,
                         shelfState: stateValue,
-                        allOwnedCopies: allOwnedCopies,
+                        allOwnedCopies: [
+                          for (final item in (projection ??
+                                  state._projectionForShelf(
+                                    stateValue,
+                                    viewState,
+                                  ))
+                              .allItems)
+                            if (item.source.ownedItem case final owned?) owned,
+                        ],
                         allWishlistItems: allWishlistItems,
                       ),
                       error: (error, _) => AppErrorCard(

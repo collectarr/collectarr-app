@@ -65,5 +65,6 @@ const List<Type> collectarrKindTableTypes = <Type>[
   TvWatchSessionRows,
   TvEpisodeProgressRows,
   TvCustomEpisodeRows,
+  TvTrackingRows,
   TvTrackingUnitRows,
 ];

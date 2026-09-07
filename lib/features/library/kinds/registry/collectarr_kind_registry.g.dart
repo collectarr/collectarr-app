@@ -3,7 +3,7 @@
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
@@ -421,29 +421,6 @@ final collectarrTypedOwnedItemPersisters =
       TvOwnedRepository(database).upsert(item as TvOwnedItem),
 };
 
-final collectarrOwnedItemPersisters =
-    <CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem)>{
-  CatalogMediaKind.anime: (database, item) => AnimeOwnedRepository(database)
-      .upsert(AnimeOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.boardgame: (database, item) =>
-      BoardGameOwnedRepository(database)
-          .upsert(BoardGameOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.book: (database, item) => BookOwnedRepository(database)
-      .upsert(BookOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.comic: (database, item) => ComicOwnedRepository(database)
-      .upsert(ComicOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.game: (database, item) => GameOwnedRepository(database)
-      .upsert(GameOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.manga: (database, item) => MangaOwnedRepository(database)
-      .upsert(MangaOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.movie: (database, item) => MovieOwnedRepository(database)
-      .upsert(MovieOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.music: (database, item) => MusicOwnedRepository(database)
-      .upsert(MusicOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.tv: (database, item) => TvOwnedRepository(database)
-      .upsert(TvOwnedItemProjection.fromOwnedItem(item)),
-};
-
 final collectarrTypedOwnedLocationUpdaters =
     <CatalogMediaKind, Future<void> Function(LocalDatabase, String, String?)>{
   CatalogMediaKind.anime: (database, id, locationId) async {
@@ -754,81 +731,6 @@ final collectarrTypedOwnedItemSyncDeserializers =
   CatalogMediaKind.tv: TvOwnedItem.fromJson,
 };
 
-final collectarrOwnedItemSerializers =
-    <CatalogMediaKind, OwnedItem Function(Object)>{
-  CatalogMediaKind.anime: (item) =>
-      AnimeOwnedItemProjection.toOwnedItem(item as AnimeOwnedItem),
-  CatalogMediaKind.boardgame: (item) =>
-      BoardGameOwnedItemProjection.toOwnedItem(item as BoardGameOwnedItem),
-  CatalogMediaKind.book: (item) =>
-      BookOwnedItemProjection.toOwnedItem(item as BookOwnedItem),
-  CatalogMediaKind.comic: (item) =>
-      ComicOwnedItemProjection.toOwnedItem(item as ComicOwnedItem),
-  CatalogMediaKind.game: (item) =>
-      GameOwnedItemProjection.toOwnedItem(item as GameOwnedItem),
-  CatalogMediaKind.manga: (item) =>
-      MangaOwnedItemProjection.toOwnedItem(item as MangaOwnedItem),
-  CatalogMediaKind.movie: (item) =>
-      MovieOwnedItemProjection.toOwnedItem(item as MovieOwnedItem),
-  CatalogMediaKind.music: (item) =>
-      MusicOwnedItemProjection.toOwnedItem(item as MusicOwnedItem),
-  CatalogMediaKind.tv: (item) =>
-      TvOwnedItemProjection.toOwnedItem(item as TvOwnedItem),
-};
-
-final collectarrOwnedItemDeserializers =
-    <CatalogMediaKind, Object Function(OwnedItem)>{
-  CatalogMediaKind.anime: AnimeOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.boardgame: BoardGameOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.book: BookOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.comic: ComicOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.game: GameOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.manga: MangaOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.movie: MovieOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.music: MusicOwnedItemProjection.fromOwnedItem,
-  CatalogMediaKind.tv: TvOwnedItemProjection.fromOwnedItem,
-};
-
-final collectarrOwnedItemReaders =
-    <CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{
-  CatalogMediaKind.anime: (database) async =>
-      (await AnimeOwnedRepository(database).listActive())
-          .map(AnimeOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.boardgame: (database) async =>
-      (await BoardGameOwnedRepository(database).listActive())
-          .map(BoardGameOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.book: (database) async =>
-      (await BookOwnedRepository(database).listActive())
-          .map(BookOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.comic: (database) async =>
-      (await ComicOwnedRepository(database).listActive())
-          .map(ComicOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.game: (database) async =>
-      (await GameOwnedRepository(database).listActive())
-          .map(GameOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.manga: (database) async =>
-      (await MangaOwnedRepository(database).listActive())
-          .map(MangaOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.movie: (database) async =>
-      (await MovieOwnedRepository(database).listActive())
-          .map(MovieOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.music: (database) async =>
-      (await MusicOwnedRepository(database).listActive())
-          .map(MusicOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-  CatalogMediaKind.tv: (database) async =>
-      (await TvOwnedRepository(database).listActive())
-          .map(TvOwnedItemProjection.toOwnedItem)
-          .toList(growable: false),
-};
-
 final collectarrOwnedItemSummaryReaders =
     <CatalogMediaKind, Future<List<OwnedItemSummary>> Function(LocalDatabase)>{
   CatalogMediaKind.anime: (database) async =>
@@ -868,76 +770,6 @@ final collectarrOwnedItemSummaryReaders =
           .map(TvOwnedItemProjection.toSummary)
           .toList(growable: false),
 };
-
-final collectarrOwnedItemFinders =
-    <CatalogMediaKind, Future<OwnedItem?> Function(LocalDatabase, String)>{
-  CatalogMediaKind.anime: (database, id) async => _collectarrOwnedToCommon(
-      await AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id)),
-      AnimeOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.boardgame: (database, id) async => _collectarrOwnedToCommon(
-      await BoardGameOwnedRepository(database)
-          .findById(BoardGameOwnedItemId(id)),
-      BoardGameOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.book: (database, id) async => _collectarrOwnedToCommon(
-      await BookOwnedRepository(database).findById(BookOwnedItemId(id)),
-      BookOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.comic: (database, id) async => _collectarrOwnedToCommon(
-      await ComicOwnedRepository(database).findById(ComicOwnedItemId(id)),
-      ComicOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.game: (database, id) async => _collectarrOwnedToCommon(
-      await GameOwnedRepository(database).findById(GameOwnedItemId(id)),
-      GameOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.manga: (database, id) async => _collectarrOwnedToCommon(
-      await MangaOwnedRepository(database).findById(MangaOwnedItemId(id)),
-      MangaOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.movie: (database, id) async => _collectarrOwnedToCommon(
-      await MovieOwnedRepository(database).findById(MovieOwnedItemId(id)),
-      MovieOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.music: (database, id) async => _collectarrOwnedToCommon(
-      await MusicOwnedRepository(database).findById(MusicOwnedItemId(id)),
-      MusicOwnedItemProjection.toOwnedItem),
-  CatalogMediaKind.tv: (database, id) async => _collectarrOwnedToCommon(
-      await TvOwnedRepository(database).findById(TvOwnedItemId(id)),
-      TvOwnedItemProjection.toOwnedItem),
-};
-
-final collectarrOwnedItemDeleters = <CatalogMediaKind,
-    Future<void> Function(LocalDatabase, OwnedItem, DateTime)>{
-  CatalogMediaKind.anime: (database, item, deletedAt) =>
-      AnimeOwnedRepository(database)
-          .markDeleted(AnimeOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.boardgame: (database, item, deletedAt) =>
-      BoardGameOwnedRepository(database).markDeleted(
-          BoardGameOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.book: (database, item, deletedAt) =>
-      BookOwnedRepository(database)
-          .markDeleted(BookOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.comic: (database, item, deletedAt) =>
-      ComicOwnedRepository(database)
-          .markDeleted(ComicOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.game: (database, item, deletedAt) =>
-      GameOwnedRepository(database)
-          .markDeleted(GameOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.manga: (database, item, deletedAt) =>
-      MangaOwnedRepository(database)
-          .markDeleted(MangaOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.movie: (database, item, deletedAt) =>
-      MovieOwnedRepository(database)
-          .markDeleted(MovieOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.music: (database, item, deletedAt) =>
-      MusicOwnedRepository(database)
-          .markDeleted(MusicOwnedItemProjection.fromOwnedItem(item), deletedAt),
-  CatalogMediaKind.tv: (database, item, deletedAt) =>
-      TvOwnedRepository(database)
-          .markDeleted(TvOwnedItemProjection.fromOwnedItem(item), deletedAt),
-};
-
-OwnedItem? _collectarrOwnedToCommon<T>(
-  T? item,
-  OwnedItem Function(T item) project,
-) {
-  return item == null ? null : project(item);
-}
 
 const List<CatalogKindRepositoryCodec> collectarrKindCatalogRepositoryCodecs = [
   AnimeCatalogRepositoryCodec(),

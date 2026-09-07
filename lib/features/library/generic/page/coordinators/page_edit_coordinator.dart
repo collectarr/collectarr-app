@@ -72,29 +72,8 @@ class LibraryPageEditCoordinator {
     final cached = (await LibraryCatalogRepository(db)
         .findByIds({catalogItem.id}))[catalogItem.id];
     final freshMetadataItem = cached ?? catalogItem;
-    final ownedItems = _s.ref.read(collectionProvider).maybeWhen(
-          data: (value) => value,
-          orElse: () => const <OwnedItem>[],
-        );
     OwnedItem? owned = ownedItemOverride;
-    final overrideOwnedId = owned?.id;
-    if (overrideOwnedId != null) {
-      for (final candidate in ownedItems) {
-        if (candidate.id == overrideOwnedId) {
-          owned = candidate;
-          break;
-        }
-      }
-    }
     owned ??= item.source.ownedItem;
-    if (owned == null || owned.isDeleted || owned.itemId != catalogItem.id) {
-      for (final candidate in ownedItems) {
-        if (!candidate.isDeleted && candidate.itemId == catalogItem.id) {
-          owned = candidate;
-          break;
-        }
-      }
-    }
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <WishlistItem>[],

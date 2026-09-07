@@ -112,7 +112,7 @@ void main() {
     final syncDecoderSection = _sourceSection(
       source,
       'final collectarrTypedOwnedItemSyncDeserializers',
-      'final collectarrOwnedItemSerializers',
+      'const List<CatalogKindRepositoryCodec>',
     );
 
     for (final entry in ownedTypes.entries) {

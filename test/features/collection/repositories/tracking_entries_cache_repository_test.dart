@@ -48,8 +48,9 @@ void main() {
         id: 'tv-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: 'tv',
-          entityType: CatalogEntityType.work,
-          id: 'tv-1',
+          entityType: CatalogEntityType.episode,
+          id: 'episode-1',
+          rootId: 'tv-1',
         ),
         seasonNumber: 2,
         episodeNumber: 4,
@@ -59,10 +60,16 @@ void main() {
     );
 
     final entry = await repository.findById('tv-tracking-1');
+    final typed = await db.select(db.tvTrackingRows).getSingle();
     expect(entry?.catalogRef.entityType, CatalogEntityType.episode);
+    expect(entry?.catalogRef.id, 'episode-1');
+    expect(entry?.catalogRef.rootId, 'tv-1');
     expect(entry?.seasonNumber, 2);
     expect(entry?.episodeNumber, 4);
     expect(entry?.episodeRatings, {'2:4': 9});
+    expect(typed.seasonNumber, 2);
+    expect(typed.episodeNumber, 4);
+    expect(typed.episodeRatingsJson, '{"2:4":9}');
     expect(
       repository.toSyncPayload(entry!),
       containsPair('episode_ratings', {'2:4': 9}),
@@ -95,13 +102,10 @@ void main() {
     );
 
     final entry = await repository.findById('movie-tracking-1');
-    final row = await db.select(db.trackingEntriesCache).getSingle();
     expect(entry?.seasonNumber, isNull);
     expect(entry?.episodeNumber, isNull);
     expect(entry?.episodeRatings, isEmpty);
-    expect(row.seasonNumber, isNull);
-    expect(row.episodeNumber, isNull);
-    expect(row.episodeRatings, isNull);
+    expect(await db.select(db.tvTrackingRows).get(), isEmpty);
     expect(
       repository.toSyncPayload(entry!),
       isNot(contains('season_number')),

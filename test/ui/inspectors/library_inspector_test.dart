@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
@@ -10,6 +9,8 @@ import 'package:collectarr_app/features/library/inspector/inspector_item_images_
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
@@ -163,6 +164,10 @@ void main() {
   testWidgets('library inspector uses the comic-specific full panel hook', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(900, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -194,6 +199,24 @@ void main() {
                 keyReason: 'First print finale',
                 updatedAt: DateTime.utc(2026, 5, 23),
               ),
+              ownedCopies: [
+                testOwnedItem(
+                  id: 'owned-comic-hero-2',
+                  itemId: 'comic-hero-2',
+                  isDigital: false,
+                  condition: 'Near Mint',
+                  grade: '9.8',
+                  coverPriceCents: 899,
+                  marketValueCents: 2499,
+                  pricePaidCents: 1299,
+                  rawOrSlabbed: 'Slabbed',
+                  gradingCompany: 'CGC',
+                  certificationNumber: '1234567890',
+                  keyComic: true,
+                  keyReason: 'First print finale',
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
+              ],
               accent: Colors.red,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -223,21 +246,21 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    await OwnedItemsRepository(db).upsertAll([
-      testOwnedItem(
+    await ComicOwnedRepository(db).upsertAll([
+      testComicOwnedItemFrom(testOwnedItem(
         id: 'owned-comic-1',
         itemId: 'comic-multi-1',
         kind: 'comic',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
-      ),
-      testOwnedItem(
+      )),
+      testComicOwnedItemFrom(testOwnedItem(
         id: 'owned-comic-2',
         itemId: 'comic-multi-1',
         kind: 'comic',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
-      ),
+      )),
     ]);
     OwnedItem? editedOwnedItem;
 
@@ -259,6 +282,20 @@ void main() {
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               ),
+              ownedCopies: [
+                testOwnedItem(
+                  id: 'owned-comic-1',
+                  itemId: 'comic-multi-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                ),
+                testOwnedItem(
+                  id: 'owned-comic-2',
+                  itemId: 'comic-multi-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                ),
+              ],
               accent: Colors.red,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -586,21 +623,21 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await OwnedItemsRepository(db).upsertAll([
-      testOwnedItem(
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
-      ),
-      testOwnedItem(
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
-      ),
+      )),
     ]);
 
     await tester.pumpWidget(
@@ -621,6 +658,20 @@ void main() {
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               ),
+              ownedCopies: [
+                testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                ),
+                testOwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                ),
+              ],
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -645,21 +696,21 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await OwnedItemsRepository(db).upsertAll([
-      testOwnedItem(
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
-      ),
-      testOwnedItem(
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
-      ),
+      )),
     ]);
     OwnedItem? editedOwnedItem;
 
@@ -681,6 +732,20 @@ void main() {
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               ),
+              ownedCopies: [
+                testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                ),
+                testOwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                ),
+              ],
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -723,21 +788,21 @@ void main() {
     addTearDown(db.close);
     final type = bookKindModule;
 
-    await OwnedItemsRepository(db).upsertAll([
-      testOwnedItem(
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
-      ),
-      testOwnedItem(
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
-      ),
+      )),
     ]);
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
@@ -767,6 +832,20 @@ void main() {
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               ),
+              ownedCopies: [
+                testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                ),
+                testOwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                ),
+              ],
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},

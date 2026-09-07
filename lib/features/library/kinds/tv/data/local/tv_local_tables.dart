@@ -225,6 +225,21 @@ class TvCustomEpisodeRows extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// TV-owned tracking-entry coordinates.
+///
+/// Lifecycle and structural references remain in the generic tracking index;
+/// episode coordinates and ratings belong to TV and are stored here.
+class TvTrackingRows extends Table {
+  TextColumn get id => text()();
+  IntColumn get seasonNumber => integer().nullable()();
+  IntColumn get episodeNumber => integer().nullable()();
+  TextColumn get episodeRatingsJson =>
+      text().withDefault(const Constant('{}'))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class TvTrackingUnitRows extends Table {
   TextColumn get id => text()();
   IntColumn get seasonNumber => integer().nullable()();

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -135,6 +137,7 @@ class TrackingEntriesCacheRepository {
       id: item.id,
       itemId: item.itemId,
       kind: Value(item.catalogRef.kind),
+      catalogRefJson: Value(jsonEncode(item.catalogRef.toJson())),
       ownedItemId: Value(item.ownedItemId),
       editionId: Value(item.editionId),
       variantId: Value(item.variantId),
@@ -172,6 +175,10 @@ class TrackingEntriesCacheRepository {
 
   CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row,
       {String? catalogKind}) {
+    final storedRef = _decodeCatalogRef(row.catalogRefJson);
+    if (storedRef != null) {
+      return storedRef;
+    }
     final entityType = row.bundleReleaseId != null
         ? CatalogEntityType.bundleRelease
         : row.variantId != null
@@ -187,6 +194,17 @@ class TrackingEntriesCacheRepository {
       id: id,
       rootId: entityType == CatalogEntityType.work ? null : row.itemId,
     );
+  }
+
+  CatalogEntityRef? _decodeCatalogRef(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return null;
+      return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
+    } on Object {
+      return null;
+    }
   }
 
   TrackingEntryCodec _codecForKind(CatalogMediaKind kind) {

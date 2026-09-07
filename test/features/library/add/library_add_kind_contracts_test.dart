@@ -2,9 +2,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
@@ -23,9 +23,92 @@ import 'package:collectarr_app/features/library/add/panes/library_add_manual_act
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+void _expectDuplicatedOwnedFields(Object owned) {
+  switch (owned) {
+    case AnimeOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case BoardGameOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case BookOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case ComicOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case GameOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case MangaOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case MovieOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case MusicOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case TvOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    default:
+      fail('Unexpected non-kind Owned value: ${owned.runtimeType}');
+  }
+}
+
+OwnedItem _ownedItemForLegacyAddBoundary(Object owned) {
+  return switch (owned) {
+    AnimeOwnedItem item => AnimeOwnedItemProjection.toOwnedItem(item),
+    BoardGameOwnedItem item => BoardGameOwnedItemProjection.toOwnedItem(item),
+    BookOwnedItem item => BookOwnedItemProjection.toOwnedItem(item),
+    ComicOwnedItem item => ComicOwnedItemProjection.toOwnedItem(item),
+    GameOwnedItem item => GameOwnedItemProjection.toOwnedItem(item),
+    MangaOwnedItem item => MangaOwnedItemProjection.toOwnedItem(item),
+    MovieOwnedItem item => MovieOwnedItemProjection.toOwnedItem(item),
+    MusicOwnedItem item => MusicOwnedItemProjection.toOwnedItem(item),
+    TvOwnedItem item => TvOwnedItemProjection.toOwnedItem(item),
+    _ => throw ArgumentError.value(owned, 'owned'),
+  };
+}
+
+void _expectOwnedFields(
+  String? condition,
+  String? grade,
+  String? personalNotes,
+  String? purchaseStore,
+  String? collectionStatus,
+  int quantity,
+) {
+  expect(condition, 'Near Mint');
+  expect(grade, '9.8');
+  expect(personalNotes, 'Collection note');
+  expect(purchaseStore, 'Typed Store');
+  expect(collectionStatus, 'Complete');
+  expect(quantity, 2);
+}
 
 void main() {
   const activeKinds = [
@@ -131,43 +214,34 @@ void main() {
         expect(runtime.edit.ownedTransferUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned transfer payload');
 
-        final existing = collectarrOwnedItemSerializers[kind]!(
-          command.typedPayload!.toOwnedItem(
-            resolvedCatalogRef: command.catalogRef,
-            id: 'existing-${kind.apiValue}',
-            createdAt: DateTime.utc(2026, 1, 1),
-            existingCatalog: metadataItem,
-            anchor: command.anchor,
-            ownerUserId: null,
-            ownerLabel: null,
-          ),
+        final existing = command.typedPayload!.toOwnedItem(
+          resolvedCatalogRef: command.catalogRef,
+          id: 'existing-${kind.apiValue}',
+          createdAt: DateTime.utc(2026, 1, 1),
+          existingCatalog: metadataItem,
+          anchor: command.anchor,
+          ownerUserId: null,
+          ownerLabel: null,
         );
         final duplicate = addCap.buildCommandFromOwnedItem(
           metadataItem,
-          existing,
+          _ownedItemForLegacyAddBoundary(existing),
           anchor: command.anchor,
           tracking: const LibraryAddTrackingDraft(readStatus: 'Completed'),
         );
         expect(duplicate, isNotNull,
             reason: '$kind must support typed Owned duplication');
         expect(duplicate!.typedPayload, isNotNull);
-        final duplicatedOwned = collectarrOwnedItemSerializers[kind]!(
-          duplicate.typedPayload!.toOwnedItem(
-            resolvedCatalogRef: duplicate.catalogRef,
-            id: 'duplicate-${kind.apiValue}',
-            createdAt: DateTime.utc(2026, 1, 2),
-            existingCatalog: metadataItem,
-            anchor: duplicate.anchor,
-            ownerUserId: null,
-            ownerLabel: null,
-          ),
+        final duplicatedOwned = duplicate.typedPayload!.toOwnedItem(
+          resolvedCatalogRef: duplicate.catalogRef,
+          id: 'duplicate-${kind.apiValue}',
+          createdAt: DateTime.utc(2026, 1, 2),
+          existingCatalog: metadataItem,
+          anchor: duplicate.anchor,
+          ownerUserId: null,
+          ownerLabel: null,
         );
-        expect(duplicatedOwned.condition, 'Near Mint');
-        expect(duplicatedOwned.grade, '9.8');
-        expect(duplicatedOwned.personalNotes, 'Collection note');
-        expect(duplicatedOwned.purchaseStore, 'Typed Store');
-        expect(duplicatedOwned.collectionStatus, 'Complete');
-        expect(duplicatedOwned.quantity, 2);
+        _expectDuplicatedOwnedFields(duplicatedOwned);
         expect(command.typedPayload!.detailsDraft,
             isNot(isA<TestOwnedDetailsDraft>()),
             reason: '$kind command details must not be TestOwnedDetailsDraft');

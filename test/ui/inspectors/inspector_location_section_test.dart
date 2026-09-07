@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -21,14 +21,14 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await OwnedItemsRepository(db).upsert(
-      testOwnedItem(
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         kind: 'comic',
         locationId: 'loc-1',
         updatedAt: DateTime.utc(2026, 5, 22),
-      ),
+      )),
     );
 
     await tester.pumpWidget(
@@ -53,9 +53,9 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);
 
-    final owned = await OwnedItemsRepository(db).findById('owned-1');
+    final owned = (await ComicOwnedRepository(db).listActive()).single;
 
-    expect(owned?.locationId, 'loc-1');
+    expect(owned.locationId, 'loc-1');
     expect(find.text('Office Shelf'), findsOneWidget);
   });
 }

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -11,8 +10,8 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -58,7 +57,7 @@ void main() {
     );
 
     final catalogRows = await fixture.catalog.findAll();
-    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
+    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final trackingRows =
         await fixture.db.select(fixture.db.trackingEntriesCache).get();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
@@ -100,7 +99,7 @@ void main() {
 
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
+    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(
@@ -144,7 +143,7 @@ void main() {
       ),
     );
 
-    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
+    final ownedRows = await MovieOwnedRepository(fixture.db).listActive();
 
     expect(ownedRows.single.itemId, 'movie-digital-1');
     expect(ownedRows.single.isDigital, isTrue);
@@ -169,7 +168,7 @@ void main() {
       referenceType: LibraryAddReferenceType.edition,
     );
 
-    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
+    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
 
     expect(ownedRows.single.itemId, 'edition-1');
     expect(
@@ -258,7 +257,7 @@ void main() {
       bundleReleaseIdsByItemId: const {'comic-track-1': 'bundle-ignored'},
     );
 
-    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
+    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
     final trackingRows =
@@ -285,7 +284,7 @@ void main() {
       defaults: const LibraryAddDefaults(),
     );
 
-    final ownedRows = await OwnedItemsRepository(fixture.db).listActive();
+    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
     final trackingRows =

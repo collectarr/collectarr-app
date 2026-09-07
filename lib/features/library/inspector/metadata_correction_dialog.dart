@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
-import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
@@ -20,21 +20,23 @@ Future<void> showMetadataCorrectionDialog({
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
     context: context,
-    builder: (context) => _MetadataCorrectionDialog(item: item),
+    builder: (context) => _MetadataCorrectionDialog(
+      item: item,
+      contributor: libraryAdminContributorForKind(type.kind),
+    ),
   );
   if (draft == null || !context.mounted) return;
 
   try {
-    final query = draft.queryFor(item);
-    final itemTitle = _itemTitle(item);
+    final query = draft.query;
     final String title =
-        draft.title.trim().isEmpty ? itemTitle : draft.title.trim();
+        draft.title.trim().isEmpty ? item.title : draft.title.trim();
     final response = await createLibraryMetadataProposal(
       api: ref.read(apiClientProvider),
       type: type,
       query: query,
       title: title,
-      summary: draft.summaryFor(item),
+      summary: draft.summary,
     );
     await recordLibraryMetadataProposalResponse(
       response: response,
@@ -80,9 +82,13 @@ String _describeMetadataCorrectionError(Object error) {
 }
 
 class _MetadataCorrectionDialog extends StatefulWidget {
-  const _MetadataCorrectionDialog({required this.item});
+  const _MetadataCorrectionDialog({
+    required this.item,
+    required this.contributor,
+  });
 
   final CatalogItemDto item;
+  final LibraryAdminContributor? contributor;
 
   @override
   State<_MetadataCorrectionDialog> createState() =>
@@ -92,12 +98,17 @@ class _MetadataCorrectionDialog extends StatefulWidget {
 class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   late final Map<String, TextEditingController> _fieldControllers;
 
+  List<LibraryAdminProposalField> get _kindFields =>
+      widget.contributor?.proposalFields ?? const [];
+
   @override
   void initState() {
     super.initState();
     _fieldControllers = {
-      for (final field in kProposalCorrectionFields)
-        field.key: TextEditingController(text: _initialFieldText(field.key)),
+      for (final field in _kindFields)
+        field.key: TextEditingController(
+          text: field.read(_itemPayload(widget.item)),
+        ),
     };
   }
 
@@ -106,6 +117,9 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     for (final controller in _fieldControllers.values) {
       controller.dispose();
     }
+    _titleController.dispose();
+    _sourceUrlController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -124,14 +138,29 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
             spacing: 10,
             runSpacing: 10,
             children: [
-              for (final field in kProposalCorrectionFields)
+              _CorrectionField(
+                width: 220,
+                controller: _titleController,
+                label: 'Title',
+              ),
+              for (final field in _kindFields)
                 _CorrectionField(
-                  width: field.compactWidth ?? 220,
+                  width: 220,
                   controller: _controllerForFieldKey(field.key),
                   label: field.label,
-                  keyboardType: sharedFieldKeyboardType(field),
                   maxLines: field.maxLines,
                 ),
+              _CorrectionField(
+                width: 220,
+                controller: _sourceUrlController,
+                label: 'Source URL',
+              ),
+              _CorrectionField(
+                width: 460,
+                controller: _notesController,
+                label: 'Notes',
+                maxLines: 3,
+              ),
             ],
           ),
         ),
@@ -145,14 +174,9 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
           onPressed: () {
             Navigator.of(context).pop(
               _MetadataCorrectionDraft(
-                title: _controllerForFieldKey('title').text,
-                issueNumber: _controllerForFieldKey('item_number').text,
-                publisher: _controllerForFieldKey('publisher').text,
-                releaseYear: _controllerForFieldKey('release_year').text,
-                barcode: _controllerForFieldKey('barcode').text,
-                variant: _controllerForFieldKey('variant').text,
-                sourceUrl: _controllerForFieldKey('source_url').text,
-                notes: _controllerForFieldKey('notes').text,
+                title: _titleController.text,
+                query: _buildQuery(),
+                summary: _buildSummary(),
               ),
             );
           },
@@ -162,6 +186,12 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     );
   }
 
+  late final TextEditingController _titleController =
+      TextEditingController(text: widget.item.title);
+  late final TextEditingController _sourceUrlController =
+      TextEditingController();
+  late final TextEditingController _notesController = TextEditingController();
+
   TextEditingController _controllerForFieldKey(String key) {
     final controller = _fieldControllers[key];
     if (controller == null) {
@@ -170,24 +200,52 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     return controller;
   }
 
-  String _initialFieldText(String key) {
-    final item = widget.item;
-    final payload = item.payload;
-    final title = item.title;
-    final releaseYear = item.releaseYear;
-    return switch (key) {
-      'title' => title,
-      'item_number' =>
-        (payload['item_number'] ?? payload['itemNumber'])?.toString() ?? '',
-      'publisher' => payload['publisher']?.toString() ?? '',
-      'release_year' => releaseYear?.toString() ?? '',
-      'barcode' => payload['barcode']?.toString() ?? '',
-      'variant' => payload['variant']?.toString() ?? '',
-      'source_url' => '',
-      'notes' => '',
-      _ => '',
-    };
+  String _buildQuery() {
+    final values = _fieldValues();
+    return [
+      _titleController.text.trim(),
+      ...values.values.map((value) => value.trim()),
+    ].where((value) => value.isNotEmpty).join(' ');
   }
+
+  String _buildSummary() {
+    final values = _fieldValues();
+    final lines = <String>[
+      'Metadata correction proposal',
+      '',
+      'Original:',
+      'title: ${widget.item.title}',
+    ];
+    final originalPayload = _itemPayload(widget.item);
+    for (final field in _kindFields) {
+      final value = field.read(originalPayload).trim();
+      if (value.isNotEmpty) {
+        lines.add('${field.label}: $value');
+      }
+    }
+    lines.addAll(['', 'Suggested:']);
+    if (_titleController.text.trim().isNotEmpty) {
+      lines.add('title: ${_titleController.text.trim()}');
+    }
+    for (final field in _kindFields) {
+      final value = values[field.key]?.trim() ?? '';
+      if (value.isNotEmpty) {
+        lines.add('${field.label}: $value');
+      }
+    }
+    if (_sourceUrlController.text.trim().isNotEmpty) {
+      lines.add('source: ${_sourceUrlController.text.trim()}');
+    }
+    if (_notesController.text.trim().isNotEmpty) {
+      lines.addAll(['', 'Notes:', _notesController.text.trim()]);
+    }
+    return lines.join('\n');
+  }
+
+  Map<String, String> _fieldValues() => {
+        for (final field in _kindFields)
+          field.key: _controllerForFieldKey(field.key).text,
+      };
 }
 
 class _CorrectionField extends StatelessWidget {
@@ -195,14 +253,12 @@ class _CorrectionField extends StatelessWidget {
     required this.width,
     required this.controller,
     required this.label,
-    this.keyboardType,
     this.maxLines = 1,
   });
 
   final double width;
   final TextEditingController controller;
   final String label;
-  final TextInputType? keyboardType;
   final int maxLines;
 
   @override
@@ -212,7 +268,6 @@ class _CorrectionField extends StatelessWidget {
       child: MetadataCorrectionTextField(
         controller: controller,
         label: label,
-        keyboardType: keyboardType,
         maxLines: maxLines,
         isDense: true,
       ),
@@ -220,76 +275,16 @@ class _CorrectionField extends StatelessWidget {
   }
 }
 
-Map<String, dynamic> _itemPayload(CatalogItemDto item) {
-  return item.toSyncPayload();
-}
-
-String _itemTitle(CatalogItemDto item) => item.title;
-
-int? _itemReleaseYear(CatalogItemDto item) => item.releaseYear;
+Map<String, dynamic> _itemPayload(CatalogItemDto item) => item.toSyncPayload();
 
 class _MetadataCorrectionDraft {
   const _MetadataCorrectionDraft({
     required this.title,
-    required this.issueNumber,
-    required this.publisher,
-    required this.releaseYear,
-    required this.barcode,
-    required this.variant,
-    required this.sourceUrl,
-    required this.notes,
+    required this.query,
+    required this.summary,
   });
 
   final String title;
-  final String issueNumber;
-  final String publisher;
-  final String releaseYear;
-  final String barcode;
-  final String variant;
-  final String sourceUrl;
-  final String notes;
-
-  String queryFor(CatalogItemDto item) {
-    final payload = _itemPayload(item);
-    final itemNumber =
-        (payload['item_number'] ?? payload['itemNumber'])?.toString();
-    final pub = payload['publisher']?.toString();
-    return [
-      title.trim().isEmpty ? _itemTitle(item) : title.trim(),
-      issueNumber.trim().isEmpty ? itemNumber : '#${issueNumber.trim()}',
-      publisher.trim().isEmpty ? pub : publisher.trim(),
-    ].whereType<String>().where((value) => value.isNotEmpty).join(' ');
-  }
-
-  String summaryFor(CatalogItemDto item) {
-    final payload = _itemPayload(item);
-    final itemNumber =
-        (payload['item_number'] ?? payload['itemNumber'])?.toString();
-    final pub = payload['publisher']?.toString();
-    final barcodeVal = payload['barcode']?.toString();
-    final variantVal = payload['variant']?.toString();
-
-    final lines = [
-      'Metadata correction proposal',
-      '',
-      'Original:',
-      'title: ${_itemTitle(item)}',
-      if (itemNumber != null) 'issue: $itemNumber',
-      if (pub != null) 'publisher: $pub',
-      if (_itemReleaseYear(item) != null) 'year: ${_itemReleaseYear(item)}',
-      if (barcodeVal != null) 'barcode: $barcodeVal',
-      if (variantVal != null) 'variant: $variantVal',
-      '',
-      'Suggested:',
-      if (title.trim().isNotEmpty) 'title: ${title.trim()}',
-      if (issueNumber.trim().isNotEmpty) 'issue: ${issueNumber.trim()}',
-      if (publisher.trim().isNotEmpty) 'publisher: ${publisher.trim()}',
-      if (releaseYear.trim().isNotEmpty) 'year: ${releaseYear.trim()}',
-      if (barcode.trim().isNotEmpty) 'barcode: ${barcode.trim()}',
-      if (variant.trim().isNotEmpty) 'variant: ${variant.trim()}',
-      if (sourceUrl.trim().isNotEmpty) 'source: ${sourceUrl.trim()}',
-      if (notes.trim().isNotEmpty) ...['', 'Notes:', notes.trim()],
-    ];
-    return lines.join('\n');
-  }
+  final String query;
+  final String summary;
 }

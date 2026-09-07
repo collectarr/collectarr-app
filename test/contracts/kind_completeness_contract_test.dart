@@ -141,11 +141,10 @@ void main() {
       );
 
       for (final kind in activeKinds) {
-        expect(collectarrOwnedItemPersisters, contains(kind));
-        expect(collectarrOwnedItemReaders, contains(kind));
+        expect(collectarrTypedOwnedItemPersisters, contains(kind));
+        expect(collectarrTypedOwnedItemFinders, contains(kind));
+        expect(collectarrTypedOwnedItemDeleters, contains(kind));
         expect(collectarrOwnedItemSummaryReaders, contains(kind));
-        expect(collectarrOwnedItemFinders, contains(kind));
-        expect(collectarrOwnedItemDeleters, contains(kind));
       }
     });
 

@@ -23,9 +23,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final ownedSummaries = await ref.watch(collectionSummariesProvider.future);
-  // Retained only as an adapter for unchanged Library contributor contracts.
-  // Shelf aggregation and UI use the structural summaries below.
-  final legacyOwned = await ref.watch(collectionProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
   final trackingEntries = await ref.watch(trackingEntriesProvider.future);
   final auth = ref.watch(authControllerProvider);
@@ -51,7 +48,6 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   );
   return ShelfState.from(
     ownedSummaries: ownedSummaries,
-    legacyOwnedItems: legacyOwned,
     wishlistItems: wishlist,
     trackingSummaries:
         trackingEntries.map(TrackingSummary.fromEntry).toList(growable: false),
@@ -233,8 +229,7 @@ class ShelfState {
       hasMixedCurrencies: hasMixedCurrencies,
       totalQuantity: activeOwned.fold<int>(
         0,
-        (total, item) =>
-            total + (legacyOwnedByItemId[item.itemId]?.quantity ?? 1),
+        (total, item) => total + item.quantity,
       ),
       missingMetadataCount:
           entries.where((entry) => entry.catalogSummary == null).length,
@@ -480,6 +475,7 @@ OwnedItemSummary _ownedSummaryFromLegacy(
     soldAt: item.soldAt,
     soldTo: item.soldTo,
     sellPriceCents: item.sellPriceCents,
+    quantity: item.quantity,
     ownerLabel: item.ownerLabel,
     locationLabel: item.locationId,
     notes: item.personalNotes,

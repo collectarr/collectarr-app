@@ -77,6 +77,7 @@ final class ComicOwnedItemProjection {
       soldAt: item.soldAt,
       soldTo: item.soldTo,
       sellPriceCents: item.sellPriceCents,
+      quantity: item.quantity,
       ownerLabel: item.ownerLabel,
       locationLabel: item.locationId,
       notes: item.personalNotes,

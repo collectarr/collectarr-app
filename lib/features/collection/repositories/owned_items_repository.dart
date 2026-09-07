@@ -1,21 +1,18 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 
 /// Cross-kind read/write host backed by each kind's complete owned table.
 ///
-/// Typed aggregates are the canonical persistence path. Common projections
-/// remain only for mixed/global views until those callers accept the
-/// structural summary contracts directly.
+/// Typed aggregates are the canonical persistence path. Mixed/global views
+/// consume structural summaries and references rather than a common Owned
+/// aggregate.
 final class OwnedItemsRepository {
   OwnedItemsRepository(LocalDatabase database)
       : _persistence = CollectarrOwnedItemPersistence(database);
 
   final CollectarrOwnedItemPersistence _persistence;
-
-  Future<List<OwnedItem>> listActive() => _persistence.listActive();
 
   Future<List<OwnedItemSummary>> listActiveSummaries() async {
     return _persistence.listActiveSummaries();
@@ -28,8 +25,6 @@ final class OwnedItemsRepository {
     return null;
   }
 
-  Future<OwnedItem?> findById(String id) => _persistence.findById(id);
-
   Future<(CatalogMediaKind kind, Object item)?> findTypedById(String id) {
     return _persistence.findTypedById(id);
   }
@@ -41,21 +36,8 @@ final class OwnedItemsRepository {
     return _persistence.syncPayloadForTyped(kind, item);
   }
 
-  Future<List<OwnedItem>> findActiveByItemIds(Iterable<String> itemIds) {
-    return _persistence.findActiveByItemIds(itemIds);
-  }
-
-  Future<void> upsert(OwnedItem item) => _persistence.upsert(item);
-
   Future<void> upsertTyped(CatalogMediaKind kind, Object item) =>
       _persistence.upsertTyped(kind, item);
-
-  Future<void> upsertAll(List<OwnedItem> items) =>
-      _persistence.upsertAll(items);
-
-  Future<void> markDeleted(OwnedItem item, DateTime deletedAt) {
-    return _persistence.markDeleted(item, deletedAt);
-  }
 
   Future<void> markDeletedByRef(OwnedItemRef ref, DateTime deletedAt) {
     return _persistence.markDeletedByRef(ref, deletedAt);

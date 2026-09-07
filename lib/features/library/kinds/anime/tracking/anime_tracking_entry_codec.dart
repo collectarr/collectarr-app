@@ -7,8 +7,10 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
-/// Anime-owned tracking-entry coordinates stored beside the shared lifecycle
-/// row.
+/// Anime-owned tracking-entry coordinates.
+///
+/// The universal tracking index stores only lifecycle and structural reference
+/// data. Anime episode coordinates live in [AnimeTrackingRows].
 final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
   const AnimeTrackingEntryCodec();
 
@@ -22,8 +24,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
   ) async {
     final values = ids?.toSet().toList(growable: false);
     if (values != null && values.isEmpty) return const {};
-    final query = db.select(db.trackingEntriesCache)
-      ..where((row) => row.kind.equals(kind.apiValue));
+    final query = db.select(db.animeTrackingRows);
     if (values != null) {
       query.where((row) => row.id.isIn(values));
     }
@@ -32,21 +33,21 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
       for (final row in rows)
         row.id: _AnimeTrackingEntryCoordinates(
           seasonNumber: row.seasonNumber,
-          episodeNumber: row.episodeNumber,
-          episodeRatings: _decodeEpisodeRatings(row.episodeRatings),
+          episodeNumber: row.episodeNumber?.toInt(),
+          episodeRatings: _decodeEpisodeRatings(row.episodeRatingsJson),
         ),
     };
   }
 
   @override
   Future<void> clearCoordinates(LocalDatabase db, String id) async {
-    await (db.update(db.trackingEntriesCache)
-          ..where((row) => row.id.equals(id)))
+    await (db.update(db.animeTrackingRows)..where((row) => row.id.equals(id)))
         .write(
-      const TrackingEntriesCacheCompanion(
+      const AnimeTrackingRowsCompanion(
+        episodeId: Value(null),
         seasonNumber: Value(null),
         episodeNumber: Value(null),
-        episodeRatings: Value(null),
+        episodeRatingsJson: Value('{}'),
       ),
     );
   }
@@ -60,15 +61,32 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
         'Expected Anime tracking entry',
       );
     }
-    await (db.update(db.trackingEntriesCache)
-          ..where((row) => row.id.equals(entry.id)))
-        .write(
-      TrackingEntriesCacheCompanion(
-        seasonNumber: Value(entry.seasonNumber),
-        episodeNumber: Value(entry.episodeNumber),
-        episodeRatings: Value(_encodeEpisodeRatings(entry.episodeRatings)),
-      ),
-    );
+    await db.into(db.animeTrackingRows).insertOnConflictUpdate(
+          AnimeTrackingRowsCompanion.insert(
+            id: entry.id,
+            mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
+            episodeId: Value(
+              entry.catalogRef.entityType == CatalogEntityType.episode
+                  ? entry.catalogRef.id
+                  : null,
+            ),
+            status: Value(entry.statusStorageValue ?? ''),
+            sourceType: Value(entry.sourceTypeApiValue),
+            rating: Value(entry.rating),
+            notes: Value(entry.notes),
+            startedAt: Value(entry.startedAt),
+            finishedAt: Value(entry.finishedAt),
+            progressCurrent: Value(entry.progressCurrent),
+            progressTotal: Value(entry.progressTotal),
+            timesCompleted: Value(entry.timesCompleted ?? 0),
+            seasonNumber: Value(entry.seasonNumber),
+            episodeNumber: Value(entry.episodeNumber?.toDouble()),
+            episodeRatingsJson:
+                Value(_encodeEpisodeRatings(entry.episodeRatings) ?? '{}'),
+            updatedAt: Value(entry.updatedAt),
+            deletedAt: Value(entry.deletedAt),
+          ),
+        );
   }
 
   @override

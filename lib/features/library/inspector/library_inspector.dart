@@ -111,6 +111,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.ownedCopies,
     this.detailsLayout = LibraryDetailsLayout.hidden,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.accent,
@@ -130,6 +131,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final LibraryKindModule type;
   final LibraryProjectionRuntime? item;
   final OwnedItem? ownedItem;
+  final List<OwnedItem>? ownedCopies;
   final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
   final Color accent;
@@ -180,20 +182,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
-    final ownedCopies = ref.watch(collectionProvider).maybeWhen(
-          data: (items) {
-            final matches = items
-                .where((item) =>
-                    !item.isDeleted &&
-                    item.itemId == selected.source.catalogItem?.id)
-                .toList(growable: false)
-              ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-            return matches;
-          },
-          orElse: () => widget.ownedItem == null
-              ? const <OwnedItem>[]
-              : <OwnedItem>[widget.ownedItem!],
-        );
+    // The selected projection owns the concrete item. The mixed collection
+    // provider exposes summaries and is intentionally not converted back to
+    // the removed common OwnedItem aggregate.
+    final ownedCopies = widget.ownedCopies ??
+        (widget.ownedItem == null
+            ? const <OwnedItem>[]
+            : <OwnedItem>[widget.ownedItem!]);
     final ownedResolution = resolveActiveOwnedItem(
       ownedCopies,
       fallback: widget.ownedItem,

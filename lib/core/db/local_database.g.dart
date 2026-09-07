@@ -473,6 +473,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('unknown'));
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _ownedItemIdMeta =
       const VerificationMeta('ownedItemId');
   @override
@@ -548,24 +554,6 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
       'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _seasonNumberMeta =
-      const VerificationMeta('seasonNumber');
-  @override
-  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
-      'season_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _episodeNumberMeta =
-      const VerificationMeta('episodeNumber');
-  @override
-  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
-      'episode_number', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _episodeRatingsMeta =
-      const VerificationMeta('episodeRatings');
-  @override
-  late final GeneratedColumn<String> episodeRatings = GeneratedColumn<String>(
-      'episode_ratings', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _updatedAtMeta =
       const VerificationMeta('updatedAt');
   @override
@@ -583,6 +571,7 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
         id,
         itemId,
         kind,
+        catalogRefJson,
         ownedItemId,
         editionId,
         variantId,
@@ -596,9 +585,6 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
         progressTotal,
         timesCompleted,
         notes,
-        seasonNumber,
-        episodeNumber,
-        episodeRatings,
         updatedAt,
         deletedAt
       ];
@@ -627,6 +613,12 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
     if (data.containsKey('kind')) {
       context.handle(
           _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
     }
     if (data.containsKey('owned_item_id')) {
       context.handle(
@@ -694,24 +686,6 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
       context.handle(
           _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
     }
-    if (data.containsKey('season_number')) {
-      context.handle(
-          _seasonNumberMeta,
-          seasonNumber.isAcceptableOrUnknown(
-              data['season_number']!, _seasonNumberMeta));
-    }
-    if (data.containsKey('episode_number')) {
-      context.handle(
-          _episodeNumberMeta,
-          episodeNumber.isAcceptableOrUnknown(
-              data['episode_number']!, _episodeNumberMeta));
-    }
-    if (data.containsKey('episode_ratings')) {
-      context.handle(
-          _episodeRatingsMeta,
-          episodeRatings.isAcceptableOrUnknown(
-              data['episode_ratings']!, _episodeRatingsMeta));
-    }
     if (data.containsKey('updated_at')) {
       context.handle(_updatedAtMeta,
           updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
@@ -738,6 +712,8 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
       kind: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json']),
       ownedItemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
       editionId: attachedDatabase.typeMapping
@@ -764,12 +740,6 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
           .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
       notes: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
-      seasonNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
-      episodeNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
-      episodeRatings: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}episode_ratings']),
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
       deletedAt: attachedDatabase.typeMapping
@@ -788,6 +758,7 @@ class TrackingEntriesCacheData extends DataClass
   final String id;
   final String itemId;
   final String kind;
+  final String? catalogRefJson;
   final String? ownedItemId;
   final String? editionId;
   final String? variantId;
@@ -801,15 +772,13 @@ class TrackingEntriesCacheData extends DataClass
   final int? progressTotal;
   final int? timesCompleted;
   final String? notes;
-  final int? seasonNumber;
-  final int? episodeNumber;
-  final String? episodeRatings;
   final DateTime updatedAt;
   final DateTime? deletedAt;
   const TrackingEntriesCacheData(
       {required this.id,
       required this.itemId,
       required this.kind,
+      this.catalogRefJson,
       this.ownedItemId,
       this.editionId,
       this.variantId,
@@ -823,9 +792,6 @@ class TrackingEntriesCacheData extends DataClass
       this.progressTotal,
       this.timesCompleted,
       this.notes,
-      this.seasonNumber,
-      this.episodeNumber,
-      this.episodeRatings,
       required this.updatedAt,
       this.deletedAt});
   @override
@@ -834,6 +800,9 @@ class TrackingEntriesCacheData extends DataClass
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
     map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || catalogRefJson != null) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    }
     if (!nullToAbsent || ownedItemId != null) {
       map['owned_item_id'] = Variable<String>(ownedItemId);
     }
@@ -873,15 +842,6 @@ class TrackingEntriesCacheData extends DataClass
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
-    if (!nullToAbsent || seasonNumber != null) {
-      map['season_number'] = Variable<int>(seasonNumber);
-    }
-    if (!nullToAbsent || episodeNumber != null) {
-      map['episode_number'] = Variable<int>(episodeNumber);
-    }
-    if (!nullToAbsent || episodeRatings != null) {
-      map['episode_ratings'] = Variable<String>(episodeRatings);
-    }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
@@ -894,6 +854,9 @@ class TrackingEntriesCacheData extends DataClass
       id: Value(id),
       itemId: Value(itemId),
       kind: Value(kind),
+      catalogRefJson: catalogRefJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogRefJson),
       ownedItemId: ownedItemId == null && nullToAbsent
           ? const Value.absent()
           : Value(ownedItemId),
@@ -930,15 +893,6 @@ class TrackingEntriesCacheData extends DataClass
           : Value(timesCompleted),
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
-      seasonNumber: seasonNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(seasonNumber),
-      episodeNumber: episodeNumber == null && nullToAbsent
-          ? const Value.absent()
-          : Value(episodeNumber),
-      episodeRatings: episodeRatings == null && nullToAbsent
-          ? const Value.absent()
-          : Value(episodeRatings),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -953,6 +907,7 @@ class TrackingEntriesCacheData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       kind: serializer.fromJson<String>(json['kind']),
+      catalogRefJson: serializer.fromJson<String?>(json['catalogRefJson']),
       ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
       editionId: serializer.fromJson<String?>(json['editionId']),
       variantId: serializer.fromJson<String?>(json['variantId']),
@@ -966,9 +921,6 @@ class TrackingEntriesCacheData extends DataClass
       progressTotal: serializer.fromJson<int?>(json['progressTotal']),
       timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
       notes: serializer.fromJson<String?>(json['notes']),
-      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
-      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
-      episodeRatings: serializer.fromJson<String?>(json['episodeRatings']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
@@ -980,6 +932,7 @@ class TrackingEntriesCacheData extends DataClass
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
       'kind': serializer.toJson<String>(kind),
+      'catalogRefJson': serializer.toJson<String?>(catalogRefJson),
       'ownedItemId': serializer.toJson<String?>(ownedItemId),
       'editionId': serializer.toJson<String?>(editionId),
       'variantId': serializer.toJson<String?>(variantId),
@@ -993,9 +946,6 @@ class TrackingEntriesCacheData extends DataClass
       'progressTotal': serializer.toJson<int?>(progressTotal),
       'timesCompleted': serializer.toJson<int?>(timesCompleted),
       'notes': serializer.toJson<String?>(notes),
-      'seasonNumber': serializer.toJson<int?>(seasonNumber),
-      'episodeNumber': serializer.toJson<int?>(episodeNumber),
-      'episodeRatings': serializer.toJson<String?>(episodeRatings),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
@@ -1005,6 +955,7 @@ class TrackingEntriesCacheData extends DataClass
           {String? id,
           String? itemId,
           String? kind,
+          Value<String?> catalogRefJson = const Value.absent(),
           Value<String?> ownedItemId = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
           Value<String?> variantId = const Value.absent(),
@@ -1018,15 +969,14 @@ class TrackingEntriesCacheData extends DataClass
           Value<int?> progressTotal = const Value.absent(),
           Value<int?> timesCompleted = const Value.absent(),
           Value<String?> notes = const Value.absent(),
-          Value<int?> seasonNumber = const Value.absent(),
-          Value<int?> episodeNumber = const Value.absent(),
-          Value<String?> episodeRatings = const Value.absent(),
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       TrackingEntriesCacheData(
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         kind: kind ?? this.kind,
+        catalogRefJson:
+            catalogRefJson.present ? catalogRefJson.value : this.catalogRefJson,
         ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
         editionId: editionId.present ? editionId.value : this.editionId,
         variantId: variantId.present ? variantId.value : this.variantId,
@@ -1046,12 +996,6 @@ class TrackingEntriesCacheData extends DataClass
         timesCompleted:
             timesCompleted.present ? timesCompleted.value : this.timesCompleted,
         notes: notes.present ? notes.value : this.notes,
-        seasonNumber:
-            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
-        episodeNumber:
-            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
-        episodeRatings:
-            episodeRatings.present ? episodeRatings.value : this.episodeRatings,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
       );
@@ -1061,6 +1005,9 @@ class TrackingEntriesCacheData extends DataClass
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       kind: data.kind.present ? data.kind.value : this.kind,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
       ownedItemId:
           data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
       editionId: data.editionId.present ? data.editionId.value : this.editionId,
@@ -1085,15 +1032,6 @@ class TrackingEntriesCacheData extends DataClass
           ? data.timesCompleted.value
           : this.timesCompleted,
       notes: data.notes.present ? data.notes.value : this.notes,
-      seasonNumber: data.seasonNumber.present
-          ? data.seasonNumber.value
-          : this.seasonNumber,
-      episodeNumber: data.episodeNumber.present
-          ? data.episodeNumber.value
-          : this.episodeNumber,
-      episodeRatings: data.episodeRatings.present
-          ? data.episodeRatings.value
-          : this.episodeRatings,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
@@ -1105,6 +1043,7 @@ class TrackingEntriesCacheData extends DataClass
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
@@ -1118,9 +1057,6 @@ class TrackingEntriesCacheData extends DataClass
           ..write('progressTotal: $progressTotal, ')
           ..write('timesCompleted: $timesCompleted, ')
           ..write('notes: $notes, ')
-          ..write('seasonNumber: $seasonNumber, ')
-          ..write('episodeNumber: $episodeNumber, ')
-          ..write('episodeRatings: $episodeRatings, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -1128,29 +1064,26 @@ class TrackingEntriesCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hashAll([
-        id,
-        itemId,
-        kind,
-        ownedItemId,
-        editionId,
-        variantId,
-        bundleReleaseId,
-        sourceType,
-        status,
-        rating,
-        startedAt,
-        finishedAt,
-        progressCurrent,
-        progressTotal,
-        timesCompleted,
-        notes,
-        seasonNumber,
-        episodeNumber,
-        episodeRatings,
-        updatedAt,
-        deletedAt
-      ]);
+  int get hashCode => Object.hash(
+      id,
+      itemId,
+      kind,
+      catalogRefJson,
+      ownedItemId,
+      editionId,
+      variantId,
+      bundleReleaseId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1158,6 +1091,7 @@ class TrackingEntriesCacheData extends DataClass
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.kind == this.kind &&
+          other.catalogRefJson == this.catalogRefJson &&
           other.ownedItemId == this.ownedItemId &&
           other.editionId == this.editionId &&
           other.variantId == this.variantId &&
@@ -1171,9 +1105,6 @@ class TrackingEntriesCacheData extends DataClass
           other.progressTotal == this.progressTotal &&
           other.timesCompleted == this.timesCompleted &&
           other.notes == this.notes &&
-          other.seasonNumber == this.seasonNumber &&
-          other.episodeNumber == this.episodeNumber &&
-          other.episodeRatings == this.episodeRatings &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -1183,6 +1114,7 @@ class TrackingEntriesCacheCompanion
   final Value<String> id;
   final Value<String> itemId;
   final Value<String> kind;
+  final Value<String?> catalogRefJson;
   final Value<String?> ownedItemId;
   final Value<String?> editionId;
   final Value<String?> variantId;
@@ -1196,9 +1128,6 @@ class TrackingEntriesCacheCompanion
   final Value<int?> progressTotal;
   final Value<int?> timesCompleted;
   final Value<String?> notes;
-  final Value<int?> seasonNumber;
-  final Value<int?> episodeNumber;
-  final Value<String?> episodeRatings;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<int> rowid;
@@ -1206,6 +1135,7 @@ class TrackingEntriesCacheCompanion
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.kind = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
@@ -1219,9 +1149,6 @@ class TrackingEntriesCacheCompanion
     this.progressTotal = const Value.absent(),
     this.timesCompleted = const Value.absent(),
     this.notes = const Value.absent(),
-    this.seasonNumber = const Value.absent(),
-    this.episodeNumber = const Value.absent(),
-    this.episodeRatings = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1230,6 +1157,7 @@ class TrackingEntriesCacheCompanion
     required String id,
     required String itemId,
     this.kind = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
     this.variantId = const Value.absent(),
@@ -1243,9 +1171,6 @@ class TrackingEntriesCacheCompanion
     this.progressTotal = const Value.absent(),
     this.timesCompleted = const Value.absent(),
     this.notes = const Value.absent(),
-    this.seasonNumber = const Value.absent(),
-    this.episodeNumber = const Value.absent(),
-    this.episodeRatings = const Value.absent(),
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1256,6 +1181,7 @@ class TrackingEntriesCacheCompanion
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<String>? kind,
+    Expression<String>? catalogRefJson,
     Expression<String>? ownedItemId,
     Expression<String>? editionId,
     Expression<String>? variantId,
@@ -1269,9 +1195,6 @@ class TrackingEntriesCacheCompanion
     Expression<int>? progressTotal,
     Expression<int>? timesCompleted,
     Expression<String>? notes,
-    Expression<int>? seasonNumber,
-    Expression<int>? episodeNumber,
-    Expression<String>? episodeRatings,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
@@ -1280,6 +1203,7 @@ class TrackingEntriesCacheCompanion
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
       if (kind != null) 'kind': kind,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
       if (ownedItemId != null) 'owned_item_id': ownedItemId,
       if (editionId != null) 'edition_id': editionId,
       if (variantId != null) 'variant_id': variantId,
@@ -1293,9 +1217,6 @@ class TrackingEntriesCacheCompanion
       if (progressTotal != null) 'progress_total': progressTotal,
       if (timesCompleted != null) 'times_completed': timesCompleted,
       if (notes != null) 'notes': notes,
-      if (seasonNumber != null) 'season_number': seasonNumber,
-      if (episodeNumber != null) 'episode_number': episodeNumber,
-      if (episodeRatings != null) 'episode_ratings': episodeRatings,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
@@ -1306,6 +1227,7 @@ class TrackingEntriesCacheCompanion
       {Value<String>? id,
       Value<String>? itemId,
       Value<String>? kind,
+      Value<String?>? catalogRefJson,
       Value<String?>? ownedItemId,
       Value<String?>? editionId,
       Value<String?>? variantId,
@@ -1319,9 +1241,6 @@ class TrackingEntriesCacheCompanion
       Value<int?>? progressTotal,
       Value<int?>? timesCompleted,
       Value<String?>? notes,
-      Value<int?>? seasonNumber,
-      Value<int?>? episodeNumber,
-      Value<String?>? episodeRatings,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
       Value<int>? rowid}) {
@@ -1329,6 +1248,7 @@ class TrackingEntriesCacheCompanion
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       kind: kind ?? this.kind,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
       variantId: variantId ?? this.variantId,
@@ -1342,9 +1262,6 @@ class TrackingEntriesCacheCompanion
       progressTotal: progressTotal ?? this.progressTotal,
       timesCompleted: timesCompleted ?? this.timesCompleted,
       notes: notes ?? this.notes,
-      seasonNumber: seasonNumber ?? this.seasonNumber,
-      episodeNumber: episodeNumber ?? this.episodeNumber,
-      episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
@@ -1362,6 +1279,9 @@ class TrackingEntriesCacheCompanion
     }
     if (kind.present) {
       map['kind'] = Variable<String>(kind.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
     if (ownedItemId.present) {
       map['owned_item_id'] = Variable<String>(ownedItemId.value);
@@ -1402,15 +1322,6 @@ class TrackingEntriesCacheCompanion
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
-    if (seasonNumber.present) {
-      map['season_number'] = Variable<int>(seasonNumber.value);
-    }
-    if (episodeNumber.present) {
-      map['episode_number'] = Variable<int>(episodeNumber.value);
-    }
-    if (episodeRatings.present) {
-      map['episode_ratings'] = Variable<String>(episodeRatings.value);
-    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -1429,6 +1340,7 @@ class TrackingEntriesCacheCompanion
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
           ..write('variantId: $variantId, ')
@@ -1442,9 +1354,6 @@ class TrackingEntriesCacheCompanion
           ..write('progressTotal: $progressTotal, ')
           ..write('timesCompleted: $timesCompleted, ')
           ..write('notes: $notes, ')
-          ..write('seasonNumber: $seasonNumber, ')
-          ..write('episodeNumber: $episodeNumber, ')
-          ..write('episodeRatings: $episodeRatings, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
@@ -1476,6 +1385,12 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('unknown'));
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _trackingEntryIdMeta =
       const VerificationMeta('trackingEntryId');
   @override
@@ -1535,6 +1450,7 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
         id,
         itemId,
         kind,
+        targetRefJson,
         trackingEntryId,
         ownedItemId,
         editionId,
@@ -1570,6 +1486,12 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
     if (data.containsKey('kind')) {
       context.handle(
           _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('tracking_entry_id')) {
       context.handle(
@@ -1636,6 +1558,8 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
           .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
       kind: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
       ownedItemId: attachedDatabase.typeMapping
@@ -1668,6 +1592,7 @@ class TrackingUnitsCacheData extends DataClass
   final String id;
   final String itemId;
   final String kind;
+  final String? targetRefJson;
   final String? trackingEntryId;
   final String? ownedItemId;
   final String? editionId;
@@ -1681,6 +1606,7 @@ class TrackingUnitsCacheData extends DataClass
       {required this.id,
       required this.itemId,
       required this.kind,
+      this.targetRefJson,
       this.trackingEntryId,
       this.ownedItemId,
       this.editionId,
@@ -1696,6 +1622,9 @@ class TrackingUnitsCacheData extends DataClass
     map['id'] = Variable<String>(id);
     map['item_id'] = Variable<String>(itemId);
     map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
+    }
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
@@ -1725,6 +1654,9 @@ class TrackingUnitsCacheData extends DataClass
       id: Value(id),
       itemId: Value(itemId),
       kind: Value(kind),
+      targetRefJson: targetRefJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetRefJson),
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
@@ -1756,6 +1688,7 @@ class TrackingUnitsCacheData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       itemId: serializer.fromJson<String>(json['itemId']),
       kind: serializer.fromJson<String>(json['kind']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
       ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
       editionId: serializer.fromJson<String?>(json['editionId']),
@@ -1774,6 +1707,7 @@ class TrackingUnitsCacheData extends DataClass
       'id': serializer.toJson<String>(id),
       'itemId': serializer.toJson<String>(itemId),
       'kind': serializer.toJson<String>(kind),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
       'ownedItemId': serializer.toJson<String?>(ownedItemId),
       'editionId': serializer.toJson<String?>(editionId),
@@ -1790,6 +1724,7 @@ class TrackingUnitsCacheData extends DataClass
           {String? id,
           String? itemId,
           String? kind,
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> trackingEntryId = const Value.absent(),
           Value<String?> ownedItemId = const Value.absent(),
           Value<String?> editionId = const Value.absent(),
@@ -1803,6 +1738,8 @@ class TrackingUnitsCacheData extends DataClass
         id: id ?? this.id,
         itemId: itemId ?? this.itemId,
         kind: kind ?? this.kind,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
@@ -1822,6 +1759,9 @@ class TrackingUnitsCacheData extends DataClass
       id: data.id.present ? data.id.value : this.id,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       kind: data.kind.present ? data.kind.value : this.kind,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
@@ -1846,6 +1786,7 @@ class TrackingUnitsCacheData extends DataClass
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
@@ -1864,6 +1805,7 @@ class TrackingUnitsCacheData extends DataClass
       id,
       itemId,
       kind,
+      targetRefJson,
       trackingEntryId,
       ownedItemId,
       editionId,
@@ -1880,6 +1822,7 @@ class TrackingUnitsCacheData extends DataClass
           other.id == this.id &&
           other.itemId == this.itemId &&
           other.kind == this.kind &&
+          other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
           other.ownedItemId == this.ownedItemId &&
           other.editionId == this.editionId &&
@@ -1896,6 +1839,7 @@ class TrackingUnitsCacheCompanion
   final Value<String> id;
   final Value<String> itemId;
   final Value<String> kind;
+  final Value<String?> targetRefJson;
   final Value<String?> trackingEntryId;
   final Value<String?> ownedItemId;
   final Value<String?> editionId;
@@ -1910,6 +1854,7 @@ class TrackingUnitsCacheCompanion
     this.id = const Value.absent(),
     this.itemId = const Value.absent(),
     this.kind = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
@@ -1925,6 +1870,7 @@ class TrackingUnitsCacheCompanion
     required String id,
     required String itemId,
     this.kind = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
     this.ownedItemId = const Value.absent(),
     this.editionId = const Value.absent(),
@@ -1944,6 +1890,7 @@ class TrackingUnitsCacheCompanion
     Expression<String>? id,
     Expression<String>? itemId,
     Expression<String>? kind,
+    Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
     Expression<String>? ownedItemId,
     Expression<String>? editionId,
@@ -1959,6 +1906,7 @@ class TrackingUnitsCacheCompanion
       if (id != null) 'id': id,
       if (itemId != null) 'item_id': itemId,
       if (kind != null) 'kind': kind,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
       if (ownedItemId != null) 'owned_item_id': ownedItemId,
       if (editionId != null) 'edition_id': editionId,
@@ -1976,6 +1924,7 @@ class TrackingUnitsCacheCompanion
       {Value<String>? id,
       Value<String>? itemId,
       Value<String>? kind,
+      Value<String?>? targetRefJson,
       Value<String?>? trackingEntryId,
       Value<String?>? ownedItemId,
       Value<String?>? editionId,
@@ -1990,6 +1939,7 @@ class TrackingUnitsCacheCompanion
       id: id ?? this.id,
       itemId: itemId ?? this.itemId,
       kind: kind ?? this.kind,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       ownedItemId: ownedItemId ?? this.ownedItemId,
       editionId: editionId ?? this.editionId,
@@ -2014,6 +1964,9 @@ class TrackingUnitsCacheCompanion
     }
     if (kind.present) {
       map['kind'] = Variable<String>(kind.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
@@ -2054,6 +2007,7 @@ class TrackingUnitsCacheCompanion
           ..write('id: $id, ')
           ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
           ..write('ownedItemId: $ownedItemId, ')
           ..write('editionId: $editionId, ')
@@ -48010,6 +47964,296 @@ class TvCustomEpisodeRowsCompanion extends UpdateCompanion<TvCustomEpisodeRow> {
   }
 }
 
+class $TvTrackingRowsTable extends TvTrackingRows
+    with TableInfo<$TvTrackingRowsTable, TvTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TvTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _seasonNumberMeta =
+      const VerificationMeta('seasonNumber');
+  @override
+  late final GeneratedColumn<int> seasonNumber = GeneratedColumn<int>(
+      'season_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeNumberMeta =
+      const VerificationMeta('episodeNumber');
+  @override
+  late final GeneratedColumn<int> episodeNumber = GeneratedColumn<int>(
+      'episode_number', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _episodeRatingsJsonMeta =
+      const VerificationMeta('episodeRatingsJson');
+  @override
+  late final GeneratedColumn<String> episodeRatingsJson =
+      GeneratedColumn<String>('episode_ratings_json', aliasedName, false,
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, seasonNumber, episodeNumber, episodeRatingsJson];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tv_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<TvTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('season_number')) {
+      context.handle(
+          _seasonNumberMeta,
+          seasonNumber.isAcceptableOrUnknown(
+              data['season_number']!, _seasonNumberMeta));
+    }
+    if (data.containsKey('episode_number')) {
+      context.handle(
+          _episodeNumberMeta,
+          episodeNumber.isAcceptableOrUnknown(
+              data['episode_number']!, _episodeNumberMeta));
+    }
+    if (data.containsKey('episode_ratings_json')) {
+      context.handle(
+          _episodeRatingsJsonMeta,
+          episodeRatingsJson.isAcceptableOrUnknown(
+              data['episode_ratings_json']!, _episodeRatingsJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TvTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TvTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      seasonNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
+      episodeNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}episode_number']),
+      episodeRatingsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}episode_ratings_json'])!,
+    );
+  }
+
+  @override
+  $TvTrackingRowsTable createAlias(String alias) {
+    return $TvTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
+  final String id;
+  final int? seasonNumber;
+  final int? episodeNumber;
+  final String episodeRatingsJson;
+  const TvTrackingRow(
+      {required this.id,
+      this.seasonNumber,
+      this.episodeNumber,
+      required this.episodeRatingsJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || seasonNumber != null) {
+      map['season_number'] = Variable<int>(seasonNumber);
+    }
+    if (!nullToAbsent || episodeNumber != null) {
+      map['episode_number'] = Variable<int>(episodeNumber);
+    }
+    map['episode_ratings_json'] = Variable<String>(episodeRatingsJson);
+    return map;
+  }
+
+  TvTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return TvTrackingRowsCompanion(
+      id: Value(id),
+      seasonNumber: seasonNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(seasonNumber),
+      episodeNumber: episodeNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(episodeNumber),
+      episodeRatingsJson: Value(episodeRatingsJson),
+    );
+  }
+
+  factory TvTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TvTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
+      episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
+      episodeRatingsJson:
+          serializer.fromJson<String>(json['episodeRatingsJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'seasonNumber': serializer.toJson<int?>(seasonNumber),
+      'episodeNumber': serializer.toJson<int?>(episodeNumber),
+      'episodeRatingsJson': serializer.toJson<String>(episodeRatingsJson),
+    };
+  }
+
+  TvTrackingRow copyWith(
+          {String? id,
+          Value<int?> seasonNumber = const Value.absent(),
+          Value<int?> episodeNumber = const Value.absent(),
+          String? episodeRatingsJson}) =>
+      TvTrackingRow(
+        id: id ?? this.id,
+        seasonNumber:
+            seasonNumber.present ? seasonNumber.value : this.seasonNumber,
+        episodeNumber:
+            episodeNumber.present ? episodeNumber.value : this.episodeNumber,
+        episodeRatingsJson: episodeRatingsJson ?? this.episodeRatingsJson,
+      );
+  TvTrackingRow copyWithCompanion(TvTrackingRowsCompanion data) {
+    return TvTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      seasonNumber: data.seasonNumber.present
+          ? data.seasonNumber.value
+          : this.seasonNumber,
+      episodeNumber: data.episodeNumber.present
+          ? data.episodeNumber.value
+          : this.episodeNumber,
+      episodeRatingsJson: data.episodeRatingsJson.present
+          ? data.episodeRatingsJson.value
+          : this.episodeRatingsJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvTrackingRow(')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('episodeRatingsJson: $episodeRatingsJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, seasonNumber, episodeNumber, episodeRatingsJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TvTrackingRow &&
+          other.id == this.id &&
+          other.seasonNumber == this.seasonNumber &&
+          other.episodeNumber == this.episodeNumber &&
+          other.episodeRatingsJson == this.episodeRatingsJson);
+}
+
+class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
+  final Value<String> id;
+  final Value<int?> seasonNumber;
+  final Value<int?> episodeNumber;
+  final Value<String> episodeRatingsJson;
+  final Value<int> rowid;
+  const TvTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.episodeRatingsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TvTrackingRowsCompanion.insert({
+    required String id,
+    this.seasonNumber = const Value.absent(),
+    this.episodeNumber = const Value.absent(),
+    this.episodeRatingsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<TvTrackingRow> custom({
+    Expression<String>? id,
+    Expression<int>? seasonNumber,
+    Expression<int>? episodeNumber,
+    Expression<String>? episodeRatingsJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (seasonNumber != null) 'season_number': seasonNumber,
+      if (episodeNumber != null) 'episode_number': episodeNumber,
+      if (episodeRatingsJson != null)
+        'episode_ratings_json': episodeRatingsJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TvTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<int?>? seasonNumber,
+      Value<int?>? episodeNumber,
+      Value<String>? episodeRatingsJson,
+      Value<int>? rowid}) {
+    return TvTrackingRowsCompanion(
+      id: id ?? this.id,
+      seasonNumber: seasonNumber ?? this.seasonNumber,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      episodeRatingsJson: episodeRatingsJson ?? this.episodeRatingsJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (seasonNumber.present) {
+      map['season_number'] = Variable<int>(seasonNumber.value);
+    }
+    if (episodeNumber.present) {
+      map['episode_number'] = Variable<int>(episodeNumber.value);
+    }
+    if (episodeRatingsJson.present) {
+      map['episode_ratings_json'] = Variable<String>(episodeRatingsJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TvTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('seasonNumber: $seasonNumber, ')
+          ..write('episodeNumber: $episodeNumber, ')
+          ..write('episodeRatingsJson: $episodeRatingsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
     with TableInfo<$TvTrackingUnitRowsTable, TvTrackingUnitRow> {
   @override
@@ -48369,6 +48613,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $TvEpisodeProgressRowsTable(this);
   late final $TvCustomEpisodeRowsTable tvCustomEpisodeRows =
       $TvCustomEpisodeRowsTable(this);
+  late final $TvTrackingRowsTable tvTrackingRows = $TvTrackingRowsTable(this);
   late final $TvTrackingUnitRowsTable tvTrackingUnitRows =
       $TvTrackingUnitRowsTable(this);
   @override
@@ -48439,6 +48684,7 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         tvWatchSessionRows,
         tvEpisodeProgressRows,
         tvCustomEpisodeRows,
+        tvTrackingRows,
         tvTrackingUnitRows
       ];
 }
@@ -48674,6 +48920,7 @@ typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
   required String id,
   required String itemId,
   Value<String> kind,
+  Value<String?> catalogRefJson,
   Value<String?> ownedItemId,
   Value<String?> editionId,
   Value<String?> variantId,
@@ -48687,9 +48934,6 @@ typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
   Value<int?> progressTotal,
   Value<int?> timesCompleted,
   Value<String?> notes,
-  Value<int?> seasonNumber,
-  Value<int?> episodeNumber,
-  Value<String?> episodeRatings,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -48699,6 +48943,7 @@ typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> itemId,
   Value<String> kind,
+  Value<String?> catalogRefJson,
   Value<String?> ownedItemId,
   Value<String?> editionId,
   Value<String?> variantId,
@@ -48712,9 +48957,6 @@ typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
   Value<int?> progressTotal,
   Value<int?> timesCompleted,
   Value<String?> notes,
-  Value<int?> seasonNumber,
-  Value<int?> episodeNumber,
-  Value<String?> episodeRatings,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
   Value<int> rowid,
@@ -48737,6 +48979,10 @@ class $$TrackingEntriesCacheTableFilterComposer
 
   ColumnFilters<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get ownedItemId => $composableBuilder(
       column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
@@ -48780,16 +49026,6 @@ class $$TrackingEntriesCacheTableFilterComposer
   ColumnFilters<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get seasonNumber => $composableBuilder(
-      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get episodeNumber => $composableBuilder(
-      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get episodeRatings => $composableBuilder(
-      column: $table.episodeRatings,
-      builder: (column) => ColumnFilters(column));
-
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 
@@ -48814,6 +49050,10 @@ class $$TrackingEntriesCacheTableOrderingComposer
 
   ColumnOrderings<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get ownedItemId => $composableBuilder(
       column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
@@ -48858,18 +49098,6 @@ class $$TrackingEntriesCacheTableOrderingComposer
   ColumnOrderings<String> get notes => $composableBuilder(
       column: $table.notes, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get seasonNumber => $composableBuilder(
-      column: $table.seasonNumber,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get episodeNumber => $composableBuilder(
-      column: $table.episodeNumber,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get episodeRatings => $composableBuilder(
-      column: $table.episodeRatings,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
@@ -48894,6 +49122,9 @@ class $$TrackingEntriesCacheTableAnnotationComposer
 
   GeneratedColumn<String> get kind =>
       $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get ownedItemId => $composableBuilder(
       column: $table.ownedItemId, builder: (column) => column);
@@ -48933,15 +49164,6 @@ class $$TrackingEntriesCacheTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<int> get seasonNumber => $composableBuilder(
-      column: $table.seasonNumber, builder: (column) => column);
-
-  GeneratedColumn<int> get episodeNumber => $composableBuilder(
-      column: $table.episodeNumber, builder: (column) => column);
-
-  GeneratedColumn<String> get episodeRatings => $composableBuilder(
-      column: $table.episodeRatings, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -48983,6 +49205,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
             Value<String> kind = const Value.absent(),
+            Value<String?> catalogRefJson = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
@@ -48996,9 +49219,6 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<int?> progressTotal = const Value.absent(),
             Value<int?> timesCompleted = const Value.absent(),
             Value<String?> notes = const Value.absent(),
-            Value<int?> seasonNumber = const Value.absent(),
-            Value<int?> episodeNumber = const Value.absent(),
-            Value<String?> episodeRatings = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -49007,6 +49227,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             id: id,
             itemId: itemId,
             kind: kind,
+            catalogRefJson: catalogRefJson,
             ownedItemId: ownedItemId,
             editionId: editionId,
             variantId: variantId,
@@ -49020,9 +49241,6 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             progressTotal: progressTotal,
             timesCompleted: timesCompleted,
             notes: notes,
-            seasonNumber: seasonNumber,
-            episodeNumber: episodeNumber,
-            episodeRatings: episodeRatings,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -49031,6 +49249,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             required String id,
             required String itemId,
             Value<String> kind = const Value.absent(),
+            Value<String?> catalogRefJson = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
             Value<String?> variantId = const Value.absent(),
@@ -49044,9 +49263,6 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             Value<int?> progressTotal = const Value.absent(),
             Value<int?> timesCompleted = const Value.absent(),
             Value<String?> notes = const Value.absent(),
-            Value<int?> seasonNumber = const Value.absent(),
-            Value<int?> episodeNumber = const Value.absent(),
-            Value<String?> episodeRatings = const Value.absent(),
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -49055,6 +49271,7 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             id: id,
             itemId: itemId,
             kind: kind,
+            catalogRefJson: catalogRefJson,
             ownedItemId: ownedItemId,
             editionId: editionId,
             variantId: variantId,
@@ -49068,9 +49285,6 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
             progressTotal: progressTotal,
             timesCompleted: timesCompleted,
             notes: notes,
-            seasonNumber: seasonNumber,
-            episodeNumber: episodeNumber,
-            episodeRatings: episodeRatings,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
             rowid: rowid,
@@ -49104,6 +49318,7 @@ typedef $$TrackingUnitsCacheTableCreateCompanionBuilder
   required String id,
   required String itemId,
   Value<String> kind,
+  Value<String?> targetRefJson,
   Value<String?> trackingEntryId,
   Value<String?> ownedItemId,
   Value<String?> editionId,
@@ -49120,6 +49335,7 @@ typedef $$TrackingUnitsCacheTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> itemId,
   Value<String> kind,
+  Value<String?> targetRefJson,
   Value<String?> trackingEntryId,
   Value<String?> ownedItemId,
   Value<String?> editionId,
@@ -49149,6 +49365,9 @@ class $$TrackingUnitsCacheTableFilterComposer
 
   ColumnFilters<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId,
@@ -49198,6 +49417,10 @@ class $$TrackingUnitsCacheTableOrderingComposer
   ColumnOrderings<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
@@ -49245,6 +49468,9 @@ class $$TrackingUnitsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get kind =>
       $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
@@ -49306,6 +49532,7 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> itemId = const Value.absent(),
             Value<String> kind = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
@@ -49321,6 +49548,7 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
             id: id,
             itemId: itemId,
             kind: kind,
+            targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
             ownedItemId: ownedItemId,
             editionId: editionId,
@@ -49336,6 +49564,7 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
             required String id,
             required String itemId,
             Value<String> kind = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> editionId = const Value.absent(),
@@ -49351,6 +49580,7 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
             id: id,
             itemId: itemId,
             kind: kind,
+            targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
             ownedItemId: ownedItemId,
             editionId: editionId,
@@ -69874,6 +70104,169 @@ typedef $$TvCustomEpisodeRowsTableProcessedTableManager = ProcessedTableManager<
     ),
     TvCustomEpisodeRow,
     PrefetchHooks Function()>;
+typedef $$TvTrackingRowsTableCreateCompanionBuilder = TvTrackingRowsCompanion
+    Function({
+  required String id,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<String> episodeRatingsJson,
+  Value<int> rowid,
+});
+typedef $$TvTrackingRowsTableUpdateCompanionBuilder = TvTrackingRowsCompanion
+    Function({
+  Value<String> id,
+  Value<int?> seasonNumber,
+  Value<int?> episodeNumber,
+  Value<String> episodeRatingsJson,
+  Value<int> rowid,
+});
+
+class $$TvTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $TvTrackingRowsTable> {
+  $$TvTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get episodeRatingsJson => $composableBuilder(
+      column: $table.episodeRatingsJson,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TvTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $TvTrackingRowsTable> {
+  $$TvTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get episodeRatingsJson => $composableBuilder(
+      column: $table.episodeRatingsJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TvTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $TvTrackingRowsTable> {
+  $$TvTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get seasonNumber => $composableBuilder(
+      column: $table.seasonNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get episodeNumber => $composableBuilder(
+      column: $table.episodeNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get episodeRatingsJson => $composableBuilder(
+      column: $table.episodeRatingsJson, builder: (column) => column);
+}
+
+class $$TvTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $TvTrackingRowsTable,
+    TvTrackingRow,
+    $$TvTrackingRowsTableFilterComposer,
+    $$TvTrackingRowsTableOrderingComposer,
+    $$TvTrackingRowsTableAnnotationComposer,
+    $$TvTrackingRowsTableCreateCompanionBuilder,
+    $$TvTrackingRowsTableUpdateCompanionBuilder,
+    (
+      TvTrackingRow,
+      BaseReferences<_$LocalDatabase, $TvTrackingRowsTable, TvTrackingRow>
+    ),
+    TvTrackingRow,
+    PrefetchHooks Function()> {
+  $$TvTrackingRowsTableTableManager(
+      _$LocalDatabase db, $TvTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TvTrackingRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TvTrackingRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TvTrackingRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<String> episodeRatingsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvTrackingRowsCompanion(
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            episodeRatingsJson: episodeRatingsJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<int?> seasonNumber = const Value.absent(),
+            Value<int?> episodeNumber = const Value.absent(),
+            Value<String> episodeRatingsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TvTrackingRowsCompanion.insert(
+            id: id,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            episodeRatingsJson: episodeRatingsJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TvTrackingRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $TvTrackingRowsTable,
+    TvTrackingRow,
+    $$TvTrackingRowsTableFilterComposer,
+    $$TvTrackingRowsTableOrderingComposer,
+    $$TvTrackingRowsTableAnnotationComposer,
+    $$TvTrackingRowsTableCreateCompanionBuilder,
+    $$TvTrackingRowsTableUpdateCompanionBuilder,
+    (
+      TvTrackingRow,
+      BaseReferences<_$LocalDatabase, $TvTrackingRowsTable, TvTrackingRow>
+    ),
+    TvTrackingRow,
+    PrefetchHooks Function()>;
 typedef $$TvTrackingUnitRowsTableCreateCompanionBuilder
     = TvTrackingUnitRowsCompanion Function({
   required String id,
@@ -70164,6 +70557,8 @@ class $LocalDatabaseManager {
       $$TvEpisodeProgressRowsTableTableManager(_db, _db.tvEpisodeProgressRows);
   $$TvCustomEpisodeRowsTableTableManager get tvCustomEpisodeRows =>
       $$TvCustomEpisodeRowsTableTableManager(_db, _db.tvCustomEpisodeRows);
+  $$TvTrackingRowsTableTableManager get tvTrackingRows =>
+      $$TvTrackingRowsTableTableManager(_db, _db.tvTrackingRows);
   $$TvTrackingUnitRowsTableTableManager get tvTrackingUnitRows =>
       $$TvTrackingUnitRowsTableTableManager(_db, _db.tvTrackingUnitRows);
 }

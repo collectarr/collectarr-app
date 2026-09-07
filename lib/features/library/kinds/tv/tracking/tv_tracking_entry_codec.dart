@@ -7,7 +7,10 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
-/// TV-owned tracking-entry coordinates stored beside the shared lifecycle row.
+/// TV-owned tracking-entry coordinates.
+///
+/// The universal tracking index stores only lifecycle and structural reference
+/// data. TV episode coordinates live in [TvTrackingRows].
 final class TvTrackingEntryCodec implements TrackingEntryCodec {
   const TvTrackingEntryCodec();
 
@@ -21,8 +24,7 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
   ) async {
     final values = ids?.toSet().toList(growable: false);
     if (values != null && values.isEmpty) return const {};
-    final query = db.select(db.trackingEntriesCache)
-      ..where((row) => row.kind.equals(kind.apiValue));
+    final query = db.select(db.tvTrackingRows);
     if (values != null) {
       query.where((row) => row.id.isIn(values));
     }
@@ -32,20 +34,19 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
         row.id: _TvTrackingEntryCoordinates(
           seasonNumber: row.seasonNumber,
           episodeNumber: row.episodeNumber,
-          episodeRatings: _decodeEpisodeRatings(row.episodeRatings),
+          episodeRatings: _decodeEpisodeRatings(row.episodeRatingsJson),
         ),
     };
   }
 
   @override
   Future<void> clearCoordinates(LocalDatabase db, String id) async {
-    await (db.update(db.trackingEntriesCache)
-          ..where((row) => row.id.equals(id)))
+    await (db.update(db.tvTrackingRows)..where((row) => row.id.equals(id)))
         .write(
-      const TrackingEntriesCacheCompanion(
+      const TvTrackingRowsCompanion(
         seasonNumber: Value(null),
         episodeNumber: Value(null),
-        episodeRatings: Value(null),
+        episodeRatingsJson: Value('{}'),
       ),
     );
   }
@@ -59,15 +60,15 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
         'Expected TV tracking entry',
       );
     }
-    await (db.update(db.trackingEntriesCache)
-          ..where((row) => row.id.equals(entry.id)))
-        .write(
-      TrackingEntriesCacheCompanion(
-        seasonNumber: Value(entry.seasonNumber),
-        episodeNumber: Value(entry.episodeNumber),
-        episodeRatings: Value(_encodeEpisodeRatings(entry.episodeRatings)),
-      ),
-    );
+    await db.into(db.tvTrackingRows).insertOnConflictUpdate(
+          TvTrackingRowsCompanion.insert(
+            id: entry.id,
+            seasonNumber: Value(entry.seasonNumber),
+            episodeNumber: Value(entry.episodeNumber),
+            episodeRatingsJson:
+                Value(_encodeEpisodeRatings(entry.episodeRatings) ?? '{}'),
+          ),
+        );
   }
 
   @override

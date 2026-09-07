@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
 import '../../helpers/secure_storage_mock.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -44,14 +44,14 @@ void main() {
             sortOrder: const Value(2),
           ),
         );
-    await OwnedItemsRepository(db).upsert(
-      testOwnedItem(
+    await MovieOwnedRepository(db).upsert(
+      testMovieOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',
         kind: 'movie',
         locationId: 'loc-a',
         updatedAt: DateTime.utc(2026, 5, 23),
-      ),
+      )),
     );
 
     final ownedItem = testOwnedItem(
@@ -89,7 +89,7 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
     await pumpUntilSettled(tester);
 
-    final updated = (await OwnedItemsRepository(db).listActive()).single;
+    final updated = (await MovieOwnedRepository(db).listActive()).single;
     expect(updated.locationId, 'loc-b');
   });
 

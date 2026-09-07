@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_tracking_
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
@@ -180,7 +181,7 @@ void main() {
       final success = await controller.submitSelectedItem(item);
       expect(success, true);
 
-      final owned = (await OwnedItemsRepository(db).listActive()).single;
+      final owned = (await ComicOwnedRepository(db).listActive()).single;
       expect(owned.itemId, 'comic-sub-1');
     });
 
@@ -700,7 +701,7 @@ void main() {
       expect(cachedItem.payload['publisher'], 'DC Comics');
 
       // Verify owned item record exists in DB
-      final ownedItems = await OwnedItemsRepository(db).listActive();
+      final ownedItems = await ComicOwnedRepository(db).listActive();
       final matchingOwnedItems = ownedItems.where(
         (item) => item.itemId == expectedProvisionalId,
       );

@@ -1,10 +1,9 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -43,8 +42,8 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await OwnedItemsRepository(db).upsert(
-      testOwnedItem(
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         kind: 'comic',
@@ -58,7 +57,7 @@ void main() {
         keyComic: true,
         readStatus: 'read',
         updatedAt: DateTime.utc(2026, 5, 11),
-      ),
+      )),
     );
     await db.into(db.wishlistItemsCache).insert(
           WishlistItemsCacheCompanion.insert(
@@ -133,8 +132,8 @@ void main() {
         'item_number': '8A',
       }),
     ]);
-    await OwnedItemsRepository(db).upsert(
-      testOwnedItem(
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         kind: 'comic',
@@ -144,7 +143,7 @@ void main() {
         currency: 'USD',
         quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 11),
-      ),
+      )),
     );
 
     await tester.pumpWidget(

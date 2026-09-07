@@ -517,7 +517,7 @@ String _renderRegistry(List<_KindDescriptor> descriptors) {
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
@@ -1034,23 +1034,6 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
-    'final collectarrOwnedItemPersisters = '
-    '<CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem)>{',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final repository = persistence.repository.className;
-    final projection = persistence.projection.className;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: (database, item) => '
-      '$repository(database).upsert($projection.fromOwnedItem(item)),',
-    );
-  }
-  buffer.writeln('};');
-  buffer.writeln();
-
-  buffer.writeln(
     'final collectarrTypedOwnedLocationUpdaters = '
     '<CatalogMediaKind, Future<void> Function(LocalDatabase, String, String?)>{',
   );
@@ -1228,57 +1211,6 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
-    'final collectarrOwnedItemSerializers = '
-    '<CatalogMediaKind, OwnedItem Function(Object)>{',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final projection = persistence.projection.className;
-    final ownedModel = persistence.ownedModel.className;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: (item) => '
-      '$projection.toOwnedItem(item as $ownedModel),',
-    );
-  }
-  buffer.writeln('};');
-  buffer.writeln();
-
-  buffer.writeln(
-    'final collectarrOwnedItemDeserializers = '
-    '<CatalogMediaKind, Object Function(OwnedItem)>{',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final projection = persistence.projection.className;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: '
-      '$projection.fromOwnedItem,',
-    );
-  }
-  buffer.writeln('};');
-  buffer.writeln();
-
-  buffer.writeln(
-    'final collectarrOwnedItemReaders = '
-    '<CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final repository = persistence.repository.className;
-    final projection = persistence.projection.className;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: (database) async => '
-      '(await $repository(database).listActive())'
-      '.map($projection.toOwnedItem).toList(growable: false),',
-    );
-  }
-  buffer.writeln('};');
-  buffer.writeln();
-
-  buffer.writeln(
     'final collectarrOwnedItemSummaryReaders = '
     '<CatalogMediaKind, Future<List<OwnedItemSummary>> Function(LocalDatabase)>{',
   );
@@ -1295,50 +1227,6 @@ void _renderOwnedPersistenceMaps(
   }
   buffer.writeln('};');
   buffer.writeln();
-
-  buffer.writeln(
-    'final collectarrOwnedItemFinders = '
-    '<CatalogMediaKind, Future<OwnedItem?> Function(LocalDatabase, String)>{',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final repository = persistence.repository.className;
-    final projection = persistence.projection.className;
-    final ownedId = persistence.ownedId.className;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: (database, id) async => '
-      '_collectarrOwnedToCommon('
-      'await $repository(database).findById($ownedId(id)), '
-      '$projection.toOwnedItem),',
-    );
-  }
-  buffer.writeln('};');
-  buffer.writeln();
-
-  buffer.writeln(
-    'final collectarrOwnedItemDeleters = '
-    '<CatalogMediaKind, Future<void> Function(LocalDatabase, OwnedItem, DateTime)>{',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final repository = persistence.repository.className;
-    final projection = persistence.projection.className;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: (database, item, deletedAt) => '
-      '$repository(database).markDeleted('
-      '$projection.fromOwnedItem(item), deletedAt),',
-    );
-  }
-  buffer.writeln('};');
-  buffer.writeln();
-  buffer.writeln('OwnedItem? _collectarrOwnedToCommon<T>(');
-  buffer.writeln('  T? item,');
-  buffer.writeln('  OwnedItem Function(T item) project,');
-  buffer.writeln(') {');
-  buffer.writeln('  return item == null ? null : project(item);');
-  buffer.writeln('}');
 }
 
 void _renderCatalogRepositoryCodecs(

@@ -18,6 +18,9 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -137,10 +140,8 @@ void main() {
       kind: 'music',
       title: 'Test album',
     );
-    final ownedRepository = harness.ref.read(
-      ownedItemsRepositoryProvider,
-    );
-    await ownedRepository.upsert(owned);
+    final ownedRepository = MusicOwnedRepository(db);
+    await ownedRepository.upsert(MusicOwnedItem.fromJson(owned.toJson()));
     harness.selectedBucket = 'Very Good';
 
     final affected =
@@ -164,7 +165,7 @@ void main() {
 
     expect(affected, 1);
     expect(harness.selectedBucket, 'Mint');
-    final updated = await ownedRepository.findById(owned.id);
+    final updated = await ownedRepository.findById(MusicOwnedItemId(owned.id));
     expect(updated?.condition, 'Mint');
   });
 

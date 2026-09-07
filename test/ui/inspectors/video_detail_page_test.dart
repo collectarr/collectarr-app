@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -22,6 +24,25 @@ import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
+  OwnedItemSummary movieOwnedSummary({
+    required String id,
+    required String itemId,
+  }) {
+    return OwnedItemSummary(
+      ref: OwnedItemRef(
+        kind: CatalogMediaKind.movie,
+        id: OwnedItemId(id),
+      ),
+      title: 'Spirited Away',
+      catalogRef: CatalogEntityRef(
+        kind: 'movie',
+        entityType: CatalogEntityType.edition,
+        id: 'edition-4k',
+        rootId: itemId,
+      ),
+    );
+  }
+
   testWidgets('double tap on a video card opens the release browser',
       (tester) async {
     tester.view.physicalSize = kDesktopTestSize;
@@ -116,12 +137,9 @@ void main() {
         overrides: [
           collectionProvider.overrideWith(
             (ref) async => [
-              testOwnedItem(
+              movieOwnedSummary(
                 id: 'owned-1',
                 itemId: 'movie-1',
-                editionId: 'edition-4k',
-                quantity: 1,
-                updatedAt: DateTime.utc(2026, 5, 25, 10),
               ),
             ],
           ),
@@ -247,7 +265,7 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <OwnedItem>[],
+            (ref) async => const <OwnedItemSummary>[],
           ),
           wishlistProvider.overrideWith(
             (ref) async => [
@@ -347,7 +365,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          collectionProvider.overrideWith((ref) async => const <OwnedItem>[]),
+          collectionProvider.overrideWith(
+            (ref) async => const <OwnedItemSummary>[],
+          ),
           wishlistProvider.overrideWith((ref) async => const <WishlistItem>[]),
           watchSessionsByItemProvider.overrideWith(
             (ref) => const <String, List<WatchSession>>{},

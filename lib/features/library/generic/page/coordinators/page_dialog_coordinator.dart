@@ -388,14 +388,10 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final ownedItems = await _page.ref.read(collectionProvider.future);
-    final visibleIds = <String>{
+    final items = <OwnedItem>{
       for (final item in projection.filteredItems)
-        if (item.source.ownedItem?.id != null) item.source.ownedItem!.id,
-    };
-    final items = ownedItems
-        .where((o) => !o.isDeleted && visibleIds.contains(o.id))
-        .toList(growable: false);
+        if (item.source.ownedItem case final owned?) owned,
+    }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
     final mutations = _page.ref.read(ownedItemMutationsProvider);
@@ -435,16 +431,11 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final ownedItems = await _page.ref.read(collectionProvider.future);
-    final visibleIds = <String>{
+    final items = <OwnedItem>{
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.node.id) &&
-            item.source.ownedItem?.id != null)
-          item.source.ownedItem!.id,
-    };
-    final items = ownedItems
-        .where((o) => !o.isDeleted && visibleIds.contains(o.id))
-        .toList(growable: false);
+        if (_page.selection.itemIds.contains(item.node.id))
+          if (item.source.ownedItem case final owned?) owned,
+    }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
     final mutations = _page.ref.read(ownedItemMutationsProvider);

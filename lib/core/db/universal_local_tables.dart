@@ -83,6 +83,7 @@ class TrackingEntriesCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   TextColumn get kind => text().withDefault(const Constant('unknown'))();
+  TextColumn get catalogRefJson => text().nullable()();
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get editionId => text().nullable()();
   TextColumn get variantId => text().nullable()();
@@ -96,9 +97,6 @@ class TrackingEntriesCache extends Table {
   IntColumn get progressTotal => integer().nullable()();
   IntColumn get timesCompleted => integer().nullable()();
   TextColumn get notes => text().nullable()();
-  IntColumn get seasonNumber => integer().nullable()();
-  IntColumn get episodeNumber => integer().nullable()();
-  TextColumn get episodeRatings => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
@@ -110,6 +108,7 @@ class TrackingUnitsCache extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
   TextColumn get kind => text().withDefault(const Constant('unknown'))();
+  TextColumn get targetRefJson => text().nullable()();
   TextColumn get trackingEntryId => text().nullable()();
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get editionId => text().nullable()();

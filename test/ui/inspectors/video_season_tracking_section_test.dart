@@ -96,11 +96,13 @@ void main() {
     expect(units.single.deletedAt, isNull);
 
     final entries = await db.select(db.trackingEntriesCache).get();
+    final tvTrackingEntries = await db.select(db.tvTrackingRows).get();
     expect(entries, hasLength(1));
     expect(entries.single.itemId, itemId);
     expect(entries.single.progressCurrent, 1);
-    expect(entries.single.seasonNumber, 1);
-    expect(entries.single.episodeNumber, 1);
+    expect(tvTrackingEntries, hasLength(1));
+    expect(tvTrackingEntries.single.seasonNumber, 1);
+    expect(tvTrackingEntries.single.episodeNumber, 1);
   }, skip: true);
 }
 

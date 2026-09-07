@@ -2,16 +2,15 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
@@ -69,9 +68,9 @@ void main() {
       ),
     );
 
-    final row = (await OwnedItemsRepository(db).listActive()).single;
+    final row = (await MovieOwnedRepository(db).listActive()).single;
     final owned = testOwnedItem(
-      id: row.id,
+      id: row.id.value,
       itemId: row.itemId,
       kind: 'movie',
       locationId: row.locationId,
@@ -87,7 +86,7 @@ void main() {
       ),
     );
 
-    final updated = (await OwnedItemsRepository(db).listActive()).single;
+    final updated = (await MovieOwnedRepository(db).listActive()).single;
     expect(updated.locationId, 'loc-b');
   });
 
@@ -119,9 +118,9 @@ void main() {
       ),
     );
 
-    final row = (await OwnedItemsRepository(db).listActive()).single;
+    final row = (await MovieOwnedRepository(db).listActive()).single;
     final owned = testOwnedItem(
-      id: row.id,
+      id: row.id.value,
       itemId: row.itemId,
       kind: 'movie',
       updatedAt: row.updatedAt,
@@ -132,7 +131,8 @@ void main() {
       ShelfEntry(itemId: 'movie-1', ownedItem: owned),
     ]);
 
-    final deletedOwned = await OwnedItemsRepository(db).findById(owned.id);
+    final deletedOwned =
+        await MovieOwnedRepository(db).findById(MovieOwnedItemId(owned.id));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
 
     expect(deletedOwned?.deletedAt, isNotNull);
@@ -182,7 +182,7 @@ void main() {
       status: MediaTrackingStatus.completed,
     );
 
-    final ownedRow = (await OwnedItemsRepository(db).listActive()).single;
+    final ownedRow = (await MovieOwnedRepository(db).listActive()).single;
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final trackingRow = (await db.select(db.trackingEntriesCache).get())
         .firstWhere((row) => row.itemId == 'movie-3');
@@ -192,7 +192,7 @@ void main() {
       ShelfEntry(
         itemId: 'movie-1',
         ownedItem: testOwnedItem(
-          id: ownedRow.id,
+          id: ownedRow.id.value,
           itemId: ownedRow.itemId,
           kind: 'movie',
           updatedAt: ownedRow.updatedAt,
@@ -227,15 +227,14 @@ void main() {
           progressTotal: trackingRow.progressTotal,
           timesCompleted: trackingRow.timesCompleted,
           notes: trackingRow.notes,
-          seasonNumber: trackingRow.seasonNumber,
-          episodeNumber: trackingRow.episodeNumber,
           updatedAt: trackingRow.updatedAt,
           deletedAt: trackingRow.deletedAt,
         ),
       ),
     ]);
 
-    final deletedOwned = await OwnedItemsRepository(db).findById(ownedRow.id);
+    final deletedOwned = await MovieOwnedRepository(db)
+        .findById(MovieOwnedItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final trackingRows = await db.select(db.trackingEntriesCache).get();
 
@@ -309,13 +308,13 @@ void main() {
       ),
     ]);
 
-    final ownedRows = await OwnedItemsRepository(db).listActive();
+    final ownedRows = await MovieOwnedRepository(db).listActive();
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final activeWishlistRows =
         wishlistRows.where((row) => row.deletedAt == null).toList();
 
     expect(ownedRows, hasLength(1));
-    expect(ownedRows.single.editionId, 'edition-4k');
+    expect(ownedRows.single.anchor?.editionId, 'edition-4k');
     expect(activeWishlistRows, hasLength(1));
     expect(
       CatalogEntityRef.fromJson(

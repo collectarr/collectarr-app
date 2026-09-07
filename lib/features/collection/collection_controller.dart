@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -23,9 +22,9 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final collectionProvider = FutureProvider<List<OwnedItem>>((ref) async {
+final collectionProvider = FutureProvider<List<OwnedItemSummary>>((ref) async {
   final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
-  return cache.listActive();
+  return cache.listActiveSummaries();
 });
 
 final collectionByCatalogItemProvider =

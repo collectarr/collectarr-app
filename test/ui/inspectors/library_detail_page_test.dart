@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -10,6 +9,7 @@ import 'package:collectarr_app/features/library/inspector/inspector_personal_det
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -30,21 +30,21 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await OwnedItemsRepository(db).upsertAll([
-      testOwnedItem(
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
-      ),
-      testOwnedItem(
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
-      ),
+      )),
     ]);
 
     final owned = testOwnedItem(
@@ -106,21 +106,21 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = bookKindModule;
-    await OwnedItemsRepository(db).upsertAll([
-      testOwnedItem(
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
-      ),
-      testOwnedItem(
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
-      ),
+      )),
     ]);
     OwnedItem? editedOwnedItem;
 

@@ -406,14 +406,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return LibraryPageShellPresenter.build(this, context);
   }
 
-  List<OwnedItem> _activeOwnedCopies(AsyncValue<List<OwnedItem>> value) {
-    final items = value.asData?.value;
-    if (items == null) {
-      return const <OwnedItem>[];
-    }
-    return items.where((item) => !item.isDeleted).toList(growable: false);
-  }
-
   List<WishlistItem> _activeWishlistItems(
     AsyncValue<List<WishlistItem>> value,
   ) {

@@ -14,10 +14,13 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -415,6 +418,17 @@ OwnedItem testOwnedItem({
     marketValueCents: marketValueCents,
   );
 }
+
+/// Converts a common test fixture at the serialization boundary into the
+/// concrete kind-owned aggregate required by its typed repository.
+ComicOwnedItem testComicOwnedItemFrom(OwnedItem item) =>
+    ComicOwnedItem.fromJson(item.toJson());
+
+BookOwnedItem testBookOwnedItemFrom(OwnedItem item) =>
+    BookOwnedItem.fromJson(item.toJson());
+
+MovieOwnedItem testMovieOwnedItemFrom(OwnedItem item) =>
+    MovieOwnedItem.fromJson(item.toJson());
 
 /// Builds a [ShelfEntry] with sensible defaults for testing.
 ///

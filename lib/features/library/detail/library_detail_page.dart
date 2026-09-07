@@ -76,20 +76,12 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ownedCopies = ref.watch(collectionProvider).maybeWhen(
-          data: (items) {
-            final matches = items
-                .where((item) =>
-                    !item.isDeleted &&
-                    item.itemId == widget.item.source.catalogItem?.id)
-                .toList(growable: false)
-              ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-            return matches;
-          },
-          orElse: () => widget.ownedItem == null
-              ? const <OwnedItem>[]
-              : <OwnedItem>[widget.ownedItem!],
-        );
+    // The selected library projection already carries the typed-dispatched
+    // owned item. Mixed collection reads expose summaries only and must not
+    // rehydrate a common OwnedItem aggregate here.
+    final ownedCopies = widget.ownedItem == null
+        ? const <OwnedItem>[]
+        : <OwnedItem>[widget.ownedItem!];
     final ownedResolution = resolveActiveOwnedItem(
       ownedCopies,
       fallback: widget.ownedItem,

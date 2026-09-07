@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -118,6 +120,7 @@ class TrackingUnitsCacheRepository {
       id: Value(unit.id),
       itemId: Value(unit.itemId),
       kind: Value(unit.targetRef.kind),
+      targetRefJson: Value(jsonEncode(unit.targetRef.toJson())),
       trackingEntryId: Value(unit.trackingEntryId),
       ownedItemId: Value(unit.ownedItemId),
       editionId: Value(unit.editionId),
@@ -169,11 +172,7 @@ class TrackingUnitsCacheRepository {
     TrackingUnitsCacheData row,
     Object? coordinates,
   ) {
-    final targetRef = CatalogEntityRef(
-      kind: row.kind,
-      entityType: CatalogEntityType.work,
-      id: row.itemId,
-    );
+    final targetRef = _targetRefForRow(row);
     final storageRow = TrackingUnitStorageRow(
       id: row.id,
       targetRef: targetRef,
@@ -194,6 +193,25 @@ class TrackingUnitsCacheRepository {
       );
     }
     return codec.fromStorageRow(storageRow, coordinates);
+  }
+
+  CatalogEntityRef _targetRefForRow(TrackingUnitsCacheData row) {
+    final raw = row.targetRefJson;
+    if (raw != null && raw.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is Map) {
+          return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
+        }
+      } on Object {
+        // Fall back to the legacy structural columns below.
+      }
+    }
+    return CatalogEntityRef(
+      kind: row.kind,
+      entityType: CatalogEntityType.work,
+      id: row.itemId,
+    );
   }
 
   int _compareForDisplay(TrackingUnit a, TrackingUnit b) {

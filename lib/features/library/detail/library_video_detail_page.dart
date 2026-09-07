@@ -143,17 +143,13 @@ class _LibraryVideoDetailPageState
   @override
   Widget build(BuildContext context) {
     final request = widget.request;
-    final ownedCopiesValue = ref.watch(collectionProvider);
     final wishlistValue = ref.watch(wishlistProvider);
-    final ownedCopies = ownedCopiesValue.maybeWhen(
-      data: (items) => items
-          .where(
-            (item) =>
-                !item.isDeleted && item.itemId == request.item.source.itemId,
-          )
-          .toList(growable: false),
-      orElse: () => const <OwnedItem>[],
-    );
+    // Video release resolution receives the concrete owned item already
+    // attached to the selected projection. Global collection reads are
+    // summary-only and must not be converted back to common OwnedItem.
+    final ownedCopies = request.item.source.ownedItem == null
+        ? const <OwnedItem>[]
+        : <OwnedItem>[request.item.source.ownedItem!];
     final wishlistItems = wishlistValue.maybeWhen(
       data: (items) => items
           .where(

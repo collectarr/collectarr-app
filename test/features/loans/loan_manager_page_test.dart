@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -9,9 +8,8 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,14 +38,14 @@ void main() {
         'title': 'Action Comics #1',
       }),
     ]);
-    await OwnedItemsRepository(db).upsert(
-      testOwnedItem(
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         kind: 'comic',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 1),
-      ),
+      )),
     );
 
     final loanRepo = LoanRepository(db);
@@ -99,14 +97,14 @@ void main() {
         'title': 'Detective Comics #27',
       }),
     ]);
-    await OwnedItemsRepository(db).upsert(
-      testOwnedItem(
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
         id: 'owned-2',
         itemId: 'comic-2',
         kind: 'comic',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 1),
-      ),
+      )),
     );
 
     final loanRepo = LoanRepository(db);
