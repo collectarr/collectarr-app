@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 
 // ---------------------------------------------------------------------------
 // Selection data classes returned by the edit dialog
@@ -25,6 +26,7 @@ class LibraryEditSelection {
     this.wishlist,
     this.tracking,
     this.trackingEntryMutation,
+    this.ownedUpdatePayload,
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
     this.submitAction = LibraryEditSubmitAction.save,
@@ -36,6 +38,7 @@ class LibraryEditSelection {
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final LibraryTrackingEntryMutation? trackingEntryMutation;
+  final OwnedItemUpdatePayload? ownedUpdatePayload;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
   final LibraryEditSubmitAction submitAction;
@@ -47,6 +50,7 @@ class LibraryEditSelection {
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
     LibraryTrackingEntryMutation? trackingEntryMutation,
+    OwnedItemUpdatePayload? ownedUpdatePayload,
     Map<String, String?>? customFieldEdits,
     List<ItemImageEdit>? itemImageEdits,
     LibraryEditSubmitAction? submitAction,
@@ -59,6 +63,7 @@ class LibraryEditSelection {
       tracking: tracking ?? this.tracking,
       trackingEntryMutation:
           trackingEntryMutation ?? this.trackingEntryMutation,
+      ownedUpdatePayload: ownedUpdatePayload ?? this.ownedUpdatePayload,
       customFieldEdits: customFieldEdits ?? this.customFieldEdits,
       itemImageEdits: itemImageEdits ?? this.itemImageEdits,
       submitAction: submitAction ?? this.submitAction,

@@ -272,56 +272,17 @@ class LibraryPageEditCoordinator {
     );
     final personal = result.personal;
     if (owned != null && personal != null) {
-      final updateCmd = OwnedItemPatchCommand<OwnedDetailsDraft>(
-        ownedItemId: owned.id,
-        anchor: Patch.set(personal.anchor),
-        quantity: Patch.set(personal.quantity),
-        condition: personal.condition != null
-            ? Patch.set(personal.condition)
-            : const Patch.clear(),
-        grade: personal.grade != null
-            ? Patch.set(personal.grade)
-            : const Patch.clear(),
-        personalNotes: personal.personalNotes != null
-            ? Patch.set(personal.personalNotes)
-            : const Patch.clear(),
-        locationId: personal.locationChanged
-            ? (personal.locationId != null
-                ? Patch.set(personal.locationId)
-                : const Patch.clear())
-            : (owned.locationId != null
-                ? Patch.set(owned.locationId)
-                : const Patch.clear()),
-        purchaseStore: personal.purchaseStore != null
-            ? Patch.set(personal.purchaseStore)
-            : const Patch.clear(),
-        collectionStatus: personal.collectionStatus != null
-            ? Patch.set(personal.collectionStatus)
-            : const Patch.clear(),
-        tags: personal.tags != null
-            ? Patch.set(personal.tags)
-            : const Patch.clear(),
-        soldAt: personal.soldAt != null
-            ? Patch.set(personal.soldAt)
-            : const Patch.clear(),
-        sellPriceCents: personal.sellPriceCents != null
-            ? Patch.set(personal.sellPriceCents)
-            : const Patch.clear(),
-        soldTo: personal.soldTo != null
-            ? Patch.set(personal.soldTo)
-            : const Patch.clear(),
-        marketValueCents: personal.marketValueCents != null
-            ? Patch.set(personal.marketValueCents)
-            : const Patch.clear(),
-        details: Patch.set(
-          libraryKindPersonalDetailsDraftForKind(
-            _s.widget.type.kind,
-            personal,
-          ),
-        ),
-      );
+      final payload = result.ownedUpdatePayload;
+      if (payload == null) {
+        throw StateError(
+          'Owned edit result did not contain a kind-owned update payload.',
+        );
+      }
       await coordinator.updateOwnedItem(
-        _s.widget.type.edit.withTypedUpdatePayload(updateCmd),
+        UpdateOwnedItemCommand(
+          ownedItemId: owned.id,
+          payload: payload,
+        ),
         syncTracking: false,
       );
       final tracking = result.tracking;

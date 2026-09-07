@@ -442,6 +442,7 @@ class LibraryEditDraft {
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
+    final existingOwnedItem = ownedItem;
     final baseItem = item.copyWith(
       title: metadata.titleController.text.trim(),
       sortKey: emptyToNull(metadata.sortKeyController.text),
@@ -537,6 +538,12 @@ class LibraryEditDraft {
               progressTotal: parseInt(tracking.progressTotalController.text),
               timesCompleted: parseInt(tracking.timesCompletedController.text),
               notes: emptyToNull(tracking.trackingNotesController.text),
+            ),
+      ownedUpdatePayload: existingOwnedItem == null
+          ? null
+          : kindDetails.buildOwnedUpdatePayload(
+              ownedItemId: existingOwnedItem.id,
+              personal: personal,
             ),
       customFieldEdits: customFieldEdits,
       itemImageEdits: itemImageEdits,
