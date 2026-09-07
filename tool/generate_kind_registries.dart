@@ -1,10 +1,8 @@
 import 'dart:io';
 
 const _kindsRoot = 'lib/features/library/kinds';
-const _modulesOutput =
-    'lib/features/library/kinds/registry/collectarr_kind_modules.g.dart';
-const _registrationsOutput =
-    'lib/features/library/kinds/registry/library_kind_registrations.g.dart';
+const _registryOutput =
+    'lib/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 Future<void> main() async {
   final descriptors = await _discoverKinds();
@@ -12,12 +10,8 @@ Future<void> main() async {
     throw StateError('No kind modules found under $_kindsRoot');
   }
 
-  await File(_modulesOutput).writeAsString(_renderModules(descriptors));
-  await File(_registrationsOutput)
-      .writeAsString(_renderRegistrations(descriptors));
-  stdout.writeln(
-    'Generated ${descriptors.length} kind modules and registrations.',
-  );
+  await File(_registryOutput).writeAsString(_renderRegistry(descriptors));
+  stdout.writeln('Generated ${descriptors.length} kind registrations.');
 }
 
 Future<List<_KindDescriptor>> _discoverKinds() async {
@@ -66,12 +60,16 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
   return descriptors;
 }
 
-String _renderModules(List<_KindDescriptor> descriptors) {
+String _renderRegistry(List<_KindDescriptor> descriptors) {
   final buffer = StringBuffer('''// GENERATED CODE - DO NOT MODIFY BY HAND
 // Run: dart run tool/generate_kind_registries.dart
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration_adapter.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
+import 'package:flutter/material.dart';
 ''');
   for (final descriptor in descriptors) {
     buffer.writeln(
@@ -79,6 +77,9 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
     );
     buffer.writeln(
       "export 'package:collectarr_app/features/library/kinds/${descriptor.folder}/${descriptor.folder}_kind_module.dart';",
+    );
+    buffer.writeln(
+      "import 'package:collectarr_app/features/library/kinds/${descriptor.folder}/page.dart';",
     );
   }
   buffer.writeln();
@@ -103,28 +104,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
     "  throw ArgumentError('No LibraryKindModule registered for kind \"\$kind\"');",
   );
   buffer.writeln('}');
-  return buffer.toString();
-}
-
-String _renderRegistrations(List<_KindDescriptor> descriptors) {
-  final buffer = StringBuffer('''// GENERATED CODE - DO NOT MODIFY BY HAND
-// Run: dart run tool/generate_kind_registries.dart
-
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
-import 'package:flutter/material.dart';
-''');
-  for (final descriptor in descriptors) {
-    buffer.writeln(
-      "import 'package:collectarr_app/features/library/kinds/${descriptor.folder}/${descriptor.folder}_kind_module.dart';",
-    );
-    buffer.writeln(
-      "import 'package:collectarr_app/features/library/kinds/${descriptor.folder}/page.dart';",
-    );
-  }
   buffer.writeln();
   buffer.writeln(
     'final List<LibraryKindRegistration> collectarrKindRegistrations = [',

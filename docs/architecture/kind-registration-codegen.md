@@ -9,8 +9,11 @@ The generator discovers a kind by finding both:
 - `<kind>/<kind>_kind_module.dart` with a top-level `*KindModule` value;
 - `<kind>/page.dart` with a `*LibraryPage` widget.
 
-It then emits the imports, module list, page registrations, and kind lookup
-functions. The generated source is ordinary Dart and is compiled normally.
+It then emits one generated registry containing the imports, module list, page
+registrations, and kind lookup functions. The two public registry entry points
+(`collectarr_kind_modules.dart` and `library_kind_registrations.dart`) only
+export that generated registry; they do not duplicate kind imports.
+The generated source is ordinary Dart and is compiled normally.
 
 This is deliberately build-time discovery rather than runtime reflection:
 
@@ -23,7 +26,7 @@ Run after adding or renaming a kind:
 
 ```text
 dart run tool/generate_kind_registries.dart
-dart format lib/features/library/kinds/registry/*.g.dart
+dart format lib/features/library/kinds/registry/collectarr_kind_registry.g.dart
 ```
 
 Generated files are committed so CI, IDE analysis, and release builds use the

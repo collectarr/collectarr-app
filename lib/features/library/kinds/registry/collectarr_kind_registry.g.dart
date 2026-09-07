@@ -2,29 +2,63 @@
 // Run: dart run tool/generate_kind_registries.dart
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration_adapter.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/page.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/page.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/page.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/page.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/page.dart';
+
+final List<LibraryKindModule> collectarrKindModules = [
+  animeKindModule,
+  boardGameKindModule,
+  bookKindModule,
+  comicKindModule,
+  gameKindModule,
+  mangaKindModule,
+  movieKindModule,
+  musicKindModule,
+  tvKindModule,
+];
+
+LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {
+  for (final module in collectarrKindModules) {
+    if (module.kind == kind) return module;
+  }
+  return null;
+}
+
+LibraryKindModule libraryKindFor(CatalogMediaKind kind) {
+  final module = lookupLibraryKind(kind);
+  if (module != null) return module;
+  throw ArgumentError('No LibraryKindModule registered for kind "$kind"');
+}
 
 final List<LibraryKindRegistration> collectarrKindRegistrations = [
   LibraryKindRegistrationAdapter(

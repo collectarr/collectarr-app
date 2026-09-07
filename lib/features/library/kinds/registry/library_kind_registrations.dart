@@ -1,1 +1,1 @@
-export 'library_kind_registrations.g.dart';
+export 'collectarr_kind_registry.g.dart';
