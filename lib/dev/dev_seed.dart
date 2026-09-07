@@ -958,7 +958,13 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     ownedItems: ownedItems,
     trackingEntries: trackingEntries,
   );
-  validateSeedCatalogQuality(allItems);
+  validateSeedCatalogQuality(
+    allItems,
+    validators: {
+      for (final contributor in collectarrDevSeedContributors)
+        contributor.kind: contributor.validateCatalog,
+    },
+  );
   validateSeedOwnedQuality(
     ownedItems,
     validators: {

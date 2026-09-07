@@ -12,10 +12,18 @@ final gameDevSeedContributor = DevSeedKindContributor(
   kind: 'game',
   catalogItems: gameSeedCatalogItems,
   enrichItem: enrichGameSeedItem,
+  validateCatalog: validateGameSeedCatalog,
   ownedItems: gameSeedOwnedItems,
   validateOwned: validateGameSeedOwned,
   trackingEntries: gameSeedTrackingEntries,
 );
+
+List<String> validateGameSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  seedRequireTextList(issues, prefix, 'platforms', item.payload['platforms']);
+  return issues;
+}
 
 List<String> validateGameSeedOwned(OwnedItem item) {
   final issues = <String>[];

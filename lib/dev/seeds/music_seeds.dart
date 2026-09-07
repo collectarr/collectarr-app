@@ -12,10 +12,26 @@ final musicDevSeedContributor = DevSeedKindContributor(
   kind: 'music',
   catalogItems: musicSeedCatalogItems,
   enrichItem: enrichMusicSeedItem,
+  validateCatalog: validateMusicSeedCatalog,
   ownedItems: musicSeedOwnedItems,
   validateOwned: validateMusicSeedOwned,
   trackingEntries: musicSeedTrackingEntries,
 );
+
+List<String> validateMusicSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final payload = item.payload;
+  seedRequirePositiveInt(issues, prefix, 'track_count', payload['track_count']);
+  seedRequireTrackList(issues, prefix, payload['tracks']);
+  final tracks = payload['tracks'];
+  final trackCount = payload['track_count'];
+  if (tracks is List && trackCount is int && tracks.length != trackCount) {
+    issues.add('$prefix: track_count must equal the number of track objects');
+  }
+  seedRequireText(issues, prefix, 'catalog_number', payload['catalog_number']);
+  return issues;
+}
 
 List<String> validateMusicSeedOwned(OwnedItem item) {
   final issues = <String>[];

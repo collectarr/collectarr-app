@@ -14,11 +14,20 @@ final bookDevSeedContributor = DevSeedKindContributor(
   kind: 'book',
   catalogItems: bookSeedCatalogItems,
   enrichItem: enrichBookSeedItem,
+  validateCatalog: validateBookSeedCatalog,
   ownedItems: bookSeedOwnedItems,
   validateOwned: validateBookSeedOwned,
   trackingEntries: bookSeedTrackingEntries,
   trackingUnits: bookSeedTrackingUnits,
 );
+
+List<String> validateBookSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  seedRequirePublishingQuality(issues, prefix, item);
+  seedRequireCreatorList(issues, prefix, item.payload['creators']);
+  return issues;
+}
 
 List<String> validateBookSeedOwned(OwnedItem item) {
   final issues = <String>[];

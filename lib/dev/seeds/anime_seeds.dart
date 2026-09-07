@@ -20,6 +20,7 @@ final animeDevSeedContributor = DevSeedKindContributor(
   kind: 'anime',
   catalogItems: animeSeedCatalogItems,
   enrichItem: enrichAnimeSeedItem,
+  validateCatalog: validateAnimeSeedCatalog,
   ownedItems: animeSeedOwnedItems,
   validateOwned: validateAnimeSeedOwned,
   trackingEntries: animeSeedTrackingEntries,
@@ -28,6 +29,19 @@ final animeDevSeedContributor = DevSeedKindContributor(
   customEpisodes: animeSeedCustomEpisodes,
   seedDatabase: seedAnimeDatabase,
 );
+
+List<String> validateAnimeSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final payload = item.payload;
+  seedRequirePositiveInt(
+      issues, prefix, 'runtime_minutes', payload['runtime_minutes']);
+  seedRequirePositiveInt(issues, prefix, 'nr_discs', payload['nr_discs']);
+  seedRequireText(issues, prefix, 'audio_tracks', payload['audio_tracks']);
+  seedRequireText(issues, prefix, 'subtitles', payload['subtitles']);
+  seedRequireText(issues, prefix, 'age_rating', payload['age_rating']);
+  return issues;
+}
 
 List<String> validateAnimeSeedOwned(OwnedItem item) {
   final issues = <String>[];

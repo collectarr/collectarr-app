@@ -16,11 +16,20 @@ final mangaDevSeedContributor = DevSeedKindContributor(
   kind: 'manga',
   catalogItems: mangaSeedCatalogItems,
   enrichItem: enrichMangaSeedItem,
+  validateCatalog: validateMangaSeedCatalog,
   ownedItems: mangaSeedOwnedItems,
   validateOwned: validateMangaSeedOwned,
   trackingEntries: mangaSeedTrackingEntries,
   trackingUnits: mangaSeedTrackingUnits,
 );
+
+List<String> validateMangaSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  seedRequirePublishingQuality(issues, prefix, item);
+  seedRequireText(issues, prefix, 'publisher', item.publisher);
+  return issues;
+}
 
 List<String> validateMangaSeedOwned(OwnedItem item) {
   final issues = <String>[];

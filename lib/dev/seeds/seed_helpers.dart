@@ -258,7 +258,10 @@ CatalogItem enrichSeedItem(CatalogItem item) {
 /// This runs after [enrichSeedItem], so defaults added at the serialization
 /// boundary are tested as well. Keep the rules here intentionally limited to
 /// fields that every fixture of a given kind should exercise.
-void validateSeedCatalogQuality(Iterable<CatalogItem> items) {
+void validateSeedCatalogQuality(
+  Iterable<CatalogItem> items, {
+  Map<String, DevSeedCatalogQualityValidator> validators = const {},
+}) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.kind}/${item.id}';
@@ -291,46 +294,11 @@ void validateSeedCatalogQuality(Iterable<CatalogItem> items) {
       }
     }
 
-    switch (item.kind) {
-      case 'book':
-        _requirePublishingQuality(issues, prefix, item);
-        _requireCreatorList(issues, prefix, payload['creators']);
-      case 'comic':
-      case 'manga':
-        _requirePublishingQuality(issues, prefix, item);
-        _requireText(issues, prefix, 'publisher', item.publisher);
-      case 'movie':
-      case 'tv':
-      case 'anime':
-        _requirePositiveInt(
-            issues, prefix, 'runtime_minutes', payload['runtime_minutes']);
-        _requirePositiveInt(issues, prefix, 'nr_discs', payload['nr_discs']);
-        _requireText(issues, prefix, 'audio_tracks', payload['audio_tracks']);
-        _requireText(issues, prefix, 'subtitles', payload['subtitles']);
-        _requireText(issues, prefix, 'age_rating', payload['age_rating']);
-      case 'music':
-        _requirePositiveInt(
-            issues, prefix, 'track_count', payload['track_count']);
-        _requireTrackList(issues, prefix, payload['tracks']);
-        final tracks = payload['tracks'];
-        final trackCount = payload['track_count'];
-        if (tracks is List &&
-            trackCount is int &&
-            tracks.length != trackCount) {
-          issues.add(
-            '$prefix: track_count must equal the number of track objects',
-          );
-        }
-        _requireText(
-            issues, prefix, 'catalog_number', payload['catalog_number']);
-      case 'game':
-        _requireTextList(issues, prefix, 'platforms', payload['platforms']);
-      case 'boardgame':
-        _requirePositiveInt(issues, prefix, 'bgg_rank', payload['bgg_rank']);
-        _requirePositiveNumber(
-            issues, prefix, 'bgg_rating', payload['bgg_rating']);
-        _requireCreatorList(issues, prefix, payload['creators']);
-        _requirePlayerStats(issues, prefix, payload['player_stats']);
+    final validator = validators[item.kind];
+    if (validator == null) {
+      issues.add('$prefix: no typed catalog quality validator exists');
+    } else {
+      issues.addAll(validator(item));
     }
     _validateTypedGraph(issues, prefix, item);
   }
@@ -924,6 +892,66 @@ void _requirePlayerStats(List<String> issues, String prefix, Object? value) {
       issues.add('$prefix: player_stats[$index] must define positive players');
     }
   }
+}
+
+/// Primitive catalog-fixture checks exposed to kind-owned quality validators.
+void seedRequirePublishingQuality(
+  List<String> issues,
+  String prefix,
+  CatalogItem item,
+) {
+  _requirePublishingQuality(issues, prefix, item);
+}
+
+void seedRequireTextList(
+  List<String> issues,
+  String prefix,
+  String field,
+  Object? value,
+) {
+  _requireTextList(issues, prefix, field, value);
+}
+
+void seedRequirePositiveInt(
+  List<String> issues,
+  String prefix,
+  String field,
+  Object? value,
+) {
+  _requirePositiveInt(issues, prefix, field, value);
+}
+
+void seedRequirePositiveNumber(
+  List<String> issues,
+  String prefix,
+  String field,
+  Object? value,
+) {
+  _requirePositiveNumber(issues, prefix, field, value);
+}
+
+void seedRequireTrackList(
+  List<String> issues,
+  String prefix,
+  Object? value,
+) {
+  _requireTrackList(issues, prefix, value);
+}
+
+void seedRequireCreatorList(
+  List<String> issues,
+  String prefix,
+  Object? value,
+) {
+  _requireCreatorList(issues, prefix, value);
+}
+
+void seedRequirePlayerStats(
+  List<String> issues,
+  String prefix,
+  Object? value,
+) {
+  _requirePlayerStats(issues, prefix, value);
 }
 
 void _throwSeedQualityIssues(String domain, List<String> issues) {

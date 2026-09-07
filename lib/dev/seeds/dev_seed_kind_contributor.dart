@@ -8,6 +8,9 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 
 typedef DevSeedCatalogFactory = List<CatalogItem> Function();
 typedef DevSeedItemEnricher = CatalogItem Function(CatalogItem item);
+typedef DevSeedCatalogQualityValidator = List<String> Function(
+  CatalogItem item,
+);
 typedef DevSeedOwnedFactory = List<OwnedItem> Function(DateTime now);
 typedef DevSeedOwnedQualityValidator = List<String> Function(OwnedItem item);
 typedef DevSeedTrackingFactory = List<TrackingEntry> Function(DateTime now);
@@ -35,6 +38,7 @@ final class DevSeedKindContributor {
     required this.kind,
     required this.catalogItems,
     required this.enrichItem,
+    required this.validateCatalog,
     required this.ownedItems,
     required this.validateOwned,
     required this.trackingEntries,
@@ -47,6 +51,7 @@ final class DevSeedKindContributor {
   final String kind;
   final DevSeedCatalogFactory catalogItems;
   final DevSeedItemEnricher enrichItem;
+  final DevSeedCatalogQualityValidator validateCatalog;
   final DevSeedOwnedFactory ownedItems;
   final DevSeedOwnedQualityValidator validateOwned;
   final DevSeedTrackingFactory trackingEntries;

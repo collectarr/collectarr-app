@@ -15,11 +15,24 @@ final boardgameDevSeedContributor = DevSeedKindContributor(
   kind: 'boardgame',
   catalogItems: boardgameSeedCatalogItems,
   enrichItem: enrichBoardgameSeedItem,
+  validateCatalog: validateBoardgameSeedCatalog,
   ownedItems: boardgameSeedOwnedItems,
   validateOwned: validateBoardgameSeedOwned,
   trackingEntries: boardgameSeedTrackingEntries,
   seedDatabase: seedBoardgameDatabase,
 );
+
+List<String> validateBoardgameSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final payload = item.payload;
+  seedRequirePositiveInt(issues, prefix, 'bgg_rank', payload['bgg_rank']);
+  seedRequirePositiveNumber(
+      issues, prefix, 'bgg_rating', payload['bgg_rating']);
+  seedRequireCreatorList(issues, prefix, payload['creators']);
+  seedRequirePlayerStats(issues, prefix, payload['player_stats']);
+  return issues;
+}
 
 List<String> validateBoardgameSeedOwned(OwnedItem item) {
   final issues = <String>[];

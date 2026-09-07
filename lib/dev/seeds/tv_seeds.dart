@@ -21,6 +21,7 @@ final tvDevSeedContributor = DevSeedKindContributor(
   kind: 'tv',
   catalogItems: tvSeedCatalogItems,
   enrichItem: enrichTvSeedItem,
+  validateCatalog: validateTvSeedCatalog,
   ownedItems: tvSeedOwnedItems,
   validateOwned: validateTvSeedOwned,
   trackingEntries: tvSeedTrackingEntries,
@@ -29,6 +30,19 @@ final tvDevSeedContributor = DevSeedKindContributor(
   customEpisodes: tvSeedCustomEpisodes,
   seedDatabase: seedTvDatabase,
 );
+
+List<String> validateTvSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final payload = item.payload;
+  seedRequirePositiveInt(
+      issues, prefix, 'runtime_minutes', payload['runtime_minutes']);
+  seedRequirePositiveInt(issues, prefix, 'nr_discs', payload['nr_discs']);
+  seedRequireText(issues, prefix, 'audio_tracks', payload['audio_tracks']);
+  seedRequireText(issues, prefix, 'subtitles', payload['subtitles']);
+  seedRequireText(issues, prefix, 'age_rating', payload['age_rating']);
+  return issues;
+}
 
 List<String> validateTvSeedOwned(OwnedItem item) {
   final issues = <String>[];

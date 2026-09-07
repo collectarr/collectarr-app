@@ -18,12 +18,21 @@ final comicDevSeedContributor = DevSeedKindContributor(
   kind: 'comic',
   catalogItems: comicSeedCatalogItems,
   enrichItem: enrichComicSeedItem,
+  validateCatalog: validateComicSeedCatalog,
   ownedItems: comicSeedOwnedItems,
   validateOwned: validateComicSeedOwned,
   trackingEntries: comicSeedTrackingEntries,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
 );
+
+List<String> validateComicSeedCatalog(CatalogItem item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  seedRequirePublishingQuality(issues, prefix, item);
+  seedRequireText(issues, prefix, 'publisher', item.publisher);
+  return issues;
+}
 
 List<String> validateComicSeedOwned(OwnedItem item) {
   final issues = <String>[];
