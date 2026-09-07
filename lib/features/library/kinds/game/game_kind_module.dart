@@ -59,7 +59,6 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
 final gameLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getGameFacetValues,
-  definitions: gameLibraryFacetDefinitions,
   externalFacetBucketIdsByMode: {
     'game.genre': GameFacetIds.genre,
     'game.region': GameFacetIds.region,

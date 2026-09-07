@@ -97,7 +97,6 @@ Iterable<String?> _boardGameLinkedMetadataValues(
 final boardGameLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getBoardGameFacetValues,
-  definitions: boardgameLibraryFacetDefinitions,
 );
 
 final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(

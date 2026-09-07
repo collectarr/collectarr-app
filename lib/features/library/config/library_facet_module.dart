@@ -11,7 +11,6 @@ final class LibraryFacetModule {
   const LibraryFacetModule({
     this.loadRows,
     this.getFacetValues,
-    this.definitions = const [],
     this.externalFacetBucketIdsByMode = const {},
   });
 
@@ -19,7 +18,6 @@ final class LibraryFacetModule {
   final Iterable<String> Function(
           LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId)?
       getFacetValues;
-  final List<LibraryFacetDefinition<dynamic, dynamic, dynamic>> definitions;
   final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
 }
 

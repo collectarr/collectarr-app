@@ -163,7 +163,6 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
 final bookLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getBookFacetValues,
-  definitions: bookLibraryFacetDefinitions,
   externalFacetBucketIdsByMode: {
     'book.genre': BookFacetIds.genre,
     'book.subject': BookFacetIds.subject,

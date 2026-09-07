@@ -106,7 +106,6 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
 final comicLibraryFacetModule = LibraryFacetModule(
   loadRows: _loadComicFacetRows,
   getFacetValues: _getFacetValues,
-  definitions: comicLibraryFacetDefinitions,
   externalFacetBucketIdsByMode: {
     'comic.story_arc': ComicFacetIds.storyArc,
     'comic.character': ComicFacetIds.character,

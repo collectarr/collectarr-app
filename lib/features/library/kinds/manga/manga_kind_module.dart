@@ -157,7 +157,6 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
 final mangaLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getFacetValues,
-  definitions: mangaLibraryFacetDefinitions,
   externalFacetBucketIdsByMode: {
     'manga.genre': MangaFacetIds.genre,
     'manga.demographic': MangaFacetIds.demographic,

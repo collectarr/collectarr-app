@@ -45,8 +45,7 @@ void main() {
     );
 
     expect(
-      bookLibraryFacetModule.definitions
-          .map((definition) => definition.id.value),
+      bookLibraryFacetDefinitions.map((definition) => definition.id.value),
       containsAll([
         'book.author',
         'book.publisher',

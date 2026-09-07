@@ -43,8 +43,7 @@ void main() {
     expect(registry.findGroupDefinition(defaultGroup!), isNotNull);
 
     expect(
-      gameLibraryFacetModule.definitions
-          .map((definition) => definition.id.value),
+      gameLibraryFacetDefinitions.map((definition) => definition.id.value),
       [
         GameFacetIds.platform.value,
         GameFacetIds.publisher.value,

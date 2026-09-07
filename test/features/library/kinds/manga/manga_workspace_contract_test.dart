@@ -29,8 +29,7 @@ void main() {
     expect(sortIds.every((id) => id.startsWith('manga.')), isTrue);
     expect(groupIds.every((id) => id.startsWith('manga.')), isTrue);
     expect(
-      mangaLibraryFacetModule.definitions
-          .map((definition) => definition.id.value),
+      mangaLibraryFacetDefinitions.map((definition) => definition.id.value),
       containsAll([
         'manga.publisher',
         'manga.genre',

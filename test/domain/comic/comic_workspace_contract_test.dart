@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('registers the complete typed Comic workspace facet surface', () {
-    final definitions = comicLibraryFacetModule.definitions;
+    final definitions = comicLibraryFacetDefinitions;
     final ids = definitions.map((definition) => definition.id.value).toList();
 
     expect(ids, [
