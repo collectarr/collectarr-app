@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
@@ -212,12 +212,4 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   }) {
     return buildCard(item, musicVertical: musicVertical);
   }
-}
-
-class LibraryKindToolbarModule {
-  const LibraryKindToolbarModule({
-    this.actions = const [],
-  });
-
-  final List<LibraryToolbarActionDescriptor> actions;
 }
