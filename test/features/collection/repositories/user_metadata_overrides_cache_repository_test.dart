@@ -20,7 +20,7 @@ void main() {
     final override = UserMetadataOverride(
       id: 'override-1',
       targetRef: target,
-      fieldPath: 'publisher',
+      fieldKey: 'publisher',
       originalValue: 'Original',
       overrideValue: 'Corrected',
       updatedAt: updatedAt,

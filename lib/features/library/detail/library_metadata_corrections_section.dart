@@ -83,7 +83,7 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
     }
     await ref.read(metadataOverrideMutationsProvider).setMetadataOverride(
           targetRef,
-          fieldPath: result.fieldPath,
+          fieldKey: result.fieldKey,
           overrideValue: result.overrideValue,
           originalValue: result.originalValue,
         );
@@ -116,7 +116,7 @@ class _OverrideTile extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _humanFieldPath(entry.fieldPath),
+                  _humanFieldPath(entry.fieldKey),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: accent,
                         fontWeight: FontWeight.w700,
@@ -161,7 +161,7 @@ class _OverrideTile extends ConsumerWidget {
         title: const Text('Remove correction?'),
         content: Text(
           'This will restore the original value for '
-          '"${_humanFieldPath(entry.fieldPath)}".',
+          '"${_humanFieldPath(entry.fieldKey)}".',
         ),
         actions: [
           TextButton(
@@ -229,12 +229,12 @@ class _DiffColumn extends StatelessWidget {
 
 class _OverrideFormResult {
   const _OverrideFormResult({
-    required this.fieldPath,
+    required this.fieldKey,
     required this.overrideValue,
     this.originalValue,
   });
 
-  final String fieldPath;
+  final String fieldKey;
   final String overrideValue;
   final String? originalValue;
 }
@@ -266,10 +266,10 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
   final _originalController = TextEditingController();
   final _overrideController = TextEditingController();
 
-  String get _fieldPath => _selectedField ?? _customFieldController.text.trim();
+  String get _fieldKey => _selectedField ?? _customFieldController.text.trim();
 
   bool get _isValid =>
-      _fieldPath.isNotEmpty && _overrideController.text.trim().isNotEmpty;
+      _fieldKey.isNotEmpty && _overrideController.text.trim().isNotEmpty;
 
   @override
   void dispose() {
@@ -346,7 +346,7 @@ class _OverrideFormDialogState extends State<_OverrideFormDialog> {
               ? () => Navigator.pop(
                     context,
                     _OverrideFormResult(
-                      fieldPath: _fieldPath,
+                      fieldKey: _fieldKey,
                       overrideValue: _overrideController.text.trim(),
                       originalValue: _originalController.text.trim().isEmpty
                           ? null

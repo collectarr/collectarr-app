@@ -26,20 +26,20 @@ final class MetadataOverrideMutations {
 
   Future<UserMetadataOverride> setMetadataOverride(
     CatalogEntityRef targetRef, {
-    required String fieldPath,
+    required String fieldKey,
     required String overrideValue,
     String? originalValue,
   }) async {
     final now = DateTime.now().toUtc();
     final existing = await overrides.findByField(
       targetRef,
-      fieldPath,
+      fieldKey,
     );
 
     final override = UserMetadataOverride(
       id: existing?.id ?? idGenerator(),
       targetRef: targetRef,
-      fieldPath: fieldPath,
+      fieldKey: fieldKey,
       originalValue: originalValue ?? existing?.originalValue,
       overrideValue: overrideValue,
       updatedAt: now,

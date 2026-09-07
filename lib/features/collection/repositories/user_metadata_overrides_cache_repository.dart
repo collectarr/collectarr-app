@@ -36,7 +36,7 @@ class UserMetadataOverridesCacheRepository {
           ..where((tbl) => tbl.deletedAt.isNull())
           ..orderBy([
             (tbl) => OrderingTerm.asc(tbl.targetRefJson),
-            (tbl) => OrderingTerm.asc(tbl.fieldPath),
+            (tbl) => OrderingTerm.asc(tbl.fieldKey),
           ]))
         .get();
     return rows.map(_toModel).toList(growable: false);
@@ -51,11 +51,11 @@ class UserMetadataOverridesCacheRepository {
 
   Future<UserMetadataOverride?> findByField(
     CatalogEntityRef target,
-    String fieldPath,
+    String fieldKey,
   ) async {
     final overrides = await listActiveByTarget(target);
     for (final override in overrides) {
-      if (override.fieldPath == fieldPath) return override;
+      if (override.fieldKey == fieldKey) return override;
     }
     return null;
   }
@@ -97,7 +97,7 @@ class UserMetadataOverridesCacheRepository {
     return UserMetadataOverridesCacheCompanion(
       id: Value(override.id),
       targetRefJson: Value(jsonEncode(override.targetRef.toJson())),
-      fieldPath: Value(override.fieldPath),
+      fieldKey: Value(override.fieldKey),
       originalValue: Value(override.originalValue),
       overrideValue: Value(override.overrideValue),
       updatedAt: Value(override.updatedAt),
@@ -113,7 +113,7 @@ class UserMetadataOverridesCacheRepository {
     return UserMetadataOverride(
       id: row.id,
       targetRef: CatalogEntityRef.fromJson(rawTarget.cast<String, dynamic>()),
-      fieldPath: row.fieldPath,
+      fieldKey: row.fieldKey,
       originalValue: row.originalValue,
       overrideValue: row.overrideValue,
       updatedAt: row.updatedAt,

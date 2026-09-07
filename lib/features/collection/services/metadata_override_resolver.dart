@@ -10,13 +10,13 @@ class MetadataOverrideResolver {
       : _byField = {
           for (final override in overrides)
             if (!override.isDeleted)
-              _key(override.targetRef, override.fieldPath): override,
+              _key(override.targetRef, override.fieldKey): override,
         };
 
   final Map<String, UserMetadataOverride> _byField;
 
-  static String _key(CatalogEntityRef target, String fieldPath) =>
-      '${target.kind}:${target.entityType.apiValue}:${target.id}:$fieldPath';
+  static String _key(CatalogEntityRef target, String fieldKey) =>
+      '${target.kind}:${target.entityType.apiValue}:${target.id}:$fieldKey';
 
   bool get hasOverrides => _byField.isNotEmpty;
 
@@ -24,16 +24,16 @@ class MetadataOverrideResolver {
 
   UserMetadataOverride? find(
     CatalogEntityRef target,
-    String fieldPath,
+    String fieldKey,
   ) =>
-      _byField[_key(target, fieldPath)];
+      _byField[_key(target, fieldKey)];
 
   String? resolve(
     CatalogEntityRef target,
-    String fieldPath,
+    String fieldKey,
     String? original,
   ) =>
-      find(target, fieldPath)?.overrideValue ?? original;
+      find(target, fieldKey)?.overrideValue ?? original;
 
   Map<String, List<UserMetadataOverride>> groupedByScope() {
     final result = <String, List<UserMetadataOverride>>{};

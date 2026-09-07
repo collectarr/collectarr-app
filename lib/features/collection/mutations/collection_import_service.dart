@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -94,7 +95,7 @@ final class CollectionImportService {
     };
 
     final activeWishlistItemIds = existingWishlist.keys.toSet();
-    final ownedItemsList = <OwnedItem>[];
+    final ownedItemRefs = <OwnedItemRef>[];
     final typedOwnedItems = <(CatalogMediaKind kind, Object item)>[];
     final trackingEntriesList = <TrackingEntry>[];
     final wishlistDeletes = <WishlistItem>[];
@@ -133,7 +134,6 @@ final class CollectionImportService {
           existing: existingOwned[row.itemId],
           catalogKind: catItemKind,
         );
-        ownedItemsList.add(ownedItem);
         final mediaKind = ownedItem.catalogRef.mediaKind;
         final typedOwnedItem =
             collectarrOwnedItemDeserializers[mediaKind]?.call(ownedItem);
@@ -144,23 +144,30 @@ final class CollectionImportService {
           );
         }
         typedOwnedItems.add((mediaKind, typedOwnedItem));
+        final ownedRef = collectarrTypedOwnedItemRef(typedOwnedItem);
+        ownedItemRefs.add(ownedRef);
+        final serializedOwned = ownedItems.syncPayloadForTyped(
+          mediaKind,
+          typedOwnedItem,
+        );
         syncChanges.add(
           SyncChange(
-            id: 'owned_item:${ownedItem.id}:upsert:${now.millisecondsSinceEpoch}',
+            id: 'owned_item:${ownedRef.id.value}:upsert:${now.millisecondsSinceEpoch}',
             entityType: 'owned_item',
-            entityId: ownedItem.id,
+            entityId: ownedRef.id.value,
             action: 'upsert',
-            payload: ownedItem.toSyncPayload(),
+            payload: serializedOwned.payload,
             clientChangedAt: now,
           ),
         );
 
         final trackingEntry = _trackingEntryFromCsvRow(
           row,
-          ownedItem: ownedItem,
+          ownedRef: ownedRef,
+          catalogRef: ownedItem.catalogRef,
           now: now,
-          existing: existingTracking[ownedItem.id] ??
-              existingTracking[ownedItem.itemId],
+          existing: existingTracking[ownedRef.id.value] ??
+              existingTracking[ownedItem.catalogRef.id],
         );
         if (trackingEntry != null) {
           trackingEntriesList.add(trackingEntry);
@@ -252,7 +259,7 @@ final class CollectionImportService {
         }
       },
       eventsToEmit: [
-        for (final item in ownedItemsList) OwnedItemAdded(item.id),
+        for (final item in ownedItemRefs) OwnedItemAdded(item.id.value),
         for (final entry in trackingEntriesList) TrackingChanged(entry.id),
         for (final item in wishlistUpserts) WishlistChanged(item.itemId),
         for (final item in wishlistDeletes) WishlistChanged(item.itemId),
@@ -322,10 +329,12 @@ final class CollectionImportService {
       }
     }
 
+    final uniqueItemIds = uniqueRows.map((row) => row.itemId).toSet();
     final existingOwnedMap = {
-      for (final item in await ownedItems.findActiveByItemIds(
-        uniqueRows.map((r) => r.itemId),
-      ))
+      for (final item
+          in await ownedItems.listActiveSummaries().then((items) => items.where(
+                (item) => uniqueItemIds.contains(item.itemId),
+              )))
         item.itemId: item,
     };
 
@@ -461,7 +470,8 @@ final class CollectionImportService {
 
   TrackingEntry? _trackingEntryFromCsvRow(
     CollectionCsvRow row, {
-    required OwnedItem ownedItem,
+    required OwnedItemRef ownedRef,
+    required CatalogEntityRef catalogRef,
     required DateTime now,
     TrackingEntry? existing,
   }) {
@@ -476,8 +486,8 @@ final class CollectionImportService {
     final status = mediaTrackingStatusFromValue(row.readStatus);
     if (existing != null) {
       return existing.copyWith(
-        catalogRef: ownedItem.catalogRef,
-        ownedItemId: ownedItem.id,
+        catalogRef: catalogRef,
+        ownedItemId: ownedRef.id.value,
         status: status ?? existing.status,
         rating: row.rating ?? existing.rating,
         startedAt: row.startedAt ?? existing.startedAt,
@@ -488,8 +498,8 @@ final class CollectionImportService {
 
     return TrackingEntry(
       id: idGenerator(),
-      catalogRef: ownedItem.catalogRef,
-      ownedItemId: ownedItem.id,
+      catalogRef: catalogRef,
+      ownedItemId: ownedRef.id.value,
       status: status ?? MediaTrackingStatus.planned,
       rating: row.rating,
       startedAt: row.startedAt,

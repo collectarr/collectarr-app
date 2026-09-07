@@ -8,7 +8,7 @@ class UserMetadataOverride {
   UserMetadataOverride({
     required this.id,
     required this.targetRef,
-    required this.fieldPath,
+    required this.fieldKey,
     required this.overrideValue,
     required this.updatedAt,
     this.originalValue,
@@ -22,7 +22,7 @@ class UserMetadataOverride {
   final CatalogEntityRef targetRef;
 
   /// Kind-owned field identifier. The generic layer does not inspect it.
-  final String fieldPath;
+  final String fieldKey;
 
   /// Original value captured when the override was created.
   final String? originalValue;
@@ -42,7 +42,7 @@ class UserMetadataOverride {
   Map<String, Object?> toSyncPayload() {
     return {
       'target_ref': targetRef.toJson(),
-      'field_path': fieldPath,
+      'field_key': fieldKey,
       'original_value': originalValue,
       'override_value': overrideValue,
     };
@@ -57,7 +57,7 @@ class UserMetadataOverride {
       id: json['id'] as String,
       targetRef:
           CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget)),
-      fieldPath: json['field_path'] as String,
+      fieldKey: json['field_key'] as String,
       originalValue: json['original_value'] as String?,
       overrideValue: json['override_value'] as String,
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -70,7 +70,7 @@ class UserMetadataOverride {
   UserMetadataOverride copyWith({
     String? id,
     CatalogEntityRef? targetRef,
-    String? fieldPath,
+    String? fieldKey,
     String? originalValue,
     String? overrideValue,
     DateTime? updatedAt,
@@ -79,7 +79,7 @@ class UserMetadataOverride {
     return UserMetadataOverride(
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
-      fieldPath: fieldPath ?? this.fieldPath,
+      fieldKey: fieldKey ?? this.fieldKey,
       originalValue: originalValue ?? this.originalValue,
       overrideValue: overrideValue ?? this.overrideValue,
       updatedAt: updatedAt ?? this.updatedAt,

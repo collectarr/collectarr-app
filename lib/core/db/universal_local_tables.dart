@@ -139,7 +139,7 @@ class SyncQueue extends Table {
 class UserMetadataOverridesCache extends Table {
   TextColumn get id => text()();
   TextColumn get targetRefJson => text()();
-  TextColumn get fieldPath => text()();
+  TextColumn get fieldKey => text()();
   TextColumn get originalValue => text().nullable()();
   TextColumn get overrideValue => text()();
   DateTimeColumn get updatedAt => dateTime()();
