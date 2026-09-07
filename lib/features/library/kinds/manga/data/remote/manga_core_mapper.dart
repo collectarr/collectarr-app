@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 
 typedef MangaWorkDtoFetcher = Future<MangaWorkDto> Function(String id);
@@ -7,7 +8,8 @@ final class MangaCoreMapper {
   const MangaCoreMapper._();
 
   static MangaMedia fromWorkDto(MangaWorkDto dto) {
-    if (dto.kind != null && dto.kind != 'manga') {
+    if (dto.kind != null &&
+        catalogMediaKindFromApiValue(dto.kind) != CatalogMediaKind.manga) {
       throw StateError('Expected a manga Core DTO, got ${dto.kind}');
     }
 

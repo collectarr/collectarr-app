@@ -26,7 +26,7 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
   Iterable<ShelfEntry> entries,
 ) {
   final comicEntries = entries
-      .where((entry) => entry.catalogItem?.kind == 'comic')
+      .where((entry) => entry.catalogItem?.mediaKind == CatalogMediaKind.comic)
       .toList(growable: false);
   if (comicEntries.isEmpty) return const [];
 

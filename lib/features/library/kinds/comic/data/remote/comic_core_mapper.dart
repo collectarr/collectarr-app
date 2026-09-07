@@ -10,7 +10,8 @@ final class ComicCoreMapper {
   const ComicCoreMapper._();
 
   static ComicMedia fromWorkDto(ComicWorkDto dto) {
-    if (dto.kind != null && dto.kind != 'comic') {
+    if (dto.kind != null &&
+        catalogMediaKindFromApiValue(dto.kind) != CatalogMediaKind.comic) {
       throw StateError('Expected a comic Core DTO, got ${dto.kind}');
     }
 

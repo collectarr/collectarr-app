@@ -194,7 +194,8 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _baseEntries(CatalogItemDto local, CatalogItemDto server) {
+  List<MetadataDiffEntry> _baseEntries(
+      CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     return [
@@ -261,7 +262,8 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _comicEntries(CatalogItemDto local, CatalogItemDto server) {
+  List<MetadataDiffEntry> _comicEntries(
+      CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
@@ -313,7 +315,8 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _musicEntries(CatalogItemDto local, CatalogItemDto server) {
+  List<MetadataDiffEntry> _musicEntries(
+      CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localSeries = (localP['series'] as Map?) ?? localP;
@@ -458,7 +461,8 @@ class _LibraryMetadataCompareDialogState
     ];
   }
 
-  List<MetadataDiffEntry> _discEntries(CatalogItemDto local, CatalogItemDto server) {
+  List<MetadataDiffEntry> _discEntries(
+      CatalogItemDto local, CatalogItemDto server) {
     final localP = local.toSyncPayload();
     final serverP = server.toSyncPayload();
     final localMusic = (localP['music'] as Map?) ?? localP;
@@ -542,7 +546,7 @@ class _LibraryMetadataCompareDialogState
                           children: [
                             MetadataDiffPanel(
                               title: 'Metadata fields (Local vs Server)',
-                              entries: local.kind == 'music'
+                              entries: local.mediaKind == CatalogMediaKind.music
                                   ? _musicEntries(local, server)
                                   : _comicEntries(local, server),
                               showOnlyDifferences: false,
@@ -554,14 +558,14 @@ class _LibraryMetadataCompareDialogState
                               showOnlyDifferences: false,
                               emptyText: 'No creators available.',
                             ),
-                            if (local.kind == 'comic')
+                            if (local.mediaKind == CatalogMediaKind.comic)
                               MetadataDiffPanel(
                                 title: 'Characters (Local vs Server)',
                                 entries: _charactersEntries(local, server),
                                 showOnlyDifferences: false,
                                 emptyText: 'No characters available.',
                               ),
-                            if (local.kind == 'music')
+                            if (local.mediaKind == CatalogMediaKind.music)
                               MetadataDiffPanel(
                                 title: 'Discs (Local vs Server)',
                                 entries: _discEntries(local, server),
