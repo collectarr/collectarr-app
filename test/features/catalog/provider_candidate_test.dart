@@ -30,7 +30,7 @@ void main() {
     expect(candidate.provider, 'comicvine');
     expect(candidate.providerItemId, '4000-12345');
     expect(candidate.title, 'The Amazing Spider-Man #1');
-    expect(candidate.kind, 'comic');
+    expect(candidate.kind, CatalogMediaKind.comic);
     expect(candidate.summary, 'A provider candidate.');
     expect(candidate.imageUrl, 'https://example.test/cover.jpg');
     expect(candidate.candidateType, 'issue');
@@ -57,7 +57,7 @@ void main() {
 
     expect(candidate.provider, 'openlibrary');
     expect(candidate.providerItemId, 'OL123W');
-    expect(candidate.kind, 'book');
+    expect(candidate.kind, CatalogMediaKind.book);
     expect(candidate.title, 'The Hobbit');
     expect(candidate.summary, 'J. R. R. Tolkien');
     expect(candidate.imageUrl, 'https://example.test/hobbit.jpg');

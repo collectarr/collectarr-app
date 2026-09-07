@@ -739,7 +739,7 @@ void main() {
           provider: 'comicvine',
           providerItemId: 'comicvine-detective-423',
           title: 'Detective Comics #423',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
           series: CatalogSeriesDetailsDto(
@@ -751,7 +751,7 @@ void main() {
           provider: 'comicvine',
           providerItemId: 'comicvine-423',
           title: 'Batman #423 (match)',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
           series: CatalogSeriesDetailsDto(

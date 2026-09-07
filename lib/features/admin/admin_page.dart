@@ -1941,7 +1941,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       proposalId: proposalId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
-      kind: candidate.kind,
+      kind: candidate.kind.apiValue,
       successMessage: 'Proposal approved with selected provider item.',
     );
   }
@@ -2060,7 +2060,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     await _ingestProvider(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
-      kind: candidate.kind,
+      kind: candidate.kind.apiValue,
     );
   }
 

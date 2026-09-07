@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -142,14 +141,14 @@ void main() {
           provider: 'test',
           providerItemId: 'id-1',
           title: 'Batman',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'IDW',
         ),
         ProviderCandidate(
           provider: 'test',
           providerItemId: 'id-2',
           title: 'Batman',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'DC Comics',
         ),
       ];

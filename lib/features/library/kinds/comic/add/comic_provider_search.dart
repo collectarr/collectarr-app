@@ -98,7 +98,6 @@ final class _ComicVineProviderSearchIntegration
         _comicCandidateFromComicVineIssue(
           issue,
           provider: provider.descriptor.name,
-          kind: kind,
         ),
     ];
   }
@@ -147,7 +146,7 @@ ProviderCandidate _comicCandidateFromGcdIssue(
     provider: provider,
     providerItemId: issueId,
     title: title,
-    kind: 'comic',
+    kind: CatalogMediaKind.comic,
     summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
     imageUrl: issue.cover,
     candidateType: isVariant ? 'variant' : 'issue',
@@ -163,7 +162,6 @@ ProviderCandidate _comicCandidateFromGcdIssue(
 ProviderCandidate _comicCandidateFromComicVineIssue(
   ComicVineIssue issue, {
   required String provider,
-  required String kind,
 }) {
   final volumeName = issue.volume?.name;
   final issueNumber = issue.issueNumber;
@@ -181,7 +179,7 @@ ProviderCandidate _comicCandidateFromComicVineIssue(
     provider: provider,
     providerItemId: _comicVineIssueId(issue.id),
     title: title,
-    kind: kind,
+    kind: CatalogMediaKind.comic,
     summary: summaryParts.isNotEmpty ? summaryParts.join(' ') : null,
     imageUrl: _comicVineImageUrl(issue),
     candidateType: 'issue',
@@ -206,7 +204,7 @@ ProviderCandidate _comicCandidateFromSearchResult(
     provider: provider,
     providerItemId: result.providerItemId,
     title: result.title,
-    kind: result.kind,
+    kind: catalogMediaKindFromApiValue(result.kind),
     summary: result.summary,
     imageUrl: result.imageUrl,
     candidateType: result.candidateType,

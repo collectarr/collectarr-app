@@ -24,7 +24,7 @@ class ProviderCandidate {
   final String provider;
   final String providerItemId;
   final String title;
-  final String kind;
+  final CatalogMediaKind kind;
   final String? summary;
   final String? imageUrl;
   final String? candidateType;
@@ -45,18 +45,22 @@ class ProviderCandidate {
       provider: provider ?? hit.providerId.value,
       providerItemId: hit.remoteId,
       title: hit.title,
-      kind: hit.kind.apiValue,
+      kind: hit.kind,
       summary: hit.subtitle,
       imageUrl: hit.imageUrl,
     );
   }
 
   factory ProviderCandidate.fromJson(Map<String, dynamic> json) {
-    final kind = (json['kind'] as String?)?.trim();
-    if (kind == null || kind.isEmpty) {
+    final rawKind = (json['kind'] as String?)?.trim();
+    if (rawKind == null || rawKind.isEmpty) {
       throw const FormatException(
         'Provider candidate response did not include kind',
       );
+    }
+    final kind = catalogMediaKindFromApiValue(rawKind);
+    if (kind.isUnknown) {
+      throw FormatException('Unsupported provider candidate kind: $rawKind');
     }
     final series = CatalogSeriesDetailsDto(
       seriesTitle: json['series_title'] as String?,
@@ -84,7 +88,7 @@ class ProviderCandidate {
   CatalogItemDto placeholderItem() {
     final item = CatalogItemDto.fromJson({
       'id': localCatalogId,
-      'kind': kind,
+      'kind': kind.apiValue,
       'title': title,
       'item_number': issueNumber,
       'issue_number': issueNumber,
@@ -97,7 +101,7 @@ class ProviderCandidate {
       if (series != null) 'release_year': series!.volumeStartYear,
     });
     final decoder = libraryKindCatalogMetadataDecoderForKind(
-      catalogMediaKindFromApiValue(kind),
+      kind,
     );
     return decoder == null
         ? item
@@ -125,7 +129,7 @@ class ProviderCandidate {
 
   String get localCatalogId {
     final safeProvider = _safeIdPart(provider);
-    final safeKind = _safeIdPart(kind);
+    final safeKind = _safeIdPart(kind.apiValue);
     final safeProviderItemId = Uri.encodeComponent(providerItemId);
     return 'provider:$safeProvider:$safeKind:$safeProviderItemId';
   }

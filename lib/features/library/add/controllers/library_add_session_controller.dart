@@ -1183,7 +1183,7 @@ class LibraryAddSessionController
       if (adapter != null) {
         final envelope = await adapter.fetchItem(
           candidate.providerItemId,
-          kind: candidate.kind,
+          kind: candidate.kind.apiValue,
         );
         preview = providerPreviewFromEnvelope(envelope);
       }

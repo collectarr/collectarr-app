@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -109,7 +109,7 @@ void main() {
           provider: 'gcd',
           providerItemId: 'regular',
           title: 'Regular Comic',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           candidateType: 'issue',
           issueNumber: '1',
         ),
@@ -117,7 +117,7 @@ void main() {
           provider: 'gcd',
           providerItemId: 'variant',
           title: 'Variant Comic',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           candidateType: 'variant',
         ),
       ],
@@ -133,7 +133,7 @@ void main() {
           provider: 'gcd',
           providerItemId: 'series',
           title: 'Regular Comic',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           candidateType: 'series',
         ),
       ),

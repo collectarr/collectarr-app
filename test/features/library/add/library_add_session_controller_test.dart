@@ -14,15 +14,11 @@ import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
@@ -584,7 +580,7 @@ void main() {
         provider: 'test_prov',
         providerItemId: 'book-42',
         title: 'The Hitchhiker\'s Guide to the Galaxy',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
       );
 
       sessionController.state = sessionController.state.copyWith(
@@ -671,7 +667,7 @@ void main() {
         provider: 'comic_prov',
         providerItemId: 'c-99',
         title: 'Action Comics #1',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         publisher: 'DC Comics',
       );
 
