@@ -23,7 +23,11 @@ Future<void> main() async {
       'typed_tracking=${_formatCounts(report.typedTrackingCounts)} '
       'typed_tracking_units=${_formatCounts(report.typedTrackingUnitCounts)} '
       'auxiliary=${_formatCounts(report.auxiliaryCounts)} '
-      'by_kind=${_formatCounts(devSeedCatalogCounts)}',
+      'by_kind=${_formatCounts(
+        devSeedCatalogCounts.map(
+          (kind, count) => MapEntry(kind.apiValue, count),
+        ),
+      )}',
     );
   } finally {
     await db.close();
