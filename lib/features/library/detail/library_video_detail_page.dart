@@ -94,7 +94,7 @@ class _LibraryVideoDetailPageState
     if (selectedCopy == null) {
       return;
     }
-    await ref.read(ownedItemMutationsProvider).removeItem(selectedCopy);
+    await ref.read(ownedItemMutationsProvider).removeItem(selectedCopy.ref);
   }
 
   Future<void> _addWishlistForRelease(_ResolvedVideoRelease release) async {

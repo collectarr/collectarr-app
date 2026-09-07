@@ -38,4 +38,8 @@ final class OwnedItemsRepository {
   Future<void> markDeleted(OwnedItem item, DateTime deletedAt) {
     return _persistence.markDeleted(item, deletedAt);
   }
+
+  Future<void> markDeletedByRef(OwnedItemRef ref, DateTime deletedAt) {
+    return _persistence.markDeletedByRef(ref, deletedAt);
+  }
 }

@@ -159,7 +159,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     if (ownedItem == null) {
       return;
     }
-    await ref.read(ownedItemMutationsProvider).removeItem(ownedItem);
+    await ref.read(ownedItemMutationsProvider).removeItem(ownedItem.ref);
     ref.invalidate(shelfProvider);
   }
 

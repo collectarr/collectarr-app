@@ -1036,6 +1036,40 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'final collectarrTypedOwnedItemFinders = '
+    '<CatalogMediaKind, Future<Object?> Function(LocalDatabase, String)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedId = persistence.ownedId.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database, id) => '
+      '$repository(database).findById($ownedId(id)),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
+    'final collectarrTypedOwnedItemDeleters = '
+    '<CatalogMediaKind, Future<void> Function(LocalDatabase, Object, DateTime)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedModel = persistence.ownedModel.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database, item, deletedAt) => '
+      '$repository(database).markDeleted(item as $ownedModel, deletedAt),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrOwnedItemSerializers = '
     '<CatalogMediaKind, OwnedItem Function(Object)>{',
   );

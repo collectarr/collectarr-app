@@ -674,7 +674,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _removeOwnedCopy(OwnedItem item) async {
-    await ref.read(ownedItemMutationsProvider).removeItem(item);
+    await ref.read(ownedItemMutationsProvider).removeItem(item.ref);
     if (!mounted) {
       return;
     }

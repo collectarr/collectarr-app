@@ -42,7 +42,7 @@ class LibraryCollectionActions {
     if (owned == null) {
       return;
     }
-    await ownedMutations.removeItem(owned);
+    await ownedMutations.removeItem(owned.ref);
   }
 
   Future<void> addWishlist(LibraryProjectionItem item) {

@@ -12,6 +12,15 @@ typedef _TypedOwnedItemPersister = Future<void> Function(
   LocalDatabase database,
   Object item,
 );
+typedef _TypedOwnedItemFinder = Future<Object?> Function(
+  LocalDatabase database,
+  String id,
+);
+typedef _TypedOwnedItemDeleter = Future<void> Function(
+  LocalDatabase database,
+  Object item,
+  DateTime deletedAt,
+);
 typedef _OwnedItemReader = Future<List<OwnedItem>> Function(
   LocalDatabase database,
 );
@@ -36,6 +45,8 @@ typedef _OwnedItemDeleter = Future<void> Function(
 final class CollectarrOwnedItemPersistence {
   CollectarrOwnedItemPersistence(this._database)
       : _typedPersisters = collectarrTypedOwnedItemPersisters,
+        _typedFinders = collectarrTypedOwnedItemFinders,
+        _typedDeleters = collectarrTypedOwnedItemDeleters,
         _persisters = collectarrOwnedItemPersisters,
         _readers = collectarrOwnedItemReaders,
         _summaryReaders = collectarrOwnedItemSummaryReaders,
@@ -44,6 +55,8 @@ final class CollectarrOwnedItemPersistence {
 
   final LocalDatabase _database;
   final Map<CatalogMediaKind, _TypedOwnedItemPersister> _typedPersisters;
+  final Map<CatalogMediaKind, _TypedOwnedItemFinder> _typedFinders;
+  final Map<CatalogMediaKind, _TypedOwnedItemDeleter> _typedDeleters;
   final Map<CatalogMediaKind, _OwnedItemPersister> _persisters;
   final Map<CatalogMediaKind, _OwnedItemReader> _readers;
   final Map<CatalogMediaKind, _OwnedItemSummaryReader> _summaryReaders;
@@ -70,6 +83,24 @@ final class CollectarrOwnedItemPersistence {
       );
     }
     await persister(_database, item);
+  }
+
+  Future<void> markDeletedByRef(
+    OwnedItemRef ref,
+    DateTime deletedAt,
+  ) async {
+    final finder = _typedFinders[ref.kind];
+    final deleter = _typedDeleters[ref.kind];
+    if (finder == null || deleter == null) {
+      throw StateError(
+        'Cannot delete typed owned item without a supported kind: '
+        '${ref.kind.apiValue}',
+      );
+    }
+    final item = await finder(_database, ref.id.value);
+    if (item != null) {
+      await deleter(_database, item, deletedAt);
+    }
   }
 
   Future<void> upsertAll(Iterable<OwnedItem> items) async {

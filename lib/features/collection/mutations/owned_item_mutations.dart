@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
@@ -227,20 +228,22 @@ final class OwnedItemMutations {
     );
   }
 
-  Future<void> removeItem(OwnedItem item) async {
+  Future<void> removeItem(OwnedItemRef ref) async {
     final now = DateTime.now().toUtc();
+    final existing = await ownedItems.findById(ref.id.value);
+    if (existing == null) return;
     await mutationRunner.run(
       action: () async {
-        await ownedItems.markDeleted(item, now);
+        await ownedItems.markDeletedByRef(ref, now);
         await syncQueue.enqueue(
           _syncChangeForOwnedItem(
-            item.copyWith(updatedAt: now, deletedAt: now),
+            existing.copyWith(updatedAt: now, deletedAt: now),
             'delete',
             now,
           ),
         );
       },
-      eventsToEmit: [OwnedItemRemoved(item.id)],
+      eventsToEmit: [OwnedItemRemoved(ref.id.value)],
     );
   }
 

@@ -228,7 +228,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
   }
 
   Future<void> _removeOwnedCopy(OwnedItem item) async {
-    await ref.read(ownedItemMutationsProvider).removeItem(item);
+    await ref.read(ownedItemMutationsProvider).removeItem(item.ref);
     if (!mounted) {
       return;
     }

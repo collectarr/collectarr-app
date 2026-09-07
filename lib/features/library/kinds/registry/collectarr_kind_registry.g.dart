@@ -444,6 +444,58 @@ final collectarrOwnedItemPersisters =
       .upsert(TvOwnedItemProjection.fromOwnedItem(item)),
 };
 
+final collectarrTypedOwnedItemFinders =
+    <CatalogMediaKind, Future<Object?> Function(LocalDatabase, String)>{
+  CatalogMediaKind.anime: (database, id) =>
+      AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id)),
+  CatalogMediaKind.boardgame: (database, id) =>
+      BoardGameOwnedRepository(database).findById(BoardGameOwnedItemId(id)),
+  CatalogMediaKind.book: (database, id) =>
+      BookOwnedRepository(database).findById(BookOwnedItemId(id)),
+  CatalogMediaKind.comic: (database, id) =>
+      ComicOwnedRepository(database).findById(ComicOwnedItemId(id)),
+  CatalogMediaKind.game: (database, id) =>
+      GameOwnedRepository(database).findById(GameOwnedItemId(id)),
+  CatalogMediaKind.manga: (database, id) =>
+      MangaOwnedRepository(database).findById(MangaOwnedItemId(id)),
+  CatalogMediaKind.movie: (database, id) =>
+      MovieOwnedRepository(database).findById(MovieOwnedItemId(id)),
+  CatalogMediaKind.music: (database, id) =>
+      MusicOwnedRepository(database).findById(MusicOwnedItemId(id)),
+  CatalogMediaKind.tv: (database, id) =>
+      TvOwnedRepository(database).findById(TvOwnedItemId(id)),
+};
+
+final collectarrTypedOwnedItemDeleters =
+    <CatalogMediaKind, Future<void> Function(LocalDatabase, Object, DateTime)>{
+  CatalogMediaKind.anime: (database, item, deletedAt) =>
+      AnimeOwnedRepository(database)
+          .markDeleted(item as AnimeOwnedItem, deletedAt),
+  CatalogMediaKind.boardgame: (database, item, deletedAt) =>
+      BoardGameOwnedRepository(database)
+          .markDeleted(item as BoardGameOwnedItem, deletedAt),
+  CatalogMediaKind.book: (database, item, deletedAt) =>
+      BookOwnedRepository(database)
+          .markDeleted(item as BookOwnedItem, deletedAt),
+  CatalogMediaKind.comic: (database, item, deletedAt) =>
+      ComicOwnedRepository(database)
+          .markDeleted(item as ComicOwnedItem, deletedAt),
+  CatalogMediaKind.game: (database, item, deletedAt) =>
+      GameOwnedRepository(database)
+          .markDeleted(item as GameOwnedItem, deletedAt),
+  CatalogMediaKind.manga: (database, item, deletedAt) =>
+      MangaOwnedRepository(database)
+          .markDeleted(item as MangaOwnedItem, deletedAt),
+  CatalogMediaKind.movie: (database, item, deletedAt) =>
+      MovieOwnedRepository(database)
+          .markDeleted(item as MovieOwnedItem, deletedAt),
+  CatalogMediaKind.music: (database, item, deletedAt) =>
+      MusicOwnedRepository(database)
+          .markDeleted(item as MusicOwnedItem, deletedAt),
+  CatalogMediaKind.tv: (database, item, deletedAt) =>
+      TvOwnedRepository(database).markDeleted(item as TvOwnedItem, deletedAt),
+};
+
 final collectarrOwnedItemSerializers =
     <CatalogMediaKind, OwnedItem Function(Object)>{
   CatalogMediaKind.anime: (item) =>

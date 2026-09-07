@@ -139,7 +139,7 @@ class LibraryBulkActions {
         if (entry.ownedItem != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await ownedMutations.removeItem(ownedEntries[index].ownedItem!);
+      await ownedMutations.removeItem(ownedEntries[index].ownedItem!.ref);
     }
   }
 
@@ -200,7 +200,7 @@ class LibraryBulkActions {
         if (entry.trackingEntry != null && entry.ownedItem == null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await ownedMutations.removeItem(ownedEntries[index].ownedItem!);
+      await ownedMutations.removeItem(ownedEntries[index].ownedItem!.ref);
     }
     for (var index = 0; index < wishlistedEntries.length; index++) {
       final anchor = resolveLibraryMutationAnchor(
