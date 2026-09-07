@@ -671,19 +671,6 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
         'catalog ${row.id} has a barcode rejected by ${row.kind}',
       );
     }
-    if (row.kind == 'movie' || row.kind == 'tv' || row.kind == 'anime') {
-      require(
-        row.payload['runtime_minutes'] is int && row.payload['nr_discs'] is int,
-        'video catalog ${row.id} is missing runtime/disc seed metadata',
-      );
-    }
-    if (row.kind == 'music') {
-      require(
-        row.payload['track_count'] is int &&
-            (row.payload['tracks'] as List?)?.isNotEmpty == true,
-        'music catalog ${row.id} is missing track seed metadata',
-      );
-    }
   }
   for (final row in seededOwnedRows) {
     final catalog = catalogById[row.itemId];
@@ -972,6 +959,10 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     graphValidators: {
       for (final contributor in collectarrDevSeedContributors)
         contributor.kind: contributor.validateCatalogGraph,
+    },
+    barcodeValidators: {
+      for (final contributor in collectarrDevSeedContributors)
+        contributor.kind: contributor.validateBarcode,
     },
   );
   validateSeedOwnedQuality(

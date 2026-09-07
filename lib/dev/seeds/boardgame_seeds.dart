@@ -22,16 +22,38 @@ final boardgameDevSeedContributor = DevSeedKindContributor(
     runtimeMinutes: 0,
     ageRating: 'PG',
     audienceRating: '10+',
+    enrichPayload: enrichBoardgameSeedPayload,
   ),
   catalogItems: boardgameSeedCatalogItems,
   enrichItem: enrichBoardgameSeedItem,
   validateCatalog: validateBoardgameSeedCatalog,
   validateCatalogGraph: validateBoardgameSeedCatalogGraph,
+  validateBarcode: seedValidateStandardBarcode,
   ownedItems: boardgameSeedOwnedItems,
   validateOwned: validateBoardgameSeedOwned,
   trackingEntries: boardgameSeedTrackingEntries,
   seedDatabase: seedBoardgameDatabase,
 );
+
+void enrichBoardgameSeedPayload(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+) {
+  payload.putIfAbsent('bgg_rank', () => 1);
+  payload.putIfAbsent('bgg_rating', () => 7.5);
+  payload.putIfAbsent('play_count', () => 5);
+  payload.putIfAbsent(
+    'last_played',
+    () => item.releaseDate?.toUtc().toIso8601String(),
+  );
+  payload.putIfAbsent('favorite_player_count', () => 4);
+  payload.putIfAbsent(
+    'player_stats',
+    () => <Map<String, dynamic>>[
+      {'players': 2, 'rating': 7.0},
+    ],
+  );
+}
 
 List<String> validateBoardgameSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];

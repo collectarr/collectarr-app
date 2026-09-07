@@ -16,6 +16,11 @@ final Uint8List seedTinyPngBytes = base64Decode(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Zx1EAAAAASUVORK5CYII=',
 );
 
+void seedNoopCatalogPayloadEnricher(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+) {}
+
 String seedOrdinal2(int value) => value.toString().padLeft(2, '0');
 
 Iterable<String> seedIds(String kind, int count) sync* {
@@ -173,11 +178,6 @@ CatalogItemDto enrichSeedItem(
         if (seriesTitle != null) seriesTitle,
       ],
     );
-    payload.putIfAbsent(
-      'dust_jacket_condition',
-      () => item.kind == 'book' ? 'very good' : null,
-    );
-    payload.putIfAbsent('dust_jacket', () => item.kind == 'book');
     payload.putIfAbsent('audiobook_abridged', () => false);
     payload.putIfAbsent('first_edition', () => true);
   }
@@ -194,60 +194,7 @@ CatalogItemDto enrichSeedItem(
     payload.putIfAbsent('audience_rating', () => defaults.audienceRating);
   }
 
-  if (item.kind == 'music') {
-    final musicMap = payload['music'] is Map
-        ? payload['music'] as Map
-        : const <String, dynamic>{};
-    final musicTracks = musicMap['tracks'];
-    payload.putIfAbsent(
-      'track_count',
-      () =>
-          musicMap['track_count'] ??
-          (musicTracks is List && musicTracks.isNotEmpty
-              ? musicTracks.length
-              : 10),
-    );
-    payload.putIfAbsent('catalog_number', () => 'SEED-${item.id}');
-    payload.putIfAbsent(
-      'original_release_date',
-      () => item.releaseDate?.toUtc().toIso8601String(),
-    );
-    payload.putIfAbsent(
-      'recording_date',
-      () => item.releaseDate?.toUtc().toIso8601String(),
-    );
-    payload.putIfAbsent('studio', () => item.publisher);
-    payload.putIfAbsent('rpm', () => '33 1/3');
-    payload.putIfAbsent('spars', () => 'none');
-    payload.putIfAbsent('sound_type', () => 'stereo');
-    payload.putIfAbsent('vinyl_color', () => 'black');
-    payload.putIfAbsent('vinyl_weight', () => '180g');
-    payload.putIfAbsent('media_condition', () => 'excellent');
-    payload.putIfAbsent('instrument', () => 'ensemble');
-    payload.putIfAbsent('is_live', () => false);
-    payload.putIfAbsent('composition', () => item.title);
-  }
-
-  if (item.kind == 'game') {
-    payload.putIfAbsent('platforms', () => <String>['PC', 'Console']);
-    payload.putIfAbsent('toy_subtype', () => 'video game');
-    payload.putIfAbsent('toy_type', () => 'software');
-  }
-
-  if (item.kind == 'boardgame') {
-    payload.putIfAbsent('bgg_rank', () => 1);
-    payload.putIfAbsent('bgg_rating', () => 7.5);
-    payload.putIfAbsent('play_count', () => 5);
-    payload.putIfAbsent(
-        'last_played', () => item.releaseDate?.toUtc().toIso8601String());
-    payload.putIfAbsent('favorite_player_count', () => 4);
-    payload.putIfAbsent(
-      'player_stats',
-      () => <Map<String, dynamic>>[
-        {'players': 2, 'rating': 7.0},
-      ],
-    );
-  }
+  defaults.enrichPayload(item, payload);
 
   return CatalogItemDto.fromJson(payload);
 }
@@ -262,6 +209,7 @@ void validateSeedCatalogQuality(
   Iterable<CatalogItemDto> items, {
   Map<String, DevSeedCatalogQualityValidator> validators = const {},
   Map<String, DevSeedCatalogGraphValidator> graphValidators = const {},
+  Map<String, DevSeedCatalogBarcodeValidator> barcodeValidators = const {},
 }) {
   final issues = <String>[];
   for (final item in items) {
@@ -280,7 +228,12 @@ void validateSeedCatalogQuality(
     if (item.releaseDate == null) {
       issues.add('$prefix: release_date is required');
     }
-    _requireSeedBarcode(issues, prefix, item.kind, item.barcode);
+    final barcodeValidator = barcodeValidators[item.kind];
+    if (barcodeValidator == null) {
+      seedValidateStandardBarcode(issues, prefix, item.barcode);
+    } else {
+      barcodeValidator(issues, prefix, item.barcode);
+    }
     _requireTextList(
         issues, prefix, 'search_aliases', payload['search_aliases']);
     _requireTextList(issues, prefix, 'genres', payload['genres']);
@@ -427,26 +380,30 @@ void seedValidateVideoReleases(
   }
 }
 
-void _requireSeedBarcode(
+void seedValidateBarcode(
   List<String> issues,
   String prefix,
-  String kind,
-  String? barcode,
-) {
+  String? barcode, {
+  bool Function(String value)? additionalValid,
+}) {
   if (barcode == null || barcode.trim().isEmpty) {
     issues.add('$prefix: barcode is required for the physical seed fixture');
     return;
   }
   final value = barcode.trim();
-  final isComicSupplement = kind == 'comic' &&
-      value.length == 17 &&
-      isValidRetailBarcode(value.substring(0, 12)) &&
-      RegExp(r'^\d{5}$').hasMatch(value.substring(12));
   if (!isValidRetailBarcode(value) &&
       !isValidIsbn(value) &&
-      !isComicSupplement) {
+      !(additionalValid?.call(value) ?? false)) {
     issues.add('$prefix: barcode has an invalid checksum or format');
   }
+}
+
+void seedValidateStandardBarcode(
+  List<String> issues,
+  String prefix,
+  String? barcode,
+) {
+  seedValidateBarcode(issues, prefix, barcode);
 }
 
 void validateSeedOwnedQuality(

@@ -19,15 +19,26 @@ final gameDevSeedContributor = DevSeedKindContributor(
     runtimeMinutes: 0,
     ageRating: 'PG',
     audienceRating: 'All',
+    enrichPayload: enrichGameSeedPayload,
   ),
   catalogItems: gameSeedCatalogItems,
   enrichItem: enrichGameSeedItem,
   validateCatalog: validateGameSeedCatalog,
   validateCatalogGraph: validateGameSeedCatalogGraph,
+  validateBarcode: seedValidateStandardBarcode,
   ownedItems: gameSeedOwnedItems,
   validateOwned: validateGameSeedOwned,
   trackingEntries: gameSeedTrackingEntries,
 );
+
+void enrichGameSeedPayload(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+) {
+  payload.putIfAbsent('platforms', () => <String>['PC', 'Console']);
+  payload.putIfAbsent('toy_subtype', () => 'video game');
+  payload.putIfAbsent('toy_type', () => 'software');
+}
 
 List<String> validateGameSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];

@@ -19,15 +19,54 @@ final musicDevSeedContributor = DevSeedKindContributor(
     runtimeMinutes: 0,
     ageRating: 'PG',
     audienceRating: 'All',
+    enrichPayload: enrichMusicSeedPayload,
   ),
   catalogItems: musicSeedCatalogItems,
   enrichItem: enrichMusicSeedItem,
   validateCatalog: validateMusicSeedCatalog,
   validateCatalogGraph: validateMusicSeedCatalogGraph,
+  validateBarcode: seedValidateStandardBarcode,
   ownedItems: musicSeedOwnedItems,
   validateOwned: validateMusicSeedOwned,
   trackingEntries: musicSeedTrackingEntries,
 );
+
+void enrichMusicSeedPayload(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+) {
+  final musicMap = payload['music'] is Map
+      ? payload['music'] as Map
+      : const <String, dynamic>{};
+  final musicTracks = musicMap['tracks'];
+  payload.putIfAbsent(
+    'track_count',
+    () =>
+        musicMap['track_count'] ??
+        (musicTracks is List && musicTracks.isNotEmpty
+            ? musicTracks.length
+            : 10),
+  );
+  payload.putIfAbsent('catalog_number', () => 'SEED-${item.id}');
+  payload.putIfAbsent(
+    'original_release_date',
+    () => item.releaseDate?.toUtc().toIso8601String(),
+  );
+  payload.putIfAbsent(
+    'recording_date',
+    () => item.releaseDate?.toUtc().toIso8601String(),
+  );
+  payload.putIfAbsent('studio', () => item.publisher);
+  payload.putIfAbsent('rpm', () => '33 1/3');
+  payload.putIfAbsent('spars', () => 'none');
+  payload.putIfAbsent('sound_type', () => 'stereo');
+  payload.putIfAbsent('vinyl_color', () => 'black');
+  payload.putIfAbsent('vinyl_weight', () => '180g');
+  payload.putIfAbsent('media_condition', () => 'excellent');
+  payload.putIfAbsent('instrument', () => 'ensemble');
+  payload.putIfAbsent('is_live', () => false);
+  payload.putIfAbsent('composition', () => item.title);
+}
 
 List<String> validateMusicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];

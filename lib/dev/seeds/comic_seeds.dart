@@ -13,6 +13,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
+import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
 final comicDevSeedContributor = DevSeedKindContributor(
   kind: 'comic',
@@ -25,17 +26,35 @@ final comicDevSeedContributor = DevSeedKindContributor(
     runtimeMinutes: 0,
     ageRating: 'PG',
     audienceRating: 'All',
+    enrichPayload: seedNoopCatalogPayloadEnricher,
   ),
   catalogItems: comicSeedCatalogItems,
   enrichItem: enrichComicSeedItem,
   validateCatalog: validateComicSeedCatalog,
   validateCatalogGraph: validateComicSeedCatalogGraph,
+  validateBarcode: validateComicSeedBarcode,
   ownedItems: comicSeedOwnedItems,
   validateOwned: validateComicSeedOwned,
   trackingEntries: comicSeedTrackingEntries,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
 );
+
+void validateComicSeedBarcode(
+  List<String> issues,
+  String prefix,
+  String? barcode,
+) {
+  seedValidateBarcode(
+    issues,
+    prefix,
+    barcode,
+    additionalValid: (value) =>
+        value.length == 17 &&
+        isValidRetailBarcode(value.substring(0, 12)) &&
+        RegExp(r'^\d{5}$').hasMatch(value.substring(12)),
+  );
+}
 
 List<String> validateComicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];

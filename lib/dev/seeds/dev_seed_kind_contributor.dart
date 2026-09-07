@@ -8,8 +8,17 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 
 typedef DevSeedCatalogFactory = List<CatalogItemDto> Function();
 typedef DevSeedItemEnricher = CatalogItemDto Function(CatalogItemDto item);
+typedef DevSeedCatalogPayloadEnricher = void Function(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+);
 typedef DevSeedCatalogQualityValidator = List<String> Function(
   CatalogItemDto item,
+);
+typedef DevSeedCatalogBarcodeValidator = void Function(
+  List<String> issues,
+  String prefix,
+  String? barcode,
 );
 typedef DevSeedCatalogGraphValidator = List<String> Function(
   CatalogItemDto item,
@@ -45,6 +54,7 @@ final class DevSeedCatalogDefaults {
     required this.runtimeMinutes,
     required this.ageRating,
     required this.audienceRating,
+    required this.enrichPayload,
   });
 
   final bool includePublishingDetails;
@@ -55,6 +65,7 @@ final class DevSeedCatalogDefaults {
   final int runtimeMinutes;
   final String ageRating;
   final String audienceRating;
+  final DevSeedCatalogPayloadEnricher enrichPayload;
 }
 
 /// The complete development-fixture contribution owned by one library kind.
@@ -70,6 +81,7 @@ final class DevSeedKindContributor {
     required this.enrichItem,
     required this.validateCatalog,
     required this.validateCatalogGraph,
+    required this.validateBarcode,
     required this.ownedItems,
     required this.validateOwned,
     required this.trackingEntries,
@@ -85,6 +97,7 @@ final class DevSeedKindContributor {
   final DevSeedItemEnricher enrichItem;
   final DevSeedCatalogQualityValidator validateCatalog;
   final DevSeedCatalogGraphValidator validateCatalogGraph;
+  final DevSeedCatalogBarcodeValidator validateBarcode;
   final DevSeedOwnedFactory ownedItems;
   final DevSeedOwnedQualityValidator validateOwned;
   final DevSeedTrackingFactory trackingEntries;

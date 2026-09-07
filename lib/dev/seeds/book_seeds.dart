@@ -21,16 +21,26 @@ final bookDevSeedContributor = DevSeedKindContributor(
     runtimeMinutes: 0,
     ageRating: 'PG',
     audienceRating: 'All',
+    enrichPayload: enrichBookSeedPayload,
   ),
   catalogItems: bookSeedCatalogItems,
   enrichItem: enrichBookSeedItem,
   validateCatalog: validateBookSeedCatalog,
   validateCatalogGraph: validateBookSeedCatalogGraph,
+  validateBarcode: seedValidateStandardBarcode,
   ownedItems: bookSeedOwnedItems,
   validateOwned: validateBookSeedOwned,
   trackingEntries: bookSeedTrackingEntries,
   trackingUnits: bookSeedTrackingUnits,
 );
+
+void enrichBookSeedPayload(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+) {
+  payload.putIfAbsent('dust_jacket_condition', () => 'very good');
+  payload.putIfAbsent('dust_jacket', () => true);
+}
 
 List<String> validateBookSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];

@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
-import 'package:collectarr_app/dev/seeds/comic_seeds.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -24,10 +23,20 @@ void main() {
       expect(contributor.catalogItems, isNotNull);
       expect(contributor.validateCatalog, isNotNull);
       expect(contributor.validateCatalogGraph, isNotNull);
+      expect(contributor.validateBarcode, isNotNull);
       expect(contributor.ownedItems, isNotNull);
       expect(contributor.validateOwned, isNotNull);
       expect(contributor.trackingEntries, isNotNull);
     }
+  });
+
+  test('Comic seed validator accepts UPC supplemental barcodes', () {
+    final issues = <String>[];
+
+    validateComicSeedBarcode(
+        issues, 'comic/seed-comic-01', '70985301254200111');
+
+    expect(issues, isEmpty);
   });
 
   test('seed quality guard rejects incomplete catalog data', () {
