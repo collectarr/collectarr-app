@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
 
 class LibraryCatalogKindDefaults {
   const LibraryCatalogKindDefaults({
@@ -93,11 +91,6 @@ String catalogTitleFromToken(String value, {String emptyLabel = ''}) {
       else
         '${part[0].toUpperCase()}${part.substring(1)}',
   ].join(' ');
-}
-
-List<PhysicalMediaFormat> fallbackPhysicalMediaFormatsForKind(
-    CatalogMediaKind kind) {
-  return kindFallbackPhysicalMediaFormats(kind);
 }
 
 String catalogDisplayPluralLabel(CatalogMediaType type) {

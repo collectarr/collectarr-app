@@ -21,6 +21,7 @@ void main() {
       for (final spec in collectarrKindModules) {
         expect(spec.kind, isNotNull);
         expect(spec.identity, isNotNull);
+        expect(spec.physicalMediaFormats, isNotEmpty);
         expect(spec.metadata, isNotNull);
         expect(spec.hierarchy, isNotNull);
         expect(spec.inspector, isNotNull);
@@ -117,6 +118,7 @@ void main() {
         hierarchy: comicKindModule.hierarchy,
         inspector: comicKindModule.inspector,
         presentation: comicKindModule.presentation,
+        physicalMediaFormats: comicKindModule.physicalMediaFormats,
         trackingProfile: comicKindModule.trackingProfile,
         transfer: comicKindModule.transfer,
         add: comicKindModule.add,

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
@@ -170,6 +171,7 @@ final bookLibraryFacetModule = LibraryFacetModule(
 
 final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   presentation: bookLibraryMediaPresentation,
+  physicalMediaFormats: bookPhysicalMediaFormats,
   trackingProfile: bookTrackingProfile,
   projector: const BookWorkspaceProjector(),
   fields: bookLibraryKindSchema.toRegistry(),

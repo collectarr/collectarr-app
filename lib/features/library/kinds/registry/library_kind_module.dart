@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
 import 'package:collectarr_app/features/library/config/library_value_capability.dart';
@@ -55,6 +56,7 @@ export 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 abstract interface class LibraryKindModule {
   CatalogMediaKind get kind;
   LibraryKindIdentity get identity;
+  List<PhysicalMediaFormat> get physicalMediaFormats;
   LibraryMediaPresentation get presentation;
   LibraryMetadataCapability get metadata;
   MediaTrackingProfile get trackingProfile;
@@ -103,6 +105,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
     required this.add,
     required this.edit,
     required this.identity,
+    required this.physicalMediaFormats,
     required this.metadata,
     required this.hierarchy,
     required this.inspector,
@@ -128,6 +131,9 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
 
   @override
   final LibraryKindIdentity identity;
+
+  @override
+  final List<PhysicalMediaFormat> physicalMediaFormats;
 
   @override
   final LibraryMediaPresentation presentation;
@@ -172,6 +178,7 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
       add: add,
       edit: edit,
       identity: identity,
+      physicalMediaFormats: physicalMediaFormats,
       metadata: metadata,
       hierarchy: hierarchy,
       inspector: inspector,

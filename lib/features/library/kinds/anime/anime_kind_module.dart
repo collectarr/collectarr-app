@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
@@ -122,6 +123,7 @@ const animeLibraryFacetModule = LibraryFacetModule(
 
 final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
   presentation: animeLibraryMediaPresentation,
+  physicalMediaFormats: animePhysicalMediaFormats,
   trackingProfile: animeTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),

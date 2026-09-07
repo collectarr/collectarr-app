@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_pane.dart';
@@ -158,6 +159,7 @@ const movieLibraryFacetModule = LibraryFacetModule(
 
 final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
   presentation: moviesLibraryMediaPresentation,
+  physicalMediaFormats: moviePhysicalMediaFormats,
   trackingProfile: movieTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),

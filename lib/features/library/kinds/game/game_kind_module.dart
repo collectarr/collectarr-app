@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
@@ -66,6 +67,7 @@ final gameLibraryFacetModule = LibraryFacetModule(
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   presentation: gamesLibraryMediaPresentation,
+  physicalMediaFormats: gamePhysicalMediaFormats,
   trackingProfile: gameTrackingProfile,
   projector: const GameWorkspaceProjector(),
   fields: gameLibraryKindSchema.toRegistry(),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
@@ -71,6 +72,7 @@ const musicLibraryFacetModule = LibraryFacetModule(
 
 final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   presentation: musicLibraryMediaPresentation,
+  physicalMediaFormats: musicPhysicalMediaFormats,
   searchTargetOptions: const [
     LibrarySearchTarget.all,
     LibrarySearchTarget.mediaOnly,

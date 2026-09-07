@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
@@ -111,6 +112,7 @@ final comicLibraryFacetModule = LibraryFacetModule(
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   presentation: comicLibraryMediaPresentation,
+  physicalMediaFormats: comicPhysicalMediaFormats,
   trackingProfile: comicTrackingProfile,
   viewProfile: comicsWorkspaceViewProfile,
   projector: const ComicWorkspaceProjector(),

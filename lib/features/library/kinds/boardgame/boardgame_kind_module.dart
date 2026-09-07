@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -100,6 +101,7 @@ final boardGameLibraryFacetModule = LibraryFacetModule(
 
 final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   presentation: boardGamesLibraryMediaPresentation,
+  physicalMediaFormats: boardGamePhysicalMediaFormats,
   trackingProfile: boardGameTrackingProfile,
   projector: const BoardGameWorkspaceProjector(),
   fields: boardgameLibraryKindSchema.toRegistry(),

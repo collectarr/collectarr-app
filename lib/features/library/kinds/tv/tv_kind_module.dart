@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
@@ -123,6 +124,7 @@ const tvLibraryFacetModule = LibraryFacetModule(
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   presentation: tvLibraryMediaPresentation,
+  physicalMediaFormats: tvPhysicalMediaFormats,
   trackingProfile: tvTrackingProfile,
   releaseCapability:
       const VideoReleaseProjectionCapability<LibraryWorkspaceDto>(),
