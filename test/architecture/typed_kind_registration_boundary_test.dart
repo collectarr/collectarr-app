@@ -100,4 +100,43 @@ void main() {
           reason: file.path);
     }
   });
+
+  test('production code does not recover erased workspace through a property',
+      () {
+    final productionFiles = Directory(productionRoot)
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'));
+    final erasedWorkspaceFiles = <String>[];
+    final workspaceProperty = RegExp(r'\.\s*workspace\b');
+    for (final file in productionFiles) {
+      if (workspaceProperty.hasMatch(file.readAsStringSync())) {
+        erasedWorkspaceFiles.add(file.path);
+      }
+    }
+    expect(erasedWorkspaceFiles, isEmpty);
+  });
+
+  test('tests keep kind dispatch typed instead of switching or casting dynamic',
+      () {
+    final testFiles = Directory('test')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'));
+    final kindSwitch = RegExp(
+      r'switch\s*\([^)]*(CatalogMediaKind|LibraryKind|mediaKind)',
+    );
+    final dynamicProviderMapperCast = RegExp(
+      r'TypedLibraryKindProviderMapper\s*<\s*dynamic\s*>',
+    );
+    final violations = <String>[];
+    for (final file in testFiles) {
+      final source = file.readAsStringSync();
+      if (kindSwitch.hasMatch(source) ||
+          dynamicProviderMapperCast.hasMatch(source)) {
+        violations.add(file.path);
+      }
+    }
+    expect(violations, isEmpty);
+  });
 }
