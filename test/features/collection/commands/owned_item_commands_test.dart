@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -125,7 +125,10 @@ void main() {
       ),
     );
 
-    final item = await coordinator.addOwnedItem(command);
+    final itemRef = await coordinator.addOwnedItem(command);
+    final stored =
+        await OwnedItemsRepository(db).findTypedById(itemRef.id.value);
+    final item = stored!.$2 as ComicOwnedItem;
 
     expect(item.itemId, 'comic-cmd-1');
     expect(item.anchorType, 'variant');
@@ -134,7 +137,7 @@ void main() {
     expect(item.condition, 'Near Mint');
     expect(item.grade, '9.8');
     expect(item.pricePaidCents, 1500);
-    final comicDetails = item.details as ComicOwnedDetails;
+    final comicDetails = item.details;
     expect(comicDetails.gradingCompany, 'CGC');
     expect(comicDetails.certificationNumber, 'CGC-12345');
     expect(comicDetails.coverPriceCents, 499);
@@ -154,7 +157,7 @@ void main() {
     addTearDown(container.dispose);
 
     final coordinator = container.read(collectionCommandCoordinatorProvider);
-    final initial = await coordinator.addOwnedItem(
+    final initialRef = await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: const CatalogEntityRef(
           kind: 'comic',
@@ -190,21 +193,24 @@ void main() {
       ),
     );
 
-    final updated = await coordinator.updateOwnedItem(
+    final updatedRef = await coordinator.updateOwnedItem(
       UpdateOwnedItemCommand(
-        ownedItemId: initial.id,
+        ownedItemId: initialRef.id.value,
         payload: updatePayload,
       ),
     );
 
-    expect(updated.id, initial.id);
+    expect(updatedRef.id, initialRef.id);
+    final updatedStored =
+        await OwnedItemsRepository(db).findTypedById(updatedRef.id.value);
+    final updated = updatedStored!.$2 as ComicOwnedItem;
     expect(updated.anchor?.apiValue, 'variant');
     expect(updated.anchor?.editionId, 'edition-updated');
     expect(updated.anchor?.variantId, 'variant-updated');
     expect(updated.condition, 'Near Mint');
     expect(updated.grade, '9.6');
     expect(updated.pricePaidCents, 1000);
-    final comicDetails = updated.details as ComicOwnedDetails;
+    final comicDetails = updated.details;
     expect(comicDetails.rawOrSlabbed, 'Slabbed');
     expect(comicDetails.gradingCompany, 'CBCS');
   });

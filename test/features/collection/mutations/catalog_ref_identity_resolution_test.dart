@@ -1,9 +1,9 @@
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -138,8 +138,8 @@ void main() {
         ),
       );
 
-      expect(owned.catalogRef.kind, 'music');
-      expect(owned.catalogRef.kind, isNot('comic'));
+      expect(owned.kind, CatalogMediaKind.music);
+      expect(owned.kind, isNot(CatalogMediaKind.comic));
     });
   });
 }

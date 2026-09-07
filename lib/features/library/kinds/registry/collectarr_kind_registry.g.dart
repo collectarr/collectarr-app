@@ -637,6 +637,19 @@ Map<String, dynamic> collectarrTypedOwnedItemJson(Object item) {
   throw ArgumentError.value(item, 'item', 'Unsupported typed Owned seed');
 }
 
+bool? collectarrTypedOwnedItemIsDigital(Object item) {
+  if (item is AnimeOwnedItem) return item.isDigital;
+  if (item is BoardGameOwnedItem) return item.isDigital;
+  if (item is BookOwnedItem) return item.isDigital;
+  if (item is ComicOwnedItem) return item.isDigital;
+  if (item is GameOwnedItem) return item.isDigital;
+  if (item is MangaOwnedItem) return item.isDigital;
+  if (item is MovieOwnedItem) return item.isDigital;
+  if (item is MusicOwnedItem) return item.isDigital;
+  if (item is TvOwnedItem) return item.isDigital;
+  throw ArgumentError.value(item, 'item', 'Unsupported typed Owned seed');
+}
+
 final collectarrTypedOwnedItemSyncSerializers = <CatalogMediaKind,
     ({Map<String, dynamic> payload, bool isDeleted}) Function(Object)>{
   CatalogMediaKind.anime: (item) {

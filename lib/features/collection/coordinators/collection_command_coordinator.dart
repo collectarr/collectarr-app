@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
@@ -12,7 +12,7 @@ final class CollectionCommandCoordinator {
   final OwnedItemMutations ownedMutations;
   final TrackingMutations trackingMutations;
 
-  Future<OwnedItem> addOwnedItem(
+  Future<OwnedItemRef> addOwnedItem(
     AddOwnedItemCommand command, {
     bool syncTracking = true,
   }) async {
@@ -32,7 +32,7 @@ final class CollectionCommandCoordinator {
     return item;
   }
 
-  Future<OwnedItem> updateOwnedItem(
+  Future<OwnedItemRef> updateOwnedItem(
     OwnedItemUpdateRequest command, {
     bool syncTracking = true,
   }) async {

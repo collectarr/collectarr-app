@@ -4,10 +4,12 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:drift/native.dart';
@@ -76,7 +78,7 @@ void main() {
         final kind = entry.key;
         final validDraft = entry.value;
 
-        final item = await coordinator.addOwnedItem(
+        final itemRef = await coordinator.addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: kind.apiValue,
@@ -90,8 +92,12 @@ void main() {
 
         final defaultDetails =
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
-        expect(item.details, isNot(isA<TestOwnedDetails>()));
-        expect(item.details.runtimeType, defaultDetails.runtimeType);
+        final stored =
+            await OwnedItemsRepository(db).findTypedById(itemRef.id.value);
+        expect(stored, isNotNull);
+        expect(stored!.$1, kind);
+        expect(collectarrTypedOwnedItemJson(stored.$2), isNotEmpty);
+        expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
 
         // Mismatched details test: non-comic kind with ComicOwnedDetailsDraft
         if (kind != CatalogMediaKind.comic && kind != CatalogMediaKind.manga) {
@@ -142,7 +148,7 @@ void main() {
       final coordinator = container.read(collectionCommandCoordinatorProvider);
 
       for (final kind in allActiveKinds) {
-        final initial = await coordinator.addOwnedItem(
+        final initialRef = await coordinator.addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: kind.apiValue,
@@ -159,15 +165,19 @@ void main() {
 
         final updated = await coordinator.updateOwnedItem(
           libraryKindModuleForKind(kind).edit.buildDetailsResetCommand(
-                ownedItemId: initial.id,
+                ownedItemId: initialRef.id.value,
               ),
         );
 
         final defaultDetails =
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
 
-        expect(updated.details, isNot(isA<TestOwnedDetails>()));
-        expect(updated.details.runtimeType, defaultDetails.runtimeType);
+        final updatedStored =
+            await OwnedItemsRepository(db).findTypedById(updated.id.value);
+        expect(updatedStored, isNotNull);
+        expect(updatedStored!.$1, kind);
+        expect(collectarrTypedOwnedItemJson(updatedStored.$2), isNotEmpty);
+        expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
       }
     });
 

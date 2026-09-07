@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -46,7 +45,7 @@ final class OwnedItemMutations {
   final String? userEmail;
   final IdGenerator idGenerator;
 
-  Future<OwnedItem> addOwnedItem(
+  Future<OwnedItemRef> addOwnedItem(
     AddOwnedItemCommand command,
   ) async {
     final now = DateTime.now().toUtc();
@@ -58,7 +57,7 @@ final class OwnedItemMutations {
     final wishlistChanged = existingWishlist != null;
     final newItemId = idGenerator();
 
-    final ownedItem = await mutationRunner.run(
+    final ownedRef = await mutationRunner.run(
       action: () async {
         final existingCatalog = await catalogCache.findById(catalogRef.id);
         if (existingCatalog == null) {
@@ -93,16 +92,7 @@ final class OwnedItemMutations {
           ownerUserId: userId,
           ownerLabel: userEmail,
         );
-        final serializer = collectarrOwnedItemSerializers[mediaKind];
-        if (serializer == null) {
-          throw StateError(
-            'Cannot serialize owned item without a supported kind: '
-            '${catalogRef.kind}',
-          );
-        }
-        // This is the single current compatibility edge: the typed kind
-        // aggregate crosses into the persistence/sync serializer only here.
-        final ownedItem = serializer(typedOwnedItem);
+        final ownedRef = collectarrTypedOwnedItemRef(typedOwnedItem);
 
         await ownedItems.upsertTyped(mediaKind, typedOwnedItem);
         await syncQueue.enqueue(
@@ -131,7 +121,7 @@ final class OwnedItemMutations {
           );
         }
 
-        return ownedItem;
+        return ownedRef;
       },
       eventsToEmit: [
         OwnedItemAdded(newItemId),
@@ -139,10 +129,10 @@ final class OwnedItemMutations {
       ],
     );
 
-    return ownedItem;
+    return ownedRef;
   }
 
-  Future<OwnedItem> updateOwnedItem(
+  Future<OwnedItemRef> updateOwnedItem(
     OwnedItemUpdateRequest command,
   ) async {
     final typedCommand = command is UpdateOwnedItemCommand
@@ -164,13 +154,6 @@ final class OwnedItemMutations {
         final typedPayload = typedCommand.payload;
         final mediaKind = typedExistingResult.$1;
         final typedExisting = typedExistingResult.$2;
-        final serializer = collectarrOwnedItemSerializers[mediaKind];
-        if (serializer == null) {
-          throw StateError(
-            'Cannot resolve typed owned boundary for '
-            '${mediaKind.apiValue}: ${command.ownedItemId}',
-          );
-        }
         if (!typedPayload.canApplyTo(typedExisting)) {
           throw StateError(
             'Owned update payload does not belong to '
@@ -183,9 +166,8 @@ final class OwnedItemMutations {
           fallbackOwnerUserId: userId,
           fallbackOwnerLabel: userEmail,
         );
-        // The common model remains only at this explicit return projection;
-        // mutation and sync use the typed aggregate directly.
-        final updatedItem = serializer(typedUpdatedItem as Object);
+        final updatedRef =
+            collectarrTypedOwnedItemRef(typedUpdatedItem as Object);
 
         await ownedItems.upsertTyped(mediaKind, typedUpdatedItem);
         await syncQueue.enqueue(
@@ -197,7 +179,7 @@ final class OwnedItemMutations {
             now,
           ),
         );
-        return updatedItem;
+        return updatedRef;
       },
       eventsToEmit: [OwnedItemUpdated(command.ownedItemId)],
     );

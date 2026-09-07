@@ -327,7 +327,7 @@ void main() {
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     final queued = await db.select(db.syncQueue).get();
 
-    expect(tracking.ownedItemId, owned.id);
+    expect(tracking.ownedItemId, owned.id.value);
     expect(tracking.editionId, 'edition-steelbook');
     expect(tracking.variantId, 'variant-4k');
     expect(tracking.status, 'Completed');

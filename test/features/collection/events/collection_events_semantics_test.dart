@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -107,7 +106,7 @@ void main() {
     );
 
     await Future<void>.delayed(Duration.zero);
-    expect(events, [OwnedItemAdded(item.id)]);
+    expect(events, [OwnedItemAdded(item.id.value)]);
     await sub.cancel();
   });
 
@@ -131,7 +130,7 @@ void main() {
 
     await Future<void>.delayed(Duration.zero);
     expect(events, [
-      OwnedItemAdded(item.id),
+      OwnedItemAdded(item.id.value),
       const WishlistChanged('movie-200'),
     ]);
     await sub.cancel();

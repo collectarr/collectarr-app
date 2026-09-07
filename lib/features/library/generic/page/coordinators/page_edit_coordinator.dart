@@ -288,8 +288,10 @@ class LibraryPageEditCoordinator {
       final tracking = result.tracking;
       if (tracking == null || activeTrackingEntry == null) {
         await trackingMutations.syncOwnedTrackingEntry(
-          owned,
-          anchor: tracking?.anchor,
+          owned.ref,
+          catalogRef: owned.catalogRef,
+          isDigital: owned.isDigital,
+          anchor: tracking?.anchor ?? owned.anchor,
           replaceAnchor: tracking != null,
           status: mediaTrackingStatusFromValue(tracking?.readStatus),
           rating: tracking?.rating,

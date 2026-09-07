@@ -1,7 +1,9 @@
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
@@ -330,7 +332,13 @@ void main() {
       );
 
       await trackingMutations.syncOwnedTrackingEntry(
-        owned,
+        OwnedItemRef(
+          kind: CatalogMediaKind.tv,
+          id: OwnedItemId(owned.id),
+        ),
+        catalogRef: owned.catalogRef,
+        isDigital: owned.isDigital,
+        anchor: owned.anchor,
         status: MediaTrackingStatus.inProgress,
         progressCurrent: 9,
       );
@@ -363,10 +371,20 @@ void main() {
         testCatalogItem(id: ref.id, kind: ref.kind, title: 'Anchored Book'),
       ]);
       await ownedItems.upsert(owned);
-      await trackingMutations.syncOwnedTrackingEntry(owned);
+      final ownedRef = OwnedItemRef(
+        kind: CatalogMediaKind.book,
+        id: OwnedItemId(owned.id),
+      );
+      await trackingMutations.syncOwnedTrackingEntry(
+        ownedRef,
+        catalogRef: owned.catalogRef,
+        anchor: owned.anchor,
+        isDigital: owned.isDigital,
+      );
 
       await trackingMutations.syncOwnedTrackingEntry(
-        owned,
+        ownedRef,
+        catalogRef: owned.catalogRef,
         anchor: null,
         replaceAnchor: true,
       );

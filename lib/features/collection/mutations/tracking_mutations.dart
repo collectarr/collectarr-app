@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_entries
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -222,7 +223,9 @@ final class TrackingMutations {
       deleteTrackingEntry(entry, notify: notify);
 
   Future<void> syncOwnedTrackingEntry(
-    OwnedItem item, {
+    OwnedItemRef ownedRef, {
+    CatalogEntityRef? catalogRef,
+    bool? isDigital,
     PersonalItemAnchor? anchor,
     bool replaceAnchor = false,
     MediaTrackingStatus? status,
@@ -238,30 +241,41 @@ final class TrackingMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
+    final ownedSummary = catalogRef == null
+        ? await ownedItems?.findSummaryById(ownedRef.id.value)
+        : null;
+    final resolvedCatalogRef = catalogRef ?? ownedSummary?.catalogRef;
+    if (resolvedCatalogRef == null) {
+      throw StateError(
+        'Cannot resolve catalog reference for owned tracking target '
+        '${ownedRef.id.value}',
+      );
+    }
+    final typedOwned = await ownedItems?.findTypedById(ownedRef.id.value);
+    final resolvedIsDigital = typedOwned == null
+        ? isDigital
+        : collectarrTypedOwnedItemIsDigital(typedOwned.$2);
     final existingEntries =
-        await trackingEntries.findActiveByItemIds([item.itemId]);
+        await trackingEntries.findActiveByItemIds([resolvedCatalogRef.id]);
     final existing = existingEntries.isEmpty
         ? null
         : existingEntries.firstWhere(
-            (e) => e.ownedItemId == item.id,
+            (e) => e.ownedItemId == ownedRef.id.value,
             orElse: () => existingEntries.first,
           );
     final entryId = existing?.id ?? idGenerator();
-    final inheritedEditionId =
-        existing?.anchor?.editionId ?? item.anchor?.editionId;
-    final inheritedVariantId =
-        existing?.anchor?.variantId ?? item.anchor?.variantId;
-    final inheritedBundleReleaseId =
-        existing?.anchor?.bundleReleaseId ?? item.anchor?.bundleReleaseId;
+    final inheritedEditionId = existing?.anchor?.editionId;
+    final inheritedVariantId = existing?.anchor?.variantId;
+    final inheritedBundleReleaseId = existing?.anchor?.bundleReleaseId;
 
     await mutationRunner.run(
       origin: origin,
-      localRef: item.catalogRef,
+      localRef: resolvedCatalogRef,
       action: () async {
         final baseEntry = existing?.copyWith(
               id: entryId,
-              catalogRef: item.catalogRef,
-              ownedItemId: item.id,
+              catalogRef: resolvedCatalogRef,
+              ownedItemId: ownedRef.id.value,
               editionId: replaceAnchor
                   ? anchor?.editionId
                   : anchor?.editionId ?? inheritedEditionId,
@@ -280,15 +294,15 @@ final class TrackingMutations {
               progressTotal: progressTotal ?? existing.progressTotal,
               sourceType: sourceType ??
                   existing.sourceType ??
-                  (item.isDigital == true
+                  (resolvedIsDigital == true
                       ? TrackingSourceType.digital
                       : TrackingSourceType.physical),
               updatedAt: now,
             ) ??
             TrackingEntry(
               id: entryId,
-              catalogRef: item.catalogRef,
-              ownedItemId: item.id,
+              catalogRef: resolvedCatalogRef,
+              ownedItemId: ownedRef.id.value,
               editionId: replaceAnchor
                   ? anchor?.editionId
                   : anchor?.editionId ?? inheritedEditionId,
@@ -306,7 +320,7 @@ final class TrackingMutations {
               progressCurrent: progressCurrent,
               progressTotal: progressTotal,
               sourceType: sourceType ??
-                  (item.isDigital == true
+                  (resolvedIsDigital == true
                       ? TrackingSourceType.digital
                       : TrackingSourceType.physical),
               updatedAt: now,

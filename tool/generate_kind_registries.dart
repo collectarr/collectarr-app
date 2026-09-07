@@ -1154,6 +1154,23 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'bool? collectarrTypedOwnedItemIsDigital(Object item) {',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final ownedModel = persistence.ownedModel.className;
+    buffer.writeln(
+      '  if (item is $ownedModel) return item.isDigital;',
+    );
+  }
+  buffer.writeln(
+    "  throw ArgumentError.value(item, 'item', 'Unsupported typed Owned seed');",
+  );
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
     'final collectarrTypedOwnedItemSyncSerializers = '
     '<CatalogMediaKind, '
     '({Map<String, dynamic> payload, bool isDeleted}) Function(Object)>{',
