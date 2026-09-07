@@ -75,11 +75,10 @@ class _ActivityTimelineSectionState
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final theme = Theme.of(context);
-    final ownedItems = ref.watch(collectionProvider).maybeWhen(
+    final ownedItems = ref.watch(collectionSummariesProvider).maybeWhen(
           data: (items) => items
               .where((i) => i.itemId == widget.itemId)
-              .map(ownedItemSummaryFor)
-              .toList(),
+              .toList(growable: false),
           orElse: () => const <OwnedItemSummary>[],
         );
     final trackingEntries =

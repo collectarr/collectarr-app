@@ -529,28 +529,6 @@ final collectarrOwnedItemSummaryReaders =
           .toList(growable: false),
 };
 
-final collectarrOwnedItemSummaryProjectors =
-    <CatalogMediaKind, OwnedItemSummary Function(OwnedItem)>{
-  CatalogMediaKind.anime: (item) => AnimeOwnedItemProjection.toSummary(
-      AnimeOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.boardgame: (item) => BoardGameOwnedItemProjection.toSummary(
-      BoardGameOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.book: (item) => BookOwnedItemProjection.toSummary(
-      BookOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.comic: (item) => ComicOwnedItemProjection.toSummary(
-      ComicOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.game: (item) => GameOwnedItemProjection.toSummary(
-      GameOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.manga: (item) => MangaOwnedItemProjection.toSummary(
-      MangaOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.movie: (item) => MovieOwnedItemProjection.toSummary(
-      MovieOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.music: (item) => MusicOwnedItemProjection.toSummary(
-      MusicOwnedItemProjection.fromOwnedItem(item)),
-  CatalogMediaKind.tv: (item) => TvOwnedItemProjection.toSummary(
-      TvOwnedItemProjection.fromOwnedItem(item)),
-};
-
 final collectarrOwnedItemFinders =
     <CatalogMediaKind, Future<OwnedItem?> Function(LocalDatabase, String)>{
   CatalogMediaKind.anime: (database, id) async => _collectarrOwnedToCommon(

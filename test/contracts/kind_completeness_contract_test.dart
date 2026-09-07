@@ -143,7 +143,6 @@ void main() {
         expect(collectarrOwnedItemPersisters, contains(kind));
         expect(collectarrOwnedItemReaders, contains(kind));
         expect(collectarrOwnedItemSummaryReaders, contains(kind));
-        expect(collectarrOwnedItemSummaryProjectors, contains(kind));
         expect(collectarrOwnedItemFinders, contains(kind));
         expect(collectarrOwnedItemDeleters, contains(kind));
       }

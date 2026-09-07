@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/calendar/universal_calendar_contributors
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -12,8 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Provides all calendar events aggregated from collection data.
 final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
-  final ownedItems =
-      await CollectarrOwnedItemPersistence(db).listActiveSummaries();
+  final ownedItems = await ref.watch(collectionSummariesProvider.future);
   final watchSessions = await ref.watch(watchSessionsProvider.future);
   final loans = await LoanRepository(db).getAllLoans();
   final catalogRepo = LibraryCatalogRepository(db);

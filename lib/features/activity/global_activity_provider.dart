@@ -7,7 +7,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/detail/activity_event_aggregator.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -37,7 +36,7 @@ class GlobalActivityEntry {
 final globalActivityProvider =
     FutureProvider.autoDispose<List<GlobalActivityEntry>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
-  final owned = await CollectarrOwnedItemPersistence(db).listActiveSummaries();
+  final owned = await ref.watch(collectionSummariesProvider.future);
   // Ensure the grouped providers below have resolved data to read.
   await ref.watch(trackingEntriesProvider.future);
   await ref.watch(watchSessionsProvider.future);

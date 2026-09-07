@@ -65,6 +65,7 @@ class SyncController extends Notifier<SyncState> {
       await _repo.saveLastSyncedAt(result.serverTime);
 
       ref.invalidate(collectionProvider);
+      ref.invalidate(collectionSummariesProvider);
       ref.invalidate(trackingEntriesProvider);
       ref.invalidate(trackingEntriesByCatalogItemProvider);
       ref.invalidate(wishlistIdsProvider);
