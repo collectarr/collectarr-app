@@ -216,63 +216,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   }
 }
 
-void validateKindRuntime(LibraryKindModule runtime) {
-  if (runtime.fields.kindNamespace != runtime.kind.apiValue) {
-    throw StateError(
-      'Namespace mismatch in spec for "${runtime.identity.title}": fields.kindNamespace=${runtime.fields.kindNamespace}, expected=${runtime.kind.apiValue}',
-    );
-  }
-
-  final columnIds = <String>{};
-  for (final col in runtime.fields.columns) {
-    if (!columnIds.add(col.id.value)) {
-      throw StateError(
-        'Duplicate column ID "${col.id.value}" in kind spec "${runtime.identity.title}"',
-      );
-    }
-  }
-
-  final sortIds = <String>{};
-  for (final sort in runtime.fields.sorts) {
-    if (!sortIds.add(sort.id.value)) {
-      throw StateError(
-        'Duplicate sort ID "${sort.id.value}" in kind spec "${runtime.identity.title}"',
-      );
-    }
-  }
-
-  final groupIds = <String>{};
-  for (final group in runtime.fields.groups) {
-    if (!groupIds.add(group.id.value)) {
-      throw StateError(
-        'Duplicate group ID "${group.id.value}" in kind spec "${runtime.identity.title}"',
-      );
-    }
-  }
-
-  for (final colId in runtime.fields.defaultVisibleColumns) {
-    if (runtime.fields.findColumnDefinition(colId) == null) {
-      throw StateError(
-        'Default visible column ID "$colId" not found in columns for kind spec "${runtime.identity.title}"',
-      );
-    }
-  }
-
-  if (runtime.fields.findSortDefinition(runtime.fields.defaultSort) == null) {
-    throw StateError(
-      'Default sort ID "${runtime.fields.defaultSort.value}" not found in sorts for kind spec "${runtime.identity.title}"',
-    );
-  }
-
-  if (runtime.fields.defaultGroup != null &&
-      runtime.fields.findGroupDefinition(runtime.fields.defaultGroup!) ==
-          null) {
-    throw StateError(
-      'Default group ID "${runtime.fields.defaultGroup!.value}" not found in groups for kind spec "${runtime.identity.title}"',
-    );
-  }
-}
-
 class LibraryKindToolbarModule {
   const LibraryKindToolbarModule({
     this.actions = const [],

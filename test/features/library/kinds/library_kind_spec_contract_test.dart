@@ -9,11 +9,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('LibraryKindSpec Contract & Capability Tests', () {
-    test('all 9 active kind specs pass runtime validation', () {
+    test('all 9 active kind specs expose validated field registries', () {
       expect(collectarrKindModules.length, 9);
       for (final spec in collectarrKindModules) {
-        expect(() => validateKindRuntime(spec), returnsNormally,
-            reason: 'Spec for ${spec.kind} must pass validation');
+        expect(spec.fields.kindNamespace, spec.kind.apiValue);
+        expect(spec.fields.columns, isNotEmpty);
+        expect(spec.fields.sorts, isNotEmpty);
       }
     });
 
@@ -95,40 +96,7 @@ void main() {
       );
     });
 
-    test('validation detects kind and namespace mismatches', () {
-      // Create an invalid spec with a kind/field namespace mismatch.
-      final mismatchedTypeSpec = LibraryKindSpec<ComicWorkspaceDto>(
-        identity: LibraryKindIdentity(
-          kind: bookKindModule.identity.kind,
-          singularLabel: comicKindModule.identity.singularLabel,
-          pluralLabel: comicKindModule.identity.pluralLabel,
-          title: bookKindModule.identity.title,
-          icon: bookKindModule.identity.icon,
-          accent: bookKindModule.identity.accent,
-          preferencePrefix: bookKindModule.identity.preferencePrefix,
-          defaultDensityPreset: bookKindModule.identity.defaultDensityPreset,
-          availableDensityPresets:
-              bookKindModule.identity.availableDensityPresets,
-          toolbarActions: bookKindModule.identity.toolbarActions,
-        ),
-        viewProfile: comicKindModule.viewProfile,
-        fields: comicKindModule.fields,
-        projector: comicKindModule.projector,
-        metadata: comicKindModule.metadata,
-        hierarchy: comicKindModule.hierarchy,
-        inspector: comicKindModule.inspector,
-        presentation: comicKindModule.presentation,
-        physicalMediaFormats: comicKindModule.physicalMediaFormats,
-        trackingProfile: comicKindModule.trackingProfile,
-        transfer: comicKindModule.transfer,
-        add: comicKindModule.add,
-        edit: comicKindModule.edit,
-      );
-      expect(
-        () => validateKindRuntime(mismatchedTypeSpec),
-        throwsStateError,
-      );
-
+    test('field registry rejects mismatched namespaces', () {
       // Creating registry with mismatched column namespace throws StateError
       expect(
         () => LibraryFieldRegistry<BookWorkspaceDto>(

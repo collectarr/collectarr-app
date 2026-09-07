@@ -42,7 +42,6 @@ final class LibraryKindRegistry {
           'Duplicate LibraryKindSpec registration for kind: ${spec.kind}',
         );
       }
-      validateKindRuntime(spec);
       map[spec.kind] = spec;
     }
     return Map.unmodifiable(map);

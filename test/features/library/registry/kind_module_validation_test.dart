@@ -9,12 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Kind Module Validation & Namespacing (Tasks 8 & 9)', () {
-    test('all registered kind modules pass validation', () {
-      for (final module in collectarrKindModules) {
-        expect(() => validateKindRuntime(module), returnsNormally);
-      }
-    });
-
     test('all registered kind modules declare mandatory projector', () {
       for (final module in collectarrKindModules) {
         expect(module.projector, isNotNull);
