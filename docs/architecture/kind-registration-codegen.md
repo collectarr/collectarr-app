@@ -21,6 +21,13 @@ dispatch maps are derived from each kind's owned repository, projection, and
 typed ID files; `CollectarrOwnedItemPersistence` consumes those structural
 maps without manually importing every kind.
 
+The same generator also writes
+`lib/dev/seeds/collectarr_dev_seed_registry.g.dart`. It discovers the
+kind-owned `DevSeedKindContributor` values from the seed scripts and emits the
+typed seed composition list and exports. `dev_seed.dart` therefore orchestrates
+catalog, owned, tracking, and kind-specific database fixtures without a
+manual nine-kind import list or a switch over concrete repositories.
+
 This is deliberately build-time discovery rather than runtime reflection:
 
 - Flutter AOT/tree-shaking remains predictable;

@@ -6,12 +6,30 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
+
+final comicDevSeedContributor = DevSeedKindContributor(
+  kind: 'comic',
+  catalogItems: comicSeedCatalogItems,
+  enrichItem: enrichComicSeedItem,
+  ownedItems: comicSeedOwnedItems,
+  trackingEntries: comicSeedTrackingEntries,
+  trackingUnits: comicSeedTrackingUnits,
+  seedDatabase: seedComicDatabase,
+);
+
+Future<void> seedComicDatabase(
+  LocalDatabase db,
+  Iterable<CatalogItem> items,
+  DateTime now,
+) =>
+    seedComicReadingStates(db, now);
 
 Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
   Iterable<CatalogItem> items,

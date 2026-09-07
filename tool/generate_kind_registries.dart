@@ -3,6 +3,9 @@ import 'dart:io';
 const _kindsRoot = 'lib/features/library/kinds';
 const _registryOutput =
     'lib/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+const _devSeedRoot = 'lib/dev/seeds';
+const _devSeedRegistryOutput =
+    'lib/dev/seeds/collectarr_dev_seed_registry.g.dart';
 
 Future<void> main() async {
   final descriptors = await _discoverKinds();
@@ -11,19 +14,89 @@ Future<void> main() async {
   }
 
   await File(_registryOutput).writeAsString(_renderRegistry(descriptors));
+  final devSeedDescriptors = await _discoverDevSeeds();
+  if (devSeedDescriptors.isEmpty) {
+    throw StateError('No dev seed contributors found under $_devSeedRoot');
+  }
+  await File(_devSeedRegistryOutput)
+      .writeAsString(_renderDevSeedRegistry(devSeedDescriptors));
+
+  await _formatGeneratedFile(_registryOutput);
+  await _formatGeneratedFile(_devSeedRegistryOutput);
+  stdout.writeln('Generated ${descriptors.length} kind registrations.');
+  stdout.writeln(
+    'Generated ${devSeedDescriptors.length} dev seed contributors.',
+  );
+}
+
+Future<void> _formatGeneratedFile(String path) async {
   final formatResult = await Process.run(
     Platform.resolvedExecutable,
-    ['format', _registryOutput],
+    ['format', path],
   );
   if (formatResult.exitCode != 0) {
     throw ProcessException(
       Platform.resolvedExecutable,
-      ['format', _registryOutput],
+      ['format', path],
       formatResult.stderr.toString(),
       formatResult.exitCode,
     );
   }
-  stdout.writeln('Generated ${descriptors.length} kind registrations.');
+}
+
+Future<List<_DevSeedDescriptor>> _discoverDevSeeds() async {
+  final root = Directory(_devSeedRoot);
+  final descriptors = <_DevSeedDescriptor>[];
+  await for (final entity in root.list()) {
+    if (entity is! File || !entity.path.endsWith('_seeds.dart')) continue;
+    final source = await entity.readAsString();
+    if (!source.contains('DevSeedKindContributor')) continue;
+    final contributorMatch = RegExp(
+      r'(?:const|final)\s+(\w+DevSeedContributor)\s*=',
+    ).firstMatch(source);
+    if (contributorMatch == null) {
+      throw StateError(
+        'Could not find a *DevSeedContributor in ${entity.path}',
+      );
+    }
+    descriptors.add(
+      _DevSeedDescriptor(
+        importPath: _packageImportPath(entity),
+        contributorName: contributorMatch.group(1)!,
+      ),
+    );
+  }
+  descriptors.sort(
+    (left, right) => left.contributorName.compareTo(right.contributorName),
+  );
+  return descriptors;
+}
+
+String _renderDevSeedRegistry(List<_DevSeedDescriptor> descriptors) {
+  final buffer = StringBuffer('''// GENERATED CODE - DO NOT MODIFY BY HAND
+// Run: dart run tool/generate_kind_registries.dart
+
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
+''');
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      "import 'package:collectarr_app/${descriptor.importPath}';",
+    );
+  }
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      "export 'package:collectarr_app/${descriptor.importPath}';",
+    );
+  }
+  buffer.writeln();
+  buffer.writeln(
+    'final List<DevSeedKindContributor> collectarrDevSeedContributors = [',
+  );
+  for (final descriptor in descriptors) {
+    buffer.writeln('  ${descriptor.contributorName},');
+  }
+  buffer.writeln('];');
+  return buffer.toString();
 }
 
 Future<List<_KindDescriptor>> _discoverKinds() async {
@@ -1085,6 +1158,16 @@ final class _VocabularyModule {
 
   final String importPath;
   final String className;
+}
+
+final class _DevSeedDescriptor {
+  const _DevSeedDescriptor({
+    required this.importPath,
+    required this.contributorName,
+  });
+
+  final String importPath;
+  final String contributorName;
 }
 
 String _packageImportPath(File file) {

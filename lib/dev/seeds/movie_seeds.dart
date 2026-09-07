@@ -5,7 +5,16 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+
+final movieDevSeedContributor = DevSeedKindContributor(
+  kind: 'movie',
+  catalogItems: movieSeedCatalogItems,
+  enrichItem: enrichMovieSeedItem,
+  ownedItems: movieSeedOwnedItems,
+  trackingEntries: movieSeedTrackingEntries,
+);
 
 CatalogItem enrichMovieSeedItem(CatalogItem item) {
   final releases = [

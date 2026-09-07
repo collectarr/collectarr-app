@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -8,8 +9,60 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+
+final tvDevSeedContributor = DevSeedKindContributor(
+  kind: 'tv',
+  catalogItems: tvSeedCatalogItems,
+  enrichItem: enrichTvSeedItem,
+  ownedItems: tvSeedOwnedItems,
+  trackingEntries: tvSeedTrackingEntries,
+  trackingUnits: tvSeedTrackingUnits,
+  watchSessions: tvSeedWatchSessions,
+  customEpisodes: tvSeedCustomEpisodes,
+  seedDatabase: seedTvDatabase,
+);
+
+Future<void> seedTvDatabase(
+  LocalDatabase db,
+  Iterable<CatalogItem> items,
+  DateTime now,
+) async {
+  final repository = TvRepository(db);
+  final trackingRepository = TvTrackingRepository(db);
+  for (final item in items.where((item) => item.kind == 'tv')) {
+    final seriesId = TvSeriesId(item.id);
+    final seasons = await repository.seasonsFor(seriesId);
+    for (final season in seasons) {
+      for (final episode in season.episodes) {
+        final completed = episode.episodeNumber == 1;
+        await trackingRepository.upsertEpisodeProgress(
+          TvEpisodeProgress(
+            seriesId: seriesId,
+            seasonId: TvSeasonId(season.id),
+            episodeId: TvEpisodeId(episode.id),
+            seasonNumber: season.seasonNumber,
+            episodeNumber: episode.episodeNumber,
+            watchedCount: completed ? 2 : 1,
+            completed: completed,
+            lastWatchedAt: now.subtract(
+              Duration(days: episode.episodeNumber?.toInt() ?? 0),
+            ),
+            rating: completed ? 9 : null,
+            notes: completed ? 'Seed episode replay history.' : null,
+            updatedAt: now,
+          ),
+        );
+      }
+    }
+  }
+}
 
 Iterable<TvTrackingUnit> tvSeedTrackingUnits(
   Iterable<CatalogItem> items,

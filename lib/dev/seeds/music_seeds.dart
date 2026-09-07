@@ -5,7 +5,16 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+
+final musicDevSeedContributor = DevSeedKindContributor(
+  kind: 'music',
+  catalogItems: musicSeedCatalogItems,
+  enrichItem: enrichMusicSeedItem,
+  ownedItems: musicSeedOwnedItems,
+  trackingEntries: musicSeedTrackingEntries,
+);
 
 CatalogItem enrichMusicSeedItem(CatalogItem item) {
   final music = item.payload['music'];

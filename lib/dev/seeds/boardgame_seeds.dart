@@ -1,12 +1,34 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
+
+final boardgameDevSeedContributor = DevSeedKindContributor(
+  kind: 'boardgame',
+  catalogItems: boardgameSeedCatalogItems,
+  enrichItem: enrichBoardgameSeedItem,
+  ownedItems: boardgameSeedOwnedItems,
+  trackingEntries: boardgameSeedTrackingEntries,
+  seedDatabase: seedBoardgameDatabase,
+);
+
+Future<void> seedBoardgameDatabase(
+  LocalDatabase db,
+  Iterable<CatalogItem> items,
+  DateTime now,
+) async {
+  await BoardGamePlaySessionRepository(db).upsertAll(
+    boardgameSeedPlaySessions(now),
+  );
+}
 
 CatalogItem enrichBoardgameSeedItem(CatalogItem item) {
   final editions = [

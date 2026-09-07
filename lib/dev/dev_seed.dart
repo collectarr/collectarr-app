@@ -13,31 +13,14 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/dev/seeds/anime_seeds.dart';
-import 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
-import 'package:collectarr_app/dev/seeds/book_seeds.dart';
-import 'package:collectarr_app/dev/seeds/comic_seeds.dart';
 import 'package:collectarr_app/dev/seeds/custom_field_seeds.dart';
-import 'package:collectarr_app/dev/seeds/game_seeds.dart';
-import 'package:collectarr_app/dev/seeds/manga_seeds.dart';
-import 'package:collectarr_app/dev/seeds/movie_seeds.dart';
-import 'package:collectarr_app/dev/seeds/music_seeds.dart';
 import 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
-import 'package:collectarr_app/dev/seeds/tv_seeds.dart';
+import 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
@@ -52,18 +35,10 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracki
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
-export 'package:collectarr_app/dev/seeds/anime_seeds.dart';
-export 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
-export 'package:collectarr_app/dev/seeds/book_seeds.dart';
-export 'package:collectarr_app/dev/seeds/comic_seeds.dart';
+export 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 export 'package:collectarr_app/dev/seeds/custom_field_seeds.dart';
-export 'package:collectarr_app/dev/seeds/game_seeds.dart';
-export 'package:collectarr_app/dev/seeds/manga_seeds.dart';
-export 'package:collectarr_app/dev/seeds/movie_seeds.dart';
-export 'package:collectarr_app/dev/seeds/music_seeds.dart';
 export 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 export 'package:collectarr_app/dev/seeds/seed_helpers.dart';
-export 'package:collectarr_app/dev/seeds/tv_seeds.dart';
 
 /// Expected cardinality of the checked-in development fixture set.
 ///
@@ -940,62 +915,43 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   // --- Catalog Items ---
   final allItems = <CatalogItem>[
-    ...movieSeedCatalogItems().map(enrichSeedItem).map(enrichMovieSeedItem),
-    ...tvSeedCatalogItems().map(enrichSeedItem).map(enrichTvSeedItem),
-    ...animeSeedCatalogItems().map(enrichSeedItem).map(enrichAnimeSeedItem),
-    ...mangaSeedCatalogItems().map(enrichSeedItem).map(enrichMangaSeedItem),
-    ...bookSeedCatalogItems().map(enrichSeedItem).map(enrichBookSeedItem),
-    ...musicSeedCatalogItems().map(enrichSeedItem).map(enrichMusicSeedItem),
-    ...gameSeedCatalogItems().map(enrichSeedItem).map(enrichGameSeedItem),
-    ...boardgameSeedCatalogItems()
-        .map(enrichSeedItem)
-        .map(enrichBoardgameSeedItem),
-    ...comicSeedCatalogItems().map(enrichSeedItem).map(enrichComicSeedItem),
+    for (final contributor in collectarrDevSeedContributors)
+      ...contributor
+          .catalogItems()
+          .map(enrichSeedItem)
+          .map(contributor.enrichItem),
   ];
 
   final now = DateTime.now().toUtc();
 
   // --- Owned Items ---
   final ownedItems = <OwnedItem>[
-    ...movieSeedOwnedItems(now),
-    ...bookSeedOwnedItems(now),
-    ...musicSeedOwnedItems(now),
-    ...gameSeedOwnedItems(now),
-    ...boardgameSeedOwnedItems(now),
-    ...comicSeedOwnedItems(now),
-    ...tvSeedOwnedItems(now),
-    ...animeSeedOwnedItems(now),
-    ...mangaSeedOwnedItems(now),
+    for (final contributor in collectarrDevSeedContributors)
+      ...contributor.ownedItems(now),
   ];
 
   // --- Tracking Entries ---
   final trackingEntries = <TrackingEntry>[
-    ...movieSeedTrackingEntries(now),
-    ...bookSeedTrackingEntries(now),
-    ...gameSeedTrackingEntries(now),
-    ...musicSeedTrackingEntries(now),
-    ...comicSeedTrackingEntries(now),
-    ...boardgameSeedTrackingEntries(now),
-    ...tvSeedTrackingEntries(now),
-    ...animeSeedTrackingEntries(now),
-    ...mangaSeedTrackingEntries(now),
+    for (final contributor in collectarrDevSeedContributors)
+      ...contributor.trackingEntries(now),
   ];
-  final trackingUnits = <TrackingUnit>[
-    ...comicSeedTrackingUnits(allItems, now),
-    ...mangaSeedTrackingUnits(allItems, now),
-    ...bookSeedTrackingUnits(allItems, now),
-    ...tvSeedTrackingUnits(allItems, now),
-    ...animeSeedTrackingUnits(allItems, now),
-  ];
-  final watchSessions = <WatchSession>[
-    ...tvSeedWatchSessions(now),
-    ...animeSeedWatchSessions(now),
-  ];
-  final customEpisodes = <CustomEpisode>[
-    ...tvSeedCustomEpisodes(now),
-    ...animeSeedCustomEpisodes(now),
-  ];
-  final playSessions = boardgameSeedPlaySessions(now);
+  final trackingUnits = <TrackingUnit>[];
+  final watchSessions = <WatchSession>[];
+  final customEpisodes = <CustomEpisode>[];
+  for (final contributor in collectarrDevSeedContributors) {
+    final trackingUnitFactory = contributor.trackingUnits;
+    if (trackingUnitFactory != null) {
+      trackingUnits.addAll(trackingUnitFactory(allItems, now));
+    }
+    final watchSessionFactory = contributor.watchSessions;
+    if (watchSessionFactory != null) {
+      watchSessions.addAll(watchSessionFactory(now));
+    }
+    final customEpisodeFactory = contributor.customEpisodes;
+    if (customEpisodeFactory != null) {
+      customEpisodes.addAll(customEpisodeFactory(now));
+    }
+  }
 
   _validateSeedFixtures(
     catalogItems: allItems,
@@ -1010,8 +966,12 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
   await ownedRepo.upsertAll(ownedItems);
-  await seedComicReadingStates(db, now);
-  await _seedKindTracking(db, allItems, now);
+  for (final contributor in collectarrDevSeedContributors) {
+    final databaseSeeder = contributor.seedDatabase;
+    if (databaseSeeder != null) {
+      await databaseSeeder(db, allItems, now);
+    }
+  }
   await trackingUnitsRepo.upsertAll(trackingUnits);
   await WatchSessionsRepository(
     db,
@@ -1021,8 +981,6 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     db,
     codecs: collectarrCustomEpisodeCodecs,
   ).upsertAll(customEpisodes);
-  await BoardGamePlaySessionRepository(db).upsertAll(playSessions);
-
   // --- Item Images (front/back + extras) ---
   await _seedItemImages(imagesRepo, ownedItems);
 
@@ -1072,81 +1030,6 @@ void _validateSeedTrackingUnits(
         'Seed tracking unit ${unit.id} has no typed coordinate codec for '
         '${unit.targetRef.kind}',
       );
-    }
-  }
-}
-
-Future<void> _seedKindTracking(
-  LocalDatabase db,
-  Iterable<CatalogItem> items,
-  DateTime now,
-) async {
-  final tvRepository = TvRepository(db);
-  final tvTrackingRepository = TvTrackingRepository(db);
-  final animeRepository = AnimeRepository(db);
-
-  for (final item in items) {
-    switch (item.catalogRef.mediaKind) {
-      case CatalogMediaKind.tv:
-        final seriesId = TvSeriesId(item.id);
-        final seasons = await tvRepository.seasonsFor(seriesId);
-        for (final season in seasons) {
-          for (final episode in season.episodes) {
-            final completed = episode.episodeNumber == 1;
-            await tvTrackingRepository.upsertEpisodeProgress(
-              TvEpisodeProgress(
-                seriesId: seriesId,
-                seasonId: TvSeasonId(season.id),
-                episodeId: TvEpisodeId(episode.id),
-                seasonNumber: season.seasonNumber,
-                episodeNumber: episode.episodeNumber,
-                watchedCount: completed ? 2 : 1,
-                completed: completed,
-                lastWatchedAt: now.subtract(
-                  Duration(days: episode.episodeNumber?.toInt() ?? 0),
-                ),
-                rating: completed ? 9 : null,
-                notes: completed ? 'Seed episode replay history.' : null,
-                updatedAt: now,
-              ),
-            );
-          }
-        }
-      case CatalogMediaKind.anime:
-        final mediaId = AnimeMediaId(item.id);
-        final episodes = await animeRepository.episodesFor(mediaId);
-        for (final episode in episodes) {
-          final completed = episode.episodeNumber == 1;
-          await animeRepository.updateTracking(
-            AnimeTracking(
-              id: 'seed-anime-tracking-${item.id}-${episode.id.value}',
-              mediaId: mediaId,
-              episodeId: episode.id,
-              status: completed ? 'Completed' : 'In progress',
-              sourceType: TrackingSourceType.physical,
-              rating: completed ? 9 : null,
-              notes: completed ? 'Seed episode replay history.' : null,
-              startedAt: now.subtract(const Duration(days: 30)),
-              finishedAt: completed ? now : null,
-              progressCurrent: completed ? 1 : 0,
-              progressTotal: 1,
-              timesCompleted: completed ? 2 : 0,
-              seasonNumber: 1,
-              episodeNumber: episode.episodeNumber,
-              episodeRatings: completed ? {episode.id.value: 9} : const {},
-              updatedAt: now,
-            ),
-          );
-        }
-      case CatalogMediaKind.comic ||
-            CatalogMediaKind.manga ||
-            CatalogMediaKind.book ||
-            CatalogMediaKind.game ||
-            CatalogMediaKind.boardgame ||
-            CatalogMediaKind.movie ||
-            CatalogMediaKind.music ||
-            CatalogMediaKind.unknown:
-        break;
     }
   }
 }

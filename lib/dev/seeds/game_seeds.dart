@@ -5,7 +5,16 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+
+final gameDevSeedContributor = DevSeedKindContributor(
+  kind: 'game',
+  catalogItems: gameSeedCatalogItems,
+  enrichItem: enrichGameSeedItem,
+  ownedItems: gameSeedOwnedItems,
+  trackingEntries: gameSeedTrackingEntries,
+);
 
 CatalogItem enrichGameSeedItem(CatalogItem item) {
   final platforms = item.payload['platforms'];

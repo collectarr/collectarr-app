@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -8,8 +9,59 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
+
+final animeDevSeedContributor = DevSeedKindContributor(
+  kind: 'anime',
+  catalogItems: animeSeedCatalogItems,
+  enrichItem: enrichAnimeSeedItem,
+  ownedItems: animeSeedOwnedItems,
+  trackingEntries: animeSeedTrackingEntries,
+  trackingUnits: animeSeedTrackingUnits,
+  watchSessions: animeSeedWatchSessions,
+  customEpisodes: animeSeedCustomEpisodes,
+  seedDatabase: seedAnimeDatabase,
+);
+
+Future<void> seedAnimeDatabase(
+  LocalDatabase db,
+  Iterable<CatalogItem> items,
+  DateTime now,
+) async {
+  final repository = AnimeRepository(db);
+  for (final item in items.where((item) => item.kind == 'anime')) {
+    final mediaId = AnimeMediaId(item.id);
+    final episodes = await repository.episodesFor(mediaId);
+    for (final episode in episodes) {
+      final completed = episode.episodeNumber == 1;
+      await repository.updateTracking(
+        AnimeTracking(
+          id: 'seed-anime-tracking-${item.id}-${episode.id.value}',
+          mediaId: mediaId,
+          episodeId: episode.id,
+          status: completed ? 'Completed' : 'In progress',
+          sourceType: TrackingSourceType.physical,
+          rating: completed ? 9 : null,
+          notes: completed ? 'Seed episode replay history.' : null,
+          startedAt: now.subtract(const Duration(days: 30)),
+          finishedAt: completed ? now : null,
+          progressCurrent: completed ? 1 : 0,
+          progressTotal: 1,
+          timesCompleted: completed ? 2 : 0,
+          seasonNumber: 1,
+          episodeNumber: episode.episodeNumber,
+          episodeRatings: completed ? {episode.id.value: 9} : const {},
+          updatedAt: now,
+        ),
+      );
+    }
+  }
+}
 
 Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
   Iterable<CatalogItem> items,

@@ -6,8 +6,18 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+
+final bookDevSeedContributor = DevSeedKindContributor(
+  kind: 'book',
+  catalogItems: bookSeedCatalogItems,
+  enrichItem: enrichBookSeedItem,
+  ownedItems: bookSeedOwnedItems,
+  trackingEntries: bookSeedTrackingEntries,
+  trackingUnits: bookSeedTrackingUnits,
+);
 
 Iterable<BookTrackingUnit> bookSeedTrackingUnits(
   Iterable<CatalogItem> items,
