@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 class CollectionCsvRow {
   const CollectionCsvRow({
@@ -564,20 +564,7 @@ class CollectionCsv {
     if (projection?.clzFriendlyHeader case final header?) {
       return header;
     }
-    final module = defaultLibraryKindRegistry.tryGet(mediaKind);
-    if (module == null) {
-      return clzFriendlyHeader;
-    }
-    final labels = module.presentation.previewLabels;
-    return _clzFriendlyHeader(
-      title: labels.labelFor('export_title', fallback: 'Title'),
-      number: labels.labelFor('item_number', fallback: 'Number'),
-      variant: labels.labelFor('variant', fallback: 'Variant'),
-      editionTitle: 'Edition Title',
-      physicalFormat: 'Physical Format',
-      publisher: labels.labelFor('publisher', fallback: 'Publisher'),
-      barcode: labels.labelFor('barcode', fallback: 'Barcode'),
-    );
+    return clzFriendlyHeader;
   }
 
   List<String> _clzFriendlyHeader({
