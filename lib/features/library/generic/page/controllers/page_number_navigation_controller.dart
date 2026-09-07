@@ -15,12 +15,12 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     if (groupDef == null || !groupDef.supportsJump) {
       return false;
     }
+    final workspace = libraryKindWorkspaceForKind(runtime.kind);
     return projection.allItems.any((item) {
       final adapter = item.dto is WorkspaceDtoAdapter
           ? item.dto as WorkspaceDtoAdapter
           : null;
-      return runtime.workspace.groupValue(item, groupDef.id) ==
-              state._selectedBucket &&
+      return workspace.groupValue(item, groupDef.id) == state._selectedBucket &&
           _selectionSortNumber(adapter?.itemNumber) != null;
     });
   }

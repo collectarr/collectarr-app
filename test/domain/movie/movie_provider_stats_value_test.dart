@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
@@ -155,7 +156,8 @@ void main() {
         payload: const {'estimated_value_cents': 3200},
       ),
     );
-    final projection = movieKindModule.workspace.project(
+    final projection =
+        libraryKindWorkspaceForKind(CatalogMediaKind.movie).project(
       source: source,
       node: const LibraryTitleNodeRef(titleItemId: 'movie-provider-value'),
     );

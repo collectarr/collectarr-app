@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -105,7 +107,8 @@ void main() {
         },
       ),
     );
-    final item = boardGameKindModule.workspace.project(
+    final item =
+        libraryKindWorkspaceForKind(CatalogMediaKind.boardgame).project(
       source: source,
       node: const LibraryTitleNodeRef(titleItemId: 'boardgame-1'),
     );

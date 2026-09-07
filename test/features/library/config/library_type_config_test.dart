@@ -181,7 +181,7 @@ void main() {
     );
 
     expect(
-      bookKindModule.workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.book)
           .subgroupKeyForEntry(item, _group(bookKindModule, 'series')),
       isNull,
     );
@@ -334,19 +334,22 @@ void main() {
   test('book and boardgame runtimes own their scoped browser options', () {
     final bookRuntime = bookKindModule;
     expect(
-      bookRuntime.workspace.availableGroupIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookRuntime.kind)
+          .availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
     );
     expect(
-      bookRuntime.workspace.availableGroupIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookRuntime.kind)
+          .availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.releases,
       ),
       isNotEmpty,
     );
     expect(
-      bookRuntime.workspace.availableSortIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookRuntime.kind)
+          .availableSortIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
@@ -364,18 +367,18 @@ void main() {
       comicKindModule.hierarchy.scopesOptionsByBrowserMode,
       isFalse,
     );
-    final comicMediaGroups = comicRuntime.workspace
+    final comicMediaGroups = libraryKindWorkspaceForKind(comicRuntime.kind)
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
         .map((id) => id.value)
         .toSet();
     expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
 
     final movieRuntime = movieKindModule;
-    final movieMediaGroups = movieRuntime.workspace
+    final movieMediaGroups = libraryKindWorkspaceForKind(movieRuntime.kind)
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
         .map((id) => id.value)
         .toSet();
-    final movieReleaseGroups = movieRuntime.workspace
+    final movieReleaseGroups = libraryKindWorkspaceForKind(movieRuntime.kind)
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.releases)
         .map((id) => id.value)
         .toSet();
@@ -693,27 +696,27 @@ void main() {
     expect(comicRuntime, same(comicKindModule));
     expect(comicRuntime.kind, CatalogMediaKind.comic);
     expect(
-      comicRuntime.workspace
+      libraryKindWorkspaceForKind(comicRuntime.kind)
           .columnDisplayName(_field(comicKindModule, 'comic.series')),
       'Series',
     );
     expect(
-      comicRuntime.workspace
+      libraryKindWorkspaceForKind(comicRuntime.kind)
           .columnLabel(_field(comicKindModule, 'comic.cover')),
       '',
     );
     expect(
-      comicRuntime.workspace
+      libraryKindWorkspaceForKind(comicRuntime.kind)
           .columnGroup(_field(comicKindModule, 'comic.location')),
       LibraryTableColumnGroup.personal,
     );
     expect(
-      comicRuntime.workspace
+      libraryKindWorkspaceForKind(comicRuntime.kind)
           .columnIsNumeric(_field(comicKindModule, 'comic.price_paid')),
       isTrue,
     );
     expect(
-      comicRuntime.workspace.columnSort(
+      libraryKindWorkspaceForKind(comicRuntime.kind).columnSort(
         _field(comicKindModule, 'comic.release_date'),
       ),
       _sort(comicKindModule, 'comic.release_date'),
@@ -723,7 +726,8 @@ void main() {
       ['Essential', 'Ownership', 'Value', 'Full'],
     );
     expect(
-      comicRuntime.workspace.orderedTableColumns(const {}).first,
+      libraryKindWorkspaceForKind(comicRuntime.kind)
+          .orderedTableColumns(const {}).first,
       _field(comicKindModule, 'comic.status'),
     );
   });
@@ -762,39 +766,35 @@ void main() {
     );
     expect(libraryKindModule(CatalogMediaKind.music), same(musicKindModule));
     expect(
-      libraryKindModule(CatalogMediaKind.game).workspace.columnSort(
-            _field(gameKindModule, 'game.release_date'),
-          ),
+      libraryKindWorkspaceForKind(CatalogMediaKind.game).columnSort(
+        _field(gameKindModule, 'game.release_date'),
+      ),
       _sort(gameKindModule, 'game.release_date'),
     );
     expect(
-      libraryKindModule(CatalogMediaKind.movie)
-          .workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.movie)
           .columnLabel(_field(movieKindModule, 'variant')),
       'Variant',
     );
     expect(
-      libraryKindModule(CatalogMediaKind.game)
-          .workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.game)
           .columnLabel(_field(gameKindModule, 'variant')),
       'Variant',
     );
     expect(
-      libraryKindModule(CatalogMediaKind.book)
-          .workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.book)
           .columnLabel(_field(bookKindModule, 'barcode')),
       'Barcode',
     );
     expect(
-      libraryKindModule(CatalogMediaKind.book).workspace.tableColumnWidth(
+      libraryKindWorkspaceForKind(CatalogMediaKind.book).tableColumnWidth(
         _field(bookKindModule, 'book.title'),
         {_field(bookKindModule, 'book.title'): 999},
       ),
       520,
     );
     expect(
-      libraryKindModule(CatalogMediaKind.music)
-          .workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.music)
           .availableGroupIds
           .map((id) => id.value),
       [
@@ -812,8 +812,7 @@ void main() {
       ['title_asc', 'release_latest', 'recent', 'value_desc'],
     );
     expect(
-      libraryKindModule(CatalogMediaKind.book)
-          .workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.book)
           .availableGroupIds
           .map((id) => id.value),
       [
@@ -826,8 +825,7 @@ void main() {
       ],
     );
     expect(
-      libraryKindModule(CatalogMediaKind.game)
-          .workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.game)
           .availableGroupIds
           .map((id) => id.value),
       [
@@ -867,8 +865,7 @@ void main() {
       ' Physical formats are tracked as editions.',
     );
     expect(
-      libraryKindModule(CatalogMediaKind.movie)
-          .workspace
+      libraryKindWorkspaceForKind(CatalogMediaKind.movie)
           .availableGroupIds
           .map((id) => id.value),
       [

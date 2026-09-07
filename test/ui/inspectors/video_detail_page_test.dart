@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -9,6 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +62,8 @@ void main() {
       ),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = movieKindModule.workspace.project(source: source1, node: node1);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
+        .project(source: source1, node: node1);
 
     final request = LibraryDetailPageRequest(
       type: type,
@@ -192,7 +195,8 @@ void main() {
       ),
     );
     const node2 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = movieKindModule.workspace.project(source: source2, node: node2);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
+        .project(source: source2, node: node2);
 
     final request = LibraryDetailPageRequest(
       type: type,
@@ -293,7 +297,8 @@ void main() {
       ),
     );
     const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
-    final item = movieKindModule.workspace.project(source: source3, node: node3);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
+        .project(source: source3, node: node3);
 
     final request = LibraryDetailPageRequest(
       type: type,

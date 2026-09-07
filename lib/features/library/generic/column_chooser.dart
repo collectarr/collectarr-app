@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -18,6 +19,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
     return null;
   }
   final runtime = type;
+  final workspace = libraryKindWorkspaceForKind(runtime.kind);
   return showDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
@@ -28,17 +30,16 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
         for (final column in viewState.visibleColumnIds) column.value,
       },
       defaultColumns: {
-        for (final column in runtime.workspace.defaultTableColumns)
-          column.value,
+        for (final column in workspace.defaultTableColumns) column.value,
       },
-      columnLabel: (column) => runtime.workspace.columnDisplayName(
+      columnLabel: (column) => workspace.columnDisplayName(
         runtime.fields.decodeColumnId(column),
       ),
       accent: type.identity.accent,
-      columnGroup: (column) => runtime.workspace.columnGroup(
+      columnGroup: (column) => workspace.columnGroup(
         runtime.fields.decodeColumnId(column),
       ),
-      groupLabel: runtime.workspace.columnGroupLabel,
+      groupLabel: workspace.columnGroupLabel,
       savedPresets: savedPresets,
       pinnedFavoriteKeys: pinnedFavoriteKeys,
       onTogglePinnedFavorite: onTogglePinnedFavorite,

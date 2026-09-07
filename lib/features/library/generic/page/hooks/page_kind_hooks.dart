@@ -105,7 +105,7 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   List<String> get _scopeAvailableGroupModes {
     return [
-      for (final groupId in widget.type.workspace
+      for (final groupId in libraryKindWorkspaceForKind(widget.type.kind)
           .availableGroupIdsForBrowserMode(_activeBrowserMode))
         groupId.value,
     ];
@@ -113,7 +113,7 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   List<String> get _scopeAvailableSortColumns {
     return [
-      for (final sortId in widget.type.workspace
+      for (final sortId in libraryKindWorkspaceForKind(widget.type.kind)
           .availableSortIdsForBrowserMode(_activeBrowserMode))
         sortId.value,
     ];

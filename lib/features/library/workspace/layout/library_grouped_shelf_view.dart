@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -72,7 +73,8 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
-    final showGroupProgress = type.workspace.groupModeSupportsCompletion(
+    final showGroupProgress =
+        libraryKindWorkspaceForKind(type.kind).groupModeSupportsCompletion(
       type.fields.decodeGroupId(groups.first.groupMode),
     );
     return switch (presentation) {

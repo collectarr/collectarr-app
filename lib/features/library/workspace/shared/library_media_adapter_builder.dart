@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -78,7 +79,8 @@ String? plannedMediaSubgroupKeyForEntry(
   LibraryProjectionRuntime item,
   LibraryGroupIdRuntime groupId,
 ) {
-  return type.workspace.subgroupKeyForEntry(item, groupId);
+  return libraryKindWorkspaceForKind(type.kind)
+      .subgroupKeyForEntry(item, groupId);
 }
 
 int plannedMediaCompareSubgroupKeys(

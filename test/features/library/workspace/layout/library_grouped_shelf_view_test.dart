@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_grouped_shelf_view.dart';
@@ -127,7 +129,8 @@ void main() {
     );
     final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
-    final item = comicKindModule.workspace.project(source: source, node: node);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
+        .project(source: source, node: node);
 
     final group = GroupShelfEntry(
       groupMode: 'series',
@@ -184,7 +187,8 @@ void main() {
     );
     final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
-    final item = comicKindModule.workspace.project(source: source, node: node);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
+        .project(source: source, node: node);
 
     final group = GroupShelfEntry(
       groupMode: 'series',

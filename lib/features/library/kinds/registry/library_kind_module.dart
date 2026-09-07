@@ -21,7 +21,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
@@ -44,7 +43,6 @@ export 'package:collectarr_app/features/library/config/library_linked_metadata_c
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
 /// Typed capability surface used by generic navigation and orchestration.
 ///
@@ -68,7 +66,6 @@ abstract interface class LibraryKindModule {
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
   LibraryLinkedMetadataCapability get linkedMetadata;
   LibraryWorkspaceProjector<LibraryWorkspaceDto> get projector;
-  LibraryKindWorkspace get workspace;
   LibraryAddCapability get add;
   LibraryAddChromeConfig get addChrome => add.chrome;
   TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability;
@@ -165,13 +162,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   final LibraryWorkspaceViewProfile? _viewProfile;
 
   @override
-  LibraryKindWorkspace get workspace => TypedLibraryKindWorkspace<TDto>(
-        fields: fields,
-        projector: projector,
-        hierarchy: hierarchy,
-      );
-
-  @override
   LibraryWorkspaceViewProfile get viewProfile =>
       _viewProfile ?? plannedMediaWorkspaceViewProfile(this);
 
@@ -198,7 +188,12 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
     LibraryProjectionRuntime item, {
     required bool musicVertical,
   }) {
-    workspace.validateProjection(item);
+    if (item.dto is! TDto) {
+      throw ArgumentError(
+        'Invalid projection item DTO "${item.dto.runtimeType}". '
+        'Expected "$TDto".',
+      );
+    }
     final custom =
         _buildCardPresentation?.call(item, musicVertical: musicVertical);
     if (custom != null) return custom;
