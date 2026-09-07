@@ -89,6 +89,30 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_shelf_extension_contributor.dart',
           'LibraryShelfExtensionContributor',
         ),
+        trackingEntryCodec: _discoverContributor(
+          entity,
+          'tracking',
+          '${folder}_tracking_entry_codec.dart',
+          'TrackingEntryCodec',
+        ),
+        trackingUnitCodec: _discoverContributor(
+          entity,
+          'tracking',
+          '${folder}_tracking_unit_codec.dart',
+          'TrackingUnitCodec',
+        ),
+        watchSessionCodec: _discoverContributor(
+          entity,
+          'tracking',
+          '${folder}_watch_session_codec.dart',
+          'WatchSessionCodec',
+        ),
+        customEpisodeCodec: _discoverContributor(
+          entity,
+          'tracking',
+          '${folder}_custom_episode_codec.dart',
+          'CustomEpisodeCodec',
+        ),
         providerMapper: _discoverContributor(
           entity,
           'provider',
@@ -244,10 +268,19 @@ import 'package:flutter/material.dart';
     "import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';",
   );
   buffer.writeln(
-    "import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';",
+    "import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';",
   );
   buffer.writeln(
-    "import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';",
+    "import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';",
+  );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';",
+  );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';",
+  );
+  buffer.writeln(
+    "import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';",
   );
   buffer.writeln(
     "import 'package:collectarr_app/features/library/config/owned_details_codec.dart';",
@@ -307,6 +340,34 @@ import 'package:flutter/material.dart';
     name: 'collectarrKindShelfExtensions',
     type: 'LibraryShelfExtensionContributor',
     field: (descriptor) => descriptor.shelfExtension,
+  );
+  _renderCodecList(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrTrackingEntryCodecs',
+    type: 'TrackingEntryCodec',
+    field: (descriptor) => descriptor.trackingEntryCodec,
+  );
+  _renderCodecList(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrTrackingUnitCodecs',
+    type: 'TrackingUnitCodec',
+    field: (descriptor) => descriptor.trackingUnitCodec,
+  );
+  _renderCodecList(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrWatchSessionCodecs',
+    type: 'WatchSessionCodec',
+    field: (descriptor) => descriptor.watchSessionCodec,
+  );
+  _renderCodecList(
+    buffer,
+    descriptors: descriptors,
+    name: 'collectarrCustomEpisodeCodecs',
+    type: 'CustomEpisodeCodec',
+    field: (descriptor) => descriptor.customEpisodeCodec,
   );
   _renderContributorMap(
     buffer,
@@ -399,6 +460,23 @@ void _renderContributorMap(
   buffer.writeln();
 }
 
+void _renderCodecList(
+  StringBuffer buffer, {
+  required List<_KindDescriptor> descriptors,
+  required String name,
+  required String type,
+  required _Contributor? Function(_KindDescriptor) field,
+}) {
+  buffer.writeln('const List<$type> $name = [');
+  for (final descriptor in descriptors) {
+    final contributor = field(descriptor);
+    if (contributor == null) continue;
+    buffer.writeln('  ${contributor.className}(),');
+  }
+  buffer.writeln('];');
+  buffer.writeln();
+}
+
 void _renderFacetMap(
   StringBuffer buffer,
   List<_KindDescriptor> descriptors,
@@ -444,6 +522,10 @@ final class _KindDescriptor {
     this.barcodeResolver,
     this.collectionCsvProjection,
     this.shelfExtension,
+    this.trackingEntryCodec,
+    this.trackingUnitCodec,
+    this.watchSessionCodec,
+    this.customEpisodeCodec,
     this.providerMapper,
     this.ownedDetailsCodec,
     this.metadataDecoder,
@@ -459,6 +541,10 @@ final class _KindDescriptor {
   final _Contributor? barcodeResolver;
   final _Contributor? collectionCsvProjection;
   final _Contributor? shelfExtension;
+  final _Contributor? trackingEntryCodec;
+  final _Contributor? trackingUnitCodec;
+  final _Contributor? watchSessionCodec;
+  final _Contributor? customEpisodeCodec;
   final _Contributor? providerMapper;
   final _Contributor? ownedDetailsCodec;
   final _MetadataDecoder? metadataDecoder;
@@ -472,6 +558,10 @@ final class _KindDescriptor {
       barcodeResolver,
       collectionCsvProjection,
       shelfExtension,
+      trackingEntryCodec,
+      trackingUnitCodec,
+      watchSessionCodec,
+      customEpisodeCodec,
       providerMapper,
       ownedDetailsCodec,
     ]) {
