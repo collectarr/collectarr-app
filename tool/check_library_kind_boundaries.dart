@@ -157,6 +157,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     // Admin proposal payloads are an explicit provider serialization boundary;
     // the owning kind supplies the field codec through this structural contract.
     'lib/features/library/config/library_admin_contributor.dart',
+    // Admin proposal JSON is an explicit provider serialization boundary;
+    // semantic keys are supplied by the kind contributor.
+    'lib/features/admin/admin_shared_widgets.dart',
     'lib/features/library/config/library_group_bucket_mutation.dart',
     'lib/features/library/config/library_page_utilities.dart',
     'lib/features/library/config/owned_details_codec.dart',
@@ -177,7 +180,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   };
 
   static const _dynamicCatalogAllowlist = {
-    'lib/features/catalog/catalog_cache_repository.dart',
     'lib/features/collection/csv/collection_csv.dart',
     'lib/features/collection/mutations/collection_import_service.dart',
     'lib/features/collection/mutations/owned_item_mutations.dart',
@@ -190,7 +192,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/collection/repositories/shelf_controller.dart',
     'lib/features/library/add/controllers/library_add_comparisons.dart',
     'lib/features/library/add/library_add_collection_workflow.dart',
-    'lib/features/library/api/library_metadata_transport_codec.dart',
     'lib/features/library/add/services/library_add_workflow_service.dart',
     'lib/features/library/config/library_entry_helpers.dart',
     'lib/features/library/config/library_group_bucket_mutation.dart',
@@ -207,12 +208,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/hierarchy/domain/library_hierarchy_node.dart',
     'lib/features/library/inspector/metadata_correction_dialog.dart',
     'lib/features/library/inspector/sections/contributors_section.dart',
-    'lib/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart',
-    'lib/features/library/kinds/_shared/serial/serial_library_media_presentation_builder.dart',
-    'lib/features/library/kinds/_shared/video/detail/video_inspector_sections.dart',
-    'lib/features/library/kinds/_shared/video/domain/video_episode.dart',
-    'lib/features/library/kinds/_shared/video/edit/tabs/video_edit_models.dart',
-    'lib/features/library/kinds/_shared/video/release/video_release_source.dart',
     'lib/features/library/kinds/anime/domain/anime_metadata.dart',
     'lib/features/library/kinds/boardgame/domain/boardgame_metadata.dart',
     'lib/features/library/kinds/boardgame/presentation_builder.dart',
@@ -241,9 +236,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/metadata/library_metadata_compare_dialog.dart',
     'lib/features/library/metadata/library_metadata_proposal.dart',
     'lib/features/library/metadata/metadata_proposal_store.dart',
-    'lib/features/library/models/library_catalog_item_view.dart',
     'lib/features/library/models/library_entry.dart',
-    'lib/features/library/models/library_metadata_item.dart',
     'lib/features/library/workspace/data/library_workspace_repository.dart',
     'lib/features/library/workspace/layout/library_flow_carousel.dart',
     'lib/features/library/workspace/tiles/library_workspace_card.dart',
@@ -266,7 +259,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/music/data/remote/music_core_mapper.dart',
     'lib/features/library/kinds/tv/data/remote/tv_core_mapper.dart',
     'lib/features/library/kinds/tv/data/remote/tv_remote_source.dart',
-    'lib/features/library/kinds/_shared/video/providers/video_seasons_provider.dart',
   };
 
   static const _structuralProjectionAllowlist = {
