@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_co
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
@@ -316,7 +318,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         ComicOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -332,7 +334,11 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as ComicOwnedDetailsDraft),
+      details: Patch.set(
+        const ComicOwnedDetailsCodec().draftFromDetails(
+          updated.details as ComicOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         ComicOwnedItemUpdatePayload.partial(details: const Patch.clear()),

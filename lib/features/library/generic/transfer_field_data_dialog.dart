@@ -214,15 +214,10 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         if (_mode == TransferMode.move && !src.isCustomField) {
           updated = src.writeTo(updated, null);
         }
-        final details = libraryKindOwnedDetailsDraftFromDetailsForKind(
-          widget.type.kind,
-          updated.details,
-        );
         await widget.mutations.updateOwnedItem(
           widget.type.edit.buildTransferUpdateCommand(
             ownedItemId: item.id,
             updated: updated,
-            details: details,
           ),
         );
         transferred++;
@@ -248,15 +243,10 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           }
         } else {
           final updated = src.writeTo(item, null);
-          final details = libraryKindOwnedDetailsDraftFromDetailsForKind(
-            widget.type.kind,
-            updated.details,
-          );
           await widget.mutations.updateOwnedItem(
             widget.type.edit.buildTransferUpdateCommand(
               ownedItemId: item.id,
               updated: updated,
-              details: details,
             ),
           );
         }

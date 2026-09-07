@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_copy_semantics.dart';
@@ -234,7 +236,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         MusicOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -250,7 +252,11 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as MusicOwnedDetailsDraft),
+      details: Patch.set(
+        const MusicOwnedDetailsCodec().draftFromDetails(
+          updated.details as MusicOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         MusicOwnedItemUpdatePayload.partial(details: const Patch.clear()),

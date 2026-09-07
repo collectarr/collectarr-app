@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_copy_semantics.dart';
@@ -328,7 +329,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         MovieOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -344,7 +345,11 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as MovieOwnedDetailsDraft),
+      details: Patch.set(
+        const MovieOwnedDetailsCodec().draftFromDetails(
+          updated.details as MovieOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         MovieOwnedItemUpdatePayload.partial(details: const Patch.clear()),

@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_copy_semantics.dart';
@@ -351,7 +352,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         MangaOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -367,7 +368,11 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as MangaOwnedDetailsDraft),
+      details: Patch.set(
+        const MangaOwnedDetailsCodec().draftFromDetails(
+          updated.details as MangaOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         MangaOwnedItemUpdatePayload.partial(details: const Patch.clear()),

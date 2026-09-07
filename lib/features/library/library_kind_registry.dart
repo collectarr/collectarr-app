@@ -13,8 +13,6 @@ import 'package:collectarr_app/features/library/config/library_export_preview_co
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
@@ -261,23 +259,6 @@ OwnedDetailsCodec<dynamic, dynamic> libraryKindOwnedDetailsCodecForKind(
 
 OwnedDetailsDraft libraryKindOwnedDetailsDraftForKind(CatalogMediaKind kind) {
   return libraryKindOwnedDetailsCodecForKind(kind).defaultDraft()
-      as OwnedDetailsDraft;
-}
-
-OwnedDetailsDraft libraryKindOwnedDetailsDraftFromDetailsForKind(
-  CatalogMediaKind kind,
-  JsonEncodable details,
-) {
-  final codec = libraryKindOwnedDetailsCodecForKind(kind);
-  codec.validate(details);
-  return codec.draftFromDetails(details) as OwnedDetailsDraft;
-}
-
-OwnedDetailsDraft libraryKindPersonalDetailsDraftForKind(
-  CatalogMediaKind kind,
-  LibraryPersonalEditSelection personal,
-) {
-  return libraryKindOwnedDetailsCodecForKind(kind).buildDraft(personal)
       as OwnedDetailsDraft;
 }
 

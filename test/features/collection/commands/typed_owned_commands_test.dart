@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -206,16 +208,14 @@ void main() {
       expect(parsedBoardgame, isA<BoardgameOwnedDetails>());
 
       expect(
-        libraryKindOwnedDetailsDraftFromDetailsForKind(
-          CatalogMediaKind.book,
-          parsedBook,
+        const BookOwnedDetailsCodec().draftFromDetails(
+          parsedBook as BookOwnedDetails,
         ),
         isA<BookOwnedDetailsDraft>(),
       );
       expect(
-        libraryKindOwnedDetailsDraftFromDetailsForKind(
-          CatalogMediaKind.boardgame,
-          parsedBoardgame,
+        const BoardgameOwnedDetailsCodec().draftFromDetails(
+          parsedBoardgame as BoardgameOwnedDetails,
         ),
         isA<BoardgameOwnedDetailsDraft>(),
       );

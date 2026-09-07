@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/kinds/game/game_physical_media_f
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_copy_semantics.dart';
@@ -203,7 +205,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         GameOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -219,7 +221,11 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as GameOwnedDetailsDraft),
+      details: Patch.set(
+        const GameOwnedDetailsCodec().draftFromDetails(
+          updated.details as GameOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),

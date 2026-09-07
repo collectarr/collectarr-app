@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_copy_semantics.dart';
@@ -298,7 +299,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         AnimeOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -314,7 +315,11 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as AnimeOwnedDetailsDraft),
+      details: Patch.set(
+        const AnimeOwnedDetailsCodec().draftFromDetails(
+          updated.details as AnimeOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         AnimeOwnedItemUpdatePayload.partial(details: const Patch.clear()),

@@ -54,7 +54,6 @@ typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
     Function(
   String ownedItemId,
   OwnedItem updated,
-  OwnedDetailsDraft details,
 );
 
 typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
@@ -216,7 +215,6 @@ class LibraryEditCapability {
   UpdateOwnedItemCommand buildTransferUpdateCommand({
     required String ownedItemId,
     required OwnedItem updated,
-    required OwnedDetailsDraft details,
   }) {
     final builder = ownedTransferUpdatePayloadBuilder;
     if (builder == null) {
@@ -224,7 +222,7 @@ class LibraryEditCapability {
     }
     return UpdateOwnedItemCommand(
       ownedItemId: ownedItemId,
-      payload: builder(ownedItemId, updated, details),
+      payload: builder(ownedItemId, updated),
     );
   }
 

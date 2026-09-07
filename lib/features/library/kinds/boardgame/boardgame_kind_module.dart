@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentatio
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_copy_semantics.dart';
@@ -253,7 +254,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         BoardgameOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -269,7 +270,11 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as BoardgameOwnedDetailsDraft),
+      details: Patch.set(
+        const BoardgameOwnedDetailsCodec().draftFromDetails(
+          updated.details as BoardgameOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         BoardgameOwnedItemUpdatePayload.partial(details: const Patch.clear()),

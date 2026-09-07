@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/config/library_facet_module.dart
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_copy_semantics.dart';
@@ -309,7 +310,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         TvOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
       grade: Patch.set(updated.grade),
@@ -325,7 +326,11 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
       indexNumber: Patch.set(updated.indexNumber),
       purchaseDate: Patch.set(updated.purchaseDate),
       soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(details as TvOwnedDetailsDraft),
+      details: Patch.set(
+        const TvOwnedDetailsCodec().draftFromDetails(
+          updated.details as TvOwnedDetails,
+        ),
+      ),
     ),
     ownedDetailsResetPayloadBuilder: () =>
         TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
