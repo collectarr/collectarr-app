@@ -64,6 +64,72 @@ void main() {
     );
   });
 
+  test('generated registrations dispatch through concrete kind types', () {
+    final source = File(registrationsPath).readAsStringSync();
+    const registrations = <String, String>{
+      'anime': 'AnimeRegistration',
+      'boardgame': 'BoardgameRegistration',
+      'book': 'BookRegistration',
+      'comic': 'ComicRegistration',
+      'game': 'GameRegistration',
+      'manga': 'MangaRegistration',
+      'movie': 'MovieRegistration',
+      'music': 'MusicRegistration',
+      'tv': 'TvRegistration',
+    };
+    const ownedTypes = <String, String>{
+      'anime': 'AnimeOwnedItem',
+      'boardgame': 'BoardGameOwnedItem',
+      'book': 'BookOwnedItem',
+      'comic': 'ComicOwnedItem',
+      'game': 'GameOwnedItem',
+      'manga': 'MangaOwnedItem',
+      'movie': 'MovieOwnedItem',
+      'music': 'MusicOwnedItem',
+      'tv': 'TvOwnedItem',
+    };
+
+    for (final entry in registrations.entries) {
+      expect(source, contains('${entry.value}(),'));
+      expect(source, contains('CatalogMediaKind.${entry.key}'));
+    }
+
+    final refSection = _sourceSection(
+      source,
+      'OwnedItemRef collectarrTypedOwnedItemRef',
+      'Map<String, dynamic> collectarrTypedOwnedItemJson',
+    );
+    final jsonSection = _sourceSection(
+      source,
+      'Map<String, dynamic> collectarrTypedOwnedItemJson',
+      'bool? collectarrTypedOwnedItemIsDigital',
+    );
+    final digitalSection = _sourceSection(
+      source,
+      'bool? collectarrTypedOwnedItemIsDigital',
+      'final collectarrTypedOwnedItemSyncSerializers',
+    );
+    final syncDecoderSection = _sourceSection(
+      source,
+      'final collectarrTypedOwnedItemSyncDeserializers',
+      'final collectarrOwnedItemSerializers',
+    );
+
+    for (final entry in ownedTypes.entries) {
+      expect(refSection, contains('if (item is ${entry.value})'));
+      expect(jsonSection, contains('if (item is ${entry.value})'));
+      expect(digitalSection, contains('if (item is ${entry.value})'));
+      expect(
+        syncDecoderSection,
+        contains('CatalogMediaKind.${entry.key}: ${entry.value}.fromJson'),
+      );
+    }
+    expect(refSection, isNot(contains('CatalogItemDto')));
+    expect(jsonSection, isNot(contains('CatalogItemDto')));
+    expect(jsonSection, isNot(contains('OwnedItemProjection')));
+    expect(digitalSection, isNot(contains('CatalogItemDto')));
+  });
+
   test('application router consumes generated kind routes', () {
     final source = File(routerPath).readAsStringSync();
 
@@ -139,4 +205,13 @@ void main() {
     }
     expect(violations, isEmpty);
   });
+}
+
+String _sourceSection(String source, String start, String end) {
+  final startIndex = source.indexOf(start);
+  final endIndex = source.indexOf(end, startIndex + start.length);
+  if (startIndex < 0 || endIndex < 0) {
+    throw StateError('Unable to locate generated section $start');
+  }
+  return source.substring(startIndex, endIndex);
 }

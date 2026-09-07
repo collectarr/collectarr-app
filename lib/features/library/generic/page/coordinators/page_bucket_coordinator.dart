@@ -93,7 +93,7 @@ class LibraryPageBucketCoordinator {
         );
         if (ownedUpdate != null) {
           ownedUpdates.putIfAbsent(
-            ownedUpdate.ownedItemId,
+            ownedUpdate.ownedRef.key,
             () => ownedUpdate,
           );
         }

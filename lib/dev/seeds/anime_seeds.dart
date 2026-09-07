@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/kinds/anime/data/anime_repositor
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
 
-final animeDevSeedContributor = DevSeedKindContributor(
+final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
   kind: CatalogMediaKind.anime,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -34,8 +34,8 @@ final animeDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateAnimeSeedCatalog,
   validateCatalogGraph: validateAnimeSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: animeSeedOwnedItems,
-  validateOwned: validateAnimeSeedOwned,
+  ownedItemsTyped: animeSeedOwnedItems,
+  validateOwnedTyped: validateAnimeSeedOwned,
   trackingEntries: animeSeedTrackingEntries,
   trackingUnits: animeSeedTrackingUnits,
   watchSessions: animeSeedWatchSessions,
@@ -102,8 +102,7 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateAnimeSeedOwned(Object raw) {
-  final item = raw as AnimeOwnedItem;
+List<String> validateAnimeSeedOwned(AnimeOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

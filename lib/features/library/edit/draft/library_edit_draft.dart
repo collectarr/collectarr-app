@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -610,7 +611,10 @@ class LibraryEditDraft {
   OwnedItemUpdateRequest toUpdateOwnedItemCommand(String ownedItemId) {
     return libraryKindModuleForKind(type.kind).edit.buildUpdateCommand(
           session: this,
-          ownedItemId: ownedItemId,
+          ownedRef: OwnedItemRef(
+            kind: type.kind,
+            id: OwnedItemId(ownedItemId),
+          ),
           kindDraft: kindDetails,
         );
   }

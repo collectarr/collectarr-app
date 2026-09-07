@@ -146,18 +146,24 @@ final class OwnedItemMutations {
     final updated = await mutationRunner.run(
       action: () async {
         final typedExistingResult =
-            await ownedItems.findTypedById(command.ownedItemId);
+            await ownedItems.findTypedById(command.ownedRef.id.value);
         if (typedExistingResult == null) {
-          throw StateError('OwnedItem not found: ${command.ownedItemId}');
+          throw StateError('OwnedItem not found: ${command.ownedRef.key}');
         }
 
         final typedPayload = typedCommand.payload;
         final mediaKind = typedExistingResult.$1;
         final typedExisting = typedExistingResult.$2;
+        if (command.ownedRef.kind != mediaKind) {
+          throw StateError(
+            'Owned update reference kind ${command.ownedRef.kind.apiValue} '
+            'does not match persisted kind ${mediaKind.apiValue}.',
+          );
+        }
         if (!typedPayload.canApplyTo(typedExisting)) {
           throw StateError(
             'Owned update payload does not belong to '
-            '${mediaKind.apiValue}: ${command.ownedItemId}',
+            '${mediaKind.apiValue}: ${command.ownedRef.key}',
           );
         }
         final typedUpdatedItem = typedPayload.applyTo(
@@ -174,14 +180,14 @@ final class OwnedItemMutations {
           _syncChangeForTypedOwnedItem(
             mediaKind,
             typedUpdatedItem,
-            command.ownedItemId,
+            command.ownedRef.id.value,
             'upsert',
             now,
           ),
         );
         return updatedRef;
       },
-      eventsToEmit: [OwnedItemUpdated(command.ownedItemId)],
+      eventsToEmit: [OwnedItemUpdated(command.ownedRef.id.value)],
     );
 
     return updated;

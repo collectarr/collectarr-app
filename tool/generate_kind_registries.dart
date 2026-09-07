@@ -62,17 +62,20 @@ Future<List<_DevSeedDescriptor>> _discoverDevSeeds() async {
     final source = await entity.readAsString();
     if (!source.contains('DevSeedKindContributor')) continue;
     final contributorMatch = RegExp(
-      r'(?:const|final)\s+(\w+DevSeedContributor)\s*=',
+      r'(?:const|final)\s+(\w+DevSeedContributor)\s*=\s*'
+      r'TypedDevSeedKindContributor<(\w+)>',
     ).firstMatch(source);
     if (contributorMatch == null) {
       throw StateError(
-        'Could not find a *DevSeedContributor in ${entity.path}',
+        'Dev seed ${entity.path} must declare a '
+        'TypedDevSeedKindContributor<TOwned>',
       );
     }
     descriptors.add(
       _DevSeedDescriptor(
         importPath: _packageImportPath(entity),
         contributorName: contributorMatch.group(1)!,
+        ownedType: contributorMatch.group(2)!,
       ),
     );
   }
@@ -87,6 +90,7 @@ String _renderDevSeedRegistry(List<_DevSeedDescriptor> descriptors) {
 // Run: dart run tool/generate_kind_registries.dart
 
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 ''');
   for (final descriptor in descriptors) {
     buffer.writeln(
@@ -106,6 +110,17 @@ import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
     buffer.writeln('  ${descriptor.contributorName},');
   }
   buffer.writeln('];');
+  buffer.writeln();
+  buffer.writeln(
+    'final Map<CatalogMediaKind, DevSeedKindContributor> '
+    'collectarrDevSeedContributorsByKind = {',
+  );
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.kind}: ${descriptor.contributorName},',
+    );
+  }
+  buffer.writeln('};');
   return buffer.toString();
 }
 
@@ -1545,10 +1560,20 @@ final class _DevSeedDescriptor {
   const _DevSeedDescriptor({
     required this.importPath,
     required this.contributorName,
+    required this.ownedType,
   });
 
   final String importPath;
   final String contributorName;
+  final String ownedType;
+
+  String get kind => contributorName
+      .replaceFirst(RegExp(r'DevSeedContributor$'), '')
+      .replaceAllMapped(
+        RegExp(r'([a-z0-9])([A-Z])'),
+        (match) => '${match.group(1)}_${match.group(2)!.toLowerCase()}',
+      )
+      .toLowerCase();
 }
 
 String _packageImportPath(File file) {

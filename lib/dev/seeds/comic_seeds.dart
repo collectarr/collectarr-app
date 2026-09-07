@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
-final comicDevSeedContributor = DevSeedKindContributor(
+final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
   kind: CatalogMediaKind.comic,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -33,8 +33,8 @@ final comicDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateComicSeedCatalog,
   validateCatalogGraph: validateComicSeedCatalogGraph,
   validateBarcode: validateComicSeedBarcode,
-  ownedItems: comicSeedOwnedItems,
-  validateOwned: validateComicSeedOwned,
+  ownedItemsTyped: comicSeedOwnedItems,
+  validateOwnedTyped: validateComicSeedOwned,
   trackingEntries: comicSeedTrackingEntries,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
@@ -95,8 +95,7 @@ List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateComicSeedOwned(Object raw) {
-  final item = raw as ComicOwnedItem;
+List<String> validateComicSeedOwned(ComicOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

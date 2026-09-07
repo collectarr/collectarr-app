@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 
-final musicDevSeedContributor = DevSeedKindContributor(
+final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
   kind: CatalogMediaKind.music,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -27,8 +27,8 @@ final musicDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateMusicSeedCatalog,
   validateCatalogGraph: validateMusicSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: musicSeedOwnedItems,
-  validateOwned: validateMusicSeedOwned,
+  ownedItemsTyped: musicSeedOwnedItems,
+  validateOwnedTyped: validateMusicSeedOwned,
   trackingEntries: musicSeedTrackingEntries,
 );
 
@@ -152,8 +152,7 @@ List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMusicSeedOwned(Object raw) {
-  final item = raw as MusicOwnedItem;
+List<String> validateMusicSeedOwned(MusicOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

@@ -12,7 +12,8 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 
-final boardgameDevSeedContributor = DevSeedKindContributor(
+final boardgameDevSeedContributor =
+    TypedDevSeedKindContributor<BoardGameOwnedItem>(
   kind: CatalogMediaKind.boardgame,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -30,8 +31,8 @@ final boardgameDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateBoardgameSeedCatalog,
   validateCatalogGraph: validateBoardgameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: boardgameSeedOwnedItems,
-  validateOwned: validateBoardgameSeedOwned,
+  ownedItemsTyped: boardgameSeedOwnedItems,
+  validateOwnedTyped: validateBoardgameSeedOwned,
   trackingEntries: boardgameSeedTrackingEntries,
   seedDatabase: seedBoardgameDatabase,
 );
@@ -111,8 +112,7 @@ List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBoardgameSeedOwned(Object raw) {
-  final item = raw as BoardGameOwnedItem;
+List<String> validateBoardgameSeedOwned(BoardGameOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

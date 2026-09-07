@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 
-final bookDevSeedContributor = DevSeedKindContributor(
+final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
   kind: CatalogMediaKind.book,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -29,8 +29,8 @@ final bookDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateBookSeedCatalog,
   validateCatalogGraph: validateBookSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: bookSeedOwnedItems,
-  validateOwned: validateBookSeedOwned,
+  ownedItemsTyped: bookSeedOwnedItems,
+  validateOwnedTyped: validateBookSeedOwned,
   trackingEntries: bookSeedTrackingEntries,
   trackingUnits: bookSeedTrackingUnits,
 );
@@ -83,8 +83,7 @@ List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateBookSeedOwned(Object raw) {
-  final item = raw as BookOwnedItem;
+List<String> validateBookSeedOwned(BookOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

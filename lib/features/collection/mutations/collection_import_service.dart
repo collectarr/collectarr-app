@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -16,7 +15,6 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
@@ -82,9 +80,13 @@ final class CollectionImportService {
         item.itemId: item,
     };
     final existingOwned = {
-      for (final item in await ownedItems.findActiveByItemIds(
-        resolvedRows.map((row) => row.itemId),
-      ))
+      for (final item in await ownedItems.listActiveSummaries().then(
+            (items) => items.where(
+              (item) => resolvedRows.any(
+                (row) => row.itemId == item.itemId,
+              ),
+            ),
+          ))
         item.itemId: item,
     };
     final existingTracking = {
@@ -128,21 +130,21 @@ final class CollectionImportService {
 
       final existingWishlistItem = existingWishlist[row.itemId];
       if (row.isOwned) {
-        final ownedItem = _ownedItemFromCsvRow(
+        final existingOwnedSummary = existingOwned[row.itemId];
+        final existingTypedOwned = existingOwnedSummary == null
+            ? null
+            : await ownedItems.findTypedById(
+                existingOwnedSummary.ref.id.value,
+              );
+        final typedImport = _typedOwnedItemFromCsvRow(
           row,
           now,
-          existing: existingOwned[row.itemId],
+          existingSummary: existingOwnedSummary,
+          existingTyped: existingTypedOwned,
           catalogKind: catItemKind,
         );
-        final mediaKind = ownedItem.catalogRef.mediaKind;
-        final typedOwnedItem =
-            collectarrOwnedItemDeserializers[mediaKind]?.call(ownedItem);
-        if (typedOwnedItem == null) {
-          throw StateError(
-            'Collection import cannot resolve typed Owned model for '
-            '${mediaKind.apiValue}',
-          );
-        }
+        final mediaKind = typedImport.kind;
+        final typedOwnedItem = typedImport.item;
         typedOwnedItems.add((mediaKind, typedOwnedItem));
         final ownedRef = collectarrTypedOwnedItemRef(typedOwnedItem);
         ownedItemRefs.add(ownedRef);
@@ -164,10 +166,10 @@ final class CollectionImportService {
         final trackingEntry = _trackingEntryFromCsvRow(
           row,
           ownedRef: ownedRef,
-          catalogRef: ownedItem.catalogRef,
+          catalogRef: typedImport.catalogRef,
           now: now,
           existing: existingTracking[ownedRef.id.value] ??
-              existingTracking[ownedItem.catalogRef.id],
+              existingTracking[typedImport.catalogRef.id],
         );
         if (trackingEntry != null) {
           trackingEntriesList.add(trackingEntry);
@@ -390,80 +392,90 @@ final class CollectionImportService {
     });
   }
 
-  OwnedItem _ownedItemFromCsvRow(
+  _TypedOwnedImport _typedOwnedItemFromCsvRow(
     CollectionCsvRow row,
     DateTime now, {
-    OwnedItem? existing,
+    OwnedItemSummary? existingSummary,
+    (CatalogMediaKind kind, Object item)? existingTyped,
     String? catalogKind,
   }) {
-    if (existing != null) {
-      final importedDetails = _ownedDetailsFromCsvRow(
-        row,
-        kind: existing.catalogRef.kind,
-      );
-      return existing.copyWith(
-        condition: row.condition ?? existing.condition,
-        grade: row.grade ?? existing.grade,
-        purchaseDate: row.purchaseDate ?? existing.purchaseDate,
-        pricePaidCents: row.pricePaidCents ?? existing.pricePaidCents,
-        currency: row.currency ?? existing.currency,
-        quantity: row.quantity ?? existing.quantity,
-        locationId: row.locationId ?? existing.locationId,
-        indexNumber: row.indexNumber ?? existing.indexNumber,
-        personalNotes: row.notes ?? existing.personalNotes,
-        tags: row.tags ?? existing.tags,
-        soldAt: row.soldAt ?? existing.soldAt,
-        sellPriceCents: row.sellPriceCents ?? existing.sellPriceCents,
-        soldTo: row.soldTo ?? existing.soldTo,
-        details: importedDetails ?? existing.details,
-        updatedAt: now,
+    final resolvedKind = row.kind ??
+        existingSummary?.ref.kind.apiValue ??
+        existingTyped?.$1.apiValue ??
+        catalogKind;
+    final kind = catalogMediaKindFromApiValue(resolvedKind);
+    final catalogRef = existingSummary?.catalogRef ??
+        CatalogEntityRef(
+          kind: resolvedKind ?? CatalogMediaKind.unknown.apiValue,
+          entityType: CatalogEntityType.work,
+          id: row.itemId,
+        );
+    final payload = existingTyped == null
+        ? <String, dynamic>{
+            'id': idGenerator(),
+            'catalog_ref': catalogRef.toJson(),
+            'created_at': now.toUtc().toIso8601String(),
+            'quantity': row.quantity ?? 1,
+          }
+        : collectarrTypedOwnedItemJson(existingTyped.$2);
+
+    payload['catalog_ref'] = catalogRef.toJson();
+    payload['updated_at'] = now.toUtc().toIso8601String();
+    if (row.condition != null) payload['condition'] = row.condition;
+    if (row.grade != null) payload['grade'] = row.grade;
+    if (row.purchaseDate != null) {
+      payload['purchase_date'] = row.purchaseDate!.toUtc().toIso8601String();
+    }
+    if (row.pricePaidCents != null) {
+      payload['price_paid_cents'] = row.pricePaidCents;
+    }
+    if (row.currency != null) payload['currency'] = row.currency;
+    if (row.notes != null) payload['personal_notes'] = row.notes;
+    if (row.quantity != null) payload['quantity'] = row.quantity;
+    if (row.locationId != null) payload['location_id'] = row.locationId;
+    if (row.indexNumber != null) payload['index_number'] = row.indexNumber;
+    if (row.tags != null) payload['tags'] = row.tags;
+    if (row.soldAt != null) {
+      payload['sold_at'] = row.soldAt!.toUtc().toIso8601String();
+    }
+    if (row.sellPriceCents != null) {
+      payload['sell_price_cents'] = row.sellPriceCents;
+    }
+    if (row.soldTo != null) payload['sold_to'] = row.soldTo;
+
+    final importedDetails = _ownedDetailsFromCsvRow(
+      row,
+      kind: kind,
+    );
+    if (importedDetails != null) payload.addAll(importedDetails);
+
+    final deserializer = collectarrTypedOwnedItemSyncDeserializers[kind];
+    if (deserializer == null) {
+      throw StateError(
+        'Collection import cannot resolve typed Owned model for '
+        '${kind.apiValue}',
       );
     }
-    final resolvedKind = row.kind ?? catalogKind;
-    final kind = catalogMediaKindFromApiValue(resolvedKind);
-    final details = _ownedDetailsFromCsvRow(
-          row,
-          kind: resolvedKind ?? CatalogMediaKind.unknown.apiValue,
-        ) ??
-        collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
-    return OwnedItem(
-      id: idGenerator(),
-      catalogRef: CatalogEntityRef(
-        kind: resolvedKind ?? CatalogMediaKind.unknown.apiValue,
-        entityType: CatalogEntityType.work,
-        id: row.itemId,
-      ),
-      createdAt: now,
-      updatedAt: now,
-      condition: row.condition,
-      grade: row.grade,
-      purchaseDate: row.purchaseDate,
-      pricePaidCents: row.pricePaidCents,
-      currency: row.currency,
-      quantity: row.quantity ?? 1,
-      indexNumber: row.indexNumber,
-      locationId: row.locationId,
-      personalNotes: row.notes,
-      tags: row.tags,
-      soldAt: row.soldAt,
-      sellPriceCents: row.sellPriceCents,
-      soldTo: row.soldTo,
-      details: details,
+    final item = deserializer(payload);
+    return (
+      kind: kind,
+      item: item,
+      catalogRef: catalogRef,
     );
   }
 
-  JsonEncodable? _ownedDetailsFromCsvRow(
+  Map<String, dynamic>? _ownedDetailsFromCsvRow(
     CollectionCsvRow row, {
-    required String kind,
+    required CatalogMediaKind kind,
   }) {
     if (row.kindOwnedCells.length != libraryCollectionCsvOwnedCellCount) {
       return null;
     }
     final projection = libraryCollectionCsvProjectionForKind(
-      catalogMediaKindFromApiValue(kind),
+      kind,
     );
     if (projection case final LibraryCollectionCsvOwnedDetailsDecoder decoder) {
-      return decoder.decodeOwnedDetails(row.kindOwnedCells);
+      return decoder.decodeOwnedDetails(row.kindOwnedCells)?.toJson();
     }
     return null;
   }
@@ -508,6 +520,12 @@ final class CollectionImportService {
     );
   }
 }
+
+typedef _TypedOwnedImport = ({
+  CatalogMediaKind kind,
+  Object item,
+  CatalogEntityRef catalogRef,
+});
 
 class CollectionImportPreview {
   const CollectionImportPreview({

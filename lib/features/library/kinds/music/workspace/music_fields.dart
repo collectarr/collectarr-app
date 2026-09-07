@@ -232,7 +232,7 @@ LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
     if (item.condition?.trim() != currentLabel.trim()) return null;
     final next = replacement?.trim();
     return UpdateOwnedItemCommand(
-      ownedItemId: item.id,
+      ownedRef: item.ref,
       payload: MusicOwnedItemUpdatePayload(
         anchor: const Patch.unchanged(),
         quantity: const Patch.unchanged(),

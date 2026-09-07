@@ -37,7 +37,7 @@ class LibraryBulkActions {
         catalogMediaKindFromApiValue(ownedItem.catalogRef.kind),
       );
       final updateCmd = runtime.edit.buildBulkUpdateCommand(
-        ownedItemId: ownedItem.id,
+        ownedRef: ownedItem.ref,
         condition: selection.condition,
         grade: selection.grade,
         locationId: selection.locationId,

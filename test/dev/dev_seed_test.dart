@@ -5,6 +5,7 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/native.dart';
@@ -23,7 +24,15 @@ void main() {
       kinds,
       containsAll(devSeedCatalogCounts.keys.map((kind) => kind.apiValue)),
     );
+    expect(
+      collectarrDevSeedContributorsByKind.keys.toSet(),
+      devSeedCatalogCounts.keys.toSet(),
+    );
     for (final contributor in collectarrDevSeedContributors) {
+      expect(
+        collectarrDevSeedContributorsByKind[contributor.kind],
+        same(contributor),
+      );
       expect(contributor.catalogItems, isNotNull);
       expect(contributor.validateCatalog, isNotNull);
       expect(contributor.validateCatalogGraph, isNotNull);
@@ -31,6 +40,16 @@ void main() {
       expect(contributor.ownedItems, isNotNull);
       expect(contributor.validateOwned, isNotNull);
       expect(contributor.trackingEntries, isNotNull);
+
+      final owned = contributor.ownedItems(DateTime.utc(2024, 1, 1));
+      expect(owned, isNotEmpty);
+      expect(
+        owned.every(
+          (item) => collectarrTypedOwnedItemRef(item).kind == contributor.kind,
+        ),
+        isTrue,
+        reason: 'Owned seed type mismatch for ${contributor.kind.apiValue}',
+      );
     }
   });
 

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 
-final gameDevSeedContributor = DevSeedKindContributor(
+final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
   kind: CatalogMediaKind.game,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
@@ -27,8 +27,8 @@ final gameDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateGameSeedCatalog,
   validateCatalogGraph: validateGameSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: gameSeedOwnedItems,
-  validateOwned: validateGameSeedOwned,
+  ownedItemsTyped: gameSeedOwnedItems,
+  validateOwnedTyped: validateGameSeedOwned,
   trackingEntries: gameSeedTrackingEntries,
 );
 
@@ -78,8 +78,7 @@ List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateGameSeedOwned(Object raw) {
-  final item = raw as GameOwnedItem;
+List<String> validateGameSeedOwned(GameOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

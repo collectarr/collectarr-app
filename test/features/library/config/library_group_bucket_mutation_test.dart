@@ -201,7 +201,7 @@ void main() {
 
     final update = mutator(item, 'Very Good', replacement: 'Mint');
     expect(update, isNotNull);
-    expect(update!.ownedItemId, 'owned-music-1');
+    expect(update!.ownedRef.id.value, 'owned-music-1');
     final payload = update!.payload as MusicOwnedItemUpdatePayload;
     expect(payload.condition, isA<SetValue<String?>>());
     expect((payload.condition as SetValue<String?>).value, 'Mint');

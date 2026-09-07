@@ -280,7 +280,7 @@ class LibraryPageEditCoordinator {
       }
       await coordinator.updateOwnedItem(
         UpdateOwnedItemCommand(
-          ownedItemId: owned.id,
+          ownedRef: owned.ref,
           payload: payload,
         ),
         syncTracking: false,

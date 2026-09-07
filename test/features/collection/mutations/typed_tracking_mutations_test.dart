@@ -2,10 +2,14 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -99,8 +103,8 @@ void main() {
 
     test('supports OwnedItemTrackingTarget and resolves its CatalogEntityRef',
         () async {
-      final owned = OwnedItem(
-        id: 'owned-item-77',
+      final owned = BookOwnedItem(
+        id: BookOwnedItemId('owned-item-77'),
         catalogRef: const CatalogEntityRef(
           kind: 'book',
           entityType: CatalogEntityType.work,
@@ -112,10 +116,15 @@ void main() {
       await catalogCache.upsertAll([
         testCatalogItem(id: 'book-77', kind: 'book', title: 'Test Book'),
       ]);
-      await ownedItems.upsert(owned);
+      await ownedItems.upsertTyped(CatalogMediaKind.book, owned);
 
       await trackingMutations.upsertTrackingEntry(
-        TrackingTarget.owned(owned.id),
+        TrackingTarget.owned(
+          OwnedItemRef(
+            kind: CatalogMediaKind.book,
+            id: OwnedItemId(owned.id.value),
+          ),
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
       );
@@ -138,7 +147,12 @@ void main() {
       ]);
 
       await trackingMutations.upsertTrackingEntry(
-        TrackingTarget.owned('book-anchor-target'),
+        TrackingTarget.owned(
+          const OwnedItemRef(
+            kind: CatalogMediaKind.book,
+            id: OwnedItemId('book-anchor-target'),
+          ),
+        ),
         anchor: PersonalItemAnchor.fromRaw(
           anchorType: PersonalItemAnchorType.variant.apiValue,
           editionId: 'edition-anchor',
@@ -191,7 +205,12 @@ void main() {
         () async {
       expect(
         () => trackingMutations.upsertTrackingEntry(
-          TrackingTarget.owned('non-existent-owned-id'),
+          TrackingTarget.owned(
+            const OwnedItemRef(
+              kind: CatalogMediaKind.book,
+              id: OwnedItemId('non-existent-owned-id'),
+            ),
+          ),
         ),
         throwsA(isA<ArgumentError>()),
       );
@@ -309,8 +328,8 @@ void main() {
         entityType: CatalogEntityType.work,
         id: 'tv-owned-1',
       );
-      final owned = OwnedItem(
-        id: 'owned-tv-1',
+      final owned = TvOwnedItem(
+        id: TvOwnedItemId('owned-tv-1'),
         catalogRef: ref,
         details: const TvOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),
@@ -318,12 +337,12 @@ void main() {
       await catalogCache.upsertAll([
         testCatalogItem(id: ref.id, kind: ref.kind, title: 'Tracked Show'),
       ]);
-      await ownedItems.upsert(owned);
+      await ownedItems.upsertTyped(CatalogMediaKind.tv, owned);
       await trackingEntries.upsert(
         TrackingEntry(
           id: 'tracking-tv-1',
           catalogRef: ref,
-          ownedItemId: owned.id,
+          ownedItemId: owned.id.value,
           seasonNumber: 4,
           episodeNumber: 9,
           episodeRatings: const {'4:9': 10},
@@ -334,7 +353,7 @@ void main() {
       await trackingMutations.syncOwnedTrackingEntry(
         OwnedItemRef(
           kind: CatalogMediaKind.tv,
-          id: OwnedItemId(owned.id),
+          id: OwnedItemId(owned.id.value),
         ),
         catalogRef: owned.catalogRef,
         isDigital: owned.isDigital,
@@ -357,8 +376,8 @@ void main() {
         entityType: CatalogEntityType.work,
         id: 'book-owned-anchor-clear',
       );
-      final owned = OwnedItem(
-        id: 'owned-book-anchor-clear',
+      final owned = BookOwnedItem(
+        id: BookOwnedItemId('owned-book-anchor-clear'),
         catalogRef: ref,
         anchor: PersonalItemAnchor.fromRaw(
           anchorType: PersonalItemAnchorType.edition.apiValue,
@@ -370,10 +389,10 @@ void main() {
       await catalogCache.upsertAll([
         testCatalogItem(id: ref.id, kind: ref.kind, title: 'Anchored Book'),
       ]);
-      await ownedItems.upsert(owned);
+      await ownedItems.upsertTyped(CatalogMediaKind.book, owned);
       final ownedRef = OwnedItemRef(
         kind: CatalogMediaKind.book,
-        id: OwnedItemId(owned.id),
+        id: OwnedItemId(owned.id.value),
       );
       await trackingMutations.syncOwnedTrackingEntry(
         ownedRef,

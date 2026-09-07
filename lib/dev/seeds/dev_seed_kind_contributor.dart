@@ -72,8 +72,32 @@ final class DevSeedCatalogDefaults {
 /// This is a dev-only composition contract. It keeps fixture construction
 /// typed while allowing the seed entry point to remain unaware of concrete
 /// kind repositories and tracking models.
-final class DevSeedKindContributor {
-  const DevSeedKindContributor({
+abstract interface class DevSeedKindContributor {
+  CatalogMediaKind get kind;
+  DevSeedCatalogDefaults get catalogDefaults;
+  DevSeedCatalogFactory get catalogItems;
+  DevSeedItemEnricher get enrichItem;
+  DevSeedCatalogQualityValidator get validateCatalog;
+  DevSeedCatalogGraphValidator get validateCatalogGraph;
+  DevSeedCatalogBarcodeValidator get validateBarcode;
+  DevSeedOwnedFactory get ownedItems;
+  DevSeedOwnedQualityValidator get validateOwned;
+  DevSeedTrackingFactory get trackingEntries;
+  DevSeedTrackingUnitFactory? get trackingUnits;
+  DevSeedWatchSessionFactory? get watchSessions;
+  DevSeedCustomEpisodeFactory? get customEpisodes;
+  DevSeedDatabaseSeeder? get seedDatabase;
+}
+
+/// Typed implementation used by every concrete kind seed.
+///
+/// The generated contributor registry is necessarily heterogeneous, so it
+/// exposes the small [DevSeedKindContributor] interface. The only erased
+/// boundary is this adapter; the seed declarations and validators remain
+/// concrete and cannot accidentally validate the wrong Owned model.
+final class TypedDevSeedKindContributor<TOwned extends Object>
+    implements DevSeedKindContributor {
+  const TypedDevSeedKindContributor({
     required this.kind,
     required this.catalogDefaults,
     required this.catalogItems,
@@ -81,8 +105,8 @@ final class DevSeedKindContributor {
     required this.validateCatalog,
     required this.validateCatalogGraph,
     required this.validateBarcode,
-    required this.ownedItems,
-    required this.validateOwned,
+    required this.ownedItemsTyped,
+    required this.validateOwnedTyped,
     required this.trackingEntries,
     this.trackingUnits,
     this.watchSessions,
@@ -90,18 +114,46 @@ final class DevSeedKindContributor {
     this.seedDatabase,
   });
 
+  @override
   final CatalogMediaKind kind;
+  @override
   final DevSeedCatalogDefaults catalogDefaults;
+  @override
   final DevSeedCatalogFactory catalogItems;
+  @override
   final DevSeedItemEnricher enrichItem;
+  @override
   final DevSeedCatalogQualityValidator validateCatalog;
+  @override
   final DevSeedCatalogGraphValidator validateCatalogGraph;
+  @override
   final DevSeedCatalogBarcodeValidator validateBarcode;
-  final DevSeedOwnedFactory ownedItems;
-  final DevSeedOwnedQualityValidator validateOwned;
+  final List<TOwned> Function(DateTime now) ownedItemsTyped;
+  final List<String> Function(TOwned item) validateOwnedTyped;
+  @override
   final DevSeedTrackingFactory trackingEntries;
+  @override
   final DevSeedTrackingUnitFactory? trackingUnits;
+  @override
   final DevSeedWatchSessionFactory? watchSessions;
+  @override
   final DevSeedCustomEpisodeFactory? customEpisodes;
+  @override
   final DevSeedDatabaseSeeder? seedDatabase;
+
+  @override
+  DevSeedOwnedFactory get ownedItems => (now) {
+        return List<Object>.of(ownedItemsTyped(now));
+      };
+
+  @override
+  DevSeedOwnedQualityValidator get validateOwned => (item) {
+        if (item is! TOwned) {
+          throw StateError(
+            'Seed ${kind.apiValue} received an Owned item of type '
+            '${item.runtimeType}; expected $TOwned',
+          );
+        }
+        return validateOwnedTyped(item);
+      };
 }

@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 
-final tvDevSeedContributor = DevSeedKindContributor(
+final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
   kind: CatalogMediaKind.tv,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -35,8 +35,8 @@ final tvDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateTvSeedCatalog,
   validateCatalogGraph: validateTvSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: tvSeedOwnedItems,
-  validateOwned: validateTvSeedOwned,
+  ownedItemsTyped: tvSeedOwnedItems,
+  validateOwnedTyped: validateTvSeedOwned,
   trackingEntries: tvSeedTrackingEntries,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
@@ -134,8 +134,7 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateTvSeedOwned(Object raw) {
-  final item = raw as TvOwnedItem;
+List<String> validateTvSeedOwned(TvOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

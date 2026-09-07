@@ -174,8 +174,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/generic/page/coordinators/page_cover_coordinator.dart',
     'lib/features/library/metadata/library_metadata_compare_dialog.dart',
     'lib/features/library/metadata/library_metadata_proposal.dart',
-    'lib/features/library/metadata/library_metadata_widgets.dart',
     'lib/features/library/metadata/metadata_proposal_store.dart',
+    'lib/features/library/metadata/library_metadata_widgets.dart',
     'lib/features/library/metadata/provider_candidate.dart',
     // Storage locations are a universal sync serialization boundary; they do
     // not contain catalog-kind metadata.
@@ -183,13 +183,13 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   };
 
   static const _dynamicCatalogAllowlist = {
+    // Generic tracking fallback is a lifecycle-only sync serialization
+    // boundary; episodic fields are interpreted only by owning kind codecs.
+    'lib/core/models/tracking_entry.dart',
     'lib/features/collection/csv/collection_csv.dart',
     'lib/features/collection/mutations/collection_import_service.dart',
     'lib/features/collection/mutations/owned_item_mutations.dart',
     'lib/features/collection/mutations/tracking_mutations.dart',
-    // Generic tracking fallback is a lifecycle-only sync serialization
-    // boundary; episodic fields are interpreted only by owning kind codecs.
-    'lib/core/models/tracking_entry.dart',
     'lib/features/collection/mutations/wishlist_mutations.dart',
     'lib/features/collection/repositories/custom_field_repository.dart',
     'lib/features/collection/repositories/shelf_controller.dart',
@@ -227,7 +227,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/manga/presentation_builder.dart',
     'lib/features/library/kinds/movie/domain/movie_metadata.dart',
     'lib/features/library/kinds/movie/inspector_sections.dart',
-    'lib/features/library/kinds/movie/presentation_builder.dart',
     'lib/features/library/kinds/music/catalog/music_catalog_mapper.dart',
     'lib/features/library/kinds/music/domain/music_metadata.dart',
     'lib/features/library/kinds/music/edit_dialog.dart',
@@ -455,8 +454,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   void visitSwitchStatement(SwitchStatement node) {
     if (isBoundaryFile &&
         !_structuralKindSwitchAllowlist.contains(relativePath)) {
-      final expr = node.expression.toSource();
-      if (expr.contains('kind') || expr.contains('CatalogMediaKind')) {
+      if (_isCatalogKindDispatchExpression(node.expression.toSource())) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
           '$relativePath:$line: Forbidden CatalogMediaKind switch statement in generic boundary code',
@@ -470,8 +468,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   void visitSwitchExpression(SwitchExpression node) {
     if (isBoundaryFile &&
         !_structuralKindSwitchAllowlist.contains(relativePath)) {
-      final expr = node.expression.toSource();
-      if (expr.contains('kind') || expr.contains('CatalogMediaKind')) {
+      if (_isCatalogKindDispatchExpression(node.expression.toSource())) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
           '$relativePath:$line: Forbidden CatalogMediaKind switch expression in generic boundary code',
@@ -487,8 +484,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         (node.operator.lexeme == '==' || node.operator.lexeme == '!=')) {
       final left = node.leftOperand.toSource();
       final right = node.rightOperand.toSource();
-      if ((left.contains('kind') && right.contains('CatalogMediaKind.')) ||
-          (right.contains('kind') && left.contains('CatalogMediaKind.'))) {
+      if (left.contains('CatalogMediaKind.') ||
+          right.contains('CatalogMediaKind.')) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
           '$relativePath:$line: Forbidden CatalogMediaKind comparison in generic boundary code',
@@ -496,6 +493,18 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       }
     }
     super.visitBinaryExpression(node);
+  }
+
+  bool _isCatalogKindDispatchExpression(String expression) {
+    if (expression.contains('CatalogMediaKind')) return true;
+    final source = sourceContent;
+    if (source == null) return false;
+    final catalogKindVariables = RegExp(
+      r'\bCatalogMediaKind\??\s+([A-Za-z_]\w*)',
+    ).allMatches(source).map((match) => match.group(1)!);
+    return catalogKindVariables.any(
+      (name) => RegExp('\\b${RegExp.escape(name)}\\b').hasMatch(expression),
+    );
   }
 
   @override
@@ -642,6 +651,30 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
 const _registryRoot = 'lib/features/library/kinds/registry/';
 
+List<String> architectureAllowlistIntegrityErrors(String repoRoot) {
+  final allowlists = <String, Set<String>>{
+    'generic metadata maps':
+        ArchitectureRuleVisitor._genericMetadataMapAllowlist,
+    'dynamic catalog values': ArchitectureRuleVisitor._dynamicCatalogAllowlist,
+    'generated DTO imports': ArchitectureRuleVisitor._generatedDtoAllowlist,
+    'structural projections':
+        ArchitectureRuleVisitor._structuralProjectionAllowlist,
+    'structural kind switches':
+        ArchitectureRuleVisitor._structuralKindSwitchAllowlist,
+  };
+  final errors = <String>[];
+  for (final entry in allowlists.entries) {
+    for (final relativePath in entry.value) {
+      final file = File(p.join(repoRoot, relativePath));
+      if (!file.existsSync()) {
+        errors.add('${entry.key}: missing allowlisted file $relativePath');
+        continue;
+      }
+    }
+  }
+  return errors;
+}
+
 void main(List<String> arguments) {
   final repoRoot = Directory.current.path;
   final libRoot = p.join(repoRoot, 'lib');
@@ -649,6 +682,12 @@ void main(List<String> arguments) {
 
   final allViolations = <String>[];
   final allComplexityWarnings = <String>[];
+
+  allViolations.addAll(
+    architectureAllowlistIntegrityErrors(repoRoot).map(
+      (error) => 'architecture allowlist: $error',
+    ),
+  );
 
   for (final file in files) {
     final relativePath = p.relative(file, from: repoRoot).replaceAll('\\', '/');

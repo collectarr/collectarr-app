@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -130,7 +131,7 @@ class LibraryEditCapability {
       kindDraft.toDetailsDraft();
 
   UpdateOwnedItemCommand buildIndexUpdateCommand({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required int indexNumber,
   }) {
     final builder = ownedIndexUpdatePayloadBuilder;
@@ -138,13 +139,13 @@ class LibraryEditCapability {
       throw StateError('No typed Owned index update builder is registered.');
     }
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
-      payload: builder(ownedItemId, indexNumber),
+      ownedRef: ownedRef,
+      payload: builder(ownedRef.id.value, indexNumber),
     );
   }
 
   UpdateOwnedItemCommand buildConditionGradeUpdateCommand({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required String? condition,
     required String? grade,
   }) {
@@ -155,13 +156,13 @@ class LibraryEditCapability {
       );
     }
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
-      payload: builder(ownedItemId, condition, grade),
+      ownedRef: ownedRef,
+      payload: builder(ownedRef.id.value, condition, grade),
     );
   }
 
   UpdateOwnedItemCommand buildBulkUpdateCommand({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required String? condition,
     required String? grade,
     required String? locationId,
@@ -172,9 +173,9 @@ class LibraryEditCapability {
       throw StateError('No typed Owned bulk update builder is registered.');
     }
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       payload: builder(
-        ownedItemId,
+        ownedRef.id.value,
         condition,
         grade,
         locationId,
@@ -184,7 +185,7 @@ class LibraryEditCapability {
   }
 
   UpdateOwnedItemCommand buildPersonalDetailsUpdateCommand({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required DateTime? purchaseDate,
     required int? pricePaidCents,
     required String? currency,
@@ -200,9 +201,9 @@ class LibraryEditCapability {
       );
     }
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       payload: builder(
-        ownedItemId,
+        ownedRef.id.value,
         purchaseDate,
         pricePaidCents,
         currency,
@@ -215,7 +216,7 @@ class LibraryEditCapability {
   }
 
   UpdateOwnedItemCommand buildTransferUpdateCommand({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required OwnedItem updated,
   }) {
     final builder = ownedTransferUpdatePayloadBuilder;
@@ -223,33 +224,33 @@ class LibraryEditCapability {
       throw StateError('No typed Owned transfer update builder is registered.');
     }
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
-      payload: builder(ownedItemId, updated),
+      ownedRef: ownedRef,
+      payload: builder(ownedRef.id.value, updated),
     );
   }
 
   UpdateOwnedItemCommand buildDetailsResetCommand({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
   }) {
     final builder = ownedDetailsResetPayloadBuilder;
     if (builder == null) {
       throw StateError('No typed Owned details reset builder is registered.');
     }
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       payload: builder(),
     );
   }
 
   OwnedItemUpdateRequest buildUpdateCommand({
     required LibraryEditDraft session,
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required LibraryEditKindDraft kindDraft,
   }) {
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       payload: kindDraft.buildOwnedUpdatePayload(
-        ownedItemId: ownedItemId,
+        ownedItemId: ownedRef.id.value,
         personal: session.personal,
       ),
     );

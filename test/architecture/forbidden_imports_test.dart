@@ -1,21 +1,8 @@
 import 'dart:io';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
 
@@ -298,6 +285,36 @@ void checkKind(CatalogMediaKind kind) {
       visitor.violations.any((v) => v.contains('CatalogMediaKind')),
       isTrue,
     );
+  });
+
+  test('architecture boundary checker rejects CatalogMediaKind switch by type',
+      () {
+    const testCode = '''
+String label(CatalogMediaKind mediaType) {
+  switch (mediaType) {
+    case CatalogMediaKind.movie:
+      return 'movie';
+    default:
+      return 'other';
+  }
+}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/library/generic/generic_test.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Forbidden CatalogMediaKind switch statement')),
+    );
+  });
+
+  test('architecture allowlists contain only live boundary files', () {
+    final errors = architectureAllowlistIntegrityErrors(Directory.current.path);
+    expect(errors, isEmpty, reason: errors.join('\n'));
   });
 
   test(

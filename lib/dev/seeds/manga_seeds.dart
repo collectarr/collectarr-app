@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 
-final mangaDevSeedContributor = DevSeedKindContributor(
+final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
   kind: CatalogMediaKind.manga,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -31,8 +31,8 @@ final mangaDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateMangaSeedCatalog,
   validateCatalogGraph: validateMangaSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: mangaSeedOwnedItems,
-  validateOwned: validateMangaSeedOwned,
+  ownedItemsTyped: mangaSeedOwnedItems,
+  validateOwnedTyped: validateMangaSeedOwned,
   trackingEntries: mangaSeedTrackingEntries,
   trackingUnits: mangaSeedTrackingUnits,
 );
@@ -75,8 +75,7 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMangaSeedOwned(Object raw) {
-  final item = raw as MangaOwnedItem;
+List<String> validateMangaSeedOwned(MangaOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

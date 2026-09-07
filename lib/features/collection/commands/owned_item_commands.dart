@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
@@ -89,18 +90,18 @@ final class AddOwnedItemCommand {
 
 /// Structural request accepted by collection mutation orchestration.
 abstract interface class OwnedItemUpdateRequest {
-  String get ownedItemId;
+  OwnedItemRef get ownedRef;
 }
 
 /// Typed command to update an existing owned item in collection.
 @immutable
 final class UpdateOwnedItemCommand implements OwnedItemUpdateRequest {
   const UpdateOwnedItemCommand({
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.payload,
   });
 
   @override
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final OwnedItemUpdatePayload<Object?> payload;
 }

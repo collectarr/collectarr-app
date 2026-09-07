@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 
-final movieDevSeedContributor = DevSeedKindContributor(
+final movieDevSeedContributor = TypedDevSeedKindContributor<MovieOwnedItem>(
   kind: CatalogMediaKind.movie,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -27,8 +27,8 @@ final movieDevSeedContributor = DevSeedKindContributor(
   validateCatalog: validateMovieSeedCatalog,
   validateCatalogGraph: validateMovieSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItems: movieSeedOwnedItems,
-  validateOwned: validateMovieSeedOwned,
+  ownedItemsTyped: movieSeedOwnedItems,
+  validateOwnedTyped: validateMovieSeedOwned,
   trackingEntries: movieSeedTrackingEntries,
 );
 
@@ -60,8 +60,7 @@ List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
   return issues;
 }
 
-List<String> validateMovieSeedOwned(Object raw) {
-  final item = raw as MovieOwnedItem;
+List<String> validateMovieSeedOwned(MovieOwnedItem item) {
   final issues = <String>[];
   final prefix = '${item.catalogRef.kind}/${item.id}';
   final details = item.details;

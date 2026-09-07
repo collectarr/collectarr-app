@@ -76,7 +76,6 @@ final class TrackingMutations {
 
   Future<void> upsertTrackingEntry(
     TrackingTarget target, {
-    String? ownedItemId,
     PersonalItemAnchor? anchor,
     bool replaceAnchor = false,
     TrackingSourceType? sourceType,
@@ -95,33 +94,39 @@ final class TrackingMutations {
   }) async {
     final now = DateTime.now().toUtc();
     late final CatalogEntityRef catalogRef;
-    String? targetOwnedItemId = ownedItemId;
+    String? targetOwnedItemId;
 
     switch (target) {
       case CatalogTrackingTarget(:final ref):
         catalogRef = ref;
-      case OwnedItemTrackingTarget(:final ownedItemId):
-        targetOwnedItemId = ownedItemId;
+      case OwnedItemTrackingTarget(:final ownedRef):
+        targetOwnedItemId = ownedRef.id.value;
         if (ownedItems != null) {
-          final owned = await ownedItems!.findSummaryById(ownedItemId);
+          final owned = await ownedItems!.findSummaryById(ownedRef.id.value);
+          if (owned != null && owned.ref.kind != ownedRef.kind) {
+            throw ArgumentError(
+              'Owned tracking reference kind ${ownedRef.kind.apiValue} '
+              'does not match persisted kind ${owned.ref.kind.apiValue}.',
+            );
+          }
           if (owned?.catalogRef != null) {
             catalogRef = owned!.catalogRef!;
           } else {
-            final cat = await catalogCache.findById(ownedItemId);
+            final cat = await catalogCache.findById(ownedRef.id.value);
             if (cat != null) {
               catalogRef = cat.catalogRefForPersonalAnchor(anchor);
             } else {
               throw ArgumentError(
-                  'Owned item not found for tracking target: $ownedItemId');
+                  'Owned item not found for tracking target: ${ownedRef.id.value}');
             }
           }
         } else {
-          final cat = await catalogCache.findById(ownedItemId);
+          final cat = await catalogCache.findById(ownedRef.id.value);
           if (cat != null) {
             catalogRef = cat.catalogRefForPersonalAnchor(anchor);
           } else {
             throw ArgumentError(
-                'Cannot resolve valid CatalogEntityRef for tracking target: $ownedItemId');
+                'Cannot resolve valid CatalogEntityRef for tracking target: ${ownedRef.id.value}');
           }
         }
     }

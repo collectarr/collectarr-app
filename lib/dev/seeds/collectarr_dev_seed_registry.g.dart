@@ -2,6 +2,7 @@
 // Run: dart run tool/generate_kind_registries.dart
 
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/dev/seeds/anime_seeds.dart';
 import 'package:collectarr_app/dev/seeds/boardgame_seeds.dart';
 import 'package:collectarr_app/dev/seeds/book_seeds.dart';
@@ -32,3 +33,16 @@ final List<DevSeedKindContributor> collectarrDevSeedContributors = [
   musicDevSeedContributor,
   tvDevSeedContributor,
 ];
+
+final Map<CatalogMediaKind, DevSeedKindContributor>
+    collectarrDevSeedContributorsByKind = {
+  CatalogMediaKind.anime: animeDevSeedContributor,
+  CatalogMediaKind.boardgame: boardgameDevSeedContributor,
+  CatalogMediaKind.book: bookDevSeedContributor,
+  CatalogMediaKind.comic: comicDevSeedContributor,
+  CatalogMediaKind.game: gameDevSeedContributor,
+  CatalogMediaKind.manga: mangaDevSeedContributor,
+  CatalogMediaKind.movie: movieDevSeedContributor,
+  CatalogMediaKind.music: musicDevSeedContributor,
+  CatalogMediaKind.tv: tvDevSeedContributor,
+};

@@ -565,7 +565,7 @@ class LibraryPageDialogCoordinator {
       if (ownedItem == null) continue;
       await coordinator.updateOwnedItem(
         _page.type.edit.buildIndexUpdateCommand(
-          ownedItemId: ownedItem.id,
+          ownedRef: ownedItem.ref,
           indexNumber: i + 1,
         ),
       );

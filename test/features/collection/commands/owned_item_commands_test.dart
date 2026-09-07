@@ -195,7 +195,7 @@ void main() {
 
     final updatedRef = await coordinator.updateOwnedItem(
       UpdateOwnedItemCommand(
-        ownedItemId: initialRef.id.value,
+        ownedRef: initialRef,
         payload: updatePayload,
       ),
     );

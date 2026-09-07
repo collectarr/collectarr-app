@@ -969,7 +969,14 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     },
   );
   validateSeedTrackingQuality(trackingEntries);
-  _validateSeedTrackingUnits(trackingUnits, allItems);
+  _validateSeedTrackingUnits(
+    trackingUnits,
+    allItems,
+    supportedKinds: {
+      for (final contributor in collectarrDevSeedContributors)
+        if (contributor.trackingUnits != null) contributor.kind.apiValue,
+    },
+  );
 
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
@@ -1006,8 +1013,9 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
 void _validateSeedTrackingUnits(
   Iterable<TrackingUnit> units,
-  Iterable<CatalogItemDto> catalogItems,
-) {
+  Iterable<CatalogItemDto> catalogItems, {
+  required Set<String> supportedKinds,
+}) {
   final catalogById = {
     for (final item in catalogItems) item.id: item,
   };
@@ -1030,13 +1038,7 @@ void _validateSeedTrackingUnits(
         '${unit.targetRef.toJson()}',
       );
     }
-    if (!{
-      'comic',
-      'manga',
-      'book',
-      'tv',
-      'anime',
-    }.contains(unit.targetRef.kind)) {
+    if (!supportedKinds.contains(unit.targetRef.kind)) {
       throw StateError(
         'Seed tracking unit ${unit.id} has no typed coordinate codec for '
         '${unit.targetRef.kind}',

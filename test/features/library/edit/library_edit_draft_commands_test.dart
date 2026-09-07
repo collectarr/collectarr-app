@@ -58,7 +58,7 @@ void main() {
 
     final details = payload.details;
     expect(details, isA<ComicOwnedDetailsDraft>());
-    final comicDetails = details as ComicOwnedDetailsDraft;
+    final comicDetails = details;
     expect(comicDetails.rawOrSlabbed, 'Slabbed');
     expect(comicDetails.gradingCompany, 'CGC');
     expect(comicDetails.coverPriceCents, 399);
@@ -90,7 +90,8 @@ void main() {
 
     final cmd = draft.toUpdateOwnedItemCommand('owned-item-99');
 
-    expect(cmd.ownedItemId, 'owned-item-99');
+    expect(cmd.ownedRef.kind, CatalogMediaKind.comic);
+    expect(cmd.ownedRef.id.value, 'owned-item-99');
     expect(cmd, isA<UpdateOwnedItemCommand>());
     final typedCommand = cmd as UpdateOwnedItemCommand;
     expect(typedCommand.payload, isA<ComicOwnedItemUpdatePayload>());

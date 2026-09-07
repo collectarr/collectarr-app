@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -507,7 +510,10 @@ void main() {
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
-            ownedItemId: original.id.value,
+            ownedRef: OwnedItemRef(
+              kind: CatalogMediaKind.comic,
+              id: OwnedItemId(original.id.value),
+            ),
             payload: ComicOwnedItemUpdatePayload.partial(
               condition: const Patch.set('Near Mint'),
               grade: const Patch.set('9.8'),
@@ -547,7 +553,10 @@ void main() {
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           UpdateOwnedItemCommand(
-            ownedItemId: original.id.value,
+            ownedRef: OwnedItemRef(
+              kind: CatalogMediaKind.comic,
+              id: OwnedItemId(original.id.value),
+            ),
             payload: ComicOwnedItemUpdatePayload.partial(
               locationId: const Patch.clear(),
             ),
