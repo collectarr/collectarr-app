@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -16,13 +15,11 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -73,15 +70,17 @@ CatalogItemDto testCatalogItem({
   CatalogPublishingDetailsDto? publishing,
   Map<String, dynamic>? payload,
 }) {
-  final resolvedPublisher = publisher ?? (kind == 'comic' ? 'IDW' : null);
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  final resolvedPublisher =
+      publisher ?? (mediaKind == CatalogMediaKind.comic ? 'IDW' : null);
   final resolvedCreators = creators ??
-      (kind == 'book'
+      (mediaKind == CatalogMediaKind.book
           ? const [
               {'name': 'J.R.R. Tolkien', 'role': 'Author'}
             ]
           : null);
   final resolvedPublishing = publishing ??
-      (kind == 'comic'
+      (mediaKind == CatalogMediaKind.comic
           ? const CatalogPublishingDetailsDto(
               imprint: 'IDW', subtitle: 'Director Cut')
           : null);
@@ -449,7 +448,8 @@ LibraryProjectionRuntime testProjectionItem({
     locationPath: locationPath,
   );
   final node = LibraryTitleNodeRef(titleItemId: resolvedId);
-  final dto = kind == 'comic'
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  final dto = mediaKind == CatalogMediaKind.comic
       ? lookupLibraryKind(CatalogMediaKind.comic)!.projector.projectTitle(
             source: shelf,
             node: node,

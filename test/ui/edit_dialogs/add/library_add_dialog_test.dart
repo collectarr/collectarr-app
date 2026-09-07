@@ -2248,7 +2248,8 @@ class _FakeLibraryAddApiClient extends ApiClient {
     required String kind,
     required String id,
   }) async {
-    if (kind == 'comic' && id == 'comic-423') {
+    final mediaKind = catalogMediaKindFromApiValue(kind);
+    if (mediaKind == CatalogMediaKind.comic && id == 'comic-423') {
       return ComicWorkDto.fromJson({
         'id': 'comic-423',
         'kind': 'comic',
@@ -2277,7 +2278,7 @@ class _FakeLibraryAddApiClient extends ApiClient {
         ],
       });
     }
-    if (kind == 'music' && id == 'music-core-1') {
+    if (mediaKind == CatalogMediaKind.music && id == 'music-core-1') {
       return MusicReleaseDto.fromJson({
         'id': 'music-core-1',
         'kind': 'music',
@@ -2730,8 +2731,9 @@ class _FakeMetadataProvider implements MetadataCapability {
     String providerItemId, {
     Object? kind,
   }) async {
+    final mediaKind = catalogMediaKindFromValue(kind);
     if (providerItemId == 'musicbrainz-1' ||
-        kind == 'music' ||
+        mediaKind == CatalogMediaKind.music ||
         name == 'musicbrainz') {
       return NormalizedProviderEnvelopeV1(
         provider: name,
