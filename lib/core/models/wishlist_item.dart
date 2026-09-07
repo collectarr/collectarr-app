@@ -47,7 +47,7 @@ class WishlistItem {
 
   bool get isDeleted => deletedAt != null;
 
-  Map<String, dynamic> toSyncPayload() {
+  Map<String, Object?> toSyncPayload() {
     return {
       'catalog_ref': catalogRef.toJson(),
       ...?anchor?.toSyncPayload(),
@@ -58,8 +58,9 @@ class WishlistItem {
     };
   }
 
-  factory WishlistItem.fromJson(Map<String, dynamic> json) {
-    final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
+  factory WishlistItem.fromJson(Map<String, Object?> json) {
+    final catalogRefJson =
+        Map<String, Object?>.from(json['catalog_ref'] as Map);
     return WishlistItem(
       id: json['id'] as String,
       catalogRef: CatalogEntityRef.fromJson(catalogRefJson),
