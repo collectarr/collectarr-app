@@ -31,6 +31,9 @@ typedef LibraryOwnedUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
 typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
     String ownedItemId, int indexNumber);
 
+typedef LibraryOwnedConditionGradeUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(String ownedItemId, String? condition, String? grade);
+
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
 class LibraryEditCapability {
@@ -49,6 +52,7 @@ class LibraryEditCapability {
     required this.ownedDigitalFlagResolver,
     this.ownedUpdatePayloadBuilder,
     this.ownedIndexUpdatePayloadBuilder,
+    this.ownedConditionGradeUpdatePayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -65,6 +69,8 @@ class LibraryEditCapability {
   final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
   final LibraryOwnedUpdatePayloadBuilder? ownedUpdatePayloadBuilder;
   final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
+  final LibraryOwnedConditionGradeUpdatePayloadBuilder?
+      ownedConditionGradeUpdatePayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
@@ -112,6 +118,23 @@ class LibraryEditCapability {
     return UpdateOwnedItemCommand(
       ownedItemId: ownedItemId,
       payload: builder(ownedItemId, indexNumber),
+    );
+  }
+
+  UpdateOwnedItemCommand buildConditionGradeUpdateCommand({
+    required String ownedItemId,
+    required String? condition,
+    required String? grade,
+  }) {
+    final builder = ownedConditionGradeUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError(
+        'No typed Owned condition/grade update builder is registered.',
+      );
+    }
+    return UpdateOwnedItemCommand(
+      ownedItemId: ownedItemId,
+      payload: builder(ownedItemId, condition, grade),
     );
   }
 

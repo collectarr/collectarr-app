@@ -317,11 +317,19 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     ownedUpdatePayloadBuilder: BookOwnedItemUpdatePayload.fromCommand,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         BookOwnedItemUpdatePayload.fromCommand(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: ownedItemId,
-            indexNumber: Patch.set(indexNumber),
-          ),
-        ),
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        indexNumber: Patch.set(indexNumber),
+      ),
+    ),
+    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
+        BookOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition: Patch.set(condition),
+        grade: Patch.set(grade),
+      ),
+    ),
   ),
 );
 

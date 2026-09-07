@@ -263,11 +263,19 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     ownedUpdatePayloadBuilder: AnimeOwnedItemUpdatePayload.fromCommand,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         AnimeOwnedItemUpdatePayload.fromCommand(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: ownedItemId,
-            indexNumber: Patch.set(indexNumber),
-          ),
-        ),
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        indexNumber: Patch.set(indexNumber),
+      ),
+    ),
+    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
+        AnimeOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition: Patch.set(condition),
+        grade: Patch.set(grade),
+      ),
+    ),
   ),
   buildCardPresentation: buildAnimeCardPresentation,
 );

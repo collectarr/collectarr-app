@@ -281,11 +281,19 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     ownedUpdatePayloadBuilder: ComicOwnedItemUpdatePayload.fromCommand,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         ComicOwnedItemUpdatePayload.fromCommand(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: ownedItemId,
-            indexNumber: Patch.set(indexNumber),
-          ),
-        ),
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        indexNumber: Patch.set(indexNumber),
+      ),
+    ),
+    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
+        ComicOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition: Patch.set(condition),
+        grade: Patch.set(grade),
+      ),
+    ),
   ),
   toolbar: LibraryKindToolbarModule(
     actions: [

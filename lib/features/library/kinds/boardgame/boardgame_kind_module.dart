@@ -218,11 +218,19 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     ownedUpdatePayloadBuilder: BoardgameOwnedItemUpdatePayload.fromCommand,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         BoardgameOwnedItemUpdatePayload.fromCommand(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: ownedItemId,
-            indexNumber: Patch.set(indexNumber),
-          ),
-        ),
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        indexNumber: Patch.set(indexNumber),
+      ),
+    ),
+    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
+        BoardgameOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition: Patch.set(condition),
+        grade: Patch.set(grade),
+      ),
+    ),
   ),
   stats: const BoardGameStatsCapability(),
 );

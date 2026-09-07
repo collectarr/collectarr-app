@@ -274,11 +274,19 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     ownedUpdatePayloadBuilder: TvOwnedItemUpdatePayload.fromCommand,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         TvOwnedItemUpdatePayload.fromCommand(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: ownedItemId,
-            indexNumber: Patch.set(indexNumber),
-          ),
-        ),
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        indexNumber: Patch.set(indexNumber),
+      ),
+    ),
+    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
+        TvOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition: Patch.set(condition),
+        grade: Patch.set(grade),
+      ),
+    ),
   ),
   buildCardPresentation: buildTvCardPresentation,
 );
