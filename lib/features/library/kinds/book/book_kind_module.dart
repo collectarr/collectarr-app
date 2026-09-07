@@ -366,6 +366,27 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
       ),
     ),
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated, details) =>
+        BookOwnedItemUpdatePayload.fromCommand(
+      OwnedItemPatchCommand<OwnedDetailsDraft>(
+        ownedItemId: ownedItemId,
+        condition: Patch.set(updated.condition),
+        grade: Patch.set(updated.grade),
+        personalNotes: Patch.set(updated.personalNotes),
+        locationId: Patch.set(updated.locationId),
+        tags: Patch.set(updated.tags),
+        currency: Patch.set(updated.currency),
+        soldTo: Patch.set(updated.soldTo),
+        purchaseStore: Patch.set(updated.purchaseStore),
+        pricePaidCents: Patch.set(updated.pricePaidCents),
+        sellPriceCents: Patch.set(updated.sellPriceCents),
+        quantity: Patch.set(updated.quantity),
+        indexNumber: Patch.set(updated.indexNumber),
+        purchaseDate: Patch.set(updated.purchaseDate),
+        soldAt: Patch.set(updated.soldAt),
+        details: Patch.set(details as BookOwnedDetailsDraft),
+      ),
+    ),
   ),
 );
 

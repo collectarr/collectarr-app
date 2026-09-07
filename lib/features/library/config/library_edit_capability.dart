@@ -54,6 +54,13 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
   String? locationId,
 );
 
+typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(
+  String ownedItemId,
+  OwnedItem updated,
+  OwnedDetailsDraft details,
+);
+
 /// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
 /// kind-owned draft creation, and update command building.
 class LibraryEditCapability {
@@ -75,6 +82,7 @@ class LibraryEditCapability {
     this.ownedConditionGradeUpdatePayloadBuilder,
     this.ownedBulkUpdatePayloadBuilder,
     this.ownedPersonalDetailsUpdatePayloadBuilder,
+    this.ownedTransferUpdatePayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -96,6 +104,8 @@ class LibraryEditCapability {
   final LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder;
   final LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
       ownedPersonalDetailsUpdatePayloadBuilder;
+  final LibraryOwnedTransferUpdatePayloadBuilder?
+      ownedTransferUpdatePayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
@@ -214,6 +224,21 @@ class LibraryEditCapability {
         locationChanged,
         locationId,
       ),
+    );
+  }
+
+  UpdateOwnedItemCommand buildTransferUpdateCommand({
+    required String ownedItemId,
+    required OwnedItem updated,
+    required OwnedDetailsDraft details,
+  }) {
+    final builder = ownedTransferUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned transfer update builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedItemId: ownedItemId,
+      payload: builder(ownedItemId, updated, details),
     );
   }
 
