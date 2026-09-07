@@ -118,7 +118,7 @@ void main() {
     test('generated kind registry covers typed catalog and vocabulary inputs',
         () {
       final catalogKinds = collectarrKindCatalogRepositoryCodecs
-          .map((codec) => catalogMediaKindFromApiValue(codec.kind))
+          .map((codec) => codec.kind)
           .toSet();
       expect(catalogKinds, equals(activeKinds.toSet()));
 

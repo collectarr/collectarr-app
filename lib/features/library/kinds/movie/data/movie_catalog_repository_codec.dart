@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_codec_support.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
@@ -9,7 +10,7 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   const MovieCatalogRepositoryCodec();
 
   @override
-  String get kind => 'movie';
+  CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
   CatalogItem withTypedMetadata(CatalogItem item) =>

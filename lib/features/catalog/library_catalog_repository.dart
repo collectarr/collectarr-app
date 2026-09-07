@@ -23,7 +23,7 @@ final class LibraryCatalogRepository {
         };
 
   final LocalDatabase _db;
-  final Map<String, CatalogKindRepositoryCodec> _codecs;
+  final Map<CatalogMediaKind, CatalogKindRepositoryCodec> _codecs;
 
   Future<void> upsertMetadataItems(List<CatalogItem> items) => upsertAll(items);
 
@@ -40,8 +40,7 @@ final class LibraryCatalogRepository {
     if (captureDerivedData) {
       await _captureDerivedData([
         for (final item in catalogItems)
-          (_codecs[item.kind.trim().toLowerCase()]?.withTypedMetadata(item) ??
-              item),
+          (_codecs[item.mediaKind]?.withTypedMetadata(item) ?? item),
       ]);
     }
   }
@@ -97,11 +96,14 @@ final class LibraryCatalogRepository {
 
   Future<List<CatalogItem>> findAll({String? kind}) async {
     final normalizedKind = kind?.trim().toLowerCase();
+    final requestedKind = normalizedKind == null || normalizedKind.isEmpty
+        ? null
+        : catalogMediaKindFromApiValue(normalizedKind);
     return [
       for (final item in await _allItems())
-        if (normalizedKind == null ||
-            normalizedKind.isEmpty ||
-            item.kind == normalizedKind)
+        if (requestedKind == null ||
+            (requestedKind != CatalogMediaKind.unknown &&
+                item.mediaKind == requestedKind))
           item,
     ];
   }
@@ -113,7 +115,13 @@ final class LibraryCatalogRepository {
   }
 
   Future<void> _upsertItem(CatalogItem item) async {
-    await _codecs[item.kind.trim().toLowerCase()]?.upsert(_db, item);
+    final codec = _codecs[item.mediaKind];
+    if (codec == null) {
+      throw StateError(
+        'Cannot persist catalog item without a supported kind: ${item.kind}',
+      );
+    }
+    await codec.upsert(_db, item);
   }
 
   Future<List<CatalogItem>> _allItems() async {

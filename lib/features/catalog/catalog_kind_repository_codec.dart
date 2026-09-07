@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 /// projection. Each adapter owns the mapping to and from its typed domain
 /// repository.
 abstract interface class CatalogKindRepositoryCodec {
-  String get kind;
+  CatalogMediaKind get kind;
 
   /// Rehydrates a transport catalog projection into this kind's typed
   /// metadata at the persistence boundary.
