@@ -8,6 +8,10 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 
 Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
   Iterable<CatalogItem> items,
@@ -728,3 +732,26 @@ List<TrackingEntry> comicSeedTrackingEntries(DateTime now) => [
           updatedAt: now,
         ),
     ];
+
+Future<void> seedComicReadingStates(LocalDatabase db, DateTime now) async {
+  final repository = ComicOwnedRepository(db);
+  for (var i = 1; i <= 15; i++) {
+    final id = ComicOwnedItemId('seed-owned-seed-comic-${seedOrdinal2(i)}');
+    final item = await repository.findById(id);
+    if (item == null) {
+      throw StateError(
+          'Missing Comic owned seed while adding reading state: $id');
+    }
+    await repository.upsert(
+      item.copyWith(
+        reading: ComicReadingState(
+          rating: i.isEven ? 9 : 8,
+          status: i <= 12 ? 'completed' : 'in_progress',
+          startedAt: DateTime.utc(2022, 7, 1),
+          finishedAt: i <= 12 ? DateTime.utc(2022, 7, 2) : null,
+        ),
+        updatedAt: now,
+      ),
+    );
+  }
+}

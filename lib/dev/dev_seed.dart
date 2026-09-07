@@ -1010,6 +1010,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
   await catalogRepo.upsertAll(allItems);
   await ownedRepo.upsertAll(ownedItems);
+  await seedComicReadingStates(db, now);
   await _seedKindTracking(db, allItems, now);
   await trackingUnitsRepo.upsertAll(trackingUnits);
   await WatchSessionsRepository(

@@ -317,6 +317,13 @@ void main() {
     final comicReadingRows = await db.select(db.comicReadingRows).get();
     expect(comicOwnedRows, hasLength(15));
     expect(comicReadingRows, hasLength(15));
+    expect(
+      comicReadingRows.every(
+        (row) => row.status?.trim().isNotEmpty == true && row.rating != null,
+      ),
+      isTrue,
+      reason: 'Comic seed reading rows must retain typed progress data',
+    );
     expect(comicOwnedRows.every((row) => row.itemId.startsWith('seed-comic-')),
         isTrue);
 
