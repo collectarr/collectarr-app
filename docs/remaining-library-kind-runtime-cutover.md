@@ -1,6 +1,6 @@
 # Remaining `LibraryKindRuntime` cutover
 
-Baseline HEAD: `6a36d3da` on 2026-09-07.
+Baseline HEAD: `8b5f7c60` on 2026-09-07.
 
 Generated registration is compile-time discovery of the nine kind modules. No
 runtime reflection or manual per-kind import list is required. The generated
@@ -49,6 +49,9 @@ registry is a composition root only.
 - generic Collection CSV export no longer reads kind presentation labels;
   single-kind headers come from the kind CSV profile and mixed/unknown exports
   use the structural generic header;
+- card projection is now owned by `LibraryMediaPresentation` for each kind;
+  `LibraryKindModule` no longer forwards `buildCard` or
+  `buildCardPresentation`;
 - generic facet definition ownership;
 - test `CatalogMediaKind` switches in the migrated contract fixtures;
 - common seed graph kind switches and manual seed contributor imports;
@@ -59,10 +62,10 @@ registry is a composition root only.
 ## Still erased and `PARTIAL`
 
 `LibraryKindModule` / `LibraryKindSpec` still expose semantic behavior through
-`LibraryProjectionRuntime` and related capability objects:
+related capability objects:
 
 - remaining capability forwarding for metadata, provider, inspector, transfer,
-  card and presentation surfaces;
+  and presentation surfaces;
 - field/column/sort/group/facet execution still reaches generic projection
   engines even though its field definitions now live in kind workspaces;
 - edit/presentation paths that still carry `CatalogItemDto`;
@@ -83,6 +86,27 @@ are deleted. Do not add a second runtime or compatibility alias.
 4. Delete erased `LibraryKindModule` members and reduce the registration to
    navigation/dispatch.
 
+## Current runtime member classification
+
+This is the current-HEAD deletion map for `LibraryKindModule`:
+
+| Member family | Classification | Final owner/action |
+| --- | --- | --- |
+| `kind`, `identity` | dispatch/navigation | tiny registration boundary |
+| `presentation`, `uiPolicy` | generic host contract plus kind contribution | structural UI host; kind-owned presentation values |
+| `metadata`, `hierarchy`, `edit`, `transfer`, `inspector` | typed kind responsibility | concrete kind modules/controllers |
+| `trackingProfile`, `linkedMetadata`, `relations`, `value`, `stats` | typed kind responsibility | concrete kind integrations |
+| `add`, `toolbar`, `searchTargetOptions` | typed kind responsibility | kind Add/action modules |
+| `physicalMediaFormats` | typed kind responsibility | kind-owned format vocabulary |
+| `titleCapability`, `releaseCapability` | typed workspace/release responsibility | concrete workspace/release modules |
+| `viewProfile` | structural workspace UI contract | generic renderer over a typed workspace contribution |
+| card builder | completed | moved to `LibraryMediaPresentation` in `8b5f7c60` |
+
+`LibraryKindRegistration` is already generated as nine concrete registrations
+and is limited to page/Add/Edit dispatch. The remaining work is therefore
+not registration reflection; it is removing the large capability/workspace
+facade that those registrations currently sit beside.
+
 The whole-repository architecture checker remains a failing migration gate at
 601 AST violations and 409 complexity reports. Schema remains version `1` with
 no compatibility upgrade path.
@@ -95,8 +119,8 @@ clusters are:
 1. Catalog DTO runtime bridge: `library_catalog_repository.dart`, Add/provider
    result flows, metadata comparison/correction, and generic workspace DTO
    projections.
-2. Common Owned reads: collection/detail/edit hosts, ShelfEntry, generic
-   transfer/inspector paths, and the remaining sync-retry serialization edge.
+2. Common Owned reads: collection/detail/edit hosts, ShelfEntry, and generic
+   transfer/inspector paths.
 3. Collection semantic union: `collection_csv.dart` still carries the old
    condition/grade/publisher/issue/Comic fields in its row model and parser.
 4. Generic admin/settings/import/report surfaces: `tmdb_import_service.dart`,
