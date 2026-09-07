@@ -16,7 +16,7 @@ final class CatalogSearchHit {
     this.imageUrl,
   });
 
-  factory CatalogSearchHit.fromJson(Map<String, dynamic> json) {
+  factory CatalogSearchHit.fromJson(Map<String, Object?> json) {
     final id = json['id']?.toString().trim() ?? '';
     if (id.isEmpty) {
       throw const FormatException('Catalog search hit is missing id');
@@ -52,7 +52,7 @@ final class CatalogSearchHit {
   final String? subtitle;
   final String? imageUrl;
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return {
       'id': ref.id,
       'kind': kind.apiValue,
