@@ -1286,7 +1286,8 @@ void _renderPickListContributors(
     buffer.writeln(
       '  VocabularyPickListDefinitionContributor('
       'kind: CatalogMediaKind.${descriptor.folder}, '
-      'vocabularies: ${vocabulary.className}.all),',
+      'vocabularies: ${vocabulary.className}.all, '
+      'ownedValueCounter: ${vocabulary.className}.countOwnedValue),',
     );
   }
   buffer.writeln('];');

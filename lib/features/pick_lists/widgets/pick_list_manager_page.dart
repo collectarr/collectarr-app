@@ -55,7 +55,10 @@ class PickListManagerPage extends StatefulWidget {
 class _PickListManagerPageState extends State<PickListManagerPage> {
   final _searchController = TextEditingController();
   late final PickListRegistry _registry;
-  late final PickListRepository _repo = PickListRepository(widget.db);
+  late final PickListRepository _repo = PickListRepository(
+    widget.db,
+    contributors: widget.registry.contributors,
+  );
   late final CustomFieldRepository _customFieldRepo =
       CustomFieldRepository(widget.db);
 

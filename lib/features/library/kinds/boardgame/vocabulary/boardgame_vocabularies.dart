@@ -1,6 +1,10 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 
 abstract final class BoardGameVocabularyIds {
   static const condition = VocabularyId<String>('boardgame.condition');
@@ -10,6 +14,49 @@ abstract final class BoardGameVocabularyIds {
 }
 
 abstract final class BoardGameVocabularies {
+  static Future<int> countOwnedValue(
+    LocalDatabase db,
+    String semanticName,
+    String normalizedValue,
+  ) {
+    return countPickListOwnedValues(
+      items: BoardGameOwnedRepository(db).listActive(),
+      normalizedValue: normalizedValue,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+    );
+  }
+
+  static Iterable<String?> _ownedValues(
+    BoardGameOwnedItem item,
+    String semanticName,
+  ) sync* {
+    final standard = switch (semanticName) {
+      'condition' => item.condition,
+      'grade' => item.grade,
+      'purchase_store' => item.purchaseStore,
+      'sold_to' => item.soldTo,
+      'collection_status' => item.collectionStatus,
+      _ => null,
+    };
+    if (standard != null) {
+      yield standard;
+      return;
+    }
+    if (semanticName == 'tags') {
+      yield* item.tags?.split(',') ?? const <String>[];
+      return;
+    }
+    final key = switch (semanticName) {
+      'region' => 'edition_region',
+      'condition' => 'component_condition',
+      'game_completeness' => 'component_completeness',
+      _ => null,
+    };
+    if (key != null) {
+      yield* pickListTextValues(item.details.toJson()[key]);
+    }
+  }
+
   static const condition = VocabularyDefinition<String>(
     id: BoardGameVocabularyIds.condition,
     label: 'Condition',

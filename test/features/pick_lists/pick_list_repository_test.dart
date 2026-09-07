@@ -1,8 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -16,7 +19,10 @@ void main() {
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
-    repo = PickListRepository(db);
+    repo = PickListRepository(
+      db,
+      contributors: defaultPickListDefinitionContributors,
+    );
   });
 
   tearDown(() => db.close());
@@ -86,11 +92,14 @@ void main() {
             sortOrder: const Value(0),
           ),
         );
-    await OwnedItemsRepository(db).upsert(
-      testOwnedItem(
-        id: 'owned-1',
-        itemId: 'item-1',
-        kind: 'comic',
+    await ComicOwnedRepository(db).upsert(
+      ComicOwnedItem(
+        id: ComicOwnedItemId('owned-1'),
+        catalogRef: CatalogEntityRef(
+          kind: 'comic',
+          entityType: CatalogEntityType.ownedCopy,
+          id: 'item-1',
+        ),
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 1, 1),
       ),

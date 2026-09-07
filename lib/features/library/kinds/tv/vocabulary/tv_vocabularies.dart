@@ -1,6 +1,10 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 
 abstract final class TvVocabularyIds {
   static const condition = VocabularyId<String>('tv.condition');
@@ -15,6 +19,50 @@ abstract final class TvVocabularyIds {
 }
 
 abstract final class TvVocabularies {
+  static Future<int> countOwnedValue(
+    LocalDatabase db,
+    String semanticName,
+    String normalizedValue,
+  ) {
+    return countPickListOwnedValues(
+      items: TvOwnedRepository(db).listActive(),
+      normalizedValue: normalizedValue,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+    );
+  }
+
+  static Iterable<String?> _ownedValues(
+    TvOwnedItem item,
+    String semanticName,
+  ) sync* {
+    final standard = switch (semanticName) {
+      'condition' => item.condition,
+      'grade' => item.grade,
+      'purchase_store' => item.purchaseStore,
+      'sold_to' => item.soldTo,
+      'collection_status' => item.collectionStatus,
+      _ => null,
+    };
+    if (standard != null) {
+      yield standard;
+      return;
+    }
+    if (semanticName == 'tags') {
+      yield* item.tags?.split(',') ?? const <String>[];
+      return;
+    }
+    final key = switch (semanticName) {
+      'features' => 'features',
+      'region' => 'region',
+      'packaging' => 'packaging',
+      'distributor' => 'distributor',
+      _ => null,
+    };
+    if (key != null) {
+      yield* pickListTextValues(item.details.toJson()[key]);
+    }
+  }
+
   static const condition = VocabularyDefinition<String>(
     id: TvVocabularyIds.condition,
     label: 'Condition',

@@ -1,19 +1,24 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
+import 'pick_list_definition_contributor.dart';
 import 'models/pick_list_value.dart';
 
 const _entityType = 'pick_list_value';
 
 class PickListRepository {
-  PickListRepository(this._db);
+  PickListRepository(
+    this._db, {
+    Iterable<PickListDefinitionContributor> contributors = const [],
+  }) : _contributors = contributors.toList(growable: false);
 
   final LocalDatabase _db;
+  final List<PickListDefinitionContributor> _contributors;
   late final _syncQueue = SyncQueueRepository(_db);
 
   Future<List<PickListValue>> valuesForList({
@@ -198,7 +203,11 @@ class PickListRepository {
     );
     final counts = <String, int>{};
     for (final value in values) {
-      counts[value.id] = await _usageCountForValue(listName, value.value);
+      counts[value.id] = await _usageCountForValue(
+        listName,
+        value.value,
+        mediaKind: mediaKind,
+      );
     }
     return counts;
   }
@@ -387,7 +396,11 @@ class PickListRepository {
     );
   }
 
-  Future<int> _usageCountForValue(String listName, String value) async {
+  Future<int> _usageCountForValue(
+    String listName,
+    String value, {
+    required String? mediaKind,
+  }) async {
     final normalized = normalizePickListValue(value);
     if (normalized.isEmpty) {
       return 0;
@@ -403,73 +416,25 @@ class PickListRepository {
       'format': ['physical_format', 'physical_format_label'],
     };
     final semanticName = pickListSemanticName(listName);
-    var total = await _countOwnedStandardField(semanticName, normalized);
-    total += await _countOwnedDetails(semanticName, normalized);
+    var total = 0;
+    final requestedKind =
+        mediaKind == null ? null : catalogMediaKindFromApiValue(mediaKind);
+    for (final contributor in _contributors) {
+      if (requestedKind != null && contributor.kind != requestedKind) {
+        continue;
+      }
+      total += await contributor.countOwnedValue(
+        _db,
+        semanticName,
+        normalized,
+      );
+    }
     for (final field
         in catalogPayloadFields[semanticName] ?? const <String>[]) {
       total += await _countCatalogPayloadField(field, normalized);
     }
-    if (semanticName == 'tags') {
-      total += await _countTagField(normalized);
-    }
     total += await _countCustomFieldValues(normalized);
     return total;
-  }
-
-  Future<int> _countOwnedDetails(String semanticName, String normalized) async {
-    final key = switch (semanticName) {
-      'raw_or_slabbed' => 'raw_or_slabbed',
-      'grading_company' => 'grading_company',
-      'grader_notes' => 'grader_notes',
-      'signed_by' => 'signed_by',
-      'label_type' => 'label_type',
-      'custom_label' => 'custom_label',
-      'page_quality' => 'page_quality',
-      'certification_number' => 'certification_number',
-      'key_category' => 'key_category',
-      'key_severity' => 'key_severity',
-      'features' => 'features',
-      'region' => 'region',
-      'packaging' => 'packaging',
-      'distributor' => 'distributor',
-      'game_completeness' => 'game_completeness',
-      _ => null,
-    };
-    if (key == null) {
-      return 0;
-    }
-    final rows = await OwnedItemsRepository(_db).listActive();
-    var count = 0;
-    for (final row in rows) {
-      final details = row.details.toJson();
-      final value = details[key];
-      if (value is String && normalizePickListValue(value) == normalized) {
-        count += 1;
-      }
-    }
-    return count;
-  }
-
-  Future<int> _countOwnedStandardField(
-    String semanticName,
-    String normalized,
-  ) async {
-    final rows = await OwnedItemsRepository(_db).listActive();
-    var count = 0;
-    for (final row in rows) {
-      final value = switch (semanticName) {
-        'condition' => row.condition,
-        'grade' => row.grade,
-        'purchase_store' => row.purchaseStore,
-        'sold_to' => row.soldTo,
-        'collection_status' => row.collectionStatus,
-        _ => null,
-      };
-      if (value != null && normalizePickListValue(value) == normalized) {
-        count++;
-      }
-    }
-    return count;
   }
 
   Future<int> _countCatalogPayloadField(
@@ -488,16 +453,6 @@ class PickListRepository {
       }
     }
     return count;
-  }
-
-  Future<int> _countTagField(String normalized) async {
-    final rows = await OwnedItemsRepository(_db).listActive();
-    return rows.where((row) {
-      final values = (row.tags ?? '')
-          .split(',')
-          .map((value) => normalizePickListValue(value));
-      return values.contains(normalized);
-    }).length;
   }
 
   Future<int> _countCustomFieldValues(String normalized) async {

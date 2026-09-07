@@ -1,6 +1,10 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 
 abstract final class ComicVocabularyIds {
   static const publisher = VocabularyId<String>('comic.publisher');
@@ -16,6 +20,56 @@ abstract final class ComicVocabularyIds {
 }
 
 abstract final class ComicVocabularies {
+  static Future<int> countOwnedValue(
+    LocalDatabase db,
+    String semanticName,
+    String normalizedValue,
+  ) {
+    return countPickListOwnedValues(
+      items: ComicOwnedRepository(db).listActive(),
+      normalizedValue: normalizedValue,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+    );
+  }
+
+  static Iterable<String?> _ownedValues(
+    ComicOwnedItem item,
+    String semanticName,
+  ) sync* {
+    final standard = switch (semanticName) {
+      'condition' => item.condition,
+      'grade' => item.grade,
+      'purchase_store' => item.purchaseStore,
+      'sold_to' => item.soldTo,
+      'collection_status' => item.collectionStatus,
+      _ => null,
+    };
+    if (standard != null) {
+      yield standard;
+      return;
+    }
+    if (semanticName == 'tags') {
+      yield* item.tags?.split(',') ?? const <String>[];
+      return;
+    }
+    final key = switch (semanticName) {
+      'raw_or_slabbed' => 'raw_or_slabbed',
+      'grading_company' => 'grading_company',
+      'grader_notes' => 'grader_notes',
+      'signed_by' => 'signed_by',
+      'label_type' => 'label_type',
+      'custom_label' => 'custom_label',
+      'page_quality' => 'page_quality',
+      'certification_number' => 'certification_number',
+      'key_category' => 'key_category',
+      'key_severity' => 'key_severity',
+      _ => null,
+    };
+    if (key != null) {
+      yield* pickListTextValues(item.details.toJson()[key]);
+    }
+  }
+
   static const publisher = VocabularyDefinition<String>(
     id: ComicVocabularyIds.publisher,
     label: 'Publisher',

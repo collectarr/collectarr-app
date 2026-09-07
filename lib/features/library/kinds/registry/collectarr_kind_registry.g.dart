@@ -767,24 +767,41 @@ const List<SerialAuthorityContributor>
 const List<PickListDefinitionContributor>
     collectarrKindPickListDefinitionContributors = [
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.anime, vocabularies: AnimeVocabularies.all),
+      kind: CatalogMediaKind.anime,
+      vocabularies: AnimeVocabularies.all,
+      ownedValueCounter: AnimeVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
       kind: CatalogMediaKind.boardgame,
-      vocabularies: BoardGameVocabularies.all),
+      vocabularies: BoardGameVocabularies.all,
+      ownedValueCounter: BoardGameVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.book, vocabularies: BookVocabularies.all),
+      kind: CatalogMediaKind.book,
+      vocabularies: BookVocabularies.all,
+      ownedValueCounter: BookVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.comic, vocabularies: ComicVocabularies.all),
+      kind: CatalogMediaKind.comic,
+      vocabularies: ComicVocabularies.all,
+      ownedValueCounter: ComicVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.game, vocabularies: GameVocabularies.all),
+      kind: CatalogMediaKind.game,
+      vocabularies: GameVocabularies.all,
+      ownedValueCounter: GameVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.manga, vocabularies: MangaVocabularies.all),
+      kind: CatalogMediaKind.manga,
+      vocabularies: MangaVocabularies.all,
+      ownedValueCounter: MangaVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.movie, vocabularies: MovieVocabularies.all),
+      kind: CatalogMediaKind.movie,
+      vocabularies: MovieVocabularies.all,
+      ownedValueCounter: MovieVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.music, vocabularies: MusicVocabularies.all),
+      kind: CatalogMediaKind.music,
+      vocabularies: MusicVocabularies.all,
+      ownedValueCounter: MusicVocabularies.countOwnedValue),
   VocabularyPickListDefinitionContributor(
-      kind: CatalogMediaKind.tv, vocabularies: TvVocabularies.all),
+      kind: CatalogMediaKind.tv,
+      vocabularies: TvVocabularies.all,
+      ownedValueCounter: TvVocabularies.countOwnedValue),
 ];
 
 LibraryKindModule? lookupLibraryKind(CatalogMediaKind kind) {

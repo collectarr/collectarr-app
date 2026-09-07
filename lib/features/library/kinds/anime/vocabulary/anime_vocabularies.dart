@@ -1,6 +1,10 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 
 abstract final class AnimeVocabularyIds {
   static const condition = VocabularyId<String>('anime.condition');
@@ -16,6 +20,50 @@ abstract final class AnimeVocabularyIds {
 }
 
 abstract final class AnimeVocabularies {
+  static Future<int> countOwnedValue(
+    LocalDatabase db,
+    String semanticName,
+    String normalizedValue,
+  ) {
+    return countPickListOwnedValues(
+      items: AnimeOwnedRepository(db).listActive(),
+      normalizedValue: normalizedValue,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+    );
+  }
+
+  static Iterable<String?> _ownedValues(
+    AnimeOwnedItem item,
+    String semanticName,
+  ) sync* {
+    final standard = switch (semanticName) {
+      'condition' => item.condition,
+      'grade' => item.grade,
+      'purchase_store' => item.purchaseStore,
+      'sold_to' => item.soldTo,
+      'collection_status' => item.collectionStatus,
+      _ => null,
+    };
+    if (standard != null) {
+      yield standard;
+      return;
+    }
+    if (semanticName == 'tags') {
+      yield* item.tags?.split(',') ?? const <String>[];
+      return;
+    }
+    final key = switch (semanticName) {
+      'features' => 'features',
+      'region' => 'region',
+      'packaging' => 'packaging',
+      'distributor' => 'distributor',
+      _ => null,
+    };
+    if (key != null) {
+      yield* pickListTextValues(item.details.toJson()[key]);
+    }
+  }
+
   static const condition = VocabularyDefinition<String>(
     id: AnimeVocabularyIds.condition,
     label: 'Condition',
