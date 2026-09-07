@@ -1,14 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Serialized provider metadata at the Admin proposal boundary.
-typedef LibraryAdminProposalPayload = Map<String, dynamic>;
-
 typedef LibraryAdminProposalFieldReader = String Function(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
 );
 
 typedef LibraryAdminProposalFieldWriter = void Function(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
   String rawValue,
 );
 
@@ -45,13 +42,13 @@ abstract interface class LibraryAdminContributor {
 }
 
 String readAdminProposalText(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
   String key,
 ) =>
     payload[key]?.toString() ?? '';
 
 void writeAdminProposalText(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
   String key,
   String rawValue,
 ) {
@@ -64,7 +61,7 @@ void writeAdminProposalText(
 }
 
 String readAdminProposalStringList(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
   String key,
 ) {
   final value = payload[key];
@@ -78,7 +75,7 @@ String readAdminProposalStringList(
 }
 
 void writeAdminProposalStringList(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
   String key,
   String rawValue,
 ) {
@@ -125,7 +122,7 @@ LibraryAdminProposalField adminStringListProposalField({
 }
 
 String readAdminProposalExternalLinks(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
   String key,
 ) {
   final value = payload[key];
@@ -145,7 +142,7 @@ String readAdminProposalExternalLinks(
 }
 
 void writeAdminProposalExternalLinks(
-  LibraryAdminProposalPayload payload,
+  Map<String, dynamic> payload,
   String key,
   String rawValue,
 ) {

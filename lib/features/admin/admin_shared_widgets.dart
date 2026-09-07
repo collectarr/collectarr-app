@@ -461,7 +461,7 @@ class _ProposalMetadataEditDialogState
 
   Map<String, TextEditingController> _createKindFieldControllers(
     CatalogMediaKind kind,
-    LibraryAdminProposalPayload payload,
+    Map<String, dynamic> payload,
   ) {
     final contributor = libraryAdminContributorForKind(kind);
     if (contributor == null) {
@@ -495,7 +495,7 @@ class _ProposalMetadataEditDialogState
     );
   }
 
-  LibraryAdminProposalPayload? _payloadForKindSwitch() {
+  Map<String, dynamic>? _payloadForKindSwitch() {
     final rawPayload = _payloadController.text.trim();
     try {
       final decoded =
@@ -503,7 +503,7 @@ class _ProposalMetadataEditDialogState
       if (decoded is! Map) {
         throw const FormatException('Metadata payload must be a JSON object.');
       }
-      final payload = LibraryAdminProposalPayload.from(decoded);
+      final payload = Map<String, dynamic>.from(decoded);
       for (final field in _adminProposalFields) {
         field.write(payload, _kindFieldControllers[field.key]!.text);
       }
