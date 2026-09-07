@@ -20,7 +20,7 @@ class ItemImage {
   final int sortOrder;
   final DateTime createdAt;
 
-  factory ItemImage.fromJson(Map<String, dynamic> json) {
+  factory ItemImage.fromJson(Map<String, Object?> json) {
     return ItemImage(
       id: json['id'] as String,
       ownedItemId: json['owned_item_id'] as String,
@@ -32,7 +32,7 @@ class ItemImage {
     );
   }
 
-  Map<String, dynamic> toSyncPayload() {
+  Map<String, Object?> toSyncPayload() {
     return {
       'owned_item_id': ownedItemId,
       'image_type': imageType,
