@@ -2,9 +2,13 @@
 // Run: dart run tool/generate_kind_registries.dart
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
@@ -290,160 +294,808 @@ LibraryKindModule libraryKindFor(CatalogMediaKind kind) {
 }
 
 final List<LibraryKindRegistration> collectarrKindRegistrations = [
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.anime,
-    module: animeKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => AnimeLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.boardgame,
-    module: boardGameKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => BoardGameLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.book,
-    module: bookKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => BookLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.comic,
-    module: comicKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => ComicLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.game,
-    module: gameKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => GameLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.manga,
-    module: mangaKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => MangaLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.movie,
-    module: movieKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => MovieLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.music,
-    module: musicKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => MusicLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
-  LibraryKindRegistrationAdapter(
-    kind: CatalogMediaKind.tv,
-    module: tvKindModule,
-    pageBuilder: ({
-      required LibraryKindModule type,
-      required Widget topBar,
-      required Color accent,
-      required Uri routeUri,
-      LibraryLayoutSnapshot? switchLayoutSnapshot,
-    }) => TvLibraryPage(
-      type: type,
-      topBar: topBar,
-      accent: accent,
-      routeUri: routeUri,
-      switchLayoutSnapshot: switchLayoutSnapshot,
-    ),
-  ),
+  AnimeRegistration(),
+  BoardgameRegistration(),
+  BookRegistration(),
+  ComicRegistration(),
+  GameRegistration(),
+  MangaRegistration(),
+  MovieRegistration(),
+  MusicRegistration(),
+  TvRegistration(),
 ];
+
+final class AnimeRegistration implements LibraryKindRegistration {
+  const AnimeRegistration();
+
+  LibraryKindModule get _module => animeKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.anime;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return AnimeLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class BoardgameRegistration implements LibraryKindRegistration {
+  const BoardgameRegistration();
+
+  LibraryKindModule get _module => boardGameKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.boardgame;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return BoardGameLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class BookRegistration implements LibraryKindRegistration {
+  const BookRegistration();
+
+  LibraryKindModule get _module => bookKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.book;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return BookLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class ComicRegistration implements LibraryKindRegistration {
+  const ComicRegistration();
+
+  LibraryKindModule get _module => comicKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.comic;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return ComicLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class GameRegistration implements LibraryKindRegistration {
+  const GameRegistration();
+
+  LibraryKindModule get _module => gameKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.game;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return GameLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class MangaRegistration implements LibraryKindRegistration {
+  const MangaRegistration();
+
+  LibraryKindModule get _module => mangaKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.manga;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return MangaLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class MovieRegistration implements LibraryKindRegistration {
+  const MovieRegistration();
+
+  LibraryKindModule get _module => movieKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.movie;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return MovieLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class MusicRegistration implements LibraryKindRegistration {
+  const MusicRegistration();
+
+  LibraryKindModule get _module => musicKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.music;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return MusicLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
+
+final class TvRegistration implements LibraryKindRegistration {
+  const TvRegistration();
+
+  LibraryKindModule get _module => tvKindModule;
+
+  @override
+  CatalogMediaKind get kind => CatalogMediaKind.tv;
+
+  @override
+  LibraryKindIdentity get identity => _module.identity;
+
+  @override
+  Widget buildLibraryPage({
+    required Widget topBar,
+    required Color accent,
+    required Uri routeUri,
+    LibraryLayoutSnapshot? switchLayoutSnapshot,
+  }) {
+    return TvLibraryPage(
+      type: _module,
+      topBar: topBar,
+      accent: accent,
+      routeUri: routeUri,
+      switchLayoutSnapshot: switchLayoutSnapshot,
+    );
+  }
+
+  @override
+  Widget buildAdd({
+    required BuildContext context,
+    required LibraryAddDialogRequest request,
+  }) {
+    return LibraryAddDialog(
+      type: _module,
+      accent: request.accent,
+      initialQuery: request.initialQuery,
+      initialBarcode: request.initialBarcode,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openMediaEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.media,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openReleaseEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.release,
+    );
+  }
+
+  @override
+  Future<LibraryEditSelection?> openOwnedEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+  }) {
+    return _openEdit(
+      context: context,
+      request: request,
+      scope: LibraryEditScope.all,
+    );
+  }
+
+  Future<LibraryEditSelection?> _openEdit({
+    required BuildContext context,
+    required LibraryEditDialogRequest request,
+    required LibraryEditScope scope,
+  }) {
+    return showLibraryEditDialog(
+      context: context,
+      request: request.copyWith(scope: scope),
+    );
+  }
+}
 
 LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {
   for (final registration in collectarrKindRegistrations) {

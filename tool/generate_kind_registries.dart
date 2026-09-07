@@ -223,9 +223,13 @@ String _renderRegistry(List<_KindDescriptor> descriptors) {
 // Run: dart run tool/generate_kind_registries.dart
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration_adapter.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
 ''');
@@ -406,26 +410,13 @@ import 'package:flutter/material.dart';
     'final List<LibraryKindRegistration> collectarrKindRegistrations = [',
   );
   for (final descriptor in descriptors) {
-    buffer.writeln('  LibraryKindRegistrationAdapter(');
-    buffer.writeln('    kind: CatalogMediaKind.${descriptor.folder},');
-    buffer.writeln('    module: ${descriptor.moduleName},');
-    buffer.writeln('    pageBuilder: ({');
-    buffer.writeln('      required LibraryKindModule type,');
-    buffer.writeln('      required Widget topBar,');
-    buffer.writeln('      required Color accent,');
-    buffer.writeln('      required Uri routeUri,');
-    buffer.writeln('      LibraryLayoutSnapshot? switchLayoutSnapshot,');
-    buffer.writeln('    }) => ${descriptor.pageClass}(');
-    buffer.writeln('      type: type,');
-    buffer.writeln('      topBar: topBar,');
-    buffer.writeln('      accent: accent,');
-    buffer.writeln('      routeUri: routeUri,');
-    buffer.writeln('      switchLayoutSnapshot: switchLayoutSnapshot,');
-    buffer.writeln('    ),');
-    buffer.writeln('  ),');
+    buffer.writeln('  ${_registrationClassName(descriptor)}(),');
   }
   buffer.writeln('];');
   buffer.writeln();
+  for (final descriptor in descriptors) {
+    _renderRegistrationClass(buffer, descriptor);
+  }
   buffer.writeln(
     'LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {',
   );
@@ -439,6 +430,93 @@ import 'package:flutter/material.dart';
   buffer.writeln('  );');
   buffer.writeln('}');
   return buffer.toString();
+}
+
+String _registrationClassName(_KindDescriptor descriptor) {
+  final name = descriptor.folder;
+  return '${name[0].toUpperCase()}${name.substring(1)}Registration';
+}
+
+void _renderRegistrationClass(
+  StringBuffer buffer,
+  _KindDescriptor descriptor,
+) {
+  final className = _registrationClassName(descriptor);
+  buffer.writeln('final class $className implements LibraryKindRegistration {');
+  buffer.writeln('  const $className();');
+  buffer.writeln();
+  buffer
+      .writeln('  LibraryKindModule get _module => ${descriptor.moduleName};');
+  buffer.writeln();
+  buffer.writeln('  @override');
+  buffer.writeln(
+    '  CatalogMediaKind get kind => CatalogMediaKind.${descriptor.folder};',
+  );
+  buffer.writeln();
+  buffer.writeln('  @override');
+  buffer.writeln('  LibraryKindIdentity get identity => _module.identity;');
+  buffer.writeln();
+  buffer.writeln('  @override');
+  buffer.writeln('  Widget buildLibraryPage({');
+  buffer.writeln('    required Widget topBar,');
+  buffer.writeln('    required Color accent,');
+  buffer.writeln('    required Uri routeUri,');
+  buffer.writeln('    LibraryLayoutSnapshot? switchLayoutSnapshot,');
+  buffer.writeln('  }) {');
+  buffer.writeln('    return ${descriptor.pageClass}(');
+  buffer.writeln('      type: _module,');
+  buffer.writeln('      topBar: topBar,');
+  buffer.writeln('      accent: accent,');
+  buffer.writeln('      routeUri: routeUri,');
+  buffer.writeln('      switchLayoutSnapshot: switchLayoutSnapshot,');
+  buffer.writeln('    );');
+  buffer.writeln('  }');
+  buffer.writeln();
+  buffer.writeln('  @override');
+  buffer.writeln('  Widget buildAdd({');
+  buffer.writeln('    required BuildContext context,');
+  buffer.writeln('    required LibraryAddDialogRequest request,');
+  buffer.writeln('  }) {');
+  buffer.writeln('    return LibraryAddDialog(');
+  buffer.writeln('      type: _module,');
+  buffer.writeln('      accent: request.accent,');
+  buffer.writeln('      initialQuery: request.initialQuery,');
+  buffer.writeln('      initialBarcode: request.initialBarcode,');
+  buffer.writeln('    );');
+  buffer.writeln('  }');
+  buffer.writeln();
+  for (final scope in const [
+    ('openMediaEdit', 'media'),
+    ('openReleaseEdit', 'release'),
+    ('openOwnedEdit', 'all'),
+  ]) {
+    buffer.writeln('  @override');
+    buffer.writeln(
+      '  Future<LibraryEditSelection?> ${scope.$1}({',
+    );
+    buffer.writeln('    required BuildContext context,');
+    buffer.writeln('    required LibraryEditDialogRequest request,');
+    buffer.writeln('  }) {');
+    buffer.writeln('    return _openEdit(');
+    buffer.writeln('      context: context,');
+    buffer.writeln('      request: request,');
+    buffer.writeln('      scope: LibraryEditScope.${scope.$2},');
+    buffer.writeln('    );');
+    buffer.writeln('  }');
+    buffer.writeln();
+  }
+  buffer.writeln('  Future<LibraryEditSelection?> _openEdit({');
+  buffer.writeln('    required BuildContext context,');
+  buffer.writeln('    required LibraryEditDialogRequest request,');
+  buffer.writeln('    required LibraryEditScope scope,');
+  buffer.writeln('  }) {');
+  buffer.writeln('    return showLibraryEditDialog(');
+  buffer.writeln('      context: context,');
+  buffer.writeln('      request: request.copyWith(scope: scope),');
+  buffer.writeln('    );');
+  buffer.writeln('  }');
+  buffer.writeln('}');
+  buffer.writeln();
 }
 
 void _renderContributorMap(
