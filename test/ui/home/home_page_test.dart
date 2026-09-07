@@ -144,7 +144,7 @@ void main() {
     expect(find.text('Hades'), findsWidgets);
   });
 
-  testWidgets('catalog-defined libraries use generic workspace controls',
+  testWidgets('catalog-defined unregistered libraries are not dispatched',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1220, 900);
@@ -161,7 +161,6 @@ void main() {
       providers: ['podindex'],
       isTopLevel: true,
     );
-    final now = DateTime.utc(2026, 5, 15);
     final podcast = testCatalogItem(
       id: 'podcast-1',
       kind: 'podcast',
@@ -170,10 +169,7 @@ void main() {
       releaseYear: 2026,
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
-            id: 'owned-podcast-1', itemId: podcast.id, updatedAt: now),
-      ],
+      ownedItems: const [],
       wishlistItems: const [],
       catalogItems: {podcast.id: podcast},
     );
@@ -196,21 +192,9 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    await tester.dragUntilVisible(
-      find.widgetWithText(MediaLibraryNavButton, 'Podcasts'),
-      find.byType(Scrollable).first,
-      const Offset(-100, 0),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(MediaLibraryNavButton, 'Podcasts'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Add Podcasts'), findsOneWidget);
-    expect(find.byTooltip('Library tools'), findsOneWidget);
-    expect(find.text('Search podcasts...'), findsOneWidget);
-    expect(find.text('[All Podcasts]'), findsOneWidget);
-    expect(find.text('The Library Feed'), findsWidgets);
-    expect(find.text('No podcast selected'), findsOneWidget);
+    expect(
+        find.widgetWithText(MediaLibraryNavButton, 'Podcasts'), findsNothing);
+    expect(find.text('The Library Feed'), findsNothing);
   });
 
   testWidgets('library navigation preferences hide comics and use left rail',
