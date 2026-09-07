@@ -28,6 +28,14 @@ typed seed composition list and exports. `dev_seed.dart` therefore orchestrates
 catalog, owned, tracking, and kind-specific database fixtures without a
 manual nine-kind import list or a switch over concrete repositories.
 
+It also writes
+`lib/features/library/kinds/registry/collectarr_kind_database_tables.g.dart`.
+That file discovers every Drift `Table` declared under a kind's
+`data/local/` directory and exports a single `collectarrKindTableTypes` list.
+`LocalDatabase` keeps only the universal table declarations and spreads this
+generated list into its Drift annotation. Adding a kind-local table therefore
+does not require a second central import or table-list edit.
+
 This is deliberately build-time discovery rather than runtime reflection:
 
 - Flutter AOT/tree-shaking remains predictable;

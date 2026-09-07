@@ -68,7 +68,12 @@ void main() {
   test('LocalDatabase is only the Drift composition root for kind tables', () {
     final databasePath = _repoPath('lib/core/db/local_database.dart');
     final databaseSource = File(databasePath).readAsStringSync();
+    final generatedTablesPath = _repoPath(
+      'lib/features/library/kinds/registry/collectarr_kind_database_tables.g.dart',
+    );
+    final generatedTablesSource = File(generatedTablesPath).readAsStringSync();
     expect(_tableNames(databaseSource), isEmpty);
+    expect(databaseSource, contains('collectarrKindTableTypes'));
 
     final kindTableFiles = <File>[];
     for (final kind in _kindNames) {
@@ -79,15 +84,19 @@ void main() {
       expect(files, hasLength(1), reason: '$kind should have one table module');
       kindTableFiles.addAll(files);
       expect(
-        databaseSource,
+        generatedTablesSource,
         contains('features/library/kinds/$kind/data/local/'),
-        reason: 'LocalDatabase must compose $kind tables explicitly',
+        reason: 'Generated kind table registry must compose $kind tables',
       );
     }
 
     for (final file in kindTableFiles) {
       for (final name in _tableNames(file.readAsStringSync())) {
-        expect(databaseSource, contains(name), reason: '$name is not composed');
+        expect(
+          generatedTablesSource,
+          contains(name),
+          reason: '$name is not composed by the generated registry',
+        );
       }
     }
   });

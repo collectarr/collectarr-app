@@ -3,6 +3,8 @@ import 'dart:io';
 const _kindsRoot = 'lib/features/library/kinds';
 const _registryOutput =
     'lib/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+const _databaseTablesOutput =
+    'lib/features/library/kinds/registry/collectarr_kind_database_tables.g.dart';
 const _devSeedRoot = 'lib/dev/seeds';
 const _devSeedRegistryOutput =
     'lib/dev/seeds/collectarr_dev_seed_registry.g.dart';
@@ -14,6 +16,8 @@ Future<void> main() async {
   }
 
   await File(_registryOutput).writeAsString(_renderRegistry(descriptors));
+  await File(_databaseTablesOutput)
+      .writeAsString(_renderDatabaseTables(descriptors));
   final devSeedDescriptors = await _discoverDevSeeds();
   if (devSeedDescriptors.isEmpty) {
     throw StateError('No dev seed contributors found under $_devSeedRoot');
@@ -22,6 +26,7 @@ Future<void> main() async {
       .writeAsString(_renderDevSeedRegistry(devSeedDescriptors));
 
   await _formatGeneratedFile(_registryOutput);
+  await _formatGeneratedFile(_databaseTablesOutput);
   await _formatGeneratedFile(_devSeedRegistryOutput);
   stdout.writeln('Generated ${descriptors.length} kind registrations.');
   stdout.writeln(
@@ -137,6 +142,7 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
       r'(?:const|final)\s+(\w+LibraryFacetModule)\s*=',
     ).firstMatch(moduleSource)?.group(1);
     final metadataDecoder = _discoverMetadataDecoder(entity);
+    final localTables = _discoverLocalTables(entity);
 
     descriptors.add(
       _KindDescriptor(
@@ -238,11 +244,41 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           'SerialAuthorityContributor',
         ),
         vocabularyModule: _discoverVocabularyModule(entity),
+        localTables: localTables,
       ),
     );
   }
   descriptors.sort((left, right) => left.folder.compareTo(right.folder));
   return descriptors;
+}
+
+_KindLocalTables? _discoverLocalTables(Directory kindDirectory) {
+  final folder = kindDirectory.path.split(Platform.pathSeparator).last;
+  final directory = Directory('${kindDirectory.path}/data/local');
+  if (!directory.existsSync()) return null;
+
+  final files = directory
+      .listSync()
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.dart'))
+      .toList()
+    ..sort((left, right) => left.path.compareTo(right.path));
+  final contributors = <_LocalTableFile>[];
+  for (final file in files) {
+    final source = file.readAsStringSync();
+    final tableNames = RegExp(
+      r'class\s+(\w+)\s+extends\s+Table\b',
+    ).allMatches(source).map((match) => match.group(1)!).toList();
+    if (tableNames.isEmpty) continue;
+    contributors.add(
+      _LocalTableFile(
+        importPath: _packageImportPath(file),
+        tableNames: tableNames,
+      ),
+    );
+  }
+  if (contributors.isEmpty) return null;
+  return _KindLocalTables(kind: folder, files: contributors);
 }
 
 _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
@@ -709,6 +745,41 @@ import 'package:go_router/go_router.dart';
   return buffer.toString();
 }
 
+String _renderDatabaseTables(List<_KindDescriptor> descriptors) {
+  final buffer = StringBuffer('''// GENERATED CODE - DO NOT MODIFY BY HAND
+// Run: dart run tool/generate_kind_registries.dart
+
+''');
+  final files = <String>{};
+  for (final descriptor in descriptors) {
+    final localTables = descriptor.localTables;
+    if (localTables == null) continue;
+    for (final file in localTables.files) {
+      if (files.add(file.importPath)) {
+        buffer.writeln(
+          "import 'package:collectarr_app/${file.importPath}';",
+        );
+        buffer.writeln(
+          "export 'package:collectarr_app/${file.importPath}';",
+        );
+      }
+    }
+  }
+  buffer.writeln();
+  buffer.writeln('const List<Type> collectarrKindTableTypes = <Type>[');
+  for (final descriptor in descriptors) {
+    final localTables = descriptor.localTables;
+    if (localTables == null) continue;
+    for (final file in localTables.files) {
+      for (final tableName in file.tableNames) {
+        buffer.writeln('  $tableName,');
+      }
+    }
+  }
+  buffer.writeln('];');
+  return buffer.toString();
+}
+
 String _registrationClassName(_KindDescriptor descriptor) {
   final name = descriptor.folder;
   return '${name[0].toUpperCase()}${name.substring(1)}Registration';
@@ -1077,6 +1148,7 @@ final class _KindDescriptor {
     this.catalogRepositoryCodec,
     this.serialAuthorityContributor,
     this.vocabularyModule,
+    this.localTables,
   });
 
   final String folder;
@@ -1103,6 +1175,7 @@ final class _KindDescriptor {
   final _Contributor? catalogRepositoryCodec;
   final _Contributor? serialAuthorityContributor;
   final _VocabularyModule? vocabularyModule;
+  final _KindLocalTables? localTables;
 
   Iterable<_Contributor> get contributors sync* {
     for (final contributor in [
@@ -1158,6 +1231,20 @@ final class _VocabularyModule {
 
   final String importPath;
   final String className;
+}
+
+final class _KindLocalTables {
+  const _KindLocalTables({required this.kind, required this.files});
+
+  final String kind;
+  final List<_LocalTableFile> files;
+}
+
+final class _LocalTableFile {
+  const _LocalTableFile({required this.importPath, required this.tableNames});
+
+  final String importPath;
+  final List<String> tableNames;
 }
 
 final class _DevSeedDescriptor {

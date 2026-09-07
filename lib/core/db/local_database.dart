@@ -1,14 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/local/boardgame_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/local/game_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_tables.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/local/music_local_tables.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_database_tables.g.dart';
 import 'universal_local_tables.dart';
 
 part 'local_database.g.dart';
@@ -33,51 +25,7 @@ part 'local_database.g.dart';
   SerialAuthorityCache,
   ProviderAccountsCache,
   ProviderItemLinksCache,
-  ComicMediaRows,
-  ComicReleaseRows,
-  ComicOwnedItemsRows,
-  ComicReadingRows,
-  MangaMediaRows,
-  MangaOwnedItemsRows,
-  BookMediaRows,
-  BookReleaseRows,
-  BookOwnedItemsRows,
-  GameMediaRows,
-  GameReleaseRows,
-  GameOwnedItemsRows,
-  BoardGameMediaRows,
-  BoardGameEditionRows,
-  BoardGameOwnedItemsRows,
-  BoardGamePlaySessionsRows,
-  MovieMediaRows,
-  MovieReleaseRows,
-  MovieOwnedItemsRows,
-  TvSeriesRows,
-  TvSeasonRows,
-  TvEpisodeRows,
-  TvReleaseRows,
-  TvReleaseMediaRows,
-  TvReleaseEpisodeMapRows,
-  TvOwnedItemsRows,
-  TvWatchSessionRows,
-  TvEpisodeProgressRows,
-  TvCustomEpisodeRows,
-  TvTrackingUnitRows,
-  AnimeMediaRows,
-  AnimeEpisodeRows,
-  AnimeReleaseRows,
-  AnimeOwnedItemsRows,
-  AnimeTrackingRows,
-  AnimeTrackingUnitRows,
-  AnimeWatchSessionRows,
-  AnimeCustomEpisodeRows,
-  ComicTrackingUnitRows,
-  MangaTrackingUnitRows,
-  BookTrackingUnitRows,
-  MusicReleaseRows,
-  MusicMediaRows,
-  MusicTrackRows,
-  MusicOwnedItemsRows,
+  ...collectarrKindTableTypes,
 ])
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase([QueryExecutor? executor])
