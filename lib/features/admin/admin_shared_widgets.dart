@@ -1675,7 +1675,7 @@ String _fallbackKindLabel(String kind) =>
     kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}';
 
 String _mediaTypeDisplayLabel(CatalogMediaType type) {
-  if (type.kind == 'tv') {
+  if (catalogMediaKindFromApiValue(type.kind) == CatalogMediaKind.tv) {
     return 'TV';
   }
   return type.pluralLabel.isNotEmpty ? type.pluralLabel : type.kind;

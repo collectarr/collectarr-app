@@ -35,9 +35,7 @@ class AnimeListImportService {
 
     final rows = <ProviderPersonalEntry>[];
     for (final entry in entries) {
-      final kindStr = _mediaKindForEntry(entry);
-      final kind =
-          kindStr == 'manga' ? CatalogMediaKind.manga : CatalogMediaKind.anime;
+      final kind = _mediaKindForEntry(entry);
       final title = _text(
             entry,
             const [
@@ -49,10 +47,10 @@ class AnimeListImportService {
             ],
           ) ??
           'Untitled';
-      final id = _providerEntryId(entry, kindStr, title);
+      final id = _providerEntryId(entry, kind, title);
       final status = _statusForEntry(entry);
       final score = _int(_text(entry, const ['my_score', 'score']));
-      final progress = _progressForEntry(entry, kindStr);
+      final progress = _progressForEntry(entry, kind);
       final startedAt = _date(
         _text(entry, const ['my_start_date', 'start_date', 'started_at']),
       );
@@ -110,23 +108,33 @@ class AnimeListImportService {
         .toList(growable: false);
   }
 
-  String _mediaKindForEntry(XmlElement entry) {
+  CatalogMediaKind _mediaKindForEntry(XmlElement entry) {
     final direct = entry.name.local.toLowerCase();
-    if (direct == 'anime' || direct == 'manga') {
-      return direct;
+    if (direct == CatalogMediaKind.manga.apiValue) {
+      return CatalogMediaKind.manga;
+    }
+    if (direct == CatalogMediaKind.anime.apiValue) {
+      return CatalogMediaKind.anime;
     }
     final parent = entry.parent;
     if (parent is XmlElement) {
       final parentName = parent.name.local.toLowerCase();
-      if (parentName == 'anime' || parentName == 'manga') {
-        return parentName;
+      if (parentName == CatalogMediaKind.manga.apiValue) {
+        return CatalogMediaKind.manga;
+      }
+      if (parentName == CatalogMediaKind.anime.apiValue) {
+        return CatalogMediaKind.anime;
       }
     }
-    return 'anime';
+    return CatalogMediaKind.anime;
   }
 
-  String _providerEntryId(XmlElement entry, String kind, String title) {
-    final candidates = kind == 'manga'
+  String _providerEntryId(
+    XmlElement entry,
+    CatalogMediaKind kind,
+    String title,
+  ) {
+    final candidates = kind == CatalogMediaKind.manga
         ? const ['series_mangadb_id', 'series_animedb_id', 'id']
         : const ['series_animedb_id', 'series_mangadb_id', 'id'];
     for (final key in candidates) {
@@ -173,8 +181,8 @@ class AnimeListImportService {
     };
   }
 
-  int? _progressForEntry(XmlElement entry, String kind) {
-    final keys = kind == 'manga'
+  int? _progressForEntry(XmlElement entry, CatalogMediaKind kind) {
+    final keys = kind == CatalogMediaKind.manga
         ? const ['my_read_chapters', 'my_read_volumes', 'chapters', 'volumes']
         : const ['my_watched_episodes', 'episodes'];
     for (final key in keys) {
