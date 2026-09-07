@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -15,6 +16,7 @@ import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -497,15 +499,19 @@ void main() {
     final original = (await OwnedItemsRepository(db).listActive()).single;
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: original.id,
-            condition: const Patch.set('Near Mint'),
-            grade: const Patch.set('9.8'),
-            purchaseDate: const Patch.clear(),
-            pricePaidCents: const Patch.clear(),
-            currency: const Patch.clear(),
-            personalNotes: const Patch.clear(),
-          ),
+          libraryKindModuleForKind(CatalogMediaKind.comic)
+              .edit
+              .withTypedUpdatePayload(
+                OwnedItemPatchCommand<OwnedDetailsDraft>(
+                  ownedItemId: original.id,
+                  condition: const Patch.set('Near Mint'),
+                  grade: const Patch.set('9.8'),
+                  purchaseDate: const Patch.clear(),
+                  pricePaidCents: const Patch.clear(),
+                  currency: const Patch.clear(),
+                  personalNotes: const Patch.clear(),
+                ),
+              ),
         );
 
     final updated = (await OwnedItemsRepository(db).listActive()).single;
@@ -535,10 +541,14 @@ void main() {
     final original = (await OwnedItemsRepository(db).listActive()).single;
 
     await container.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          OwnedItemPatchCommand<OwnedDetailsDraft>(
-            ownedItemId: original.id,
-            locationId: const Patch.clear(),
-          ),
+          libraryKindModuleForKind(CatalogMediaKind.comic)
+              .edit
+              .withTypedUpdatePayload(
+                OwnedItemPatchCommand<OwnedDetailsDraft>(
+                  ownedItemId: original.id,
+                  locationId: const Patch.clear(),
+                ),
+              ),
         );
 
     final updated = (await OwnedItemsRepository(db).listActive()).single;

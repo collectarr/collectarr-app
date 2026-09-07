@@ -126,6 +126,12 @@ final class OwnedItemMutations {
   Future<OwnedItem> updateOwnedItem(
     OwnedItemUpdateRequest command,
   ) async {
+    final typedCommand = command is UpdateOwnedItemCommand
+        ? command
+        : throw StateError(
+            'Collection mutations require a kind-owned '
+            'UpdateOwnedItemCommand.',
+          );
     final now = DateTime.now().toUtc();
 
     final updated = await mutationRunner.run(
@@ -135,21 +141,19 @@ final class OwnedItemMutations {
           throw StateError('OwnedItem not found: ${command.ownedItemId}');
         }
 
-        final typedPayload =
-            command is UpdateOwnedItemCommand ? command.payload : null;
-        final updatedItem =
-            typedPayload != null && typedPayload.canApplyTo(existing)
-                ? typedPayload.applyTo(
-                    existing,
-                    updatedAt: now,
-                    fallbackOwnerUserId: userId,
-                    fallbackOwnerLabel: userEmail,
-                  )
-                : _applyOwnedPatch(
-                    existing,
-                    command as OwnedItemPatchCommand,
-                    updatedAt: now,
-                  );
+        final typedPayload = typedCommand.payload;
+        if (!typedPayload.canApplyTo(existing)) {
+          throw StateError(
+            'Owned update payload does not belong to '
+            '${existing.catalogRef.kind}: ${existing.id}',
+          );
+        }
+        final updatedItem = typedPayload.applyTo(
+          existing,
+          updatedAt: now,
+          fallbackOwnerUserId: userId,
+          fallbackOwnerLabel: userEmail,
+        );
 
         await ownedItems.upsert(updatedItem);
         await syncQueue
@@ -160,125 +164,6 @@ final class OwnedItemMutations {
     );
 
     return updated;
-  }
-
-  OwnedItem _applyOwnedPatch(
-    OwnedItem existing,
-    OwnedItemPatchCommand command, {
-    required DateTime updatedAt,
-  }) {
-    final mediaKind = catalogMediaKindFromApiValue(existing.catalogRef.kind);
-    final detailsCodec = collectarrOwnedDetailsCodecForKind(mediaKind);
-    final resolvedDetails = command.details.when(
-      unchanged: () => existing.details,
-      set: (draft) {
-        final details = draft.toDetails();
-        detailsCodec.validate(details);
-        return details;
-      },
-      clear: () => detailsCodec.defaultDetails(),
-    );
-
-    return OwnedItem(
-      id: existing.id,
-      catalogRef: existing.catalogRef,
-      createdAt: existing.createdAt ?? updatedAt,
-      isDigital: command.isDigital.when(
-        unchanged: () => existing.isDigital,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      anchor: command.anchor.when(
-        unchanged: () => existing.anchor,
-        set: (value) => value,
-        clear: () => null,
-      ),
-      details: resolvedDetails,
-      condition: command.condition.when(
-        unchanged: () => existing.condition,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      grade: command.grade.when(
-        unchanged: () => existing.grade,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      purchaseDate: command.purchaseDate.when(
-        unchanged: () => existing.purchaseDate,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      pricePaidCents: command.pricePaidCents.when(
-        unchanged: () => existing.pricePaidCents,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      currency: command.currency.when(
-        unchanged: () => existing.currency,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      personalNotes: command.personalNotes.when(
-        unchanged: () => existing.personalNotes,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      quantity: command.quantity.when(
-        unchanged: () => existing.quantity,
-        set: (v) => v,
-        clear: () => 1,
-      ),
-      locationId: command.locationId.when(
-        unchanged: () => existing.locationId,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      purchaseStore: command.purchaseStore.when(
-        unchanged: () => existing.purchaseStore,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      collectionStatus: command.collectionStatus.when(
-        unchanged: () => existing.collectionStatus,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      tags: command.tags.when(
-        unchanged: () => existing.tags,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      soldAt: command.soldAt.when(
-        unchanged: () => existing.soldAt,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      sellPriceCents: command.sellPriceCents.when(
-        unchanged: () => existing.sellPriceCents,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      soldTo: command.soldTo.when(
-        unchanged: () => existing.soldTo,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      marketValueCents: command.marketValueCents.when(
-        unchanged: () => existing.marketValueCents,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      ownerUserId: existing.ownerUserId ?? userId,
-      ownerLabel: existing.ownerLabel ?? userEmail,
-      indexNumber: command.indexNumber.when(
-        unchanged: () => existing.indexNumber,
-        set: (v) => v,
-        clear: () => null,
-      ),
-      updatedAt: updatedAt,
-      deletedAt: existing.deletedAt,
-    );
   }
 
   Future<void> updateCatalogSnapshot(

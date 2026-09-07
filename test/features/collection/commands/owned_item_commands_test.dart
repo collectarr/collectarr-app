@@ -1,9 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -188,7 +190,11 @@ void main() {
       ),
     );
 
-    final updated = await coordinator.updateOwnedItem(updateCmd);
+    final updated = await coordinator.updateOwnedItem(
+      libraryKindModuleForKind(CatalogMediaKind.comic)
+          .edit
+          .withTypedUpdatePayload(updateCmd),
+    );
 
     expect(updated.id, initial.id);
     expect(updated.anchor?.apiValue, 'variant');
