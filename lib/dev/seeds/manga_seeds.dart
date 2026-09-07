@@ -27,6 +27,7 @@ final mangaDevSeedContributor = DevSeedKindContributor(
   catalogItems: mangaSeedCatalogItems,
   enrichItem: enrichMangaSeedItem,
   validateCatalog: validateMangaSeedCatalog,
+  validateCatalogGraph: validateMangaSeedCatalogGraph,
   ownedItems: mangaSeedOwnedItems,
   validateOwned: validateMangaSeedOwned,
   trackingEntries: mangaSeedTrackingEntries,
@@ -38,6 +39,36 @@ List<String> validateMangaSeedCatalog(CatalogItemDto item) {
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
   seedRequireText(issues, prefix, 'publisher', item.publisher);
+  return issues;
+}
+
+List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final chapters = seedRequireObjectList(
+    issues,
+    prefix,
+    'chapters',
+    item.payload['chapters'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'chapters',
+    chapters,
+    kind: 'manga',
+    parentId: item.id,
+    parentKey: 'series_id',
+    titleKey: 'title',
+  );
+  for (var index = 0; index < chapters.length; index++) {
+    seedRequirePositiveNumber(
+      issues,
+      prefix,
+      'chapters[$index].chapter_number',
+      chapters[index]['chapter_number'],
+    );
+  }
   return issues;
 }
 

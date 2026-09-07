@@ -32,6 +32,7 @@ final tvDevSeedContributor = DevSeedKindContributor(
   catalogItems: tvSeedCatalogItems,
   enrichItem: enrichTvSeedItem,
   validateCatalog: validateTvSeedCatalog,
+  validateCatalogGraph: validateTvSeedCatalogGraph,
   ownedItems: tvSeedOwnedItems,
   validateOwned: validateTvSeedOwned,
   trackingEntries: tvSeedTrackingEntries,
@@ -51,6 +52,83 @@ List<String> validateTvSeedCatalog(CatalogItemDto item) {
   seedRequireText(issues, prefix, 'audio_tracks', payload['audio_tracks']);
   seedRequireText(issues, prefix, 'subtitles', payload['subtitles']);
   seedRequireText(issues, prefix, 'age_rating', payload['age_rating']);
+  return issues;
+}
+
+List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final seasons = seedRequireObjectList(
+    issues,
+    prefix,
+    'seasons',
+    item.payload['seasons'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'seasons',
+    seasons,
+    parentId: item.id,
+    parentKey: 'series_id',
+    titleKey: 'title',
+  );
+  for (var index = 0; index < seasons.length; index++) {
+    final season = seasons[index];
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'seasons[$index].season_number',
+      season['season_number'],
+    );
+    final episodes = seedRequireObjectList(
+      issues,
+      prefix,
+      'seasons[$index].episodes',
+      season['episodes'],
+    );
+    for (var episodeIndex = 0; episodeIndex < episodes.length; episodeIndex++) {
+      final episode = episodes[episodeIndex];
+      seedRequireText(
+        issues,
+        prefix,
+        'seasons[$index].episodes[$episodeIndex].id',
+        episode['id'],
+      );
+      seedRequireText(
+        issues,
+        prefix,
+        'seasons[$index].episodes[$episodeIndex].season_id',
+        episode['season_id'],
+      );
+      if (episode['season_id']?.toString() != season['id']?.toString()) {
+        issues.add(
+          '$prefix: seasons[$index].episodes[$episodeIndex].season_id must reference the parent season',
+        );
+      }
+      seedRequireText(
+        issues,
+        prefix,
+        'seasons[$index].episodes[$episodeIndex].episode_title',
+        episode['episode_title'],
+      );
+      seedRequirePositiveInt(
+        issues,
+        prefix,
+        'seasons[$index].episodes[$episodeIndex].episode_number',
+        episode['episode_number'],
+      );
+    }
+  }
+  seedValidateVideoReleases(
+    issues,
+    prefix,
+    item,
+    item.payload['releases'],
+    kind: 'tv',
+    parentKey: 'series_id',
+    titleKey: 'title',
+  );
   return issues;
 }
 

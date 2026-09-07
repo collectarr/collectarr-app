@@ -23,6 +23,7 @@ final movieDevSeedContributor = DevSeedKindContributor(
   catalogItems: movieSeedCatalogItems,
   enrichItem: enrichMovieSeedItem,
   validateCatalog: validateMovieSeedCatalog,
+  validateCatalogGraph: validateMovieSeedCatalogGraph,
   ownedItems: movieSeedOwnedItems,
   validateOwned: validateMovieSeedOwned,
   trackingEntries: movieSeedTrackingEntries,
@@ -38,6 +39,21 @@ List<String> validateMovieSeedCatalog(CatalogItemDto item) {
   seedRequireText(issues, prefix, 'audio_tracks', payload['audio_tracks']);
   seedRequireText(issues, prefix, 'subtitles', payload['subtitles']);
   seedRequireText(issues, prefix, 'age_rating', payload['age_rating']);
+  return issues;
+}
+
+List<String> validateMovieSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  seedValidateVideoReleases(
+    issues,
+    prefix,
+    item,
+    item.payload['releases'],
+    kind: 'movie',
+    parentKey: 'work_id',
+    titleKey: 'release_title',
+  );
   return issues;
 }
 

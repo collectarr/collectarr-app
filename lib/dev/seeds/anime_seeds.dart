@@ -31,6 +31,7 @@ final animeDevSeedContributor = DevSeedKindContributor(
   catalogItems: animeSeedCatalogItems,
   enrichItem: enrichAnimeSeedItem,
   validateCatalog: validateAnimeSeedCatalog,
+  validateCatalogGraph: validateAnimeSeedCatalogGraph,
   ownedItems: animeSeedOwnedItems,
   validateOwned: validateAnimeSeedOwned,
   trackingEntries: animeSeedTrackingEntries,
@@ -50,6 +51,52 @@ List<String> validateAnimeSeedCatalog(CatalogItemDto item) {
   seedRequireText(issues, prefix, 'audio_tracks', payload['audio_tracks']);
   seedRequireText(issues, prefix, 'subtitles', payload['subtitles']);
   seedRequireText(issues, prefix, 'age_rating', payload['age_rating']);
+  return issues;
+}
+
+List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final episodes = seedRequireObjectList(
+    issues,
+    prefix,
+    'episodes',
+    item.payload['episodes'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'episodes',
+    episodes,
+    kind: 'anime',
+    parentId: item.id,
+    parentKey: 'series_id',
+    titleKey: 'title',
+  );
+  for (var index = 0; index < episodes.length; index++) {
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'episodes[$index].episode_number',
+      episodes[index]['episode_number'],
+    );
+  }
+  final releases = seedRequireObjectList(
+    issues,
+    prefix,
+    'releases',
+    item.payload['releases'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'releases',
+    releases,
+    kind: 'anime',
+    parentId: item.id,
+    parentKey: 'series_id',
+    titleKey: 'release_title',
+  );
   return issues;
 }
 

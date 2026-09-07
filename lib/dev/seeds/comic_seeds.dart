@@ -29,6 +29,7 @@ final comicDevSeedContributor = DevSeedKindContributor(
   catalogItems: comicSeedCatalogItems,
   enrichItem: enrichComicSeedItem,
   validateCatalog: validateComicSeedCatalog,
+  validateCatalogGraph: validateComicSeedCatalogGraph,
   ownedItems: comicSeedOwnedItems,
   validateOwned: validateComicSeedOwned,
   trackingEntries: comicSeedTrackingEntries,
@@ -41,6 +42,37 @@ List<String> validateComicSeedCatalog(CatalogItemDto item) {
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
   seedRequireText(issues, prefix, 'publisher', item.publisher);
+  return issues;
+}
+
+List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final issuesPayload = seedRequireObjectList(
+    issues,
+    prefix,
+    'issues',
+    item.payload['issues'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'issues',
+    issuesPayload,
+    kind: 'comic',
+    parentId: item.id,
+    parentKey: 'work_id',
+    titleKey: 'title',
+  );
+  for (var index = 0; index < issuesPayload.length; index++) {
+    final issue = issuesPayload[index];
+    seedRequireText(
+      issues,
+      prefix,
+      'issues[$index].issue_number',
+      issue['issue_number'] ?? item.itemNumber,
+    );
+  }
   return issues;
 }
 

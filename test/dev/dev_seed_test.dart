@@ -23,6 +23,7 @@ void main() {
     for (final contributor in collectarrDevSeedContributors) {
       expect(contributor.catalogItems, isNotNull);
       expect(contributor.validateCatalog, isNotNull);
+      expect(contributor.validateCatalogGraph, isNotNull);
       expect(contributor.ownedItems, isNotNull);
       expect(contributor.validateOwned, isNotNull);
       expect(contributor.trackingEntries, isNotNull);

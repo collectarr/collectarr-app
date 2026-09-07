@@ -23,6 +23,7 @@ final musicDevSeedContributor = DevSeedKindContributor(
   catalogItems: musicSeedCatalogItems,
   enrichItem: enrichMusicSeedItem,
   validateCatalog: validateMusicSeedCatalog,
+  validateCatalogGraph: validateMusicSeedCatalogGraph,
   ownedItems: musicSeedOwnedItems,
   validateOwned: validateMusicSeedOwned,
   trackingEntries: musicSeedTrackingEntries,
@@ -40,6 +41,74 @@ List<String> validateMusicSeedCatalog(CatalogItemDto item) {
     issues.add('$prefix: track_count must equal the number of track objects');
   }
   seedRequireText(issues, prefix, 'catalog_number', payload['catalog_number']);
+  return issues;
+}
+
+List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final media = seedRequireObjectList(
+    issues,
+    prefix,
+    'media',
+    item.payload['media'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'media',
+    media,
+    kind: 'music',
+    parentId: item.id,
+    parentKey: 'release_id',
+    titleKey: 'title',
+  );
+  for (var index = 0; index < media.length; index++) {
+    final tracks = seedRequireObjectList(
+      issues,
+      prefix,
+      'media[$index].tracks',
+      media[index]['tracks'],
+    );
+    for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
+      final track = tracks[trackIndex];
+      seedRequireText(
+        issues,
+        prefix,
+        'media[$index].tracks[$trackIndex].id',
+        track['id'],
+      );
+      seedRequireText(
+        issues,
+        prefix,
+        'media[$index].tracks[$trackIndex].media_id',
+        track['media_id'],
+      );
+      if (track['media_id']?.toString() != media[index]['id']?.toString()) {
+        issues.add(
+          '$prefix: media[$index].tracks[$trackIndex].media_id must reference the parent media',
+        );
+      }
+      seedRequireText(
+        issues,
+        prefix,
+        'media[$index].tracks[$trackIndex].title',
+        track['title'],
+      );
+      seedRequirePositiveNumber(
+        issues,
+        prefix,
+        'media[$index].tracks[$trackIndex].position',
+        track['position'],
+      );
+      seedRequirePositiveNumber(
+        issues,
+        prefix,
+        'media[$index].tracks[$trackIndex].duration_ms',
+        track['duration_ms'],
+      );
+    }
+  }
   return issues;
 }
 

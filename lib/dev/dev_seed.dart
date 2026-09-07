@@ -969,6 +969,10 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
       for (final contributor in collectarrDevSeedContributors)
         contributor.kind: contributor.validateCatalog,
     },
+    graphValidators: {
+      for (final contributor in collectarrDevSeedContributors)
+        contributor.kind: contributor.validateCatalogGraph,
+    },
   );
   validateSeedOwnedQuality(
     ownedItems,

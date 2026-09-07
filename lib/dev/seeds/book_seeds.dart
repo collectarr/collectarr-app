@@ -25,6 +25,7 @@ final bookDevSeedContributor = DevSeedKindContributor(
   catalogItems: bookSeedCatalogItems,
   enrichItem: enrichBookSeedItem,
   validateCatalog: validateBookSeedCatalog,
+  validateCatalogGraph: validateBookSeedCatalogGraph,
   ownedItems: bookSeedOwnedItems,
   validateOwned: validateBookSeedOwned,
   trackingEntries: bookSeedTrackingEntries,
@@ -36,6 +37,38 @@ List<String> validateBookSeedCatalog(CatalogItemDto item) {
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
   seedRequireCreatorList(issues, prefix, item.payload['creators']);
+  return issues;
+}
+
+List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final editions = seedRequireObjectList(
+    issues,
+    prefix,
+    'editions',
+    item.payload['editions'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'editions',
+    editions,
+    kind: 'book',
+    parentId: item.id,
+    parentKey: 'work_id',
+    titleKey: 'display_title',
+  );
+  for (var index = 0; index < editions.length; index++) {
+    seedRequireText(
+        issues, prefix, 'editions[$index].isbn', editions[index]['isbn']);
+    seedRequireText(
+      issues,
+      prefix,
+      'editions[$index].publisher',
+      editions[index]['publisher'],
+    );
+  }
   return issues;
 }
 

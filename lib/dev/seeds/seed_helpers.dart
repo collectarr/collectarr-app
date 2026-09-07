@@ -261,6 +261,7 @@ CatalogItemDto enrichSeedItem(
 void validateSeedCatalogQuality(
   Iterable<CatalogItemDto> items, {
   Map<String, DevSeedCatalogQualityValidator> validators = const {},
+  Map<String, DevSeedCatalogGraphValidator> graphValidators = const {},
 }) {
   final issues = <String>[];
   for (final item in items) {
@@ -300,7 +301,12 @@ void validateSeedCatalogQuality(
     } else {
       issues.addAll(validator(item));
     }
-    _validateTypedGraph(issues, prefix, item);
+    final graphValidator = graphValidators[item.kind];
+    if (graphValidator == null) {
+      issues.add('$prefix: no typed catalog graph validator exists');
+    } else {
+      issues.addAll(graphValidator(item));
+    }
   }
 
   if (issues.isNotEmpty) {
@@ -308,281 +314,6 @@ void validateSeedCatalogQuality(
       'Seed catalog quality validation failed:\n'
       '${issues.map((issue) => '- $issue').join('\n')}',
     );
-  }
-}
-
-/// Checks the kind-owned graph payload before it reaches the persistence
-/// codecs. A non-empty catalog row is not enough for the dev fixture: every
-/// kind must exercise its own child graph and keep parent references intact.
-void _validateTypedGraph(
-  List<String> issues,
-  String prefix,
-  CatalogItemDto item,
-) {
-  final payload = item.payload;
-  switch (item.kind) {
-    case 'comic':
-      final issuesPayload = _requireObjectList(
-        issues,
-        prefix,
-        'issues',
-        payload['issues'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'issues',
-        issuesPayload,
-        kind: 'comic',
-        parentId: item.id,
-        parentKey: 'work_id',
-        titleKey: 'title',
-      );
-      for (var index = 0; index < issuesPayload.length; index++) {
-        final issue = issuesPayload[index];
-        _requireText(
-          issues,
-          prefix,
-          'issues[$index].issue_number',
-          issue['issue_number'] ?? item.itemNumber,
-        );
-      }
-    case 'manga':
-      final chapters = _requireObjectList(
-        issues,
-        prefix,
-        'chapters',
-        payload['chapters'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'chapters',
-        chapters,
-        kind: 'manga',
-        parentId: item.id,
-        parentKey: 'series_id',
-        titleKey: 'title',
-      );
-      for (var index = 0; index < chapters.length; index++) {
-        _requirePositiveNumber(
-          issues,
-          prefix,
-          'chapters[$index].chapter_number',
-          chapters[index]['chapter_number'],
-        );
-      }
-    case 'book':
-      final editions = _requireObjectList(
-        issues,
-        prefix,
-        'editions',
-        payload['editions'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'editions',
-        editions,
-        kind: 'book',
-        parentId: item.id,
-        parentKey: 'work_id',
-        titleKey: 'display_title',
-      );
-      for (var index = 0; index < editions.length; index++) {
-        _requireText(
-            issues, prefix, 'editions[$index].isbn', editions[index]['isbn']);
-        _requireText(issues, prefix, 'editions[$index].publisher',
-            editions[index]['publisher']);
-      }
-    case 'game':
-      final releases = _requireObjectList(
-        issues,
-        prefix,
-        'releases',
-        payload['releases'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'releases',
-        releases,
-        kind: 'game',
-        parentId: item.id,
-        parentKey: 'work_id',
-        titleKey: 'release_title',
-      );
-      for (var index = 0; index < releases.length; index++) {
-        _requireText(issues, prefix, 'releases[$index].platform',
-            releases[index]['platform']);
-      }
-    case 'boardgame':
-      final editions = _requireObjectList(
-        issues,
-        prefix,
-        'editions',
-        payload['editions'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'editions',
-        editions,
-        kind: 'boardgame',
-        parentId: item.id,
-        parentKey: 'work_id',
-        titleKey: 'edition_title',
-      );
-      for (var index = 0; index < editions.length; index++) {
-        final edition = editions[index];
-        _requirePositiveInt(issues, prefix, 'editions[$index].min_players',
-            edition['min_players']);
-        _requirePositiveInt(issues, prefix, 'editions[$index].max_players',
-            edition['max_players']);
-        _requirePositiveInt(
-            issues,
-            prefix,
-            'editions[$index].playing_time_minutes',
-            edition['playing_time_minutes']);
-      }
-    case 'movie':
-      _validateVideoReleases(issues, prefix, item, payload['releases']);
-    case 'tv':
-      final seasons = _requireObjectList(
-        issues,
-        prefix,
-        'seasons',
-        payload['seasons'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'seasons',
-        seasons,
-        parentId: item.id,
-        parentKey: 'series_id',
-        titleKey: 'title',
-      );
-      for (var index = 0; index < seasons.length; index++) {
-        final season = seasons[index];
-        _requirePositiveInt(issues, prefix, 'seasons[$index].season_number',
-            season['season_number']);
-        final episodes = _requireObjectList(
-          issues,
-          prefix,
-          'seasons[$index].episodes',
-          season['episodes'],
-        );
-        for (var episodeIndex = 0;
-            episodeIndex < episodes.length;
-            episodeIndex++) {
-          final episode = episodes[episodeIndex];
-          _requireText(issues, prefix,
-              'seasons[$index].episodes[$episodeIndex].id', episode['id']);
-          _requireText(
-              issues,
-              prefix,
-              'seasons[$index].episodes[$episodeIndex].season_id',
-              episode['season_id']);
-          if (episode['season_id']?.toString() != season['id']?.toString()) {
-            issues.add(
-                '$prefix: seasons[$index].episodes[$episodeIndex].season_id must reference the parent season');
-          }
-          _requireText(
-              issues,
-              prefix,
-              'seasons[$index].episodes[$episodeIndex].episode_title',
-              episode['episode_title']);
-          _requirePositiveInt(
-              issues,
-              prefix,
-              'seasons[$index].episodes[$episodeIndex].episode_number',
-              episode['episode_number']);
-        }
-      }
-      _validateVideoReleases(issues, prefix, item, payload['releases']);
-    case 'anime':
-      final episodes = _requireObjectList(
-        issues,
-        prefix,
-        'episodes',
-        payload['episodes'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'episodes',
-        episodes,
-        kind: 'anime',
-        parentId: item.id,
-        parentKey: 'series_id',
-        titleKey: 'title',
-      );
-      for (var index = 0; index < episodes.length; index++) {
-        _requirePositiveInt(issues, prefix, 'episodes[$index].episode_number',
-            episodes[index]['episode_number']);
-      }
-      final releases = _requireObjectList(
-        issues,
-        prefix,
-        'releases',
-        payload['releases'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'releases',
-        releases,
-        kind: 'anime',
-        parentId: item.id,
-        parentKey: 'series_id',
-        titleKey: 'release_title',
-      );
-    case 'music':
-      final media = _requireObjectList(
-        issues,
-        prefix,
-        'media',
-        payload['media'],
-      );
-      _validateChildren(
-        issues,
-        prefix,
-        'media',
-        media,
-        kind: 'music',
-        parentId: item.id,
-        parentKey: 'release_id',
-        titleKey: 'title',
-      );
-      for (var index = 0; index < media.length; index++) {
-        final tracks = _requireObjectList(
-          issues,
-          prefix,
-          'media[$index].tracks',
-          media[index]['tracks'],
-        );
-        for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-          final track = tracks[trackIndex];
-          _requireText(issues, prefix, 'media[$index].tracks[$trackIndex].id',
-              track['id']);
-          _requireText(issues, prefix,
-              'media[$index].tracks[$trackIndex].media_id', track['media_id']);
-          if (track['media_id']?.toString() != media[index]['id']?.toString()) {
-            issues.add(
-                '$prefix: media[$index].tracks[$trackIndex].media_id must reference the parent media');
-          }
-          _requireText(issues, prefix,
-              'media[$index].tracks[$trackIndex].title', track['title']);
-          _requirePositiveNumber(issues, prefix,
-              'media[$index].tracks[$trackIndex].position', track['position']);
-          _requirePositiveNumber(
-              issues,
-              prefix,
-              'media[$index].tracks[$trackIndex].duration_ms',
-              track['duration_ms']);
-        }
-      }
   }
 }
 
@@ -608,7 +339,16 @@ List<Map<String, dynamic>> _requireObjectList(
   return result;
 }
 
-void _validateChildren(
+List<Map<String, dynamic>> seedRequireObjectList(
+  List<String> issues,
+  String prefix,
+  String field,
+  Object? value,
+) {
+  return _requireObjectList(issues, prefix, field, value);
+}
+
+void seedValidateChildren(
   List<String> issues,
   String prefix,
   String field,
@@ -637,22 +377,22 @@ void _validateChildren(
   }
 }
 
-void _validateVideoReleases(
+void seedValidateVideoReleases(
   List<String> issues,
   String prefix,
   CatalogItemDto item,
-  Object? rawReleases,
-) {
+  Object? rawReleases, {
+  required String kind,
+  required String parentKey,
+  required String titleKey,
+}) {
   final releases = _requireObjectList(issues, prefix, 'releases', rawReleases);
-  final parentKey =
-      item.kind == 'tv' || item.kind == 'anime' ? 'series_id' : 'work_id';
-  final titleKey = item.kind == 'tv' ? 'title' : 'release_title';
-  _validateChildren(
+  seedValidateChildren(
     issues,
     prefix,
     'releases',
     releases,
-    kind: item.kind,
+    kind: kind,
     parentId: item.id,
     parentKey: parentKey,
     titleKey: titleKey,

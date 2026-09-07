@@ -11,6 +11,9 @@ typedef DevSeedItemEnricher = CatalogItemDto Function(CatalogItemDto item);
 typedef DevSeedCatalogQualityValidator = List<String> Function(
   CatalogItemDto item,
 );
+typedef DevSeedCatalogGraphValidator = List<String> Function(
+  CatalogItemDto item,
+);
 typedef DevSeedOwnedFactory = List<OwnedItem> Function(DateTime now);
 typedef DevSeedOwnedQualityValidator = List<String> Function(OwnedItem item);
 typedef DevSeedTrackingFactory = List<TrackingEntry> Function(DateTime now);
@@ -66,6 +69,7 @@ final class DevSeedKindContributor {
     required this.catalogItems,
     required this.enrichItem,
     required this.validateCatalog,
+    required this.validateCatalogGraph,
     required this.ownedItems,
     required this.validateOwned,
     required this.trackingEntries,
@@ -80,6 +84,7 @@ final class DevSeedKindContributor {
   final DevSeedCatalogFactory catalogItems;
   final DevSeedItemEnricher enrichItem;
   final DevSeedCatalogQualityValidator validateCatalog;
+  final DevSeedCatalogGraphValidator validateCatalogGraph;
   final DevSeedOwnedFactory ownedItems;
   final DevSeedOwnedQualityValidator validateOwned;
   final DevSeedTrackingFactory trackingEntries;

@@ -26,6 +26,7 @@ final boardgameDevSeedContributor = DevSeedKindContributor(
   catalogItems: boardgameSeedCatalogItems,
   enrichItem: enrichBoardgameSeedItem,
   validateCatalog: validateBoardgameSeedCatalog,
+  validateCatalogGraph: validateBoardgameSeedCatalogGraph,
   ownedItems: boardgameSeedOwnedItems,
   validateOwned: validateBoardgameSeedOwned,
   trackingEntries: boardgameSeedTrackingEntries,
@@ -41,6 +42,49 @@ List<String> validateBoardgameSeedCatalog(CatalogItemDto item) {
       issues, prefix, 'bgg_rating', payload['bgg_rating']);
   seedRequireCreatorList(issues, prefix, payload['creators']);
   seedRequirePlayerStats(issues, prefix, payload['player_stats']);
+  return issues;
+}
+
+List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final editions = seedRequireObjectList(
+    issues,
+    prefix,
+    'editions',
+    item.payload['editions'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'editions',
+    editions,
+    kind: 'boardgame',
+    parentId: item.id,
+    parentKey: 'work_id',
+    titleKey: 'edition_title',
+  );
+  for (var index = 0; index < editions.length; index++) {
+    final edition = editions[index];
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'editions[$index].min_players',
+      edition['min_players'],
+    );
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'editions[$index].max_players',
+      edition['max_players'],
+    );
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'editions[$index].playing_time_minutes',
+      edition['playing_time_minutes'],
+    );
+  }
   return issues;
 }
 

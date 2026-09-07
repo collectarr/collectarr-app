@@ -23,6 +23,7 @@ final gameDevSeedContributor = DevSeedKindContributor(
   catalogItems: gameSeedCatalogItems,
   enrichItem: enrichGameSeedItem,
   validateCatalog: validateGameSeedCatalog,
+  validateCatalogGraph: validateGameSeedCatalogGraph,
   ownedItems: gameSeedOwnedItems,
   validateOwned: validateGameSeedOwned,
   trackingEntries: gameSeedTrackingEntries,
@@ -32,6 +33,36 @@ List<String> validateGameSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequireTextList(issues, prefix, 'platforms', item.payload['platforms']);
+  return issues;
+}
+
+List<String> validateGameSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final releases = seedRequireObjectList(
+    issues,
+    prefix,
+    'releases',
+    item.payload['releases'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'releases',
+    releases,
+    kind: 'game',
+    parentId: item.id,
+    parentKey: 'work_id',
+    titleKey: 'release_title',
+  );
+  for (var index = 0; index < releases.length; index++) {
+    seedRequireText(
+      issues,
+      prefix,
+      'releases[$index].platform',
+      releases[index]['platform'],
+    );
+  }
   return issues;
 }
 
