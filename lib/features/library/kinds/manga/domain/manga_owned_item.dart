@@ -64,7 +64,7 @@ final class MangaOwnedItem {
   final int? marketValueCents;
   final MangaOwnedDetails details;
 
-  String get itemId => catalogRef.id;
+  String get itemId => catalogRef.rootId ?? catalogRef.id;
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 

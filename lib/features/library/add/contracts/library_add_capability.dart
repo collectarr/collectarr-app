@@ -342,6 +342,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       typedPayload: typedPayload,
+      targetRef: item.catalogRefForPersonalAnchor(anchor),
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
@@ -369,6 +370,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       typedPayload: typedPayload,
+      targetRef: item.catalogRefForPersonalAnchor(anchor),
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
@@ -398,6 +400,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       typedPayload: payload,
+      targetRef: item.catalogRefForPersonalAnchor(anchor),
       anchor: anchor,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),

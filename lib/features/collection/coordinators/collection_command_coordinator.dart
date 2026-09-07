@@ -21,6 +21,7 @@ final class CollectionCommandCoordinator {
       final tracking = command.tracking;
       await trackingMutations.syncOwnedTrackingEntry(
         item,
+        targetRef: command.targetRef,
         anchor: command.anchor,
         status: tracking?.status,
         rating: tracking?.rating,

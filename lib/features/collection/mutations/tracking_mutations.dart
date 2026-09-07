@@ -76,6 +76,7 @@ final class TrackingMutations {
 
   Future<void> upsertTrackingEntry(
     TrackingTarget target, {
+    CatalogEntityRef? targetRef,
     PersonalItemAnchor? anchor,
     bool replaceAnchor = false,
     TrackingSourceType? sourceType,
@@ -98,7 +99,7 @@ final class TrackingMutations {
 
     switch (target) {
       case CatalogTrackingTarget(:final ref):
-        catalogRef = ref;
+        catalogRef = targetRef ?? ref;
       case OwnedItemTrackingTarget(:final ownedRef):
         targetOwnedItemId = ownedRef.id.value;
         if (ownedItems != null) {
@@ -109,12 +110,14 @@ final class TrackingMutations {
               'does not match persisted kind ${owned.ref.kind.apiValue}.',
             );
           }
-          if (owned?.catalogRef != null) {
+          if (targetRef != null) {
+            catalogRef = targetRef;
+          } else if (owned?.catalogRef != null) {
             catalogRef = owned!.catalogRef!;
           } else {
             final cat = await catalogCache.findById(ownedRef.id.value);
             if (cat != null) {
-              catalogRef = cat.catalogRefForPersonalAnchor(anchor);
+              catalogRef = targetRef ?? cat.catalogRefForPersonalAnchor(anchor);
             } else {
               throw ArgumentError(
                   'Owned item not found for tracking target: ${ownedRef.id.value}');
@@ -123,7 +126,7 @@ final class TrackingMutations {
         } else {
           final cat = await catalogCache.findById(ownedRef.id.value);
           if (cat != null) {
-            catalogRef = cat.catalogRefForPersonalAnchor(anchor);
+            catalogRef = targetRef ?? cat.catalogRefForPersonalAnchor(anchor);
           } else {
             throw ArgumentError(
                 'Cannot resolve valid CatalogEntityRef for tracking target: ${ownedRef.id.value}');
@@ -154,15 +157,21 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: catalogRef,
               ownedItemId: targetOwnedItemId ?? existing.ownedItemId,
-              editionId: replaceAnchor
-                  ? anchor?.editionId
-                  : anchor?.editionId ?? existing.editionId,
-              variantId: replaceAnchor
-                  ? anchor?.variantId
-                  : anchor?.variantId ?? existing.variantId,
-              bundleReleaseId: replaceAnchor
-                  ? anchor?.bundleReleaseId
-                  : anchor?.bundleReleaseId ?? existing.bundleReleaseId,
+              editionId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _editionIdFor(targetRef, anchor),
+                fallback: existing.editionId,
+              ),
+              variantId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _variantIdFor(targetRef, anchor),
+                fallback: existing.variantId,
+              ),
+              bundleReleaseId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _bundleReleaseIdFor(targetRef, anchor),
+                fallback: existing.bundleReleaseId,
+              ),
               sourceType: sourceType ?? existing.sourceType,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
@@ -178,9 +187,9 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: catalogRef,
               ownedItemId: targetOwnedItemId,
-              editionId: anchor?.editionId,
-              variantId: anchor?.variantId,
-              bundleReleaseId: anchor?.bundleReleaseId,
+              editionId: _editionIdFor(targetRef, anchor),
+              variantId: _variantIdFor(targetRef, anchor),
+              bundleReleaseId: _bundleReleaseIdFor(targetRef, anchor),
               sourceType: sourceType,
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
@@ -231,6 +240,7 @@ final class TrackingMutations {
     OwnedItemRef ownedRef, {
     CatalogEntityRef? catalogRef,
     bool? isDigital,
+    CatalogEntityRef? targetRef,
     PersonalItemAnchor? anchor,
     bool replaceAnchor = false,
     MediaTrackingStatus? status,
@@ -249,7 +259,8 @@ final class TrackingMutations {
     final ownedSummary = catalogRef == null
         ? await ownedItems?.findSummaryById(ownedRef.id.value)
         : null;
-    final resolvedCatalogRef = catalogRef ?? ownedSummary?.catalogRef;
+    final resolvedCatalogRef =
+        targetRef ?? catalogRef ?? ownedSummary?.catalogRef;
     if (resolvedCatalogRef == null) {
       throw StateError(
         'Cannot resolve catalog reference for owned tracking target '
@@ -269,9 +280,13 @@ final class TrackingMutations {
             orElse: () => existingEntries.first,
           );
     final entryId = existing?.id ?? idGenerator();
-    final inheritedEditionId = existing?.anchor?.editionId;
-    final inheritedVariantId = existing?.anchor?.variantId;
-    final inheritedBundleReleaseId = existing?.anchor?.bundleReleaseId;
+    final coordinateTargetRef = targetRef ??
+        (catalogRef != null && catalogRef.entityType != CatalogEntityType.work
+            ? catalogRef
+            : null);
+    final inheritedEditionId = existing?.editionId;
+    final inheritedVariantId = existing?.variantId;
+    final inheritedBundleReleaseId = existing?.bundleReleaseId;
 
     await mutationRunner.run(
       origin: origin,
@@ -281,15 +296,21 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: resolvedCatalogRef,
               ownedItemId: ownedRef.id.value,
-              editionId: replaceAnchor
-                  ? anchor?.editionId
-                  : anchor?.editionId ?? inheritedEditionId,
-              variantId: replaceAnchor
-                  ? anchor?.variantId
-                  : anchor?.variantId ?? inheritedVariantId,
-              bundleReleaseId: replaceAnchor
-                  ? anchor?.bundleReleaseId
-                  : anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
+              editionId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _editionIdFor(coordinateTargetRef, anchor),
+                fallback: inheritedEditionId,
+              ),
+              variantId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _variantIdFor(coordinateTargetRef, anchor),
+                fallback: inheritedVariantId,
+              ),
+              bundleReleaseId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _bundleReleaseIdFor(coordinateTargetRef, anchor),
+                fallback: inheritedBundleReleaseId,
+              ),
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
               notes: notes ?? existing.notes,
@@ -308,15 +329,21 @@ final class TrackingMutations {
               id: entryId,
               catalogRef: resolvedCatalogRef,
               ownedItemId: ownedRef.id.value,
-              editionId: replaceAnchor
-                  ? anchor?.editionId
-                  : anchor?.editionId ?? inheritedEditionId,
-              variantId: replaceAnchor
-                  ? anchor?.variantId
-                  : anchor?.variantId ?? inheritedVariantId,
-              bundleReleaseId: replaceAnchor
-                  ? anchor?.bundleReleaseId
-                  : anchor?.bundleReleaseId ?? inheritedBundleReleaseId,
+              editionId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _editionIdFor(coordinateTargetRef, anchor),
+                fallback: inheritedEditionId,
+              ),
+              variantId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _variantIdFor(coordinateTargetRef, anchor),
+                fallback: inheritedVariantId,
+              ),
+              bundleReleaseId: _coordinateValue(
+                replace: replaceAnchor,
+                value: _bundleReleaseIdFor(coordinateTargetRef, anchor),
+                fallback: inheritedBundleReleaseId,
+              ),
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
               notes: notes,
@@ -341,6 +368,7 @@ final class TrackingMutations {
 
   Future<void> addLocalOnlyTrackingEntry(
     CatalogItemDto item, {
+    CatalogEntityRef? targetRef,
     PersonalItemAnchor? anchor,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status = MediaTrackingStatus.planned,
@@ -359,7 +387,8 @@ final class TrackingMutations {
     final itemId = metadataItem.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
-    final catalogRef = metadataItem.catalogRefForPersonalAnchor(anchor);
+    final catalogRef =
+        targetRef ?? metadataItem.catalogRefForPersonalAnchor(anchor);
     await mutationRunner.run(
       origin: origin,
       localRef: catalogRef,
@@ -368,9 +397,9 @@ final class TrackingMutations {
         final baseEntry = TrackingEntry(
           id: entryId,
           catalogRef: catalogRef,
-          editionId: anchor?.editionId,
-          variantId: anchor?.variantId,
-          bundleReleaseId: anchor?.bundleReleaseId,
+          editionId: _editionIdFor(targetRef, anchor),
+          variantId: _variantIdFor(targetRef, anchor),
+          bundleReleaseId: _bundleReleaseIdFor(targetRef, anchor),
           sourceType: sourceType,
           status: status,
           rating: rating,
@@ -427,5 +456,50 @@ final class TrackingMutations {
       payload: unit.toSyncPayload(),
       clientChangedAt: now,
     );
+  }
+
+  String? _coordinateValue({
+    required bool replace,
+    required String? value,
+    required String? fallback,
+  }) =>
+      replace ? value : value ?? fallback;
+
+  String? _editionIdFor(
+    CatalogEntityRef? targetRef,
+    PersonalItemAnchor? anchor,
+  ) {
+    if (targetRef != null) {
+      return targetRef.entityType == CatalogEntityType.edition
+          ? targetRef.id
+          : targetRef.entityType == CatalogEntityType.release
+              ? targetRef.rootId
+              : null;
+    }
+    return anchor?.editionId;
+  }
+
+  String? _variantIdFor(
+    CatalogEntityRef? targetRef,
+    PersonalItemAnchor? anchor,
+  ) {
+    if (targetRef != null) {
+      return targetRef.entityType == CatalogEntityType.release
+          ? targetRef.id
+          : null;
+    }
+    return anchor?.variantId;
+  }
+
+  String? _bundleReleaseIdFor(
+    CatalogEntityRef? targetRef,
+    PersonalItemAnchor? anchor,
+  ) {
+    if (targetRef != null) {
+      return targetRef.entityType == CatalogEntityType.bundleRelease
+          ? targetRef.id
+          : null;
+    }
+    return anchor?.bundleReleaseId;
   }
 }

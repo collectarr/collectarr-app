@@ -51,8 +51,10 @@ final class OwnedItemMutations {
     final now = DateTime.now().toUtc();
     final catalogRef = command.catalogRef;
     final anchor = command.anchor;
+    final wishlistTargetRef = command.targetRef ?? catalogRef;
 
-    final existingWishlist = await wishlist.findActiveByCatalogRef(catalogRef);
+    final existingWishlist =
+        await wishlist.findActiveByCatalogRef(wishlistTargetRef);
     final wishlistChanged = existingWishlist != null;
     final newItemId = idGenerator();
 
@@ -72,6 +74,7 @@ final class OwnedItemMutations {
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef,
           existingCatalog,
+          targetRef: command.targetRef,
           anchor: anchor,
         );
 
@@ -124,7 +127,7 @@ final class OwnedItemMutations {
       },
       eventsToEmit: [
         OwnedItemAdded(newItemId),
-        if (wishlistChanged) WishlistChanged(catalogRef.id),
+        if (wishlistChanged) WishlistChanged(wishlistTargetRef.id),
       ],
     );
 
@@ -281,7 +284,10 @@ final class OwnedItemMutations {
 
         for (final item in trackingList) {
           final updated = item.copyWith(
-            catalogRef: targetMetadata.catalogRefForPersonalAnchor(item.anchor),
+            catalogRef: _rebaseCatalogRef(
+              item.catalogRef,
+              targetMetadata.catalogRef,
+            ),
             updatedAt: now,
           );
           await trackingEntries.upsert(updated);
@@ -316,8 +322,12 @@ final class OwnedItemMutations {
   CatalogEntityRef _catalogRefForItem(
     CatalogEntityRef catalogRef,
     CatalogItemDto? item, {
+    CatalogEntityRef? targetRef,
     PersonalItemAnchor? anchor,
   }) {
+    if (targetRef != null && targetRef.isKnown) {
+      return targetRef;
+    }
     if (item != null) {
       return item.catalogRefForPersonalAnchor(anchor);
     }

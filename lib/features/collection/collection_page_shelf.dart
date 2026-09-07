@@ -326,7 +326,7 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
   Widget build(BuildContext context) {
     final entry = widget.entry;
     final colorScheme = Theme.of(context).colorScheme;
-    final owned = entry.ownedItem;
+    final owned = entry.ownedSummary;
     final wishlist = entry.wishlistItem;
     final kindShelfExtension = libraryShelfExtensionForEntry(
       entry,
@@ -394,10 +394,10 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
                             ),
                         ],
                       ),
-                      if (owned?.personalNotes?.trim().isNotEmpty ?? false) ...[
+                      if (owned?.notes?.trim().isNotEmpty ?? false) ...[
                         const SizedBox(height: 6),
                         Text(
-                          owned!.personalNotes!,
+                          owned!.notes!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodySmall,
@@ -465,7 +465,7 @@ class _ShelfCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final title = entry.catalogItem?.title ?? 'Item';
+    final title = entry.catalogSummary?.title ?? 'Item';
     final initials = title
         .split(RegExp(r'\s+'))
         .where((word) => word.isNotEmpty)

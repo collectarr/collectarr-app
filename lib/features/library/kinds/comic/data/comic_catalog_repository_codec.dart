@@ -45,14 +45,19 @@ final class ComicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final media = await ComicRepository(db).search();
     return [
-      for (final item in media)
-        CatalogDisplaySummary.work(
-          kind: kind,
-          id: item.id?.value ?? '',
-          title: item.title,
-        ),
+      for (final item in media) _comicSummary(item),
     ];
   }
+}
+
+CatalogDisplaySummary _comicSummary(ComicMedia item) {
+  final issue = item.issueNumber?.trim();
+  return CatalogDisplaySummary.work(
+    kind: CatalogMediaKind.comic,
+    id: item.id?.value ?? '',
+    title:
+        issue == null || issue.isEmpty ? item.title : '${item.title} #$issue',
+  );
 }
 
 CatalogItemDto _projection(ComicMedia item) {

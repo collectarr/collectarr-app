@@ -147,7 +147,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       _ShelfFilter.wishlist =>
         entries.where((entry) => entry.isWishlisted).toList(growable: false),
       _ShelfFilter.overdue => entries
-          .where((entry) => overdueOwnedItemIds.contains(entry.ownedItem?.id))
+          .where((entry) =>
+              overdueOwnedItemIds.contains(entry.ownedSummary?.ref.id.value))
           .toList(growable: false),
       _ShelfFilter.notes =>
         entries.where((entry) => entry.hasNotes).toList(growable: false),
@@ -155,11 +156,11 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   }
 
   Future<void> _removeOwned(ShelfEntry entry) async {
-    final ownedItem = entry.ownedItem;
-    if (ownedItem == null) {
+    final ownedRef = entry.ownedSummary?.ref;
+    if (ownedRef == null) {
       return;
     }
-    await ref.read(ownedItemMutationsProvider).removeItem(ownedItem.ref);
+    await ref.read(ownedItemMutationsProvider).removeItem(ownedRef);
     ref.invalidate(shelfProvider);
   }
 

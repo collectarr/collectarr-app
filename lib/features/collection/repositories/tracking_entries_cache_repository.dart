@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
@@ -137,9 +136,9 @@ class TrackingEntriesCacheRepository {
       itemId: item.itemId,
       kind: Value(item.catalogRef.kind),
       ownedItemId: Value(item.ownedItemId),
-      editionId: Value(item.anchor?.editionId),
-      variantId: Value(item.anchor?.variantId),
-      bundleReleaseId: Value(item.anchor?.bundleReleaseId),
+      editionId: Value(item.editionId),
+      variantId: Value(item.variantId),
+      bundleReleaseId: Value(item.bundleReleaseId),
       sourceType: Value(item.sourceTypeApiValue),
       status: Value(item.statusStorageValue),
       rating: Value(item.rating),
@@ -173,22 +172,20 @@ class TrackingEntriesCacheRepository {
 
   CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row,
       {String? catalogKind}) {
-    final anchor = PersonalItemAnchor.fromRaw(
-      anchorType: row.sourceType,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      bundleReleaseId: row.bundleReleaseId,
-    );
-    final entityType = switch (anchor?.type) {
-      PersonalItemAnchorType.bundleRelease => CatalogEntityType.release,
-      PersonalItemAnchorType.variant => CatalogEntityType.release,
-      PersonalItemAnchorType.edition => CatalogEntityType.edition,
-      _ => CatalogEntityType.work,
-    };
+    final entityType = row.bundleReleaseId != null
+        ? CatalogEntityType.bundleRelease
+        : row.variantId != null
+            ? CatalogEntityType.release
+            : row.editionId != null
+                ? CatalogEntityType.edition
+                : CatalogEntityType.work;
+    final id =
+        row.bundleReleaseId ?? row.variantId ?? row.editionId ?? row.itemId;
     return CatalogEntityRef(
       kind: catalogKind ?? 'unknown',
       entityType: entityType,
-      id: row.itemId,
+      id: id,
+      rootId: entityType == CatalogEntityType.work ? null : row.itemId,
     );
   }
 

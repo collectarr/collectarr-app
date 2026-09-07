@@ -68,7 +68,7 @@ final class TvOwnedItem {
   final int? marketValueCents;
   final TvOwnedDetails details;
 
-  String get itemId => catalogRef.id;
+  String get itemId => catalogRef.rootId ?? catalogRef.id;
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 

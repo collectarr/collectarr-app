@@ -78,12 +78,21 @@ final class AddOwnedItemCommand {
   const AddOwnedItemCommand({
     required this.catalogRef,
     required this.typedPayload,
+    this.targetRef,
     this.anchor,
     this.tracking,
   });
 
   final CatalogEntityRef catalogRef;
   final OwnedItemCreatePayload typedPayload;
+
+  /// Exact catalog target selected by the caller, when it is already known.
+  ///
+  /// Collection orchestration uses this structural reference for catalog and
+  /// tracking operations. [anchor] remains only as a compatibility input for
+  /// kind-owned create payloads until those payload contracts are migrated.
+  final CatalogEntityRef? targetRef;
+
   final PersonalItemAnchor? anchor;
   final OwnedItemTrackingDraft? tracking;
 }

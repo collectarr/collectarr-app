@@ -71,7 +71,7 @@ final class ComicOwnedItem {
   final ComicOwnedDetails details;
   final ComicReadingState reading;
 
-  String get itemId => catalogRef.id;
+  String get itemId => catalogRef.rootId ?? catalogRef.id;
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;
   String? get variantId => anchor?.variantId;

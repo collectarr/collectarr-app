@@ -68,7 +68,7 @@ final class AnimeOwnedItem {
   final int? marketValueCents;
   final AnimeOwnedDetails details;
 
-  String get itemId => catalogRef.id;
+  String get itemId => catalogRef.rootId ?? catalogRef.id;
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 

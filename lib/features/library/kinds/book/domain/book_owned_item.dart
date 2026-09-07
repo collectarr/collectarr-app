@@ -64,7 +64,7 @@ final class BookOwnedItem {
   final int? marketValueCents;
   final BookOwnedDetails details;
 
-  String get itemId => catalogRef.id;
+  String get itemId => catalogRef.rootId ?? catalogRef.id;
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 

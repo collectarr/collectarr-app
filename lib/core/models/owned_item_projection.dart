@@ -91,7 +91,12 @@ final class OwnedItemSummary {
   final String? notes;
   final bool hasNotes;
 
-  String get itemId => catalogRef?.id ?? '';
+  /// Root catalog identity used by mixed/global joins.
+  ///
+  /// A release/edition ref still points at its owning work through [rootId],
+  /// so global collection grouping must not accidentally treat every release
+  /// as a separate catalog item.
+  String get itemId => catalogRef?.rootId ?? catalogRef?.id ?? '';
   bool get isDeleted => deletedAt != null;
 
   OwnedItemSummary copyWith({
