@@ -17,7 +17,9 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -224,6 +226,16 @@ LibraryKindModule libraryKindModuleForKind(
   return reg.require(kind);
 }
 
+/// Workspace dispatch is separate from the navigation/module boundary. The
+/// generated map binds each entry to its concrete workspace DTO type.
+LibraryKindWorkspace libraryKindWorkspaceForKind(CatalogMediaKind kind) {
+  final workspace = collectarrKindWorkspaces[kind];
+  if (workspace == null) {
+    throw ArgumentError('No LibraryKindWorkspace registered for kind: $kind');
+  }
+  return workspace;
+}
+
 /// Decodes metadata at the API serialization boundary and immediately
 /// attaches the owning kind value. The decoder is a composition-root concern;
 /// it is not part of the erased kind module contract.
@@ -266,8 +278,9 @@ bool libraryGroupModeSupportsCompletion(
   LibraryKindModule type,
   String groupMode,
 ) {
-  return type.workspace.groupModeSupportsCompletion(
-    type.fields.decodeGroupId(groupMode),
+  final workspace = libraryKindWorkspaceForKind(type.kind);
+  return workspace.groupModeSupportsCompletion(
+    workspace.fields.decodeGroupId(groupMode),
   );
 }
 

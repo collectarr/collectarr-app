@@ -132,6 +132,22 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
         'Could not find a *KindModule variable in ${moduleFile.path}',
       );
     }
+    final workspaceDtoType = RegExp(
+      r'final\s+\w+KindModule\s*=\s*LibraryKindSpec<(\w+)>',
+    ).firstMatch(moduleSource)?.group(1);
+    if (workspaceDtoType == null) {
+      throw StateError(
+        'Could not find LibraryKindSpec DTO type in ${moduleFile.path}',
+      );
+    }
+    final workspaceDtoImport = RegExp(
+      r"import\s+'package:collectarr_app/([^']+workspace_dto\.dart)'",
+    ).firstMatch(moduleSource)?.group(1);
+    if (workspaceDtoImport == null) {
+      throw StateError(
+        'Could not find workspace DTO import in ${moduleFile.path}',
+      );
+    }
 
     final pageSource = await pageFile.readAsString();
     final pageMatch =
@@ -154,6 +170,8 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
       _KindDescriptor(
         folder: folder,
         moduleName: moduleName,
+        workspaceDtoType: workspaceDtoType,
+        workspaceDtoImport: workspaceDtoImport,
         pageClass: pageClass,
         calendarContributor: _discoverContributor(
           entity,
@@ -498,6 +516,7 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_contribu
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -508,6 +527,11 @@ import 'package:collectarr_app/features/library/workspace/layout/library_layout_
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 ''');
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      "import 'package:collectarr_app/${descriptor.workspaceDtoImport}';",
+    );
+  }
   for (final descriptor in descriptors) {
     buffer.writeln(
       "import 'package:collectarr_app/features/library/kinds/${descriptor.folder}/${descriptor.folder}_kind_module.dart';",
@@ -624,6 +648,21 @@ import 'package:go_router/go_router.dart';
     buffer.writeln('  ${descriptor.moduleName},');
   }
   buffer.writeln('];');
+  buffer.writeln();
+  buffer.writeln(
+    'final Map<CatalogMediaKind, LibraryKindWorkspace> '
+    'collectarrKindWorkspaces = {',
+  );
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      'TypedLibraryKindWorkspace<${descriptor.workspaceDtoType}>('
+      'fields: ${descriptor.moduleName}.fields, '
+      'projector: ${descriptor.moduleName}.projector, '
+      'hierarchy: ${descriptor.moduleName}.hierarchy),',
+    );
+  }
+  buffer.writeln('};');
   buffer.writeln();
   _renderContributorMap(
     buffer,
@@ -1160,6 +1199,8 @@ final class _KindDescriptor {
   const _KindDescriptor({
     required this.folder,
     required this.moduleName,
+    required this.workspaceDtoType,
+    required this.workspaceDtoImport,
     required this.pageClass,
     this.calendarContributor,
     this.activityContributor,
@@ -1188,6 +1229,8 @@ final class _KindDescriptor {
 
   final String folder;
   final String moduleName;
+  final String workspaceDtoType;
+  final String workspaceDtoImport;
   final String pageClass;
   final _Contributor? calendarContributor;
   final _Contributor? activityContributor;

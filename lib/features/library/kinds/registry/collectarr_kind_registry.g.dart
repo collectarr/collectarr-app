@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_contribu
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -20,6 +21,15 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 export 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
@@ -213,6 +223,45 @@ final List<LibraryKindModule> collectarrKindModules = [
   musicKindModule,
   tvKindModule,
 ];
+
+final Map<CatalogMediaKind, LibraryKindWorkspace> collectarrKindWorkspaces = {
+  CatalogMediaKind.anime: TypedLibraryKindWorkspace<AnimeWorkspaceDto>(
+      fields: animeKindModule.fields,
+      projector: animeKindModule.projector,
+      hierarchy: animeKindModule.hierarchy),
+  CatalogMediaKind.boardgame: TypedLibraryKindWorkspace<BoardGameWorkspaceDto>(
+      fields: boardGameKindModule.fields,
+      projector: boardGameKindModule.projector,
+      hierarchy: boardGameKindModule.hierarchy),
+  CatalogMediaKind.book: TypedLibraryKindWorkspace<BookWorkspaceDto>(
+      fields: bookKindModule.fields,
+      projector: bookKindModule.projector,
+      hierarchy: bookKindModule.hierarchy),
+  CatalogMediaKind.comic: TypedLibraryKindWorkspace<ComicWorkspaceDto>(
+      fields: comicKindModule.fields,
+      projector: comicKindModule.projector,
+      hierarchy: comicKindModule.hierarchy),
+  CatalogMediaKind.game: TypedLibraryKindWorkspace<GameWorkspaceDto>(
+      fields: gameKindModule.fields,
+      projector: gameKindModule.projector,
+      hierarchy: gameKindModule.hierarchy),
+  CatalogMediaKind.manga: TypedLibraryKindWorkspace<MangaWorkspaceDto>(
+      fields: mangaKindModule.fields,
+      projector: mangaKindModule.projector,
+      hierarchy: mangaKindModule.hierarchy),
+  CatalogMediaKind.movie: TypedLibraryKindWorkspace<MovieWorkspaceDto>(
+      fields: movieKindModule.fields,
+      projector: movieKindModule.projector,
+      hierarchy: movieKindModule.hierarchy),
+  CatalogMediaKind.music: TypedLibraryKindWorkspace<MusicWorkspaceDto>(
+      fields: musicKindModule.fields,
+      projector: musicKindModule.projector,
+      hierarchy: musicKindModule.hierarchy),
+  CatalogMediaKind.tv: TypedLibraryKindWorkspace<TvWorkspaceDto>(
+      fields: tvKindModule.fields,
+      projector: tvKindModule.projector,
+      hierarchy: tvKindModule.hierarchy),
+};
 
 final collectarrKindCalendarContributors =
     <CatalogMediaKind, LibraryCalendarContributor>{

@@ -44,6 +44,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
   void emit(List<LibraryProjectionRuntime> items) {
     final filters = ref.read(libraryFiltersProvider(key));
     final module = libraryKindModuleForKind(key.kind);
+    final workspace = libraryKindWorkspaceForKind(key.kind);
     final groupId = filters.groupId;
 
     if (groupId == null) {
@@ -53,7 +54,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
       return;
     }
 
-    final groupDef = module.fields.findGroupDefinition(
+    final groupDef = workspace.fields.findGroupDefinition(
       groupId,
     );
     if (groupDef == null) {
@@ -66,7 +67,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     // Group items by the bucket key returned by the group definition.
     final bucketMap = <String, List<LibraryProjectionRuntime>>{};
     for (final item in items) {
-      final raw = module.workspace.groupValue(item, groupDef.id);
+      final raw = workspace.groupValue(item, groupDef.id);
       final bucketKey = _bucketKeyFor(raw);
       bucketMap.putIfAbsent(bucketKey, () => []).add(item);
     }

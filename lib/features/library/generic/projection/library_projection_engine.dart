@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -44,6 +45,7 @@ class LibraryProjectionEngine {
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final runtime = type;
+    final workspace = libraryKindWorkspaceForKind(type.kind);
     final allItems = libraryItemsForShelf(
       shelf,
       type,
@@ -97,7 +99,7 @@ class LibraryProjectionEngine {
       }
     }
 
-    filteredItems.sort((a, b) => type.workspace.compareEntriesByRules(
+    filteredItems.sort((a, b) => workspace.compareEntriesByRules(
           a,
           b,
           viewState.sortRules,
@@ -110,8 +112,8 @@ class LibraryProjectionEngine {
     );
 
     final groupId = query.groupId ??
-        runtime.fields.defaultGroup ??
-        runtime.fields.groups.first.id;
+        workspace.fields.defaultGroup ??
+        workspace.fields.groups.first.id;
     final buckets = overrideBuckets ??
         groupingEngine.buildBuckets(
           scopedBucketItems,

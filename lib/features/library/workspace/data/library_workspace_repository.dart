@@ -41,13 +41,14 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     LibraryWorkspaceQuery query,
   ) {
     final module = libraryKindModuleForKind(query.kind);
+    final workspace = libraryKindWorkspaceForKind(query.kind);
 
     final items = <LibraryProjectionRuntime>[];
     for (final source in shelfEntries) {
       final catalogItem = source.catalogItem;
       if (catalogItem != null && catalogItem.kind == query.kind.apiValue) {
         final node = LibraryTitleNodeRef(titleItemId: catalogItem.id);
-        items.add(module.workspace.project(source: source, node: node));
+        items.add(workspace.project(source: source, node: node));
       }
     }
 

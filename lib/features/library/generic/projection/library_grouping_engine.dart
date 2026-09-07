@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
@@ -25,7 +26,7 @@ class LibraryGroupingEngine {
     LibraryKindModule type,
     LibraryGroupIdRuntime groupId,
   ) {
-    final workspace = type.workspace;
+    final workspace = libraryKindWorkspaceForKind(type.kind);
     final groupDefinition = workspace.fields.findGroupDefinition(
       groupId,
     );
@@ -51,7 +52,7 @@ class LibraryGroupingEngine {
     LibraryGroupIdRuntime groupId, {
     LibraryProjectionIndex? index,
   }) {
-    final workspace = type.workspace;
+    final workspace = libraryKindWorkspaceForKind(type.kind);
     final allBucketLabel = genericAllBucketLabel(type);
     final counts = <String, int>{allBucketLabel: items.length};
     final hasSequence = workspace.groupModeSupportsCompletion(groupId);
