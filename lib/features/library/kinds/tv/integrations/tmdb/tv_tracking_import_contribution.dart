@@ -28,7 +28,7 @@ final class TvTrackingImportContribution {
     MutationOrigin origin = MutationOrigin.user,
   }) {
     return trackingMutations.addLocalOnlyTrackingEntry(
-      seasonItem,
+      seasonItem.catalogRef,
       sourceType: sourceType,
       status: status,
       rating: rating,

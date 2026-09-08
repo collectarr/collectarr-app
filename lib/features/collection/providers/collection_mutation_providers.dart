@@ -191,7 +191,6 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),

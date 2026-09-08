@@ -1325,7 +1325,7 @@ class LibraryAddSessionController
           );
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingEntry(
-            item,
+            item.catalogRef,
             anchor: _selectedAnchor,
           );
       }
@@ -1449,7 +1449,7 @@ class LibraryAddSessionController
               );
             case LibraryAddTarget.track:
               await trackingMutations.addLocalOnlyTrackingEntry(
-                metadataItem,
+                metadataItem.catalogRef,
                 anchor: _selectedAnchor,
               );
           }
@@ -1510,7 +1510,7 @@ class LibraryAddSessionController
             );
           case LibraryAddTarget.track:
             await trackingMutations.addLocalOnlyTrackingEntry(
-              selectedResult,
+              selectedResult.catalogRef,
               anchor: _selectedAnchor,
             );
         }

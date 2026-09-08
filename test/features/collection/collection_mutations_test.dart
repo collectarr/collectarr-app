@@ -272,7 +272,7 @@ void main() {
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('movie-digital-1', kind: 'movie'),
-            common: const LibraryAddCommonDraft(),
+            common: const LibraryAddCommonDraft(isDigital: true),
             tracking: const OwnedItemTrackingDraft(
               status: MediaTrackingStatus.completed,
               rating: 9,
@@ -472,18 +472,17 @@ void main() {
     final queued = await db.select(db.syncQueue).get();
     final snapshot =
         queued.where((row) => row.entityType == 'catalog_item').single;
-    // addOwnedItem enqueues the owned item, the catalog snapshot, and auto-registers
-    // the publisher as a pick-list value.
+    // addOwnedItem enqueues the owned item, a structural catalog reference,
+    // and auto-registers the publisher as a pick-list value.
     expect(queued, hasLength(3));
     expect(
       queued.where((row) => row.entityType == 'pick_list_value').length,
       1,
     );
     expect(snapshot.entityId, 'comic-1');
-    expect(snapshot.payloadJson, contains('Absolute Batman'));
-    expect(snapshot.payloadJson, contains('https://cdn.example/absolute.jpg'));
-    expect(snapshot.payloadJson,
-        contains('https://cdn.example/absolute-thumb.jpg'));
+    expect(snapshot.payloadJson, contains('"id":"comic-1"'));
+    expect(snapshot.payloadJson, contains('"kind":"comic"'));
+    expect(snapshot.payloadJson, isNot(contains('Absolute Batman')));
     await Future<void>.delayed(Duration.zero);
     expect(container.read(syncControllerProvider).pendingCount, 3);
   });
@@ -1405,7 +1404,7 @@ void main() {
     );
 
     await container.read(trackingMutationsProvider).addLocalOnlyTrackingEntry(
-          snapshot,
+          snapshot.catalogRef,
           sourceType: TrackingSourceType.streaming,
           status: MediaTrackingStatus.completed,
           rating: 9,
@@ -1450,7 +1449,7 @@ void main() {
       releaseYear: 1999,
     );
     await trackingMutations.addLocalOnlyTrackingEntry(
-      localSnapshot,
+      localSnapshot.catalogRef,
       sourceType: TrackingSourceType.streaming,
       status: MediaTrackingStatus.completed,
       rating: 9,

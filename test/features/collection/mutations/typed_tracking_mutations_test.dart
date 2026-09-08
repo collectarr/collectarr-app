@@ -66,7 +66,6 @@ void main() {
         db,
         codecs: collectarrWatchSessionCodecs,
       ),
-      catalogCache: catalogCache,
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       ownedItems: ownedItems,
       syncQueue: SyncQueueRepository(db),

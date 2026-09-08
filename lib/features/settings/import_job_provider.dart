@@ -381,6 +381,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }) async {
     accountId = await _validatedAccountId(provider, accountId);
     final api = ref.read(apiClientProvider);
+    final ownedMutations = ref.read(ownedItemMutationsProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
     _updateJob(
@@ -441,6 +442,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           jobId,
           (j) => j.copyWith(phase: ImportJobPhase.importing),
         );
+        await ownedMutations.updateCatalogSnapshot(item, origin: config.origin);
         await _applyEntry(
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
@@ -474,6 +476,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         if (keepUnmatchedLocally) {
           final localItem = _syntheticImportCatalogItem(provider, entry);
           await _applyLocalOnlyEntry(
+            ownedMutations: ownedMutations,
             wishlistMutations: wishlistMutations,
             trackingMutations: trackingMutations,
             item: localItem,
@@ -666,6 +669,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           );
         }
         await _importTvSeasons(
+          ownedMutations: ownedMutations,
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           seriesEntry: enriched,
@@ -730,8 +734,12 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             final localItem =
                 const TmdbCatalogMerger().localSyntheticCatalogItem(enriched);
             if (enriched.collection.isRated) {
-              await trackingMutations.addLocalOnlyTrackingEntry(
+              await ownedMutations.updateCatalogSnapshot(
                 localItem,
+                origin: origin,
+              );
+              await trackingMutations.addLocalOnlyTrackingEntry(
+                localItem.catalogRef,
                 sourceType: TrackingSourceType.streaming,
                 status: MediaTrackingStatus.completed,
                 rating: _normalizedRating(enriched.rating),
@@ -745,6 +753,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               );
             }
             await _importTvSeasons(
+              ownedMutations: ownedMutations,
               wishlistMutations: wishlistMutations,
               trackingMutations: trackingMutations,
               seriesEntry: enriched,
@@ -926,6 +935,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _importTvSeasons({
+    required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required TmdbImportEntry seriesEntry,
@@ -945,6 +955,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {
+        await ownedMutations.updateCatalogSnapshot(
+          seasonItem,
+          origin: origin,
+        );
         await tvTrackingImportContribution.addLocalOnlySeasonEntry(
           trackingMutations,
           seasonItem,
@@ -1059,6 +1073,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _applyLocalOnlyEntry({
+    required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required CatalogItemDto item,
@@ -1073,8 +1088,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       );
       return;
     }
+    await ownedMutations.updateCatalogSnapshot(item, origin: origin);
     await trackingMutations.addLocalOnlyTrackingEntry(
-      item,
+      item.catalogRef,
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
       rating: entry.rating == null || entry.rating == 0
@@ -1129,7 +1145,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     };
   }
 
-  bool _shouldUpdateCatalogSnapshot(CatalogItemDto current, CatalogItemDto next) {
+  bool _shouldUpdateCatalogSnapshot(
+      CatalogItemDto current, CatalogItemDto next) {
     return current.displayTitle != next.displayTitle ||
         current.localizedTitle != next.localizedTitle ||
         current.originalTitle != next.originalTitle ||

@@ -139,7 +139,7 @@ Future<void> addLibraryItemsToTarget({
         break;
       case LibraryAddTarget.track:
         await trackingMutations.addLocalOnlyTrackingEntry(
-          item,
+          item.catalogRef,
           anchor: itemAnchor,
           status: baseTracking.readStatus == null
               ? null

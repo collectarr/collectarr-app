@@ -84,7 +84,6 @@ void main() {
       trackingEntries: trackingRepo,
       trackingUnits: trackingUnitsRepo,
       watchSessions: watchSessionsRepo,
-      catalogCache: catalogRepo,
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: syncQueueRepo,
       mutationRunner: runner,

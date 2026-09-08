@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -10,7 +9,6 @@ import 'package:collectarr_app/core/models/tracking_target.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -41,7 +39,6 @@ final class TrackingMutations {
     required this.trackingEntries,
     required this.trackingUnits,
     required this.watchSessions,
-    required this.catalogCache,
     required this.catalogSummaries,
     required this.syncQueue,
     required this.mutationRunner,
@@ -52,7 +49,6 @@ final class TrackingMutations {
   final TrackingEntriesCacheRepository trackingEntries;
   final TrackingUnitsCacheRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
-  final LibraryCatalogRepository catalogCache;
   final CatalogDisplaySummaryRepository catalogSummaries;
   final OwnedItemsRepository? ownedItems;
   final SyncQueueRepository syncQueue;
@@ -315,7 +311,7 @@ final class TrackingMutations {
   }
 
   Future<void> addLocalOnlyTrackingEntry(
-    CatalogItemDto item, {
+    CatalogEntityRef catalogRef, {
     CatalogEntityRef? targetRef,
     PersonalItemAnchor? anchor,
     TrackingSourceType? sourceType,
@@ -331,20 +327,18 @@ final class TrackingMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = item;
-    final itemId = metadataItem.id;
+    final itemId = catalogRef.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
-    final catalogRef =
-        targetRef ?? metadataItem.catalogRefForPersonalAnchor(anchor);
+    final resolvedCatalogRef =
+        targetRef ?? _catalogRefForAnchor(catalogRef, anchor);
     await mutationRunner.run(
       origin: origin,
-      localRef: catalogRef,
+      localRef: resolvedCatalogRef,
       action: () async {
-        await catalogCache.upsertAll([item]);
         final baseEntry = TrackingEntry(
           id: entryId,
-          catalogRef: catalogRef,
+          catalogRef: resolvedCatalogRef,
           sourceType: sourceType,
           status: status,
           rating: rating,
