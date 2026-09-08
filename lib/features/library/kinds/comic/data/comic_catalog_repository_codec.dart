@@ -13,6 +13,23 @@ final class ComicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
+  Future<int> countCatalogValue(
+    LocalDatabase db,
+    String semanticName,
+    String normalizedValue,
+  ) async {
+    return countCatalogProjectionValues(
+      await list(db),
+      fields: _catalogFieldsFor(semanticName),
+      normalizedValue: normalizedValue,
+    );
+  }
+
+  @override
+  int? replacementValueCents(CatalogItemDto item) =>
+      _replacementValueFromPayload(item);
+
+  @override
   Object? typedMetadataFromDto(CatalogItemDto item) {
     final metadata = item.kindMetadata;
     if (metadata is ComicMedia) return metadata;
@@ -48,6 +65,29 @@ final class ComicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
       for (final item in media) _comicSummary(item),
     ];
   }
+}
+
+Iterable<String> _catalogFieldsFor(String semanticName) =>
+    switch (semanticName) {
+      'publisher' => const ['publisher'],
+      'imprint' => const ['imprint'],
+      'language' => const ['language'],
+      'country' => const ['country'],
+      'age_rating' => const ['age_rating'],
+      'series_group' => const ['series_group'],
+      'physical_format' || 'format' => const [
+          'physical_format',
+          'physical_format_label'
+        ],
+      _ => const <String>[],
+    };
+
+int? _replacementValueFromPayload(CatalogItemDto item) {
+  final direct = item.payload['cover_price_cents'];
+  if (direct is num) return direct.toInt();
+  final publishing = item.payload['publishing'];
+  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
+  return nested is num ? nested.toInt() : null;
 }
 
 CatalogDisplaySummary _comicSummary(ComicMedia item) {

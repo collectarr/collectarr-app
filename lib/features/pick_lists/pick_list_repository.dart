@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -405,16 +405,6 @@ class PickListRepository {
     if (normalized.isEmpty) {
       return 0;
     }
-    final catalogPayloadFields = <String, List<String>>{
-      'publisher': ['publisher'],
-      'imprint': ['imprint'],
-      'language': ['language'],
-      'country': ['country'],
-      'age_rating': ['age_rating'],
-      'series_group': ['series_group'],
-      'physical_format': ['physical_format', 'physical_format_label'],
-      'format': ['physical_format', 'physical_format_label'],
-    };
     final semanticName = pickListSemanticName(listName);
     var total = 0;
     final requestedKind =
@@ -429,32 +419,18 @@ class PickListRepository {
         normalized,
       );
     }
-    for (final field
-        in catalogPayloadFields[semanticName] ?? const <String>[]) {
-      total += await _countCatalogPayloadField(
-        field,
+    for (final codec in collectarrKindCatalogRepositoryCodecs) {
+      if (requestedKind != null && codec.kind != requestedKind) {
+        continue;
+      }
+      total += await codec.countCatalogValue(
+        _db,
+        semanticName,
         normalized,
-        mediaKind: mediaKind,
       );
     }
     total += await _countCustomFieldValues(normalized, mediaKind: mediaKind);
     return total;
-  }
-
-  Future<int> _countCatalogPayloadField(String fieldName, String normalized,
-      {String? mediaKind}) async {
-    final items = await LibraryCatalogRepository(_db).findAll(kind: mediaKind);
-    var count = 0;
-    for (final item in items) {
-      final payload = item.payload;
-      if (payload[fieldName] is String) {
-        if (normalizePickListValue(payload[fieldName] as String) ==
-            normalized) {
-          count++;
-        }
-      }
-    }
-    return count;
   }
 
   Future<int> _countCustomFieldValues(

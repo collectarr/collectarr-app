@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_replacement_value_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -56,16 +56,12 @@ class InsuranceValueRepository {
       (total, row) => total + (row.pricePaidCents ?? 0),
     );
 
-    final catalogItems = await LibraryCatalogRepository(_db).findByIds(
+    final replacementValues =
+        await CatalogReplacementValueRepository(_db).findByIds(
       filteredRows.map((row) => row.itemId),
     );
     final totalCoverPrice = filteredRows.fold<int>(0, (total, row) {
-      final item = catalogItems[row.itemId];
-      final publishing = item?.payload['publishing'];
-      final rawValue = item?.payload['cover_price_cents'] ??
-          (publishing is Map ? publishing['cover_price_cents'] : null);
-      final value = rawValue is num ? rawValue.toInt() : 0;
-      return total + value;
+      return total + (replacementValues[row.itemId] ?? 0);
     });
 
     return InsuranceValueSummary(
