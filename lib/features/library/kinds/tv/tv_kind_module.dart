@@ -48,7 +48,7 @@ import 'package:collectarr_app/features/library/add/library_add_video_result_pol
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 const _tvShowFilterId = LibraryAddFilterId('tv.show');

@@ -13,12 +13,13 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
+import 'package:collectarr_app/features/library/add/services/provider_candidate_catalog_projection.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
@@ -71,7 +72,7 @@ class LibraryAddWorkflowService {
     required bool Function(Object error) isMissingBearerTokenError,
   }) async {
     if (candidate.isStub) {
-      return candidate.placeholderItem();
+      return catalogItemFromProviderCandidate(candidate);
     }
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
@@ -79,7 +80,7 @@ class LibraryAddWorkflowService {
       return metadataItemFromPreview(cachedPreview,
           itemId: candidate.localCatalogId);
     }
-    return candidate.placeholderItem();
+    return catalogItemFromProviderCandidate(candidate);
   }
 
   Future<void> addItems({
@@ -216,7 +217,7 @@ class LibraryAddWorkflowService {
             previewState.providerPreviewFor(currentCandidate.localCatalogId);
         final previewItem = cached != null
             ? metadataItemFromPreview(cached)
-            : currentCandidate.placeholderItem();
+            : catalogItemFromProviderCandidate(currentCandidate);
 
         final visibleCandidates = visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

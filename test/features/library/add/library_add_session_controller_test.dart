@@ -40,7 +40,7 @@ import 'package:collectarr_app/features/library/add/services/library_add_search_
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';

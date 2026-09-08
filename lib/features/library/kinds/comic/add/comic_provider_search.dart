@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/adapters/comicvine/comicvine_provider.dart';
 import 'package:collectarr_app/features/providers/adapters/comicvine/models/comic_vine_issue.dart';
 import 'package:collectarr_app/features/providers/adapters/gcd/gcd_provider.dart';

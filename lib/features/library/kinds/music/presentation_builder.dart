@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';

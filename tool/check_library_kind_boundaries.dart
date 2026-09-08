@@ -175,7 +175,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/metadata/library_metadata_proposal.dart',
     'lib/features/library/metadata/metadata_proposal_store.dart',
     'lib/features/library/metadata/library_metadata_widgets.dart',
-    'lib/features/library/metadata/provider_candidate.dart',
     // Storage locations are a universal sync serialization boundary; they do
     // not contain catalog-kind metadata.
     'lib/core/models/storage_location.dart',

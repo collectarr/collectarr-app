@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 
 class ProviderCandidate {
@@ -83,29 +83,6 @@ class ProviderCandidate {
       characterPreview: _stringListField(json['character_preview']),
       storyArcPreview: _stringListField(json['story_arc_preview']),
     );
-  }
-
-  CatalogItemDto placeholderItem() {
-    final item = CatalogItemDto.fromJson({
-      'id': localCatalogId,
-      'kind': kind.apiValue,
-      'title': title,
-      'item_number': issueNumber,
-      'issue_number': issueNumber,
-      'synopsis': summary,
-      'cover_image_url': imageUrl,
-      'variant': variantName,
-      'publisher': publisher,
-      if (series != null) 'series_title': series!.seriesTitle,
-      if (series != null) 'volume_start_year': series!.volumeStartYear,
-      if (series != null) 'release_year': series!.volumeStartYear,
-    });
-    final decoder = libraryKindCatalogMetadataDecoderForKind(
-      kind,
-    );
-    return decoder == null
-        ? item
-        : item.withKindMetadata(decoder(item.payload));
   }
 
   bool get isStub {

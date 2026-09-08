@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dar
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/add/services/library_add_workflo
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:dio/dio.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
 typedef BuildProviderCorrections = Map<String, Object?> Function({
   required CatalogItemDto preview,

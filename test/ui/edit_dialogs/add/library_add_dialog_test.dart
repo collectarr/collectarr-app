@@ -29,7 +29,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';

@@ -43,7 +43,7 @@ import 'package:collectarr_app/features/library/config/library_facet_module.dart
 import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
 

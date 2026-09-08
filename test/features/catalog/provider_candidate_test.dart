@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/add/services/provider_candidate_catalog_projection.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -116,7 +117,7 @@ void main() {
       'is_variant': false,
     });
 
-    final item = candidate.placeholderItem();
+    final item = catalogItemFromProviderCandidate(candidate);
     final payload = item.kindMetadata.toSyncPayload();
 
     expect(payload['item_number'], '1');

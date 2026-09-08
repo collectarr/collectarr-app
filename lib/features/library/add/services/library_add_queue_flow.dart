@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:flutter/material.dart';
 
 Future<void> queueLibraryAddProviderIngestFlow({

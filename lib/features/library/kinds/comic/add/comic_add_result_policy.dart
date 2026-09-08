@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';

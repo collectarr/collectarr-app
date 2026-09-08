@@ -30,7 +30,7 @@ import 'package:collectarr_app/features/library/release/video_release_projection
 import 'package:collectarr_app/features/library/detail/library_video_detail_page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';

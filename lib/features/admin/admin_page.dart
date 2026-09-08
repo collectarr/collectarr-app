@@ -12,7 +12,7 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';

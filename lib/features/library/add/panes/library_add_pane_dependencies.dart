@@ -21,7 +21,7 @@ export 'package:collectarr_app/features/library/edit/custom_fields_edit_section.
 export 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 export 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 export 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-export 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+export 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 export 'package:collectarr_app/features/library/library_kind_registry.dart';
 export 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 export 'package:collectarr_app/features/library/ui/library_density_scope.dart';

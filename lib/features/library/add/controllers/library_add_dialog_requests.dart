@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_reference
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';

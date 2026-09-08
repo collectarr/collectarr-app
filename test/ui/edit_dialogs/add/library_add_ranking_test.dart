@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _publisherFilterId = LibraryAddFilterId('test.publisher');
