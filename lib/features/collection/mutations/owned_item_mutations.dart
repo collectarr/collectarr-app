@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -38,7 +38,7 @@ final class OwnedItemMutations {
 
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
-  final LibraryCatalogRepository catalogCache;
+  final CatalogTransportRepository catalogCache;
   final CatalogDisplaySummaryRepository catalogSummaries;
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;

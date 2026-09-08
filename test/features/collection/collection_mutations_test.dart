@@ -10,7 +10,7 @@ import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
@@ -181,7 +181,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(id: 'comic-1', kind: 'comic', title: 'Original'),
     ]);
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
@@ -206,7 +206,7 @@ void main() {
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
-    final catalog = await LibraryCatalogRepository(db).findById('comic-1');
+    final catalog = await CatalogTransportRepository(db).findById('comic-1');
 
     expect(owned.condition, 'Near Mint');
     expect(tracking.rating, 8);
@@ -259,7 +259,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(
         id: 'movie-digital-1',
         kind: 'movie',
@@ -353,7 +353,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(
           id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
     ]);
@@ -389,7 +389,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(id: 'movie-1', kind: 'movie', title: 'Dune'),
     ]);
 
@@ -426,7 +426,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(id: 'book-1', kind: 'book', title: 'Project Hail Mary'),
     ]);
 
@@ -448,7 +448,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -855,7 +855,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -938,7 +938,7 @@ void main() {
       ],
     );
 
-    final catalog = await LibraryCatalogRepository(db).findById('movie-1');
+    final catalog = await CatalogTransportRepository(db).findById('movie-1');
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 1);
     expect(catalog?.kind, 'movie');
@@ -1065,7 +1065,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -1132,7 +1132,7 @@ void main() {
     );
 
     expect(
-        await LibraryCatalogRepository(db).findById(
+        await CatalogTransportRepository(db).findById(
           'comic-without-projection',
         ),
         isNull);
@@ -1152,7 +1152,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -1414,7 +1414,7 @@ void main() {
           snapshot,
         );
 
-    final catalog = await LibraryCatalogRepository(db).findAll();
+    final catalog = await CatalogTransportRepository(db).findAll();
     final tracking = await db.select(db.trackingEntriesCache).get();
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();

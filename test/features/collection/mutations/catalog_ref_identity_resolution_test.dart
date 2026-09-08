@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
@@ -22,7 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late LocalDatabase db;
-  late LibraryCatalogRepository catalogCache;
+  late CatalogTransportRepository catalogCache;
   late WishlistItemsCacheRepository wishlistRepo;
   late SyncQueueRepository syncQueue;
   late WishlistMutations wishlistMutations;
@@ -30,7 +30,7 @@ void main() {
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
-    catalogCache = LibraryCatalogRepository(db);
+    catalogCache = CatalogTransportRepository(db);
     wishlistRepo = WishlistItemsCacheRepository(db);
     syncQueue = SyncQueueRepository(db);
     final runner = CollectionMutationRunner(

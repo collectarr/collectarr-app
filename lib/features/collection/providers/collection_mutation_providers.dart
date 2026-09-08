@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/providers/domain/repositories/provider_a
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
@@ -53,8 +53,8 @@ final wishlistItemsCacheRepositoryProvider =
 });
 
 final catalogCacheRepositoryProvider =
-    Provider<LibraryCatalogRepository>((ref) {
-  return LibraryCatalogRepository(ref.watch(localDatabaseProvider));
+    Provider<CatalogTransportRepository>((ref) {
+  return CatalogTransportRepository(ref.watch(localDatabaseProvider));
 });
 
 final trackingEntriesCacheRepositoryProvider =

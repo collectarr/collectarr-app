@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
@@ -16,7 +16,7 @@ void main() {
   test('reads provider fields from a persistent tracking entry', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final catalog = LibraryCatalogRepository(db);
+    final catalog = CatalogTransportRepository(db);
     final tracking = TrackingEntriesCacheRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,

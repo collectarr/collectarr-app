@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
@@ -311,7 +311,7 @@ class _WorkflowFixture {
   late final LocalDatabase db;
   late final ProviderContainer container;
 
-  LibraryCatalogRepository get catalog => LibraryCatalogRepository(db);
+  CatalogTransportRepository get catalog => CatalogTransportRepository(db);
 
   OwnedItemMutations get ownedMutations => container.read(
         ownedItemMutationsProvider,

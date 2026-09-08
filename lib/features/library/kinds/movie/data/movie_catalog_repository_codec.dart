@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/features/catalog/catalog_kind_codec_support.dart';
-import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_codec_support.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 

@@ -12,7 +12,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -51,7 +51,7 @@ class SyncApplyService {
   final CollectarrSyncClient client;
   final LocalDatabase db;
   final SyncQueueRepository queue;
-  final LibraryCatalogRepository catalog;
+  final CatalogTransportRepository catalog;
   final CollectarrOwnedItemPersistence ownedPersistence;
   final TrackingEntriesCacheRepository trackingEntries;
   final WishlistItemsCacheRepository wishlistItems;

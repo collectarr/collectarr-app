@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -22,7 +22,7 @@ void main() {
 
   test('aggregates replacement values through kind-owned catalog codecs',
       () async {
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItem(
         id: 'comic-value-1',
         kind: 'comic',

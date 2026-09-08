@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
@@ -46,7 +46,7 @@ class SyncRepository {
       ),
       db: _db,
       queue: SyncQueueRepository(_db),
-      catalog: LibraryCatalogRepository(_db),
+      catalog: CatalogTransportRepository(_db),
       ownedPersistence: CollectarrOwnedItemPersistence(_db),
       trackingEntries: TrackingEntriesCacheRepository(
         _db,

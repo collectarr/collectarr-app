@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
@@ -128,7 +128,7 @@ class LibraryAddSessionController
   }
 
   final ApiClient? api;
-  final LibraryCatalogRepository? catalog;
+  final CatalogTransportRepository? catalog;
   final ProviderConnectorRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
   final LibraryAddWorkflowService workflowService;

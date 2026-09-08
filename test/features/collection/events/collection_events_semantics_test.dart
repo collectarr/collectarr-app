@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
@@ -46,7 +46,7 @@ void main() {
 
     final ownedRepo = OwnedItemsRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
-    final catalogRepo = LibraryCatalogRepository(db);
+    final catalogRepo = CatalogTransportRepository(db);
     final trackingRepo = TrackingEntriesCacheRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,

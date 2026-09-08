@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:drift/native.dart';
@@ -10,12 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late LocalDatabase db;
-  late LibraryCatalogRepository catalog;
+  late CatalogTransportRepository catalog;
   late SerialAuthorityRepository registry;
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
-    catalog = LibraryCatalogRepository(db);
+    catalog = CatalogTransportRepository(db);
     registry = SerialAuthorityRepository(db);
   });
 

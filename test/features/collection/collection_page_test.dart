@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -27,7 +27,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItemFromJson({
         'id': 'comic-1',
         'kind': 'comic',
@@ -124,7 +124,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItemFromJson({
         'id': 'comic-1',
         'kind': 'comic',

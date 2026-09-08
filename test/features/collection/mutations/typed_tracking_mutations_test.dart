@@ -17,7 +17,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -36,7 +36,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   late LocalDatabase db;
   late TrackingMutations trackingMutations;
-  late LibraryCatalogRepository catalogCache;
+  late CatalogTransportRepository catalogCache;
   late OwnedItemsRepository ownedItems;
   late TrackingEntriesCacheRepository trackingEntries;
   late MutationOrigin? observedOrigin;
@@ -44,7 +44,7 @@ void main() {
   setUp(() {
     observedOrigin = null;
     db = LocalDatabase(NativeDatabase.memory());
-    catalogCache = LibraryCatalogRepository(db);
+    catalogCache = CatalogTransportRepository(db);
     ownedItems = OwnedItemsRepository(db);
     trackingEntries = TrackingEntriesCacheRepository(
       db,

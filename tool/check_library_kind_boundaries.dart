@@ -659,6 +659,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   bool _isProductionBoundaryPath(String path) {
     return path.startsWith('lib/features/') &&
             !path.startsWith('lib/features/library/kinds/') &&
+            !path.startsWith('lib/features/catalog/transport/') &&
             !path.startsWith('lib/features/providers/') ||
         path.startsWith('lib/core/models/') ||
         path.startsWith('lib/core/api/mappers/') ||

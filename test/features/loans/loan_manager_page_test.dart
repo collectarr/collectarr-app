@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -31,7 +31,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItemFromJson({
         'id': 'comic-1',
         'kind': 'comic',
@@ -90,7 +90,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItemFromJson({
         'id': 'comic-2',
         'kind': 'comic',

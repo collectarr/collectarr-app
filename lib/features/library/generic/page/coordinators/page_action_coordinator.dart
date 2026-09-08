@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
@@ -20,7 +20,7 @@ final class LibraryPageActionCoordinator {
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
-  final LibraryCatalogRepository catalogCache;
+  final CatalogTransportRepository catalogCache;
   final LibraryKindModule kindRuntime;
 
   void updateSearch(String query) => session.updateSearch(query);

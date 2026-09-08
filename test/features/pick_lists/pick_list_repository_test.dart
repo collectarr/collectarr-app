@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -134,7 +134,7 @@ void main() {
             sortOrder: const Value(0),
           ),
         );
-    await LibraryCatalogRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertAll([
       testCatalogItemFromJson({
         'id': 'catalog-1',
         'kind': 'comic',

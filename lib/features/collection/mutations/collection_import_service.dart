@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
@@ -40,7 +40,7 @@ final class CollectionImportService {
 
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
-  final LibraryCatalogRepository catalogCache;
+  final CatalogTransportRepository catalogCache;
   final CatalogDisplaySummaryRepository catalogSummaries;
   final CatalogLookupRepository catalogLookup;
   final TrackingEntriesCacheRepository trackingEntries;

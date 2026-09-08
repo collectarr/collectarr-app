@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 
 /// Reads only the structural catalog projection required by mixed/global UI.
 ///
-/// This is intentionally separate from [LibraryCatalogRepository]. Callers
+/// This is intentionally separate from [CatalogTransportRepository]. Callers
 /// that only need a title, kind or image must not depend on the full catalog
 /// transport facade or rehydrate [CatalogItemDto] graphs.
 final class CatalogDisplaySummaryRepository {

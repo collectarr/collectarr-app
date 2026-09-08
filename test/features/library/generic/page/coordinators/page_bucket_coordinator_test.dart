@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
@@ -80,7 +80,7 @@ void main() {
     expect(affected, 2);
     expect(harness.selectedBucket, 'New publisher');
     expect(harness.rebuildCount, 1);
-    final cached = await LibraryCatalogRepository(db).findByIds(
+    final cached = await CatalogTransportRepository(db).findByIds(
       [firstCatalog.id, secondCatalog.id],
     );
     expect(cached[firstCatalog.id]?.payload['publisher'], 'New publisher');
@@ -120,7 +120,7 @@ void main() {
     expect(affected, 1);
     expect(harness.selectedBucket, isNull);
     expect(harness.rebuildCount, 1);
-    final cached = await LibraryCatalogRepository(db).findById(catalog.id);
+    final cached = await CatalogTransportRepository(db).findById(catalog.id);
     expect(cached?.payload['publisher'], isNull);
   });
 
@@ -251,7 +251,7 @@ Future<_CoordinatorHarness> _pumpHarness(
   final mutations = OwnedItemMutations(
     ownedItems: OwnedItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
-    catalogCache: LibraryCatalogRepository(db),
+    catalogCache: CatalogTransportRepository(db),
     catalogSummaries: CatalogDisplaySummaryRepository(db),
     trackingEntries: TrackingEntriesCacheRepository(
       db,

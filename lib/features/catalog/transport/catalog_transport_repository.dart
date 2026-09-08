@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
@@ -13,8 +13,8 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 /// Generic catalog orchestration over the typed kind repositories. No catalog
 /// payload is stored by this class; typed kind repositories own the durable
 /// representation.
-final class LibraryCatalogRepository {
-  LibraryCatalogRepository(
+final class CatalogTransportRepository {
+  CatalogTransportRepository(
     this._db, {
     Iterable<CatalogKindRepositoryCodec> codecs =
         collectarrKindCatalogRepositoryCodecs,

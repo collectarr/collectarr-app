@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -34,7 +34,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByIds(ids);
   // This is a compatibility adapter for Library kind contributors only.
-  final legacyCatalogItems = await LibraryCatalogRepository(db).findByIds(ids);
+  final legacyCatalogItems = await CatalogTransportRepository(db).findByIds(ids);
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
