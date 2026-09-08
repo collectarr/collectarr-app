@@ -1,5 +1,5 @@
 export 'package:collectarr_app/core/models/admin_metadata.dart';
-export 'package:collectarr_app/core/models/bundle_release.dart';
+export 'package:collectarr_app/core/api/dto/bundle_release.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 export 'package:collectarr_app/core/models/custom_field.dart';
 export 'package:collectarr_app/core/models/item_image.dart';

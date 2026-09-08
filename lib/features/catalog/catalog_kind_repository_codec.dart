@@ -20,11 +20,14 @@ abstract interface class CatalogKindRepositoryCodec
     String normalizedValue,
   );
 
-  /// Returns the replacement value represented by this kind's catalog item.
+  /// Returns replacement values for the requested catalog identities.
   ///
-  /// A kind may return null when its catalog has no replacement-value
-  /// semantics. The generic host only aggregates the returned number.
-  int? replacementValueCents(CatalogItemDto item);
+  /// A kind may return no values when its catalog has no replacement-value
+  /// semantics. The generic host only aggregates the returned numbers.
+  Future<Map<String, int>> replacementValuesByIds(
+    LocalDatabase db,
+    Iterable<String> ids,
+  );
 
   /// Decodes the API-bound catalog projection into this kind's concrete
   /// metadata value for derived-data contributors.

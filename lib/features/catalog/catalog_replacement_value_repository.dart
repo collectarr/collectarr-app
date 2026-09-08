@@ -19,11 +19,7 @@ final class CatalogReplacementValueRepository {
 
     final result = <String, int>{};
     for (final codec in _codecs) {
-      for (final item in await codec.list(_db)) {
-        if (!wanted.contains(item.id)) continue;
-        final value = codec.replacementValueCents(item);
-        if (value != null) result[item.id] = value;
-      }
+      result.addAll(await codec.replacementValuesByIds(_db, wanted));
     }
     return result;
   }

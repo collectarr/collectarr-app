@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';

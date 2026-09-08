@@ -12,27 +12,3 @@ Map<String, dynamic> catalogPayloadFor(CatalogItemDto item) => {
       'id': item.id,
       'kind': item.kind,
     };
-
-Future<int> countCatalogProjectionValues(
-  Iterable<CatalogItemDto> items, {
-  required Iterable<String> fields,
-  required String normalizedValue,
-}) async {
-  final fieldNames = fields.toSet();
-  if (fieldNames.isEmpty || normalizedValue.trim().isEmpty) {
-    return 0;
-  }
-  var count = 0;
-  for (final item in items) {
-    final matches = fieldNames.any((field) {
-      final value = item.payload[field];
-      return value is String &&
-          _normalizeCatalogValue(value) == normalizedValue;
-    });
-    if (matches) count++;
-  }
-  return count;
-}
-
-String _normalizeCatalogValue(String value) =>
-    value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');

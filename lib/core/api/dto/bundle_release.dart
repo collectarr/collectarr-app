@@ -1,4 +1,4 @@
-import 'provider_link.dart';
+import '../../models/provider_link.dart';
 
 class BundleReleaseContentSummary {
   const BundleReleaseContentSummary({

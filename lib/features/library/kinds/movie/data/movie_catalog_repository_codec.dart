@@ -18,7 +18,7 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
     String semanticName,
     String normalizedValue,
   ) async {
-    return countCatalogProjectionValues(
+    return _countCatalogProjectionValues(
       await list(db),
       fields: _catalogFieldsFor(semanticName),
       normalizedValue: normalizedValue,
@@ -26,8 +26,20 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   }
 
   @override
-  int? replacementValueCents(CatalogItemDto item) =>
-      _replacementValueFromPayload(item);
+  Future<Map<String, int>> replacementValuesByIds(
+    LocalDatabase db,
+    Iterable<String> ids,
+  ) async {
+    final wanted = ids.toSet();
+    if (wanted.isEmpty) return const {};
+    final result = <String, int>{};
+    for (final item in await list(db)) {
+      if (!wanted.contains(item.id)) continue;
+      final value = _replacementValueFromPayload(item);
+      if (value != null) result[item.id] = value;
+    }
+    return result;
+  }
 
   @override
   Object? typedMetadataFromDto(CatalogItemDto item) {
@@ -93,6 +105,27 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
   final publishing = item.payload['publishing'];
   final nested = publishing is Map ? publishing['cover_price_cents'] : null;
   return nested is num ? nested.toInt() : null;
+}
+
+Future<int> _countCatalogProjectionValues(
+  Iterable<CatalogItemDto> items, {
+  required Iterable<String> fields,
+  required String normalizedValue,
+}) async {
+  final fieldNames = fields.toSet();
+  if (fieldNames.isEmpty || normalizedValue.trim().isEmpty) return 0;
+  var count = 0;
+  for (final item in items) {
+    if (fieldNames.any((field) {
+      final value = item.payload[field];
+      return value is String &&
+          value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ') ==
+              normalizedValue;
+    })) {
+      count++;
+    }
+  }
+  return count;
 }
 
 CatalogItemDto _projection(MovieMedia item) {
