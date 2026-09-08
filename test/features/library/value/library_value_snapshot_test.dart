@@ -52,7 +52,10 @@ void main() {
 
     final snapshot = LibraryValueSnapshot.fromItem(
       item,
-      ownedItem: ownedItem,
+      purchasePriceCents: ownedItem.pricePaidCents,
+      soldPriceCents: ownedItem.sellPriceCents,
+      manualEstimatedValueCents: ownedItem.marketValueCents,
+      ownedCurrency: ownedItem.currency,
       providerName: 'Comic provider',
     );
 

@@ -562,9 +562,12 @@ List<LibraryDetailField> _valueFacts(
       ownedCopies.isNotEmpty ? ownedCopies : <OwnedItem>[ownedItem];
   final snapshot = LibraryValueSnapshot.fromItem(
     item,
-    ownedItem: ownedItem,
+    purchasePriceCents: item.source.pricePaidCents,
+    soldPriceCents: item.source.sellPriceCents,
+    manualEstimatedValueCents: item.source.marketValueCents,
+    ownedCurrency: item.source.currency,
     providerName:
-        ownedItem.marketValueCents != null ? 'Provider snapshot' : null,
+        item.source.marketValueCents != null ? 'Provider snapshot' : null,
   );
 
   final rows = <LibraryDetailField>[];

@@ -67,8 +67,11 @@ class InspectorPersonalSection extends StatelessWidget {
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
           item,
-          ownedItem: ownedItem,
-          providerName: item.source.ownedItem?.marketValueCents != null
+          purchasePriceCents: item.source.pricePaidCents,
+          soldPriceCents: item.source.sellPriceCents,
+          manualEstimatedValueCents: item.source.marketValueCents,
+          ownedCurrency: item.source.currency,
+          providerName: item.source.marketValueCents != null
               ? 'Provider snapshot'
               : null,
         );
