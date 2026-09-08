@@ -4,6 +4,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
@@ -781,6 +782,46 @@ final collectarrOwnedItemSummaryReaders =
   CatalogMediaKind.tv: (database) async =>
       (await TvOwnedRepository(database).listActive())
           .map(TvOwnedItemProjection.toSummary)
+          .toList(growable: false),
+};
+
+final collectarrActiveOwnedItemReaders =
+    <CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{
+  CatalogMediaKind.anime: (database) async =>
+      (await AnimeOwnedRepository(database).listActive())
+          .map(AnimeOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.boardgame: (database) async =>
+      (await BoardGameOwnedRepository(database).listActive())
+          .map(BoardGameOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.book: (database) async =>
+      (await BookOwnedRepository(database).listActive())
+          .map(BookOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.comic: (database) async =>
+      (await ComicOwnedRepository(database).listActive())
+          .map(ComicOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.game: (database) async =>
+      (await GameOwnedRepository(database).listActive())
+          .map(GameOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.manga: (database) async =>
+      (await MangaOwnedRepository(database).listActive())
+          .map(MangaOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.movie: (database) async =>
+      (await MovieOwnedRepository(database).listActive())
+          .map(MovieOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.music: (database) async =>
+      (await MusicOwnedRepository(database).listActive())
+          .map(MusicOwnedItemProjection.toOwnedItem)
+          .toList(growable: false),
+  CatalogMediaKind.tv: (database) async =>
+      (await TvOwnedRepository(database).listActive())
+          .map(TvOwnedItemProjection.toOwnedItem)
           .toList(growable: false),
 };
 

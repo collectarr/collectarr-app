@@ -19,12 +19,30 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+
+final activeOwnedCopiesByCatalogItemProvider = FutureProvider.autoDispose
+    .family<List<OwnedItem>, (CatalogMediaKind, String)>(
+  (ref, params) async {
+    final (kind, catalogItemId) = params;
+    final database = ref.watch(localDatabaseProvider);
+    final reader = collectarrActiveOwnedItemReaders[kind];
+    if (reader == null) return const [];
+    final items = await reader(database);
+    return items
+        .where((i) => i.catalogRef.id == catalogItemId)
+        .toList(growable: false)
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+  },
+);
+
 class LibraryDetailPage extends ConsumerStatefulWidget {
   const LibraryDetailPage({
     super.key,
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.ownedCopies,
     required this.accent,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -37,6 +55,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
   final LibraryKindModule type;
   final LibraryProjectionRuntime item;
   final OwnedItem? ownedItem;
+  final List<OwnedItem>? ownedCopies;
   final Color accent;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
@@ -76,12 +95,24 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // The selected library projection already carries the typed-dispatched
-    // owned item. Mixed collection reads expose summaries only and must not
-    // rehydrate a common OwnedItem aggregate here.
-    final ownedCopies = widget.ownedItem == null
-        ? const <OwnedItem>[]
-        : <OwnedItem>[widget.ownedItem!];
+    final catalogItemId = widget.item.source.catalogItem?.id;
+    final loadedCopies = catalogItemId == null
+        ? null
+        : ref
+            .watch(
+              activeOwnedCopiesByCatalogItemProvider(
+                (widget.type.kind, catalogItemId),
+              ),
+            )
+            .asData
+            ?.value;
+
+    final ownedCopies = widget.ownedCopies ??
+        (loadedCopies != null && loadedCopies.isNotEmpty
+            ? loadedCopies
+            : (widget.ownedItem == null
+                ? const <OwnedItem>[]
+                : <OwnedItem>[widget.ownedItem!]));
     final ownedResolution = resolveActiveOwnedItem(
       ownedCopies,
       fallback: widget.ownedItem,

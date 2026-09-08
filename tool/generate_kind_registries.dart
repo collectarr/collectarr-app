@@ -518,6 +518,7 @@ String _renderRegistry(List<_KindDescriptor> descriptors) {
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_repository_codec.dart';
@@ -1221,6 +1222,24 @@ void _renderOwnedPersistenceMaps(
       '  CatalogMediaKind.${descriptor.folder}: (database) async => '
       '(await $repository(database).listActive())'
       '.map($projection.toSummary).toList(growable: false),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
+    'final collectarrActiveOwnedItemReaders = '
+    '<CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final projection = persistence.projection.className;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: (database) async => '
+      '(await $repository(database).listActive())'
+      '.map($projection.toOwnedItem).toList(growable: false),',
     );
   }
   buffer.writeln('};');
