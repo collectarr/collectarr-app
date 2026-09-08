@@ -10,6 +10,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
@@ -1038,9 +1039,16 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
 
 List<TrackingEntry> tvSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        TrackingEntry(
+        TvTrackingEntry(
           id: 'seed-track-tv-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
+          coordinates: TvTrackingCoordinates(
+            seasonNumber: 1,
+            episodeNumber: i.isEven ? 2 : 1,
+            episodeRatings: {
+              '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
+            },
+          ),
           ownedItemId: 'seed-owned-seed-tv-${seedOrdinal2(i)}',
           sourceType: TrackingSourceType.physical,
           status: i <= 10

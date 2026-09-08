@@ -37,7 +37,7 @@ final class TvTrackingImportContribution {
       progressCurrent: progressCurrent,
       progressTotal: progressTotal,
       timesCompleted: timesCompleted,
-      customizeEntry: (entry) => tvTrackingEntryFor(entry).copyWith(
+      customizeEntry: (entry) => tvTrackingEntryFor(entry).copyWithCoordinates(
         seasonNumber: seasonNumber,
       ),
       allowEmpty: allowEmpty,

@@ -76,7 +76,6 @@ ComicWorkspaceDto _createWorkspace() {
   return ComicWorkspaceDto(
     common: const WorkspaceCommonProjection(
       title: 'Saga',
-      publisher: 'Image Comics',
     ),
     personal: PersonalCopyProjection(),
     comic: const ComicMedia(

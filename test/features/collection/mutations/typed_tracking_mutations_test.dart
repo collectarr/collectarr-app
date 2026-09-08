@@ -247,7 +247,8 @@ void main() {
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.inProgress,
-        customizeEntry: (entry) => tvTrackingEntryFor(entry).copyWith(
+        customizeEntry: (entry) =>
+            tvTrackingEntryFor(entry).copyWithCoordinates(
           seasonNumber: 2,
           episodeNumber: 4,
           episodeRatings: unitRatings,

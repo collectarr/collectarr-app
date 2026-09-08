@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -32,7 +33,7 @@ class LibraryEditSelection {
     this.submitAction = LibraryEditSubmitAction.save,
   });
 
-  final dynamic item;
+  final CatalogItemDto item;
   final LibraryPersonalEditSelection? personal;
   final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
@@ -44,7 +45,7 @@ class LibraryEditSelection {
   final LibraryEditSubmitAction submitAction;
 
   LibraryEditSelection copyWith({
-    dynamic item,
+    CatalogItemDto? item,
     LibraryPersonalEditSelection? personal,
     LibraryEditScope? scope,
     LibraryWishlistEditSelection? wishlist,

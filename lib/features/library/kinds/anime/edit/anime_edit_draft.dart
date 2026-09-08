@@ -182,7 +182,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
       result = result.copyWith(
         trackingEntryMutation: (entry) {
           final coordinates = animeTrackingCoordinatesFor(entry);
-          return animeTrackingEntryFor(entry).copyWith(
+          return animeTrackingEntryFor(entry).copyWithCoordinates(
             seasonNumber: seasonNumber ?? coordinates.seasonNumber,
             episodeNumber: episodeNumber ?? coordinates.episodeNumber,
             episodeRatings: episodeRatings ?? coordinates.episodeRatings,

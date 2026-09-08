@@ -10,6 +10,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
@@ -887,9 +888,16 @@ List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
 
 List<TrackingEntry> animeSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        TrackingEntry(
+        AnimeTrackingEntry(
           id: 'seed-track-anime-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-anime-${seedOrdinal2(i)}'),
+          coordinates: AnimeTrackingCoordinates(
+            seasonNumber: 1,
+            episodeNumber: i.isEven ? 2 : 1,
+            episodeRatings: {
+              '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
+            },
+          ),
           ownedItemId: 'seed-owned-seed-anime-${seedOrdinal2(i)}',
           sourceType: TrackingSourceType.physical,
           status: i <= 12

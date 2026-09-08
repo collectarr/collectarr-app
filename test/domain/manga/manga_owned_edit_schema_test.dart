@@ -116,7 +116,6 @@ void main() {
       personal: const LibraryPersonalEditSelection(
         anchor: null,
         condition: null,
-        grade: null,
         purchaseDate: null,
         pricePaidCents: null,
         currency: null,
@@ -131,13 +130,18 @@ void main() {
     final metadata = updated.item.kindMetadata as MangaMetadata;
     expect(metadata.pageCount, 224);
     expect(metadata.publisher, 'VIZ Media');
-    expect(updated.personal!.gradingCompany, 'BGS');
-    expect(updated.personal!.graderNotes, 'Regraded');
-    expect(updated.personal!.labelType, 'Qualified');
-    expect(updated.personal!.customLabel, 'Signed copy');
-    expect(updated.personal!.pageQuality, 'Cream');
-    expect(updated.personal!.certificationNumber, '987654');
-    expect(updated.personal!.signedBy, 'Tsukasa Abe');
+    expect(
+      (draft.toDetailsDraft().toDetails() as MangaOwnedDetails).gradingCompany,
+      'BGS',
+    );
+    final updatedDetails =
+        draft.toDetailsDraft().toDetails() as MangaOwnedDetails;
+    expect(updatedDetails.graderNotes, 'Regraded');
+    expect(updatedDetails.grading.labelType, 'Qualified');
+    expect(updatedDetails.grading.customLabel, 'Signed copy');
+    expect(updatedDetails.grading.pageQuality, 'Cream');
+    expect(updatedDetails.grading.certificationNumber, '987654');
+    expect(updatedDetails.signedBy, 'Tsukasa Abe');
   });
 }
 

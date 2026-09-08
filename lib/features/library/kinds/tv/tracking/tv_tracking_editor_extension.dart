@@ -109,7 +109,7 @@ class _TvTrackingEditorExtensionState
     final season = int.tryParse(_seasonController.text.trim());
     final episode = int.tryParse(_episodeController.text.trim());
     widget.onChanged(
-      (entry) => tvTrackingEntryFor(entry).copyWith(
+      (entry) => tvTrackingEntryFor(entry).copyWithCoordinates(
         seasonNumber: season,
         episodeNumber: episode,
       ),

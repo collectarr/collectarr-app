@@ -109,7 +109,7 @@ class _AnimeTrackingEditorExtensionState
     final season = int.tryParse(_seasonController.text.trim());
     final episode = int.tryParse(_episodeController.text.trim());
     widget.onChanged(
-      (entry) => animeTrackingEntryFor(entry).copyWith(
+      (entry) => animeTrackingEntryFor(entry).copyWithCoordinates(
         seasonNumber: season,
         episodeNumber: episode,
       ),

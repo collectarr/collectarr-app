@@ -85,6 +85,41 @@ final class AnimeTrackingEntry extends TrackingEntry {
     Object? progressTotal = trackingEntryUnset,
     Object? timesCompleted = trackingEntryUnset,
     Object? notes = trackingEntryUnset,
+    DateTime? updatedAt,
+    Object? deletedAt = trackingEntryUnset,
+  }) {
+    final copied = super.copyWith(
+      id: id,
+      catalogRef: catalogRef,
+      ownedItemId: ownedItemId,
+      sourceType: sourceType,
+      status: status,
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: notes,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    return AnimeTrackingEntry.fromEntry(copied, coordinates: coordinates);
+  }
+
+  AnimeTrackingEntry copyWithCoordinates({
+    String? id,
+    CatalogEntityRef? catalogRef,
+    Object? ownedItemId = trackingEntryUnset,
+    Object? sourceType = trackingEntryUnset,
+    Object? status = trackingEntryUnset,
+    Object? rating = trackingEntryUnset,
+    Object? startedAt = trackingEntryUnset,
+    Object? finishedAt = trackingEntryUnset,
+    Object? progressCurrent = trackingEntryUnset,
+    Object? progressTotal = trackingEntryUnset,
+    Object? timesCompleted = trackingEntryUnset,
+    Object? notes = trackingEntryUnset,
     Object? seasonNumber = trackingEntryUnset,
     Object? episodeNumber = trackingEntryUnset,
     Map<String, int>? episodeRatings,

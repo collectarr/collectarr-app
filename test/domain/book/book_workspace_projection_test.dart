@@ -22,6 +22,6 @@ void main() {
     );
 
     expect(dto.common.title, 'Guards! Guards!');
-    expect(dto.common.publisher, 'Victor Gollancz Ltd');
+    expect(dto.publisher, 'Victor Gollancz Ltd');
   });
 }

@@ -19,7 +19,9 @@ final class TvTrackingCoordinates {
       seasonNumber != null || episodeNumber != null;
 
   factory TvTrackingCoordinates.fromLegacy(TrackingEntry entry) {
-    return entry is TvTrackingEntry ? entry.coordinates : TvTrackingCoordinates();
+    return entry is TvTrackingEntry
+        ? entry.coordinates
+        : TvTrackingCoordinates();
   }
 }
 
@@ -73,6 +75,41 @@ final class TvTrackingEntry extends TrackingEntry {
 
   @override
   TvTrackingEntry copyWith({
+    String? id,
+    CatalogEntityRef? catalogRef,
+    Object? ownedItemId = trackingEntryUnset,
+    Object? sourceType = trackingEntryUnset,
+    Object? status = trackingEntryUnset,
+    Object? rating = trackingEntryUnset,
+    Object? startedAt = trackingEntryUnset,
+    Object? finishedAt = trackingEntryUnset,
+    Object? progressCurrent = trackingEntryUnset,
+    Object? progressTotal = trackingEntryUnset,
+    Object? timesCompleted = trackingEntryUnset,
+    Object? notes = trackingEntryUnset,
+    DateTime? updatedAt,
+    Object? deletedAt = trackingEntryUnset,
+  }) {
+    final copied = super.copyWith(
+      id: id,
+      catalogRef: catalogRef,
+      ownedItemId: ownedItemId,
+      sourceType: sourceType,
+      status: status,
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: notes,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+    return TvTrackingEntry.fromEntry(copied, coordinates: coordinates);
+  }
+
+  TvTrackingEntry copyWithCoordinates({
     String? id,
     CatalogEntityRef? catalogRef,
     Object? ownedItemId = trackingEntryUnset,

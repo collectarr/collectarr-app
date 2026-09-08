@@ -200,7 +200,7 @@ class TvEditDraft extends LibraryEditKindDraft
       result = result.copyWith(
         trackingEntryMutation: (entry) {
           final coordinates = tvTrackingCoordinatesFor(entry);
-          return tvTrackingEntryFor(entry).copyWith(
+          return tvTrackingEntryFor(entry).copyWithCoordinates(
             seasonNumber: seasonNumber ?? coordinates.seasonNumber,
             episodeNumber: episodeNumber ?? coordinates.episodeNumber,
             episodeRatings: episodeRatings ?? coordinates.episodeRatings,
