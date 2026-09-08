@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
@@ -179,11 +180,14 @@ class AnimeEditDraft extends LibraryEditKindDraft
           ? null
           : Map<String, int>.unmodifiable(this.episodeRatings);
       result = result.copyWith(
-        trackingEntryMutation: (entry) => entry.copyWith(
-          seasonNumber: seasonNumber ?? entry.seasonNumber,
-          episodeNumber: episodeNumber ?? entry.episodeNumber,
-          episodeRatings: episodeRatings,
-        ),
+        trackingEntryMutation: (entry) {
+          final coordinates = animeTrackingCoordinatesFor(entry);
+          return animeTrackingEntryFor(entry).copyWith(
+            seasonNumber: seasonNumber ?? coordinates.seasonNumber,
+            episodeNumber: episodeNumber ?? coordinates.episodeNumber,
+            episodeRatings: episodeRatings ?? coordinates.episodeRatings,
+          );
+        },
       );
     }
     if (result.personal != null) {

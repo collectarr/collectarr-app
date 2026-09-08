@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
@@ -198,11 +199,14 @@ class TvEditDraft extends LibraryEditKindDraft
           ? null
           : Map<String, int>.unmodifiable(this.episodeRatings);
       result = result.copyWith(
-        trackingEntryMutation: (entry) => entry.copyWith(
-          seasonNumber: seasonNumber ?? entry.seasonNumber,
-          episodeNumber: episodeNumber ?? entry.episodeNumber,
-          episodeRatings: episodeRatings,
-        ),
+        trackingEntryMutation: (entry) {
+          final coordinates = tvTrackingCoordinatesFor(entry);
+          return tvTrackingEntryFor(entry).copyWith(
+            seasonNumber: seasonNumber ?? coordinates.seasonNumber,
+            episodeNumber: episodeNumber ?? coordinates.episodeNumber,
+            episodeRatings: episodeRatings ?? coordinates.episodeRatings,
+          );
+        },
       );
     }
     if (result.personal != null) {

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 
 /// TV-owned contribution for importing a synthetic season tracking entry.
@@ -36,7 +37,7 @@ final class TvTrackingImportContribution {
       progressCurrent: progressCurrent,
       progressTotal: progressTotal,
       timesCompleted: timesCompleted,
-      customizeEntry: (entry) => entry.copyWith(
+      customizeEntry: (entry) => tvTrackingEntryFor(entry).copyWith(
         seasonNumber: seasonNumber,
       ),
       allowEmpty: allowEmpty,

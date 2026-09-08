@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart'
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -246,7 +247,7 @@ void main() {
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(ref),
         status: MediaTrackingStatus.inProgress,
-        customizeEntry: (entry) => entry.copyWith(
+        customizeEntry: (entry) => tvTrackingEntryFor(entry).copyWith(
           seasonNumber: 2,
           episodeNumber: 4,
           episodeRatings: unitRatings,
@@ -255,9 +256,10 @@ void main() {
 
       final entry =
           (await trackingEntries.findActiveByItemIds(['tv-series-1'])).single;
-      expect(entry.seasonNumber, 2);
-      expect(entry.episodeNumber, 4);
-      expect(entry.episodeRatings, equals(unitRatings));
+      final coordinates = tvTrackingCoordinatesFor(entry);
+      expect(coordinates.seasonNumber, 2);
+      expect(coordinates.episodeNumber, 4);
+      expect(coordinates.episodeRatings, equals(unitRatings));
     });
 
     test('does not introduce hardcoded comic fallback kind', () async {
@@ -311,7 +313,7 @@ void main() {
 
       final entry = (await trackingEntries.listActive()).single;
       expect(entry.catalogRef.kind, 'tv');
-      expect(entry.seasonNumber, 2);
+      expect(tvTrackingCoordinatesFor(entry).seasonNumber, 2);
       expect(
         trackingEntries.toSyncPayload(entry)['season_number'],
         2,
@@ -336,13 +338,15 @@ void main() {
       ]);
       await ownedItems.upsertTyped(CatalogMediaKind.tv, owned);
       await trackingEntries.upsert(
-        TrackingEntry(
+        TvTrackingEntry(
           id: 'tracking-tv-1',
           catalogRef: ref,
           ownedItemId: owned.id.value,
-          seasonNumber: 4,
-          episodeNumber: 9,
-          episodeRatings: const {'4:9': 10},
+          coordinates: TvTrackingCoordinates(
+            seasonNumber: 4,
+            episodeNumber: 9,
+            episodeRatings: const {'4:9': 10},
+          ),
           updatedAt: DateTime.utc(2026, 6, 1),
         ),
       );
@@ -361,9 +365,10 @@ void main() {
 
       final entry =
           (await trackingEntries.findActiveByItemIds([ref.id])).single;
-      expect(entry.seasonNumber, 4);
-      expect(entry.episodeNumber, 9);
-      expect(entry.episodeRatings, const {'4:9': 10});
+      final coordinates = tvTrackingCoordinatesFor(entry);
+      expect(coordinates.seasonNumber, 4);
+      expect(coordinates.episodeNumber, 9);
+      expect(coordinates.episodeRatings, const {'4:9': 10});
       expect(entry.progressCurrent, 9);
     });
 

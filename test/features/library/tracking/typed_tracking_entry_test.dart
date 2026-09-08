@@ -68,13 +68,17 @@ void main() {
         id: 'episode-1',
         rootId: 'series-1',
       ),
-      seasonNumber: 3,
-      episodeNumber: 4,
-      episodeRatings: const {'3:4': 8},
       updatedAt: updatedAt,
     );
 
-    final typed = tvTrackingEntryFor(legacy);
+    final typed = TvTrackingEntry.fromEntry(
+      legacy,
+      coordinates: TvTrackingCoordinates(
+        seasonNumber: 3,
+        episodeNumber: 4,
+        episodeRatings: const {'3:4': 8},
+      ),
+    );
 
     expect(typed.coordinates.seasonNumber, 3);
     expect(typed.coordinates.episodeNumber, 4);

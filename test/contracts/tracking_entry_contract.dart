@@ -83,21 +83,6 @@ void defineTrackingEntryContract({
           false,
           '$name common tracking payload must not own episode ratings',
         );
-        expectSame(
-          entry.seasonNumber,
-          null,
-          '$name base tracking fixture must not contain season coordinates',
-        );
-        expectSame(
-          entry.episodeNumber,
-          null,
-          '$name base tracking fixture must not contain episode coordinates',
-        );
-        expectSame(
-          entry.episodeRatings,
-          const <String, int>{},
-          '$name base tracking fixture must not contain episode ratings',
-        );
 
         final completed = entry.copyWith(
           status: MediaTrackingStatus.completed,

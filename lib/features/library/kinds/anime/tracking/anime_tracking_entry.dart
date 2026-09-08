@@ -20,11 +20,9 @@ final class AnimeTrackingCoordinates {
       seasonNumber != null || episodeNumber != null;
 
   factory AnimeTrackingCoordinates.fromLegacy(TrackingEntry entry) {
-    return AnimeTrackingCoordinates(
-      seasonNumber: entry.seasonNumber,
-      episodeNumber: entry.episodeNumber?.toDouble(),
-      episodeRatings: entry.episodeRatings,
-    );
+    return entry is AnimeTrackingEntry
+        ? entry.coordinates
+        : AnimeTrackingCoordinates();
   }
 }
 
@@ -46,12 +44,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
     super.notes,
     DateTime? updatedAt,
     super.deletedAt,
-  }) : super(
-          seasonNumber: coordinates.seasonNumber,
-          episodeNumber: coordinates.episodeNumber?.toInt(),
-          episodeRatings: coordinates.episodeRatings,
-          updatedAt: updatedAt ?? DateTime.now().toUtc(),
-        );
+  }) : super(updatedAt: updatedAt ?? DateTime.now().toUtc());
 
   final AnimeTrackingCoordinates coordinates;
 
@@ -111,9 +104,6 @@ final class AnimeTrackingEntry extends TrackingEntry {
       progressTotal: progressTotal,
       timesCompleted: timesCompleted,
       notes: notes,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber,
-      episodeRatings: episodeRatings,
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
@@ -122,10 +112,10 @@ final class AnimeTrackingEntry extends TrackingEntry {
       coordinates: AnimeTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingEntryUnset)
             ? coordinates.seasonNumber
-            : copied.seasonNumber,
+            : seasonNumber as int?,
         episodeNumber: identical(episodeNumber, trackingEntryUnset)
             ? coordinates.episodeNumber
-            : copied.episodeNumber?.toDouble(),
+            : (episodeNumber as num?)?.toDouble(),
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
       ),
     );

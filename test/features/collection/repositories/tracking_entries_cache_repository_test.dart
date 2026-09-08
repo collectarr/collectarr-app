@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry_codec.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,16 +12,18 @@ void main() {
   test('TV codec reconstructs hierarchy coordinates from sync payload', () {
     const codec = TvTrackingEntryCodec();
     final updatedAt = DateTime.utc(2026, 9, 6, 12);
-    final entry = TrackingEntry(
+    final entry = TvTrackingEntry(
       id: 'tv-sync-1',
       catalogRef: const CatalogEntityRef(
         kind: 'tv',
         entityType: CatalogEntityType.work,
         id: 'tv-1',
       ),
-      seasonNumber: 3,
-      episodeNumber: 7,
-      episodeRatings: const {'3:7': 10},
+      coordinates: TvTrackingCoordinates(
+        seasonNumber: 3,
+        episodeNumber: 7,
+        episodeRatings: const {'3:7': 10},
+      ),
       updatedAt: updatedAt,
     );
 
@@ -30,9 +33,10 @@ void main() {
       updatedAt: updatedAt,
     );
     expect(restored.catalogRef.entityType, CatalogEntityType.episode);
-    expect(restored.seasonNumber, 3);
-    expect(restored.episodeNumber, 7);
-    expect(restored.episodeRatings, {'3:7': 10});
+    final coordinates = tvTrackingCoordinatesFor(restored);
+    expect(coordinates.seasonNumber, 3);
+    expect(coordinates.episodeNumber, 7);
+    expect(coordinates.episodeRatings, {'3:7': 10});
   });
 
   test('round-trips TV tracking coordinates through the TV codec', () async {
@@ -44,7 +48,7 @@ void main() {
     );
 
     await repository.upsert(
-      TrackingEntry(
+      TvTrackingEntry(
         id: 'tv-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: 'tv',
@@ -52,9 +56,11 @@ void main() {
           id: 'episode-1',
           rootId: 'tv-1',
         ),
-        seasonNumber: 2,
-        episodeNumber: 4,
-        episodeRatings: const {'2:4': 9},
+        coordinates: TvTrackingCoordinates(
+          seasonNumber: 2,
+          episodeNumber: 4,
+          episodeRatings: const {'2:4': 9},
+        ),
         updatedAt: DateTime.utc(2026, 9, 6),
       ),
     );
@@ -64,14 +70,15 @@ void main() {
     expect(entry?.catalogRef.entityType, CatalogEntityType.episode);
     expect(entry?.catalogRef.id, 'episode-1');
     expect(entry?.catalogRef.rootId, 'tv-1');
-    expect(entry?.seasonNumber, 2);
-    expect(entry?.episodeNumber, 4);
-    expect(entry?.episodeRatings, {'2:4': 9});
+    final coordinates = tvTrackingCoordinatesFor(entry!);
+    expect(coordinates.seasonNumber, 2);
+    expect(coordinates.episodeNumber, 4);
+    expect(coordinates.episodeRatings, {'2:4': 9});
     expect(typed.seasonNumber, 2);
     expect(typed.episodeNumber, 4);
     expect(typed.episodeRatingsJson, '{"2:4":9}');
     expect(
-      repository.toSyncPayload(entry!),
+      repository.toSyncPayload(entry),
       containsPair('episode_ratings', {'2:4': 9}),
     );
     expect(repository.toSyncPayload(entry), containsPair('season_number', 2));
@@ -94,17 +101,11 @@ void main() {
           entityType: CatalogEntityType.work,
           id: 'movie-1',
         ),
-        seasonNumber: 99,
-        episodeNumber: 1,
-        episodeRatings: const {'99:1': 10},
         updatedAt: DateTime.utc(2026, 9, 6),
       ),
     );
 
     final entry = await repository.findById('movie-tracking-1');
-    expect(entry?.seasonNumber, isNull);
-    expect(entry?.episodeNumber, isNull);
-    expect(entry?.episodeRatings, isEmpty);
     expect(await db.select(db.tvTrackingRows).get(), isEmpty);
     expect(
       repository.toSyncPayload(entry!),

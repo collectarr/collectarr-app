@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,11 +13,13 @@ void main() {
   testWidgets('TV tracking extension owns episode coordinate editing', (
     tester,
   ) async {
-    final entry = TrackingEntry(
+    final entry = TvTrackingEntry(
       id: 'tv-tracking-1',
       catalogRef: testCatalogRef('tv-1', kind: 'tv'),
-      seasonNumber: 1,
-      episodeNumber: 2,
+      coordinates: TvTrackingCoordinates(
+        seasonNumber: 1,
+        episodeNumber: 2,
+      ),
       updatedAt: DateTime.utc(2026, 6, 1),
     );
     TrackingEntryEditMutation? mutation;
@@ -42,9 +46,9 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), '4');
 
     expect(mutation, isNotNull);
-    final updated = mutation!(entry);
-    expect(updated.seasonNumber, 3);
-    expect(updated.episodeNumber, 4);
+    final updated = tvTrackingEntryFor(mutation!(entry));
+    expect(updated.coordinates.seasonNumber, 3);
+    expect(updated.coordinates.episodeNumber, 4);
   });
 
   testWidgets('Anime tracking extension owns episode coordinate editing', (
@@ -80,8 +84,8 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), '7');
 
     expect(mutation, isNotNull);
-    final updated = mutation!(entry);
-    expect(updated.seasonNumber, 0);
-    expect(updated.episodeNumber, 7);
+    final updated = animeTrackingEntryFor(mutation!(entry));
+    expect(updated.coordinates.seasonNumber, 0);
+    expect(updated.coordinates.episodeNumber, 7.0);
   });
 }

@@ -3,9 +3,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 
 /// TV-owned hierarchy coordinates for a tracking entry.
 ///
-/// This is the typed home for TV season/episode data. The nullable coordinate
-/// fields on [TrackingEntry] remain only as a migration fallback for common
-/// mutation callers that have not moved to typed entries yet.
+/// This is the typed home for TV season/episode data.
 final class TvTrackingCoordinates {
   TvTrackingCoordinates({
     this.seasonNumber,
@@ -21,20 +19,14 @@ final class TvTrackingCoordinates {
       seasonNumber != null || episodeNumber != null;
 
   factory TvTrackingCoordinates.fromLegacy(TrackingEntry entry) {
-    return TvTrackingCoordinates(
-      seasonNumber: entry.seasonNumber,
-      episodeNumber: entry.episodeNumber,
-      episodeRatings: entry.episodeRatings,
-    );
+    return entry is TvTrackingEntry ? entry.coordinates : TvTrackingCoordinates();
   }
 }
 
 /// A TV tracking lifecycle entry with typed TV-owned coordinates.
 ///
-/// The class is still assignable to the common [TrackingEntry] type so the
-/// current collection repository can keep owning lifecycle mechanics. Typed
-/// TV code should use [coordinates] instead of reading the common coordinate
-/// compatibility fields.
+/// The class is assignable to the common [TrackingEntry] lifecycle contract,
+/// while TV code reads episode data only through [coordinates].
 final class TvTrackingEntry extends TrackingEntry {
   TvTrackingEntry({
     required super.id,
@@ -52,12 +44,7 @@ final class TvTrackingEntry extends TrackingEntry {
     super.notes,
     DateTime? updatedAt,
     super.deletedAt,
-  }) : super(
-          seasonNumber: coordinates.seasonNumber,
-          episodeNumber: coordinates.episodeNumber,
-          episodeRatings: coordinates.episodeRatings,
-          updatedAt: updatedAt ?? DateTime.now().toUtc(),
-        );
+  }) : super(updatedAt: updatedAt ?? DateTime.now().toUtc());
 
   final TvTrackingCoordinates coordinates;
 
@@ -117,9 +104,6 @@ final class TvTrackingEntry extends TrackingEntry {
       progressTotal: progressTotal,
       timesCompleted: timesCompleted,
       notes: notes,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber,
-      episodeRatings: episodeRatings,
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
@@ -128,10 +112,10 @@ final class TvTrackingEntry extends TrackingEntry {
       coordinates: TvTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingEntryUnset)
             ? coordinates.seasonNumber
-            : copied.seasonNumber,
+            : seasonNumber as int?,
         episodeNumber: identical(episodeNumber, trackingEntryUnset)
             ? coordinates.episodeNumber
-            : copied.episodeNumber,
+            : episodeNumber as int?,
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
       ),
     );

@@ -6,11 +6,9 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 /// Sentinel used by typed tracking-entry subclasses when they need to
 /// distinguish an omitted nullable patch from an explicit `null`.
 ///
-/// The common tracking model still exposes its legacy coordinate parameters
-/// while callers are migrated to kind-owned tracking entries. Keeping the
-/// sentinel public lets those subclasses preserve their typed coordinates
-/// through common lifecycle updates without adding semantic fields to the
-/// shared model.
+/// The sentinel lets kind-owned tracking entries preserve omitted nullable
+/// patches through common lifecycle updates without adding semantic fields to
+/// the shared model.
 const Object trackingEntryUnset = Object();
 
 class TrackingEntry extends PersonalTrackingBase {
@@ -27,13 +25,9 @@ class TrackingEntry extends PersonalTrackingBase {
     this.progressTotal,
     this.timesCompleted,
     super.notes,
-    this.seasonNumber,
-    this.episodeNumber,
-    Map<String, int>? episodeRatings,
     required this.updatedAt,
     this.deletedAt,
   })  : sourceType = trackingSourceTypeFromValue(sourceType),
-        episodeRatings = episodeRatings ?? const {},
         super(
           completedAt: finishedAt,
         );
@@ -45,9 +39,6 @@ class TrackingEntry extends PersonalTrackingBase {
   final int? progressCurrent;
   final int? progressTotal;
   final int? timesCompleted;
-  final int? seasonNumber;
-  final int? episodeNumber;
-  final Map<String, int> episodeRatings;
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
@@ -92,9 +83,6 @@ class TrackingEntry extends PersonalTrackingBase {
     Object? progressTotal = trackingEntryUnset,
     Object? timesCompleted = trackingEntryUnset,
     Object? notes = trackingEntryUnset,
-    Object? seasonNumber = trackingEntryUnset,
-    Object? episodeNumber = trackingEntryUnset,
-    Map<String, int>? episodeRatings,
     DateTime? updatedAt,
     Object? deletedAt = trackingEntryUnset,
   }) {
@@ -129,13 +117,6 @@ class TrackingEntry extends PersonalTrackingBase {
           : timesCompleted as int?,
       notes:
           identical(notes, trackingEntryUnset) ? this.notes : notes as String?,
-      seasonNumber: identical(seasonNumber, trackingEntryUnset)
-          ? this.seasonNumber
-          : seasonNumber as int?,
-      episodeNumber: identical(episodeNumber, trackingEntryUnset)
-          ? this.episodeNumber
-          : episodeNumber as int?,
-      episodeRatings: episodeRatings ?? this.episodeRatings,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: identical(deletedAt, trackingEntryUnset)
           ? this.deletedAt
