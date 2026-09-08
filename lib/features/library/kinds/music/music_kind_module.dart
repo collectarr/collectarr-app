@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_hierarc
 import 'package:collectarr_app/features/library/kinds/music/stats/music_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
+import 'package:collectarr_app/features/library/kinds/music/metadata/music_metadata_compare.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
@@ -96,6 +97,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'musicbrainz',
     supportsServerCompare: true,
+    compareBuilder: buildMusicMetadataComparePanels,
     providers: [musicBrainzMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(

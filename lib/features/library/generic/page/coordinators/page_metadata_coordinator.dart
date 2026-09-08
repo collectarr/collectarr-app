@@ -103,6 +103,18 @@ class LibraryPageMetadataCoordinator {
       );
       return;
     }
+    final compareBuilder = _page.type.metadata.compareBuilder;
+    if (compareBuilder == null) {
+      if (!_page.mounted) return;
+      ScaffoldMessenger.of(_page.context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'This item cannot be compared with server metadata.',
+          ),
+        ),
+      );
+      return;
+    }
     final localItem = targetItem.source.catalogItem;
     if (localItem == null) {
       if (!_page.mounted) return;
@@ -113,7 +125,11 @@ class LibraryPageMetadataCoordinator {
     }
     await showLibraryMetadataCompareDialog(
       context: _page.context,
-      localItem: localItem,
+      itemId: targetItem.node.titleItemId,
+      itemTitle: targetItem.source.catalogSummary?.title ?? localItem.title,
+      kind: _page.type.kind,
+      localPayload: localItem.toSyncPayload(),
+      compareBuilder: compareBuilder,
       accent: _page.accent,
     );
   }

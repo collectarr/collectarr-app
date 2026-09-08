@@ -27,6 +27,7 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/comic/metadata/comic_metadata_compare.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
@@ -137,6 +138,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     defaultProviderId: 'gcd',
     supportsServerCompare: true,
     usesTreeProviderCandidates: true,
+    compareBuilder: buildComicMetadataComparePanels,
     providers: [
       gcdMetadataProvider,
       comicVineMetadataProvider,

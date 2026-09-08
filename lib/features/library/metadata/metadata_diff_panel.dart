@@ -172,3 +172,22 @@ class _DiffValue extends StatelessWidget {
     );
   }
 }
+
+String formatDiffText(String? value) {
+  final normalized = value?.trim() ?? '';
+  return normalized.isEmpty ? '—' : normalized;
+}
+
+String formatDiffDate(DateTime? value) =>
+    value == null ? '—' : formatDate(value);
+
+String formatDiffList(Iterable<String>? values) {
+  if (values == null) {
+    return '—';
+  }
+  final normalized = values
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+  return normalized.isEmpty ? '—' : normalized.join(', ');
+}

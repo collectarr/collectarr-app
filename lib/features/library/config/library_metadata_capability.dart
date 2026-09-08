@@ -1,5 +1,13 @@
+import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
+
+typedef MetadataCompareBuilder = List<Widget> Function(
+  BuildContext context, {
+  required Map<String, dynamic> localPayload,
+  required Map<String, dynamic> serverPayload,
+  required Color accent,
+});
 
 /// Encapsulates metadata provider configuration and behavior for a media kind.
 class LibraryMetadataCapability {
@@ -8,12 +16,14 @@ class LibraryMetadataCapability {
     required this.providers,
     this.supportsServerCompare = false,
     this.usesTreeProviderCandidates = false,
+    this.compareBuilder,
   });
 
   final String defaultProviderId;
   final List<LibraryMetadataProviderOption> providers;
   final bool supportsServerCompare;
   final bool usesTreeProviderCandidates;
+  final MetadataCompareBuilder? compareBuilder;
 
   List<LibraryMetadataProviderOption> supportedProvidersForKind(
       CatalogMediaKind kind) {
