@@ -3,12 +3,23 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_catalog_merger.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+extension on CatalogItemDto {
+  TmdbCatalogMatchCandidate toTmdbCandidate() => TmdbCatalogMatchCandidate(
+        id: id,
+        kind: mediaKind,
+        title: title,
+        releaseYear: releaseYear,
+        searchAliases: searchAliases ?? const [],
+      );
+}
 
 void main() {
   group('TmdbImportService', () {
@@ -56,7 +67,8 @@ void main() {
         rawPayload: const <String, dynamic>{'id': 603, 'title': 'The Matrix'},
       );
 
-      final item = service.localSyntheticCatalogItem(entry);
+      final item =
+          const TmdbCatalogMerger().localSyntheticCatalogItem(entry);
 
       expect(item.displayTitle, 'The Matrix');
       expect(item.localizedTitle, 'The Matrix');
@@ -87,7 +99,8 @@ void main() {
         },
       );
 
-      final syntheticItem = service.localSyntheticCatalogItem(entry);
+      final syntheticItem =
+          const TmdbCatalogMerger().localSyntheticCatalogItem(entry);
       final seasons = service.seasonEntriesFor(entry);
 
       expect(syntheticItem.kind, 'tv');
@@ -138,15 +151,17 @@ void main() {
         entries: [entry],
         searchCatalog: (_) async => [
           testCatalogItem(
-              id: 'movie-1984',
-              kind: 'movie',
-              title: 'Dune',
-              releaseYear: 1984),
+                  id: 'movie-1984',
+                  kind: 'movie',
+                  title: 'Dune',
+                  releaseYear: 1984)
+              .toTmdbCandidate(),
           testCatalogItem(
-              id: 'movie-2021',
-              kind: 'movie',
-              title: 'Dune',
-              releaseYear: 2021),
+                  id: 'movie-2021',
+                  kind: 'movie',
+                  title: 'Dune',
+                  releaseYear: 2021)
+              .toTmdbCandidate(),
         ],
       );
 
@@ -273,10 +288,11 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
           if (entry.tmdbId == 603) {
             return [
               testCatalogItem(
-                  id: 'movie-603', kind: 'movie', title: 'The Matrix'),
+                      id: 'movie-603', kind: 'movie', title: 'The Matrix')
+                  .toTmdbCandidate(),
             ];
           }
-          return const <CatalogItemDto>[];
+          return const <TmdbCatalogMatchCandidate>[];
         },
       );
 
@@ -391,7 +407,8 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         },
       );
 
-      final merged = service.mergeMatchedCatalogItem(item, entry);
+      final merged =
+          const TmdbCatalogMerger().mergeMatchedCatalogItem(item, entry);
 
       expect(merged.coverImageUrl, entry.posterUrl);
       expect(merged.thumbnailImageUrl, entry.posterUrl);

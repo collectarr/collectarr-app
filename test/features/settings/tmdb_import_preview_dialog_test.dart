@@ -1,6 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_preview_dialog.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,9 +22,9 @@ void main() {
             rating: 9,
             rawPayload: <String, dynamic>{'id': 603, 'title': 'The Matrix'},
           ),
-          catalogItem: testCatalogItem(
+          catalogCandidate: const TmdbCatalogMatchCandidate(
             id: 'movie-603',
-            kind: 'movie',
+            kind: CatalogMediaKind.movie,
             title: 'The Matrix',
             releaseYear: 1999,
           ),

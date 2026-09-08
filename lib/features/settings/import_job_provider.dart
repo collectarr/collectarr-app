@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/imports/personal_lists/anime_list_import
 import 'package:collectarr_app/features/imports/personal_lists/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_catalog_merger.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -560,21 +561,34 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     accountId = await _validatedAccountId(ProviderId.tmdb, accountId);
     final api = ref.read(apiClientProvider);
 
+    final catalogItemsById = <String, CatalogItemDto>{};
+
     // Phase 2: Match against catalog
     final preview = await _service.previewImport(
       collection: collection,
       entries: entries,
-      searchCatalog: (entry) {
+      searchCatalog: (entry) async {
         final type = _resolvedTypeForTmdbEntry(entry);
-        return searchLibraryMetadata(
+        final items = await searchLibraryMetadata(
           api,
           type,
           query: entry.title,
           year: entry.releaseYear,
           limit: 10,
-        ).then((items) => [
-              for (final item in items) item,
-            ]);
+        );
+        for (final item in items) {
+          catalogItemsById[item.id] = item;
+        }
+        return [
+          for (final item in items)
+            TmdbCatalogMatchCandidate(
+              id: item.id,
+              kind: item.mediaKind,
+              title: item.title,
+              releaseYear: item.releaseYear,
+              searchAliases: item.searchAliases ?? const [],
+            ),
+        ];
       },
     );
 
@@ -619,7 +633,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final unmatchedMatches = <TmdbImportMatch>[];
 
     for (final match in preview.matches) {
-      final item = match.catalogItem;
+      final candidate = match.catalogItem;
+      final item = candidate != null ? catalogItemsById[candidate.id] : null;
       if (item != null) {
         final enrichedEntry = _enrichFromCache(
           match.entry,
@@ -627,7 +642,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           apiKey,
         );
         final enriched = await enrichedEntry;
-        final mergedItem = _service.mergeMatchedCatalogItem(item, enriched);
+        final mergedItem =
+            const TmdbCatalogMerger().mergeMatchedCatalogItem(item, enriched);
         if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
           await ownedMutations.updateCatalogSnapshot(
             mergedItem,
@@ -711,7 +727,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             );
             proposedCount += 1;
 
-            final localItem = _service.localSyntheticCatalogItem(enriched);
+            final localItem =
+                const TmdbCatalogMerger().localSyntheticCatalogItem(enriched);
             if (enriched.collection.isRated) {
               await trackingMutations.addLocalOnlyTrackingEntry(
                 localItem,
@@ -923,10 +940,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       return;
     }
     for (final seasonEntry in seasonEntries) {
-      final seasonItem = _service.localSyntheticSeasonCatalogItem(
-        seriesEntry,
-        seasonEntry,
-      );
+      final seasonItem = const TmdbCatalogMerger()
+          .localSyntheticSeasonCatalogItem(seriesEntry, seasonEntry);
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {

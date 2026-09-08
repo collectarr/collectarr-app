@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
@@ -307,20 +307,44 @@ enum TmdbImportMatchQuality {
   none;
 }
 
+class TmdbCatalogMatchCandidate {
+  const TmdbCatalogMatchCandidate({
+    required this.id,
+    required this.kind,
+    required this.title,
+    this.releaseYear,
+    this.searchAliases = const <String>[],
+  });
+
+  final String id;
+  final CatalogMediaKind kind;
+  final String title;
+  final int? releaseYear;
+  final List<String> searchAliases;
+
+  CatalogEntityRef get catalogRef => CatalogEntityRef(
+        kind: kind.apiValue,
+        entityType: CatalogEntityType.work,
+        id: id,
+      );
+}
+
 class TmdbImportMatch {
   const TmdbImportMatch({
     required this.entry,
     required this.quality,
-    this.catalogItem,
-    this.candidates = const <CatalogItemDto>[],
-  });
+    TmdbCatalogMatchCandidate? catalogCandidate,
+    TmdbCatalogMatchCandidate? catalogItem,
+    this.candidates = const <TmdbCatalogMatchCandidate>[],
+  }) : catalogCandidate = catalogCandidate ?? catalogItem;
 
   final TmdbImportEntry entry;
-  final CatalogItemDto? catalogItem;
+  final TmdbCatalogMatchCandidate? catalogCandidate;
   final TmdbImportMatchQuality quality;
-  final List<CatalogItemDto> candidates;
+  final List<TmdbCatalogMatchCandidate> candidates;
 
-  bool get isMatched => catalogItem != null;
+  TmdbCatalogMatchCandidate? get catalogItem => catalogCandidate;
+  bool get isMatched => catalogCandidate != null;
 }
 
 class TmdbImportSource implements ImportSource {
@@ -425,12 +449,12 @@ class TmdbImportService {
       throw const FormatException('TMDB import payload cannot be empty.');
     }
     if (_looksLikeJson(normalized)) {
-      final payload = jsonDecode(normalized);
-      if (payload is Map<String, dynamic>) {
-        return _parseEntries(payload, collection: collection);
+      final decodedJson = jsonDecode(normalized);
+      if (decodedJson is Map<String, dynamic>) {
+        return _parseEntries(decodedJson, collection: collection);
       }
-      if (payload is List<dynamic>) {
-        return _entriesFromList(payload, collection: collection);
+      if (decodedJson is List<dynamic>) {
+        return _entriesFromList(decodedJson, collection: collection);
       }
       throw const FormatException(
         'TMDB JSON input must be a JSON object or array.',
@@ -467,7 +491,8 @@ class TmdbImportService {
   Future<TmdbImportPreview> previewImport({
     required TmdbImportCollection collection,
     required List<TmdbImportEntry> entries,
-    required Future<List<CatalogItemDto>> Function(TmdbImportEntry entry)
+    required Future<List<TmdbCatalogMatchCandidate>> Function(
+            TmdbImportEntry entry)
         searchCatalog,
   }) async {
     final matches = <TmdbImportMatch>[];
@@ -635,89 +660,10 @@ class TmdbImportService {
     return null;
   }
 
-  CatalogItemDto mergeMatchedCatalogItem(
-      CatalogItemDto item, TmdbImportEntry entry) {
-    final aliases = <String>{
-      if (item.searchAliases case final currentAliases?) ...currentAliases,
-      if (item.title.trim().isNotEmpty) item.title.trim(),
-      if (item.displayTitle?.trim().isNotEmpty == true)
-        item.displayTitle!.trim(),
-      if (item.localizedTitle?.trim().isNotEmpty == true)
-        item.localizedTitle!.trim(),
-      if (item.originalTitle?.trim().isNotEmpty == true)
-        item.originalTitle!.trim(),
-      if (entry.title.trim().isNotEmpty) entry.title.trim(),
-      if (entry.originalTitle?.trim().isNotEmpty == true)
-        entry.originalTitle!.trim(),
-    }.toList(growable: false);
-    final currentPayload = item.toSyncPayload();
-    final tmdbGenres = _distinctNonEmptyStrings([
-      ...?((currentPayload['genres'] as List?)?.map((e) => e.toString())),
-      ..._tmdbNamedValues(entry.rawPayload['genres']),
-    ]);
-    final tmdbStudios =
-        _tmdbNamedValues(entry.rawPayload['production_companies']);
-    final tmdbCountries = _distinctNonEmptyStrings([
-      ..._tmdbNamedValues(entry.rawPayload['production_countries']),
-      ..._tmdbStringValues(entry.rawPayload['origin_country']),
-    ]);
-    final tmdbLanguages = _distinctNonEmptyStrings([
-      ..._tmdbNamedValues(entry.rawPayload['spoken_languages']),
-      _normalizedText(entry.rawPayload['original_language'] as String?),
-    ]);
-    final runtimeMinutes = _runtimeMinutesFromPayload(entry.rawPayload);
-    final videoPayload = (currentPayload['video'] as Map?) ?? currentPayload;
-    final mergedVideo = <String, dynamic>{
-      if (currentPayload['video'] is Map)
-        ...Map<String, dynamic>.from(currentPayload['video'] as Map),
-      if (runtimeMinutes != null || videoPayload['runtime_minutes'] != null)
-        'runtime_minutes': videoPayload['runtime_minutes'] ?? runtimeMinutes,
-    };
-    final mergedPayload = <String, dynamic>{
-      ...item.payload,
-      if (runtimeMinutes != null || currentPayload['video'] != null)
-        'video': mergedVideo,
-      if (tmdbGenres.isNotEmpty) 'genres': tmdbGenres,
-      if (tmdbCountries.isNotEmpty)
-        'country': _firstNonEmptyText(
-            currentPayload['country'] as String?, tmdbCountries.join(', ')),
-      if (tmdbLanguages.isNotEmpty)
-        'language': _firstNonEmptyText(
-            currentPayload['language'] as String?, tmdbLanguages.join(', ')),
-      if (tmdbStudios.isNotEmpty)
-        'publisher': _firstNonEmptyText(
-            currentPayload['publisher'] as String?, tmdbStudios.join(', ')),
-    };
-    final common = CatalogCommonDto(
-      title: item.title,
-      displayTitle: item.displayTitle ?? entry.title,
-      localizedTitle: item.localizedTitle ?? entry.title,
-      originalTitle: item.originalTitle ?? entry.originalTitle,
-      searchAliases: aliases,
-      synopsis: _firstNonEmptyText(item.synopsis, entry.overview),
-      coverImageUrl: _firstNonEmptyText(item.coverImageUrl, entry.posterUrl),
-      thumbnailImageUrl: _firstNonEmptyText(
-        item.thumbnailImageUrl,
-        item.coverImageUrl,
-        entry.posterUrl,
-      ),
-      coverImageData: item.coverImageData,
-      releaseDate: item.releaseDate ?? entry.releaseDate,
-      releaseYear: item.releaseYear ?? entry.releaseYear,
-      editions: item.editions,
-    );
-    return CatalogItemDto.raw(
-      id: item.id,
-      mediaKind: item.mediaKind,
-      common: common,
-      payload: mergedPayload,
-    );
-  }
-
   Future<TmdbImportExecutionResult> importPreview({
     required TmdbImportPreview preview,
     required Future<void> Function(
-      CatalogItemDto item,
+      TmdbCatalogMatchCandidate item,
       TmdbImportEntry entry,
       MutationOrigin origin,
     ) importMatch,
@@ -734,22 +680,18 @@ class TmdbImportService {
     final runner = ImportRunner(
       matcher: (entry) async {
         final match = matchesBySourceId[entry.remoteItemId];
-        final item = match?.catalogItem;
+        final item = match?.catalogCandidate;
         if (item == null) {
           return ImportMapping.unmatched(entry);
         }
         return ImportMapping.matched(
           entry,
-          CatalogEntityRef(
-            kind: item.kind,
-            entityType: CatalogEntityType.work,
-            id: item.id,
-          ),
+          item.catalogRef,
         );
       },
       applier: (mapping, config) async {
         final match = matchesBySourceId[mapping.entry.remoteItemId];
-        final item = match?.catalogItem;
+        final item = match?.catalogCandidate;
         if (match == null || item == null) {
           return ImportRowOutcome.skipped;
         }
@@ -782,34 +724,6 @@ class TmdbImportService {
     return 'tmdb-local:${entry.mediaType.name}:${entry.tmdbId}';
   }
 
-  CatalogItemDto localSyntheticCatalogItem(TmdbImportEntry entry) {
-    final kind = entry.mediaType == TmdbMediaType.tv
-        ? CatalogMediaKind.tv
-        : CatalogMediaKind.movie;
-    final common = CatalogCommonDto(
-      title: entry.title,
-      displayTitle: entry.title,
-      localizedTitle: entry.title,
-      originalTitle: entry.originalTitle,
-      searchAliases: [
-        entry.title,
-        if (entry.originalTitle?.trim().isNotEmpty == true)
-          entry.originalTitle!,
-      ],
-      synopsis: entry.overview,
-      coverImageUrl: entry.posterUrl,
-      thumbnailImageUrl: entry.posterUrl,
-      releaseDate: entry.releaseDate,
-      releaseYear: entry.releaseYear,
-    );
-    return CatalogItemDto.raw(
-      id: localSyntheticItemId(entry),
-      mediaKind: kind,
-      common: common,
-      payload: const {},
-    );
-  }
-
   String localSyntheticSeasonItemId(
     TmdbImportEntry seriesEntry,
     TmdbImportEntry seasonEntry,
@@ -818,40 +732,6 @@ class TmdbImportService {
         (seasonEntry.rawPayload['season_number'] as num?)?.toInt() ??
             seasonEntry.tmdbId;
     return 'tmdb-local:${seriesEntry.mediaType.name}:${seriesEntry.tmdbId}:season:$seasonNumber';
-  }
-
-  CatalogItemDto localSyntheticSeasonCatalogItem(
-    TmdbImportEntry seriesEntry,
-    TmdbImportEntry seasonEntry,
-  ) {
-    final seasonNumber =
-        (seasonEntry.rawPayload['season_number'] as num?)?.toInt() ??
-            seasonEntry.tmdbId;
-    final common = CatalogCommonDto(
-      title: seasonEntry.title,
-      displayTitle: seasonEntry.title,
-      localizedTitle: seasonEntry.title,
-      originalTitle: seasonEntry.originalTitle,
-      searchAliases: [
-        seasonEntry.title,
-        if (seasonEntry.originalTitle?.trim().isNotEmpty == true)
-          seasonEntry.originalTitle!,
-        'Season $seasonNumber',
-      ],
-      synopsis: seasonEntry.overview,
-      coverImageUrl: seasonEntry.posterUrl,
-      thumbnailImageUrl: seasonEntry.posterUrl,
-      releaseDate: seasonEntry.releaseDate,
-      releaseYear: seasonEntry.releaseYear,
-    );
-    return CatalogItemDto.raw(
-      id: localSyntheticSeasonItemId(seriesEntry, seasonEntry),
-      mediaKind: CatalogMediaKind.tv,
-      common: common,
-      payload: {
-        'item_number': 'Season $seasonNumber',
-      },
-    );
   }
 
   List<TmdbImportEntry> seasonEntriesFor(TmdbImportEntry entry) {
@@ -867,67 +747,11 @@ class TmdbImportService {
         .toList(growable: false);
   }
 
-  static String? _firstNonEmptyText(String? first,
-      [String? second, String? third]) {
-    for (final candidate in [first, second, third]) {
-      final normalized = _normalizedText(candidate);
-      if (normalized != null) {
-        return normalized;
-      }
-    }
-    return null;
-  }
-
-  static String? _normalizedText(String? value) {
-    final trimmed = value?.trim();
-    if (trimmed == null || trimmed.isEmpty) {
-      return null;
-    }
-    return trimmed;
-  }
-
-  static List<String> _distinctNonEmptyStrings(Iterable<String?> values) {
-    final normalized = <String>{};
-    for (final value in values) {
-      final trimmed = _normalizedText(value);
-      if (trimmed != null) {
-        normalized.add(trimmed);
-      }
-    }
-    return normalized.toList(growable: false);
-  }
-
-  static List<String> _tmdbNamedValues(Object? value) {
-    if (value is! List) {
-      return const <String>[];
-    }
-    return _distinctNonEmptyStrings(
-      value.whereType<Map<dynamic, dynamic>>().map(
-            (row) => _normalizedText(row['name'] as String?),
-          ),
-    );
-  }
-
-  static List<String> _tmdbStringValues(Object? value) {
-    if (value is! List) {
-      return const <String>[];
-    }
-    return _distinctNonEmptyStrings(value.whereType<String>());
-  }
-
-  static int? _runtimeMinutesFromPayload(Map<String, dynamic> payload) {
-    final runtime = payload['runtime'];
-    if (runtime is num) {
-      return runtime.round();
-    }
-    return null;
-  }
-
   List<TmdbImportEntry> _parseEntries(
-    Map<String, dynamic> payload, {
+    Map<String, dynamic> rawJson, {
     required TmdbImportCollection collection,
   }) {
-    final results = payload['results'];
+    final results = rawJson['results'];
     if (results is! List<dynamic>) {
       throw const FormatException(
         'TMDB import payload must contain a results array.',
@@ -1144,7 +968,7 @@ class TmdbImportService {
 
   TmdbImportMatch _matchEntry(
     TmdbImportEntry entry,
-    List<CatalogItemDto> candidates,
+    List<TmdbCatalogMatchCandidate> candidates,
   ) {
     if (candidates.isEmpty) {
       return TmdbImportMatch(
@@ -1165,7 +989,7 @@ class TmdbImportService {
       if (exactTitleAndYear.length == 1) {
         return TmdbImportMatch(
           entry: entry,
-          catalogItem: exactTitleAndYear.single,
+          catalogCandidate: exactTitleAndYear.single,
           candidates: candidates,
           quality: TmdbImportMatchQuality.exactTitleAndYear,
         );
@@ -1174,7 +998,7 @@ class TmdbImportService {
     if (exactTitle.length == 1) {
       return TmdbImportMatch(
         entry: entry,
-        catalogItem: exactTitle.single,
+        catalogCandidate: exactTitle.single,
         candidates: candidates,
         quality: TmdbImportMatchQuality.exactTitle,
       );
@@ -1182,7 +1006,7 @@ class TmdbImportService {
     if (candidates.length == 1) {
       return TmdbImportMatch(
         entry: entry,
-        catalogItem: candidates.single,
+        catalogCandidate: candidates.single,
         candidates: candidates,
         quality: TmdbImportMatchQuality.singleResult,
       );
