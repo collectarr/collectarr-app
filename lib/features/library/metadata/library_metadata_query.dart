@@ -1,7 +1,10 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
   LibraryKindModule type, {
@@ -58,6 +61,60 @@ Future<List<CatalogItemDto>> searchLibraryMetadata(
             : item.withKindMetadata(decoder(item.payload));
       }(),
   ];
+}
+
+/// Searches the Core transport and immediately projects results into the
+/// small shape required by mixed/global import UI. The full DTO remains
+/// available only behind [CatalogSearchCandidate.toTransportItem].
+Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
+  ApiClient api,
+  LibraryKindModule type, {
+  String? query,
+  String? series,
+  String? issueNumber,
+  String? publisher,
+  int? year,
+  String? barcode,
+  int? limit,
+}) async {
+  final items = await searchLibraryMetadata(
+    api,
+    type,
+    query: query,
+    series: series,
+    issueNumber: issueNumber,
+    publisher: publisher,
+    year: year,
+    barcode: barcode,
+    limit: limit,
+  );
+  return [
+    for (final item in items) _catalogSearchCandidateForItem(item),
+  ];
+}
+
+CatalogSearchCandidate _catalogSearchCandidateForItem(CatalogItemDto item) {
+  final projection = libraryCollectionCsvProjectionForKind(item.mediaKind);
+  final workspaceEntry = LibraryWorkspaceEntry(
+    itemId: item.id,
+    catalogItem: item,
+  );
+  final cells = projection?.catalogCells(workspaceEntry);
+  final rawBarcode = cells != null && cells.length > 10 ? cells[10] : null;
+  final normalizedBarcode = rawBarcode == null || rawBarcode.trim().isEmpty
+      ? null
+      : MetadataSearchQuery.normalizeBarcode(rawBarcode);
+  return CatalogSearchCandidate.fromTransport(
+    item: item,
+    summary: CatalogDisplaySummary.work(
+      kind: item.mediaKind,
+      id: item.id,
+      title: projection?.catalogDisplayTitle(item) ?? item.title,
+      subtitle: projection?.catalogDisplaySubtitle(item),
+      imageUrl: item.displayCoverUrl,
+    ),
+    normalizedBarcode: normalizedBarcode,
+  );
 }
 
 Future<CatalogItemDto> lookupLibraryBarcode(

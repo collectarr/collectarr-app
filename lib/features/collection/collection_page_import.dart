@@ -149,7 +149,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   }
 
   Future<void> _resolveRow(CollectionCsvRow row) async {
-    final item = await showDialog<CatalogItemDto>(
+    final item = await showDialog<CatalogSearchCandidate>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
         type: _runtimeForImportRow(row),
@@ -160,7 +160,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       return;
     }
     await CatalogTransportRepository(ref.read(localDatabaseProvider))
-        .upsertMetadataItems([item]);
+        .upsertSearchCandidates([item]);
     final resolvedRow = row.copyWith(itemId: item.id);
     setState(() {
       final preview = _preview!;
@@ -189,7 +189,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     try {
       final resolvedRows = [...preview.resolvedRows];
       final unresolvedRows = <CollectionCsvRow>[];
-      final resolvedItems = <CatalogItemDto>[];
+      final resolvedItems = <CatalogSearchCandidate>[];
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
@@ -206,7 +206,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         resolvedItems.add(match);
       }
       await CatalogTransportRepository(ref.read(localDatabaseProvider))
-          .upsertMetadataItems(resolvedItems);
+          .upsertSearchCandidates(resolvedItems);
       if (!mounted) {
         return;
       }
@@ -571,7 +571,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
 class _ResolveImportRowDialogState
     extends ConsumerState<_ResolveImportRowDialog> {
   late final TextEditingController _queryController;
-  var _results = const <CatalogItemDto>[];
+  var _results = const <CatalogSearchCandidate>[];
   String? _error;
   bool _isSearching = false;
 
@@ -792,7 +792,7 @@ class _ImportProposalDialogState extends State<_ImportProposalDialog> {
                     _ImportProposalDraft(
                       title: _titleController.text,
                       searchQuery: _queryController.text,
-                      barcode: _barcodeController.text,
+                      identifier: _barcodeController.text,
                       sourceUrl: _sourceController.text,
                       notes: _notesController.text,
                     ),
@@ -850,14 +850,14 @@ class _ImportProposalDraft {
   const _ImportProposalDraft({
     required this.title,
     required this.searchQuery,
-    required this.barcode,
+    required this.identifier,
     required this.sourceUrl,
     required this.notes,
   });
 
   final String title;
   final String searchQuery;
-  final String barcode;
+  final String identifier;
   final String sourceUrl;
   final String notes;
 
@@ -871,7 +871,7 @@ class _ImportProposalDraft {
       '',
       'Suggested metadata:',
       if (title.trim().isNotEmpty) 'title: ${title.trim()}',
-      if (barcode.trim().isNotEmpty) 'barcode: ${barcode.trim()}',
+      if (identifier.trim().isNotEmpty) 'identifier: ${identifier.trim()}',
       if (sourceUrl.trim().isNotEmpty) 'source: ${sourceUrl.trim()}',
       if (notes.trim().isNotEmpty) ...['', 'Notes:', notes.trim()],
     ];
@@ -882,11 +882,11 @@ class _ImportProposalDraft {
 class _CatalogThumb extends StatelessWidget {
   const _CatalogThumb({required this.item});
 
-  final CatalogItemDto item;
+  final CatalogSearchCandidate item;
 
   @override
   Widget build(BuildContext context) {
-    final url = item.displayCoverUrl;
+    final url = item.imageUrl;
     if (url == null || url.isEmpty) {
       return const SizedBox.square(
         dimension: 42,
@@ -918,17 +918,9 @@ class _CatalogThumb extends StatelessWidget {
   }
 }
 
-String _catalogTitle(CatalogItemDto item) {
-  return libraryCollectionCsvProjectionForKind(item.mediaKind)
-          ?.catalogDisplayTitle(item) ??
-      item.title;
-}
+String _catalogTitle(CatalogSearchCandidate item) => item.title;
 
-String _catalogSubtitle(CatalogItemDto item) {
-  return libraryCollectionCsvProjectionForKind(item.mediaKind)
-          ?.catalogDisplaySubtitle(item) ??
-      '';
-}
+String _catalogSubtitle(CatalogSearchCandidate item) => item.subtitle ?? '';
 
 String _importRowTitle(CollectionCsvRow row) {
   final projection = _importProjection(row);
@@ -1005,14 +997,14 @@ String _friendlyImportError(Object error) {
   return 'Search failed: $error';
 }
 
-Future<List<CatalogItemDto>> _searchCoreForRow(
+Future<List<CatalogSearchCandidate>> _searchCoreForRow(
   WidgetRef ref,
   LibraryKindModule type,
   CollectionCsvRow row, {
   String? queryOverride,
   int limit = 20,
 }) async {
-  return await searchLibraryMetadata(
+  return await searchLibraryMetadataCandidates(
     ref.read(apiClientProvider),
     type,
     query: _searchQueryForRow(row, queryOverride: queryOverride),
@@ -1033,9 +1025,9 @@ String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
   return null;
 }
 
-CatalogItemDto? _confidentImportMatch(
+CatalogSearchCandidate? _confidentImportMatch(
   CollectionCsvRow row,
-  List<CatalogItemDto> results,
+  List<CatalogSearchCandidate> results,
 ) {
   if (results.isEmpty) {
     return null;
@@ -1045,11 +1037,9 @@ CatalogItemDto? _confidentImportMatch(
       ? null
       : MetadataSearchQuery.normalizeBarcode(rawBarcode);
   if (barcode != null && barcode.isNotEmpty) {
-    final barcodeMatches = results.where((item) {
-      return libraryCollectionCsvProjectionForKind(item.mediaKind)
-              ?.catalogMatchesBarcode(item, barcode) ??
-          false;
-    }).toList(growable: false);
+    final barcodeMatches = results
+        .where((item) => item.normalizedBarcode == barcode)
+        .toList(growable: false);
     if (barcodeMatches.length == 1) {
       return barcodeMatches.single;
     }

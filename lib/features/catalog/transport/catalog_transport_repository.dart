@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
@@ -31,6 +32,14 @@ final class CatalogTransportRepository {
   ) {
     return upsertAll(
       snapshots.map((snapshot) => snapshot.toTransportItem()),
+    );
+  }
+
+  Future<void> upsertSearchCandidates(
+    Iterable<CatalogSearchCandidate> candidates,
+  ) {
+    return upsertAll(
+      candidates.map((candidate) => candidate.toTransportItem()),
     );
   }
 

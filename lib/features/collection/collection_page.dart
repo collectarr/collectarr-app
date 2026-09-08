@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
@@ -13,7 +15,6 @@ import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/state/api_provider.dart';
