@@ -114,7 +114,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             title: dto.title,
                             itemNumber: adapter?.itemNumber,
                             imageUrl: dto.coverImageUrl,
-                            ownedItemId: item.source.ownedItem?.id,
+                            ownedItemId: item.source.ownedRef?.id.value,
                             targetCacheWidth: coverCacheWidth,
                             accentColor: accentColor,
                             enableFullscreen: false,
@@ -291,7 +291,7 @@ class LibraryCardFlowTile extends StatelessWidget {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
-  final kind = item.source.catalogItem?.kind ?? '';
+  final kind = item.source.mediaKind.apiValue;
   final runtime =
       defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
   if (runtime == null) {

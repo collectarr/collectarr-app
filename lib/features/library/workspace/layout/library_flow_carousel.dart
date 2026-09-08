@@ -486,7 +486,7 @@ class _FlowBackdrop extends StatelessWidget {
                         ? (item.dto as WorkspaceDtoAdapter).itemNumber
                         : null),
                     imageUrl: item.dto.coverImageUrl,
-                    ownedItemId: item.source.ownedItem?.id,
+                    ownedItemId: item.source.ownedRef?.id.value,
                     borderRadius: 0,
                     fit: BoxFit.cover,
                   ),
@@ -681,7 +681,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             title: title,
                             itemNumber: itemNumber,
                             imageUrl: dto.coverImageUrl,
-                            ownedItemId: widget.item.source.ownedItem?.id,
+                            ownedItemId: widget.item.source.ownedRef?.id.value,
                             accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,

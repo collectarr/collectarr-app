@@ -46,9 +46,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
     final items = <LibraryProjectionView>[];
     for (final source in shelfEntries) {
-      final catalogItem = source.catalogItem;
-      if (catalogItem != null && catalogItem.kind == query.kind.apiValue) {
-        final node = LibraryTitleNodeRef(titleItemId: catalogItem.id);
+      final catalogRef = source.catalogRef;
+      if (catalogRef?.mediaKind == query.kind) {
+        final node = LibraryTitleNodeRef(titleItemId: catalogRef!.id);
         items.add(workspace.project(source: source, node: node));
       }
     }
@@ -64,7 +64,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
     if (query.collectionId != null) {
       filtered = filtered.where((item) {
-        return item.source.ownedItem?.locationId == query.collectionId;
+        return item.source.locationPath == query.collectionId;
       }).toList();
     }
 

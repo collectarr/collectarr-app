@@ -151,7 +151,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
             .toList()
         : const <CatalogEditionDto>[];
     final referenceHierarchy = libraryReferenceHierarchySegments(
-      mediaType: item.source.catalogItem?.kind ?? '',
+      mediaType: item.source.mediaKind.apiValue,
       editions: rawEditions,
       editionId: item.source.ownedItem?.anchor?.editionId,
       variantId: item.source.ownedItem?.anchor?.variantId,
@@ -159,7 +159,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final kind = catalogMediaKindFromValue(item.source.catalogItem?.kind);
+    final kind = item.source.mediaKind;
     final module = libraryKindModuleForKind(kind);
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
     final presentation = module.presentation.buildCardPresentation(
@@ -576,8 +576,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? (item.dto as WorkspaceDtoAdapter)
         : null;
     final variant = adapter?.variant;
-    final releaseDate =
-        adapter?.releaseDate ?? item.source.catalogItem?.releaseDate;
+      final releaseDate = adapter?.releaseDate;
     final format = adapter?.format;
     final subtitle = [
       if (item.node is! LibraryTitleNodeRef &&
@@ -773,7 +772,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       title: item.dto.title,
       itemNumber: adapter?.itemNumber,
       imageUrl: item.dto.coverImageUrl,
-      ownedItemId: item.source.ownedItem?.id,
+      ownedItemId: item.source.ownedRef?.id.value,
       targetCacheWidth: coverCacheWidth,
       accentColor: accentColor,
       fit: fit,
@@ -842,7 +841,7 @@ String? _coverGradeLabel(LibraryCardPresentation presentation) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
-  final kind = item.source.catalogItem?.kind ?? '';
+  final kind = item.source.mediaKind.apiValue;
   final runtime =
       defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
   if (runtime == null) return null;

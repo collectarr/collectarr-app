@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
   LibraryProjectionView item,
 ) {
-  final status = item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
+  final status = item.source.collectionStatus?.trim().toLowerCase();
   return switch (status) {
     'sold' => LibraryCollectionStatusScope.sold,
     'for_sale' => LibraryCollectionStatusScope.forSale,
@@ -200,7 +200,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                             ? (dto).itemNumber
                             : null),
                         imageUrl: dto.coverImageUrl,
-                        ownedItemId: item.source.ownedItem?.id,
+                        ownedItemId: item.source.ownedRef?.id.value,
                         targetCacheWidth: targetCacheWidth,
                         accentColor: widget.accentColor,
                         fit: BoxFit.cover,
