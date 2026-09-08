@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
@@ -47,12 +48,12 @@ final class AnimeCollectionCsvProjection
       AnimeCollectionCsvImportProfile.columnAliases;
 
   @override
-  CatalogItemDto? catalogItemFromImportCells(List<String> cells) {
+  CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != libraryCollectionCsvCatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
-    return CatalogItemDto.fromJson({
+    return CatalogImportSnapshot.fromItem(CatalogItemDto.fromJson({
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],
@@ -64,7 +65,7 @@ final class AnimeCollectionCsvProjection
       if (cells[8].trim().isNotEmpty) 'publisher': cells[8],
       if (cells[9].trim().isNotEmpty) 'release_date': cells[9],
       if (cells[10].trim().isNotEmpty) 'barcode': cells[10],
-    });
+    }));
   }
 
   @override

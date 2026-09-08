@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -7,6 +8,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
@@ -18,7 +20,6 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -65,8 +66,8 @@ final class CollectionImportService {
     final existingCatalogSummaries = await catalogSummaries.findByIds(
       resolvedRows.map((row) => row.itemId),
     );
-    final importedCatalogItems = <CatalogItemDto>[];
-    final importedCatalogItemsById = <String, CatalogItemDto>{};
+    final importedCatalogSnapshots = <CatalogImportSnapshot>[];
+    final importedCatalogSnapshotsById = <String, CatalogImportSnapshot>{};
     for (final row in resolvedRows) {
       // An existing catalog item is already authoritative local state. Only
       // a kind-owned CSV projection may create a new catalog snapshot for an
@@ -75,8 +76,8 @@ final class CollectionImportService {
       if (existingCatalogSummaries.containsKey(row.itemId)) continue;
       final snapshot = _catalogSnapshotFromCsvRow(row);
       if (snapshot == null) continue;
-      importedCatalogItemsById[row.itemId] = snapshot;
-      importedCatalogItems.add(snapshot);
+      importedCatalogSnapshotsById[row.itemId] = snapshot;
+      importedCatalogSnapshots.add(snapshot);
     }
 
     final now = DateTime.now().toUtc();
@@ -117,13 +118,13 @@ final class CollectionImportService {
       if (!row.isOwned && !row.isWishlisted) continue;
 
       imported++;
-      final importedCatalogItem = importedCatalogItemsById[row.itemId];
+      final importedCatalogSnapshot = importedCatalogSnapshotsById[row.itemId];
       final existingCatalogSummary = existingCatalogSummaries[row.itemId];
-      final catalogKind = importedCatalogItem?.kind ??
+      final catalogKind = importedCatalogSnapshot?.kind.apiValue ??
           existingCatalogSummary?.kind.apiValue ??
           row.kind;
-      final catalogId = importedCatalogItem?.id ?? row.itemId;
-      if ((importedCatalogItem != null || existingCatalogSummary != null) &&
+      final catalogId = importedCatalogSnapshot?.id ?? row.itemId;
+      if ((importedCatalogSnapshot != null || existingCatalogSummary != null) &&
           snapshotItemIds.add(catalogId)) {
         syncChanges.add(
           SyncChange(
@@ -244,8 +245,8 @@ final class CollectionImportService {
     await mutationRunner.run(
       origin: origin,
       action: () async {
-        if (importedCatalogItems.isNotEmpty) {
-          await catalogCache.upsertAll(importedCatalogItems);
+        if (importedCatalogSnapshots.isNotEmpty) {
+          await catalogCache.upsertImportSnapshots(importedCatalogSnapshots);
         }
         for (final typedOwned in typedOwnedItems) {
           await ownedItems.upsertTyped(
@@ -271,8 +272,8 @@ final class CollectionImportService {
         for (final entry in trackingEntriesList) TrackingChanged(entry.id),
         for (final item in wishlistUpserts) WishlistChanged(item.itemId),
         for (final item in wishlistDeletes) WishlistChanged(item.itemId),
-        for (final catItem in importedCatalogItems)
-          CatalogItemChanged(catItem.id),
+        for (final snapshot in importedCatalogSnapshots)
+          CatalogItemChanged(snapshot.id),
       ],
     );
 
@@ -376,7 +377,7 @@ final class CollectionImportService {
   /// serialization boundary. It must not reconstruct a rich
   /// [CatalogItemDto] when the row did not come from a complete kind-owned
   /// catalog projection.
-  CatalogItemDto? _catalogSnapshotFromCsvRow(CollectionCsvRow row) {
+  CatalogImportSnapshot? _catalogSnapshotFromCsvRow(CollectionCsvRow row) {
     final projection = libraryCollectionCsvProjectionForKind(
       catalogMediaKindFromValue(row.kind),
     );

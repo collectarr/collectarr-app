@@ -115,7 +115,7 @@ void main() {
       ]);
       expect(imported, isNotNull, reason: kind.apiValue);
       expect(imported!.id, 'import-${kind.apiValue}', reason: kind.apiValue);
-      expect(imported.kind, kind.apiValue, reason: kind.apiValue);
+      expect(imported.kind, kind, reason: kind.apiValue);
       expect(imported.title, 'Imported item', reason: kind.apiValue);
       expect(
         projection.catalogMatchesBarcode(item, '0123456789'),

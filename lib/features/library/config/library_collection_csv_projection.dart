@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
@@ -29,7 +30,7 @@ abstract interface class LibraryCollectionCsvProjection {
   /// one. The collection host only uses the normalized lookup value.
   String? importBarcode(List<String> catalogCells);
 
-  CatalogItemDto? catalogItemFromImportCells(List<String> catalogCells);
+  CatalogImportSnapshot? catalogItemFromImportCells(List<String> catalogCells);
 
   bool catalogMatchesBarcode(CatalogItemDto item, String normalizedBarcode);
 
