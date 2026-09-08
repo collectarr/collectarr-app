@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
     required this.title,
+    this.synopsis,
     this.seriesTitle,
     this.itemNumber,
     this.releaseDate,
@@ -48,6 +49,7 @@ class WorkspaceCommonProjection {
 
     return WorkspaceCommonProjection(
       title: overrideTitle ?? catalog?.displayTitle ?? catalog?.title ?? '',
+      synopsis: catalog?.synopsis,
       seriesTitle: overrideSeriesTitle ??
           (seriesMap?['series_title'] ??
                   seriesMap?['seriesTitle'] ??
@@ -82,6 +84,7 @@ class WorkspaceCommonProjection {
   }
 
   final String title;
+  final String? synopsis;
   final String? seriesTitle;
   final String? itemNumber;
   final DateTime? releaseDate;
@@ -164,6 +167,8 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   String? get coverImageUrl => common.coverImageUrl;
 
   String? get seriesTitle => common.seriesTitle;
+  String? get synopsis => common.synopsis;
+  String? get publisher => null;
   String? get itemNumber => common.itemNumber;
   DateTime? get releaseDate => common.releaseDate;
   String? get variant => common.variant;

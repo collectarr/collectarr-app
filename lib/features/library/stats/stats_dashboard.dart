@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
@@ -60,10 +61,10 @@ class _GenericStatsDashboard extends StatelessWidget {
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
-    final missingCovers = state.resolvedWorkspaceEntries
-        .where((e) => e.catalogItem?.coverImageUrl == null)
-        .length;
     final module = type;
+    final missingCovers = state.resolvedWorkspaceEntries
+        .where((e) => _metadataDto(e, module)?.coverImageUrl == null)
+        .length;
     final missingMetadata =
         _missingMetadataCount(state.resolvedWorkspaceEntries, module);
     final valueCoverage =
@@ -319,6 +320,22 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
+  static LibraryWorkspaceDto? _metadataDto(
+    ShelfEntry entry,
+    LibraryKindModule module,
+  ) {
+    final catalog = entry.catalogItem;
+    if (catalog == null) return null;
+    return libraryKindWorkspaceForKind(module.kind)
+        .project(
+          source: entry,
+          node: LibraryTitleNodeRef(
+            titleItemId: entry.catalogRef?.id ?? catalog.id,
+          ),
+        )
+        .dto;
+  }
+
   static Map<String, int> _topSeriesCounts(
     List<ShelfEntry> entries,
     LibraryKindModule module,
@@ -326,31 +343,12 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) {
-        final dto = libraryKindWorkspaceForKind(module.kind)
-            .project(
-              source: e,
-              node: LibraryTitleNodeRef(
-                titleItemId: e.catalogItem?.id ?? e.itemId,
-              ),
-            )
-            .dto;
+        final dto = _metadataDto(e, module);
+        if (dto == null) return 'Unknown';
         final adapter = dto is WorkspaceDtoAdapter ? dto : null;
         return adapter?.seriesTitle ?? dto.title;
       },
     );
-  }
-
-  static String? _extractPublisher(Map<String, dynamic>? payload) {
-    if (payload == null) return null;
-    final publishing = payload['publishing'];
-    final originalPublisher = publishing is Map<String, dynamic>
-        ? publishing['original_publisher']
-        : null;
-    final raw = payload['publisher'] ??
-        originalPublisher ??
-        payload['studio'] ??
-        payload['network'];
-    return raw?.toString();
   }
 
   static Map<String, int> _topPublisherCounts(
@@ -360,7 +358,9 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) {
-        final raw = _extractPublisher(e.catalogItem?.payload);
+        final dto = _metadataDto(e, module);
+        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+        final raw = adapter?.publisher;
         if (raw != null && raw.trim().isNotEmpty) {
           return raw.trim();
         }
@@ -375,24 +375,16 @@ class _GenericStatsDashboard extends StatelessWidget {
   ) {
     var count = 0;
     for (final entry in entries) {
-      final cat = entry.catalogItem;
-      if (cat == null) {
+      final dto = _metadataDto(entry, module);
+      if (dto == null) {
         count++;
         continue;
       }
-      final dto = libraryKindWorkspaceForKind(module.kind)
-          .project(
-            source: entry,
-            node: LibraryTitleNodeRef(
-              titleItemId: cat.id,
-            ),
-          )
-          .dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final hasSynopsis =
-          cat.synopsis != null && cat.synopsis!.trim().isNotEmpty;
+      final hasSynopsis = adapter?.synopsis?.trim().isNotEmpty == true;
       final format = adapter?.format?.trim();
-      final hasPublisher = _extractPublisher(cat.payload) != null || format != null;
+      final hasPublisher =
+          adapter?.publisher?.trim().isNotEmpty == true || format != null;
       if (!hasSynopsis && !hasPublisher) {
         count++;
       }
@@ -415,14 +407,8 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) {
-        final dto = libraryKindWorkspaceForKind(module.kind)
-            .project(
-              source: entry,
-              node: LibraryTitleNodeRef(
-                titleItemId: entry.catalogRef?.id ?? entry.itemId,
-              ),
-            )
-            .dto;
+        final dto = _metadataDto(entry, module);
+        if (dto == null) return 'Unknown';
         final adapter = dto is WorkspaceDtoAdapter ? dto : null;
         return adapter?.seriesTitle ?? dto.title;
       },
@@ -445,14 +431,8 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) {
-        final dto = libraryKindWorkspaceForKind(module.kind)
-            .project(
-              source: entry,
-              node: LibraryTitleNodeRef(
-                titleItemId: entry.catalogRef?.id ?? entry.itemId,
-              ),
-            )
-            .dto;
+        final dto = _metadataDto(entry, module);
+        if (dto == null) return 'Unknown';
         final adapter = dto is WorkspaceDtoAdapter ? dto : null;
         return adapter?.seriesTitle ?? dto.title;
       },
@@ -489,29 +469,20 @@ class _GenericStatsDashboard extends StatelessWidget {
         'Missing ${labels.labelFor('series', fallback: 'series').toLowerCase()}';
     final counts = <String, int>{};
     for (final entry in entries) {
-      final item = entry.catalogItem;
-      if (item == null) {
+      final dto = _metadataDto(entry, module);
+      if (dto == null) {
         counts['No catalog snapshot'] =
             (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      final dto = libraryKindWorkspaceForKind(module.kind)
-          .project(
-            source: entry,
-            node: LibraryTitleNodeRef(
-              titleItemId: item.id,
-            ),
-          )
-          .dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      if (item.displayCoverUrl == null ||
-          item.displayCoverUrl!.trim().isEmpty) {
+      if (dto.coverImageUrl == null || dto.coverImageUrl!.trim().isEmpty) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
       }
-      if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
+      if (adapter?.synopsis?.trim().isNotEmpty != true) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
-      final hasPublisher = _extractPublisher(item.payload) != null ||
+      final hasPublisher = adapter?.publisher?.trim().isNotEmpty == true ||
           adapter?.format?.trim().isNotEmpty == true;
       if (!hasPublisher) {
         counts[missingPublisherLabel] =
@@ -520,7 +491,7 @@ class _GenericStatsDashboard extends StatelessWidget {
       if (adapter?.seriesTitle == null || adapter!.seriesTitle!.isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
-      if (item.id.startsWith('provider:')) {
+      if (entry.itemId.startsWith('provider:')) {
         counts['Provider placeholder'] =
             (counts['Provider placeholder'] ?? 0) + 1;
       }
@@ -529,8 +500,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static String _metadataBand(ShelfEntry entry, LibraryKindModule module) {
-    final item = entry.catalogItem;
-    if (item == null) {
+    final dto = _metadataDto(entry, module);
+    if (dto == null) {
       return 'Needs work';
     }
     var score = 0;
@@ -540,25 +511,17 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    final dto = libraryKindWorkspaceForKind(module.kind)
-        .project(
-          source: entry,
-          node: LibraryTitleNodeRef(
-            titleItemId: item.id,
-          ),
-        )
-        .dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
 
     add(
-      item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty,
+      dto.coverImageUrl != null && dto.coverImageUrl!.trim().isNotEmpty,
       25,
     );
     add(
-      item.synopsis != null && item.synopsis!.trim().isNotEmpty,
+      adapter?.synopsis?.trim().isNotEmpty == true,
       25,
     );
-    final hasPublisher = _extractPublisher(item.payload) != null ||
+    final hasPublisher = adapter?.publisher?.trim().isNotEmpty == true ||
         adapter?.format?.trim().isNotEmpty == true;
     add(hasPublisher, 15);
     add(adapter?.releaseDate != null, 15);

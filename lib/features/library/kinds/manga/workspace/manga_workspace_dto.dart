@@ -18,6 +18,7 @@ final class MangaWorkspaceDto extends WorkspaceDtoAdapter {
   final MangaMetadata? metadata;
   final MangaOwnedDetails? ownedDetails;
 
+  @override
   String? get publisher => metadata?.publisher;
   String? get barcode => metadata?.barcode ?? metadata?.isbn;
 
