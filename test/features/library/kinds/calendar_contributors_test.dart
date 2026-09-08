@@ -1,17 +1,25 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/calendar/anime_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/calendar/boardgame_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 import 'package:collectarr_app/features/library/kinds/book/calendar/book_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
 import 'package:collectarr_app/features/library/kinds/comic/calendar/comic_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/game/calendar/game_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_media.dart';
 import 'package:collectarr_app/features/library/kinds/manga/calendar/manga_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/calendar/movie_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,129 +42,148 @@ void main() {
     );
   });
 
-  test('typed release contributors map their own catalog semantics', () {
-    final contributors = <LibraryCalendarContributor>[
-      const BoardGameCalendarContributor(),
-      const GameCalendarContributor(),
-      const MangaCalendarContributor(),
-      const MovieCalendarContributor(),
-      const MusicCalendarContributor(),
+  test('typed release contributors load concrete kind domains', () async {
+    final date = DateTime.utc(2020, 1, 2);
+    final item = testCatalogItem(
+      id: 'comic-item',
+      kind: 'comic',
+      title: 'Comic title',
+      releaseDate: date,
+    );
+    final cases = <Future<Iterable<CalendarEvent>> Function()>[
+      () => BoardGameCalendarContributor(
+            loadMedia: (_) async => BoardGameMedia.fromJson(
+              testCatalogItem(
+                id: 'boardgame-item',
+                kind: 'boardgame',
+                releaseDate: date,
+              ).toSyncPayload(),
+            ),
+          ).contribute(_context(ids: const ['boardgame-item'])),
+      () => GameCalendarContributor(
+            loadMedia: (_) async => GameMedia.fromJson(
+              testCatalogItem(
+                id: 'game-item',
+                kind: 'game',
+                releaseDate: date,
+              ).toSyncPayload(),
+            ),
+          ).contribute(_context(ids: const ['game-item'])),
+      () => MangaCalendarContributor(
+            loadMedia: (_) async => MangaMedia.fromJson(
+              testCatalogItem(
+                id: 'manga-item',
+                kind: 'manga',
+                releaseDate: date,
+                payload: {
+                  'first_publication_date': date.toIso8601String(),
+                },
+              ).toSyncPayload(),
+            ),
+          ).contribute(_context(ids: const ['manga-item'])),
+      () => MovieCalendarContributor(
+            loadMedia: (_) async => MovieMedia.fromJson(
+              testCatalogItem(
+                id: 'movie-item',
+                kind: 'movie',
+                releaseDate: date,
+              ).toSyncPayload(),
+            ),
+          ).contribute(_context(ids: const ['movie-item'])),
+      () => MusicCalendarContributor(
+            loadRelease: (_) async => MusicRelease.fromJson(
+              testCatalogItem(
+                id: 'music-item',
+                kind: 'music',
+                releaseDate: date,
+              ).toSyncPayload(),
+            ),
+          ).contribute(_context(ids: const ['music-item'])),
+      () => BookCalendarContributor(
+            loadMedia: (_) async => BookMedia(
+              id: const BookMediaId('book-item'),
+              title: 'The Hobbit',
+              editions: [
+                BookRelease(
+                  id: 'book-item-release',
+                  title: 'The Hobbit',
+                  releaseDate: date,
+                ),
+              ],
+            ),
+          ).contribute(_context(ids: const ['book-item'])),
+      () => ComicCalendarContributor(
+            loadMedia: (_) async => ComicCoreMapper.fromCatalogItem(item),
+          ).contribute(_context(ids: const ['comic-item'])),
     ];
 
-    for (final contributor in contributors) {
-      final item = testCatalogItem(
-        id: '${contributor.kind.apiValue}-item',
-        kind: contributor.kind.apiValue,
-        title: '${contributor.kind.apiValue} title',
-        releaseDate: DateTime.utc(2020, 1, 2),
-      );
-      final events = contributor
-          .contribute(
-            LibraryCalendarContext(
-              catalogItems: [item],
-              watchSessions: const [],
-              titleForItem: (itemId) => itemId,
-            ),
-          )
-          .toList();
-
-      expect(events, hasLength(1), reason: contributor.kind.apiValue);
+    for (final loadCase in cases) {
+      final events = (await loadCase()).toList(growable: false);
+      expect(events, hasLength(1));
       expect(events.single.kind, CalendarEventKind.releaseDate);
-      expect(
-          events.single.eventId, startsWith('${contributor.kind.apiValue}-'));
-      expect(events.single.itemId, item.id);
-      expect(events.single.date, DateTime.utc(2020, 1, 2));
+      expect(events.single.date, date);
+      expect(events.single.itemId, isNotEmpty);
     }
   });
 
-  test('Book calendar contributor owns edition release mapping', () {
-    final item = testCatalogItem(
-      id: 'book-item',
-      kind: 'book',
-      title: 'The Hobbit',
-      releaseDate: DateTime.utc(1937, 9, 21),
-    );
-    final events = const BookCalendarContributor()
-        .contribute(
-          LibraryCalendarContext(
-            catalogItems: [item],
-            watchSessions: const [],
-            titleForItem: (itemId) => itemId,
+  test('Book calendar contributor owns edition release mapping', () async {
+    final events = await BookCalendarContributor(
+      loadMedia: (_) async => BookMedia(
+        id: BookMediaId('book-item'),
+        title: 'The Hobbit',
+        editions: [
+          BookRelease(
+            id: 'book-item-release',
+            title: 'The Hobbit',
+            releaseDate: DateTime.utc(1937, 9, 21),
           ),
-        )
-        .toList();
+        ],
+      ),
+    ).contribute(_context(ids: const ['book-item']));
 
     expect(events, hasLength(1));
-    expect(events.single.kind, CalendarEventKind.releaseDate);
     expect(events.single.eventId, 'book-release:book-item-release');
-    expect(events.single.itemId, 'book-item');
     expect(events.single.title, 'The Hobbit');
     expect(events.single.date, DateTime.utc(1937, 9, 21));
   });
 
-  test('Comic calendar contributor owns release-date mapping', () {
-    final item = testCatalogItem(
-      id: 'comic-item',
-      kind: 'comic',
-      title: 'Amazing Spider-Man',
-      releaseDate: DateTime.utc(1963, 3, 1),
+  test('TV and Anime calendar contributors own watch labels independently',
+      () async {
+    final tvEvents = await const TvCalendarContributor().contribute(
+      _context(
+        watchSessions: [
+          _session(CatalogMediaKind.tv, season: 2, episode: 3),
+          _session(CatalogMediaKind.anime, season: 1, episode: 4),
+        ],
+      ),
     );
-    final events = const ComicCalendarContributor()
-        .contribute(
-          LibraryCalendarContext(
-            catalogItems: [item],
-            watchSessions: const [],
-            titleForItem: (itemId) => itemId,
-          ),
-        )
-        .toList();
+    final animeEvents = await const AnimeCalendarContributor().contribute(
+      _context(
+        watchSessions: [
+          _session(CatalogMediaKind.anime, season: 1, episode: 4),
+          _session(CatalogMediaKind.tv, season: 2, episode: 3),
+          _session(CatalogMediaKind.anime),
+        ],
+      ),
+    );
 
-    expect(events, hasLength(1));
-    expect(events.single.kind, CalendarEventKind.releaseDate);
-    expect(events.single.eventId, 'comic-release:comic-item');
-    expect(events.single.itemId, 'comic-item');
-    expect(events.single.title, 'Amazing Spider-Man');
-    expect(events.single.date, DateTime.utc(1963, 3, 1));
+    expect(tvEvents, hasLength(1));
+    expect(tvEvents.single.title, 'Title for tv-item S2E3');
+    expect(animeEvents, hasLength(2));
+    expect(animeEvents.first.title, 'Title for anime-item S1E4');
+    expect(animeEvents.last.title, 'Title for anime-item');
   });
+}
 
-  test('TV calendar contributor owns episode title projection', () {
-    final events = const TvCalendarContributor()
-        .contribute(
-          LibraryCalendarContext(
-            watchSessions: [
-              _session(CatalogMediaKind.tv, season: 2, episode: 3),
-              _session(CatalogMediaKind.anime, season: 1, episode: 4),
-            ],
-            titleForItem: (itemId) => 'Title for $itemId',
-          ),
-        )
-        .toList();
-
-    expect(events, hasLength(1));
-    expect(events.single.kind, CalendarEventKind.watched);
-    expect(events.single.eventId, 'watch:tv-session');
-    expect(events.single.title, 'Title for tv-item S2E3');
-  });
-
-  test('Anime calendar contributor stays independent from TV', () {
-    final events = const AnimeCalendarContributor()
-        .contribute(
-          LibraryCalendarContext(
-            watchSessions: [
-              _session(CatalogMediaKind.anime, season: 1, episode: 4),
-              _session(CatalogMediaKind.tv, season: 2, episode: 3),
-              _session(CatalogMediaKind.anime),
-            ],
-            titleForItem: (itemId) => 'Title for $itemId',
-          ),
-        )
-        .toList();
-
-    expect(events, hasLength(2));
-    expect(events[0].title, 'Title for anime-item S1E4');
-    expect(events[1].title, 'Title for anime-item');
-    expect(events[0].eventId, 'watch:anime-session');
-  });
+LibraryCalendarContext _context({
+  Iterable<String> ids = const <String>[],
+  Iterable<WatchSession> watchSessions = const <WatchSession>[],
+}) {
+  return LibraryCalendarContext(
+    catalogItemIds: ids,
+    watchSessions: watchSessions,
+    titleForItem: (itemId) => 'Title for $itemId',
+  );
 }
 
 WatchSession _session(

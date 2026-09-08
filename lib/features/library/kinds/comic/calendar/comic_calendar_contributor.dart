@@ -1,30 +1,50 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 
 /// Comic owns the meaning of a catalog release date for calendar projection.
 final class ComicCalendarContributor implements LibraryCalendarContributor {
-  const ComicCalendarContributor();
+  const ComicCalendarContributor({this.loadMedia});
+
+  final Future<ComicMedia?> Function(String id)? loadMedia;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  Iterable<CalendarEvent> contribute(LibraryCalendarContext context) sync* {
-    for (final item in context.catalogItems) {
-      if (item.mediaKind != kind) continue;
-
-      final comic = ComicCoreMapper.fromCatalogItem(item);
+  Future<Iterable<CalendarEvent>> contribute(
+    LibraryCalendarContext context,
+  ) async {
+    final events = <CalendarEvent>[];
+    for (final id in context.catalogItemIds) {
+      final comic = loadMedia != null
+          ? await loadMedia!(id)
+          : await _loadMedia(context, id);
+      if (comic == null) continue;
       final date = comic.releaseDate ?? comic.coverDate;
       if (date == null) continue;
-      yield CalendarEvent(
+      events.add(CalendarEvent(
         kind: CalendarEventKind.releaseDate,
         date: date,
         title: comic.title,
-        eventId: 'comic-release:${item.id}',
-        itemId: item.id,
-      );
+        eventId: 'comic-release:$id',
+        itemId: id,
+      ));
     }
+    return events;
+  }
+
+  Future<ComicMedia?> _loadMedia(
+    LibraryCalendarContext context,
+    String id,
+  ) {
+    final database = context.database;
+    if (database == null) {
+      throw StateError('Comic calendar contribution requires a database');
+    }
+    return ComicRepository(database).getMedia(ComicMediaId(id));
   }
 }

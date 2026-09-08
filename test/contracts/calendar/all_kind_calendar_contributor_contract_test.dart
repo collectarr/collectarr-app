@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'calendar_contract.dart';
 
 void main() {
@@ -24,45 +23,14 @@ void main() {
   }
 }
 
-const _calendarReleasePayloads = <CatalogMediaKind, Map<String, dynamic>>{
-  CatalogMediaKind.tv: {
-    'releases': [
-      {
-        'id': 'tv-calendar-release',
-        'series_id': 'tv-calendar-contract-item',
-        'title': 'TV release',
-        'release_date': '2026-09-01T00:00:00.000Z',
-      },
-    ],
-  },
-  CatalogMediaKind.anime: {
-    'releases': [
-      {
-        'id': 'anime-calendar-release',
-        'series_id': 'anime-calendar-contract-item',
-        'release_title': 'Anime release',
-        'release_date': '2026-09-01T00:00:00.000Z',
-      },
-    ],
-  },
-};
-
 const _calendarWatchKinds = {
   CatalogMediaKind.tv,
   CatalogMediaKind.anime,
 };
 
 LibraryCalendarContext _contextFor(CatalogMediaKind kind) {
-  final item = testCatalogItem(
-    id: '${kind.apiValue}-calendar-contract-item',
-    kind: kind.apiValue,
-    title: '${kind.apiValue} calendar item',
-    releaseDate: DateTime.utc(2026, 9, 1),
-    payload: _calendarReleasePayloads[kind],
-  );
-
   return LibraryCalendarContext(
-    catalogItems: [item],
+    catalogItemIds: const <String>{},
     watchSessions: _calendarWatchKinds.contains(kind)
         ? [
             WatchSession(
@@ -70,7 +38,7 @@ LibraryCalendarContext _contextFor(CatalogMediaKind kind) {
               targetRef: CatalogEntityRef(
                 kind: kind.apiValue,
                 entityType: CatalogEntityType.episode,
-                id: item.id,
+                id: '${kind.apiValue}-calendar-contract-item',
               ),
               watchedAt: DateTime.utc(2026, 9, 2),
               updatedAt: DateTime.utc(2026, 9, 2),

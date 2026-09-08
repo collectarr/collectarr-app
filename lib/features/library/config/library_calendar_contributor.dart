@@ -1,5 +1,8 @@
+import 'dart:async';
+
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
@@ -11,12 +14,14 @@ typedef CalendarTitleForItem = String Function(String itemId);
 /// kind-specific persisted values such as episode coordinates.
 final class LibraryCalendarContext {
   const LibraryCalendarContext({
-    this.catalogItems = const [],
+    this.database,
+    this.catalogItemIds = const <String>{},
     required this.watchSessions,
     required this.titleForItem,
   });
 
-  final Iterable<CatalogItemDto> catalogItems;
+  final LocalDatabase? database;
+  final Iterable<String> catalogItemIds;
   final Iterable<WatchSession> watchSessions;
   final CalendarTitleForItem titleForItem;
 }
@@ -26,5 +31,5 @@ abstract interface class LibraryCalendarContributor
   CatalogMediaKind get kind;
 
   @override
-  Iterable<CalendarEvent> contribute(LibraryCalendarContext context);
+  FutureOr<Iterable<CalendarEvent>> contribute(LibraryCalendarContext context);
 }
