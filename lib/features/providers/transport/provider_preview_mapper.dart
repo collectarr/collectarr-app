@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
 
 /// Converts a [NormalizedProviderEnvelopeV1] into an [AdminProviderPreview]
 /// for UI presentation and draft ingestion without calling Core preview endpoints.

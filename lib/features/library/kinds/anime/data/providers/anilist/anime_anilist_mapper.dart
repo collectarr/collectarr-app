@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/providers/adapters/anilist/models/anilist_media.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
 
 /// Converts AniList's native GraphQL model into the Anime-owned domain graph.
 final class AnimeAniListMapper {

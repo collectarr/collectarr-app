@@ -3,8 +3,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/providers/adapters/anilist/anilist_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/metadata_provider.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
 /// Kind-owned facade over the shared AniList transport.
 final class AnimeAniListIntegration {

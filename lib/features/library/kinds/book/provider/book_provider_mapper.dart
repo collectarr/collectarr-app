@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
 
 class BookLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<BookCatalog> {
@@ -30,7 +30,8 @@ class BookLibraryKindProviderMapper
   }
 
   @override
-  CatalogItemDto metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItemDto metadataItemFromEnvelope(
+      NormalizedProviderEnvelopeV1 envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.book,

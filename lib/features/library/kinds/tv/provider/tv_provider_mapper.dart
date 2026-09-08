@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
 import 'tv_provider_typed_mapper.dart';
 
 class TvLibraryKindProviderMapper
@@ -18,7 +18,8 @@ class TvLibraryKindProviderMapper
   }
 
   @override
-  CatalogItemDto metadataItemFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItemDto metadataItemFromEnvelope(
+      NormalizedProviderEnvelopeV1 envelope) {
     final tvMetadata = TvSeriesMetadata.fromJson(
       TvProviderTypedMapper.payloadFromEnvelope(envelope),
     );

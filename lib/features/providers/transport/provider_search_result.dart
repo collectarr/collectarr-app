@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../../core/models/catalog_media_kind.dart';
+import '../../../core/models/catalog_media_kind.dart';
 
 @immutable
 class ProviderSearchResult {

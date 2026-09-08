@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_media.d
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
 
 /// Converts MusicBrainz-native and normalized payloads into Music's typed graph.
 final class MusicMusicBrainzMapper {

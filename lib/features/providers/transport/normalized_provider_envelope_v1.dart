@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'provider_attribution.dart';
-import 'provider_image_ref.dart';
-import 'provider_provenance.dart';
+import '../domain/models/provider_attribution.dart';
+import '../domain/models/provider_image_ref.dart';
+import '../domain/models/provider_provenance.dart';
 
 @immutable
 class NormalizedProviderEnvelopeV1 {

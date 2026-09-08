@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/providers/adapters/comicvine/models/comi
 import 'package:collectarr_app/features/providers/adapters/gcd/gcd_provider.dart';
 import 'package:collectarr_app/features/providers/adapters/gcd/models/gcd_issue.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
 abstract interface class ComicProviderSearchIntegration {
   bool supports(ProviderConnector provider);

@@ -3,13 +3,13 @@ import 'package:crypto/crypto.dart';
 
 import '../../../../core/models/catalog_media_kind.dart';
 
-import '../../domain/models/normalized_provider_envelope_v1.dart';
+import '../../transport/normalized_provider_envelope_v1.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_image_ref.dart';
 import '../../domain/models/provider_provenance.dart';
-import '../../domain/models/provider_search_result.dart';
+import '../../transport/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../provider_adapter.dart';
 import 'models/open_library_book.dart';

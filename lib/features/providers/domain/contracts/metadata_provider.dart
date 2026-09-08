@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
 /// Core contract for client-side metadata providers, unified with [MetadataCapability].
 abstract class MetadataProvider implements MetadataCapability {

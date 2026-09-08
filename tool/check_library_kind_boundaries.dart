@@ -248,7 +248,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/workspace/data/library_workspace_repository.dart',
     'lib/features/library/workspace/layout/library_flow_carousel.dart',
     'lib/features/library/workspace/tiles/library_workspace_card.dart',
-    'lib/features/providers/domain/mappers/provider_preview_mapper.dart',
+    'lib/features/providers/transport/provider_preview_mapper.dart',
     // Video release source reconstructs synthetic release editions from raw sync payloads.
     'lib/features/library/release/video_release_source.dart',
   };

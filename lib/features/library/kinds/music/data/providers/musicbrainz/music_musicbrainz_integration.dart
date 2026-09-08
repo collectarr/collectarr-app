@@ -4,8 +4,8 @@ import 'package:collectarr_app/features/library/kinds/music/data/providers/music
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/metadata_provider.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
 /// Kind-owned facade over the shared MusicBrainz transport.
 final class MusicMusicBrainzIntegration {
