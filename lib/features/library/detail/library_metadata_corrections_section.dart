@@ -2,8 +2,9 @@ import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/features/library/detail/metadata_override_form.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -74,9 +75,19 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
   }
 
   Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
-    final result = await showDialog<_OverrideFormResult>(
+    final contributor = libraryAdminContributorForKind(targetRef.mediaKind);
+    final fields = [
+      const MetadataOverrideFieldOption(key: 'title', label: 'Title'),
+      for (final field
+          in contributor?.proposalFields ?? const <LibraryAdminProposalField>[])
+        MetadataOverrideFieldOption(key: field.key, label: field.label),
+    ];
+    final result = await showDialog<MetadataOverrideFormResult>(
       context: context,
-      builder: (_) => _OverrideFormDialog(accent: accent),
+      builder: (_) => MetadataOverrideFormDialog(
+        accent: accent,
+        fields: fields,
+      ),
     );
     if (result == null || !context.mounted) {
       return;
@@ -221,139 +232,6 @@ class _DiffColumn extends StatelessWidget {
               ),
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-}
-
-class _OverrideFormResult {
-  const _OverrideFormResult({
-    required this.fieldKey,
-    required this.overrideValue,
-    this.originalValue,
-  });
-
-  final String fieldKey;
-  final String overrideValue;
-  final String? originalValue;
-}
-
-class _OverrideFormDialog extends StatefulWidget {
-  const _OverrideFormDialog({required this.accent});
-
-  final Color accent;
-
-  @override
-  State<_OverrideFormDialog> createState() => _OverrideFormDialogState();
-}
-
-class _OverrideFormDialogState extends State<_OverrideFormDialog> {
-  static const _commonFields = [
-    'title',
-    'synopsis',
-    'publisher',
-    'release_year',
-    'barcode',
-    'variant',
-    'edition_title',
-    'cover_image_url',
-    'item_number',
-  ];
-
-  String? _selectedField;
-  final _customFieldController = TextEditingController();
-  final _originalController = TextEditingController();
-  final _overrideController = TextEditingController();
-
-  String get _fieldKey => _selectedField ?? _customFieldController.text.trim();
-
-  bool get _isValid =>
-      _fieldKey.isNotEmpty && _overrideController.text.trim().isNotEmpty;
-
-  @override
-  void dispose() {
-    _customFieldController.dispose();
-    _originalController.dispose();
-    _overrideController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AccentAlertDialog(
-      titlePadding: EdgeInsets.zero,
-      title: AccentDialogHeader(
-        title: 'Add metadata correction',
-        accent: widget.accent,
-        icon: Icons.tune,
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DropdownButtonFormField<String>(
-              initialValue: _selectedField,
-              decoration: const InputDecoration(labelText: 'Field'),
-              items: [
-                for (final field in _commonFields)
-                  DropdownMenuItem(
-                    value: field,
-                    child: Text(field.replaceAll('_', ' ')),
-                  ),
-                const DropdownMenuItem(value: null, child: Text('Custom...')),
-              ],
-              onChanged: (value) => setState(() => _selectedField = value),
-            ),
-            if (_selectedField == null) ...[
-              const SizedBox(height: 8),
-              TextField(
-                controller: _customFieldController,
-                decoration: const InputDecoration(
-                  labelText: 'Custom field path',
-                  hintText: 'e.g. edition.publisher',
-                ),
-                onChanged: (_) => setState(() {}),
-              ),
-            ],
-            const SizedBox(height: 12),
-            TextField(
-              controller: _originalController,
-              decoration: const InputDecoration(
-                labelText: 'Original value (optional)',
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _overrideController,
-              decoration: const InputDecoration(
-                labelText: 'Corrected value',
-              ),
-              maxLines: 2,
-              onChanged: (_) => setState(() {}),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        DialogActionButtons.cancel(
-          onPressed: () => Navigator.pop(context),
-        ),
-        DialogActionButtons.save(
-          onPressed: _isValid
-              ? () => Navigator.pop(
-                    context,
-                    _OverrideFormResult(
-                      fieldKey: _fieldKey,
-                      overrideValue: _overrideController.text.trim(),
-                      originalValue: _originalController.text.trim().isEmpty
-                          ? null
-                          : _originalController.text.trim(),
-                    ),
-                  )
-              : null,
         ),
       ],
     );
