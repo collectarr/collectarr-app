@@ -291,7 +291,9 @@ class _MetadataProposalTile extends StatelessWidget {
                     proposal.metadataPayload,
                   ),
                 ),
-                payload: proposal.metadataPayload!,
+                payload: Map<String, Object?>.from(
+                  proposal.metadataPayload!,
+                ),
               ),
             ],
             if (proposal.isPending) ...[
@@ -354,7 +356,7 @@ class _ProposalPayloadPreview extends StatelessWidget {
   });
 
   final CatalogMediaKind kind;
-  final Map<String, dynamic> payload;
+  final Map<String, Object?> payload;
 
   @override
   Widget build(BuildContext context) {
@@ -435,7 +437,10 @@ class _ProposalMetadataEditDialogState
     _titleController = TextEditingController(text: proposal.title ?? '');
     _summaryController = TextEditingController(text: proposal.summary ?? '');
     _imageUrlController = TextEditingController(text: proposal.imageUrl ?? '');
-    _kindFieldControllers = _createKindFieldControllers(_catalogKind, payload);
+    _kindFieldControllers = _createKindFieldControllers(
+      _catalogKind,
+      Map<String, Object?>.from(payload),
+    );
     _payloadController = TextEditingController(
       text: const JsonEncoder.withIndent('  ').convert(payload),
     );
@@ -461,7 +466,7 @@ class _ProposalMetadataEditDialogState
 
   Map<String, TextEditingController> _createKindFieldControllers(
     CatalogMediaKind kind,
-    Map<String, dynamic> payload,
+    Map<String, Object?> payload,
   ) {
     final contributor = libraryAdminContributorForKind(kind);
     if (contributor == null) {
@@ -503,11 +508,11 @@ class _ProposalMetadataEditDialogState
       if (decoded is! Map) {
         throw const FormatException('Metadata payload must be a JSON object.');
       }
-      final payload = Map<String, dynamic>.from(decoded);
+      final payload = Map<String, Object?>.from(decoded);
       for (final field in _adminProposalFields) {
         field.write(payload, _kindFieldControllers[field.key]!.text);
       }
-      return payload;
+      return Map<String, dynamic>.from(payload);
     } on FormatException catch (error) {
       setState(() {
         _errorMessage = error.message;
@@ -540,18 +545,19 @@ class _ProposalMetadataEditDialogState
       });
       return;
     }
-    _setPayloadTextValue(payload, 'kind', _kind);
+    final semanticPayload = Map<String, Object?>.from(payload);
+    _setPayloadTextValue(semanticPayload, 'kind', _kind);
     for (final contributor in libraryAdminContributors) {
       if (contributor.kind == _catalogKind) {
         continue;
       }
       for (final field in contributor.proposalFields) {
-        payload.remove(field.key);
+        semanticPayload.remove(field.key);
       }
     }
     try {
       for (final field in _adminProposalFields) {
-        field.write(payload, _kindFieldControllers[field.key]!.text);
+        field.write(semanticPayload, _kindFieldControllers[field.key]!.text);
       }
     } on FormatException catch (error) {
       setState(() {
@@ -569,7 +575,7 @@ class _ProposalMetadataEditDialogState
         title: _emptyToNull(_titleController.text),
         summary: _emptyToNull(_summaryController.text),
         imageUrl: _emptyToNull(_imageUrlController.text),
-        metadataPayload: payload,
+        metadataPayload: Map<String, dynamic>.from(semanticPayload),
       ),
     );
   }
@@ -1606,7 +1612,7 @@ List<Map<String, dynamic>> _payloadTrackRows(Object? value) {
 }
 
 void _setPayloadTextValue(
-    Map<String, dynamic> payload, String key, String value) {
+    Map<String, Object?> payload, String key, String value) {
   final normalized = _emptyToNull(value);
   if (normalized == null) {
     payload.remove(key);

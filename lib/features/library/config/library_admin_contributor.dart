@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 typedef LibraryAdminProposalFieldReader = String Function(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
 );
 
 typedef LibraryAdminProposalFieldWriter = void Function(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
   String rawValue,
 );
 
@@ -42,13 +42,13 @@ abstract interface class LibraryAdminContributor {
 }
 
 String readAdminProposalText(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
   String key,
 ) =>
     payload[key]?.toString() ?? '';
 
 void writeAdminProposalText(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
   String key,
   String rawValue,
 ) {
@@ -61,7 +61,7 @@ void writeAdminProposalText(
 }
 
 String readAdminProposalStringList(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
   String key,
 ) {
   final value = payload[key];
@@ -75,7 +75,7 @@ String readAdminProposalStringList(
 }
 
 void writeAdminProposalStringList(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
   String key,
   String rawValue,
 ) {
@@ -122,7 +122,7 @@ LibraryAdminProposalField adminStringListProposalField({
 }
 
 String readAdminProposalExternalLinks(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
   String key,
 ) {
   final value = payload[key];
@@ -142,11 +142,11 @@ String readAdminProposalExternalLinks(
 }
 
 void writeAdminProposalExternalLinks(
-  Map<String, dynamic> payload,
+  Map<String, Object?> payload,
   String key,
   String rawValue,
 ) {
-  final rows = <Map<String, dynamic>>[];
+  final rows = <Map<String, Object?>>[];
   final lines = rawValue.split('\n');
   for (var index = 0; index < lines.length; index++) {
     final line = lines[index].trim();

@@ -275,7 +275,8 @@ class _CorrectionField extends StatelessWidget {
   }
 }
 
-Map<String, dynamic> _itemPayload(CatalogItemDto item) => item.toSyncPayload();
+Map<String, Object?> _itemPayload(CatalogItemDto item) =>
+    Map<String, Object?>.from(item.toSyncPayload());
 
 class _MetadataCorrectionDraft {
   const _MetadataCorrectionDraft({

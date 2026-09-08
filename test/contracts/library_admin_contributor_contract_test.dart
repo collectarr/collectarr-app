@@ -28,7 +28,7 @@ void main() {
     final contributor = libraryAdminContributorForKind(CatalogMediaKind.game)!;
     final field = contributor.proposalFields
         .singleWhere((field) => field.key == 'platforms');
-    final payload = <String, dynamic>{
+    final payload = <String, Object?>{
       'platforms': ['Switch'],
     };
 
@@ -41,7 +41,7 @@ void main() {
     final contributor = libraryAdminContributorForKind(CatalogMediaKind.music)!;
     final field = contributor.proposalFields
         .singleWhere((field) => field.key == 'tracks');
-    final payload = <String, dynamic>{
+    final payload = <String, Object?>{
       'tracks': [
         {
           'title': 'Intro',
