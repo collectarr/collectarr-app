@@ -479,7 +479,9 @@ bool libraryFilterMatches(
     }
   }
   if (filters.missingCover && item.dto.coverImageUrl != null) return false;
-  if (filters.missingMetadata && item.source.catalogItem != null) return false;
+  if (filters.missingMetadata && item.source.catalogSummary != null) {
+    return false;
+  }
   return true;
 }
 

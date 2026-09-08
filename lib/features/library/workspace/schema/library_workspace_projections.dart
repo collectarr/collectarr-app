@@ -61,9 +61,13 @@ class WorkspaceCommonProjection {
           primaryVariant?.name ??
           edition?.title ??
           payload['variant']?.toString(),
-      country: (payload['country'] ?? (payload['publishing'] as Map?)?['original_country'])?.toString(),
+      country: (payload['country'] ??
+              (payload['publishing'] as Map?)?['original_country'])
+          ?.toString(),
       language: edition?.language ??
-          (payload['language'] ?? (payload['publishing'] as Map?)?['original_language'])?.toString(),
+          (payload['language'] ??
+                  (payload['publishing'] as Map?)?['original_language'])
+              ?.toString(),
       currency: source.ownedItem?.currency,
       referenceFormatLabel: primaryVariant?.physicalFormat ??
           edition?.format ??
@@ -150,6 +154,9 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
 
   WorkspaceCommonProjection get common;
   PersonalCopyProjection get personal;
+
+  @override
+  Iterable<String> get searchTokens => const <String>[];
 
   @override
   String get title => common.title;

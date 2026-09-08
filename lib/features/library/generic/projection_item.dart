@@ -27,8 +27,9 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
     LibraryKindModule type, {
     List<String> customFieldBadges = const <String>[],
   }) {
-    final item = source.catalogItem!;
-    final node = LibraryTitleNodeRef(titleItemId: item.id);
+    final node = LibraryTitleNodeRef(
+      titleItemId: source.catalogRef?.id ?? source.itemId,
+    );
     final dto = libraryKindWorkspaceForKind(type.kind).projector.projectTitle(
           source: source,
           node: node,
@@ -56,8 +57,9 @@ Set<String> customFieldTargetIds({
   required LibraryNodeRef node,
 }) {
   return {
+    if (source.ownedSummary case final owned?) owned.ref.id.value,
     if (source.ownedItem case final owned?) owned.id,
-    if (source.catalogItem case final catalog?) catalog.id,
+    if (source.catalogRef case final catalog?) catalog.id,
     node.titleItemId,
     if (node case LibraryReleaseNodeRef(:final releaseId)) releaseId,
     if (node
@@ -92,8 +94,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
     }
     return [
       for (final source in shelf.resolvedWorkspaceEntries)
-        if (source.catalogItem != null &&
-            source.catalogItem!.kind == kind.apiValue)
+        if (source.catalogRef?.mediaKind == kind)
           ...releaseCap.projectReleases(
             source: source,
             type: type,
@@ -108,15 +109,18 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   }
   return [
     for (final source in shelf.resolvedWorkspaceEntries)
-      if (source.catalogItem != null &&
-          source.catalogItem!.kind == kind.apiValue)
+      if (source.catalogRef?.mediaKind == kind)
         type.titleCapability.projectTitle(
           source: source,
-          node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
+          node: LibraryTitleNodeRef(
+            titleItemId: source.catalogRef?.id ?? source.itemId,
+          ),
           projector: workspace.projector,
           customFieldBadges: customFieldBadgesForNode(
             source: source,
-            node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
+            node: LibraryTitleNodeRef(
+              titleItemId: source.catalogRef?.id ?? source.itemId,
+            ),
             customFieldDefinitions: customFieldDefinitions,
             customFieldValuesByDefinitionByItem:
                 customFieldValuesByDefinitionByItem,

@@ -50,4 +50,13 @@ final class MusicWorkspaceDto extends WorkspaceDtoAdapter {
   bool? get isLive => release.isLive ?? metadata?.isLive;
   List<String> get genres => release.genres;
   List<Map<String, dynamic>> get credits => release.contributions;
+
+  @override
+  Iterable<String> get searchTokens => [
+        if (artist != null) artist!,
+        if (publisher != null) publisher!,
+        if (barcode != null) barcode!,
+        if (catalogNumber != null) catalogNumber!,
+        ...genres,
+      ];
 }

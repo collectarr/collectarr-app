@@ -20,4 +20,10 @@ final class MangaWorkspaceDto extends WorkspaceDtoAdapter {
 
   String? get publisher => metadata?.publisher;
   String? get barcode => metadata?.barcode ?? metadata?.isbn;
+
+  @override
+  Iterable<String> get searchTokens => [
+        if (publisher != null) publisher!,
+        if (barcode != null) barcode!,
+      ];
 }

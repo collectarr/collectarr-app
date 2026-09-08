@@ -33,4 +33,14 @@ final class GameWorkspaceDto extends WorkspaceDtoAdapter {
   int? get gradedPrice => metadata?.valuations?.graded?.amountCents;
   int? get boxOnlyPrice => metadata?.valuations?.boxOnly?.amountCents;
   int? get manualOnlyPrice => metadata?.valuations?.manualOnly?.amountCents;
+
+  @override
+  Iterable<String> get searchTokens => [
+        if (publisher != null) publisher!,
+        if (barcode != null) barcode!,
+        if (platform != null) platform!,
+        if (franchise != null) franchise!,
+        if (developer != null) developer!,
+        if (region != null) region!,
+      ];
 }

@@ -11,6 +11,12 @@ abstract interface class LibraryWorkspaceDto {
 
   String get title;
   String? get coverImageUrl;
+
+  /// Kind-owned searchable values exposed to generic index mechanics.
+  ///
+  /// The host may tokenize these values, but it must not inspect a catalog
+  /// payload to infer publisher/barcode/serial/video semantics.
+  Iterable<String> get searchTokens => const <String>[];
 }
 
 enum LibraryGroupPresentation { inlineHeaders, folderGrid }

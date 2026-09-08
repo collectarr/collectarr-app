@@ -114,11 +114,13 @@ final class TrackingSummary {
   String get statusLabel => tracking.statusLabel;
 }
 
-/// Complete source used after a kind has been selected by the Library
-/// workspace. It is intentionally separate from [LibraryEntry], the mixed
-/// projection; the two models must not form an inheritance-based compatibility
-/// union.
-class LibraryWorkspaceEntry implements LibraryEntry {
+/// Full source used after a kind has been selected by the Library workspace.
+///
+/// This is deliberately not a subtype of [LibraryEntry]. The mixed Shelf
+/// projection and the post-dispatch workspace source have different
+/// ownership rules; making one inherit from the other recreates the generic
+/// catalog/Owned compatibility union we are removing.
+class LibraryWorkspaceEntry {
   const LibraryWorkspaceEntry({
     required this.itemId,
     this.catalogSummary,
@@ -200,6 +202,7 @@ class LibraryWorkspaceEntry implements LibraryEntry {
 
   MediaTracking get tracking =>
       trackingSummary?.tracking ??
+      trackingEntry?.mediaTracking ??
       const MediaTracking(status: MediaTrackingStatus.none);
 
   String? get ownerLabel =>

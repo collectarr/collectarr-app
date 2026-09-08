@@ -45,4 +45,15 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.editions.firstOrNull?.dewey ?? book.publishing.dewey;
   String? get locClassification =>
       metadata?.editions.firstOrNull?.locClassification;
+
+  @override
+  Iterable<String> get searchTokens => [
+        if (publisher != null) publisher!,
+        if (isbn != null) isbn!,
+        if (author != null) author!,
+        if (subtitle != null) subtitle!,
+        if (translator != null) translator!,
+        if (editor != null) editor!,
+        if (illustrator != null) illustrator!,
+      ];
 }

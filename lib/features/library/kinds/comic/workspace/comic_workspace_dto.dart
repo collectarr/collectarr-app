@@ -27,4 +27,13 @@ final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   String? get variant => comic.variant;
   int? get pageCount => comic.pageCount ?? comic.publishing?.pageCount;
+
+  @override
+  Iterable<String> get searchTokens => [
+        if (publisher != null) publisher!,
+        if (barcode != null) barcode!,
+        if (writer != null) writer!,
+        if (artist != null) artist!,
+        if (coverArtist != null) coverArtist!,
+      ];
 }

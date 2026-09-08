@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -148,13 +147,18 @@ void main() {
       );
 
       expect(index.extractorCallCount, 0);
-      final publisherGroup = comicKindWorkspace.fields.decodeGroupId('publisher');
+      final publisherGroup =
+          comicKindWorkspace.fields.decodeGroupId('publisher');
       final seriesGroup = comicKindWorkspace.fields.decodeGroupId('series');
 
       final bucket1 = index.getGroupBucket(
         item,
         publisherGroup,
-        (it, mode) => (it.dto is ComicWorkspaceDto ? (it.dto as ComicWorkspaceDto).publisher : null) ?? 'Unknown',
+        (it, mode) =>
+            (it.dto is ComicWorkspaceDto
+                ? (it.dto as ComicWorkspaceDto).publisher
+                : null) ??
+            'Unknown',
       );
       expect(bucket1, 'Marvel Comics');
       expect(index.extractorCallCount, 1);
@@ -163,7 +167,11 @@ void main() {
       final bucket2 = index.getGroupBucket(
         item,
         publisherGroup,
-        (it, mode) => (it.dto is ComicWorkspaceDto ? (it.dto as ComicWorkspaceDto).publisher : null) ?? 'Unknown',
+        (it, mode) =>
+            (it.dto is ComicWorkspaceDto
+                ? (it.dto as ComicWorkspaceDto).publisher
+                : null) ??
+            'Unknown',
       );
       expect(bucket2, 'Marvel Comics');
       expect(index.extractorCallCount, 1);
@@ -337,8 +345,20 @@ void main() {
 
       final shelf = ShelfState(
         entries: [
-          for (final it in items) it.source,
+          for (final it in items)
+            LibraryEntry(
+              itemId: it.source.itemId,
+              catalogSummary: it.source.catalogSummary,
+              ownedSummary: it.source.ownedSummary,
+              trackingSummary: it.source.trackingSummary,
+              wishlistItem: it.source.wishlistItem,
+              locationPath: it.source.locationPath,
+              watchSessions: it.source.watchSessions,
+              itemImages: it.source.itemImages,
+              fallbackOwnerLabel: it.source.fallbackOwnerLabel,
+            ),
         ],
+        workspaceEntries: [for (final it in items) it.source],
         ownedCount: 2,
         wishlistCount: 0,
         missingGradeCount: 0,
@@ -366,7 +386,7 @@ void main() {
         ),
         query: LibraryProjectionQuery(
           searchQuery: 'Spider',
-        groupId: comicKindWorkspace.fields.decodeGroupId('publisher'),
+          groupId: comicKindWorkspace.fields.decodeGroupId('publisher'),
         ),
       );
 

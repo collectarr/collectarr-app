@@ -40,7 +40,6 @@ class LibrarySearchIndex {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final source = item.source;
-    final catalog = source.catalogItem;
 
     void add(String? value) {
       if (value != null && value.trim().isNotEmpty) {
@@ -53,30 +52,15 @@ class LibrarySearchIndex {
     add(adapter?.itemNumber);
     add(adapter?.variant);
     add(adapter?.format);
+    for (final token in dto.searchTokens) {
+      add(token);
+    }
     if (adapter?.releaseDate != null) {
       add(adapter!.releaseDate!.year.toString());
     }
-    add(source.condition);
     add(source.locationPath);
 
-    if (catalog != null) {
-      add(catalog.originalTitle);
-      add(catalog.displayTitle);
-      add(catalog.localizedTitle);
-      final payload = catalog.payload;
-      add(payload['upc']?.toString());
-      add(payload['publisher']?.toString());
-      add(payload['barcode']?.toString());
-      add(payload['grade']?.toString());
-      final aliases = catalog.searchAliases;
-      if (aliases != null) {
-        for (final alias in aliases) {
-          add(alias);
-        }
-      }
-    }
-
-    final ownedId = source.ownedItem?.id;
+    final ownedId = source.ownedSummary?.ref.id.value ?? source.ownedItem?.id;
     if (ownedId != null) {
       final cfValues = customFieldValuesByItem[ownedId];
       if (cfValues != null) {

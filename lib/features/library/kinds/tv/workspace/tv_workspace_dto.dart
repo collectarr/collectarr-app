@@ -38,6 +38,15 @@ final class TvWorkspaceDto extends WorkspaceDtoAdapter {
   int? get episodeCount => series.episodeCount ?? metadata?.episodeCount;
   int? get episodeRuntimeMinutes => metadata?.episodeRuntimeMinutes;
 
+  @override
+  Iterable<String> get searchTokens => [
+        if (publisher != null) publisher!,
+        if (barcode != null) barcode!,
+        if (contentRating != null) contentRating!,
+        if (tvStatus != null) tvStatus!,
+        if (network != null) network!,
+      ];
+
   static String? _text(Object? value) {
     final text = value?.toString().trim();
     return text == null || text.isEmpty ? null : text;

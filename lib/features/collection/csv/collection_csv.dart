@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
@@ -350,32 +351,36 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
-    final tracking = entry.trackingEntry;
-    final cfValues = o != null
+    final owned = entry.ownedSummary;
+    final tracking = entry.tracking;
+    final cfValues = owned != null || o != null
         ? _customFieldCells(
-            o.id, customFieldDefinitions, customFieldValuesByItem)
+            owned?.ref.id.value ?? o!.id,
+            customFieldDefinitions,
+            customFieldValuesByItem,
+          )
         : List.filled(customFieldDefinitions.length, '');
     return [
       ..._catalogFields(entry),
       _status(entry),
       o?.condition ?? '',
       o?.grade ?? '',
-      _formatDate(o?.purchaseDate),
-      o?.pricePaidCents?.toString() ?? '',
-      o?.currency ?? entry.wishlistItem?.currency ?? '',
-      o?.personalNotes ?? entry.wishlistItem?.notes ?? '',
-      o?.quantity.toString() ?? '',
+      _formatDate(entry.purchaseDate),
+      entry.pricePaidCents?.toString() ?? '',
+      entry.currency ?? entry.wishlistItem?.currency ?? '',
+      entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
+      entry.quantity.toString(),
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
-      tracking?.rating?.toString() ?? '',
-      tracking?.statusStorageValue ?? '',
-      _formatDate(tracking?.startedAt),
-      _formatDate(tracking?.finishedAt),
+      tracking.rating?.toString() ?? '',
+      mediaTrackingStatusToStorageValue(tracking.status) ?? '',
+      _formatDate(tracking.startedAt),
+      _formatDate(tracking.completedAt),
       o?.tags ?? '',
-      _formatDate(o?.soldAt),
-      o?.sellPriceCents?.toString() ?? '',
-      o?.soldTo ?? '',
+      _formatDate(owned?.soldAt ?? o?.soldAt),
+      (owned?.sellPriceCents ?? o?.sellPriceCents)?.toString() ?? '',
+      owned?.soldTo ?? o?.soldTo ?? '',
       ...cfValues,
     ];
   }
@@ -386,39 +391,43 @@ class CollectionCsv {
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
     final o = entry.ownedItem;
-    final tracking = entry.trackingEntry;
-    final cfValues = o != null
+    final owned = entry.ownedSummary;
+    final tracking = entry.tracking;
+    final cfValues = owned != null || o != null
         ? _customFieldCells(
-            o.id, customFieldDefinitions, customFieldValuesByItem)
+            owned?.ref.id.value ?? o!.id,
+            customFieldDefinitions,
+            customFieldValuesByItem,
+          )
         : List.filled(customFieldDefinitions.length, '');
     return [
       ..._catalogFields(entry),
       _clzStatus(entry),
       o?.condition ?? '',
       o?.grade ?? '',
-      _formatDate(o?.purchaseDate),
-      _formatMoney(o?.pricePaidCents),
-      o?.currency ?? entry.wishlistItem?.currency ?? '',
+      _formatDate(entry.purchaseDate),
+      _formatMoney(entry.pricePaidCents),
+      entry.currency ?? entry.wishlistItem?.currency ?? '',
       ..._kindOwnedCellsBeforeQuantity(entry, clzFriendly: true),
-      o?.quantity.toString() ?? '',
+      entry.quantity.toString(),
       _locationCell(entry),
       o?.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
-      tracking?.rating?.toString() ?? '',
-      tracking?.statusStorageValue ?? '',
-      _formatDate(tracking?.startedAt),
-      _formatDate(tracking?.finishedAt),
+      tracking.rating?.toString() ?? '',
+      mediaTrackingStatusToStorageValue(tracking.status) ?? '',
+      _formatDate(tracking.startedAt),
+      _formatDate(tracking.completedAt),
       o?.tags ?? '',
-      o?.personalNotes ?? entry.wishlistItem?.notes ?? '',
-      _formatDate(o?.soldAt),
-      _formatMoney(o?.sellPriceCents),
-      o?.soldTo ?? '',
+      entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
+      _formatDate(owned?.soldAt ?? o?.soldAt),
+      _formatMoney(owned?.sellPriceCents ?? o?.sellPriceCents),
+      owned?.soldTo ?? o?.soldTo ?? '',
       ...cfValues,
     ];
   }
 
   String _locationCell(ShelfEntry entry) {
-    return entry.locationPath ?? entry.ownedItem?.locationId ?? '';
+    return entry.locationPath ?? entry.ownedSummary?.locationLabel ?? '';
   }
 
   List<String> _customFieldCells(

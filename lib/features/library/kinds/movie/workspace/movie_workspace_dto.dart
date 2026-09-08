@@ -59,4 +59,15 @@ final class MovieWorkspaceDto extends WorkspaceDtoAdapter {
         if (entry is String) entry
     ];
   }
+
+  @override
+  Iterable<String> get searchTokens => [
+        if (publisher != null) publisher!,
+        if (barcode != null) barcode!,
+        if (director != null) director!,
+        if (writer != null) writer!,
+        if (studio != null) studio!,
+        if (originalTitle != null) originalTitle!,
+        ...genres,
+      ];
 }

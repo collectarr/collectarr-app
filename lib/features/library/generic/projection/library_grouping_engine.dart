@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
@@ -96,8 +95,7 @@ class LibraryGroupingEngine {
       final adapter = item.dto is WorkspaceDtoAdapter
           ? item.dto as WorkspaceDtoAdapter
           : null;
-      final year = adapter?.releaseDate?.year ??
-          item.source.catalogItem?.releaseDate?.year;
+      final year = adapter?.releaseDate?.year;
       if (year != null) {
         final existing = startYears[bucket];
         if (existing == null || year < existing) {
