@@ -963,7 +963,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
   final type = defaultLibraryKindRegistry.tryGet(
-    catalogMediaKindFromValue(item.source.catalogItem?.kind),
+    item.source.mediaKind,
   );
   if (type == null) {
     return null;

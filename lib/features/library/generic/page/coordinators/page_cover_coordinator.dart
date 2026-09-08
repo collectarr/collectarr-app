@@ -24,9 +24,9 @@ class LibraryPageCoverCoordinator {
 
     final itemsToCover = <String, String?>{};
     for (final entry in shelfState.resolvedWorkspaceEntries) {
-      final ownedId = entry.ownedItem?.id;
+      final ownedId = entry.ownedRef?.id.value;
       if (ownedId == null) continue;
-      itemsToCover[ownedId] = entry.catalogItem?.displayCoverUrl;
+      itemsToCover[ownedId] = entry.catalogSummary?.imageUrl;
     }
     if (itemsToCover.isEmpty) return;
 

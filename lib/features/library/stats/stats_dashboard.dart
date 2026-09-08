@@ -419,7 +419,7 @@ class _GenericStatsDashboard extends StatelessWidget {
             .project(
               source: entry,
               node: LibraryTitleNodeRef(
-                titleItemId: entry.catalogItem?.id ?? entry.itemId,
+                titleItemId: entry.catalogRef?.id ?? entry.itemId,
               ),
             )
             .dto;
@@ -449,7 +449,7 @@ class _GenericStatsDashboard extends StatelessWidget {
             .project(
               source: entry,
               node: LibraryTitleNodeRef(
-                titleItemId: entry.catalogItem?.id ?? entry.itemId,
+                titleItemId: entry.catalogRef?.id ?? entry.itemId,
               ),
             )
             .dto;
