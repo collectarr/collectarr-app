@@ -72,6 +72,7 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final String? locationId;
   final String? purchaseStore;
   final String? collectionStatus;
+  @override
   final bool? isDigital;
   final String? tags;
 
@@ -80,7 +81,7 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
-    required CatalogItemDto? existingCatalog,
+    required bool? existingIsDigital,
     required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,
@@ -89,7 +90,7 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       id: ComicOwnedItemId(id),
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
-      isDigital: isDigital ?? existingCatalog?.physicalFormat == 'digital',
+      isDigital: isDigital ?? existingIsDigital,
       anchor: anchor,
       details: details.toDetails(),
       condition: condition,

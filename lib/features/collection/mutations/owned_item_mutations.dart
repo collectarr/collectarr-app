@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -80,16 +79,12 @@ final class OwnedItemMutations {
 
         final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
         final typedPayload = command.typedPayload;
-        final details = typedPayload.detailsDraft.toDetails();
-        if (mediaKind != CatalogMediaKind.unknown) {
-          collectarrOwnedDetailsCodecForKind(mediaKind).validate(details);
-        }
-
         final typedOwnedItem = typedPayload.toOwnedItem(
           resolvedCatalogRef: resolvedCatalogRef,
           id: newItemId,
           createdAt: now,
-          existingCatalog: existingCatalog,
+          existingIsDigital: typedPayload.isDigital ??
+              (existingCatalog?.physicalFormat == 'digital'),
           anchor: anchor,
           ownerUserId: userId,
           ownerLabel: userEmail,

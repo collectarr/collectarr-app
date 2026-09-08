@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
@@ -12,6 +11,7 @@ import 'package:collectarr_app/features/library/config/owned_details_draft.dart'
 abstract interface class OwnedItemCreatePayload {
   CatalogEntityRef get catalogRef;
   OwnedDetailsDraft get detailsDraft;
+  bool? get isDigital;
 
   /// Builds the complete kind-owned aggregate.
   ///
@@ -22,7 +22,7 @@ abstract interface class OwnedItemCreatePayload {
     required CatalogEntityRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
-    required CatalogItemDto? existingCatalog,
+    required bool? existingIsDigital,
     required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,
