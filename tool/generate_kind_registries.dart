@@ -240,7 +240,7 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'provider',
           '${folder}_provider_mapper.dart',
-          'LibraryKindProviderMapper',
+          'TypedLibraryKindProviderMapper',
         ),
         ownedDetailsCodec: _discoverContributor(
           entity,
@@ -757,13 +757,8 @@ import 'package:go_router/go_router.dart';
     type: 'CustomEpisodeCodec',
     field: (descriptor) => descriptor.customEpisodeCodec,
   );
-  _renderContributorMap(
-    buffer,
-    descriptors: descriptors,
-    name: 'collectarrKindProviderMappers',
-    type: 'LibraryKindProviderMapper',
-    field: (descriptor) => descriptor.providerMapper,
-  );
+  _renderProviderMetadataMapperMap(buffer, descriptors);
+  _renderProviderCorrectionBuilderMap(buffer, descriptors);
   _renderContributorMap(
     buffer,
     descriptors: descriptors,
@@ -954,6 +949,46 @@ void _renderContributorMap(
     if (contributor == null) continue;
     buffer.writeln(
       '  CatalogMediaKind.${descriptor.folder}: const ${contributor.className}(),',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+}
+
+void _renderProviderMetadataMapperMap(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'final collectarrKindProviderMetadataMappers = '
+    '<CatalogMediaKind, ProviderMetadataItemMapper>{',
+  );
+  for (final descriptor in descriptors) {
+    final contributor = descriptor.providerMapper;
+    if (contributor == null) continue;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      'const ${contributor.className}().metadataItemFromEnvelope,',
+    );
+  }
+  buffer.writeln('};');
+  buffer.writeln();
+}
+
+void _renderProviderCorrectionBuilderMap(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors,
+) {
+  buffer.writeln(
+    'final collectarrKindProviderCorrectionBuilders = '
+    '<CatalogMediaKind, ProviderCorrectionBuilder>{',
+  );
+  for (final descriptor in descriptors) {
+    final contributor = descriptor.providerMapper;
+    if (contributor == null) continue;
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      'const ${contributor.className}().buildCorrections,',
     );
   }
   buffer.writeln('};');

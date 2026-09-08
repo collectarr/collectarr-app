@@ -1395,7 +1395,7 @@ class LibraryAddSessionController
             providerActionService: providerActionService,
             providerOrchestrationService: providerOrchestrationService,
             providerMapper:
-                libraryKindProviderMapperForKind(type.kind)?.buildCorrections ??
+                libraryKindProviderCorrectionBuilderForKind(type.kind) ??
                     ((
                             {required CatalogItemDto edited,
                             required CatalogItemDto preview}) =>

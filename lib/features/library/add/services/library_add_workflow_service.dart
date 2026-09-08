@@ -40,11 +40,11 @@ class LibraryAddWorkflowService {
           provider: preview.provider,
           providerItemId: preview.providerItemId,
         );
-    final mapper = libraryKindProviderMapperForKind(mediaKind);
+    final mapper = libraryKindProviderMetadataMapperForKind(mediaKind);
     if (mapper == null) {
       throw StateError('No provider mapper registered for ${preview.kind}');
     }
-    return mapper.metadataItemFromEnvelope(
+    return mapper(
       NormalizedProviderEnvelopeV1.fromAdminPreview(
         preview,
         itemId: id,

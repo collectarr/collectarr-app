@@ -364,17 +364,45 @@ const List<CustomEpisodeCodec> collectarrCustomEpisodeCodecs = [
   TvCustomEpisodeCodec(),
 ];
 
-final collectarrKindProviderMappers =
-    <CatalogMediaKind, LibraryKindProviderMapper>{
-  CatalogMediaKind.anime: const AnimeLibraryKindProviderMapper(),
-  CatalogMediaKind.boardgame: const BoardGameLibraryKindProviderMapper(),
-  CatalogMediaKind.book: const BookLibraryKindProviderMapper(),
-  CatalogMediaKind.comic: const ComicLibraryKindProviderMapper(),
-  CatalogMediaKind.game: const GameLibraryKindProviderMapper(),
-  CatalogMediaKind.manga: const MangaLibraryKindProviderMapper(),
-  CatalogMediaKind.movie: const MovieLibraryKindProviderMapper(),
-  CatalogMediaKind.music: const MusicLibraryKindProviderMapper(),
-  CatalogMediaKind.tv: const TvLibraryKindProviderMapper(),
+final collectarrKindProviderMetadataMappers =
+    <CatalogMediaKind, ProviderMetadataItemMapper>{
+  CatalogMediaKind.anime:
+      const AnimeLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.boardgame:
+      const BoardGameLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.book:
+      const BookLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.comic:
+      const ComicLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.game:
+      const GameLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.manga:
+      const MangaLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.movie:
+      const MovieLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.music:
+      const MusicLibraryKindProviderMapper().metadataItemFromEnvelope,
+  CatalogMediaKind.tv:
+      const TvLibraryKindProviderMapper().metadataItemFromEnvelope,
+};
+
+final collectarrKindProviderCorrectionBuilders =
+    <CatalogMediaKind, ProviderCorrectionBuilder>{
+  CatalogMediaKind.anime:
+      const AnimeLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.boardgame:
+      const BoardGameLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.book: const BookLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.comic:
+      const ComicLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.game: const GameLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.manga:
+      const MangaLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.movie:
+      const MovieLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.music:
+      const MusicLibraryKindProviderMapper().buildCorrections,
+  CatalogMediaKind.tv: const TvLibraryKindProviderMapper().buildCorrections,
 };
 
 final collectarrKindOwnedDetailsCodecs =

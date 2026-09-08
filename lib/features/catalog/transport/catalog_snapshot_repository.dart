@@ -35,13 +35,10 @@ final class CatalogSnapshotRepository {
     final normalizedKind = kind?.trim().toLowerCase();
     final requestedKind = normalizedKind == null || normalizedKind.isEmpty
         ? null
-        : catalogMediaKindFromApiValue(normalizedKind);
+        : normalizedKind;
     return [
       for (final item in await _allItems())
-        if (requestedKind == null ||
-            (requestedKind != CatalogMediaKind.unknown &&
-                item.mediaKind == requestedKind))
-          item,
+        if (requestedKind == null || item.kind == requestedKind) item,
     ];
   }
 

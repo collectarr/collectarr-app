@@ -279,10 +279,10 @@ void main() {
       final envelope = _envelopeFor(testCase);
       expect(envelope.normalized['kind'], testCase.kind.apiValue);
 
-      final mapper = libraryKindProviderMapperForKind(testCase.kind);
+      final mapper = libraryKindProviderMetadataMapperForKind(testCase.kind);
       expect(mapper, isNotNull);
 
-      final item = mapper!.metadataItemFromEnvelope(envelope);
+      final item = mapper!(envelope);
       expect(item.mediaKind, testCase.kind);
       expect(item.id, testCase.providerItemId);
       expect(item.title.trim(), isNotEmpty);
@@ -311,10 +311,10 @@ void main() {
         images: const [],
         attribution: const ProviderAttribution(required: false),
       );
-      final mapper = libraryKindProviderMapperForKind(runtime.kind)!;
+      final mapper = libraryKindProviderMetadataMapperForKind(runtime.kind)!;
 
       expect(
-        () => mapper.metadataItemFromEnvelope(envelope),
+        () => mapper(envelope),
         throwsA(isA<StateError>()),
         reason: '${runtime.kind.apiValue} must validate its input kind',
       );
