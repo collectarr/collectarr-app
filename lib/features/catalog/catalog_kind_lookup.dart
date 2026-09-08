@@ -11,12 +11,22 @@ export 'package:collectarr_app/core/models/catalog_search_hit.dart';
 abstract interface class CatalogKindLookup {
   CatalogMediaKind get kind;
 
-  Future<CatalogSearchHit?> findByBarcode(String barcode);
+  /// Resolves one opaque import value using the owning kind's semantics.
+  ///
+  /// The collection/import host does not decide whether [value] is a
+  /// barcode, ISBN, issue number, catalog number, or another identifier.
+  Future<CatalogSearchHit?> resolve(CatalogLookupQuery query);
+}
 
-  Future<CatalogSearchHit?> findByTitleAndItemNumber({
-    required String title,
-    String? itemNumber,
-  });
+/// Structural lookup input shared by import and global discovery hosts.
+///
+/// [value] is deliberately opaque. Each kind decides how to interpret it
+/// when [title] is present or absent.
+final class CatalogLookupQuery {
+  const CatalogLookupQuery({this.title, this.value});
+
+  final String? title;
+  final String? value;
 }
 
 String normalizeCatalogLookupValue(String value) {

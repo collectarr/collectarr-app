@@ -283,8 +283,8 @@ final class CollectionImportService {
       if (row.itemId.trim().isEmpty) {
         final barcode = lookup.barcode;
         if (barcode != null && barcode.isNotEmpty) {
-          final matched = await catalogLookup.findByBarcode(
-            barcode,
+          final matched = await catalogLookup.resolve(
+            CatalogLookupQuery(value: barcode),
             kind: row.kind,
           );
           if (matched != null) {
@@ -294,9 +294,11 @@ final class CollectionImportService {
         if (row.itemId.trim().isEmpty &&
             row.title != null &&
             row.title!.trim().isNotEmpty) {
-          final matched = await catalogLookup.findByTitleAndItemNumber(
-            title: row.title!,
-            itemNumber: lookup.primary,
+          final matched = await catalogLookup.resolve(
+            CatalogLookupQuery(
+              title: row.title!,
+              value: lookup.primary,
+            ),
             kind: row.kind,
           );
           if (matched != null) {

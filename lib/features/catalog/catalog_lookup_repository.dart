@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_catalog_kind_lookups.dart';
 
+export 'catalog_kind_lookup.dart' show CatalogLookupQuery;
+
 /// Orchestrates typed catalog lookups without inspecting kind metadata.
 final class CatalogLookupRepository {
   CatalogLookupRepository(
@@ -13,8 +15,8 @@ final class CatalogLookupRepository {
 
   final List<CatalogKindLookup> _lookups;
 
-  Future<CatalogSearchHit?> findByBarcode(
-    String barcode, {
+  Future<CatalogSearchHit?> resolve(
+    CatalogLookupQuery query, {
     String? kind,
   }) async {
     final normalizedKind = _normalizeKind(kind);
@@ -22,26 +24,7 @@ final class CatalogLookupRepository {
       if (normalizedKind != null && lookup.kind.apiValue != normalizedKind) {
         continue;
       }
-      final hit = await lookup.findByBarcode(barcode);
-      if (hit != null) return hit;
-    }
-    return null;
-  }
-
-  Future<CatalogSearchHit?> findByTitleAndItemNumber({
-    required String title,
-    required String? itemNumber,
-    String? kind,
-  }) async {
-    final normalizedKind = _normalizeKind(kind);
-    for (final lookup in _lookups) {
-      if (normalizedKind != null && lookup.kind.apiValue != normalizedKind) {
-        continue;
-      }
-      final hit = await lookup.findByTitleAndItemNumber(
-        title: title,
-        itemNumber: itemNumber,
-      );
+      final hit = await lookup.resolve(query);
       if (hit != null) return hit;
     }
     return null;

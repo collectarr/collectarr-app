@@ -157,7 +157,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   Future<OwnedItemSummary?> _resolveOwnedItemFromBarcode(String barcode) async {
     final catalog = await CatalogLookupRepository(
       ref.read(localDatabaseProvider),
-    ).findByBarcode(barcode);
+    ).resolve(CatalogLookupQuery(value: barcode));
     if (catalog == null) {
       return null;
     }

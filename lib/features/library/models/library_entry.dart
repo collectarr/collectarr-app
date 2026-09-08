@@ -115,42 +115,55 @@ final class TrackingSummary {
 }
 
 /// Complete source used after a kind has been selected by the Library
-/// workspace. It is separate from [LibraryEntry], the mixed projection.
-class LibraryWorkspaceEntry extends LibraryEntry {
+/// workspace. It is intentionally separate from [LibraryEntry], the mixed
+/// projection; the two models must not form an inheritance-based compatibility
+/// union.
+class LibraryWorkspaceEntry {
   const LibraryWorkspaceEntry({
-    required super.itemId,
-    super.catalogSummary,
-    super.ownedSummary,
-    super.trackingSummary,
-    super.wishlistItem,
-    super.locationPath,
-    super.watchSessions,
-    super.itemImages,
-    super.fallbackOwnerLabel,
+    required this.itemId,
+    this.catalogSummary,
+    this.ownedSummary,
+    this.trackingSummary,
+    this.wishlistItem,
+    this.locationPath,
+    this.watchSessions = const <WatchSession>[],
+    this.itemImages = const <ItemImage>[],
+    this.fallbackOwnerLabel,
     this.catalogItem,
     this.ownedItem,
     this.trackingEntry,
   });
 
+  final String itemId;
+  final CatalogDisplaySummary? catalogSummary;
+  final OwnedItemSummary? ownedSummary;
+  final TrackingSummary? trackingSummary;
+  final WishlistItem? wishlistItem;
+  final String? locationPath;
+  final List<WatchSession> watchSessions;
+  final List<ItemImage> itemImages;
+  final String? fallbackOwnerLabel;
   final CatalogItemDto? catalogItem;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
 
+  CatalogEntityRef? get catalogRef =>
+      catalogSummary?.ref ??
+      ownedSummary?.catalogRef ??
+      wishlistItem?.catalogRef ??
+      catalogItem?.catalogRef;
+
+  bool get isOwned => ownedSummary != null || ownedItem != null;
+  bool get isTracked => trackingSummary != null || trackingEntry != null;
+  bool get isWishlisted => wishlistItem != null;
+
   Object? get kindMetadata => catalogItem?.kindMetadata;
 
-  @override
-  bool get isOwned => ownedSummary != null || ownedItem != null;
-
-  @override
-  bool get isTracked => trackingSummary != null || trackingEntry != null;
-
-  @override
   bool get hasNotes =>
       (ownedSummary?.hasNotes ??
           ownedItem?.personalNotes?.trim().isNotEmpty == true) ||
       (wishlistItem?.notes?.trim().isNotEmpty ?? false);
 
-  @override
   DateTime get updatedAt {
     final values = <DateTime>[
       if (ownedSummary?.updatedAt case final value?) value,
@@ -164,13 +177,11 @@ class LibraryWorkspaceEntry extends LibraryEntry {
     return values.first;
   }
 
-  @override
   DateTime? get addedAt =>
       ownedSummary?.createdAt ??
       ownedItem?.createdAt ??
       wishlistItem?.createdAt;
 
-  @override
   String get title {
     final value = catalogSummary?.title.trim();
     if (value != null && value.isNotEmpty) return value;
@@ -180,16 +191,13 @@ class LibraryWorkspaceEntry extends LibraryEntry {
     return 'Catalog item ${itemId.substring(0, length)}';
   }
 
-  @override
   MediaTracking get tracking =>
       trackingSummary?.tracking ??
       const MediaTracking(status: MediaTrackingStatus.none);
 
-  @override
   String? get ownerLabel =>
       ownedSummary?.ownerLabel ?? ownedItem?.ownerLabel ?? fallbackOwnerLabel;
 
-  @override
   int get quantity => ownedSummary?.quantity ?? ownedItem?.quantity ?? 0;
 
   // These fields remain available only on the post-dispatch workspace source.

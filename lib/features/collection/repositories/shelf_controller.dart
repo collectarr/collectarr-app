@@ -296,11 +296,7 @@ class ShelfState {
   final List<ShelfEntry>? workspaceEntries;
 
   List<ShelfEntry> get resolvedWorkspaceEntries =>
-      workspaceEntries ??
-      [
-        for (final entry in entries)
-          if (entry is ShelfEntry) entry
-      ];
+      workspaceEntries ?? const <ShelfEntry>[];
 
   ShelfEntry? workspaceEntryFor(String itemId) {
     for (final entry in resolvedWorkspaceEntries) {

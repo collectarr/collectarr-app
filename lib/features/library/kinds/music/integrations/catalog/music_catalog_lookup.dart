@@ -13,7 +13,17 @@ final class MusicCatalogLookup implements CatalogKindLookup {
   CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
-  Future<CatalogSearchHit?> findByBarcode(String barcode) async {
+  Future<CatalogSearchHit?> resolve(CatalogLookupQuery query) {
+    if (query.title?.trim().isNotEmpty == true) {
+      return _findByTitleAndItemNumber(
+        title: query.title!,
+        itemNumber: query.value,
+      );
+    }
+    return _findByBarcode(query.value ?? '');
+  }
+
+  Future<CatalogSearchHit?> _findByBarcode(String barcode) async {
     final normalized = normalizeCatalogLookupValue(barcode);
     if (normalized.isEmpty) return null;
     for (final release in await MusicRepository(_db).search()) {
@@ -22,8 +32,7 @@ final class MusicCatalogLookup implements CatalogKindLookup {
     return null;
   }
 
-  @override
-  Future<CatalogSearchHit?> findByTitleAndItemNumber({
+  Future<CatalogSearchHit?> _findByTitleAndItemNumber({
     required String title,
     String? itemNumber,
   }) async {

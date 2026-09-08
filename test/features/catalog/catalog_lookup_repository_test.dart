@@ -64,8 +64,10 @@ void main() {
     }
 
     for (final kind in kinds) {
-      final hit = await lookup.findByBarcode(
-        '978 0 306 40615 ${kinds.indexOf(kind)}',
+      final hit = await lookup.resolve(
+        CatalogLookupQuery(
+          value: '978 0 306 40615 ${kinds.indexOf(kind)}',
+        ),
         kind: kind.apiValue,
       );
       expect(hit, isNotNull, reason: kind.apiValue);
@@ -97,9 +99,8 @@ void main() {
     }
 
     for (final kind in kinds) {
-      final hit = await lookup.findByTitleAndItemNumber(
-        title: '  ${kind.apiValue}   title ',
-        itemNumber: '42',
+      final hit = await lookup.resolve(
+        CatalogLookupQuery(title: '  ${kind.apiValue}   title ', value: '42'),
         kind: kind.apiValue,
       );
       expect(hit, isNotNull, reason: kind.apiValue);
@@ -109,17 +110,19 @@ void main() {
   });
 
   test('unknown kind and empty identifiers return no match', () async {
-    expect(await lookup.findByBarcode('---'), isNull);
     expect(
-      await lookup.findByBarcode('123',
-          kind: CatalogMediaKind.unknown.apiValue),
+      await lookup.resolve(const CatalogLookupQuery(value: '---')),
       isNull,
     );
     expect(
-      await lookup.findByTitleAndItemNumber(
-        title: '   ',
-        itemNumber: null,
+      await lookup.resolve(
+        const CatalogLookupQuery(value: '123'),
+        kind: CatalogMediaKind.unknown.apiValue,
       ),
+      isNull,
+    );
+    expect(
+      await lookup.resolve(const CatalogLookupQuery(title: '   ')),
       isNull,
     );
   });
