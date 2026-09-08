@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';

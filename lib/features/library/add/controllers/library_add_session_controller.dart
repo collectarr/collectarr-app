@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';

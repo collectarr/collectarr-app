@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'provider_attribution.dart';
 import 'provider_image_ref.dart';
 import 'provider_provenance.dart';

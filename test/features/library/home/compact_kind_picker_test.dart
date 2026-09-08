@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/compact_kind_picker.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';

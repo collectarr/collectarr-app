@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';

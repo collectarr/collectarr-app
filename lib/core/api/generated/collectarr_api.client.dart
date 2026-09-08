@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'collectarr_api.models.dart';
 import 'package:dio/dio.dart';

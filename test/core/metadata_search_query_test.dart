@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

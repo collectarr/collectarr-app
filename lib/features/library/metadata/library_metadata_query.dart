@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
