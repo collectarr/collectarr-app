@@ -26,6 +26,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -129,7 +130,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime? item;
+  final LibraryProjectionView? item;
   final OwnedItem? ownedItem;
   final List<OwnedItem>? ownedCopies;
   final LibraryDetailsLayout detailsLayout;
@@ -229,7 +230,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ? () => showMetadataCorrectionDialog(
               context: context,
               ref: ref,
-              item: selected.source.catalogItem!,
+              source: LibraryMetadataCorrectionSource(
+                title: selected.source.catalogItem!.title,
+                payload: Map<String, Object?>.from(
+                  selected.source.catalogItem!.toSyncPayload(),
+                ),
+              ),
               type: widget.type,
             )
         : null;
@@ -320,7 +326,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
-    LibraryProjectionRuntime selected,
+    LibraryProjectionView selected,
     OwnedItem? activeOwnedItem,
     List<OwnedItem> ownedCopies,
     TrackingEntry? activeTrackingEntry,
@@ -640,7 +646,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _addOwnedCopy(
-    LibraryProjectionRuntime item, {
+    LibraryProjectionView item, {
     OwnedItem? ownedItem,
   }) async {
     final anchor = resolveLibraryMutationAnchor(
@@ -682,7 +688,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _duplicateOwnedCopy(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     OwnedItem ownedItem,
   ) async {
     final catalogItem = item.source.catalogItem;
@@ -721,8 +727,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  Future<void> _refreshSelectedEntryMetadata(
-      LibraryProjectionRuntime item) async {
+  Future<void> _refreshSelectedEntryMetadata(LibraryProjectionView item) async {
     final result = await showLibraryMetadataRefreshDialog(
       context: context,
       type: widget.type,
@@ -743,11 +748,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  void _shareInspectorEntry(LibraryProjectionRuntime item) {
+  void _shareInspectorEntry(LibraryProjectionView item) {
     showCollectionShareDialog(
       context: context,
       title: item.dto.title,
-      items: <LibraryProjectionRuntime>[item],
+      items: <LibraryProjectionView>[item],
     );
   }
 }

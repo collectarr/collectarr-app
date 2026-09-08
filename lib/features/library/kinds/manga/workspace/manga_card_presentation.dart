@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a manga workspace item.
 LibraryCardPresentation buildMangaCardPresentation(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 }) {
   final mangaDetails = item.source.ownedItem?.details as MangaOwnedDetails?;

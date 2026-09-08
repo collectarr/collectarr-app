@@ -25,7 +25,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? activeOwnedItem;
   final List<OwnedItem> ownedCopies;
   final String? selectedOwnedItemId;
@@ -134,7 +134,7 @@ class LibraryDetailStatsBar extends StatelessWidget {
     this.ownedCopies = const [],
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final List<OwnedItem> ownedCopies;
 

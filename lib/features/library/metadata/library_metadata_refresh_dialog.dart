@@ -32,9 +32,9 @@ Future<LibraryMetadataRefreshResult?> showLibraryMetadataRefreshDialog({
   required BuildContext context,
   required LibraryKindModule type,
   required Color accent,
-  required List<LibraryProjectionRuntime> allEntries,
-  required List<LibraryProjectionRuntime> shownEntries,
-  required LibraryProjectionRuntime? selectedEntry,
+  required List<LibraryProjectionView> allEntries,
+  required List<LibraryProjectionView> shownEntries,
+  required LibraryProjectionView? selectedEntry,
 }) {
   return showDialog<LibraryMetadataRefreshResult>(
     context: context,
@@ -60,9 +60,9 @@ class LibraryMetadataRefreshDialog extends ConsumerStatefulWidget {
 
   final LibraryKindModule type;
   final Color accent;
-  final List<LibraryProjectionRuntime> allEntries;
-  final List<LibraryProjectionRuntime> shownEntries;
-  final LibraryProjectionRuntime? selectedEntry;
+  final List<LibraryProjectionView> allEntries;
+  final List<LibraryProjectionView> shownEntries;
+  final LibraryProjectionView? selectedEntry;
 
   @override
   ConsumerState<LibraryMetadataRefreshDialog> createState() =>
@@ -322,7 +322,7 @@ class _LibraryMetadataRefreshDialogState
     });
   }
 
-  List<LibraryProjectionRuntime> _targetEntries() {
+  List<LibraryProjectionView> _targetEntries() {
     final values = switch (_scope) {
       _RefreshScope.selected => [
           if (widget.selectedEntry != null) widget.selectedEntry!,
@@ -342,13 +342,12 @@ class _LibraryMetadataRefreshDialogState
     return _dedupe(values);
   }
 
-  LibraryMetadataSearchInput _inputForEntry(LibraryProjectionRuntime item) {
+  LibraryMetadataSearchInput _inputForEntry(LibraryProjectionView item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
-    final barcodeVal = (payload['barcode'] ?? payload['upc'])
-        ?.toString()
-        .trim();
+    final barcodeVal =
+        (payload['barcode'] ?? payload['upc'])?.toString().trim();
     if (barcodeVal != null && barcodeVal.isNotEmpty) {
       return LibraryMetadataSearchInput(
         query: dto.title,
@@ -371,13 +370,12 @@ class _LibraryMetadataRefreshDialogState
     );
   }
 
-  String _describeSearch(LibraryProjectionRuntime item) {
+  String _describeSearch(LibraryProjectionView item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
-    final barcodeVal = (payload['barcode'] ?? payload['upc'])
-        ?.toString()
-        .trim();
+    final barcodeVal =
+        (payload['barcode'] ?? payload['upc'])?.toString().trim();
     if (barcodeVal != null && barcodeVal.isNotEmpty) {
       return 'Barcode $barcodeVal';
     }
@@ -406,7 +404,7 @@ class _RefreshRow {
   });
 
   factory _RefreshRow.waiting({
-    required LibraryProjectionRuntime entry,
+    required LibraryProjectionView entry,
     required String message,
   }) {
     return _RefreshRow(
@@ -416,7 +414,7 @@ class _RefreshRow {
     );
   }
 
-  final LibraryProjectionRuntime entry;
+  final LibraryProjectionView entry;
   final _RefreshRowStatus status;
   final String message;
   final int cached;
@@ -528,7 +526,7 @@ class _RefreshTargetList extends StatelessWidget {
   });
 
   final List<_RefreshRow> rows;
-  final List<LibraryProjectionRuntime> targets;
+  final List<LibraryProjectionView> targets;
   final Color accent;
 
   @override
@@ -669,10 +667,9 @@ class _RefreshNotice extends StatelessWidget {
   }
 }
 
-List<LibraryProjectionRuntime> _dedupe(
-    Iterable<LibraryProjectionRuntime> values) {
+List<LibraryProjectionView> _dedupe(Iterable<LibraryProjectionView> values) {
   final seen = <String>{};
-  final result = <LibraryProjectionRuntime>[];
+  final result = <LibraryProjectionView>[];
   for (final value in values) {
     if (seen.add(value.node.titleItemId)) {
       result.add(value);

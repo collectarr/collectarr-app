@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a comic workspace item.
 LibraryCardPresentation buildComicCardPresentation(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 }) {
   final ownedItem = item.dto is ComicWorkspaceDto

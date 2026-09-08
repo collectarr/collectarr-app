@@ -26,7 +26,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   });
 
   final LibraryKindModule? type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;
@@ -195,7 +195,7 @@ int? _sumOwnedValueCents(
 String? _detailValueCurrency(
   List<OwnedItem> ownedCopies,
   OwnedItem? ownedItem,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();
@@ -238,7 +238,7 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
     required this.ownedItem,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
 
   @override

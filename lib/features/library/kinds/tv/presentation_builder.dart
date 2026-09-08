@@ -49,7 +49,7 @@ class TvLibraryMediaPresentationBuilder
   @override
   Widget? buildKindDrilldown({
     required BuildContext context,
-    required LibraryProjectionRuntime selectedItem,
+    required LibraryProjectionView selectedItem,
     required Color accent,
     required double coverSize,
     required VoidCallback onBack,

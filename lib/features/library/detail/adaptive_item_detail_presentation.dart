@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 Future<void> showAdaptiveItemDetail({
   required BuildContext context,
   required LibraryKindModule type,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required OwnedItem? ownedItem,
   required Color accent,
   required VoidCallback? onAddOwned,

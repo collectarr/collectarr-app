@@ -12,7 +12,7 @@ const comicRelationCapability = LibraryRelationCapability(
 );
 
 LibraryRelationTarget? _comicRelationTargetFor(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final dto = item.dto;
   if (dto is! ComicWorkspaceDto) {

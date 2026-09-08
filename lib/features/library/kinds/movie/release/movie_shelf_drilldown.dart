@@ -23,7 +23,7 @@ class MovieShelfReleaseDrilldownItem {
     required this.node,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final String sourceLabel;
   final int ownedCount;
   final int wishlistCount;
@@ -32,7 +32,7 @@ class MovieShelfReleaseDrilldownItem {
 
 bool canOpenMovieShelfDrilldown(
   LibraryKindModule? type,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   if (item.node.scope != LibraryBrowserScope.title) {
     return false;
@@ -44,7 +44,7 @@ bool canOpenMovieShelfDrilldown(
 }
 
 List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
-  required LibraryProjectionRuntime titleItem,
+  required LibraryProjectionView titleItem,
   required List<OwnedItem> ownedCopies,
   required List<WishlistItem> wishlistItems,
   required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,
@@ -92,7 +92,7 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
 }
 
 MovieShelfReleaseDrilldownItem _buildDrilldownItem(
-  LibraryProjectionRuntime titleItem,
+  LibraryProjectionView titleItem,
   CatalogEditionDto edition, {
   required List<CatalogEditionDto> editions,
   required List<OwnedItem> ownedCopies,
@@ -182,7 +182,7 @@ class MovieShelfReleaseDrilldown extends StatelessWidget {
     required this.onOpenTitleDetails,
   });
 
-  final LibraryProjectionRuntime titleItem;
+  final LibraryProjectionView titleItem;
   final List<MovieShelfReleaseDrilldownItem> items;
   final String? selectedReleaseId;
   final double coverSize;

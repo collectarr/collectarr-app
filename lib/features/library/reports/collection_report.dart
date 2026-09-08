@@ -29,7 +29,7 @@ enum ReportColumn {
   final String label;
   final double flex;
 
-  String extractFrom(LibraryProjectionRuntime item) {
+  String extractFrom(LibraryProjectionView item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     return switch (this) {
@@ -39,15 +39,24 @@ enum ReportColumn {
       ReportColumn.condition => item.source.condition ?? '',
       ReportColumn.grade =>
         (item.source.ownedItem?.toSyncPayload()['grade'] as String?) ?? '',
-      ReportColumn.publisher => (item.source.catalogItem?.toSyncPayload()['publisher'] ??
-          (item.source.catalogItem?.toSyncPayload()['publishing']
-                  as Map<String, dynamic>?)?['original_publisher'] ??
-          item.source.catalogItem?.toSyncPayload()['studio'] ??
-          item.source.catalogItem?.toSyncPayload()['network'])?.toString() ?? '',
-      ReportColumn.barcode => (item.source.catalogItem?.toSyncPayload()['barcode'] ??
-          item.source.catalogItem?.toSyncPayload()['upc'])?.toString() ?? '',
-      ReportColumn.barcodeImage => (item.source.catalogItem?.toSyncPayload()['barcode'] ??
-          item.source.catalogItem?.toSyncPayload()['upc'])?.toString() ?? '',
+      ReportColumn.publisher =>
+        (item.source.catalogItem?.toSyncPayload()['publisher'] ??
+                    (item.source.catalogItem?.toSyncPayload()['publishing']
+                        as Map<String, dynamic>?)?['original_publisher'] ??
+                    item.source.catalogItem?.toSyncPayload()['studio'] ??
+                    item.source.catalogItem?.toSyncPayload()['network'])
+                ?.toString() ??
+            '',
+      ReportColumn.barcode =>
+        (item.source.catalogItem?.toSyncPayload()['barcode'] ??
+                    item.source.catalogItem?.toSyncPayload()['upc'])
+                ?.toString() ??
+            '',
+      ReportColumn.barcodeImage =>
+        (item.source.catalogItem?.toSyncPayload()['barcode'] ??
+                    item.source.catalogItem?.toSyncPayload()['upc'])
+                ?.toString() ??
+            '',
       ReportColumn.year => adapter?.releaseDate?.year.toString() ?? '',
       ReportColumn.format => adapter?.referenceFormatLabel ??
           adapter?.format ??
@@ -74,7 +83,7 @@ const _defaultReportColumns = [
 Future<void> printCollectionReport({
   required BuildContext context,
   required String title,
-  required List<LibraryProjectionRuntime> items,
+  required List<LibraryProjectionView> items,
 }) async {
   final columns = await showDialog<List<ReportColumn>>(
     context: context,
@@ -91,7 +100,7 @@ Future<void> printCollectionReport({
 
 pw.Document _buildDocument(
   String title,
-  List<LibraryProjectionRuntime> items,
+  List<LibraryProjectionView> items,
   List<ReportColumn> columns,
 ) {
   final doc = pw.Document(
@@ -100,7 +109,7 @@ pw.Document _buildDocument(
   );
 
   const itemsPerPage = 40;
-  final pages = <List<LibraryProjectionRuntime>>[];
+  final pages = <List<LibraryProjectionView>>[];
   for (var i = 0; i < items.length; i += itemsPerPage) {
     pages.add(items.sublist(
         i, i + itemsPerPage > items.length ? items.length : i + itemsPerPage));

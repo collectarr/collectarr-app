@@ -20,7 +20,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
     this.seasonsOverride,
   });
 
-  final LibraryProjectionRuntime titleItem;
+  final LibraryProjectionView titleItem;
   final double coverSize;
   final Color accent;
   final VoidCallback onBack;
@@ -190,7 +190,7 @@ class _TvShelfDrilldownShell extends StatelessWidget {
     required this.body,
   });
 
-  final LibraryProjectionRuntime titleItem;
+  final LibraryProjectionView titleItem;
   final Color accent;
   final VoidCallback onBack;
   final Future<void> Function() onRefreshFromCore;
@@ -247,7 +247,7 @@ class _TvShelfSeasonItem {
   });
 
   final TvSeason season;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
 }
 
 String _episodeNumber(double? number) {

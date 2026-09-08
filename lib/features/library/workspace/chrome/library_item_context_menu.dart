@@ -24,7 +24,7 @@ enum LibraryItemContextAction {
 Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
   required BuildContext context,
   required Offset position,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   int selectedCount = 1,
   bool supportsMetadataCompare = false,

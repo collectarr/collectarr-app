@@ -332,7 +332,7 @@ class _LibraryVideoDetailPageState
 }
 
 List<LibraryNodeRef> _releaseNodesFor(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final catalogItem = item.source.catalogItem;
   if (catalogItem == null) return const [];
@@ -352,7 +352,7 @@ List<LibraryNodeRef> _releaseNodesFor(
 }
 
 List<_ResolvedVideoRelease> _resolvedReleasesFor(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required List<OwnedItem> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
@@ -376,7 +376,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
 }
 
 _ResolvedVideoRelease _buildResolvedVideoRelease(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   CatalogEditionDto edition, {
   required List<CatalogEditionDto> editions,
   required List<OwnedItem> ownedCopies,

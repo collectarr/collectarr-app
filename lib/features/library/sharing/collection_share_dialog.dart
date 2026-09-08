@@ -16,7 +16,7 @@ import 'package:file_selector/file_selector.dart';
 Future<void> showCollectionShareDialog({
   required BuildContext context,
   required String title,
-  required List<LibraryProjectionRuntime> items,
+  required List<LibraryProjectionView> items,
 }) {
   return showDialog<void>(
     context: context,
@@ -31,7 +31,7 @@ class _CollectionShareDialog extends StatelessWidget {
   });
 
   final String title;
-  final List<LibraryProjectionRuntime> items;
+  final List<LibraryProjectionView> items;
 
   @override
   Widget build(BuildContext context) {

@@ -39,7 +39,7 @@ class MovieValueCapability implements LibraryValueCapability {
   }
 
   @override
-  int? resolveProviderValueCents(LibraryProjectionRuntime item) {
+  int? resolveProviderValueCents(LibraryProjectionView item) {
     if (item.dto case MovieWorkspaceDto dto) {
       return dto.media.providerValueCents ?? dto.metadata?.providerValueCents;
     }

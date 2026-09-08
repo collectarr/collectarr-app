@@ -77,7 +77,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
 
 String? plannedMediaSubgroupKeyForEntry(
   LibraryKindModule type,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   LibraryGroupIdRuntime groupId,
 ) {
   return libraryKindWorkspaceForKind(type.kind)

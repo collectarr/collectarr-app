@@ -8,8 +8,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_browser_
 import 'library_workspace_query.dart';
 
 abstract class LibraryWorkspaceRepository {
-  Stream<List<LibraryProjectionRuntime>> watchEntries(
-      LibraryWorkspaceQuery query);
+  Stream<List<LibraryProjectionView>> watchEntries(LibraryWorkspaceQuery query);
 }
 
 class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
@@ -17,9 +16,9 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   final Ref ref;
 
   @override
-  Stream<List<LibraryProjectionRuntime>> watchEntries(
+  Stream<List<LibraryProjectionView>> watchEntries(
       LibraryWorkspaceQuery query) {
-    final controller = StreamController<List<LibraryProjectionRuntime>>();
+    final controller = StreamController<List<LibraryProjectionView>>();
     final listener = ref.listen<AsyncValue<ShelfState>>(
       shelfProvider,
       (previous, next) {
@@ -38,14 +37,14 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     return controller.stream;
   }
 
-  List<LibraryProjectionRuntime> _processEntries(
+  List<LibraryProjectionView> _processEntries(
     List<ShelfEntry> shelfEntries,
     LibraryWorkspaceQuery query,
   ) {
     final module = libraryKindModuleForKind(query.kind);
     final workspace = libraryKindWorkspaceForKind(query.kind);
 
-    final items = <LibraryProjectionRuntime>[];
+    final items = <LibraryProjectionView>[];
     for (final source in shelfEntries) {
       final catalogItem = source.catalogItem;
       if (catalogItem != null && catalogItem.kind == query.kind.apiValue) {

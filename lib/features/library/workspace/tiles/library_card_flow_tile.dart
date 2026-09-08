@@ -32,7 +32,7 @@ class LibraryCardFlowTile extends StatelessWidget {
     super.key,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final bool selected;
   final VoidCallback onTap;
   final VoidCallback? onDoubleTap;
@@ -254,7 +254,7 @@ class LibraryCardFlowTile extends StatelessWidget {
     );
   }
 
-  Widget _cardScopeBadge(BuildContext context, LibraryProjectionRuntime item) {
+  Widget _cardScopeBadge(BuildContext context, LibraryProjectionView item) {
     final palette = appPalette(context);
     final scope = resolveLibraryCollectionStatusScope(item);
     return LibraryTileScopePill(
@@ -289,7 +289,7 @@ class LibraryCardFlowTile extends StatelessWidget {
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final kind = item.source.catalogItem?.kind ?? '';
   final runtime =

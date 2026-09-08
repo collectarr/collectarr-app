@@ -47,7 +47,7 @@ class ComicValueCapability implements LibraryValueCapability {
   }
 
   @override
-  int? resolveProviderValueCents(LibraryProjectionRuntime item) {
+  int? resolveProviderValueCents(LibraryProjectionView item) {
     if (item.dto case ComicWorkspaceDto dto) {
       return dto.comic.publishing?.coverPriceCents;
     }

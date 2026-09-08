@@ -152,7 +152,7 @@ LibrarySortIdRuntime? plannedMediaTableColumnSort(
 
 Widget plannedMediaTableCellTyped<TDto extends LibraryWorkspaceDto>(
   LibraryFieldRegistry<TDto> fields,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   LibraryFieldIdRuntime columnId,
 ) {
   final definition = fields.findColumnDefinition(columnId);

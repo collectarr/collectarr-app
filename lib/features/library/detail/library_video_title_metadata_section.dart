@@ -19,7 +19,7 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final int ownedReleaseCount;
   final ValueChanged<String>? onFilterByValue;
 
@@ -55,7 +55,7 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
           fields: [
             LibraryDetailField(label: 'Display title', value: dto.title),
             if (_metadataFactValue(metadataPresentation, 'Studio') ??
-                _metadataFactValue(metadataPresentation, 'Publisher')
+                    _metadataFactValue(metadataPresentation, 'Publisher')
                 case final studio?)
               LibraryDetailField(label: 'Studio', value: studio),
             if (_metadataFactValue(metadataPresentation, 'Runtime')
@@ -116,7 +116,7 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
 
 LibraryMetadataPresentation _metadataPresentationForEntry(
   LibraryKindModule type,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   return type.presentation.builder.buildMetadataPresentation(
     singularLabel: type.identity.singularLabel,
@@ -141,7 +141,7 @@ String? _metadataFactValue(
   return null;
 }
 
-Widget _buildEditionFormatBadges(LibraryProjectionRuntime item) {
+Widget _buildEditionFormatBadges(LibraryProjectionView item) {
   final catalogItem = item.source.catalogItem;
   final editionsPayload = catalogItem?.payload['editions'] as List?;
   final editions = editionsPayload != null

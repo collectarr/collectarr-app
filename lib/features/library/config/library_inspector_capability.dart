@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
   required BuildContext context,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required OwnedItem? ownedItem,
   required String? currency,
 });
@@ -38,7 +38,7 @@ class LibraryInspectorCapability {
 
   List<LibraryDetailField> buildPersonalDetailFields({
     required BuildContext context,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required OwnedItem? ownedItem,
     required String? currency,
   }) {

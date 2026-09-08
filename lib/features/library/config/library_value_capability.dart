@@ -16,7 +16,7 @@ class LibraryCollectionValueSummary {
 }
 
 abstract interface class LibraryValueCapability {
-  int? resolveProviderValueCents(LibraryProjectionRuntime item);
+  int? resolveProviderValueCents(LibraryProjectionView item);
 
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
     Iterable<ShelfEntry> entries,
@@ -27,7 +27,7 @@ class DefaultLibraryValueCapability implements LibraryValueCapability {
   const DefaultLibraryValueCapability();
 
   @override
-  int? resolveProviderValueCents(LibraryProjectionRuntime item) => null;
+  int? resolveProviderValueCents(LibraryProjectionView item) => null;
 
   @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(

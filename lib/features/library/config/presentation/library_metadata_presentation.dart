@@ -152,13 +152,13 @@ abstract class LibraryMediaPresentationBuilder {
 
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   });
 
   LibraryCardPresentation buildCardPresentation(
-    LibraryProjectionRuntime item, {
+    LibraryProjectionView item, {
     bool musicVertical = false,
   }) {
     return const LibraryCardPresentation();
@@ -166,18 +166,18 @@ abstract class LibraryMediaPresentationBuilder {
 
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     return const [];
   }
 
-  bool canOpenKindDrilldown(LibraryProjectionRuntime item) => false;
+  bool canOpenKindDrilldown(LibraryProjectionView item) => false;
 
   Widget? buildKindDrilldown({
     required BuildContext context,
-    required LibraryProjectionRuntime selectedItem,
+    required LibraryProjectionView selectedItem,
     required Color accent,
     required double coverSize,
     required VoidCallback onBack,
@@ -194,7 +194,7 @@ abstract class LibraryMediaPresentationBuilder {
   List<Widget> buildDetailCatalogSections({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     LibraryRelationCapability? relationCapability,
     ValueChanged<String>? onFilterByValue,
@@ -228,7 +228,7 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailIdentitySection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     LibraryRelationCapability? relationCapability,
     ValueChanged<String>? onFilterByValue,
@@ -264,7 +264,7 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailContextSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -299,7 +299,7 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailCreditsSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {

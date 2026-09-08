@@ -34,7 +34,7 @@ class BookLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
@@ -178,7 +178,7 @@ class BookLibraryMediaPresentationBuilder
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -274,8 +274,7 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final identifierValues = <String>[
-      if (bookDto?.barcode?.trim().isNotEmpty == true)
-        bookDto!.barcode!.trim(),
+      if (bookDto?.barcode?.trim().isNotEmpty == true) bookDto!.barcode!.trim(),
     ];
     if (identifierValues.isNotEmpty) {
       sectionSpecs.add(
@@ -861,7 +860,7 @@ List<String> _bookDiscoveryTagsForSelection({
   return tags;
 }
 
-BookCatalogMetadata? _bookMetadata(LibraryProjectionRuntime item) {
+BookCatalogMetadata? _bookMetadata(LibraryProjectionView item) {
   final metadata = item.source.catalogItem?.kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
   final payload = item.source.catalogItem?.payload;

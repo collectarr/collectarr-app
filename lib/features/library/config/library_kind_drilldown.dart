@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 bool canOpenKindDrilldown(
   LibraryKindModule type,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   return type.presentation.builder.canOpenKindDrilldown(item);
 }
@@ -14,7 +14,7 @@ bool canOpenKindDrilldown(
 Widget? buildLibraryKindDrilldown({
   required BuildContext context,
   required LibraryKindModule type,
-  required LibraryProjectionRuntime selectedItem,
+  required LibraryProjectionView selectedItem,
   required Color accent,
   required double coverSize,
   required VoidCallback onBack,

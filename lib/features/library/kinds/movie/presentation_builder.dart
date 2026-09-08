@@ -29,7 +29,7 @@ class MovieLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
@@ -167,7 +167,7 @@ class MovieLibraryMediaPresentationBuilder
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -190,7 +190,7 @@ class MovieLibraryMediaPresentationBuilder
   }
 
   @override
-  bool canOpenKindDrilldown(LibraryProjectionRuntime item) {
+  bool canOpenKindDrilldown(LibraryProjectionView item) {
     final kind = item.source.catalogItem?.mediaKind;
     return item.node.scope == LibraryBrowserScope.title &&
         kind != null &&
@@ -204,7 +204,7 @@ class MovieLibraryMediaPresentationBuilder
   @override
   Widget? buildKindDrilldown({
     required BuildContext context,
-    required LibraryProjectionRuntime selectedItem,
+    required LibraryProjectionView selectedItem,
     required Color accent,
     required double coverSize,
     required VoidCallback onBack,

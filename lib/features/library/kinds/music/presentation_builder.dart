@@ -137,7 +137,7 @@ class MusicLibraryMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
@@ -247,7 +247,7 @@ class MusicLibraryMediaPresentationBuilder
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -282,7 +282,7 @@ class MusicLibraryMediaPresentationBuilder
   }
 }
 
-MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
+MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
   return _musicMetadataItem(item.source.catalogItem);
 }
 

@@ -489,7 +489,7 @@ List<LibraryFolderTreeNode> libraryFolderTreeNodesForItems(
 }
 
 bool libraryEntryMatchesLinkedMetadataFilter(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   String value,
   LibraryKindModule type,
 ) {

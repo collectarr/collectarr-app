@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final status = item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
   return switch (status) {
@@ -49,7 +49,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
     super.key,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final bool active;
   final bool selected;
   final bool selectionMode;
@@ -258,7 +258,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     );
   }
 
-  List<Widget> _auxiliaryBadges(LibraryProjectionRuntime item) {
+  List<Widget> _auxiliaryBadges(LibraryProjectionView item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     return [
@@ -290,7 +290,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     ];
   }
 
-  Widget? _scopeBadge(BuildContext context, LibraryProjectionRuntime item) {
+  Widget? _scopeBadge(BuildContext context, LibraryProjectionView item) {
     final palette = appPalette(context);
     final scope = resolveLibraryCollectionStatusScope(item);
     final iconColor = libraryCollectionStatusScopeColor(

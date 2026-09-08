@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 /// Delegate carrying all parent layout properties/state so kind-specific
 /// custom card builders can render without referencing the parent widget class directly.
 abstract class LibraryWorkspaceCardDelegate {
-  LibraryProjectionRuntime get item;
+  LibraryProjectionView get item;
   bool get selected;
   VoidCallback get onTap;
   VoidCallback? get onDoubleTap;

@@ -361,7 +361,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
   }
 }
 
-GameCatalogMetadata? _gameMetadata(LibraryProjectionRuntime item) {
+GameCatalogMetadata? _gameMetadata(LibraryProjectionView item) {
   final metadata = item.source.catalogItem?.kindMetadata;
   return metadata is GameCatalogMetadata ? metadata : null;
 }
@@ -421,14 +421,13 @@ class _GameInspectorFactRows extends StatelessWidget {
   }
 }
 
-Uri? _ebayUri(LibraryProjectionRuntime item) {
+Uri? _ebayUri(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final gameDto = dto is GameWorkspaceDto ? dto : null;
   final seriesTitle = adapter?.seriesTitle;
   final query = <String>[
-    if (gameDto?.barcode?.trim().isNotEmpty == true)
-      gameDto!.barcode!.trim(),
+    if (gameDto?.barcode?.trim().isNotEmpty == true) gameDto!.barcode!.trim(),
     dto.title,
     if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
     if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),

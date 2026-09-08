@@ -21,7 +21,7 @@ class LibraryDetailHero extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final List<OwnedItem> ownedCopies;
   final Color accent;
@@ -250,7 +250,7 @@ int? _sumOwnedValueCents(
 String? _detailHeroValueCurrency(
   List<OwnedItem> ownedCopies,
   OwnedItem? ownedItem,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();

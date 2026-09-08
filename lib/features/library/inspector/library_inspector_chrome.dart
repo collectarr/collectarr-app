@@ -19,7 +19,7 @@ class InspectorBackdrop extends StatelessWidget {
     this.ownedItem,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
 
   @override
@@ -84,7 +84,7 @@ class InspectorActionBar extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
@@ -262,7 +262,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     this.includeLayoutControl = true,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final LibraryDetailsLayout detailsLayout;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;

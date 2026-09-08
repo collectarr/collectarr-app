@@ -120,8 +120,8 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   int compareEntries(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
+    LibraryProjectionView left,
+    LibraryProjectionView right,
     LibrarySortIdRuntime sortId,
   ) {
     final sortDef = findSortDefinition(sortId);
@@ -195,7 +195,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   Object? getGroupValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   ) {
     final groupDef = findGroupDefinition(groupId);
@@ -209,7 +209,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   String? getGroupSequenceValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   ) {
     final groupDef = findGroupDefinition(groupId);
@@ -226,7 +226,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   Object? getColumnValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryFieldIdRuntime columnId,
   ) {
     final columnDef = findColumnDefinition(columnId);
@@ -240,7 +240,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   void sortEntries(
-    List<LibraryProjectionRuntime> items,
+    List<LibraryProjectionView> items,
     LibrarySortIdRuntime sortId, {
     required bool ascending,
   }) {

@@ -16,7 +16,7 @@ final class LibraryFacetModule {
 
   final LibraryFacetRowsLoader? loadRows;
   final Iterable<String> Function(
-          LibraryProjectionRuntime item, LibraryFacetIdRuntime facetId)?
+          LibraryProjectionView item, LibraryFacetIdRuntime facetId)?
       getFacetValues;
   final Map<String, LibraryFacetIdRuntime> externalFacetBucketIdsByMode;
 }

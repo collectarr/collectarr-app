@@ -456,7 +456,7 @@ ShelfEntry testShelfEntry({
   );
 }
 
-LibraryProjectionRuntime testProjectionItem({
+LibraryProjectionView testProjectionItem({
   String? id,
   String itemId = 'test-item-1',
   String kind = 'comic',

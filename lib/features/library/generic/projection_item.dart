@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 
-abstract interface class LibraryProjectionRuntime<
+abstract interface class LibraryProjectionView<
     TDto extends LibraryWorkspaceDto> {
   ShelfEntry get source;
   LibraryNodeRef get node;
@@ -14,7 +14,7 @@ abstract interface class LibraryProjectionRuntime<
 }
 
 final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
-    implements LibraryProjectionRuntime<TDto> {
+    implements LibraryProjectionView<TDto> {
   const LibraryProjectionItem({
     required this.source,
     required this.node,

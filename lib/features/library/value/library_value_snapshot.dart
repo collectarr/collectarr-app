@@ -31,7 +31,7 @@ class LibraryValueSnapshot {
   });
 
   factory LibraryValueSnapshot.fromItem(
-    LibraryProjectionRuntime item, {
+    LibraryProjectionView item, {
     OwnedItem? ownedItem,
     String? providerName,
     DateTime? providerUpdatedAt,

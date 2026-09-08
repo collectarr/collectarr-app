@@ -22,7 +22,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
+MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
   final metadata = item.source.catalogItem?.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
   if (metadata != null) {
@@ -1012,7 +1012,7 @@ bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {
   return terms.every(searchable.contains);
 }
 
-Uri? _ebayUri(LibraryProjectionRuntime item) {
+Uri? _ebayUri(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final musicDto = dto is MusicWorkspaceDto ? dto : null;

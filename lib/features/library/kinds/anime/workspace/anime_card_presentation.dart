@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for an anime workspace item.
 LibraryCardPresentation buildAnimeCardPresentation(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 }) {
   return LibraryCardPresentation(
@@ -15,7 +15,7 @@ LibraryCardPresentation buildAnimeCardPresentation(
   );
 }
 
-List<LibraryCardBadge> _animeCompactBadges(LibraryProjectionRuntime item) {
+List<LibraryCardBadge> _animeCompactBadges(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final badges = <LibraryCardBadge>[];

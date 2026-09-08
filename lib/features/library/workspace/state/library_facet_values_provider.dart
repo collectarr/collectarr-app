@@ -38,7 +38,7 @@ final libraryLocalFacetValuesProvider = StreamProvider.autoDispose
     return Stream.value(const <String>[]);
   }
 
-  Object? getValue(LibraryProjectionRuntime item) {
+  Object? getValue(LibraryProjectionView item) {
     return facets!.getFacetValues!(item, input.facetId);
   }
 

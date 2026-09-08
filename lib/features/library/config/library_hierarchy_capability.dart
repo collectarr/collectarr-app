@@ -37,7 +37,7 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
     String? providerItemId,
   })? fetchChildrenCallback;
   final LibraryKindBrowserDelegate Function()? browserDelegateBuilder;
-  final String? Function(LibraryProjectionRuntime item)?
+  final String? Function(LibraryProjectionView item)?
       contractDiagnosticLabelBuilder;
 
   LibraryKindBrowserDelegate buildBrowserDelegate() {
@@ -65,7 +65,7 @@ class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   String childrenTitle(int count) =>
       childrenTitleBuilder?.call(count) ?? 'Contents ($count)';
 
-  String? contractDiagnosticLabel(LibraryProjectionRuntime item) =>
+  String? contractDiagnosticLabel(LibraryProjectionView item) =>
       contractDiagnosticLabelBuilder?.call(item);
 
   bool get scopesOptionsByBrowserMode =>

@@ -10,7 +10,7 @@ class LibraryEntryStatusDescriptor {
 }
 
 LibraryEntryStatusDescriptor libraryEntryStatusDescriptor(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   if (item.source.isOwned) {
     return const LibraryEntryStatusDescriptor(
@@ -38,7 +38,7 @@ class LibraryInspectorTitleCard extends StatelessWidget {
     this.eyebrow,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
   final String? eyebrow;
 

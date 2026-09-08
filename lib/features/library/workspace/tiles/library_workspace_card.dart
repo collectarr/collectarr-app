@@ -45,7 +45,7 @@ class _LibraryWorkspaceCardDelegateImpl
   });
 
   @override
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   @override
   final bool selected;
   @override
@@ -105,7 +105,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     super.key,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final bool selected;
   final VoidCallback onTap;
   final VoidCallback? onDoubleTap;
@@ -237,10 +237,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? (item.dto as WorkspaceDtoAdapter)
         : null;
     final gradeLabel = _coverGradeLabel(presentation);
-    final publisherLabel = _metadataFactValue(metadataPresentation, 'Publisher') ??
-        _metadataFactValue(metadataPresentation, 'Studio') ??
-        _metadataFactValue(metadataPresentation, 'Label') ??
-        _metadataFactValue(metadataPresentation, 'Developer');
+    final publisherLabel =
+        _metadataFactValue(metadataPresentation, 'Publisher') ??
+            _metadataFactValue(metadataPresentation, 'Studio') ??
+            _metadataFactValue(metadataPresentation, 'Label') ??
+            _metadataFactValue(metadataPresentation, 'Developer');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -304,12 +305,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 hasMissingCover:
                                     item.dto.coverImageUrl == null ||
                                         item.dto.coverImageUrl!.isEmpty,
-                                hasMissingMetadata:
-                                    (publisherLabel == null ||
-                                            publisherLabel.isEmpty) &&
-                                        adapter?.format == null &&
-                                        adapter?.variant == null &&
-                                        adapter?.releaseDate == null,
+                                hasMissingMetadata: (publisherLabel == null ||
+                                        publisherLabel.isEmpty) &&
+                                    adapter?.format == null &&
+                                    adapter?.variant == null &&
+                                    adapter?.releaseDate == null,
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
                                   item,
@@ -785,7 +785,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     return wrapOverlay != null ? wrapOverlay(cover) : cover;
   }
 
-  Widget _scopeBadge(BuildContext context, LibraryProjectionRuntime item) {
+  Widget _scopeBadge(BuildContext context, LibraryProjectionView item) {
     final palette = appPalette(context);
     final scope = resolveLibraryCollectionStatusScope(item);
     return LibraryTileScopePill(
@@ -840,7 +840,7 @@ String? _coverGradeLabel(LibraryCardPresentation presentation) {
 // ---------------------------------------------------------------------------
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final kind = item.source.catalogItem?.kind ?? '';
   final runtime =

@@ -49,7 +49,7 @@ const _mangaVolumeFilterId = LibraryAddFilterId('manga.volume');
 const _mangaPublisherFilterId = LibraryAddFilterId('manga.publisher');
 const _mangaYearFilterId = LibraryAddFilterId('manga.year');
 
-String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
+String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is! MangaWorkspaceDto) {
     return null;

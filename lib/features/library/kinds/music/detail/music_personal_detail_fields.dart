@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 List<LibraryDetailField> buildMusicPersonalDetailFields({
   required BuildContext context,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required OwnedItem? ownedItem,
   required String? currency,
 }) {

@@ -17,7 +17,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;

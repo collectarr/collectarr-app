@@ -43,7 +43,7 @@ final libraryDebouncedSearchProvider =
   return controller.stream;
 });
 
-/// Derives the filtered + sorted list of [LibraryProjectionRuntime] objects for a
+/// Derives the filtered + sorted list of [LibraryProjectionView] objects for a
 /// given workspace scope, by combining the active [LibraryFilterState] with the
 /// [LibraryWorkspaceRepository] stream.
 ///
@@ -52,7 +52,7 @@ final libraryDebouncedSearchProvider =
 ///  - the underlying shelf data changes (via [shelfProvider] invalidation after
 ///    mutations or sync)
 final libraryDisplayListProvider = StreamProvider.autoDispose
-    .family<List<LibraryProjectionRuntime>, LibraryWorkspaceKey>((ref, key) {
+    .family<List<LibraryProjectionView>, LibraryWorkspaceKey>((ref, key) {
   final filters = ref.watch(libraryFiltersProvider(key));
   final repository = ref.watch(libraryWorkspaceRepositoryProvider);
 

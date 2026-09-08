@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 List<Widget> buildLibraryDetailCatalogSections({
   required BuildContext context,
   required LibraryKindModule type,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -35,7 +35,7 @@ class LibraryDetailMetadataSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -62,7 +62,7 @@ class LibraryDetailContextSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -88,7 +88,7 @@ class LibraryDetailCreditsSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -113,7 +113,7 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
 
   @override
@@ -151,7 +151,7 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -199,7 +199,7 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
 
   @override
@@ -356,7 +356,7 @@ class _MetadataHealth {
 
 _MetadataHealth _buildMetadataHealth(
   LibraryKindModule type,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   var score = 0;
   final missingSignals = <String>[];
@@ -398,8 +398,14 @@ _MetadataHealth _buildMetadataHealth(
   );
   final hasPublisherFact = metadata.allFacts.any(
     (fact) =>
-        const {'Publisher', 'Studio', 'Label', 'Developer', 'Network', 'Distributor'}
-            .contains(fact.label) &&
+        const {
+          'Publisher',
+          'Studio',
+          'Label',
+          'Developer',
+          'Network',
+          'Distributor'
+        }.contains(fact.label) &&
         fact.value.trim().isNotEmpty,
   );
   addSignal(

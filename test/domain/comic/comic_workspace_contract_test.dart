@@ -91,7 +91,7 @@ ComicWorkspaceDto _createWorkspace() {
 }
 
 final class _ProjectionFixture
-    implements LibraryProjectionRuntime<LibraryWorkspaceDto> {
+    implements LibraryProjectionView<LibraryWorkspaceDto> {
   _ProjectionFixture(this.dto);
 
   @override

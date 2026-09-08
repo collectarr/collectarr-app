@@ -19,7 +19,7 @@ class LibraryKindWorkspaceController
   @override
   bool canOpenItemDetailDrilldown(
     LibraryKindModule type,
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
   ) {
     return canOpenKindDrilldown(type, item);
   }
@@ -27,7 +27,7 @@ class LibraryKindWorkspaceController
   @override
   void openItemDetailDrilldown(
     LibraryKindModule type,
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
   ) {
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
@@ -40,7 +40,7 @@ class LibraryKindWorkspaceController
     required BuildContext context,
     required LibraryKindModule type,
     required LibraryProjection projection,
-    required LibraryProjectionRuntime selectedItem,
+    required LibraryProjectionView selectedItem,
     required LibraryWorkspaceViewState viewState,
     required Color accent,
     required Future<void> Function() onRefreshFromCore,

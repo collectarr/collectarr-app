@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailEditorSections({
   required LibraryKindModule type,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
@@ -38,7 +38,7 @@ List<Widget> buildLibraryDetailEditorSections({
 
 List<Widget> buildLibraryInspectorEditorSections({
   required LibraryKindModule type,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
@@ -55,7 +55,7 @@ List<Widget> buildLibraryInspectorEditorSections({
 List<Widget> buildLibraryDetailKindSections({
   required BuildContext context,
   required LibraryKindModule type,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -70,7 +70,7 @@ List<Widget> buildLibraryDetailKindSections({
 List<Widget> buildLibraryInspectorKindSections({
   required BuildContext context,
   required LibraryKindModule type,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {

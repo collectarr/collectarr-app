@@ -61,7 +61,7 @@ class LibraryMetaChip extends StatelessWidget {
   }
 }
 
-String genericLibraryStatusLabel(LibraryProjectionRuntime item) {
+String genericLibraryStatusLabel(LibraryProjectionView item) {
   final kind = item.source.catalogItem?.kind ?? '';
   final labels = libraryKindModuleForKind(catalogMediaKindFromValue(kind))
       .presentation

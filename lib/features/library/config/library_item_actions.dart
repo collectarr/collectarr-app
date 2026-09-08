@@ -227,7 +227,7 @@ class LibraryDetailPageRequest {
         _onEdit = onEdit;
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final Color accent;
   final LibraryItemActions actions;
@@ -278,7 +278,7 @@ class LibraryInspectorRequest {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final VoidCallback? onEdit;
   final List<OwnedItem> ownedCopies;

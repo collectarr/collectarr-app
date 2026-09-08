@@ -10,7 +10,7 @@ import 'library_search_presentation.dart';
 import 'library_sort_presentation.dart';
 
 typedef LibraryCardPresentationBuilder = LibraryCardPresentation Function(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 });
 
@@ -60,7 +60,7 @@ class LibraryMediaPresentation {
   /// The media presentation is the presentation boundary; the kind module
   /// registration remains limited to navigation and capability dispatch.
   LibraryCardPresentation buildCardPresentation(
-    LibraryProjectionRuntime item, {
+    LibraryProjectionView item, {
     required bool musicVertical,
   }) {
     return cardPresentationBuilder?.call(

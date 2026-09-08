@@ -48,7 +48,7 @@ bool itemHasMissingDetails(CatalogItemDto item) {
       (item.synopsis == null || item.synopsis!.trim().isEmpty);
 }
 
-String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
+String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.catalogItem?.mediaKind;
   if (kind == null) {
     return null;
@@ -216,7 +216,7 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
 
 ({CatalogEditionDto? edition, CatalogVariantDto? variant})
     resolveLibraryEntryReferenceRelease(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final releaseNode = item.node is LibraryReleaseNodeRef
       ? (item.node as LibraryReleaseNodeRef)
@@ -231,7 +231,7 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
   );
 }
 
-List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
+List<String> libraryReferencePlatforms(LibraryProjectionView item) {
   final resolved = resolveLibraryEntryReferenceRelease(item);
   final values = <String>[];
   final variantPlatform = resolved.variant?.platform?.trim();
@@ -255,14 +255,14 @@ List<String> libraryReferencePlatforms(LibraryProjectionRuntime item) {
 }
 
 String? resolveLibraryOwnedItemId(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   OwnedItem? ownedItem,
 ) {
   return ownedItem?.id ?? item.source.ownedItem?.id;
 }
 
 PersonalItemAnchor? resolveLibraryMutationAnchor({
-  LibraryProjectionRuntime? item,
+  LibraryProjectionView? item,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
 }) {

@@ -48,50 +48,50 @@ abstract interface class LibraryKindWorkspace {
   bool columnIsNumeric(LibraryFieldIdRuntime column);
   LibrarySortIdRuntime? columnSort(LibraryFieldIdRuntime column);
   Widget buildTableCell(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryFieldIdRuntime column,
   );
 
   int compareEntriesByRules(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
+    LibraryProjectionView left,
+    LibraryProjectionView right,
     Iterable<LibrarySortRuleRuntime> rules,
   );
   String? subgroupKeyForEntry(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   );
   int compareSubgroupKeys(String left, String right);
 
-  LibraryProjectionRuntime project({
+  LibraryProjectionView project({
     required ShelfEntry source,
     required LibraryNodeRef node,
   });
 
   void sort(
-    List<LibraryProjectionRuntime> items,
+    List<LibraryProjectionView> items,
     LibrarySortIdRuntime sortId, {
     bool ascending = true,
   });
   int compare(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
+    LibraryProjectionView left,
+    LibraryProjectionView right,
     LibrarySortIdRuntime sortId,
   );
   Object? groupValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   );
   bool groupModeSupportsCompletion(LibraryGroupIdRuntime groupId);
   String? groupSequenceValueForEntry(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   );
   Object? columnValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryFieldIdRuntime columnId,
   );
-  void validateProjection(LibraryProjectionRuntime item);
+  void validateProjection(LibraryProjectionView item);
   LibraryWorkspaceDto createWorkspaceDto({
     required ShelfEntry source,
     required LibraryNodeRef node,
@@ -222,7 +222,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   Widget buildTableCell(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryFieldIdRuntime column,
   ) {
     validateProjection(item);
@@ -231,8 +231,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   int compareEntriesByRules(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
+    LibraryProjectionView left,
+    LibraryProjectionView right,
     Iterable<LibrarySortRuleRuntime> rules,
   ) {
     validateProjection(left);
@@ -262,7 +262,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   String? subgroupKeyForEntry(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
@@ -283,7 +283,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  LibraryProjectionRuntime project({
+  LibraryProjectionView project({
     required ShelfEntry source,
     required LibraryNodeRef node,
   }) {
@@ -296,7 +296,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   void sort(
-    List<LibraryProjectionRuntime> items,
+    List<LibraryProjectionView> items,
     LibrarySortIdRuntime sortId, {
     bool ascending = true,
   }) {
@@ -308,8 +308,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   int compare(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
+    LibraryProjectionView left,
+    LibraryProjectionView right,
     LibrarySortIdRuntime sortId,
   ) {
     validateProjection(left);
@@ -319,7 +319,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   Object? groupValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
@@ -333,7 +333,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   String? groupSequenceValueForEntry(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
@@ -342,7 +342,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   Object? columnValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryFieldIdRuntime columnId,
   ) {
     validateProjection(item);
@@ -350,7 +350,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  void validateProjection(LibraryProjectionRuntime item) {
+  void validateProjection(LibraryProjectionView item) {
     if (item.dto is! TDto) {
       throw ArgumentError(
         'Invalid projection item DTO "${item.dto.runtimeType}". '

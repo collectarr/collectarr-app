@@ -328,7 +328,7 @@ class LibraryFilterOptions {
   List<String> valuesFor(String id) => valuesByFilterId[id] ?? const [];
 
   factory LibraryFilterOptions.fromEntries(
-    List<LibraryProjectionRuntime> entries, {
+    List<LibraryProjectionView> entries, {
     Iterable<LibraryFilterDefinition<dynamic>> filterDefinitions = const [],
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
@@ -434,7 +434,7 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
 
 /// Returns true if the item matches the active filter selection.
 bool libraryFilterMatches(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   LibraryFilterSelection filters, {
   Iterable<LibraryFilterDefinition<dynamic>> filterDefinitions = const [],
 }) {

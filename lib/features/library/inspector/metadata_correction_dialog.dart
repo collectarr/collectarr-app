@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -15,13 +15,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showMetadataCorrectionDialog({
   required BuildContext context,
   required WidgetRef ref,
-  required CatalogItemDto item,
+  required LibraryMetadataCorrectionSource source,
   required LibraryKindModule type,
 }) async {
   final draft = await showDialog<_MetadataCorrectionDraft>(
     context: context,
     builder: (context) => _MetadataCorrectionDialog(
-      item: item,
+      source: source,
       contributor: libraryAdminContributorForKind(type.kind),
     ),
   );
@@ -30,7 +30,7 @@ Future<void> showMetadataCorrectionDialog({
   try {
     final query = draft.query;
     final String title =
-        draft.title.trim().isEmpty ? item.title : draft.title.trim();
+        draft.title.trim().isEmpty ? source.title : draft.title.trim();
     final response = await createLibraryMetadataProposal(
       api: ref.read(apiClientProvider),
       type: type,
@@ -83,11 +83,11 @@ String _describeMetadataCorrectionError(Object error) {
 
 class _MetadataCorrectionDialog extends StatefulWidget {
   const _MetadataCorrectionDialog({
-    required this.item,
+    required this.source,
     required this.contributor,
   });
 
-  final CatalogItemDto item;
+  final LibraryMetadataCorrectionSource source;
   final LibraryAdminContributor? contributor;
 
   @override
@@ -107,7 +107,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     _fieldControllers = {
       for (final field in _kindFields)
         field.key: TextEditingController(
-          text: field.read(_itemPayload(widget.item)),
+          text: field.read(widget.source.payload),
         ),
     };
   }
@@ -187,7 +187,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   late final TextEditingController _titleController =
-      TextEditingController(text: widget.item.title);
+      TextEditingController(text: widget.source.title);
   late final TextEditingController _sourceUrlController =
       TextEditingController();
   late final TextEditingController _notesController = TextEditingController();
@@ -214,9 +214,9 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       'Metadata correction proposal',
       '',
       'Original:',
-      'title: ${widget.item.title}',
+      'title: ${widget.source.title}',
     ];
-    final originalPayload = _itemPayload(widget.item);
+    final originalPayload = widget.source.payload;
     for (final field in _kindFields) {
       final value = field.read(originalPayload).trim();
       if (value.isNotEmpty) {
@@ -274,9 +274,6 @@ class _CorrectionField extends StatelessWidget {
     );
   }
 }
-
-Map<String, Object?> _itemPayload(CatalogItemDto item) =>
-    Map<String, Object?>.from(item.toSyncPayload());
 
 class _MetadataCorrectionDraft {
   const _MetadataCorrectionDraft({

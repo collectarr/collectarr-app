@@ -14,7 +14,7 @@ class InspectorPrimaryActions extends StatelessWidget {
     required this.onEdit,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final LibraryKindModule type;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;

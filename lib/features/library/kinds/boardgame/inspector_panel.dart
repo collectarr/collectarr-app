@@ -241,7 +241,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
   }
 }
 
-Uri? _ebayUri(LibraryProjectionRuntime item) {
+Uri? _ebayUri(LibraryProjectionView item) {
   final title = item.dto.title.trim();
   if (title.isEmpty) {
     return null;

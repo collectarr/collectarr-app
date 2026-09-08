@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 /// [musicVertical] selects between the album-grid layout (true) and the
 /// horizontal tracklist-style layout (false).
 LibraryCardPresentation buildMusicCardPresentation(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 }) {
   return LibraryCardPresentation(
@@ -397,7 +397,7 @@ Widget _buildMusicVerticalCard({
 
 Widget _musicScopeBadge(
   BuildContext context,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   Color accentColor,
 ) {
   final palette = appPalette(context);
@@ -466,7 +466,7 @@ class _MusicCompactMetaPill extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 /// Returns the primary artist name for a music item.
-String? musicCardArtist(LibraryProjectionRuntime item) {
+String? musicCardArtist(LibraryProjectionView item) {
   final creators =
       _musicMetadata(item)?.creators ?? const <Map<String, dynamic>>[];
   String? fallbackName;
@@ -494,7 +494,7 @@ String? musicCardArtist(LibraryProjectionRuntime item) {
 }
 
 /// Returns a formatted duration string for the album.
-String? musicCardDuration(LibraryProjectionRuntime item) {
+String? musicCardDuration(LibraryProjectionView item) {
   final runtimeFact = _metadataFactValue(
     _metadataPresentationForEntry(item),
     'Runtime',
@@ -517,7 +517,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
 }
 
 /// Returns the track count for the album.
-int? musicCardTrackCount(LibraryProjectionRuntime item) {
+int? musicCardTrackCount(LibraryProjectionView item) {
   return _musicMetadata(item)?.trackCount ??
       int.tryParse(
         _metadataFactValue(
@@ -528,13 +528,13 @@ int? musicCardTrackCount(LibraryProjectionRuntime item) {
       );
 }
 
-MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
+MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
   final metadata = item.source.catalogItem?.kindMetadata;
   return metadata is MusicCatalogMetadata ? metadata : null;
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final runtime = defaultLibraryKindRegistry
       .tryGet(catalogMediaKindFromValue(item.source.catalogItem?.kind));

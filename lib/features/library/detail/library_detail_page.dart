@@ -53,7 +53,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final List<OwnedItem>? ownedCopies;
   final Color accent;
@@ -212,7 +212,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
   }
 
-  Future<void> _searchOnEbay(LibraryProjectionRuntime item) async {
+  Future<void> _searchOnEbay(LibraryProjectionView item) async {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final query = adapter?.itemNumber != null
@@ -222,7 +222,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
   }
 
   Future<void> _addOwnedCopy(
-    LibraryProjectionRuntime item, {
+    LibraryProjectionView item, {
     OwnedItem? ownedItem,
   }) async {
     final anchor = resolveLibraryMutationAnchor(
@@ -282,7 +282,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? activeOwnedItem;
   final List<OwnedItem> ownedCopies;
   final String? selectedOwnedItemId;
@@ -443,7 +443,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
 
 List<CatalogEditionDto> _releaseEditions(
   LibraryKindModule type,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final catalogItem = item.source.catalogItem;
   if (catalogItem == null) {

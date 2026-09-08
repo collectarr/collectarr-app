@@ -63,7 +63,7 @@ const _comicIssueFilterId = LibraryAddFilterId('comic.issue');
 const _comicPublisherFilterId = LibraryAddFilterId('comic.publisher');
 const _comicYearFilterId = LibraryAddFilterId('comic.year');
 
-String? _comicHierarchyContractDiagnosticLabel(LibraryProjectionRuntime item) {
+String? _comicHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is! ComicWorkspaceDto) {
     return null;

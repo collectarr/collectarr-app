@@ -697,8 +697,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           isWishlisted: widget.item.source.isWishlisted,
                           hasMissingCover: dto.coverImageUrl == null ||
                               dto.coverImageUrl!.isEmpty,
-                          hasMissingMetadata:
-                              format == null || format.isEmpty,
+                          hasMissingMetadata: format == null || format.isEmpty,
                           contractDiagnosticLabel:
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
@@ -770,7 +769,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     );
   }
 
-  Widget _cardScopeBadge(BuildContext context, LibraryProjectionRuntime item) {
+  Widget _cardScopeBadge(BuildContext context, LibraryProjectionView item) {
     final palette = appPalette(context);
     final scope = resolveLibraryCollectionStatusScope(item);
     return LibraryTileScopePill(
@@ -833,7 +832,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
     final payload = widget.item.source.catalogItem?.payload;
     final editions = (payload?['editions'] as List?)
             ?.whereType<Map<Object?, Object?>>()
-            .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList() ??
         const <CatalogEditionDto>[];
     final hasReleases = editions.length > 1;
@@ -960,7 +960,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final type = defaultLibraryKindRegistry.tryGet(
     catalogMediaKindFromValue(item.source.catalogItem?.kind),

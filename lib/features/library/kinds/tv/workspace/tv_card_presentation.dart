@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a tv workspace item.
 LibraryCardPresentation buildTvCardPresentation(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 }) {
   return LibraryCardPresentation(
@@ -15,7 +15,7 @@ LibraryCardPresentation buildTvCardPresentation(
   );
 }
 
-List<LibraryCardBadge> _tvCompactBadges(LibraryProjectionRuntime item) {
+List<LibraryCardBadge> _tvCompactBadges(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final badges = <LibraryCardBadge>[];

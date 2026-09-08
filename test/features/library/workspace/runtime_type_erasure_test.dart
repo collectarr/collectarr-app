@@ -15,7 +15,7 @@ void main() {
     final comicWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.comic);
     final bookWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.book);
 
-    LibraryProjectionRuntime createComicItem(String id, String title) {
+    LibraryProjectionView createComicItem(String id, String title) {
       final source = ShelfEntry(
         itemId: id,
         catalogItem: testCatalogItem(
@@ -28,7 +28,7 @@ void main() {
       return comicWorkspace.project(source: source, node: node);
     }
 
-    LibraryProjectionRuntime createBookItem(String id, String title) {
+    LibraryProjectionView createBookItem(String id, String title) {
       final source = ShelfEntry(
         itemId: id,
         catalogItem: testCatalogItem(

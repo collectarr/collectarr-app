@@ -29,7 +29,7 @@ class LibraryVideoMediaPresentationBuilder
   final Set<String> shelfDrilldownEntryTypes;
 
   @override
-  bool canOpenKindDrilldown(LibraryProjectionRuntime item) {
+  bool canOpenKindDrilldown(LibraryProjectionView item) {
     final kind = item.source.catalogItem?.kind.trim().toLowerCase();
     return item.node.scope == LibraryBrowserScope.title &&
         kind != null &&
@@ -39,7 +39,7 @@ class LibraryVideoMediaPresentationBuilder
   @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   }) {
@@ -49,10 +49,9 @@ class LibraryVideoMediaPresentationBuilder
     final variant = adapter?.variant;
     final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
     final barcodeVal = (payload['barcode'] ?? payload['upc'])?.toString();
-    final publisherVal = (payload['publisher'] ??
-            payload['studio'] ??
-            payload['network'])
-        ?.toString();
+    final publisherVal =
+        (payload['publisher'] ?? payload['studio'] ?? payload['network'])
+            ?.toString();
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;
@@ -108,7 +107,7 @@ class LibraryVideoMediaPresentationBuilder
   @override
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {

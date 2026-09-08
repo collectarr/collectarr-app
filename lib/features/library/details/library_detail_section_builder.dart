@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required BuildContext context,
   required LibraryKindModule type,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   required OwnedItem? ownedItem,
   required TrackingEntry? trackingEntry,

@@ -472,7 +472,7 @@ final _comicSeriesItemsProvider =
   },
 );
 
-List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
+List<LibraryDetailField> _detailFacts(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final publishing = _comicMetadata(item)?.publishing;
@@ -496,7 +496,7 @@ List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
   return rows;
 }
 
-List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
+List<LibraryDetailField> _seriesFacts(LibraryProjectionView item) {
   final series = _comicMetadata(item)?.series;
   final rows = <LibraryDetailField>[];
   if (series?.seriesTitle?.trim().isNotEmpty == true) {
@@ -551,7 +551,7 @@ List<LibraryDetailField> _collectorFacts(ComicOwnedItem? ownedItem) {
 }
 
 List<LibraryDetailField> _valueFacts(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   OwnedItem? ownedItem,
   List<OwnedItem> ownedCopies,
 ) {
@@ -680,7 +680,7 @@ List<LibraryDetailField> _noteFacts(
   return rows;
 }
 
-List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
+List<LibraryDetailField> _linkFacts(LibraryProjectionView item) {
   final links = _comicLinks(item);
   if (links.isEmpty) {
     return const [];
@@ -699,7 +699,7 @@ List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
   ];
 }
 
-ComicMedia? _comicMetadata(LibraryProjectionRuntime item) {
+ComicMedia? _comicMetadata(LibraryProjectionView item) {
   final dto = item.dto;
   if (dto is ComicWorkspaceDto) {
     return dto.comic;
@@ -707,7 +707,7 @@ ComicMedia? _comicMetadata(LibraryProjectionRuntime item) {
   return null;
 }
 
-List<ComicLink> _comicLinks(LibraryProjectionRuntime item) =>
+List<ComicLink> _comicLinks(LibraryProjectionView item) =>
     _comicMetadata(item)?.links ?? const <ComicLink>[];
 
 List<int> _computeMissingIssues(

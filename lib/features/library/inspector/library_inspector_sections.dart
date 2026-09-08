@@ -25,7 +25,7 @@ class InspectorMetadataSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -52,7 +52,7 @@ class InspectorPersonalSection extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final OwnedItem? ownedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;

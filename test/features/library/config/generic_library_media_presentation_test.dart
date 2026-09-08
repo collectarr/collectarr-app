@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/config/generic_library_workspace
 
 import '../../../helpers/test_data_factories.dart';
 
-LibraryProjectionRuntime _makeItem(
+LibraryProjectionView _makeItem(
   String id, {
   String? title,
   String? locationPath,
@@ -93,7 +93,7 @@ void main() {
       wishlistItem: testWishlistItem(itemId: 'wishlisted'),
     );
 
-    String bucketFor(LibraryProjectionRuntime item) {
+    String bucketFor(LibraryProjectionView item) {
       return genericLibraryBucketLabelBuilder(
         LibraryBucketingContext(
           source: item.source,
