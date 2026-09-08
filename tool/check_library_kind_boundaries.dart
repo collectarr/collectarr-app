@@ -180,6 +180,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     // Storage locations are a universal sync serialization boundary; they do
     // not contain catalog-kind metadata.
     'lib/core/models/storage_location.dart',
+    // Video release source reconstructs synthetic release editions from raw sync payloads.
+    'lib/features/library/release/video_release_source.dart',
   };
 
   static const _dynamicCatalogAllowlist = {
@@ -243,6 +245,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/workspace/layout/library_flow_carousel.dart',
     'lib/features/library/workspace/tiles/library_workspace_card.dart',
     'lib/features/providers/domain/mappers/provider_preview_mapper.dart',
+    // Video release source reconstructs synthetic release editions from raw sync payloads.
+    'lib/features/library/release/video_release_source.dart',
   };
 
   static const _generatedDtoAllowlist = {

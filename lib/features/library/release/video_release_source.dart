@@ -1,5 +1,7 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -27,7 +29,7 @@ class VideoReleaseAnchor {
 }
 
 List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
-  CatalogItemDto item, {
+  dynamic item, {
   Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
@@ -39,27 +41,27 @@ List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
           .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
           .toList()
       : const <CatalogEditionDto>[];
-  if (!_isVideoKind(item.kind)) {
+  if (!_isVideoKind(item.kind as String)) {
     return rawEditions;
   }
   return _resolveVideoCatalogEditions(
     _VideoReleaseSeedInput(
-      itemId: item.id,
-      mediaType: item.kind,
-      resolvedTitle: item.resolvedDisplayTitle,
+      itemId: item.id as String,
+      mediaType: item.kind as String,
+      resolvedTitle: item.resolvedDisplayTitle as String,
       editionTitle: payload['edition_title'] as String?,
-      publisher: (payload['publisher'] as String?) ??
+      distributor: (payload['publisher'] as String?) ??
           ((payload['publishing'] as Map?)?['original_publisher'] as String?),
-      releaseDate: item.releaseDate,
-      releaseYear: item.releaseYear ?? item.releaseDate?.year,
+      releaseDate: item.releaseDate as DateTime?,
+      releaseYear: (item.releaseYear ?? item.releaseDate?.year) as int?,
       physicalFormat: payload['physical_format'] as String?,
-      physicalFormatLabel: payload['physical_format_label'] as String?,
+      formatLabel: payload['physical_format_label'] as String?,
       variant: payload['variant'] as String?,
       language: payload['language'] as String?,
       country: payload['country'] as String?,
-      barcode: payload['barcode'] as String?,
-      coverImageUrl: item.coverImageUrl,
-      thumbnailImageUrl: item.thumbnailImageUrl,
+      barcodeValue: payload['barcode'] as String?,
+      coverImageUrl: item.coverImageUrl as String?,
+      thumbnailImageUrl: item.thumbnailImageUrl as String?,
     ),
     rawEditions,
     ownedItems: ownedItems,
@@ -293,7 +295,7 @@ int _sourcePriority(String? value) {
 }
 
 bool _isVideoKind(String mediaType) {
-  return catalogMediaKindFromValue(mediaType).isVideoLibraryKind;
+  return catalogMediaKindFromApiValue(mediaType).isVideoLibraryKind;
 }
 
 String? _normalized(String? value) {
@@ -315,13 +317,13 @@ bool _isLocalSyntheticVideoItemId(String itemId) {
 
 String _fallbackEditionTitle(_VideoReleaseSeedInput input) {
   return _normalized(input.editionTitle) ??
-      _normalized(input.physicalFormatLabel) ??
+      _normalized(input.formatLabel) ??
       'Standard release';
 }
 
 String _fallbackVariantName(_VideoReleaseSeedInput input) {
   return _normalized(input.variant) ??
-      _normalized(input.physicalFormatLabel) ??
+      _normalized(input.formatLabel) ??
       'Primary release';
 }
 
@@ -331,15 +333,15 @@ class _VideoReleaseSeedInput {
     required this.mediaType,
     required this.resolvedTitle,
     this.editionTitle,
-    this.publisher,
+    this.distributor,
     this.releaseDate,
     this.releaseYear,
     this.physicalFormat,
-    this.physicalFormatLabel,
+    this.formatLabel,
     this.variant,
     this.language,
     this.country,
-    this.barcode,
+    this.barcodeValue,
     this.coverImageUrl,
     this.thumbnailImageUrl,
   });
@@ -348,15 +350,15 @@ class _VideoReleaseSeedInput {
   final String mediaType;
   final String resolvedTitle;
   final String? editionTitle;
-  final String? publisher;
+  final String? distributor;
   final DateTime? releaseDate;
   final int? releaseYear;
   final String? physicalFormat;
-  final String? physicalFormatLabel;
+  final String? formatLabel;
   final String? variant;
   final String? language;
   final String? country;
-  final String? barcode;
+  final String? barcodeValue;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
 }
@@ -366,12 +368,12 @@ class _EditionSeed {
     required this.id,
     required this.title,
     required this.source,
-    this.publisher,
+    this.distributor,
     this.language,
-    this.region,
+    this.regionTerritory,
     this.releaseDate,
     this.physicalFormat,
-    this.physicalFormatLabel,
+    this.formatLabel,
     Map<String, dynamic>? metadata,
     Map<String, CatalogVariantDto>? variants,
   })  : metadata = <String, dynamic>{
@@ -400,23 +402,23 @@ class _EditionSeed {
       id: id,
       title: _fallbackEditionTitle(input),
       source: _videoReleaseSourceLocalAnchor,
-      publisher: _normalized(input.publisher),
+      distributor: _normalized(input.distributor),
       language: _normalized(input.language),
-      region: _normalized(input.country),
+      regionTerritory: _normalized(input.country),
       releaseDate: input.releaseDate,
       physicalFormat: _normalized(input.physicalFormat),
-      physicalFormatLabel: _normalized(input.physicalFormatLabel),
+      formatLabel: _normalized(input.formatLabel),
       metadata: metadata,
     );
     if (variantId != null) {
       seed._variants[variantId] = CatalogVariantDto(
         id: variantId,
         name: _fallbackVariantName(input),
-        barcode: input.barcode,
+        barcode: input.barcodeValue,
         coverImageUrl: input.coverImageUrl,
         thumbnailImageUrl: input.thumbnailImageUrl,
         physicalFormat: input.physicalFormat,
-        physicalFormatLabel: input.physicalFormatLabel,
+        physicalFormatLabel: input.formatLabel,
         isPrimary: true,
       );
     }
@@ -431,12 +433,12 @@ class _EditionSeed {
       id: id,
       title: _fallbackEditionTitle(input),
       source: _videoReleaseSourceTitleSnapshot,
-      publisher: _normalized(input.publisher),
+      distributor: _normalized(input.distributor),
       language: _normalized(input.language),
-      region: _normalized(input.country),
+      regionTerritory: _normalized(input.country),
       releaseDate: input.releaseDate,
       physicalFormat: _normalized(input.physicalFormat),
-      physicalFormatLabel: _normalized(input.physicalFormatLabel),
+      formatLabel: _normalized(input.formatLabel),
       metadata: const <String, dynamic>{
         _videoReleaseAnchorKindKey: 'item',
       },
@@ -446,12 +448,12 @@ class _EditionSeed {
   final String id;
   final String title;
   final String source;
-  final String? publisher;
+  final String? distributor;
   final String? language;
-  final String? region;
+  final String? regionTerritory;
   final DateTime? releaseDate;
   final String? physicalFormat;
-  final String? physicalFormatLabel;
+  final String? formatLabel;
   final Map<String, dynamic> metadata;
   final Map<String, CatalogVariantDto> _variants;
 
@@ -468,11 +470,11 @@ class _EditionSeed {
       _variants[normalizedVariantId] = CatalogVariantDto(
         id: normalizedVariantId,
         name: _fallbackVariantName(input),
-        barcode: input.barcode,
+        barcode: input.barcodeValue,
         coverImageUrl: input.coverImageUrl,
         thumbnailImageUrl: input.thumbnailImageUrl,
         physicalFormat: input.physicalFormat,
-        physicalFormatLabel: input.physicalFormatLabel,
+        physicalFormatLabel: input.formatLabel,
         isPrimary: true,
         metadata: <String, dynamic>{
           if (normalizedBundleReleaseId != null)
@@ -497,11 +499,11 @@ class _EditionSeed {
         CatalogVariantDto(
           id: '$id:primary',
           name: _fallbackVariantName(input),
-          barcode: input.barcode,
+          barcode: input.barcodeValue,
           coverImageUrl: input.coverImageUrl,
           thumbnailImageUrl: input.thumbnailImageUrl,
           physicalFormat: input.physicalFormat,
-          physicalFormatLabel: input.physicalFormatLabel,
+          physicalFormatLabel: input.formatLabel,
           isPrimary: true,
         ),
       );
@@ -531,12 +533,12 @@ class _EditionSeed {
     return CatalogEditionDto(
       id: id,
       title: title,
-      publisher: publisher,
+      publisher: distributor,
       language: language,
-      region: region,
+      region: regionTerritory,
       releaseDate: releaseDate,
       physicalFormat: physicalFormat,
-      physicalFormatLabel: physicalFormatLabel,
+      physicalFormatLabel: formatLabel,
       metadata: metadata,
       variants: variants,
     );
@@ -551,7 +553,7 @@ class _EditionSeed {
       name: _normalized(variant.name) ?? _fallbackVariantName(input),
       variantType: variant.variantType,
       sku: variant.sku,
-      barcode: _normalized(variant.barcode) ?? _normalized(input.barcode),
+      barcode: _normalized(variant.barcode) ?? _normalized(input.barcodeValue),
       isbn: variant.isbn,
       region: _normalized(variant.region) ?? _normalized(input.country),
       platform: variant.platform,
@@ -567,7 +569,7 @@ class _EditionSeed {
       physicalFormat: _normalized(variant.physicalFormat) ??
           _normalized(input.physicalFormat),
       physicalFormatLabel: _normalized(variant.physicalFormatLabel) ??
-          _normalized(input.physicalFormatLabel),
+          _normalized(input.formatLabel),
       metadata: variant.metadata,
       isPrimary: variant.isPrimary,
     );
