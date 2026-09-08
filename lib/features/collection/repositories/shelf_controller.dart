@@ -295,8 +295,18 @@ class ShelfState {
   /// compatible while production state supplies this list explicitly.
   final List<ShelfEntry>? workspaceEntries;
 
-  List<ShelfEntry> get resolvedWorkspaceEntries =>
-      workspaceEntries ?? const <ShelfEntry>[];
+  /// Production callers provide the post-dispatch sources explicitly. The
+  /// runtime fallback only recognizes concrete [ShelfEntry] values that may
+  /// still be supplied by lightweight fixtures; structural [LibraryEntry]
+  /// values are never widened back into workspace sources.
+  List<ShelfEntry> get resolvedWorkspaceEntries {
+    final sources = workspaceEntries;
+    if (sources != null) return sources;
+    return [
+      for (final entry in entries)
+        if (entry case final ShelfEntry source) source,
+    ];
+  }
 
   ShelfEntry? workspaceEntryFor(String itemId) {
     for (final entry in resolvedWorkspaceEntries) {
@@ -336,7 +346,7 @@ class ShelfState {
   }
 }
 
-class ShelfEntry extends LibraryWorkspaceEntry {
+class ShelfEntry extends LibraryWorkspaceEntry implements LibraryEntry {
   const ShelfEntry({
     required String itemId,
     CatalogDisplaySummary? catalogSummary,

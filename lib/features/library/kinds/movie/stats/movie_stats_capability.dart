@@ -9,11 +9,10 @@ class MovieStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
-    final owned = entry.ownedItem;
     return LibraryOwnedFinancialSummary(
-      pricePaidCents: owned?.pricePaidCents,
-      sellPriceCents: owned?.sellPriceCents,
-      currency: owned?.currency,
+      pricePaidCents: entry.pricePaidCents,
+      sellPriceCents: entry.sellPriceCents,
+      currency: entry.currency,
     );
   }
 
