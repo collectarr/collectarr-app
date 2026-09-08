@@ -148,7 +148,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   static const _genericMetadataMapAllowlist = {
     'lib/features/library/add/controllers/library_add_comparisons.dart',
-    'lib/features/library/add/panes/library_add_preview_pane.dart',
     'lib/features/library/add/services/library_add_workflow_service.dart',
     'lib/features/library/add/services/library_provider_orchestration_service.dart',
     'lib/features/library/add/services/provider_add_result_merge.dart',

@@ -226,6 +226,9 @@ final collectionImportServiceProvider =
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogSummaries: CatalogDisplaySummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
     catalogLookup: CatalogLookupRepository(
       ref.watch(localDatabaseProvider),
     ),

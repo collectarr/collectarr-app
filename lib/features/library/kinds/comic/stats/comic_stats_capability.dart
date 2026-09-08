@@ -21,6 +21,29 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+    final catalog = entry.catalogItem;
+    final metadata = _comicMetadata(entry);
+    if (catalog == null || metadata == null) return null;
+    final primary =
+        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
+            .trim();
+    final secondary = (metadata.publisher ?? metadata.imprint)?.trim();
+    return LibraryStatsMetadataProjection(
+      primaryGroup: primary,
+      secondaryGroup: secondary,
+      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
+          catalog.synopsis?.trim().isNotEmpty == true,
+      hasSecondaryMetadata: secondary?.isNotEmpty == true ||
+          metadata.physicalFormat?.trim().isNotEmpty == true,
+      hasReleaseDate:
+          metadata.releaseDate != null || catalog.releaseDate != null,
+      hasItemNumber: metadata.issueNumber?.trim().isNotEmpty == true,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
     LibraryKindModule type,

@@ -22,6 +22,25 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   }
 
   @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+    final catalog = entry.catalogItem;
+    final metadata = _metadata(entry);
+    if (catalog == null || metadata == null) return null;
+    final secondary =
+        (metadata.publisher ?? metadata.studios.firstOrNull)?.trim();
+    return LibraryStatsMetadataProjection(
+      primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
+      secondaryGroup: secondary,
+      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasSynopsis: catalog.synopsis?.trim().isNotEmpty == true,
+      hasSecondaryMetadata: secondary?.isNotEmpty == true ||
+          metadata.physicalFormat?.trim().isNotEmpty == true,
+      hasReleaseDate: metadata.startDate != null || catalog.releaseDate != null,
+      hasItemNumber: metadata.itemNumber?.trim().isNotEmpty == true,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
     LibraryKindModule type,

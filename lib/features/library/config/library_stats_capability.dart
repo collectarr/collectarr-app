@@ -30,8 +30,37 @@ class LibraryOwnedFinancialSummary {
   final String? currency;
 }
 
+/// Structural metadata facts consumed by the generic statistics host.
+///
+/// The names deliberately describe presentation roles rather than domain
+/// fields. A Comic, Book, or TV module decides what its primary and secondary
+/// labels mean; the host only counts and renders the resulting values.
+class LibraryStatsMetadataProjection {
+  const LibraryStatsMetadataProjection({
+    this.primaryGroup,
+    this.secondaryGroup,
+    this.hasCover = false,
+    this.hasSynopsis = false,
+    this.hasSecondaryMetadata = false,
+    this.hasReleaseDate = false,
+    this.hasItemNumber = false,
+  });
+
+  final String? primaryGroup;
+  final String? secondaryGroup;
+  final bool hasCover;
+  final bool hasSynopsis;
+  final bool hasSecondaryMetadata;
+  final bool hasReleaseDate;
+  final bool hasItemNumber;
+}
+
 abstract interface class LibraryStatsCapability {
   LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry);
+
+  /// Projects kind-owned metadata into structural facts for the generic stats
+  /// renderer. No kind field names or domain objects cross this boundary.
+  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry);
 
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
@@ -54,6 +83,16 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
+    );
+  }
+
+  @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+    final summary = entry.catalogSummary;
+    if (summary == null) return null;
+    return LibraryStatsMetadataProjection(
+      primaryGroup: summary.title,
+      hasCover: summary.imageUrl?.trim().isNotEmpty == true,
     );
   }
 

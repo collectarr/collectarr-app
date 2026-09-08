@@ -17,6 +17,35 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+    final catalog = entry.catalogItem;
+    final metadata = _mangaMetadata(entry);
+    if (catalog == null || metadata == null) return null;
+    final primary =
+        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
+            .trim();
+    final secondary = (metadata.publisher ??
+            metadata.originalPublisher ??
+            metadata.localizedPublisher)
+        ?.trim();
+    return LibraryStatsMetadataProjection(
+      primaryGroup: primary,
+      secondaryGroup: secondary,
+      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasSynopsis: catalog.synopsis?.trim().isNotEmpty == true,
+      hasSecondaryMetadata: secondary?.isNotEmpty == true ||
+          metadata.physicalFormat?.trim().isNotEmpty == true,
+      hasReleaseDate: metadata.localizedReleaseDate != null ||
+          metadata.originalPublicationDate != null ||
+          catalog.releaseDate != null,
+      hasItemNumber: (metadata.itemNumber ?? metadata.volumeNumber?.toString())
+              ?.trim()
+              .isNotEmpty ==
+          true,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
     LibraryKindModule type,

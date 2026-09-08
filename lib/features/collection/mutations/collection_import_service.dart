@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -29,6 +30,7 @@ final class CollectionImportService {
     required this.ownedItems,
     required this.wishlist,
     required this.catalogCache,
+    required this.catalogSummaries,
     required this.catalogLookup,
     required this.trackingEntries,
     required this.syncQueue,
@@ -39,6 +41,7 @@ final class CollectionImportService {
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
   final LibraryCatalogRepository catalogCache;
+  final CatalogDisplaySummaryRepository catalogSummaries;
   final CatalogLookupRepository catalogLookup;
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
@@ -55,20 +58,24 @@ final class CollectionImportService {
     final resolvedRows = [...preview.resolvedRows, ...preview.conflictRows];
     if (resolvedRows.isEmpty) return 0;
 
-    final catalogItems =
-        Map<String, CatalogItemDto>.from(await catalogCache.findByIds(
+    // Mixed import orchestration only needs to know whether a catalog target
+    // already exists and which kind owns it. Do not rehydrate full catalog
+    // DTO graphs here; the kind CSV profile creates a transport snapshot only
+    // for genuinely new catalog identities below.
+    final existingCatalogSummaries = await catalogSummaries.findByIds(
       resolvedRows.map((row) => row.itemId),
-    ));
+    );
     final importedCatalogItems = <CatalogItemDto>[];
+    final importedCatalogItemsById = <String, CatalogItemDto>{};
     for (final row in resolvedRows) {
       // An existing catalog item is already authoritative local state. Only
       // a kind-owned CSV projection may create a new catalog snapshot for an
       // import row; Collection must not re-persist existing metadata or
       // synthesize a generic semantic fallback.
-      if (catalogItems.containsKey(row.itemId)) continue;
+      if (existingCatalogSummaries.containsKey(row.itemId)) continue;
       final snapshot = _catalogSnapshotFromCsvRow(row);
       if (snapshot == null) continue;
-      catalogItems[row.itemId] = snapshot;
+      importedCatalogItemsById[row.itemId] = snapshot;
       importedCatalogItems.add(snapshot);
     }
 
@@ -110,19 +117,21 @@ final class CollectionImportService {
       if (!row.isOwned && !row.isWishlisted) continue;
 
       imported++;
-      final catItem = catalogItems[row.itemId];
-      final metadataItem = catItem;
-      final catItemId = metadataItem?.id;
-      final catItemKind = metadataItem?.kind;
-      if (catItemId != null && !snapshotItemIds.contains(catItemId)) {
-        snapshotItemIds.add(catItemId);
+      final importedCatalogItem = importedCatalogItemsById[row.itemId];
+      final existingCatalogSummary = existingCatalogSummaries[row.itemId];
+      final catalogKind = importedCatalogItem?.kind ??
+          existingCatalogSummary?.kind.apiValue ??
+          row.kind;
+      final catalogId = importedCatalogItem?.id ?? row.itemId;
+      if ((importedCatalogItem != null || existingCatalogSummary != null) &&
+          snapshotItemIds.add(catalogId)) {
         syncChanges.add(
           SyncChange(
-            id: 'catalog:$catItemId:upsert:${now.millisecondsSinceEpoch}',
+            id: 'catalog:$catalogId:upsert:${now.millisecondsSinceEpoch}',
             entityType: 'catalog_item',
-            entityId: catItemId,
+            entityId: catalogId,
             action: 'upsert',
-            payload: {'id': catItemId},
+            payload: {'id': catalogId},
             clientChangedAt: now,
           ),
         );
@@ -141,7 +150,7 @@ final class CollectionImportService {
           now,
           existingSummary: existingOwnedSummary,
           existingTyped: existingTypedOwned,
-          catalogKind: catItemKind,
+          catalogKind: catalogKind,
         );
         final mediaKind = typedImport.kind;
         final typedOwnedItem = typedImport.item;
@@ -210,7 +219,7 @@ final class CollectionImportService {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
-            kind: row.kind ?? catItemKind ?? CatalogMediaKind.unknown.apiValue,
+            kind: row.kind ?? catalogKind ?? CatalogMediaKind.unknown.apiValue,
             entityType: CatalogEntityType.work,
             id: row.itemId,
           ),

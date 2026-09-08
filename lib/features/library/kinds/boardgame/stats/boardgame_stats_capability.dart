@@ -21,6 +21,27 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   }
 
   @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+    final catalog = entry.catalogItem;
+    final metadata = _metadata(entry);
+    if (catalog == null || metadata == null) return null;
+    final secondary =
+        (metadata.publisher ?? metadata.publishers.firstOrNull)?.trim();
+    return LibraryStatsMetadataProjection(
+      primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
+      secondaryGroup: secondary,
+      hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
+          catalog.synopsis?.trim().isNotEmpty == true,
+      hasSecondaryMetadata: secondary?.isNotEmpty == true ||
+          metadata.physicalFormat?.trim().isNotEmpty == true,
+      hasReleaseDate:
+          metadata.yearPublished != null || catalog.releaseDate != null,
+      hasItemNumber: metadata.itemNumber?.trim().isNotEmpty == true,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
     LibraryKindModule type,

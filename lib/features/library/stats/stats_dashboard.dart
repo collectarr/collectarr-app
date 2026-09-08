@@ -5,9 +5,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 
@@ -63,7 +60,7 @@ class _GenericStatsDashboard extends StatelessWidget {
         : formatMoney(state.totalSellCents, state.primaryCurrency);
     final module = type;
     final missingCovers = state.resolvedWorkspaceEntries
-        .where((e) => _metadataDto(e, module)?.coverImageUrl == null)
+        .where((e) => module.stats.buildMetadataProjection(e)?.hasCover != true)
         .length;
     final missingMetadata =
         _missingMetadataCount(state.resolvedWorkspaceEntries, module);
@@ -320,34 +317,13 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
-  static LibraryWorkspaceDto? _metadataDto(
-    ShelfEntry entry,
-    LibraryKindModule module,
-  ) {
-    final catalog = entry.catalogItem;
-    if (catalog == null) return null;
-    return libraryKindWorkspaceForKind(module.kind)
-        .project(
-          source: entry,
-          node: LibraryTitleNodeRef(
-            titleItemId: entry.catalogRef?.id ?? catalog.id,
-          ),
-        )
-        .dto;
-  }
-
   static Map<String, int> _topSeriesCounts(
     List<ShelfEntry> entries,
     LibraryKindModule module,
   ) {
     return _countBy(
       entries,
-      (e) {
-        final dto = _metadataDto(e, module);
-        if (dto == null) return 'Unknown';
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.seriesTitle ?? dto.title;
-      },
+      (e) => module.stats.buildMetadataProjection(e)?.primaryGroup ?? 'Unknown',
     );
   }
 
@@ -357,15 +333,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   ) {
     return _countBy(
       entries,
-      (e) {
-        final dto = _metadataDto(e, module);
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        final raw = adapter?.publisher;
-        if (raw != null && raw.trim().isNotEmpty) {
-          return raw.trim();
-        }
-        return 'Unknown';
-      },
+      (e) =>
+          module.stats.buildMetadataProjection(e)?.secondaryGroup ?? 'Unknown',
     );
   }
 
@@ -375,17 +344,12 @@ class _GenericStatsDashboard extends StatelessWidget {
   ) {
     var count = 0;
     for (final entry in entries) {
-      final dto = _metadataDto(entry, module);
-      if (dto == null) {
+      final projection = module.stats.buildMetadataProjection(entry);
+      if (projection == null) {
         count++;
         continue;
       }
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final hasSynopsis = adapter?.synopsis?.trim().isNotEmpty == true;
-      final format = adapter?.format?.trim();
-      final hasPublisher =
-          adapter?.publisher?.trim().isNotEmpty == true || format != null;
-      if (!hasSynopsis && !hasPublisher) {
+      if (!projection.hasSynopsis && !projection.hasSecondaryMetadata) {
         count++;
       }
     }
@@ -406,12 +370,9 @@ class _GenericStatsDashboard extends StatelessWidget {
   ) {
     return _sumBy(
       entries,
-      (entry) {
-        final dto = _metadataDto(entry, module);
-        if (dto == null) return 'Unknown';
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.seriesTitle ?? dto.title;
-      },
+      (entry) =>
+          module.stats.buildMetadataProjection(entry)?.primaryGroup ??
+          'Unknown',
       (entry) => entry.pricePaidCents,
     );
   }
@@ -430,12 +391,9 @@ class _GenericStatsDashboard extends StatelessWidget {
   ) {
     return _sumBy(
       entries,
-      (entry) {
-        final dto = _metadataDto(entry, module);
-        if (dto == null) return 'Unknown';
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.seriesTitle ?? dto.title;
-      },
+      (entry) =>
+          module.stats.buildMetadataProjection(entry)?.primaryGroup ??
+          'Unknown',
       (entry) => entry.sellPriceCents,
     );
   }
@@ -469,26 +427,24 @@ class _GenericStatsDashboard extends StatelessWidget {
         'Missing ${labels.labelFor('series', fallback: 'series').toLowerCase()}';
     final counts = <String, int>{};
     for (final entry in entries) {
-      final dto = _metadataDto(entry, module);
-      if (dto == null) {
+      final projection = module.stats.buildMetadataProjection(entry);
+      if (projection == null) {
         counts['No catalog snapshot'] =
             (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      if (dto.coverImageUrl == null || dto.coverImageUrl!.trim().isEmpty) {
+      if (!projection.hasCover) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
       }
-      if (adapter?.synopsis?.trim().isNotEmpty != true) {
+      if (!projection.hasSynopsis) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
-      final hasPublisher = adapter?.publisher?.trim().isNotEmpty == true ||
-          adapter?.format?.trim().isNotEmpty == true;
-      if (!hasPublisher) {
+      if (!projection.hasSecondaryMetadata) {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
       }
-      if (adapter?.seriesTitle == null || adapter!.seriesTitle!.isEmpty) {
+      if (projection.primaryGroup == null ||
+          projection.primaryGroup!.trim().isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
       if (entry.itemId.startsWith('provider:')) {
@@ -500,8 +456,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static String _metadataBand(ShelfEntry entry, LibraryKindModule module) {
-    final dto = _metadataDto(entry, module);
-    if (dto == null) {
+    final projection = module.stats.buildMetadataProjection(entry);
+    if (projection == null) {
       return 'Needs work';
     }
     var score = 0;
@@ -511,23 +467,15 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-
+    add(projection.hasCover, 25);
+    add(projection.hasSynopsis, 25);
+    add(projection.hasSecondaryMetadata, 15);
+    add(projection.hasReleaseDate, 15);
     add(
-      dto.coverImageUrl != null && dto.coverImageUrl!.trim().isNotEmpty,
-      25,
+      projection.primaryGroup?.trim().isNotEmpty == true,
+      10,
     );
-    add(
-      adapter?.synopsis?.trim().isNotEmpty == true,
-      25,
-    );
-    final hasPublisher = adapter?.publisher?.trim().isNotEmpty == true ||
-        adapter?.format?.trim().isNotEmpty == true;
-    add(hasPublisher, 15);
-    add(adapter?.releaseDate != null, 15);
-    add(adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty, 10);
-    add(adapter?.itemNumber != null && adapter!.itemNumber!.trim().isNotEmpty,
-        10);
+    add(projection.hasItemNumber, 10);
 
     if (score >= 80) {
       return 'Strong';
