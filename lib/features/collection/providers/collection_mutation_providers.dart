@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/providers/domain/repositories/provider_l
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -102,7 +103,9 @@ final collectionEventBusProvider = Provider<CollectionEventBus>((ref) {
 final providerLocalStateBridgeProvider =
     Provider<ProviderLocalStateBridge>((ref) {
   return ProviderLocalStateBridge(
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogSummaries: CatalogDisplaySummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
   );

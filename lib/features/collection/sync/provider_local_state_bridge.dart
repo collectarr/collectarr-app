@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -12,12 +12,12 @@ import 'package:collectarr_app/features/providers/domain/models/provider_id.dart
 
 final class ProviderLocalStateBridge {
   const ProviderLocalStateBridge({
-    required this.catalogCache,
+    required this.catalogSummaries,
     required this.trackingEntries,
     required this.wishlist,
   });
 
-  final LibraryCatalogRepository catalogCache;
+  final CatalogDisplaySummaryRepository catalogSummaries;
   final TrackingEntriesCacheRepository trackingEntries;
   final WishlistItemsCacheRepository wishlist;
 
@@ -26,7 +26,8 @@ final class ProviderLocalStateBridge {
     ProviderItemLink? link,
   }) async {
     final tracking = await _findTracking(localRef);
-    final catalog = await catalogCache.findById(localRef.id);
+    final catalog =
+        (await catalogSummaries.findByIds([localRef.id]))[localRef.id];
     if (tracking != null) {
       return _fromTracking(localRef, tracking, catalog?.title, link: link);
     }

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ Future<void> showReadingQueueDialog({
   required String mediaKind,
   required Iterable<OwnedItemSummary> ownedItems,
   Iterable<TrackingEntry> trackingEntries = const [],
-  required Map<String, dynamic> catalogItemsById,
+  required Map<String, CatalogDisplaySummary> catalogSummariesById,
   ValueChanged<String>? onSelectItem,
 }) {
   return showDialog<void>(
@@ -25,7 +25,7 @@ Future<void> showReadingQueueDialog({
       mediaKind: mediaKind,
       ownedItems: ownedItems.toList(growable: false),
       trackingEntries: trackingEntries.toList(growable: false),
-      catalogItemsById: catalogItemsById,
+      catalogSummariesById: catalogSummariesById,
       onSelectItem: onSelectItem,
     ),
   );
@@ -37,7 +37,7 @@ class _ReadingQueueDialog extends StatefulWidget {
     required this.mediaKind,
     required this.ownedItems,
     required this.trackingEntries,
-    required this.catalogItemsById,
+    required this.catalogSummariesById,
     this.onSelectItem,
   });
 
@@ -45,7 +45,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   final String mediaKind;
   final List<OwnedItemSummary> ownedItems;
   final List<TrackingEntry> trackingEntries;
-  final Map<String, dynamic> catalogItemsById;
+  final Map<String, CatalogDisplaySummary> catalogSummariesById;
   final ValueChanged<String>? onSelectItem;
 
   @override
@@ -94,15 +94,15 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       if (catalogId == null) {
         continue;
       }
-      final item = widget.catalogItemsById[catalogId];
-      final catalogItem = item is CatalogItemDto ? item : null;
-      if (catalogItem == null || catalogItem.kind != widget.mediaKind) {
+      final catalogSummary = widget.catalogSummariesById[catalogId];
+      if (catalogSummary == null ||
+          catalogSummary.kind.apiValue != widget.mediaKind) {
         continue;
       }
       entries.add(
         _ReadingQueueDialogEntry(
           summary: summary,
-          catalogItem: catalogItem,
+          catalogSummary: catalogSummary,
           trackingEntry: trackingByOwnedId[summary.ref.id.value] ??
               trackingByItemId[catalogId],
         ),
@@ -173,7 +173,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
   void _openItem(_ReadingQueueDialogEntry entry) {
     Navigator.of(context).pop();
-    widget.onSelectItem?.call(entry.catalogItem.id);
+    widget.onSelectItem?.call(entry.catalogSummary.id);
   }
 
   List<_ReadingQueueDialogEntry> get _filteredEntries {
@@ -356,22 +356,15 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 class _ReadingQueueDialogEntry {
   const _ReadingQueueDialogEntry({
     required this.summary,
-    required this.catalogItem,
+    required this.catalogSummary,
     this.trackingEntry,
   });
 
   final OwnedItemSummary summary;
-  final CatalogItemDto catalogItem;
+  final CatalogDisplaySummary catalogSummary;
   final TrackingEntry? trackingEntry;
 
   String get label {
-    final payload = catalogItem.payload;
-    final rawNum =
-        (payload['item_number'] ?? payload['itemNumber'])?.toString();
-    final itemNumber = rawNum?.trim();
-    if (itemNumber == null || itemNumber.isEmpty) {
-      return catalogItem.title;
-    }
-    return '${catalogItem.title} #$itemNumber';
+    return catalogSummary.title;
   }
 }

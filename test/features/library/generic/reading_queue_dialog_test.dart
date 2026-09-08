@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -70,15 +71,15 @@ void main() {
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),
                   ],
-                  catalogItemsById: {
-                    'book-1': testCatalogItem(
+                  catalogSummariesById: {
+                    'book-1': CatalogDisplaySummary.work(
                       id: 'book-1',
-                      kind: 'book',
+                      kind: CatalogMediaKind.book,
                       title: 'Dune',
                     ),
-                    'book-2': testCatalogItem(
+                    'book-2': CatalogDisplaySummary.work(
                       id: 'book-2',
-                      kind: 'book',
+                      kind: CatalogMediaKind.book,
                       title: 'Foundation',
                     ),
                   },

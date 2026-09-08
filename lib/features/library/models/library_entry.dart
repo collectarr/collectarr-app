@@ -118,7 +118,7 @@ final class TrackingSummary {
 /// workspace. It is intentionally separate from [LibraryEntry], the mixed
 /// projection; the two models must not form an inheritance-based compatibility
 /// union.
-class LibraryWorkspaceEntry {
+class LibraryWorkspaceEntry implements LibraryEntry {
   const LibraryWorkspaceEntry({
     required this.itemId,
     this.catalogSummary,
@@ -156,6 +156,13 @@ class LibraryWorkspaceEntry {
   bool get isOwned => ownedSummary != null || ownedItem != null;
   bool get isTracked => trackingSummary != null || trackingEntry != null;
   bool get isWishlisted => wishlistItem != null;
+
+  String get subtitle {
+    if (isOwned && isWishlisted) return 'Owned and wishlisted';
+    if (isOwned) return 'Owned';
+    if (isTracked) return 'Tracked';
+    return 'Wishlist';
+  }
 
   Object? get kindMetadata => catalogItem?.kindMetadata;
 
