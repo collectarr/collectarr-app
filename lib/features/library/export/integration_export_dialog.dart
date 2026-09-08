@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -103,29 +104,9 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   String _toCsv(LibraryKindModule module) {
-    final buffer = StringBuffer();
-    buffer.writeln('Title,Number,Series,Publisher,Barcode,Condition,Grade');
-    for (final entry in shelfState.resolvedWorkspaceEntries) {
-      final projection = libraryKindWorkspaceForKind(module.kind).project(
-        source: entry,
-        node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogItem?.id ?? entry.itemId,
-        ),
-      );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final own = entry.ownedItem;
-      buffer.writeln([
-        _escapeCsv(entry.title),
-        _escapeCsv(adapter?.itemNumber ?? ''),
-        _escapeCsv(adapter?.seriesTitle ?? ''),
-        _escapeCsv(adapter?.publisher ?? ''),
-        _escapeCsv(adapter?.barcode ?? ''),
-        _escapeCsv(own?.condition ?? ''),
-        _escapeCsv(own?.grade ?? ''),
-      ].join(','));
-    }
-    return buffer.toString();
+    return CollectionCsv().exportShelf(
+      shelfState.resolvedWorkspaceEntries,
+    );
   }
 
   String _toJson(LibraryKindModule module) {
@@ -141,13 +122,13 @@ class _IntegrationExportDialog extends StatelessWidget {
       final cat = e.catalogItem;
       final own = e.ownedItem;
       return {
+        'id': e.itemId,
         'title': e.title,
         if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
         if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
-        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
-        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
+        if (adapter?.variant != null) 'variant': adapter!.variant,
+        if (adapter?.format != null) 'format': adapter!.format,
         if (own?.condition != null) 'condition': own!.condition,
-        if (own?.grade != null) 'grade': own!.grade,
         if (cat?.releaseYear != null) 'year': cat!.releaseYear,
       };
     }).toList();
@@ -184,13 +165,13 @@ class _IntegrationExportDialog extends StatelessWidget {
         buffer.writeln(
             '    <series>${_escapeXml(adapter!.seriesTitle!)}</series>');
       }
-      if (adapter?.publisher != null) {
+      if (adapter?.variant != null) {
         buffer.writeln(
-            '    <publisher>${_escapeXml(adapter!.publisher!)}</publisher>');
+            '    <variant>${_escapeXml(adapter!.variant!)}</variant>');
       }
-      if (adapter?.barcode != null) {
-        buffer
-            .writeln('    <barcode>${_escapeXml(adapter!.barcode!)}</barcode>');
+      if (adapter?.format != null) {
+        buffer.writeln(
+            '    <format>${_escapeXml(adapter!.format!)}</format>');
       }
       if (own?.condition != null) {
         buffer.writeln(
@@ -227,13 +208,6 @@ class _IntegrationExportDialog extends StatelessWidget {
       buffer.writeln('- [ ] ${parts.join(' ')}');
     }
     return buffer.toString();
-  }
-
-  String _escapeCsv(String value) {
-    if (value.contains(',') || value.contains('"') || value.contains('\n')) {
-      return '"${value.replaceAll('"', '""')}"';
-    }
-    return value;
   }
 
   String _escapeXml(String value) {

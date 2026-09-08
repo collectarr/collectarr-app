@@ -124,7 +124,7 @@ class _CollectionShareDialog extends StatelessWidget {
 
   void _copyAsCsv(BuildContext context) {
     final rows = <List<String>>[
-      ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
+      ['Title', 'Number', 'Series', 'Format', 'Condition'],
       ...items.map((item) {
         final dto = item.dto;
         final adapter = dto is WorkspaceDtoAdapter ? dto : null;
@@ -132,9 +132,8 @@ class _CollectionShareDialog extends StatelessWidget {
           dto.title,
           adapter?.itemNumber ?? '',
           adapter?.seriesTitle ?? '',
-          adapter?.publisher ?? '',
+          adapter?.format ?? '',
           item.source.condition ?? '',
-          adapter?.barcode ?? '',
         ];
       }),
     ];
@@ -153,11 +152,10 @@ class _CollectionShareDialog extends StatelessWidget {
       final condition = item.source.condition;
       return {
         'title': dto.title,
-        if (adapter?.itemNumber != null) 'issue': adapter!.itemNumber,
+        if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
         if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
-        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
+        if (adapter?.format != null) 'format': adapter!.format,
         if (condition != null) 'condition': condition,
-        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
       };
     }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
@@ -170,7 +168,7 @@ class _CollectionShareDialog extends StatelessWidget {
 
   Future<void> _saveCsvToFile(BuildContext context) async {
     final rows = <List<String>>[
-      ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
+      ['Title', 'Number', 'Series', 'Format', 'Condition'],
       ...items.map((item) {
         final dto = item.dto;
         final adapter = dto is WorkspaceDtoAdapter ? dto : null;
@@ -178,9 +176,8 @@ class _CollectionShareDialog extends StatelessWidget {
           dto.title,
           adapter?.itemNumber ?? '',
           adapter?.seriesTitle ?? '',
-          adapter?.publisher ?? '',
+          adapter?.format ?? '',
           item.source.condition ?? '',
-          adapter?.barcode ?? '',
         ];
       }),
     ];
@@ -195,11 +192,10 @@ class _CollectionShareDialog extends StatelessWidget {
       final condition = item.source.condition;
       return {
         'title': dto.title,
-        if (adapter?.itemNumber != null) 'issue': adapter!.itemNumber,
+        if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
         if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
-        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
+        if (adapter?.format != null) 'format': adapter!.format,
         if (condition != null) 'condition': condition,
-        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
       };
     }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
@@ -247,7 +243,7 @@ class _CollectionShareDialog extends StatelessWidget {
       rows.writeln('  <td>${_htmlEscape(dto.title)}</td>');
       rows.writeln('  <td>${_htmlEscape(adapter?.itemNumber ?? '')}</td>');
       rows.writeln('  <td>${_htmlEscape(adapter?.seriesTitle ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(adapter?.publisher ?? '')}</td>');
+      rows.writeln('  <td>${_htmlEscape(adapter?.format ?? '')}</td>');
       rows.writeln('  <td>${_htmlEscape(item.source.condition ?? '')}</td>');
       rows.writeln('</tr>');
     }
@@ -272,7 +268,7 @@ class _CollectionShareDialog extends StatelessWidget {
 <h1>$escapedTitle</h1>
 <p class="count">${items.length} items</p>
 <table>
-<thead><tr><th>#</th><th>Title</th><th>Issue</th><th>Series</th><th>Publisher</th><th>Condition</th></tr></thead>
+<thead><tr><th>#</th><th>Title</th><th>Number</th><th>Series</th><th>Format</th><th>Condition</th></tr></thead>
 <tbody>
 ${rows.toString()}</tbody>
 </table>
