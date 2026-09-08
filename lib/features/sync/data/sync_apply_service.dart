@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -13,6 +13,7 @@ import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -84,7 +85,7 @@ class SyncApplyService {
   }
 
   Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
-    final catalogSnapshots = <CatalogItemDto>[];
+    final catalogSnapshots = <CatalogImportSnapshot>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final typedOwned = <(CatalogMediaKind kind, Object item)>[];
@@ -107,10 +108,10 @@ class SyncApplyService {
         }
       }
       if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
-        final item = _catalogItemFromEntity(entity);
-        catalogSnapshots.add(item);
-        if (item.coverImageData != null) {
-          imageDataByItemId[item.id] = item.coverImageData!;
+        final snapshot = _catalogSnapshotFromEntity(entity);
+        catalogSnapshots.add(snapshot);
+        if (snapshot.coverImageData != null) {
+          imageDataByItemId[snapshot.id] = snapshot.coverImageData!;
         }
       }
       if (type == 'owned_item') {
@@ -143,7 +144,7 @@ class SyncApplyService {
       }
     }
     await db.transaction(() async {
-      await catalog.upsertAll(catalogSnapshots);
+      await catalog.upsertImportSnapshots(catalogSnapshots);
       for (final location in locationUpserts) {
         await locations.applySyncedUpsert(location);
       }
@@ -238,15 +239,17 @@ class SyncApplyService {
   // Entity deserializers
   // ---------------------------------------------------------------------------
 
-  CatalogItemDto _catalogItemFromEntity(Map<String, dynamic> entity) {
+  CatalogImportSnapshot _catalogSnapshotFromEntity(
+    Map<String, dynamic> entity,
+  ) {
     final type = entity['entity_type'] as String;
     if (type != 'library_item_snapshot') {
       throw FormatException('Expected library_item_snapshot entity, got $type');
     }
-    return CatalogItemDto.fromJson({
-      ..._payload(entity),
-      'id': entity['entity_id'],
-    });
+    return catalog.snapshotFromSyncPayload(
+      id: entity['entity_id'] as String,
+      payload: _payload(entity),
+    );
   }
 
   (CatalogMediaKind kind, Object item) _typedOwnedItemFromEntity(

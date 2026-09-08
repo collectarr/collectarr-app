@@ -248,6 +248,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/workspace/layout/library_flow_carousel.dart',
     'lib/features/library/workspace/tiles/library_workspace_card.dart',
     'lib/features/providers/transport/provider_preview_mapper.dart',
+    // Pull/push entities are the sync protocol boundary. Catalog snapshots
+    // are decoded by CatalogTransportRepository; the remaining maps are
+    // protocol envelopes and universal sync payloads.
+    'lib/features/sync/data/sync_apply_service.dart',
     // Video release source reconstructs synthetic release editions from raw sync payloads.
     'lib/features/library/release/video_release_source.dart',
   };

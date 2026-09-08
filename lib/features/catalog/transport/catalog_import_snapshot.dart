@@ -19,6 +19,7 @@ final class CatalogImportSnapshot {
   String get id => _item.id;
   CatalogMediaKind get kind => _item.mediaKind;
   String get title => _item.title;
+  String? get coverImageData => _item.coverImageData;
 
   CatalogItemDto toTransportItem() => _item;
 }

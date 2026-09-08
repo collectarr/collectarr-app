@@ -43,6 +43,15 @@ final class CatalogTransportRepository {
     );
   }
 
+  CatalogImportSnapshot snapshotFromSyncPayload({
+    required String id,
+    required Map<String, dynamic> payload,
+  }) {
+    return CatalogImportSnapshot.fromItem(
+      CatalogItemDto.fromJson({...payload, 'id': id}),
+    );
+  }
+
   Future<void> upsertMetadataItems(List<CatalogItemDto> items) =>
       upsertAll(items);
 
