@@ -9,11 +9,8 @@ class WorkspaceCommonProjection {
     required this.title,
     this.seriesTitle,
     this.itemNumber,
-    this.publisher,
     this.releaseDate,
     this.variant,
-    this.barcode,
-    this.grade,
     this.country,
     this.language,
     this.currency,
@@ -26,10 +23,8 @@ class WorkspaceCommonProjection {
     LibraryNodeRef node, {
     String? overrideTitle,
     String? overrideSeriesTitle,
-    String? overridePublisher,
     DateTime? overrideReleaseDate,
     String? overrideVariant,
-    String? overrideBarcode,
     String? overrideCoverImageUrl,
   }) {
     final catalog = source.catalogItem;
@@ -49,8 +44,6 @@ class WorkspaceCommonProjection {
     final payload = catalog?.payload ?? const {};
     final rawSeries = payload['series'];
     final seriesMap = rawSeries is Map ? rawSeries : null;
-    final rawPub = payload['publishing'];
-    final pubMap = rawPub is Map ? rawPub : null;
 
     return WorkspaceCommonProjection(
       title: overrideTitle ?? catalog?.displayTitle ?? catalog?.title ?? '',
@@ -62,29 +55,18 @@ class WorkspaceCommonProjection {
                   payload['seriesTitle'])
               ?.toString(),
       itemNumber: (payload['item_number'] ?? payload['itemNumber'])?.toString(),
-      publisher: overridePublisher ??
-          edition?.publisher ??
-          (payload['publisher'] ??
-                  pubMap?['original_publisher'] ??
-                  (rawPub is String ? rawPub : null))
-              ?.toString(),
       releaseDate:
           overrideReleaseDate ?? edition?.releaseDate ?? catalog?.releaseDate,
       variant: overrideVariant ??
           primaryVariant?.name ??
           edition?.title ??
           payload['variant']?.toString(),
-      barcode: overrideBarcode ??
-          primaryVariant?.barcode ??
-          edition?.upc ??
-          payload['barcode']?.toString(),
-      grade: source.ownedItem?.grade,
-      country: (payload['country'] ?? pubMap?['original_country'])?.toString(),
+      country: (payload['country'] ?? (payload['publishing'] as Map?)?['original_country'])?.toString(),
       language: edition?.language ??
-          (payload['language'] ?? pubMap?['original_language'])?.toString(),
+          (payload['language'] ?? (payload['publishing'] as Map?)?['original_language'])?.toString(),
       currency: source.ownedItem?.currency,
-      referenceFormatLabel: primaryVariant?.physicalFormatLabel ??
-          edition?.physicalFormatLabel ??
+      referenceFormatLabel: primaryVariant?.physicalFormat ??
+          edition?.format ??
           (payload['physical_format_label'] ?? payload['physical_format'])
               ?.toString(),
       coverImageUrl: overrideCoverImageUrl ??
@@ -97,11 +79,8 @@ class WorkspaceCommonProjection {
   final String title;
   final String? seriesTitle;
   final String? itemNumber;
-  final String? publisher;
   final DateTime? releaseDate;
   final String? variant;
-  final String? barcode;
-  final String? grade;
   final String? country;
   final String? language;
   final String? currency;
@@ -180,11 +159,8 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
 
   String? get seriesTitle => common.seriesTitle;
   String? get itemNumber => common.itemNumber;
-  String? get publisher => common.publisher;
   DateTime? get releaseDate => common.releaseDate;
   String? get variant => common.variant;
-  String? get barcode => common.barcode;
-  String? get grade => common.grade;
   String? get country => common.country;
   String? get language => common.language;
   String? get currency => common.currency;

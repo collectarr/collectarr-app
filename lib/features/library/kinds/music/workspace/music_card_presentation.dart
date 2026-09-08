@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_card_pre
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -483,9 +484,9 @@ String? musicCardArtist(LibraryProjectionRuntime item) {
       return rawName;
     }
   }
-  final adapter =
-      item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
-  final publisher = adapter?.publisher?.trim();
+  final musicDto =
+      item.dto is MusicWorkspaceDto ? item.dto as MusicWorkspaceDto : null;
+  final publisher = musicDto?.publisher?.trim();
   if (publisher != null && publisher.isNotEmpty) {
     return publisher;
   }

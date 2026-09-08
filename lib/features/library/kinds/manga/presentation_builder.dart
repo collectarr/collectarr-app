@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -36,10 +37,11 @@ class MangaLibraryMediaPresentationBuilder
   }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final mangaDto = dto is MangaWorkspaceDto ? dto : null;
     final itemNumber = adapter?.itemNumber;
     final variant = adapter?.variant;
-    final barcode = adapter?.barcode;
-    final publisher = adapter?.publisher;
+    final barcode = mangaDto?.barcode;
+    final publisher = mangaDto?.publisher;
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;

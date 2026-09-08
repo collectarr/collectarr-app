@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class BoardGameLibraryMediaPresentationBuilder
@@ -23,10 +24,11 @@ class BoardGameLibraryMediaPresentationBuilder
   }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
     final itemNumber = adapter?.itemNumber;
     final variant = adapter?.variant;
-    final barcode = adapter?.barcode;
-    final publisher = adapter?.publisher;
+    final barcode = bgDto?.barcode;
+    final publisher = bgDto?.publisher;
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;

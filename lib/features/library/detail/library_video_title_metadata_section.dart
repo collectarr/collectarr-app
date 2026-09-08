@@ -54,8 +54,10 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
         LibraryDetailFieldTable(
           fields: [
             LibraryDetailField(label: 'Display title', value: dto.title),
-            if (adapter?.publisher?.trim().isNotEmpty == true)
-              LibraryDetailField(label: 'Studio', value: adapter!.publisher!),
+            if (_metadataFactValue(metadataPresentation, 'Studio') ??
+                _metadataFactValue(metadataPresentation, 'Publisher')
+                case final studio?)
+              LibraryDetailField(label: 'Studio', value: studio),
             if (_metadataFactValue(metadataPresentation, 'Runtime')
                 case final runtime?)
               LibraryDetailField(label: 'Runtime', value: runtime),

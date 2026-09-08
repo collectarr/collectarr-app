@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_medi
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -142,12 +143,13 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final musicDto = dto is MusicWorkspaceDto ? dto : null;
     final metadata = _musicMetadata(item);
     final music = metadata?.music;
     final series = metadata?.series;
     final variant = adapter?.variant;
-    final barcode = adapter?.barcode;
-    final publisher = adapter?.publisher;
+    final barcode = musicDto?.barcode;
+    final publisher = musicDto?.publisher;
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;

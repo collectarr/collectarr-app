@@ -102,7 +102,7 @@ final class TvOwnedItemUpdatePayload
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
-    final existingDetails = existing.details as TvOwnedDetails;
+    final existingDetails = existing.details;
     final codec = const TvOwnedDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingDetails,

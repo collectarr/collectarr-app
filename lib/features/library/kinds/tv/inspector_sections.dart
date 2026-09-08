@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/tracking/session_history_section
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildTvInspectorSections(
@@ -76,11 +76,11 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 
   final ownedItem = request.ownedItem;
   final trackingEntry = request.trackingEntry;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.title),
-    if (adapter?.publisher?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Studio', value: adapter!.publisher!),
+    if (tvDto?.publisher?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Studio', value: tvDto!.publisher!),
     LibraryDetailField(label: 'Releases', value: rawEditions.length.toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),

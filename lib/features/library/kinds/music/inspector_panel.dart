@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -437,17 +438,18 @@ class _MusicProductDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final dto = inspector.item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final musicDto = dto is MusicWorkspaceDto ? dto : null;
     final metadata = _musicMetadata(inspector.item);
     final music = metadata?.music;
     final rows = <(String, String)>[
-      if (adapter?.publisher?.trim().isNotEmpty == true)
-        ('Label', adapter!.publisher!),
+      if (musicDto?.publisher?.trim().isNotEmpty == true)
+        ('Label', musicDto!.publisher!),
       if (music?['catalog_number']?.toString().trim().isNotEmpty == true)
         ('Catalog number', music!['catalog_number'].toString()),
       if (music?['upc']?.toString().trim().isNotEmpty == true)
         ('UPC', music!['upc'].toString()),
-      if (adapter?.barcode?.trim().isNotEmpty == true)
-        ('Barcode', adapter!.barcode!),
+      if (musicDto?.barcode?.trim().isNotEmpty == true)
+        ('Barcode', musicDto!.barcode!),
       if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true ||
           adapter?.variant?.trim().isNotEmpty == true)
         ('Format', adapter?.referenceFormatLabel ?? adapter?.variant ?? '-'),
@@ -1013,7 +1015,8 @@ bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {
 Uri? _ebayUri(LibraryProjectionRuntime item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final barcode = adapter?.barcode?.trim();
+  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final barcode = musicDto?.barcode?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;
   }

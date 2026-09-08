@@ -16,4 +16,7 @@ final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
   final PersonalCopyProjection personal;
   final BoardGameCatalogItem boardgame;
   final BoardGameMetadata? metadata;
+
+  String? get publisher => boardgame.publisher ?? metadata?.publisher;
+  String? get barcode => boardgame.barcode;
 }

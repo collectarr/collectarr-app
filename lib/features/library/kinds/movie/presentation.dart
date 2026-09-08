@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:flutter/material.dart';
@@ -71,8 +72,8 @@ final moviesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'publisher',
     label: 'Studio',
     anyLabel: 'Any studio',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is MovieWorkspaceDto)
+        ? (item.dto as MovieWorkspaceDto).publisher
         : null,
   ),
   LibraryFilterDefinition<dynamic>(

@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_hero.dart'
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
@@ -19,19 +20,20 @@ List<Widget> buildMovieInspectorSections(
   final item = request.item;
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final movieDto = dto is MovieWorkspaceDto ? dto : null;
   final kindMetadata = item.source.catalogItem?.kindMetadata;
   final metadata = kindMetadata is MovieCatalogMetadata ? kindMetadata : null;
   final editionCount = metadata?.releases.length ?? 0;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Title', value: dto.title),
-    if (adapter?.publisher?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Studio', value: adapter!.publisher!),
+    if (movieDto?.publisher?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Studio', value: movieDto!.publisher!),
     if (adapter?.releaseDate != null)
       LibraryDetailField(
           label: 'Release date', value: _formatDate(adapter!.releaseDate!)),
     LibraryDetailField(label: 'Releases', value: editionCount.toString()),
-    if (adapter?.barcode?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Barcode', value: adapter!.barcode!),
+    if (movieDto?.barcode?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Barcode', value: movieDto!.barcode!),
     if (adapter?.country?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Country', value: adapter!.country!),
     if (adapter?.language?.trim().isNotEmpty == true)

@@ -37,10 +37,17 @@ enum ReportColumn {
       ReportColumn.series => adapter?.seriesTitle ?? '',
       ReportColumn.issue => adapter?.itemNumber ?? '',
       ReportColumn.condition => item.source.condition ?? '',
-      ReportColumn.grade => item.source.grade ?? '',
-      ReportColumn.publisher => adapter?.publisher ?? '',
-      ReportColumn.barcode => adapter?.barcode ?? '',
-      ReportColumn.barcodeImage => adapter?.barcode ?? '',
+      ReportColumn.grade =>
+        (item.source.ownedItem?.toSyncPayload()['grade'] as String?) ?? '',
+      ReportColumn.publisher => (item.source.catalogItem?.toSyncPayload()['publisher'] ??
+          (item.source.catalogItem?.toSyncPayload()['publishing']
+                  as Map<String, dynamic>?)?['original_publisher'] ??
+          item.source.catalogItem?.toSyncPayload()['studio'] ??
+          item.source.catalogItem?.toSyncPayload()['network'])?.toString() ?? '',
+      ReportColumn.barcode => (item.source.catalogItem?.toSyncPayload()['barcode'] ??
+          item.source.catalogItem?.toSyncPayload()['upc'])?.toString() ?? '',
+      ReportColumn.barcodeImage => (item.source.catalogItem?.toSyncPayload()['barcode'] ??
+          item.source.catalogItem?.toSyncPayload()['upc'])?.toString() ?? '',
       ReportColumn.year => adapter?.releaseDate?.year.toString() ?? '',
       ReportColumn.format => adapter?.referenceFormatLabel ??
           adapter?.format ??

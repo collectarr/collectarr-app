@@ -61,13 +61,12 @@ void main() {
     final dto = BookWorkspaceDto(
       common: WorkspaceCommonProjection(
         title: 'Dune',
-        publisher: 'Ace',
       ),
       personal: PersonalCopyProjection(),
       book: BookCatalogItem(
         id: 'book-1',
         work: BookWorkMetadata(title: 'Dune'),
-        publishing: BookPublishingMetadata(),
+        publishing: const BookPublishingMetadata(),
         releases: [],
       ),
       metadata: BookCatalogMetadata(
@@ -81,6 +80,7 @@ void main() {
             id: 'edition-1',
             title: 'Dune',
             format: 'Hardcover',
+            publisher: 'Ace',
           ),
         ],
       ),

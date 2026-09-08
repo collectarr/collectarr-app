@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_video_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_preview_sections.dart';
 import 'package:flutter/material.dart';
@@ -86,8 +87,8 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'publisher',
     label: 'Studio',
     anyLabel: 'Any studio',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is AnimeWorkspaceDto)
+        ? (item.dto as AnimeWorkspaceDto).publisher
         : null,
   ),
   LibraryFilterDefinition<dynamic>(

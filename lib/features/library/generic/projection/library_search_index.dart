@@ -51,20 +51,23 @@ class LibrarySearchIndex {
     add(dto.title);
     add(adapter?.seriesTitle);
     add(adapter?.itemNumber);
-    add(adapter?.publisher);
     add(adapter?.variant);
-    add(adapter?.barcode);
+    add(adapter?.format);
     if (adapter?.releaseDate != null) {
       add(adapter!.releaseDate!.year.toString());
     }
     add(source.condition);
-    add(source.grade);
     add(source.locationPath);
 
     if (catalog != null) {
       add(catalog.originalTitle);
       add(catalog.displayTitle);
       add(catalog.localizedTitle);
+      final payload = catalog.payload;
+      add(payload['upc']?.toString());
+      add(payload['publisher']?.toString());
+      add(payload['barcode']?.toString());
+      add(payload['grade']?.toString());
       final aliases = catalog.searchAliases;
       if (aliases != null) {
         for (final alias in aliases) {

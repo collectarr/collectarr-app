@@ -250,37 +250,37 @@ class _CoverLoadingShell extends StatelessWidget {
 class SlabFrameOverlay extends StatelessWidget {
   const SlabFrameOverlay({
     required this.child,
-    required this.gradingCompany,
-    required this.grade,
+    required this.companyName,
+    required this.scoreLabel,
     this.labelType,
     super.key,
   });
 
   static Widget maybeWrap({
     required String? rawOrSlabbed,
-    required String? gradingCompany,
-    required String? grade,
+    required String? companyName,
+    required String? scoreLabel,
     required String? labelType,
     required Widget child,
   }) {
     if (rawOrSlabbed?.toLowerCase() != 'slabbed') return child;
-    if (gradingCompany == null || grade == null) return child;
+    if (companyName == null || scoreLabel == null) return child;
     return SlabFrameOverlay(
-      gradingCompany: gradingCompany,
-      grade: grade,
+      companyName: companyName,
+      scoreLabel: scoreLabel,
       labelType: labelType,
       child: child,
     );
   }
 
   final Widget child;
-  final String gradingCompany;
-  final String grade;
+  final String companyName;
+  final String scoreLabel;
   final String? labelType;
 
   /// Returns the label color for the grading company.
   Color get _labelColor {
-    final company = gradingCompany.toUpperCase();
+    final company = companyName.toUpperCase();
     if (company.contains('CGC')) return const Color(0xFF1565C0);
     if (company.contains('CBCS')) return const Color(0xFF2E7D32);
     if (company.contains('PGX')) return const Color(0xFF6A1B9A);
@@ -322,7 +322,7 @@ class SlabFrameOverlay extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        gradingCompany.toUpperCase(),
+                        companyName.toUpperCase(),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: TextStyle(
@@ -343,7 +343,7 @@ class SlabFrameOverlay extends StatelessWidget {
                         borderRadius: BorderRadius.circular(2),
                       ),
                       child: Text(
-                        grade,
+                        scoreLabel,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: gradeSize,

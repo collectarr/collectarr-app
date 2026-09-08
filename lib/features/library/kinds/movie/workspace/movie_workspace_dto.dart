@@ -30,6 +30,8 @@ final class MovieWorkspaceDto extends WorkspaceDtoAdapter {
   String? get producer =>
       metadata?.producers.firstOrNull?.name ?? _contributorWithRole('producer');
   String? get studio => metadata?.studio;
+  String? get publisher => movie.primaryRelease?.publisher ?? studio;
+  String? get barcode => movie.primaryRelease?.barcode;
   int? get runtimeMinutes =>
       media.runtimeMinutes ??
       metadata?.runtimeMinutes ??

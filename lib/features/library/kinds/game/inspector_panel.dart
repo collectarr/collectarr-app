@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -133,6 +134,7 @@ class _GameInspectorMain extends StatelessWidget {
     final item = inspector.item;
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
     final palette = appPalette(context);
     final releaseYear = adapter?.releaseDate?.year.toString();
@@ -170,12 +172,12 @@ class _GameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (adapter?.publisher?.isNotEmpty == true ||
+                  if (gameDto?.publisher?.isNotEmpty == true ||
                       releaseYear != null)
                     Text(
                       [
-                        if (adapter?.publisher?.isNotEmpty == true)
-                          adapter!.publisher!,
+                        if (gameDto?.publisher?.isNotEmpty == true)
+                          gameDto!.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -212,10 +214,10 @@ class _GameInspectorMain extends StatelessWidget {
                       icon: Icons.shield_outlined,
                       text: 'Age rating: ${metadata!.ageRating!}',
                     ),
-                  if (adapter?.barcode?.trim().isNotEmpty == true)
+                  if (gameDto?.barcode?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
-                      text: adapter!.barcode!,
+                      text: gameDto!.barcode!,
                     ),
                   if (_ebayUri(item) case final uri?) ...[
                     const SizedBox(height: 8),
@@ -274,12 +276,13 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final item = inspector.item;
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
     final owned = item.source.ownedItem;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
-      if (adapter?.publisher?.trim().isNotEmpty == true)
-        ('Publisher', adapter!.publisher!),
+      if (gameDto?.publisher?.trim().isNotEmpty == true)
+        ('Publisher', gameDto!.publisher!),
       if (adapter?.releaseDate != null || releaseYear != null)
         (
           'Release',
@@ -300,8 +303,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Subtype', metadata!.toySubtype!),
       if (metadata?.toyType?.trim().isNotEmpty == true)
         ('Type', metadata!.toyType!),
-      if (adapter?.barcode?.trim().isNotEmpty == true)
-        ('Barcode', adapter!.barcode!),
+      if (gameDto?.barcode?.trim().isNotEmpty == true)
+        ('Barcode', gameDto!.barcode!),
       if (metadata?.genres.isNotEmpty == true)
         ('Genres', metadata!.genres.join(', ')),
       if (item.source.tags?.trim().isNotEmpty == true)
@@ -421,9 +424,11 @@ class _GameInspectorFactRows extends StatelessWidget {
 Uri? _ebayUri(LibraryProjectionRuntime item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final gameDto = dto is GameWorkspaceDto ? dto : null;
   final seriesTitle = adapter?.seriesTitle;
   final query = <String>[
-    if (adapter?.barcode?.trim().isNotEmpty == true) adapter!.barcode!.trim(),
+    if (gameDto?.barcode?.trim().isNotEmpty == true)
+      gameDto!.barcode!.trim(),
     dto.title,
     if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
     if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),

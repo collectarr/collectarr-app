@@ -236,7 +236,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final adapter = item.dto is WorkspaceDtoAdapter
         ? (item.dto as WorkspaceDtoAdapter)
         : null;
-    final gradeLabel = item.source.grade?.trim();
+    final gradeLabel = _coverGradeLabel(presentation);
+    final publisherLabel = _metadataFactValue(metadataPresentation, 'Publisher') ??
+        _metadataFactValue(metadataPresentation, 'Studio') ??
+        _metadataFactValue(metadataPresentation, 'Label') ??
+        _metadataFactValue(metadataPresentation, 'Developer');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,
@@ -301,17 +305,17 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     item.dto.coverImageUrl == null ||
                                         item.dto.coverImageUrl!.isEmpty,
                                 hasMissingMetadata:
-                                    adapter?.publisher == null ||
-                                        adapter!.publisher!.isEmpty,
+                                    (publisherLabel == null ||
+                                            publisherLabel.isEmpty) &&
+                                        adapter?.format == null &&
+                                        adapter?.variant == null &&
+                                        adapter?.releaseDate == null,
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
                                   item,
                                 ),
                                 keyLabel: _coverKeyLabel(presentation),
-                                gradeLabel:
-                                    gradeLabel == null || gradeLabel.isEmpty
-                                        ? null
-                                        : 'Grade $gradeLabel',
+                                gradeLabel: gradeLabel,
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel: libraryNotesMarkerLabel(
                                     item.source.personalNotes),
@@ -359,9 +363,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   adapter.variant,
                                 if (adapter?.releaseDate != null)
                                   dateFormatter(adapter!.releaseDate!),
-                                if (adapter?.publisher != null &&
-                                    adapter!.publisher!.isNotEmpty)
-                                  adapter.publisher,
+                                if (publisherLabel != null &&
+                                    publisherLabel.isNotEmpty)
+                                  publisherLabel
+                                else if (adapter?.format != null &&
+                                    adapter!.format!.isNotEmpty)
+                                  adapter.format,
                               ].whereType<String>().join('  |  '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -397,12 +404,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   _LibraryCompactMetaPill(
                                     icon: Icons.album_outlined,
                                     label: 'Format: ${adapter!.format!}',
-                                    accentColor: accentColor,
-                                  ),
-                                if (item.source.grade != null)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.workspace_premium,
-                                    label: item.source.grade!,
                                     accentColor: accentColor,
                                   ),
                                 if (item.source.condition != null)
@@ -488,11 +489,11 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                       item.dto is WorkspaceDtoAdapter
                                           ? (item.dto as WorkspaceDtoAdapter)
                                           : null;
-                                  final barcode = adapter?.barcode;
+                                  final format = adapter?.format;
                                   return Text(
-                                    barcode == null || barcode.isEmpty
-                                        ? 'No barcode'
-                                        : barcode,
+                                    format == null || format.isEmpty
+                                        ? 'No format'
+                                        : format,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: Theme.of(context)
@@ -577,17 +578,17 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final variant = adapter?.variant;
     final releaseDate =
         adapter?.releaseDate ?? item.source.catalogItem?.releaseDate;
-    final publisher = adapter?.publisher;
+    final format = adapter?.format;
     final subtitle = [
       if (item.node is! LibraryTitleNodeRef &&
           variant != null &&
           variant.isNotEmpty)
         variant,
       if (releaseDate != null) dateFormatter(releaseDate),
-      if (publisher != null && publisher.isNotEmpty) publisher,
+      if (format != null && format.isNotEmpty) format,
     ].whereType<String>().join('  |  ');
     final support = [
-      if (item.source.grade != null) item.source.grade!,
+      if (item.source.condition != null) item.source.condition!,
       if (_metadataFactValue(_metadataPresentationForEntry(item), 'Runtime')
           case final runtime?)
         runtime,
@@ -650,7 +651,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     item.dto.coverImageUrl == null ||
                                         item.dto.coverImageUrl!.isEmpty,
                                 hasMissingMetadata:
-                                    (publisher == null || publisher.isEmpty),
+                                    (format == null || format.isEmpty),
                                 contractDiagnosticLabel:
                                     libraryHierarchyContractDiagnosticLabel(
                                   item,
@@ -827,6 +828,13 @@ String? _coverSlabLabel(LibraryCardPresentation presentation) {
   return null;
 }
 
+String? _coverGradeLabel(LibraryCardPresentation presentation) {
+  for (final b in presentation.compactBadges) {
+    if (b.icon == Icons.workspace_premium) return b.label;
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Module-level helpers (previously in the file-level scope).
 // ---------------------------------------------------------------------------
@@ -852,7 +860,9 @@ String? _metadataFactValue(
 ) {
   if (presentation == null) return null;
   for (final fact in presentation.allFacts) {
-    if (fact.label == label) {
+    if (fact.label == label ||
+        fact.label.startsWith('$label /') ||
+        fact.label.startsWith('$label/')) {
       final value = fact.value.trim();
       if (value.isNotEmpty && value != '-') {
         return value;

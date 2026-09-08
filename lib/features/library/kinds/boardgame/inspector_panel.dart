@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/details/library_inspector_info_l
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -112,6 +113,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
     final item = inspector.item;
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
     final kindMetadata = item.source.catalogItem?.kindMetadata;
     final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
     final palette = appPalette(context);
@@ -152,12 +154,12 @@ class _BoardGameInspectorMain extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (adapter?.publisher?.isNotEmpty == true ||
+                  if (bgDto?.publisher?.isNotEmpty == true ||
                       releaseYear != null)
                     Text(
                       [
-                        if (adapter?.publisher?.isNotEmpty == true)
-                          adapter!.publisher!,
+                        if (bgDto?.publisher?.isNotEmpty == true)
+                          bgDto!.publisher!,
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -179,10 +181,10 @@ class _BoardGameInspectorMain extends StatelessWidget {
                       icon: Icons.design_services_outlined,
                       text: designerText,
                     ),
-                  if (adapter?.barcode?.trim().isNotEmpty == true)
+                  if (bgDto?.barcode?.trim().isNotEmpty == true)
                     LibraryInspectorInfoLine(
                       icon: Icons.qr_code_2,
-                      text: adapter!.barcode!,
+                      text: bgDto!.barcode!,
                     ),
                   if (_ebayUri(item) case final uri?) ...[
                     const SizedBox(height: 8),

@@ -130,8 +130,8 @@ class LibraryCardFlowTile extends StatelessWidget {
                             isWishlisted: item.source.isWishlisted,
                             hasMissingCover: dto.coverImageUrl == null ||
                                 dto.coverImageUrl!.isEmpty,
-                            hasMissingMetadata: adapter?.publisher == null ||
-                                adapter!.publisher!.isEmpty,
+                            hasMissingMetadata: adapter?.format == null ||
+                                adapter!.format!.isEmpty,
                             hasFrontImage: item.source.itemImages
                                 .any((img) => img.imageType == 'front_cover'),
                             hasBackImage: item.source.itemImages
@@ -200,9 +200,9 @@ class LibraryCardFlowTile extends StatelessWidget {
                               dateFormatter(adapter!.releaseDate!)
                             else if (adapter?.releaseDate?.year != null)
                               adapter!.releaseDate!.year.toString(),
-                            if (adapter?.publisher != null &&
-                                adapter!.publisher!.isNotEmpty)
-                              adapter.publisher,
+                            if (adapter?.format != null &&
+                                adapter!.format!.isNotEmpty)
+                              adapter.format,
                           ].whereType<String>().join('  ·  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -211,11 +211,11 @@ class LibraryCardFlowTile extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        if (adapter?.publisher != null &&
-                            adapter!.publisher!.isNotEmpty) ...[
+                        if (adapter?.format != null &&
+                            adapter!.format!.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            adapter.publisher!,
+                            adapter.format!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(

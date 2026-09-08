@@ -375,12 +375,12 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   onSelected: (value) => onSelectOwnedItem?.call(value),
                 ),
               ],
-              if ((item.dto is WorkspaceDtoAdapter &&
-                  (item.dto as WorkspaceDtoAdapter)
-                          .barcode
-                          ?.trim()
-                          .isNotEmpty ==
-                      true)) ...[
+              if ((item.source.catalogItem?.payload['barcode'] ??
+                          item.source.catalogItem?.payload['upc'])
+                      ?.toString()
+                      .trim()
+                      .isNotEmpty ==
+                  true) ...[
                 const SizedBox(width: 4),
                 LibraryDenseButton(
                   label: 'eBay',

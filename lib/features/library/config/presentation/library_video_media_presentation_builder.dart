@@ -47,8 +47,12 @@ class LibraryVideoMediaPresentationBuilder
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final seriesTitle = adapter?.seriesTitle;
     final variant = adapter?.variant;
-    final barcode = adapter?.barcode;
-    final publisher = adapter?.publisher;
+    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
+    final barcodeVal = (payload['barcode'] ?? payload['upc'])?.toString();
+    final publisherVal = (payload['publisher'] ??
+            payload['studio'] ??
+            payload['network'])
+        ?.toString();
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;
@@ -67,15 +71,15 @@ class LibraryVideoMediaPresentationBuilder
         if (item.node.scope != LibraryBrowserScope.title && variant != null)
           LibraryDetailField(
               label: variantLabel, value: variant, onTap: tapFor(variant)),
-        if (item.node.scope != LibraryBrowserScope.title && barcode != null)
-          LibraryDetailField(label: barcodeLabel, value: barcode),
+        if (item.node.scope != LibraryBrowserScope.title && barcodeVal != null)
+          LibraryDetailField(label: barcodeLabel, value: barcodeVal),
       ],
       contextFacts: [
-        if (publisher != null)
+        if (publisherVal != null)
           LibraryDetailField(
               label: publisherLabel,
-              value: publisher,
-              onTap: tapFor(publisher)),
+              value: publisherVal,
+              onTap: tapFor(publisherVal)),
         LibraryDetailField(
             label: 'Released',
             value: genericLibraryDash(
@@ -88,9 +92,9 @@ class LibraryVideoMediaPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: publisher != null
+          values: publisherVal != null
               ? [
-                  <String, dynamic>{'name': publisher}
+                  <String, dynamic>{'name': publisherVal}
                 ]
               : const [],
           placement: LibraryMetadataSectionPlacement.credits,

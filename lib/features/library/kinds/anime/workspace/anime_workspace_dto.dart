@@ -30,6 +30,8 @@ final class AnimeWorkspaceDto extends WorkspaceDtoAdapter {
   String? get studio =>
       _firstString(media.rawPayload['studios']) ??
       metadata?.studios.firstOrNull;
+  String? get publisher => studio;
+  String? get barcode => video.primaryRelease?.barcode;
 
   static String? _firstString(Object? value) {
     if (value is! Iterable) return null;

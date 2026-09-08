@@ -74,10 +74,6 @@ class LibraryBulkActions {
         if (entry.isWishlisted && entry.ownedItem == null) entry,
     ];
     for (var index = 0; index < wishlistedEntries.length; index++) {
-      final anchor = resolveLibraryMutationAnchor(
-        ownedItem: wishlistedEntries[index].ownedItem,
-        wishlistItem: wishlistedEntries[index].wishlistItem,
-      );
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
@@ -206,10 +202,6 @@ class LibraryBulkActions {
       await ownedMutations.removeItem(ownedEntries[index].ownedItem!.ref);
     }
     for (var index = 0; index < wishlistedEntries.length; index++) {
-      final anchor = resolveLibraryMutationAnchor(
-        ownedItem: wishlistedEntries[index].ownedItem,
-        wishlistItem: wishlistedEntries[index].wishlistItem,
-      );
       await wishlistMutations.removeFromWishlist(
         wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,

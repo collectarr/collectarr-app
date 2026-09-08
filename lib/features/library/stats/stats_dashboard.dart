@@ -340,6 +340,19 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
+  static String? _extractPublisher(Map<String, dynamic>? payload) {
+    if (payload == null) return null;
+    final publishing = payload['publishing'];
+    final originalPublisher = publishing is Map<String, dynamic>
+        ? publishing['original_publisher']
+        : null;
+    final raw = payload['publisher'] ??
+        originalPublisher ??
+        payload['studio'] ??
+        payload['network'];
+    return raw?.toString();
+  }
+
   static Map<String, int> _topPublisherCounts(
     List<ShelfEntry> entries,
     LibraryKindModule module,
@@ -347,16 +360,11 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _countBy(
       entries,
       (e) {
-        final dto = libraryKindWorkspaceForKind(module.kind)
-            .project(
-              source: e,
-              node: LibraryTitleNodeRef(
-                titleItemId: e.catalogItem?.id ?? e.itemId,
-              ),
-            )
-            .dto;
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.publisher ?? 'Unknown';
+        final raw = _extractPublisher(e.catalogItem?.payload);
+        if (raw != null && raw.trim().isNotEmpty) {
+          return raw.trim();
+        }
+        return 'Unknown';
       },
     );
   }
@@ -383,8 +391,8 @@ class _GenericStatsDashboard extends StatelessWidget {
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final hasSynopsis =
           cat.synopsis != null && cat.synopsis!.trim().isNotEmpty;
-      final hasPublisher =
-          adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty;
+      final format = adapter?.format?.trim();
+      final hasPublisher = _extractPublisher(cat.payload) != null || format != null;
       if (!hasSynopsis && !hasPublisher) {
         count++;
       }
@@ -503,7 +511,9 @@ class _GenericStatsDashboard extends StatelessWidget {
       if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
-      if (adapter?.publisher == null || adapter!.publisher!.trim().isEmpty) {
+      final hasPublisher = _extractPublisher(item.payload) != null ||
+          adapter?.format?.trim().isNotEmpty == true;
+      if (!hasPublisher) {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
       }
@@ -548,8 +558,9 @@ class _GenericStatsDashboard extends StatelessWidget {
       item.synopsis != null && item.synopsis!.trim().isNotEmpty,
       25,
     );
-    add(adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty,
-        15);
+    final hasPublisher = _extractPublisher(item.payload) != null ||
+        adapter?.format?.trim().isNotEmpty == true;
+    add(hasPublisher, 15);
     add(adapter?.releaseDate != null, 15);
     add(adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty, 10);
     add(adapter?.itemNumber != null && adapter!.itemNumber!.trim().isNotEmpty,

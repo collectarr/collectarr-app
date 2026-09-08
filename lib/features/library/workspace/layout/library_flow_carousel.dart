@@ -614,11 +614,11 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     final palette = appPalette(context);
     final title = dto.title;
     final itemNumber = adapter?.itemNumber;
-    final publisher = adapter?.publisher;
+    final format = adapter?.format;
     final releaseDate = adapter?.releaseDate;
     final subtitle = [
       if (itemNumber != null && itemNumber.trim().isNotEmpty) '#$itemNumber',
-      if (publisher != null && publisher.trim().isNotEmpty) publisher,
+      if (format != null && format.trim().isNotEmpty) format,
       if (releaseDate != null) releaseDate.year.toString(),
     ].join('  ·  ');
     final cardColor = widget.focused
@@ -698,7 +698,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           hasMissingCover: dto.coverImageUrl == null ||
                               dto.coverImageUrl!.isEmpty,
                           hasMissingMetadata:
-                              publisher == null || publisher.isEmpty,
+                              format == null || format.isEmpty,
                           contractDiagnosticLabel:
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
@@ -819,13 +819,12 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadataPresentation = _metadataPresentationForEntry(widget.item);
     final palette = appPalette(context);
-    final publisher = adapter?.publisher;
     final releaseDate = adapter?.releaseDate;
     final formatLabel = adapter?.referenceFormatLabel;
     final meta = [
       _metadataFactValue(metadataPresentation, 'Series'),
       _metadataFactValue(metadataPresentation, 'Artist'),
-      if (publisher != null && publisher.trim().isNotEmpty) publisher,
+      _metadataFactValue(metadataPresentation, 'Publisher'),
       if (releaseDate != null)
         '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       if (formatLabel != null) formatLabel,

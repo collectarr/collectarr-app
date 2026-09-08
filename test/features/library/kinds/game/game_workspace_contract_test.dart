@@ -59,7 +59,6 @@ void main() {
     final dto = GameWorkspaceDto(
       common: const WorkspaceCommonProjection(
         title: 'Super Mario 64',
-        publisher: 'Nintendo',
         country: 'US',
       ),
       personal: PersonalCopyProjection(),

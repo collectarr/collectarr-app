@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
@@ -153,7 +154,7 @@ void main() {
       final bucket1 = index.getGroupBucket(
         item,
         publisherGroup,
-        (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
+        (it, mode) => (it.dto is ComicWorkspaceDto ? (it.dto as ComicWorkspaceDto).publisher : null) ?? 'Unknown',
       );
       expect(bucket1, 'Marvel Comics');
       expect(index.extractorCallCount, 1);
@@ -162,7 +163,7 @@ void main() {
       final bucket2 = index.getGroupBucket(
         item,
         publisherGroup,
-        (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
+        (it, mode) => (it.dto is ComicWorkspaceDto ? (it.dto as ComicWorkspaceDto).publisher : null) ?? 'Unknown',
       );
       expect(bucket2, 'Marvel Comics');
       expect(index.extractorCallCount, 1);

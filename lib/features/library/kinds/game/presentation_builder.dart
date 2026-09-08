@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class GameLibraryMediaPresentationBuilder
@@ -22,9 +23,10 @@ class GameLibraryMediaPresentationBuilder
   }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final gameDto = dto is GameWorkspaceDto ? dto : null;
     final variant = adapter?.variant;
-    final barcode = adapter?.barcode;
-    final publisher = adapter?.publisher;
+    final barcode = gameDto?.barcode;
+    final publisher = gameDto?.publisher;
     final releaseDate = adapter?.releaseDate;
 
     final kindMetadata = item.source.catalogItem?.kindMetadata;

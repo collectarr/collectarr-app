@@ -30,12 +30,21 @@ LibraryCardPresentation buildMangaCardPresentation(
     );
   }
 
+  if (item.source.grade?.trim().isNotEmpty == true) {
+    badges.add(
+      LibraryCardBadge(
+        icon: Icons.workspace_premium,
+        label: 'Grade ${item.source.grade!.trim()}',
+      ),
+    );
+  }
+
   Widget Function(Widget child)? overlay;
   if (mangaDetails?.gradingCompany != null && item.source.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: 'slabbed',
-          gradingCompany: mangaDetails?.gradingCompany,
-          grade: item.source.grade,
+          companyName: mangaDetails?.gradingCompany,
+          scoreLabel: item.source.grade,
           labelType: null,
           child: child,
         );

@@ -56,10 +56,10 @@ void main() {
     final dto = MangaWorkspaceDto(
       common: const WorkspaceCommonProjection(
         title: 'Vagabond',
-        publisher: 'VIZ Media',
       ),
       personal: PersonalCopyProjection(),
       metadata: const MangaMetadata(
+        publisher: 'VIZ Media',
         genres: ['Adventure'],
         themes: ['Samurai'],
         demographic: MangaDemographic.seinen,

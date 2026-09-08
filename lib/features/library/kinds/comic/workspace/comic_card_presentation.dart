@@ -26,6 +26,15 @@ LibraryCardPresentation buildComicCardPresentation(
     );
   }
 
+  if (ownedItem?.grade?.trim().isNotEmpty == true) {
+    badges.add(
+      LibraryCardBadge(
+        icon: Icons.workspace_premium,
+        label: 'Grade ${ownedItem!.grade!.trim()}',
+      ),
+    );
+  }
+
   Widget Function(Widget child)? overlay;
   if (comicDetails?.rawOrSlabbed != null ||
       comicDetails?.gradingCompany != null ||
@@ -33,8 +42,8 @@ LibraryCardPresentation buildComicCardPresentation(
       ownedItem?.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: comicDetails?.rawOrSlabbed,
-          gradingCompany: comicDetails?.gradingCompany,
-          grade: ownedItem?.grade,
+          companyName: comicDetails?.gradingCompany,
+          scoreLabel: ownedItem?.grade,
           labelType: comicDetails?.labelType,
           child: child,
         );

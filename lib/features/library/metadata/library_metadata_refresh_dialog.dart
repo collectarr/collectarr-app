@@ -333,8 +333,8 @@ class _LibraryMetadataRefreshDialogState
               : null;
           return item.dto.coverImageUrl == null ||
               item.dto.coverImageUrl!.isEmpty ||
-              adapter?.publisher == null ||
-              adapter!.publisher!.isEmpty;
+              adapter?.format == null ||
+              adapter!.format!.isEmpty;
         }).toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
@@ -345,18 +345,27 @@ class _LibraryMetadataRefreshDialogState
   LibraryMetadataSearchInput _inputForEntry(LibraryProjectionRuntime item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final barcode = adapter?.barcode?.trim();
-    if (barcode != null && barcode.isNotEmpty) {
+    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
+    final barcodeVal = (payload['barcode'] ?? payload['upc'])
+        ?.toString()
+        .trim();
+    if (barcodeVal != null && barcodeVal.isNotEmpty) {
       return LibraryMetadataSearchInput(
         query: dto.title,
-        barcode: barcode,
+        barcode: barcodeVal,
         limit: 5,
       );
     }
+    final publisherVal = (payload['publisher'] ??
+            payload['publishing']?['original_publisher'] ??
+            payload['studio'] ??
+            payload['network'])
+        ?.toString()
+        .trim();
     return LibraryMetadataSearchInput(
       query: dto.title,
       issueNumber: adapter?.itemNumber,
-      publisher: adapter?.publisher,
+      publisher: publisherVal,
       year: adapter?.releaseDate?.year,
       limit: 5,
     );
@@ -365,9 +374,12 @@ class _LibraryMetadataRefreshDialogState
   String _describeSearch(LibraryProjectionRuntime item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final barcode = adapter?.barcode?.trim();
-    if (barcode != null && barcode.isNotEmpty) {
-      return 'Barcode $barcode';
+    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
+    final barcodeVal = (payload['barcode'] ?? payload['upc'])
+        ?.toString()
+        .trim();
+    if (barcodeVal != null && barcodeVal.isNotEmpty) {
+      return 'Barcode $barcodeVal';
     }
     final parts = [
       dto.title,

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
@@ -55,8 +56,8 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is BookWorkspaceDto)
+        ? (item.dto as BookWorkspaceDto).publisher
         : null,
   ),
   LibraryFilterDefinition<dynamic>(

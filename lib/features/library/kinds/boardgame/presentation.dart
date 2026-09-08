@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
@@ -53,8 +54,8 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'publisher',
     label: 'Publisher / Designer',
     anyLabel: 'Any publisher / designer',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is BoardGameWorkspaceDto)
+        ? (item.dto as BoardGameWorkspaceDto).publisher
         : null,
   ),
   LibraryFilterDefinition<dynamic>(

@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
@@ -57,8 +58,8 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'publisher',
     label: 'Network',
     anyLabel: 'Any network',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is TvWorkspaceDto)
+        ? (item.dto as TvWorkspaceDto).network
         : null,
   ),
   LibraryFilterDefinition<dynamic>(

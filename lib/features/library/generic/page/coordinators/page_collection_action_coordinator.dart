@@ -181,12 +181,11 @@ class LibraryPageCollectionActionCoordinator {
           );
         }
       case LibraryItemContextAction.copyBarcode:
-        final adapter = item.dto is WorkspaceDtoAdapter
-            ? item.dto as WorkspaceDtoAdapter
-            : null;
-        final barcode = adapter?.barcode;
-        if (barcode != null && barcode.isNotEmpty) {
-          await Clipboard.setData(ClipboardData(text: barcode));
+        final payload = item.source.catalogItem?.payload;
+        final code = payload?['barcode']?.toString() ??
+            payload?['upc']?.toString();
+        if (code != null && code.isNotEmpty) {
+          await Clipboard.setData(ClipboardData(text: code));
           if (_page.mounted) {
             ScaffoldMessenger.of(_page.context).showSnackBar(
               const SnackBar(content: Text('Barcode copied')),

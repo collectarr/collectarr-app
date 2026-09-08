@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -39,10 +40,11 @@ class BookLibraryMediaPresentationBuilder
   }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final bookDto = dto is BookWorkspaceDto ? dto : null;
     final itemNumber = adapter?.itemNumber;
     final variant = adapter?.variant;
-    final barcode = adapter?.barcode;
-    final publisher = adapter?.publisher;
+    final barcode = bookDto?.barcode;
+    final publisher = bookDto?.publisher;
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;
@@ -212,16 +214,17 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final bookDto = dto is BookWorkspaceDto ? dto : null;
     final productFacts = <LibraryDetailField>[
       if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true)
         LibraryDetailField(
             label: 'Format', value: adapter!.referenceFormatLabel!.trim()),
-      if (adapter?.publisher?.trim().isNotEmpty == true)
+      if (bookDto?.publisher?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'Publisher', value: adapter!.publisher!.trim()),
-      if (adapter?.barcode?.trim().isNotEmpty == true)
+            label: 'Publisher', value: bookDto!.publisher!.trim()),
+      if (bookDto?.barcode?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'ISBN / Barcode', value: adapter!.barcode!.trim()),
+            label: 'ISBN / Barcode', value: bookDto!.barcode!.trim()),
       if (adapter?.country?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Country', value: adapter!.country!.trim()),
       if (adapter?.language?.trim().isNotEmpty == true)
@@ -271,7 +274,8 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final identifierValues = <String>[
-      if (adapter?.barcode?.trim().isNotEmpty == true) adapter!.barcode!.trim(),
+      if (bookDto?.barcode?.trim().isNotEmpty == true)
+        bookDto!.barcode!.trim(),
     ];
     if (identifierValues.isNotEmpty) {
       sectionSpecs.add(

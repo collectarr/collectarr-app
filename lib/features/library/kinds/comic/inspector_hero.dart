@@ -69,6 +69,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             .value;
     final db = ownedItemId == null ? null : ref.watch(localDatabaseProvider);
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final comicDto = dto is ComicWorkspaceDto ? dto : null;
     final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
             ? '#${adapter!.itemNumber!.trim()}'
             : null) ??
@@ -78,16 +79,12 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         request.type.identity.singularLabel.toUpperCase();
     final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
         ? comic!.series!.seriesTitle!.trim()
-        : adapter?.seriesTitle?.trim().isNotEmpty == true
-            ? adapter!.seriesTitle!.trim()
-            : null;
-    final editionLabel = comic?.publishing?.subtitle?.trim().isNotEmpty == true
-        ? comic!.publishing!.subtitle!.trim()
-        : adapter?.referenceFormatLabel?.trim().isNotEmpty == true
-            ? adapter!.referenceFormatLabel!.trim()
-            : adapter?.variant?.trim().isNotEmpty == true
-                ? adapter!.variant!.trim()
-                : 'Regular edition';
+        : null;
+    final editionLabel = adapter?.referenceFormatLabel?.trim().isNotEmpty == true
+        ? adapter!.referenceFormatLabel!.trim()
+        : adapter?.variant?.trim().isNotEmpty == true
+            ? adapter!.variant!.trim()
+            : 'Regular edition';
     final formatLabel = adapter?.referenceFormatLabel?.trim().isNotEmpty == true
         ? adapter!.referenceFormatLabel!.trim()
         : null;
@@ -95,8 +92,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         adapter?.releaseDate?.year.toString() ??
         '-';
     final publisherLabel = [
-      if (adapter?.publisher?.trim().isNotEmpty == true)
-        adapter!.publisher!.trim(),
+      if (comicDto?.publisher?.trim().isNotEmpty == true)
+        comicDto!.publisher!.trim(),
       if (comic?.publishing?.imprint?.trim().isNotEmpty == true)
         comic!.publishing!.imprint!.trim(),
     ].join(' / ');
@@ -136,7 +133,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         ? comicDetails!.keyReason!.trim()
         : null;
     final ebayQuery = [
-      if (adapter?.barcode?.trim().isNotEmpty == true) adapter!.barcode!.trim(),
+      if (comicDto?.barcode?.trim().isNotEmpty == true)
+        comicDto!.barcode!.trim(),
       if (seriesLabel != null) seriesLabel,
       if (referenceLabel.trim().isNotEmpty) referenceLabel,
       if (editionLabel.trim().isNotEmpty) editionLabel,
@@ -344,10 +342,10 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                           if (publisherLabel.isNotEmpty)
                             _ComicDetailLine(
                                 label: 'Publisher', value: publisherLabel),
-                          if (adapter?.barcode?.trim().isNotEmpty == true)
+                          if (comicDto?.barcode?.trim().isNotEmpty == true)
                             _ComicDetailLine(
                                 label: 'Barcode',
-                                value: adapter!.barcode!.trim()),
+                                value: comicDto!.barcode!.trim()),
                         ],
                       ),
                     ),

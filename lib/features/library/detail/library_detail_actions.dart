@@ -161,9 +161,10 @@ class LibraryDetailStatsBar extends StatelessWidget {
       ),
       (
         label: 'Metadata',
-        value: adapter?.publisher == null || adapter!.publisher!.isEmpty
-            ? 'Missing'
-            : 'Ready'
+        value: (item.source.catalogItem?.synopsis?.trim().isNotEmpty == true) ||
+                (adapter?.format?.trim().isNotEmpty == true)
+            ? 'Ready'
+            : 'Missing'
       ),
       (label: 'Quantity', value: totalQuantity.toString()),
       if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),

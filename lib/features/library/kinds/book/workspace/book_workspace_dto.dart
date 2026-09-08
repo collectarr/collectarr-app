@@ -24,8 +24,11 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.editions.firstOrNull?.imprint ?? book.publishing.imprint;
   String? get author =>
       metadata?.authors.firstOrNull ?? book.work.creators.firstOrNull?.name;
+  String? get publisher =>
+      book.publisher ?? metadata?.editions.firstOrNull?.publisher;
   String? get isbn =>
       metadata?.editions.firstOrNull?.isbn ?? book.releases.firstOrNull?.isbn;
+  String? get barcode => isbn;
   String? get subtitle => metadata?.subtitle;
   @override
   String? get format => metadata?.editions.firstOrNull?.format;

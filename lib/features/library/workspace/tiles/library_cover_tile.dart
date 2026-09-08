@@ -267,15 +267,15 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
           icon: Icons.image_not_supported_outlined,
           label: 'Missing cover',
         ),
-      if (adapter?.publisher == null || adapter!.publisher!.isEmpty)
+      if (adapter?.format == null || adapter!.format!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.manage_search,
           label: 'Missing metadata',
         ),
-      if (item.source.grade?.trim().isNotEmpty == true)
+      if (item.source.condition?.trim().isNotEmpty == true)
         LibraryCoverBadge(
           icon: Icons.star_rate,
-          label: 'Grade ${item.source.grade!.trim()}',
+          label: item.source.condition!.trim(),
         ),
       if (libraryHierarchyContractDiagnosticLabel(item) case final label?)
         LibraryCoverBadge(

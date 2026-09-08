@@ -23,6 +23,9 @@ final class GameWorkspaceDto extends WorkspaceDtoAdapter {
   String? get edition => metadata?.edition;
   String? get ageRating => metadata?.ageRating;
   String? get developer => metadata?.developers.firstOrNull;
+  String? get publisher =>
+      game.publisher ?? metadata?.publishers.firstOrNull ?? developer;
+  String? get barcode => game.barcode;
   String? get region => metadata?.releaseRegion;
   int? get loosePrice => metadata?.valuations?.loose?.amountCents;
   int? get cibPrice => metadata?.valuations?.cib?.amountCents;

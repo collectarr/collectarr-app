@@ -29,12 +29,10 @@ final class MusicWorkspaceDto extends WorkspaceDtoAdapter {
       release.media.firstOrNull?.mediaType ??
       release.releaseType ??
       metadata?.releases.firstOrNull?.format;
-  @override
-  String? get publisher => release.publisher ?? common.publisher;
+  String? get publisher => release.publisher;
   @override
   DateTime? get releaseDate => release.releaseDate ?? common.releaseDate;
-  @override
-  String? get barcode => release.barcode ?? common.barcode;
+  String? get barcode => release.barcode;
   @override
   String? get country => release.countryCode ?? common.country;
   @override

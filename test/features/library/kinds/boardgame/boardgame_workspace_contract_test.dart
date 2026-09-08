@@ -57,7 +57,6 @@ void main() {
     final dto = BoardGameWorkspaceDto(
       common: const WorkspaceCommonProjection(
         title: 'Catan',
-        publisher: 'Kosmos',
       ),
       personal: PersonalCopyProjection(),
       boardgame: const BoardGameCatalogItem(

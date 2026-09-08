@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -85,8 +86,8 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is MangaWorkspaceDto)
+        ? (item.dto as MangaWorkspaceDto).publisher
         : null,
   ),
   LibraryFilterDefinition<dynamic>(

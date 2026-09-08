@@ -396,8 +396,14 @@ _MetadataHealth _buildMetadataHealth(
     weight: 16,
     missingLabel: 'Synopsis',
   );
+  final hasPublisherFact = metadata.allFacts.any(
+    (fact) =>
+        const {'Publisher', 'Studio', 'Label', 'Developer', 'Network', 'Distributor'}
+            .contains(fact.label) &&
+        fact.value.trim().isNotEmpty,
+  );
   addSignal(
-    present: adapter?.publisher?.trim().isNotEmpty ?? false,
+    present: hasPublisherFact,
     weight: 10,
     missingLabel: 'Publisher',
   );
@@ -426,7 +432,7 @@ _MetadataHealth _buildMetadataHealth(
     );
   }
   addSignal(
-    present: !(adapter?.publisher == null || dto.coverImageUrl == null),
+    present: !(dto.coverImageUrl == null || !hasPublisherFact),
     weight: 4,
     missingLabel: 'Catalog refresh',
   );

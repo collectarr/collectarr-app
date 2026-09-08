@@ -25,10 +25,12 @@ class LibraryPageToolbarController {
           ? item.dto as WorkspaceDtoAdapter
           : null;
       final itemNumber = adapter?.itemNumber?.trim();
-      final publisher = adapter?.publisher?.trim();
+      final format = adapter?.referenceFormatLabel ??
+          adapter?.format ??
+          adapter?.variant;
       final subtitleParts = <String>[
         if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
-        if (publisher != null && publisher.isNotEmpty) publisher,
+        if (format != null && format.isNotEmpty) format,
       ];
       final subtitle = subtitleParts.isEmpty ? null : subtitleParts.join(' • ');
       var score = 0;
@@ -38,7 +40,7 @@ class LibraryPageToolbarController {
         score = 2;
       } else if ((itemNumber?.toLowerCase().contains(normalizedQuery) ??
               false) ||
-          (publisher?.toLowerCase().contains(normalizedQuery) ?? false)) {
+          (format?.toLowerCase().contains(normalizedQuery) ?? false)) {
         score = 1;
       }
       if (score == 0) {
