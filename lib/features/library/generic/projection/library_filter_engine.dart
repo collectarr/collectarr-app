@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -113,10 +112,8 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryCollectionStatusScope scope,
   ) {
-    final ownedItem = item.source.ownedItem;
-    final isSold = ownedItem?.isSold == true;
-    final collectionStatus =
-        item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
+    final isSold = item.source.soldAt != null;
+    final collectionStatus = item.source.collectionStatus?.trim().toLowerCase();
     final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
     final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
     final isForSale = !isSold && collectionStatus == 'for_sale';
@@ -200,7 +197,7 @@ class LibraryFilterEngine {
     if (definitionId == null || definitionId.isEmpty) {
       return true;
     }
-    final ownedItemId = item.source.ownedItem?.id;
+    final ownedItemId = item.source.ownedRef?.id.value;
     if (ownedItemId == null) {
       return false;
     }
@@ -228,7 +225,7 @@ class LibraryFilterEngine {
     if (filter == LibraryLoanStatusFilter.all) {
       return true;
     }
-    final ownedItemId = item.source.ownedItem?.id;
+    final ownedItemId = item.source.ownedRef?.id.value;
     if (ownedItemId == null) {
       return false;
     }
@@ -271,13 +268,11 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryDateRangeField field,
   ) {
-    final ownedItem = item.source.ownedItem;
-    final trackingEntry = item.source.trackingEntry;
     return switch (field) {
       LibraryDateRangeField.updated => item.source.updatedAt,
-      LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
-      LibraryDateRangeField.started => trackingEntry?.startedAt,
-      LibraryDateRangeField.finished => trackingEntry?.finishedAt,
+      LibraryDateRangeField.purchased => item.source.purchaseDate,
+      LibraryDateRangeField.started => item.source.tracking.startedAt,
+      LibraryDateRangeField.finished => item.source.tracking.completedAt,
     };
   }
 

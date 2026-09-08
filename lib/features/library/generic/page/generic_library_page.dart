@@ -580,7 +580,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return false;
     }
     return projection.filteredItems
-        .any((item) => item.source.ownedItem?.id != null);
+        .any((item) => item.source.ownedRef != null);
   }
 
   bool _hasOwnedItemsInSelection(LibraryProjection? projection) {
@@ -590,7 +590,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return projection.filteredItems.any(
       (item) =>
           _selection.itemIds.contains(item.node.id) &&
-          item.source.ownedItem?.id != null,
+          item.source.ownedRef != null,
     );
   }
 
@@ -610,8 +610,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return projection.filteredItems.any(
       (item) =>
           _selection.itemIds.contains(item.node.id) &&
-          item.source.ownedItem?.id != null &&
-          !_activeLoanOwnedItemIds.contains(item.source.ownedItem?.id),
+          item.source.ownedRef != null &&
+          !_activeLoanOwnedItemIds.contains(item.source.ownedRef?.id.value),
     );
   }
 
@@ -645,9 +645,9 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     return projection.filteredItems.any(
       (item) =>
           _selection.itemIds.contains(item.node.id) &&
-          (item.source.ownedItem?.id != null ||
+          (item.source.ownedRef != null ||
               item.source.isWishlisted ||
-              item.source.trackingEntry != null),
+              item.source.isTracked),
     );
   }
 
@@ -679,10 +679,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       this,
       projection,
     )) {
-      final ownedItem = item.source.ownedItem;
-      final status =
-          item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
-      if (ownedItem?.isSold == true) {
+      final status = item.source.collectionStatus?.trim().toLowerCase();
+      if (item.source.soldAt != null) {
         soldCount += 1;
         continue;
       }

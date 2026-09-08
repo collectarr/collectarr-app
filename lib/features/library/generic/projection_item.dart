@@ -58,7 +58,7 @@ Set<String> customFieldTargetIds({
 }) {
   return {
     if (source.ownedSummary case final owned?) owned.ref.id.value,
-    if (source.ownedItem case final owned?) owned.id,
+    if (source.ownedRef case final owned?) owned.id.value,
     if (source.catalogRef case final catalog?) catalog.id,
     node.titleItemId,
     if (node case LibraryReleaseNodeRef(:final releaseId)) releaseId,

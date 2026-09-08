@@ -377,7 +377,7 @@ class LibraryFilterOptions {
       if (source.condition?.trim().isNotEmpty == true) {
         addValue('condition', source.condition);
       }
-      final ownedItemId = source.ownedItem?.id;
+      final ownedItemId = source.ownedRef?.id.value;
       if (ownedItemId != null) {
         final values = customFieldValuesByDefinitionByItem[ownedItemId];
         if (values != null) {
@@ -448,11 +448,11 @@ bool libraryFilterMatches(
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&
-      !(source.isOwned && source.ownedItem?.collectionStatus == 'for_sale')) {
+      !(source.isOwned && source.collectionStatus == 'for_sale')) {
     return false;
   }
   if (filters.ownershipFilter == LibraryOwnershipFilter.onOrder &&
-      !(source.isOwned && source.ownedItem?.collectionStatus == 'on_order')) {
+      !(source.isOwned && source.collectionStatus == 'on_order')) {
     return false;
   }
   final location = filters.fieldValue('location');
