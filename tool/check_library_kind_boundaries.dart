@@ -202,6 +202,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/config/library_group_bucket_mutation.dart',
     // The proposal field codecs cross the serialized provider payload boundary.
     'lib/features/library/config/library_admin_contributor.dart',
+    // Admin proposal JSON is an explicit provider serialization boundary;
+    // semantic keys are supplied by the kind contributor.
+    'lib/features/admin/admin_shared_widgets.dart',
     // Explicit sync serialization contracts; concrete codecs own payload
     // interpretation after the generic host dispatches by kind.
     'lib/features/library/tracking/tracking_entry_codec.dart',
@@ -274,6 +277,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/core/models/catalog_search_hit.dart',
     'lib/core/models/calendar_event.dart',
     'lib/core/models/owned_item_projection.dart',
+    // Admin metadata correction is a raw server catalog update payload projection.
+    'lib/features/admin/admin_shared_widgets.dart',
   };
 
   // The enum implementation itself may compare enum values while parsing its
