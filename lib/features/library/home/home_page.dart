@@ -228,13 +228,13 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final urls = <String>[];
     final seen = <String>{};
     for (final entry in shelfState.resolvedWorkspaceEntries) {
-      final catalogItem = entry.catalogItem;
-      if (catalogItem == null || catalogItem.kind != kind) {
+      final catalogSummary = entry.catalogSummary;
+      if (catalogSummary == null ||
+          catalogSummary.kind.apiValue != kind) {
         continue;
       }
       final candidates = [
-        normalizeNetworkImageUrl(catalogItem.coverImageUrl),
-        normalizeNetworkImageUrl(catalogItem.thumbnailImageUrl),
+        normalizeNetworkImageUrl(catalogSummary.imageUrl),
       ];
       for (final url in candidates.whereType<String>()) {
         if (url.isEmpty || !seen.add(url)) {

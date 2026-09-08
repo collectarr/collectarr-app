@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -68,7 +69,7 @@ class WorkspaceCommonProjection {
           (payload['language'] ??
                   (payload['publishing'] as Map?)?['original_language'])
               ?.toString(),
-      currency: source.ownedItem?.currency,
+      currency: source.currency,
       referenceFormatLabel: primaryVariant?.physicalFormat ??
           edition?.format ??
           (payload['physical_format_label'] ?? payload['physical_format'])
@@ -113,22 +114,20 @@ class PersonalCopyProjection {
     ShelfEntry source, {
     LibraryReleaseState? releaseState,
   }) {
-    final owned = source.ownedItem;
-    final tracking = source.trackingEntry;
     return PersonalCopyProjection(
       isOwned: releaseState?.isOwned ?? source.isOwned,
       isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
       isTracked: releaseState?.isTracked ?? source.isTracked,
-      condition: owned?.condition,
-      locationPath: owned?.locationId,
-      trackingStatus: tracking?.statusStorageValue,
-      rating: tracking?.rating,
-      pricePaidCents: owned?.pricePaidCents,
-      addedAt: owned?.createdAt,
+      condition: source.condition,
+      locationPath: source.locationPath,
+      trackingStatus: mediaTrackingStatusToStorageValue(source.tracking.status),
+      rating: source.tracking.rating,
+      pricePaidCents: source.pricePaidCents,
+      addedAt: source.addedAt,
       updatedAt: source.updatedAt,
-      tags: owned?.tags,
-      collectionStatus: owned?.collectionStatus,
-      notes: owned?.personalNotes,
+      tags: source.tags,
+      collectionStatus: source.collectionStatus,
+      notes: source.personalNotes,
     );
   }
 

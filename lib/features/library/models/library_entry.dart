@@ -227,6 +227,7 @@ class LibraryWorkspaceEntry {
       ownedSummary?.purchaseDate ?? ownedItem?.purchaseDate;
   String? get personalNotes => ownedSummary?.notes ?? ownedItem?.personalNotes;
   String? get tags => ownedItem?.tags;
+  String? get collectionStatus => ownedItem?.collectionStatus;
 
   List<String> get tagList {
     final raw = tags?.trim();

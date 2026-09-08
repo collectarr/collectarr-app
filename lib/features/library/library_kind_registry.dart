@@ -197,7 +197,7 @@ Widget? libraryShelfExtensionForEntry(
   required bool expanded,
   required VoidCallback onToggle,
 }) {
-  final kind = catalogMediaKindFromValue(entry.catalogItem?.kind);
+  final kind = entry.catalogSummary?.kind ?? CatalogMediaKind.unknown;
   return _shelfExtensionContributors[kind]?.build(
     entry,
     expanded: expanded,
