@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -155,7 +156,8 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               Icons.content_copy,
               'Copy title',
             ),
-            if (item.source.catalogItem?.toSyncPayload()['barcode'] != null)
+            if ((item.dto is WorkspaceDtoAdapter &&
+                    (item.dto as WorkspaceDtoAdapter).barcode != null))
               _item(
                 context,
                 LibraryItemContextAction.copyBarcode,

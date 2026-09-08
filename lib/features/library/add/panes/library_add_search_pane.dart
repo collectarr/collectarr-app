@@ -561,11 +561,7 @@ class _SearchResultsGrid extends StatelessWidget {
         final checked = isCore && checkedResultIds.contains(item.id);
         final title = isCore ? item.title : candidate!.title;
         final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
-        final corePublisher = isCore
-            ? ((item.payload['publisher'] ??
-                    (item.payload['publishing'] as Map?)?['original_publisher'])
-                as String?)
-            : null;
+        final corePublisher = isCore ? item.publisher : null;
         final subtitle = isCore
             ? [
                 if ((item.releaseYear ?? item.releaseDate?.year) != null)
@@ -937,13 +933,10 @@ class SearchResultTile extends StatelessWidget {
     final summary = matchSummary?.call(item);
     final resultDisplay =
         type.presentation.builder.buildSearchResultDisplay(item: item);
-    final payload = item.payload;
-    final publisher = (payload['publisher'] ??
-        (payload['publishing'] as Map?)?['original_publisher']) as String?;
-    final physicalFormatLabel = payload['physical_format_label'] as String?;
-    final barcode = payload['barcode'] as String?;
-    final itemNumber = (payload['item_number'] ??
-        (payload['publishing'] as Map?)?['issue_number']) as String?;
+    final publisher = item.publisher;
+    final physicalFormatLabel = item.physicalFormatLabel;
+    final barcode = item.barcode;
+    final itemNumber = item.itemNumber;
     final subtitle = resultDisplay?.secondaryLine ??
         [
           if (publisher != null) publisher,

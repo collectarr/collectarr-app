@@ -24,6 +24,7 @@ final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
   String? get imprint => comic.imprint ?? comic.publishing?.imprint;
   @override
   String? get publisher => comic.publisher ?? imprint;
+  @override
   String? get barcode => comic.barcode;
   @override
   String? get variant => comic.variant;

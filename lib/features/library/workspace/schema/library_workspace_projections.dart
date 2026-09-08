@@ -169,6 +169,7 @@ abstract class WorkspaceDtoAdapter implements LibraryWorkspaceDto {
   String? get seriesTitle => common.seriesTitle;
   String? get synopsis => common.synopsis;
   String? get publisher => null;
+  String? get barcode => null;
   String? get itemNumber => common.itemNumber;
   DateTime? get releaseDate => common.releaseDate;
   String? get variant => common.variant;

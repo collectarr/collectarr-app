@@ -32,6 +32,7 @@ final class TvWorkspaceDto extends WorkspaceDtoAdapter {
   String? get network => streamingService;
   @override
   String? get publisher => streamingService;
+  @override
   String? get barcode => video.primaryRelease?.barcode;
   String? get contentRating =>
       _text(series.rawPayload['content_rating']) ?? metadata?.contentRating;

@@ -117,10 +117,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       ensureKey(key, groupTitle);
       coreItems[key]!.add(item);
       sourceSets[key]!.add('core');
-      final payload = item.payload;
-      final publisher = (payload['publisher'] ??
-          (payload['publishing'] as Map?)?['original_publisher']) as String?;
-      publishers[key] ??= publisher;
+      publishers[key] ??= item.publisher;
       years[key] ??= item.releaseYear ?? item.releaseDate?.year;
       coverUrls[key] ??= item.displayCoverUrl;
     }
@@ -587,10 +584,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
     final displayTitle = _coreChildDisplayTitle(item);
-    final payload = item.payload;
-    final publisher = (payload['publisher'] ??
-        (payload['publishing'] as Map?)?['original_publisher']) as String?;
-    final physicalFormatLabel = payload['physical_format_label'] as String?;
+    final publisher = item.publisher;
+    final physicalFormatLabel = item.physicalFormatLabel;
     final subtitleParts = <String>[
       if (publisher != null) publisher,
       if ((item.releaseYear ?? item.releaseDate?.year) != null)
@@ -680,8 +675,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
 }
 
 String _coreChildDisplayTitle(CatalogItemDto item) {
-  final itemNumber = (item.payload['item_number'] ??
-      (item.payload['publishing'] as Map?)?['issue_number']) as String?;
+  final itemNumber = item.itemNumber;
   if (itemNumber != null && itemNumber.trim().isNotEmpty) {
     return '${item.title} #$itemNumber';
   }

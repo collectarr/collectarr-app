@@ -302,6 +302,8 @@ class _LibraryDetailToolbar extends StatelessWidget {
     final isOwned = ownedCopies.isNotEmpty ||
         activeOwnedItem != null ||
         item.source.isOwned;
+    final dto = item.dto;
+    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -375,12 +377,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   onSelected: (value) => onSelectOwnedItem?.call(value),
                 ),
               ],
-              if ((item.source.catalogItem?.payload['barcode'] ??
-                          item.source.catalogItem?.payload['upc'])
-                      ?.toString()
-                      .trim()
-                      .isNotEmpty ==
-                  true) ...[
+              if (adapter?.barcode?.trim().isNotEmpty == true) ...[
                 const SizedBox(width: 4),
                 LibraryDenseButton(
                   label: 'eBay',

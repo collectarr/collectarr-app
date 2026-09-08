@@ -32,6 +32,7 @@ final class MovieWorkspaceDto extends WorkspaceDtoAdapter {
   String? get studio => metadata?.studio;
   @override
   String? get publisher => movie.primaryRelease?.publisher ?? studio;
+  @override
   String? get barcode => movie.primaryRelease?.barcode;
   int? get runtimeMinutes =>
       media.runtimeMinutes ??

@@ -36,7 +36,7 @@ class LibraryDetailHero extends StatelessWidget {
     final resolvedIsOwned =
         isOwned ?? (ownedItem != null || item.source.isOwned);
     final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
-            mediaType: item.source.catalogItem?.kind) ??
+            mediaType: item.source.mediaKind.apiValue) ??
         adapter?.referenceFormatLabel;
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;

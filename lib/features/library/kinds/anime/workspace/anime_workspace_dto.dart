@@ -32,6 +32,7 @@ final class AnimeWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.studios.firstOrNull;
   @override
   String? get publisher => studio;
+  @override
   String? get barcode => video.primaryRelease?.barcode;
 
   @override

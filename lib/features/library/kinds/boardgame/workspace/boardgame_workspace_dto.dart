@@ -19,6 +19,7 @@ final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
 
   @override
   String? get publisher => boardgame.publisher ?? metadata?.publisher;
+  @override
   String? get barcode => boardgame.barcode;
 
   @override

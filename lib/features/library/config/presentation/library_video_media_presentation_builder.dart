@@ -30,9 +30,8 @@ class LibraryVideoMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    final kind = item.source.catalogItem?.kind.trim().toLowerCase();
+    final kind = item.source.mediaKind.apiValue;
     return item.node.scope == LibraryBrowserScope.title &&
-        kind != null &&
         shelfDrilldownEntryTypes.contains(kind);
   }
 
@@ -47,11 +46,8 @@ class LibraryVideoMediaPresentationBuilder
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final seriesTitle = adapter?.seriesTitle;
     final variant = adapter?.variant;
-    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
-    final barcodeVal = (payload['barcode'] ?? payload['upc'])?.toString();
-    final publisherVal =
-        (payload['publisher'] ?? payload['studio'] ?? payload['network'])
-            ?.toString();
+    final barcodeVal = adapter?.barcode;
+    final publisherVal = adapter?.publisher;
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;
@@ -111,7 +107,8 @@ class LibraryVideoMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.source.catalogItem?.synopsis;
+    final dto = item.dto;
+    final synopsis = dto is WorkspaceDtoAdapter ? dto.synopsis : null;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

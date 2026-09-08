@@ -110,7 +110,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
         selectedItem?.title ??
         selectedCandidate!.title;
     final itemNumber = selectedBundle == null
-        ? (selectedItem?.payload['item_number'] as String?)
+        ? selectedItem?.itemNumber
         : null;
     final preview = candidatePreview;
     final synopsis = selectedItem?.synopsis ??
@@ -1197,59 +1197,28 @@ List<(String, String?)> _metadataRowsForItem(
   LibraryKindModule type,
 ) {
   final previewLabels = type.presentation.previewLabels;
-  final payload = item.payload;
-  final seriesMap = payload['series'] as Map?;
-  final seriesTitle =
-      (payload['series_title'] ?? seriesMap?['series_title']) as String?;
-  final publisher = (payload['publisher'] ??
-      (payload['publishing'] as Map?)?['original_publisher']) as String?;
-  final itemNumber = (payload['item_number'] ??
-      (payload['publishing'] as Map?)?['issue_number']) as String?;
-  final displayEditionLabel =
-      (payload['edition_title'] ?? payload['title_extension']) as String?;
-  final barcode = payload['barcode'] as String?;
-  final country = payload['country'] as String?;
-  final language = payload['language'] as String?;
-  final video = payload['video'] as Map?;
-  final music = payload['music'] as Map?;
-  final game = payload['game'] as Map?;
-  final publishing = payload['publishing'] as Map?;
-  final runtimeMinutes = (video?['runtime_minutes'] as num?)?.toInt();
-  final pageCount = (publishing?['page_count'] as num?)?.toInt();
-  final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
-  final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
-  final gamePlatforms = (game?['platforms'] as List<dynamic>?)
-      ?.map((e) => e.toString().trim())
-      .where((e) => e.isNotEmpty)
-      .toList();
   return [
-    if (seriesTitle != null)
-      (previewLabels.labelFor('series', fallback: 'Series'), seriesTitle),
-    (previewLabels.labelFor('publisher', fallback: 'Publisher'), publisher),
+    (
+      previewLabels.labelFor('publisher', fallback: 'Publisher'),
+      item.publisher,
+    ),
     (
       'Released',
       item.releaseDate != null
           ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
           : (item.releaseYear ?? item.releaseDate?.year)?.toString()
     ),
-    if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
-    if (itemNumber != null)
-      (previewLabels.labelFor('item_number', fallback: 'Number'), itemNumber),
-    if (displayEditionLabel != null)
+    if (item.itemNumber != null)
+      (
+        previewLabels.labelFor('item_number', fallback: 'Number'),
+        item.itemNumber,
+      ),
+    if (item.variant != null)
       (
         previewLabels.labelFor('variant', fallback: 'Variant'),
-        displayEditionLabel
+        item.variant,
       ),
-    (previewLabels.labelFor('barcode', fallback: 'Barcode'), barcode),
-    if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
-      ('Catalog No.', musicCatalogNo),
-    if (gamePlatforms != null && gamePlatforms.isNotEmpty)
-      ('Platforms', gamePlatforms.join(', ')),
-    if (pageCount != null) ('Pages', pageCount.toString()),
-    if (country != null) ('Country', country),
-    if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
-      ('Release Status', musicReleaseStatus),
-    if (language != null) ('Language', language),
+    (previewLabels.labelFor('barcode', fallback: 'Barcode'), item.barcode),
   ];
 }
 
@@ -1366,37 +1335,19 @@ List<_PreviewDiscoverySectionData> _discoverySections({
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final payload = item?.payload;
-  final itemCreators = payload?['creators'];
-  final creators = (itemCreators is List)
-      ? itemCreators
-          .whereType<Map<dynamic, dynamic>>()
-          .map((rawCredit) {
-            final credit = Map<String, Object?>.from(rawCredit);
-            return (credit['name'] ?? credit['display_name'] ?? '').toString();
-          })
-          .where((name) => name.trim().isNotEmpty)
-          .toList(growable: false)
-      : (preview?.creators
-              .map((credit) => credit.role == null
-                  ? credit.name
-                  : '${credit.name} (${credit.role})')
-              .toList(growable: false) ??
-          const <String>[]);
-  final characters =
-      (payload?['characters'] as List?)?.map((c) => c.toString()).toList() ??
-          preview?.characters ??
-          candidate?.characterPreview ??
-          const <String>[];
-  final storyArcs =
-      (payload?['story_arcs'] as List?)?.map((s) => s.toString()).toList() ??
-          preview?.storyArcs ??
-          candidate?.storyArcPreview ??
-          const <String>[];
-  final genres =
-      (payload?['genres'] as List?)?.map((g) => g.toString()).toList() ??
-          preview?.genres ??
-          const <String>[];
+  final creators = preview?.creators
+          .map((credit) => credit.role == null
+              ? credit.name
+              : '${credit.name} (${credit.role})')
+          .toList(growable: false) ??
+      const <String>[];
+  final characters = preview?.characters ??
+      candidate?.characterPreview ??
+      const <String>[];
+  final storyArcs = preview?.storyArcs ??
+      candidate?.storyArcPreview ??
+      const <String>[];
+  final genres = preview?.genres ?? const <String>[];
 
   return [
     if (creators.isNotEmpty) _PreviewDiscoverySectionData('Creators', creators),
