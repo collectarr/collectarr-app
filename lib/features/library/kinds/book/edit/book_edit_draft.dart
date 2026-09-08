@@ -205,17 +205,7 @@ class BookEditDraft extends LibraryEditKindDraft {
     final updatedItem = selection.item.copyWith(
       kindMetadata: updatedMetadata,
     );
-    var result = selection.copyWith(item: updatedItem);
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          signedBy: signedBy,
-          dustJacketPresent: dustJacketPresent,
-          dustJacketCondition: dustJacketCondition,
-        ),
-      );
-    }
-    return result;
+    return selection.copyWith(item: updatedItem);
   }
 }
 

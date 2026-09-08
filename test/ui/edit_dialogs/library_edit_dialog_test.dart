@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
 
 import '../../helpers/test_constants.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -180,8 +181,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     // Verify the dialog returned the edited values
-    expect(selection?.item.title, 'Blade Runner: Final Cut');
-    expect(selection?.item.payload['barcode'], '883929087129');
+    expect(selection!.item.title, 'Blade Runner: Final Cut');
+    expect(selection!.item.payload['barcode'], '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
     expect(selection?.personal?.pricePaidCents, 999);
@@ -682,9 +683,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = selection?.item.payload;
+    final payload = (selection?.item as CatalogItemDto?)?.payload;
     expect(payload?['edition_title'], 'Deluxe Edition');
-    expect(selection?.item.titleExtension, isNull);
+    expect((selection?.item as CatalogItemDto?)?.titleExtension, isNull);
     final seriesMap = payload?['series'] as Map?;
     expect(seriesMap?['series_title'], 'Over the Garden Wall');
     expect(payload?['crossover'], 'Adventure Time');
@@ -766,7 +767,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.item.title, 'The Fellowship of the Ring');
+    expect(selection!.item.title, 'The Fellowship of the Ring');
   });
 
   testWidgets(
@@ -875,13 +876,15 @@ void main() {
     await tester.tap(find.text('Save').last);
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.signedBy, 'Isaac Asimov');
+    final bookPayload =
+        selection?.ownedUpdatePayload as BookOwnedItemUpdatePayload?;
+    expect(bookPayload?.details.valueOrNull()?.signedBy, 'Isaac Asimov');
     expect(selection?.personal?.ownerLabel, 'Andrei');
     expect(selection?.personal?.purchaseStore, 'Vintage Store');
     expect(selection?.personal?.collectionStatus, 'for_sale');
     expect(selection?.personal?.marketValueCents, 2599);
 
-    final savedItem = selection?.item;
+    final savedItem = selection?.item as CatalogItemDto?;
     final payload = savedItem?.payload;
     final pubMap = payload?['publishing'] as Map?;
     expect(pubMap?['publication_place'], 'New York');
@@ -984,7 +987,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final savedItem = selection!.item;
+    final savedItem = selection!.item as CatalogItemDto;
     expect(savedItem.trailerUrls, hasLength(1));
     expect(savedItem.trailerUrls.first.kind, 'external');
     expect(savedItem.trailerUrls.first.url,
@@ -1335,7 +1338,6 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.personal?.condition, isNull);
-    expect(selection?.personal?.grade, isNull);
     expect(selection?.personal?.locationId, isNull);
     expect(selection?.personal?.locationChanged, isFalse);
   });
@@ -1570,7 +1572,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = selection?.item.payload;
+    final payload = (selection?.item as CatalogItemDto?)?.payload;
     final seriesMap = payload?['series'] as Map?;
     final musicMap = payload?['music'] as Map?;
     expect(seriesMap?['series_title'], 'cAd');
@@ -1653,7 +1655,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final itemPayload = selection?.item.payload;
+    final itemPayload = (selection?.item as CatalogItemDto?)?.payload;
     final gameMap = itemPayload?['game'] as Map?;
     expect(
         gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);

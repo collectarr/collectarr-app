@@ -258,22 +258,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
     final updatedItem = selection.item.copyWith(
       kindMetadata: updatedMetadata,
     );
-    var result = selection.copyWith(item: updatedItem);
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          rawOrSlabbed: rawOrSlabbed,
-          gradingCompany: gradingCompany,
-          graderNotes: graderNotes,
-          signedBy: signedBy,
-          labelType: labelType,
-          customLabel: customLabel,
-          pageQuality: pageQuality,
-          certificationNumber: certificationNumber,
-        ),
-      );
-    }
-    return result;
+    return selection.copyWith(item: updatedItem);
   }
 }
 

@@ -1,11 +1,9 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 
 abstract interface class LibraryOwnershipCapability<
     TDetails extends JsonEncodable, TDraft extends OwnedDetailsDraft> {
   TDraft defaultDraft();
-  TDraft buildDraft(LibraryPersonalEditSelection personal);
   TDraft draftFromDetails(TDetails details);
 }
 

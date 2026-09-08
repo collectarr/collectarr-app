@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 
@@ -31,12 +30,4 @@ class BookOwnedDetailsCodec
 
   @override
   BookOwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
-
-  @override
-  BookOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
-      BookOwnedDetailsDraft(
-        signedBy: personal.signedBy,
-        dustJacketPresent: personal.dustJacketPresent ?? false,
-        dustJacketCondition: personal.dustJacketCondition,
-      );
 }

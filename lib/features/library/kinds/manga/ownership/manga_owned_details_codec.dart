@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
@@ -44,18 +43,4 @@ class MangaOwnedDetailsCodec
 
   @override
   MangaOwnedDetailsDraft defaultDraft() => const MangaOwnedDetailsDraft();
-
-  @override
-  MangaOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
-    return MangaOwnedDetailsDraft(
-      rawOrSlabbed: personal.rawOrSlabbed,
-      signedBy: personal.signedBy,
-      gradingCompany: personal.gradingCompany,
-      graderNotes: personal.graderNotes,
-      labelType: personal.labelType,
-      customLabel: personal.customLabel,
-      pageQuality: personal.pageQuality,
-      certificationNumber: personal.certificationNumber,
-    );
-  }
 }

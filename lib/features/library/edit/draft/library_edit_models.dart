@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -33,7 +32,7 @@ class LibraryEditSelection {
     this.submitAction = LibraryEditSubmitAction.save,
   });
 
-  final CatalogItemDto item;
+  final dynamic item;
   final LibraryPersonalEditSelection? personal;
   final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
@@ -45,7 +44,7 @@ class LibraryEditSelection {
   final LibraryEditSubmitAction submitAction;
 
   LibraryEditSelection copyWith({
-    CatalogItemDto? item,
+    dynamic item,
     LibraryPersonalEditSelection? personal,
     LibraryEditScope? scope,
     LibraryWishlistEditSelection? wishlist,
@@ -76,7 +75,6 @@ class LibraryPersonalEditSelection {
   const LibraryPersonalEditSelection({
     required this.anchor,
     required this.condition,
-    required this.grade,
     required this.purchaseDate,
     required this.pricePaidCents,
     required this.currency,
@@ -89,51 +87,14 @@ class LibraryPersonalEditSelection {
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
-    this.rawOrSlabbed,
-    this.gradingCompany,
-    this.graderNotes,
-    this.signedBy,
-    this.labelType,
-    this.customLabel,
-    this.pageQuality,
-    this.certificationNumber,
-    this.keyComic,
-    this.keyReason,
-    this.keyCategory,
-    this.keySeverity,
-    this.coverPriceCents,
-    this.features,
-    this.hdrFormats,
     this.purchaseStore,
-    this.boxSetName,
-    this.storageDevice,
-    this.storageSlot,
-    this.region,
-    this.packaging,
-    this.distributor,
-    this.screenRatio,
-    this.audioTracks,
-    this.subtitles,
-    this.layers,
-    this.color,
-    this.nrDiscs,
-    this.dustJacketPresent,
-    this.dustJacketCondition,
     this.collectionStatus,
-    this.lastBagBoardDate,
     this.marketValueCents,
     this.ownerLabel,
-    this.gameCompleteness,
-    this.gameHasBox,
-    this.gameHasManual,
-    this.gamePriceChartingId,
-    this.gameCoreRegion,
-    this.gameValueIsLocked,
   });
 
   final PersonalItemAnchor? anchor;
   final String? condition;
-  final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
@@ -146,51 +107,14 @@ class LibraryPersonalEditSelection {
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
-  final String? rawOrSlabbed;
-  final String? gradingCompany;
-  final String? graderNotes;
-  final String? signedBy;
-  final String? labelType;
-  final String? customLabel;
-  final String? pageQuality;
-  final String? certificationNumber;
-  final bool? keyComic;
-  final String? keyReason;
-  final String? keyCategory;
-  final String? keySeverity;
-  final int? coverPriceCents;
-  final String? features;
-  final List<String>? hdrFormats;
   final String? purchaseStore;
-  final String? boxSetName;
-  final String? storageDevice;
-  final String? storageSlot;
-  final String? region;
-  final String? packaging;
-  final String? distributor;
-  final String? screenRatio;
-  final String? audioTracks;
-  final String? subtitles;
-  final String? layers;
-  final String? color;
-  final int? nrDiscs;
-  final bool? dustJacketPresent;
-  final String? dustJacketCondition;
   final String? collectionStatus;
-  final DateTime? lastBagBoardDate;
   final int? marketValueCents;
   final String? ownerLabel;
-  final String? gameCompleteness;
-  final bool? gameHasBox;
-  final bool? gameHasManual;
-  final String? gamePriceChartingId;
-  final String? gameCoreRegion;
-  final bool? gameValueIsLocked;
 
   LibraryPersonalEditSelection copyWith({
     PersonalItemAnchor? anchor,
     String? condition,
-    String? grade,
     DateTime? purchaseDate,
     int? pricePaidCents,
     String? currency,
@@ -203,51 +127,14 @@ class LibraryPersonalEditSelection {
     DateTime? soldAt,
     int? sellPriceCents,
     String? soldTo,
-    String? rawOrSlabbed,
-    String? gradingCompany,
-    String? graderNotes,
-    String? signedBy,
-    String? labelType,
-    String? customLabel,
-    String? pageQuality,
-    String? certificationNumber,
-    bool? keyComic,
-    String? keyReason,
-    String? keyCategory,
-    String? keySeverity,
-    int? coverPriceCents,
-    String? features,
-    List<String>? hdrFormats,
     String? purchaseStore,
-    String? boxSetName,
-    String? storageDevice,
-    String? storageSlot,
-    String? region,
-    String? packaging,
-    String? distributor,
-    String? screenRatio,
-    String? audioTracks,
-    String? subtitles,
-    String? layers,
-    String? color,
-    int? nrDiscs,
-    bool? dustJacketPresent,
-    String? dustJacketCondition,
     String? collectionStatus,
-    DateTime? lastBagBoardDate,
     int? marketValueCents,
     String? ownerLabel,
-    String? gameCompleteness,
-    bool? gameHasBox,
-    bool? gameHasManual,
-    String? gamePriceChartingId,
-    String? gameCoreRegion,
-    bool? gameValueIsLocked,
   }) {
     return LibraryPersonalEditSelection(
       anchor: anchor ?? this.anchor,
       condition: condition ?? this.condition,
-      grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
@@ -260,46 +147,10 @@ class LibraryPersonalEditSelection {
       soldAt: soldAt ?? this.soldAt,
       sellPriceCents: sellPriceCents ?? this.sellPriceCents,
       soldTo: soldTo ?? this.soldTo,
-      rawOrSlabbed: rawOrSlabbed ?? this.rawOrSlabbed,
-      gradingCompany: gradingCompany ?? this.gradingCompany,
-      graderNotes: graderNotes ?? this.graderNotes,
-      signedBy: signedBy ?? this.signedBy,
-      labelType: labelType ?? this.labelType,
-      customLabel: customLabel ?? this.customLabel,
-      pageQuality: pageQuality ?? this.pageQuality,
-      certificationNumber: certificationNumber ?? this.certificationNumber,
-      keyComic: keyComic ?? this.keyComic,
-      keyReason: keyReason ?? this.keyReason,
-      keyCategory: keyCategory ?? this.keyCategory,
-      keySeverity: keySeverity ?? this.keySeverity,
-      coverPriceCents: coverPriceCents ?? this.coverPriceCents,
-      features: features ?? this.features,
-      hdrFormats: hdrFormats ?? this.hdrFormats,
       purchaseStore: purchaseStore ?? this.purchaseStore,
-      boxSetName: boxSetName ?? this.boxSetName,
-      storageDevice: storageDevice ?? this.storageDevice,
-      storageSlot: storageSlot ?? this.storageSlot,
-      region: region ?? this.region,
-      packaging: packaging ?? this.packaging,
-      distributor: distributor ?? this.distributor,
-      screenRatio: screenRatio ?? this.screenRatio,
-      audioTracks: audioTracks ?? this.audioTracks,
-      subtitles: subtitles ?? this.subtitles,
-      layers: layers ?? this.layers,
-      color: color ?? this.color,
-      nrDiscs: nrDiscs ?? this.nrDiscs,
-      dustJacketPresent: dustJacketPresent ?? this.dustJacketPresent,
-      dustJacketCondition: dustJacketCondition ?? this.dustJacketCondition,
       collectionStatus: collectionStatus ?? this.collectionStatus,
-      lastBagBoardDate: lastBagBoardDate ?? this.lastBagBoardDate,
       marketValueCents: marketValueCents ?? this.marketValueCents,
       ownerLabel: ownerLabel ?? this.ownerLabel,
-      gameCompleteness: gameCompleteness ?? this.gameCompleteness,
-      gameHasBox: gameHasBox ?? this.gameHasBox,
-      gameHasManual: gameHasManual ?? this.gameHasManual,
-      gamePriceChartingId: gamePriceChartingId ?? this.gamePriceChartingId,
-      gameCoreRegion: gameCoreRegion ?? this.gameCoreRegion,
-      gameValueIsLocked: gameValueIsLocked ?? this.gameValueIsLocked,
     );
   }
 }

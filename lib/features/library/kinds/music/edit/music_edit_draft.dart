@@ -133,17 +133,7 @@ class MusicEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = selection;
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          signedBy: signedBy,
-          storageDevice: emptyToNull(storageDeviceController.text),
-          storageSlot: emptyToNull(storageSlotController.text),
-        ),
-      );
-    }
-    return result;
+    return selection;
   }
 }
 

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 
@@ -35,16 +34,4 @@ class TvOwnedDetailsCodec
 
   @override
   TvOwnedDetailsDraft defaultDraft() => const TvOwnedDetailsDraft();
-
-  @override
-  TvOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
-    return TvOwnedDetailsDraft(
-      features: personal.features,
-      hdrFormats: personal.hdrFormats ?? const [],
-      boxSetName: personal.boxSetName,
-      region: personal.region,
-      packaging: personal.packaging,
-      distributor: personal.distributor,
-    );
-  }
 }

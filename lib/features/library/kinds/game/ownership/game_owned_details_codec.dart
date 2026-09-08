@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 
@@ -34,16 +33,4 @@ class GameOwnedDetailsCodec
 
   @override
   GameOwnedDetailsDraft defaultDraft() => const GameOwnedDetailsDraft();
-
-  @override
-  GameOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
-    return GameOwnedDetailsDraft(
-      completeness: personal.gameCompleteness,
-      hasBox: personal.gameHasBox,
-      hasManual: personal.gameHasManual,
-      priceChartingId: personal.gamePriceChartingId,
-      coreRegion: personal.gameCoreRegion,
-      valueIsLocked: personal.gameValueIsLocked,
-    );
-  }
 }

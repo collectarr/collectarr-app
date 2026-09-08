@@ -465,9 +465,6 @@ class LibraryEditDraft {
               condition: showPhysicalOwnedFields
                   ? emptyToNull(personal.conditionController.text)
                   : null,
-              grade: showPhysicalOwnedFields
-                  ? emptyToNull(personal.gradeController.text)
-                  : null,
               purchaseDate: parseDate(personal.purchaseDateController.text),
               pricePaidCents: parseMoneyCents(personal.priceController.text),
               currency: emptyToNull(personal.currencyController.text),
@@ -483,17 +480,6 @@ class LibraryEditDraft {
               sellPriceCents:
                   parseMoneyCents(personal.sellPriceController.text),
               soldTo: emptyToNull(personal.soldToController.text),
-              rawOrSlabbed: null,
-              gradingCompany: null,
-              graderNotes: null,
-              signedBy: null,
-              labelType: null,
-              pageQuality: null,
-              certificationNumber: null,
-              keyComic: null,
-              keyReason: null,
-              keyCategory: null,
-              coverPriceCents: null,
               purchaseStore:
                   emptyToNull(personal.purchaseStoreController.text) ??
                       ownedItem?.purchaseStore,

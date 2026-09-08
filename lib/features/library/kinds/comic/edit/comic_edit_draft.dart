@@ -120,29 +120,9 @@ class ComicEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = comicEdit.applySelectionEdits(selection);
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          rawOrSlabbed: ownedEdit.rawOrSlabbed,
-          gradingCompany: ownedEdit.gradingCompany,
-          graderNotes: ownedEdit.graderNotes,
-          signedBy: ownedEdit.signedBy,
-          labelType: ownedEdit.labelType,
-          customLabel: ownedEdit.customLabel,
-          pageQuality: ownedEdit.pageQuality,
-          certificationNumber: ownedEdit.certificationNumber,
-          keyComic: ownedEdit.keyComic,
-          keyReason: ownedEdit.keyReason,
-          keyCategory: ownedEdit.keyCategory,
-          keySeverity: ownedEdit.keySeverity,
-          coverPriceCents: ownedEdit.coverPriceCents,
-          lastBagBoardDate: ownedEdit.lastBagBoardDate,
-        ),
-      );
-    }
-    return result;
+    return comicEdit.applySelectionEdits(selection);
   }
+
 
   @override
   void dispose() {

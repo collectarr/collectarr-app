@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
@@ -42,24 +41,4 @@ class ComicOwnedDetailsCodec
 
   @override
   ComicOwnedDetailsDraft defaultDraft() => const ComicOwnedDetailsDraft();
-
-  @override
-  ComicOwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) {
-    return ComicOwnedDetailsDraft(
-      rawOrSlabbed: personal.rawOrSlabbed,
-      gradingCompany: personal.gradingCompany,
-      graderNotes: personal.graderNotes,
-      signedBy: personal.signedBy,
-      labelType: personal.labelType,
-      customLabel: personal.customLabel,
-      pageQuality: personal.pageQuality,
-      certificationNumber: personal.certificationNumber,
-      keyComic: personal.keyComic ?? false,
-      keyReason: personal.keyReason,
-      keyCategory: personal.keyCategory,
-      keySeverity: personal.keySeverity,
-      coverPriceCents: personal.coverPriceCents,
-      lastBagBoardDate: personal.lastBagBoardDate,
-    );
-  }
 }

@@ -185,24 +185,6 @@ class MovieEditDraft extends LibraryEditKindDraft
         item: result.item.copyWith(kindMetadata: updatedMeta),
       );
     }
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          features: emptyToNull(featuresController.text),
-          hdrFormats: hdrFormats.isEmpty ? null : hdrFormats,
-          boxSetName: emptyToNull(boxSetNameController.text),
-          region: emptyToNull(regionController.text),
-          packaging: emptyToNull(packagingController.text),
-          distributor: emptyToNull(distributorController.text),
-          screenRatio: emptyToNull(screenRatioController.text),
-          audioTracks: emptyToNull(audioTracksController.text),
-          subtitles: emptyToNull(subtitlesController.text),
-          layers: emptyToNull(layersController.text),
-          color: emptyToNull(colorController.text),
-          nrDiscs: int.tryParse(nrDiscsController.text),
-        ),
-      );
-    }
     return result;
   }
 

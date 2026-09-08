@@ -205,6 +205,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     // Admin proposal JSON is an explicit provider serialization boundary;
     // semantic keys are supplied by the kind contributor.
     'lib/features/admin/admin_shared_widgets.dart',
+    // Generic edit selection carries untyped item payload before kind-specific extraction.
+    'lib/features/library/edit/draft/library_edit_models.dart',
     // Explicit sync serialization contracts; concrete codecs own payload
     // interpretation after the generic host dispatches by kind.
     'lib/features/library/tracking/tracking_entry_codec.dart',

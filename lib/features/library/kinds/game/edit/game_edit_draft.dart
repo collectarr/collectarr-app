@@ -107,20 +107,7 @@ class GameEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = gameEdit.applySelectionEdits(selection);
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          gameCompleteness: gameCompleteness,
-          gameHasBox: gameHasBox,
-          gameHasManual: gameHasManual,
-          gamePriceChartingId: gamePriceChartingId,
-          gameCoreRegion: gameCoreRegion,
-          gameValueIsLocked: gameValueIsLocked,
-        ),
-      );
-    }
-    return result;
+    return gameEdit.applySelectionEdits(selection);
   }
 
   @override
