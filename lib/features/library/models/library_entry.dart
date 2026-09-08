@@ -217,7 +217,9 @@ class LibraryWorkspaceEntry {
       ownedSummary?.pricePaidCents ?? ownedItem?.pricePaidCents;
   int? get sellPriceCents =>
       ownedSummary?.sellPriceCents ?? ownedItem?.sellPriceCents;
-  int? get marketValueCents => ownedItem?.marketValueCents;
+  int? get marketValueCents =>
+      ownedSummary?.marketValueCents ?? ownedItem?.marketValueCents;
+  String? get soldTo => ownedSummary?.soldTo ?? ownedItem?.soldTo;
   String? get currency => ownedSummary?.currency ?? ownedItem?.currency;
   String? get purchaseStore =>
       ownedSummary?.purchaseStore ?? ownedItem?.purchaseStore;

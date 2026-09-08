@@ -63,6 +63,7 @@ final class OwnedItemSummary {
     this.soldAt,
     this.soldTo,
     this.sellPriceCents,
+    this.marketValueCents,
     this.quantity = 1,
     this.subtitle,
     this.imageUrl,
@@ -85,6 +86,7 @@ final class OwnedItemSummary {
   final DateTime? soldAt;
   final String? soldTo;
   final int? sellPriceCents;
+  final int? marketValueCents;
   final int quantity;
   final String? subtitle;
   final String? imageUrl;
@@ -128,6 +130,7 @@ final class OwnedItemSummary {
       soldAt: soldAt,
       soldTo: soldTo,
       sellPriceCents: sellPriceCents,
+      marketValueCents: marketValueCents,
       quantity: quantity,
       subtitle: subtitle == _summaryUnset ? this.subtitle : subtitle as String?,
       imageUrl: imageUrl == _summaryUnset ? this.imageUrl : imageUrl as String?,

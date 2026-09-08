@@ -63,7 +63,7 @@ abstract final class GameKindSchema {
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
     id: GameFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -427,7 +427,7 @@ final gameLibraryColumnDefinitions = [
   columnFromField<GameKind, GameWorkspaceDto, int?>(
     GameKindSchema.pricePaid,
     cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+        context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

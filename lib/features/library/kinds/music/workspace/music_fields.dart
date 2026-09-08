@@ -72,7 +72,7 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
     id: MusicFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -389,7 +389,7 @@ final musicLibraryColumnDefinitions = [
   columnFromField<MusicKind, MusicWorkspaceDto, int?>(
     MusicKindSchema.pricePaid,
     cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+        context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

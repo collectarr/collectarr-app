@@ -276,12 +276,11 @@ class ShelfState {
           : activeOwned
               .where((item) => item.sellPriceCents != null)
               .fold<int>(0, (total, item) => total + item.sellPriceCents!),
-      marketValuedCount: legacyActiveOwned
-          .where((item) => item.marketValueCents != null)
-          .length,
+      marketValuedCount:
+          activeOwned.where((item) => item.marketValueCents != null).length,
       totalMarketValueCents: hasMixedCurrencies
           ? null
-          : legacyActiveOwned
+          : activeOwned
               .where((item) => item.marketValueCents != null)
               .fold<int>(0, (total, item) => total + item.marketValueCents!),
     );
@@ -348,32 +347,19 @@ class ShelfState {
 
 class ShelfEntry extends LibraryWorkspaceEntry implements LibraryEntry {
   const ShelfEntry({
-    required String itemId,
-    CatalogDisplaySummary? catalogSummary,
-    OwnedItemSummary? ownedSummary,
-    TrackingSummary? trackingSummary,
-    WishlistItem? wishlistItem,
-    String? locationPath,
-    List<WatchSession> watchSessions = const <WatchSession>[],
-    List<ItemImage> itemImages = const <ItemImage>[],
-    String? fallbackOwnerLabel,
-    CatalogItemDto? catalogItem,
-    OwnedItem? ownedItem,
-    TrackingEntry? trackingEntry,
-  }) : super(
-          itemId: itemId,
-          catalogSummary: catalogSummary,
-          ownedSummary: ownedSummary,
-          trackingSummary: trackingSummary,
-          wishlistItem: wishlistItem,
-          locationPath: locationPath,
-          watchSessions: watchSessions,
-          itemImages: itemImages,
-          fallbackOwnerLabel: fallbackOwnerLabel,
-          catalogItem: catalogItem,
-          ownedItem: ownedItem,
-          trackingEntry: trackingEntry,
-        );
+    required super.itemId,
+    super.catalogSummary,
+    super.ownedSummary,
+    super.trackingSummary,
+    super.wishlistItem,
+    super.locationPath,
+    super.watchSessions = const <WatchSession>[],
+    super.itemImages = const <ItemImage>[],
+    super.fallbackOwnerLabel,
+    super.catalogItem,
+    super.ownedItem,
+    super.trackingEntry,
+  });
 }
 
 CatalogDisplaySummary _catalogSummaryFromLegacy(CatalogItemDto item) {
@@ -404,9 +390,10 @@ OwnedItemSummary _ownedSummaryFromLegacy(
     purchaseStore: item.purchaseStore,
     pricePaidCents: item.pricePaidCents,
     currency: item.currency,
-    soldAt: item.soldAt,
-    soldTo: item.soldTo,
-    sellPriceCents: item.sellPriceCents,
+      soldAt: item.soldAt,
+      soldTo: item.soldTo,
+      sellPriceCents: item.sellPriceCents,
+      marketValueCents: item.marketValueCents,
     quantity: item.quantity,
     ownerLabel: item.ownerLabel,
     locationLabel: item.locationId,

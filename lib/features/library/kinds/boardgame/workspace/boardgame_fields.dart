@@ -57,7 +57,7 @@ abstract final class BoardGameKindSchema {
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -427,7 +427,7 @@ final boardgameLibraryColumnDefinitions = [
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, int?>(
     BoardGameKindSchema.pricePaid,
     cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+        context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

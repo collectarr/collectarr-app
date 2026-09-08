@@ -404,7 +404,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     return _sumBy(
       entries,
       (entry) => entry.locationPath ?? 'No location',
-      (entry) => entry.ownedItem?.pricePaidCents,
+      (entry) => entry.pricePaidCents,
     );
   }
 
@@ -426,15 +426,15 @@ class _GenericStatsDashboard extends StatelessWidget {
         final adapter = dto is WorkspaceDtoAdapter ? dto : null;
         return adapter?.seriesTitle ?? dto.title;
       },
-      (entry) => entry.ownedItem?.pricePaidCents,
+      (entry) => entry.pricePaidCents,
     );
   }
 
   static Map<String, int> _topBuyerSales(List<ShelfEntry> entries) {
     return _sumBy(
       entries,
-      (entry) => entry.ownedItem?.soldTo ?? 'Unknown buyer',
-      (entry) => entry.ownedItem?.sellPriceCents,
+      (entry) => entry.soldTo ?? 'Unknown buyer',
+      (entry) => entry.sellPriceCents,
     );
   }
 
@@ -456,7 +456,7 @@ class _GenericStatsDashboard extends StatelessWidget {
         final adapter = dto is WorkspaceDtoAdapter ? dto : null;
         return adapter?.seriesTitle ?? dto.title;
       },
-      (entry) => entry.ownedItem?.sellPriceCents,
+      (entry) => entry.sellPriceCents,
     );
   }
 

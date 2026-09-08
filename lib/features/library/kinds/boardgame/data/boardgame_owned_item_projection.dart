@@ -73,6 +73,7 @@ final class BoardGameOwnedItemProjection {
       soldAt: item.soldAt,
       soldTo: item.soldTo,
       sellPriceCents: item.sellPriceCents,
+      marketValueCents: item.marketValueCents,
       quantity: item.quantity,
       ownerLabel: item.ownerLabel,
       locationLabel: item.locationId,

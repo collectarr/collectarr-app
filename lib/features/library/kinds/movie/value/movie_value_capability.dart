@@ -16,14 +16,14 @@ class MovieValueCapability implements LibraryValueCapability {
         .where(
           (entry) =>
               entry.isOwned &&
-              entry.ownedItem?.marketValueCents != null &&
-              entry.ownedItem?.currency?.trim().isNotEmpty == true,
+              entry.marketValueCents != null &&
+              entry.currency?.trim().isNotEmpty == true,
         )
         .toList(growable: false);
     if (valuedEntries.isEmpty) return null;
 
     final currencies = {
-      for (final entry in valuedEntries) entry.ownedItem!.currency!.trim(),
+      for (final entry in valuedEntries) entry.currency!.trim(),
     };
     return LibraryCollectionValueSummary(
       valuedCount: valuedEntries.length,
@@ -31,7 +31,7 @@ class MovieValueCapability implements LibraryValueCapability {
           ? null
           : valuedEntries.fold<int>(
               0,
-              (total, entry) => total + entry.ownedItem!.marketValueCents!,
+              (total, entry) => total + entry.marketValueCents!,
             ),
       currency: currencies.length == 1 ? currencies.single : null,
       hasMixedCurrencies: currencies.length > 1,

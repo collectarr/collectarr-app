@@ -63,7 +63,7 @@ abstract final class MangaKindSchema {
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, int?>(
     id: MangaFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -522,7 +522,7 @@ final mangaLibraryColumnDefinitions = [
   columnFromField<MangaKind, MangaWorkspaceDto, int?>(
     MangaKindSchema.pricePaid,
     cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+        context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
