@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
@@ -56,7 +57,7 @@ void main() {
     expect(trackingRow.status, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
-    final catalogItem = await CatalogTransportRepository(db).findById('comic-1');
+    final catalogItem = await CatalogSnapshotRepository(db).findById('comic-1');
     expect(catalogItem?.title, 'Absolute Batman');
     expect(catalogItem?.coverImageUrl, 'https://cdn.example/absolute.jpg');
     expect(catalogItem?.thumbnailImageUrl,

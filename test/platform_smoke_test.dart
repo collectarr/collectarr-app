@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/main.dart';
@@ -87,7 +88,7 @@ void main() {
         }),
       ]);
 
-      final item = await CatalogTransportRepository(db).findById('smoke-1');
+      final item = await CatalogSnapshotRepository(db).findById('smoke-1');
       expect(item, isNotNull);
       expect(item!.title, 'Smoke Test Issue');
     });

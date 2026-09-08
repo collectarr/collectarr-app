@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:drift/native.dart';
@@ -40,7 +41,7 @@ void main() {
       sortTitle: 'Renamed Series',
     );
 
-    final updated = await catalog.findById('comic-1');
+    final updated = await CatalogSnapshotRepository(db).findById('comic-1');
     final seriesMap = updated?.payload['series'] as Map?;
     expect(seriesMap?['series_title'], 'Renamed Series');
   });
@@ -80,7 +81,7 @@ void main() {
       sourceEntryIds: [source.id],
     );
 
-    final updated = await catalog.findById('comic-2');
+    final updated = await CatalogSnapshotRepository(db).findById('comic-2');
     final updatedSeriesMap = updated?.payload['series'] as Map?;
     expect(updatedSeriesMap?['series_id'], 'series-a');
     expect(updatedSeriesMap?['series_title'], 'Series A');

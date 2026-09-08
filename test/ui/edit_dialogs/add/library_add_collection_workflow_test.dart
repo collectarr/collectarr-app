@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
@@ -56,7 +57,7 @@ void main() {
       ),
     );
 
-    final catalogRows = await fixture.catalog.findAll();
+    final catalogRows = await CatalogSnapshotRepository(fixture.db).findAll();
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final trackingRows =
         await fixture.db.select(fixture.db.trackingEntriesCache).get();

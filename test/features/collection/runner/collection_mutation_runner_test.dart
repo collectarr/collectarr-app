@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/events/collection_event.dart'
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:drift/native.dart';
@@ -60,7 +61,7 @@ void main() {
     expect((eventsReceived.first as OwnedItemAdded).ownedItemId, 'owned-1');
     expect(syncScheduled, isTrue);
 
-    final items = await CatalogTransportRepository(db).findAll();
+    final items = await CatalogSnapshotRepository(db).findAll();
     expect(items, hasLength(1));
     await sub.cancel();
   });
@@ -97,7 +98,7 @@ void main() {
     expect(eventsReceived, isEmpty);
     expect(syncScheduled, isFalse);
 
-    final items = await CatalogTransportRepository(db).findAll();
+    final items = await CatalogSnapshotRepository(db).findAll();
     expect(items, isEmpty);
 
     await sub.cancel();

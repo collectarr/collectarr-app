@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -109,7 +110,7 @@ void main() {
       );
     }
 
-    final catalogRows = await CatalogTransportRepository(db).findAll();
+    final catalogRows = await CatalogSnapshotRepository(db).findAll();
     final typedGraphCounts = await devSeedTypedGraphCounts(db);
     final typedGraphIntegrityIssues =
         await devSeedTypedGraphIntegrityIssues(db);
@@ -635,7 +636,7 @@ void main() {
     await seedLocalDatabase(db);
 
     final catalogCountAfterSecondSeed =
-        (await CatalogTransportRepository(db).findAll()).length;
+        (await CatalogSnapshotRepository(db).findAll()).length;
     final imageCountAfterSecondSeed =
         (await db.select(db.itemImagesCache).get()).length;
     final typedGraphCountsAfterSecondSeed = await devSeedTypedGraphCounts(db);

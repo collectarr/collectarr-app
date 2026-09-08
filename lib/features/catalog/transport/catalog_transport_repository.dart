@@ -87,36 +87,6 @@ final class CatalogTransportRepository {
     });
   }
 
-  Future<Map<String, CatalogItemDto>> findByIds(Iterable<String> ids) async {
-    final wanted = ids.toSet();
-    if (wanted.isEmpty) return const {};
-    final result = <String, CatalogItemDto>{};
-    for (final item in await _allItems()) {
-      if (wanted.contains(item.id)) result[item.id] = item;
-    }
-    return result;
-  }
-
-  Future<List<CatalogItemDto>> findAll({String? kind}) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    final requestedKind = normalizedKind == null || normalizedKind.isEmpty
-        ? null
-        : catalogMediaKindFromApiValue(normalizedKind);
-    return [
-      for (final item in await _allItems())
-        if (requestedKind == null ||
-            (requestedKind != CatalogMediaKind.unknown &&
-                item.mediaKind == requestedKind))
-          item,
-    ];
-  }
-
-  Future<CatalogItemDto?> findById(String id) async {
-    final normalized = id.trim();
-    if (normalized.isEmpty) return null;
-    return (await findByIds([normalized]))[normalized];
-  }
-
   Future<void> _upsertItem(CatalogItemDto item) async {
     final codec = _codecs[item.mediaKind];
     if (codec == null) {
@@ -127,11 +97,4 @@ final class CatalogTransportRepository {
     await codec.upsert(_db, item);
   }
 
-  Future<List<CatalogItemDto>> _allItems() async {
-    final result = <CatalogItemDto>[];
-    for (final codec in _codecs.values) {
-      result.addAll(await codec.list(_db));
-    }
-    return result;
-  }
 }

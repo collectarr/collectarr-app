@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
@@ -77,7 +78,7 @@ class SyncRetryMapper {
         );
       case 'library_item_snapshot':
         final item =
-            await CatalogTransportRepository(db).findById(change.entityId);
+            await CatalogSnapshotRepository(db).findById(change.entityId);
         if (item == null) {
           return null;
         }

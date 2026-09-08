@@ -21,6 +21,7 @@ import 'package:collectarr_app/dev/seeds/pick_list_seeds.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/collectarr_dev_seed_registry.g.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
@@ -558,7 +559,7 @@ final class DevSeedVerificationReport {
 /// continue to use the owning kind repositories and codecs.
 Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     LocalDatabase db) async {
-  final catalogRows = await CatalogTransportRepository(db).findAll();
+  final catalogRows = await CatalogSnapshotRepository(db).findAll();
   final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
   final trackingRows = await db.select(db.trackingEntriesCache).get();
   final imageRows = await db.select(db.itemImagesCache).get();
@@ -873,7 +874,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
 
 /// Returns `true` if all typed local catalog graphs are empty.
 Future<bool> _isDatabaseEmpty(LocalDatabase db) async {
-  return (await CatalogTransportRepository(db).findAll()).isEmpty;
+  return (await CatalogSnapshotRepository(db).findAll()).isEmpty;
 }
 
 /// Seeds the local database with rich dev data if it is empty.

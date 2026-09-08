@@ -8,6 +8,7 @@ import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
@@ -696,7 +697,9 @@ void main() {
 
       // Verify item exists in local database and catalog cache with deterministic provisional identity
       final expectedProvisionalId = candidate.localCatalogId;
-      final cachedItem = await catalog.findById(expectedProvisionalId);
+      final cachedItem = await CatalogSnapshotRepository(db).findById(
+        expectedProvisionalId,
+      );
       expect(cachedItem, isNotNull);
       expect(cachedItem!.id, expectedProvisionalId);
       expect(cachedItem.title, 'Action Comics #1');

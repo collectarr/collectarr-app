@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:drift/native.dart';
@@ -23,7 +24,7 @@ void main() {
         limit: 25,
       ),
     );
-    final rows = await CatalogTransportRepository(db).findAll();
+    final rows = await CatalogSnapshotRepository(db).findAll();
 
     expect(api.lastSearchQuery?.kind, 'comic');
     expect(api.lastSearchQuery?.query, 'Batman');
@@ -46,7 +47,7 @@ void main() {
       barcodes: const ['012345678905', '000000000000'],
       onResult: seen.add,
     );
-    final rows = await CatalogTransportRepository(db).findAll();
+    final rows = await CatalogSnapshotRepository(db).findAll();
 
     expect(results.length, 2);
     expect(results.first.found, isTrue);
