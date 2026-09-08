@@ -35,19 +35,6 @@ class LibraryOwnedItemResolution {
   }
 }
 
-bool itemHasMissingCover(CatalogItemDto item) {
-  return item.coverImageUrl == null || item.coverImageUrl!.trim().isEmpty;
-}
-
-bool itemHasMissingDetails(CatalogItemDto item) {
-  final payload = item.payload;
-  final publisher = (payload['publisher'] ??
-      (payload['publishing'] as Map?)?['original_publisher']) as String?;
-  return (publisher == null || publisher.trim().isEmpty) ||
-      item.releaseDate == null ||
-      (item.synopsis == null || item.synopsis!.trim().isEmpty);
-}
-
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.catalogItem?.mediaKind;
   if (kind == null) {
@@ -229,29 +216,6 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
         : null,
     editions: catalogItem == null ? const [] : catalogItem.editions,
   );
-}
-
-List<String> libraryReferencePlatforms(LibraryProjectionView item) {
-  final resolved = resolveLibraryEntryReferenceRelease(item);
-  final values = <String>[];
-  final variantPlatform = resolved.variant?.platform?.trim();
-  if (variantPlatform != null && variantPlatform.isNotEmpty) {
-    values.add(variantPlatform);
-  }
-  final catalogItem = item.source.catalogItem;
-  final payload = catalogItem?.payload;
-  final gameMap = payload?['game'];
-  final rawPlatforms = (gameMap is Map
-      ? gameMap['platforms']
-      : payload?['platforms']) as List<dynamic>?;
-  for (final platform in rawPlatforms ?? const <dynamic>[]) {
-    final normalized = platform?.toString().trim() ?? '';
-    if (normalized.isEmpty || values.contains(normalized)) {
-      continue;
-    }
-    values.add(normalized);
-  }
-  return values;
 }
 
 String? resolveLibraryOwnedItemId(

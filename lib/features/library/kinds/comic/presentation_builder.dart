@@ -44,7 +44,6 @@ class ComicLibraryMediaPresentationBuilder
     final publishing = metadata.publishing;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
-    final referencePlatforms = libraryReferencePlatforms(item);
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -133,10 +132,6 @@ class ComicLibraryMediaPresentationBuilder
                 if (referenceVariant?.name.trim().isNotEmpty == true)
                   referenceVariant!.name.trim(),
               ].join(' · ')),
-        if (referencePlatforms.isNotEmpty)
-          LibraryDetailField(
-              label: referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
-              value: referencePlatforms.join(', ')),
         LibraryDetailField(
             label: 'Cover',
             value: metadata.releases.isEmpty ? 'Missing' : 'Ready'),

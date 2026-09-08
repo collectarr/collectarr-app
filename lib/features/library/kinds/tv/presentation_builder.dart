@@ -1,11 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/library_video_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_preview_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
+import 'package:collectarr_app/features/library/details/library_detail_models.dart';
+import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:flutter/material.dart';
 
@@ -17,17 +23,116 @@ const tvMetadataLabels = LibraryMetadataLabels(
 );
 
 class TvLibraryMediaPresentationBuilder
-    extends LibraryVideoMediaPresentationBuilder {
-  const TvLibraryMediaPresentationBuilder()
-      : super(
-          showSummary: true,
-          metadataLabels: tvMetadataLabels,
-          itemNumberLabel: 'Edition no.',
-          publisherLabel: 'Studio',
-          variantLabel: 'Format / Edition',
-          barcodeLabel: 'UPC / Barcode',
-          shelfDrilldownEntryTypes: const {'tv'},
-        );
+    extends LibraryMediaPresentationBuilder {
+  const TvLibraryMediaPresentationBuilder();
+
+  @override
+  bool canOpenKindDrilldown(LibraryProjectionView item) {
+    return item.node.scope == LibraryBrowserScope.title &&
+        item.source.mediaKind == CatalogMediaKind.tv;
+  }
+
+  @override
+  LibraryMetadataPresentation buildMetadataPresentation({
+    required String singularLabel,
+    required LibraryProjectionView item,
+    required bool includeIdentityFacts,
+    required LibraryMetadataFactTapResolver tapFor,
+  }) {
+    final dto = item.dto;
+    if (dto is! TvWorkspaceDto) {
+      throw StateError('Expected TvWorkspaceDto for TV presentation');
+    }
+    final seriesTitle = dto.common.seriesTitle;
+    final variant = dto.common.variant;
+    final barcode = dto.barcode;
+    final publisher = dto.publisher;
+    final releaseDate = dto.common.releaseDate;
+    final country = dto.common.country;
+    final language = dto.common.language;
+    return LibraryMetadataPresentation(
+      labels: tvMetadataLabels,
+      identityFacts: [
+        if (includeIdentityFacts) ...[
+          LibraryDetailField(label: 'Kind', value: singularLabel),
+          LibraryDetailField(label: 'ID', value: item.node.titleItemId),
+          LibraryDetailField(label: 'Title', value: dto.title),
+        ],
+        if (seriesTitle != null)
+          LibraryDetailField(
+            label: 'Series',
+            value: seriesTitle,
+            onTap: tapFor(seriesTitle),
+          ),
+        if (item.node.scope != LibraryBrowserScope.title && variant != null)
+          LibraryDetailField(
+            label: 'Format / Edition',
+            value: variant,
+            onTap: tapFor(variant),
+          ),
+        if (item.node.scope != LibraryBrowserScope.title && barcode != null)
+          LibraryDetailField(label: 'UPC / Barcode', value: barcode),
+      ],
+      contextFacts: [
+        if (publisher != null)
+          LibraryDetailField(
+            label: 'Studio',
+            value: publisher,
+            onTap: tapFor(publisher),
+          ),
+        LibraryDetailField(
+          label: 'Released',
+          value: genericLibraryDash(
+            formatPresentationNullableDate(releaseDate),
+          ),
+        ),
+        if (country != null)
+          LibraryDetailField(label: 'Country', value: country),
+        if (language != null)
+          LibraryDetailField(label: 'Language', value: language),
+      ],
+      sections: {
+        'creators': LibraryMetadataSection(
+          values: publisher == null
+              ? const []
+              : <Map<String, dynamic>>[
+                  {'name': publisher},
+                ],
+          placement: LibraryMetadataSectionPlacement.credits,
+          renderer: LibraryMetadataSectionRenderer.credits,
+          completenessWeight: 12,
+        ),
+      },
+    );
+  }
+
+  @override
+  List<Widget> buildInspectorSections({
+    required BuildContext context,
+    required LibraryProjectionView item,
+    required Color accent,
+    ValueChanged<String>? onFilterByValue,
+  }) {
+    final dto = item.dto;
+    if (dto is! TvWorkspaceDto ||
+        dto.common.synopsis?.trim().isNotEmpty != true) {
+      return const [];
+    }
+    return [
+      LibraryDetailSection(
+        title: 'Summary',
+        accentColor: accent,
+        children: [
+          SelectableText(
+            dto.common.synopsis!,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 1.4,
+                ),
+          ),
+        ],
+      ),
+    ];
+  }
 
   @override
   List<Widget> buildAddPreviewSections({

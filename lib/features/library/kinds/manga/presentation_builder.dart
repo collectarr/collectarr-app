@@ -64,7 +64,6 @@ class MangaLibraryMediaPresentationBuilder
     final audienceRating = payload?['audience_rating'] as String?;
     final referenceRelease = resolveLibraryEntryReferenceRelease(item);
     final referenceVariant = referenceRelease.variant;
-    final referencePlatforms = libraryReferencePlatforms(item);
     final hasVolume = series?.hasVolume ?? false;
     final hasSeason = series?.hasSeason ?? false;
     final hasEpisode = series?.hasEpisode ?? false;
@@ -169,10 +168,6 @@ class MangaLibraryMediaPresentationBuilder
                 if (referenceVariant?.name.trim().isNotEmpty == true)
                   referenceVariant!.name.trim(),
               ].join(' · ')),
-        if (referencePlatforms.isNotEmpty)
-          LibraryDetailField(
-              label: referencePlatforms.length == 1 ? 'Platform' : 'Platforms',
-              value: referencePlatforms.join(', ')),
         LibraryDetailField(
             label: 'Cover',
             value: dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty
