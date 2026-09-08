@@ -299,7 +299,7 @@ class CollectionCsv {
     required bool clzFriendly,
   }) {
     final projection = libraryCollectionCsvProjectionForKind(
-      catalogMediaKindFromValue(entry.catalogItem?.kind),
+      entry.mediaKind,
     );
     if (projection == null) {
       return clzFriendly ? const [''] : const [];
@@ -316,7 +316,7 @@ class CollectionCsv {
     required bool clzFriendly,
   }) {
     final projection = libraryCollectionCsvProjectionForKind(
-      catalogMediaKindFromValue(entry.catalogItem?.kind),
+      entry.mediaKind,
     );
     if (projection == null) {
       return List<String>.filled(
@@ -350,12 +350,10 @@ class CollectionCsv {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final o = entry.ownedItem;
-    final owned = entry.ownedSummary;
     final tracking = entry.tracking;
-    final cfValues = owned != null || o != null
+    final cfValues = entry.ownedRef != null
         ? _customFieldCells(
-            owned?.ref.id.value ?? o!.id,
+            entry.ownedRef!.id.value,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -363,24 +361,24 @@ class CollectionCsv {
     return [
       ..._catalogFields(entry),
       _status(entry),
-      o?.condition ?? '',
-      o?.grade ?? '',
+      entry.condition ?? '',
+      entry.grade ?? '',
       _formatDate(entry.purchaseDate),
       entry.pricePaidCents?.toString() ?? '',
       entry.currency ?? entry.wishlistItem?.currency ?? '',
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
       entry.quantity.toString(),
       _locationCell(entry),
-      o?.indexNumber?.toString() ?? '',
+      entry.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
       tracking.rating?.toString() ?? '',
       mediaTrackingStatusToStorageValue(tracking.status) ?? '',
       _formatDate(tracking.startedAt),
       _formatDate(tracking.completedAt),
-      o?.tags ?? '',
-      _formatDate(owned?.soldAt ?? o?.soldAt),
-      (owned?.sellPriceCents ?? o?.sellPriceCents)?.toString() ?? '',
-      owned?.soldTo ?? o?.soldTo ?? '',
+      entry.tags ?? '',
+      _formatDate(entry.soldAt),
+      entry.sellPriceCents?.toString() ?? '',
+      entry.soldTo ?? '',
       ...cfValues,
     ];
   }
@@ -390,12 +388,10 @@ class CollectionCsv {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final o = entry.ownedItem;
-    final owned = entry.ownedSummary;
     final tracking = entry.tracking;
-    final cfValues = owned != null || o != null
+    final cfValues = entry.ownedRef != null
         ? _customFieldCells(
-            owned?.ref.id.value ?? o!.id,
+            entry.ownedRef!.id.value,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -403,25 +399,25 @@ class CollectionCsv {
     return [
       ..._catalogFields(entry),
       _clzStatus(entry),
-      o?.condition ?? '',
-      o?.grade ?? '',
+      entry.condition ?? '',
+      entry.grade ?? '',
       _formatDate(entry.purchaseDate),
       _formatMoney(entry.pricePaidCents),
       entry.currency ?? entry.wishlistItem?.currency ?? '',
       ..._kindOwnedCellsBeforeQuantity(entry, clzFriendly: true),
       entry.quantity.toString(),
       _locationCell(entry),
-      o?.indexNumber?.toString() ?? '',
+      entry.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
       tracking.rating?.toString() ?? '',
       mediaTrackingStatusToStorageValue(tracking.status) ?? '',
       _formatDate(tracking.startedAt),
       _formatDate(tracking.completedAt),
-      o?.tags ?? '',
+      entry.tags ?? '',
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
-      _formatDate(owned?.soldAt ?? o?.soldAt),
-      _formatMoney(owned?.sellPriceCents ?? o?.sellPriceCents),
-      owned?.soldTo ?? o?.soldTo ?? '',
+      _formatDate(entry.soldAt),
+      _formatMoney(entry.sellPriceCents),
+      entry.soldTo ?? '',
       ...cfValues,
     ];
   }
@@ -489,8 +485,8 @@ class CollectionCsv {
   List<String> _clzFriendlyHeaderForEntries(List<ShelfEntry> entries) {
     final kinds = {
       for (final entry in entries)
-        if ((entry.catalogItem?.kind.trim().isNotEmpty ?? false))
-          entry.catalogItem!.kind.trim().toLowerCase(),
+        if (entry.mediaKind != CatalogMediaKind.unknown)
+          entry.mediaKind.apiValue,
     };
     if (kinds.length == 1) {
       return _clzFriendlyHeaderForKind(kinds.single);

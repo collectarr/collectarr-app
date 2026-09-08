@@ -154,6 +154,9 @@ class LibraryWorkspaceEntry {
       ownedSummary?.catalogRef ??
       wishlistItem?.catalogRef ??
       catalogItem?.catalogRef;
+  CatalogMediaKind get mediaKind =>
+      catalogSummary?.kind ?? catalogItem?.mediaKind ?? CatalogMediaKind.unknown;
+  OwnedItemRef? get ownedRef => ownedSummary?.ref ?? ownedItem?.ref;
 
   bool get isOwned => ownedSummary != null || ownedItem != null;
   bool get isTracked => trackingSummary != null || trackingEntry != null;
@@ -225,6 +228,8 @@ class LibraryWorkspaceEntry {
       ownedSummary?.purchaseStore ?? ownedItem?.purchaseStore;
   DateTime? get purchaseDate =>
       ownedSummary?.purchaseDate ?? ownedItem?.purchaseDate;
+  DateTime? get soldAt => ownedSummary?.soldAt ?? ownedItem?.soldAt;
+  int? get indexNumber => ownedItem?.indexNumber;
   String? get personalNotes => ownedSummary?.notes ?? ownedItem?.personalNotes;
   String? get tags => ownedItem?.tags;
   String? get collectionStatus => ownedItem?.collectionStatus;
