@@ -164,6 +164,9 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogSummaries: CatalogDisplaySummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
     trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
@@ -189,6 +192,9 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogSummaries: CatalogDisplaySummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),

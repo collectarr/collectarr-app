@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -251,6 +252,7 @@ Future<_CoordinatorHarness> _pumpHarness(
     ownedItems: OwnedItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
     catalogCache: LibraryCatalogRepository(db),
+    catalogSummaries: CatalogDisplaySummaryRepository(db),
     trackingEntries: TrackingEntriesCacheRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,

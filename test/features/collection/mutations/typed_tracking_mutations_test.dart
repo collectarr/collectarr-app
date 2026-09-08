@@ -1,6 +1,7 @@
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -66,6 +67,7 @@ void main() {
         codecs: collectarrWatchSessionCodecs,
       ),
       catalogCache: catalogCache,
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
       ownedItems: ownedItems,
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,

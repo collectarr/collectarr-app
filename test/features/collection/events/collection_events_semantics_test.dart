@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -64,6 +65,7 @@ void main() {
       ownedItems: ownedRepo,
       wishlist: wishlistRepo,
       catalogCache: catalogRepo,
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
       trackingEntries: trackingRepo,
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
@@ -83,6 +85,7 @@ void main() {
       trackingUnits: trackingUnitsRepo,
       watchSessions: watchSessionsRepo,
       catalogCache: catalogRepo,
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );

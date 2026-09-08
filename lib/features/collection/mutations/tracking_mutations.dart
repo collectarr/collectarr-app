@@ -11,6 +11,7 @@ import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -41,6 +42,7 @@ final class TrackingMutations {
     required this.trackingUnits,
     required this.watchSessions,
     required this.catalogCache,
+    required this.catalogSummaries,
     required this.syncQueue,
     required this.mutationRunner,
     this.ownedItems,
@@ -51,6 +53,7 @@ final class TrackingMutations {
   final TrackingUnitsCacheRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
   final LibraryCatalogRepository catalogCache;
+  final CatalogDisplaySummaryRepository catalogSummaries;
   final OwnedItemsRepository? ownedItems;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
@@ -115,18 +118,20 @@ final class TrackingMutations {
           } else if (owned?.catalogRef != null) {
             catalogRef = owned!.catalogRef!;
           } else {
-            final cat = await catalogCache.findById(ownedRef.id.value);
+            final cat = (await catalogSummaries
+                .findByIds([ownedRef.id.value]))[ownedRef.id.value];
             if (cat != null) {
-              catalogRef = targetRef ?? cat.catalogRefForPersonalAnchor(anchor);
+              catalogRef = targetRef ?? _catalogRefForAnchor(cat.ref, anchor);
             } else {
               throw ArgumentError(
                   'Owned item not found for tracking target: ${ownedRef.id.value}');
             }
           }
         } else {
-          final cat = await catalogCache.findById(ownedRef.id.value);
+          final cat = (await catalogSummaries
+              .findByIds([ownedRef.id.value]))[ownedRef.id.value];
           if (cat != null) {
-            catalogRef = targetRef ?? cat.catalogRefForPersonalAnchor(anchor);
+            catalogRef = targetRef ?? _catalogRefForAnchor(cat.ref, anchor);
           } else {
             throw ArgumentError(
                 'Cannot resolve valid CatalogEntityRef for tracking target: ${ownedRef.id.value}');
@@ -148,16 +153,6 @@ final class TrackingMutations {
       origin: origin,
       localRef: catalogRef,
       action: () async {
-        final existingCatalog = await catalogCache.findById(catalogRef.id);
-        if (existingCatalog == null) {
-          await catalogCache.upsertMetadataItems([
-            CatalogItemDto.fromJson({
-              'id': catalogRef.id,
-              'kind': catalogRef.kind,
-              'title': catalogRef.id,
-            }),
-          ]);
-        }
         final baseEntry = existing?.copyWith(
               id: entryId,
               catalogRef: catalogRef,

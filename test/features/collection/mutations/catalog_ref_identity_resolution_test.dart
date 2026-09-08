@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -55,6 +56,7 @@ void main() {
     ownedMutations = OwnedItemMutations(
       ownedItems: OwnedItemsRepository(db),
       catalogCache: catalogCache,
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
       wishlist: wishlistRepo,
       trackingEntries: TrackingEntriesCacheRepository(
         db,

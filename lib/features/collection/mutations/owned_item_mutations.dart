@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -26,6 +27,7 @@ final class OwnedItemMutations {
     required this.ownedItems,
     required this.wishlist,
     required this.catalogCache,
+    required this.catalogSummaries,
     required this.trackingEntries,
     required this.syncQueue,
     required this.mutationRunner,
@@ -37,6 +39,7 @@ final class OwnedItemMutations {
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
   final LibraryCatalogRepository catalogCache;
+  final CatalogDisplaySummaryRepository catalogSummaries;
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
@@ -59,20 +62,12 @@ final class OwnedItemMutations {
 
     final ownedRef = await mutationRunner.run(
       action: () async {
-        final existingCatalog = await catalogCache.findById(catalogRef.id);
-        if (existingCatalog == null) {
-          await catalogCache.upsertMetadataItems([
-            CatalogItemDto.fromJson({
-              'id': catalogRef.id,
-              'kind': catalogRef.kind,
-              'title': catalogRef.id,
-            }),
-          ]);
-        }
+        final existingCatalog =
+            (await catalogSummaries.findByIds([catalogRef.id]))[catalogRef.id];
 
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef,
-          existingCatalog,
+          existingCatalog?.ref,
           targetRef: command.targetRef,
           anchor: anchor,
         );
@@ -83,8 +78,7 @@ final class OwnedItemMutations {
           resolvedCatalogRef: resolvedCatalogRef,
           id: newItemId,
           createdAt: now,
-          existingIsDigital: typedPayload.isDigital ??
-              (existingCatalog?.physicalFormat == 'digital'),
+          existingIsDigital: typedPayload.isDigital ?? false,
           anchor: anchor,
           ownerUserId: userId,
           ownerLabel: userEmail,
@@ -103,8 +97,10 @@ final class OwnedItemMutations {
         );
 
         if (existingCatalog != null) {
-          await syncQueue
-              .enqueue(_syncChangeForCatalogItem(existingCatalog, now));
+          await syncQueue.enqueue(_syncChangeForCatalogRef(
+            existingCatalog.ref,
+            now,
+          ));
         }
 
         if (existingWishlist != null) {
@@ -316,15 +312,15 @@ final class OwnedItemMutations {
 
   CatalogEntityRef _catalogRefForItem(
     CatalogEntityRef catalogRef,
-    CatalogItemDto? item, {
+    CatalogEntityRef? existingRef, {
     CatalogEntityRef? targetRef,
     PersonalItemAnchor? anchor,
   }) {
     if (targetRef != null && targetRef.isKnown) {
       return targetRef;
     }
-    if (item != null) {
-      return item.catalogRefForPersonalAnchor(anchor);
+    if (existingRef != null) {
+      return _catalogRefForAnchor(existingRef, anchor);
     }
     if (!catalogRef.isKnown) {
       throw StateError(
@@ -333,6 +329,48 @@ final class OwnedItemMutations {
       );
     }
     return catalogRef;
+  }
+
+  CatalogEntityRef _catalogRefForAnchor(
+    CatalogEntityRef baseRef,
+    PersonalItemAnchor? anchor,
+  ) {
+    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.work,
+        id: baseRef.rootId ?? baseRef.id,
+        rootId: null,
+      );
+    }
+    if (anchor.type == PersonalItemAnchorType.bundleRelease &&
+        anchor.bundleReleaseId != null) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.bundleRelease,
+        id: anchor.bundleReleaseId,
+        rootId: baseRef.rootId ?? baseRef.id,
+      );
+    }
+    if (anchor.type == PersonalItemAnchorType.variant &&
+        anchor.variantId != null) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.release,
+        id: anchor.variantId,
+        rootId: baseRef.rootId ?? baseRef.id,
+      );
+    }
+    if (anchor.type == PersonalItemAnchorType.edition &&
+        anchor.editionId != null) {
+      return baseRef.copyWith(
+        entityType: CatalogEntityType.edition,
+        id: anchor.editionId,
+        rootId: baseRef.rootId ?? baseRef.id,
+      );
+    }
+    return baseRef.copyWith(
+      entityType: CatalogEntityType.work,
+      id: baseRef.rootId ?? baseRef.id,
+      rootId: null,
+    );
   }
 
   CatalogEntityRef _rebaseCatalogRef(
@@ -401,6 +439,20 @@ final class OwnedItemMutations {
       entityId: itemId,
       action: 'upsert',
       payload: payload,
+      clientChangedAt: now,
+    );
+  }
+
+  SyncChange _syncChangeForCatalogRef(
+    CatalogEntityRef ref,
+    DateTime now,
+  ) {
+    return SyncChange(
+      id: 'catalog:${ref.id}:upsert:${now.millisecondsSinceEpoch}',
+      entityType: 'catalog_item',
+      entityId: ref.id,
+      action: 'upsert',
+      payload: {'id': ref.id, 'kind': ref.kind},
       clientChangedAt: now,
     );
   }
