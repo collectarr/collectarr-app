@@ -19,7 +19,8 @@ final class BoardGameCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final id in context.catalogItemIds) {
+    for (final ref in context.catalogRefs) {
+      final id = ref.id;
       final boardGame = loadMedia != null
           ? await loadMedia!(id)
           : await _loadMedia(context, id);

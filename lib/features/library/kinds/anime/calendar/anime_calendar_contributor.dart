@@ -20,7 +20,8 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final id in context.catalogItemIds) {
+    for (final ref in context.catalogRefs) {
+      final id = ref.id;
       final anime = loadMedia != null
           ? await loadMedia!(id)
           : await _loadMedia(context, id);
@@ -48,7 +49,7 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
       events.add(CalendarEvent(
         kind: CalendarEventKind.watched,
         date: session.watchedAt,
-        title: '${context.titleForItem(session.itemId)}$episodeLabel',
+        title: '${context.titleForRef(session.targetRef)}$episodeLabel',
         eventId: 'watch:${session.id}',
         itemId: session.itemId,
       ));

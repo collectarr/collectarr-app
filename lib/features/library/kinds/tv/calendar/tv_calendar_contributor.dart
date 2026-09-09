@@ -19,7 +19,8 @@ final class TvCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final id in context.catalogItemIds) {
+    for (final ref in context.catalogRefs) {
+      final id = ref.id;
       final series = loadSeries != null
           ? await loadSeries!(id)
           : await _loadSeries(context, id);
@@ -47,7 +48,7 @@ final class TvCalendarContributor implements LibraryCalendarContributor {
       events.add(CalendarEvent(
         kind: CalendarEventKind.watched,
         date: session.watchedAt,
-        title: '${context.titleForItem(session.itemId)}$episodeLabel',
+        title: '${context.titleForRef(session.targetRef)}$episodeLabel',
         eventId: 'watch:${session.id}',
         itemId: session.itemId,
       ));

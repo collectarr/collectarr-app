@@ -180,9 +180,16 @@ LibraryCalendarContext _context({
   Iterable<WatchSession> watchSessions = const <WatchSession>[],
 }) {
   return LibraryCalendarContext(
-    catalogItemIds: ids,
+    catalogRefs: {
+      for (final id in ids)
+        CatalogEntityRef(
+          kind: id.split('-').first,
+          entityType: CatalogEntityType.work,
+          id: id,
+        ),
+    },
     watchSessions: watchSessions,
-    titleForItem: (itemId) => 'Title for $itemId',
+    titleForRef: (ref) => 'Title for ${ref.id}',
   );
 }
 

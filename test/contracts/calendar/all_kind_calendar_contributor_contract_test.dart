@@ -30,7 +30,7 @@ const _calendarWatchKinds = {
 
 LibraryCalendarContext _contextFor(CatalogMediaKind kind) {
   return LibraryCalendarContext(
-    catalogItemIds: const <String>{},
+    catalogRefs: const <CatalogEntityRef>{},
     watchSessions: _calendarWatchKinds.contains(kind)
         ? [
             WatchSession(
@@ -45,6 +45,6 @@ LibraryCalendarContext _contextFor(CatalogMediaKind kind) {
             ),
           ]
         : const [],
-    titleForItem: (itemId) => itemId,
+    titleForRef: (ref) => ref.id,
   );
 }

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -18,15 +19,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class GlobalActivityEntry {
   const GlobalActivityEntry({
     required this.event,
-    required this.itemId,
+    required this.itemRef,
     required this.title,
     required this.mediaType,
   });
 
   final ActivityEvent event;
-  final String itemId;
+  final CatalogEntityRef itemRef;
   final String title;
   final String mediaType;
+
+  String get itemId => itemRef.id;
 }
 
 /// Aggregates activity across the entire collection (not scoped to one item).
@@ -43,59 +46,86 @@ final globalActivityProvider =
   await ref.watch(watchSessionsProvider.future);
   await ref.watch(wishlistProvider.future);
 
-  final trackingByItem = ref.watch(trackingEntriesByCatalogItemProvider);
-  final watchByItem = ref.watch(watchSessionsByItemProvider);
-  final wishlistByItem = ref.watch(wishlistByCatalogItemProvider);
+  final trackingEntries = await ref.watch(trackingEntriesProvider.future);
+  final watchSessions = await ref.watch(watchSessionsProvider.future);
+  final wishlistItems = await ref.watch(wishlistProvider.future);
 
   final loans = await LoanRepository(db).getAllLoans();
 
-  // owned-item id -> catalog item id, for mapping loans back to catalog items.
-  final ownedIdToItemId = <String, String>{
-    for (final o in owned) o.ref.id.value: o.itemId,
+  final ownedByRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
+  for (final item in owned) {
+    final catalogRef = item.catalogRef;
+    if (catalogRef == null) continue;
+    ownedByRef
+        .putIfAbsent(_rootCatalogRef(catalogRef), () => <OwnedItemSummary>[])
+        .add(item);
+  }
+  final ownedById = <String, OwnedItemSummary>{
+    for (final item in owned)
+      if (item.catalogRef != null) item.ref.id.value: item,
   };
-  final loansByItem = <String, List<Loan>>{};
+  final loansByRef = <CatalogEntityRef, List<Loan>>{};
   for (final loan in loans) {
-    final itemId = ownedIdToItemId[loan.ownedRef.id.value];
-    if (itemId == null) continue;
-    loansByItem.putIfAbsent(itemId, () => <Loan>[]).add(loan);
+    final ownedItem = ownedById[loan.ownedRef.id.value];
+    final catalogRef = ownedItem?.catalogRef;
+    if (catalogRef == null) continue;
+    loansByRef
+        .putIfAbsent(_rootCatalogRef(catalogRef), () => <Loan>[])
+        .add(loan);
   }
 
-  final ownedByItem = <String, List<OwnedItemSummary>>{};
-  for (final o in owned) {
-    ownedByItem.putIfAbsent(o.itemId, () => <OwnedItemSummary>[]).add(o);
+  final trackingByRef = <CatalogEntityRef, List<TrackingEntry>>{};
+  for (final entry in trackingEntries) {
+    if (entry.isDeleted) continue;
+    trackingByRef
+        .putIfAbsent(_rootCatalogRef(entry.catalogRef), () => <TrackingEntry>[])
+        .add(entry);
   }
-
-  final itemIds = <String>{
-    ...ownedByItem.keys,
-    ...trackingByItem.keys,
-    ...watchByItem.keys,
-    ...wishlistByItem.keys,
-    ...loansByItem.keys,
+  final watchByRef = <CatalogEntityRef, List<WatchSession>>{};
+  for (final session in watchSessions) {
+    if (session.isDeleted) continue;
+    watchByRef
+        .putIfAbsent(_rootCatalogRef(session.targetRef), () => <WatchSession>[])
+        .add(session);
+  }
+  final wishlistByRef = <CatalogEntityRef, List<WishlistItem>>{};
+  for (final item in wishlistItems) {
+    if (item.isDeleted) continue;
+    wishlistByRef
+        .putIfAbsent(_rootCatalogRef(item.catalogRef), () => <WishlistItem>[])
+        .add(item);
+  }
+  final refs = <CatalogEntityRef>{
+    ...ownedByRef.keys,
+    ...trackingByRef.keys,
+    ...watchByRef.keys,
+    ...wishlistByRef.keys,
+    ...loansByRef.keys,
   };
-  if (itemIds.isEmpty) {
+  if (refs.isEmpty) {
     return const <GlobalActivityEntry>[];
   }
 
-  final catalog = await CatalogDisplaySummaryRepository(db).findByIds(itemIds);
+  final catalog = await CatalogDisplaySummaryRepository(db).findByRefs(refs);
 
   final entries = <GlobalActivityEntry>[];
-  for (final itemId in itemIds) {
+  for (final itemRef in refs) {
     final events = ActivityEventAggregator.aggregate(
-      ownedItems: ownedByItem[itemId] ?? const <OwnedItemSummary>[],
-      trackingEntries: trackingByItem[itemId] ?? const <TrackingEntry>[],
-      wishlistItems: wishlistByItem[itemId] ?? const <WishlistItem>[],
-      loans: loansByItem[itemId] ?? const <Loan>[],
-      watchSessions: watchByItem[itemId] ?? const <WatchSession>[],
+      ownedItems: ownedByRef[itemRef] ?? const <OwnedItemSummary>[],
+      trackingEntries: trackingByRef[itemRef] ?? const <TrackingEntry>[],
+      wishlistItems: wishlistByRef[itemRef] ?? const <WishlistItem>[],
+      loans: loansByRef[itemRef] ?? const <Loan>[],
+      watchSessions: watchByRef[itemRef] ?? const <WatchSession>[],
       hasKindContributor: (kind) =>
           libraryActivityContributorForKind(kind) != null,
     );
-    final CatalogDisplaySummary? item = catalog[itemId];
+    final CatalogDisplaySummary? item = catalog[itemRef];
     final title = item?.title ?? 'Unknown item';
     final mediaType = item?.kind.apiValue ?? '';
     for (final event in events) {
       entries.add(GlobalActivityEntry(
         event: event,
-        itemId: itemId,
+        itemRef: itemRef,
         title: title,
         mediaType: mediaType,
       ));
@@ -105,3 +135,13 @@ final globalActivityProvider =
   entries.sort((a, b) => b.event.timestamp.compareTo(a.event.timestamp));
   return entries;
 });
+
+CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
+  final rootId = ref.rootId;
+  if (rootId == null || rootId.isEmpty) return ref;
+  return ref.copyWith(
+    id: rootId,
+    entityType: CatalogEntityType.work,
+    rootId: null,
+  );
+}

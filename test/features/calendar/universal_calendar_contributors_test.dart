@@ -40,7 +40,7 @@ void main() {
     final context = UniversalCalendarContext(
       ownedItems: [owned],
       loans: [loan],
-      titleForItem: (id) => id == 'book-1' ? 'Seed Book' : 'Unknown item',
+      titleForRef: (ref) => ref.id == 'book-1' ? 'Seed Book' : 'Unknown item',
     );
     final events = [
       ...const OwnedItemCalendarContributor().contribute(context),
@@ -77,7 +77,7 @@ void main() {
       ownedItems: const [],
       loans: const [],
       watchSessions: [session],
-      titleForItem: (_) => 'Seed Book',
+      titleForRef: (_) => 'Seed Book',
     );
 
     final events =
@@ -105,7 +105,7 @@ void main() {
           updatedAt: DateTime.utc(2026, 1, 5),
         ),
       ],
-      titleForItem: (_) => 'TV item',
+      titleForRef: (_) => 'TV item',
       hasKindContributor: (kind) => kind == CatalogMediaKind.tv,
     );
 

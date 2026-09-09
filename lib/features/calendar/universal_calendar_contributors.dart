@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
-typedef UniversalCalendarTitleForItem = String Function(String itemId);
+typedef UniversalCalendarTitleForRef = String Function(CatalogEntityRef ref);
 typedef UniversalCalendarKindPredicate = bool Function(CatalogMediaKind kind);
 
 /// Inputs for non-kind calendar contributions.
@@ -17,7 +18,7 @@ final class UniversalCalendarContext {
   const UniversalCalendarContext({
     required this.ownedItems,
     required this.loans,
-    required this.titleForItem,
+    required this.titleForRef,
     this.watchSessions = const [],
     this.hasKindContributor = _noKindContributor,
   });
@@ -25,7 +26,7 @@ final class UniversalCalendarContext {
   final Iterable<OwnedItemSummary> ownedItems;
   final Iterable<Loan> loans;
   final Iterable<WatchSession> watchSessions;
-  final UniversalCalendarTitleForItem titleForItem;
+  final UniversalCalendarTitleForRef titleForRef;
   final UniversalCalendarKindPredicate hasKindContributor;
 }
 
@@ -37,7 +38,9 @@ final class OwnedItemCalendarContributor
   Iterable<CalendarEvent> contribute(UniversalCalendarContext context) sync* {
     for (final item in context.ownedItems) {
       if (item.isDeleted) continue;
-      final title = context.titleForItem(item.itemId);
+      final catalogRef = item.catalogRef;
+      if (catalogRef == null) continue;
+      final title = context.titleForRef(catalogRef);
 
       if (item.purchaseDate != null) {
         yield CalendarEvent(
@@ -46,7 +49,7 @@ final class OwnedItemCalendarContributor
           title: title,
           eventId: 'owned-purchased:${item.ref.id.value}',
           subtitle: item.purchaseStore,
-          itemId: item.itemId,
+          itemId: catalogRef.id,
           ownedItemId: item.ref.id.value,
         );
       }
@@ -66,8 +69,9 @@ final class LoanCalendarContributor
 
     for (final loan in context.loans) {
       final owned = ownedById[loan.ownedRef.id.value];
+      final catalogRef = owned?.catalogRef;
       final title =
-          owned == null ? 'Unknown item' : context.titleForItem(owned.itemId);
+          catalogRef == null ? 'Unknown item' : context.titleForRef(catalogRef);
 
       if (loan.dueDate != null) {
         yield CalendarEvent(
@@ -77,7 +81,7 @@ final class LoanCalendarContributor
           eventId: 'loan-due:${loan.id}',
           subtitle: 'Loaned to ${loan.borrowerName}',
           ownedItemId: loan.ownedRef.id.value,
-          itemId: owned?.itemId,
+          itemId: catalogRef?.id,
         );
       }
       if (loan.returnedDate != null) {
@@ -88,7 +92,7 @@ final class LoanCalendarContributor
           eventId: 'loan-return:${loan.id}',
           subtitle: 'Returned by ${loan.borrowerName}',
           ownedItemId: loan.ownedRef.id.value,
-          itemId: owned?.itemId,
+          itemId: catalogRef?.id,
         );
       }
     }
@@ -112,9 +116,9 @@ final class GenericWatchCalendarContributor
       yield CalendarEvent(
         kind: CalendarEventKind.watched,
         date: session.watchedAt,
-        title: context.titleForItem(session.itemId),
+        title: context.titleForRef(session.targetRef),
         eventId: 'watch:${session.id}',
-        itemId: session.itemId,
+        itemId: session.targetRef.id,
       );
     }
   }

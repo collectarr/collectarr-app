@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/activity/global_activity_page.dart';
 import 'package:collectarr_app/features/activity/global_activity_provider.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,11 @@ GlobalActivityEntry _entry(
 ) {
   return GlobalActivityEntry(
     event: ActivityEvent(kind: kind, timestamp: ts),
-    itemId: title,
+    itemRef: CatalogEntityRef(
+      kind: mediaType,
+      entityType: CatalogEntityType.work,
+      id: title,
+    ),
     title: title,
     mediaType: mediaType,
   );

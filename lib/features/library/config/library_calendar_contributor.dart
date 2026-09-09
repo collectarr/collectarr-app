@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/calendar_event_contributor.dart';
 
-typedef CalendarTitleForItem = String Function(String itemId);
+typedef CalendarTitleForRef = String Function(CatalogEntityRef ref);
 
 /// Boundary context for a kind calendar contribution.
 ///
@@ -15,15 +16,15 @@ typedef CalendarTitleForItem = String Function(String itemId);
 final class LibraryCalendarContext {
   const LibraryCalendarContext({
     this.database,
-    this.catalogItemIds = const <String>{},
+    this.catalogRefs = const <CatalogEntityRef>{},
     required this.watchSessions,
-    required this.titleForItem,
+    required this.titleForRef,
   });
 
   final LocalDatabase? database;
-  final Iterable<String> catalogItemIds;
+  final Iterable<CatalogEntityRef> catalogRefs;
   final Iterable<WatchSession> watchSessions;
-  final CalendarTitleForItem titleForItem;
+  final CalendarTitleForRef titleForRef;
 }
 
 abstract interface class LibraryCalendarContributor

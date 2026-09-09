@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -15,28 +16,28 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final watchSessions = await ref.watch(watchSessionsProvider.future);
   final loans = await LoanRepository(db).getAllLoans();
 
-  // Collect all item IDs we need titles for.
-  final itemIds = <String>{};
+  final catalogRefs = <CatalogEntityRef>{};
   for (final item in ownedItems) {
-    itemIds.add(item.itemId);
+    if (item.catalogRef case final ref?) {
+      catalogRefs.add(_rootCatalogRef(ref));
+    }
   }
   for (final session in watchSessions) {
-    itemIds.add(session.itemId);
+    catalogRefs.add(_rootCatalogRef(session.targetRef));
   }
 
-  // Resolve titles.
-  final catalogById =
-      await CatalogDisplaySummaryRepository(db).findByIds(itemIds);
-  String titleFor(String itemId) =>
-      catalogById[itemId]?.title ?? 'Unknown item';
+  final catalogByRef =
+      await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
+  String titleFor(CatalogEntityRef ref) =>
+      catalogByRef[_rootCatalogRef(ref)]?.title ?? 'Unknown item';
 
   final events = <CalendarEvent>[];
 
   final calendarContext = LibraryCalendarContext(
     database: db,
-    catalogItemIds: itemIds,
+    catalogRefs: catalogRefs,
     watchSessions: watchSessions,
-    titleForItem: titleFor,
+    titleForRef: titleFor,
   );
   for (final contributor in libraryCalendarContributors) {
     events.addAll(await contributor.contribute(calendarContext));
@@ -46,7 +47,7 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
     ownedItems: ownedItems,
     loans: loans,
     watchSessions: watchSessions,
-    titleForItem: titleFor,
+    titleForRef: titleFor,
     hasKindContributor: (kind) =>
         libraryCalendarContributorForKind(kind) != null,
   );
@@ -58,3 +59,13 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   events.sort((a, b) => a.date.compareTo(b.date));
   return events;
 });
+
+CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
+  final rootId = ref.rootId;
+  if (rootId == null || rootId.isEmpty) return ref;
+  return ref.copyWith(
+    id: rootId,
+    entityType: CatalogEntityType.work,
+    rootId: null,
+  );
+}

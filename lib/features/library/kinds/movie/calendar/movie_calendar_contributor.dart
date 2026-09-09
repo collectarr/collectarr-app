@@ -19,7 +19,8 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final id in context.catalogItemIds) {
+    for (final ref in context.catalogRefs) {
+      final id = ref.id;
       final movie = loadMedia != null
           ? await loadMedia!(id)
           : await _loadMedia(context, id);
