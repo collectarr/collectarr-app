@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
@@ -20,7 +22,12 @@ final class MusicOwnedItemProjection {
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
-      anchor: item.anchor,
+      targetRef: catalogRefForLibrarySelection(
+        item.catalogRef,
+        editionId: item.anchor?.editionId,
+        variantId: item.anchor?.variantId,
+        bundleReleaseId: item.anchor?.bundleReleaseId,
+      ),
       condition: item.condition,
       grade: item.grade,
       purchaseDate: item.purchaseDate,
@@ -87,7 +94,12 @@ final class MusicOwnedItemProjection {
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
-      anchor: item.anchor,
+      anchor: PersonalItemAnchor.fromRaw(
+        anchorType: item.anchorType,
+        editionId: item.editionId,
+        variantId: item.variantId,
+        bundleReleaseId: item.bundleReleaseId,
+      ),
       condition: item.condition,
       grade: item.grade,
       purchaseDate: item.purchaseDate,

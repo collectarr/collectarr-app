@@ -46,6 +46,45 @@ CatalogEntityRef catalogRefForLibrarySelection(
   return itemRef;
 }
 
+/// Builds a typed Owned target from the structural selection values used by
+/// the edit UI. The owning kind supplies [kind]; the returned reference is
+/// the only value that crosses into the typed Owned update payload.
+CatalogEntityRef? catalogRefForOwnedSelection(
+  CatalogMediaKind kind, {
+  required String anchorType,
+  String? editionId,
+  String? variantId,
+  String? bundleReleaseId,
+}) {
+  final normalizedType = anchorType.trim().toLowerCase();
+  return switch (normalizedType) {
+    'edition' => editionId == null || editionId.trim().isEmpty
+        ? null
+        : CatalogEntityRef(
+            kind: kind,
+            entityType: const CatalogEntityTypeId('edition'),
+            id: editionId,
+          ),
+    'variant' => variantId == null || variantId.trim().isEmpty
+        ? null
+        : CatalogEntityRef(
+            kind: kind,
+            entityType: const CatalogEntityTypeId('release'),
+            id: variantId,
+            parentId: editionId,
+          ),
+    'bundle_release' =>
+      bundleReleaseId == null || bundleReleaseId.trim().isEmpty
+          ? null
+          : CatalogEntityRef(
+              kind: kind,
+              entityType: const CatalogEntityTypeId('bundle_release'),
+              id: bundleReleaseId,
+            ),
+    _ => null,
+  };
+}
+
 String? _normalized(String? value) {
   final trimmed = value?.trim();
   return trimmed == null || trimmed.isEmpty ? null : trimmed;

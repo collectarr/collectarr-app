@@ -188,9 +188,10 @@ void main() {
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: 'edition',
-        editionId: 'edition-1',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.book,
+        entityType: CatalogEntityTypeId('edition'),
+        id: 'edition-1',
       ),
       condition: 'Fine',
       grade: '9.0',
@@ -225,8 +226,8 @@ void main() {
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
-    expect(restored.anchor?.apiValue, 'edition');
-    expect(restored.anchor?.editionId, 'edition-1');
+    expect(restored.anchorType, 'edition');
+    expect(restored.editionId, 'edition-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

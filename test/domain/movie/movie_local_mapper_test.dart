@@ -149,10 +149,11 @@ void main() {
       ),
       createdAt: DateTime.utc(2026, 1, 2),
       isDigital: false,
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: 'variant',
-        editionId: 'release-1',
-        variantId: 'variant-1',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId('release'),
+        id: 'variant-1',
+        parentId: 'release-1',
       ),
       condition: 'Near Mint',
       grade: '9.8',
@@ -192,13 +193,13 @@ void main() {
     );
 
     expect(restored.id, item.id);
-    expect(restored.catalogRef.kind, 'movie');
+    expect(restored.catalogRef.kind.apiValue, 'movie');
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.anchor?.apiValue, 'variant');
-    expect(restored.anchor?.editionId, 'release-1');
-    expect(restored.anchor?.variantId, 'variant-1');
+    expect(restored.anchorType, 'variant');
+    expect(restored.editionId, 'release-1');
+    expect(restored.variantId, 'variant-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

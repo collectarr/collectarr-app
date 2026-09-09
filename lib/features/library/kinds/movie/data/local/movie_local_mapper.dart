@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
@@ -124,10 +123,10 @@ final class MovieLocalMapper {
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      anchorType: Value(item.anchor?.apiValue),
-      editionId: Value(item.anchor?.editionId),
-      variantId: Value(item.anchor?.variantId),
-      bundleReleaseId: Value(item.anchor?.bundleReleaseId),
+      anchorType: Value(item.anchorType),
+      editionId: Value(item.editionId),
+      variantId: Value(item.variantId),
+      bundleReleaseId: Value(item.bundleReleaseId),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
@@ -159,16 +158,18 @@ final class MovieLocalMapper {
   }
 
   static MovieOwnedItem fromOwnedItemRow(MovieOwnedItemsRow row) {
+    final catalogRef = CatalogEntityRef(
+      kind: CatalogMediaKind.movie,
+      entityType: const CatalogEntityTypeId('work'),
+      id: row.itemId,
+    );
     return MovieOwnedItem(
       id: MovieOwnedItemId(row.id),
-      catalogRef: CatalogEntityRef(
-        kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('work'),
-        id: row.itemId,
-      ),
+      catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      anchor: PersonalItemAnchor.fromRaw(
+      targetRef: movieOwnedTargetRefFromLegacy(
+        catalogRef,
         anchorType: row.anchorType,
         editionId: row.editionId,
         variantId: row.variantId,

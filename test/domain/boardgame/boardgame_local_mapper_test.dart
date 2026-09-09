@@ -135,9 +135,10 @@ void main() {
       ),
       createdAt: DateTime.utc(2026, 4, 1),
       isDigital: false,
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: 'edition',
-        editionId: 'edition-1',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.boardgame,
+        entityType: CatalogEntityTypeId('edition'),
+        id: 'edition-1',
       ),
       condition: 'Near Mint',
       grade: '9.5',
@@ -179,8 +180,8 @@ void main() {
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.anchor?.apiValue, 'edition');
-    expect(restored.anchor?.editionId, 'edition-1');
+    expect(restored.anchorType, 'edition');
+    expect(restored.editionId, 'edition-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

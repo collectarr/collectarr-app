@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_deta
 final class TvOwnedItemUpdatePayload
     implements OwnedItemUpdatePayload<TvOwnedItem> {
   const TvOwnedItemUpdatePayload({
-    required this.anchor,
+    required this.targetRef,
     required this.quantity,
     required this.condition,
     required this.grade,
@@ -30,7 +30,7 @@ final class TvOwnedItemUpdatePayload
   });
 
   factory TvOwnedItemUpdatePayload.partial({
-    Patch<PersonalItemAnchor?> anchor = const Patch.unchanged(),
+    Patch<CatalogEntityRef?> targetRef = const Patch.unchanged(),
     Patch<int> quantity = const Patch.unchanged(),
     Patch<String?> condition = const Patch.unchanged(),
     Patch<String?> grade = const Patch.unchanged(),
@@ -51,7 +51,7 @@ final class TvOwnedItemUpdatePayload
     Patch<TvOwnedDetailsDraft> details = const Patch.unchanged(),
   }) =>
       TvOwnedItemUpdatePayload(
-        anchor: anchor,
+        targetRef: targetRef,
         quantity: quantity,
         condition: condition,
         grade: grade,
@@ -72,7 +72,7 @@ final class TvOwnedItemUpdatePayload
         details: details,
       );
 
-  final Patch<PersonalItemAnchor?> anchor;
+  final Patch<CatalogEntityRef?> targetRef;
   final Patch<int> quantity;
   final Patch<String?> condition;
   final Patch<String?> grade;
@@ -120,9 +120,13 @@ final class TvOwnedItemUpdatePayload
         set: (value) => value,
         clear: () => null,
       ),
-      anchor: anchor.when(
-        unchanged: () => existing.anchor,
-        set: (value) => value,
+      targetRef: targetRef.when(
+        unchanged: () => existing.targetRef,
+        set: (value) => value?.copyWith(
+          rootId: value.rootId ??
+              existing.catalogRef.rootId ??
+              existing.catalogRef.id,
+        ),
         clear: () => null,
       ),
       details: resolvedDetails,

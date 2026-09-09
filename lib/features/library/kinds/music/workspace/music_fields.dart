@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -234,7 +235,7 @@ LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
     return UpdateOwnedItemCommand(
       ownedRef: item.ref,
       payload: MusicOwnedItemUpdatePayload(
-        anchor: const Patch.unchanged(),
+        targetRef: const Patch<CatalogEntityRef?>.unchanged(),
         quantity: const Patch.unchanged(),
         condition: next == null || next.isEmpty
             ? const Patch.clear()
@@ -388,8 +389,8 @@ final musicLibraryColumnDefinitions = [
   ),
   columnFromField<MusicKind, MusicWorkspaceDto, int?>(
     MusicKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

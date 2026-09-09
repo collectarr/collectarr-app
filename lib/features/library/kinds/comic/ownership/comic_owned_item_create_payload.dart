@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -89,7 +88,7 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
-      anchor: _legacyAnchorForCatalogRef(resolvedCatalogRef),
+      targetRef: resolvedCatalogRef,
       details: details.toDetails(),
       condition: condition,
       grade: grade,
@@ -107,27 +106,4 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       updatedAt: createdAt,
     );
   }
-}
-
-PersonalItemAnchor? _legacyAnchorForCatalogRef(CatalogEntityRef ref) {
-  final rootId = ref.rootId ?? ref.id;
-  return switch (ref.entityType.apiValue) {
-    'edition' => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.edition.apiValue,
-        editionId: ref.id,
-      ),
-    'release' => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.variant.apiValue,
-        editionId: ref.parentId,
-        variantId: ref.id,
-      ),
-    'bundle_release' => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
-        bundleReleaseId: ref.id,
-      ),
-    _ when rootId == ref.id => null,
-    _ => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.item.apiValue,
-      ),
-  };
 }

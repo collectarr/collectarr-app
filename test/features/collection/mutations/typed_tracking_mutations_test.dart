@@ -392,9 +392,10 @@ void main() {
       final owned = BookOwnedItem(
         id: BookOwnedItemId('owned-book-anchor-clear'),
         catalogRef: ref,
-        anchor: PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.edition.apiValue,
-          editionId: 'edition-owned-before-clear',
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.book,
+          entityType: CatalogEntityTypeId('edition'),
+          id: 'edition-owned-before-clear',
         ),
         details: const BookOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),

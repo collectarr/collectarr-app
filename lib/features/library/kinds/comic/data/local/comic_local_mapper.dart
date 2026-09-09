@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -180,10 +179,10 @@ final class ComicLocalMapper {
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      anchorType: Value(item.anchor?.apiValue),
-      editionId: Value(item.anchor?.editionId),
-      variantId: Value(item.anchor?.variantId),
-      bundleReleaseId: Value(item.anchor?.bundleReleaseId),
+      anchorType: Value(item.anchorType),
+      editionId: Value(item.editionId),
+      variantId: Value(item.variantId),
+      bundleReleaseId: Value(item.bundleReleaseId),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
@@ -225,16 +224,18 @@ final class ComicLocalMapper {
     ComicOwnedItemsRow row, {
     ComicReadingState reading = const ComicReadingState(),
   }) {
+    final catalogRef = CatalogEntityRef(
+      kind: CatalogMediaKind.comic,
+      entityType: const CatalogEntityTypeId('work'),
+      id: row.itemId,
+    );
     return ComicOwnedItem(
       id: ComicOwnedItemId(row.id),
-      catalogRef: CatalogEntityRef(
-        kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('work'),
-        id: row.itemId,
-      ),
+      catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      anchor: PersonalItemAnchor.fromRaw(
+      targetRef: comicOwnedTargetRefFromLegacy(
+        catalogRef,
         anchorType: row.anchorType,
         editionId: row.editionId,
         variantId: row.variantId,
