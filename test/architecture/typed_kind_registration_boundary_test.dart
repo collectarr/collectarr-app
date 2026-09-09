@@ -114,11 +114,11 @@ void main() {
     final digitalSection = _sourceSection(
       source,
       'bool? collectarrTypedOwnedItemIsDigital',
-      'final collectarrTypedOwnedItemSyncSerializers',
+      'collectarrTypedOwnedItemSyncPayload',
     );
     final syncDecoderSection = _sourceSection(
       source,
-      'final collectarrTypedOwnedItemSyncDeserializers',
+      'Object collectarrTypedOwnedItemFromSyncPayload',
       'const List<CatalogKindRepositoryCodec>',
     );
 
@@ -128,7 +128,11 @@ void main() {
       expect(digitalSection, contains('if (item is ${entry.value})'));
       expect(
         syncDecoderSection,
-        contains('CatalogMediaKind.${entry.key}: ${entry.value}.fromJson'),
+        contains('if (kind == CatalogMediaKind.${entry.key})'),
+      );
+      expect(
+        syncDecoderSection,
+        contains('return ${entry.value}.fromJson(payload);'),
       );
     }
     expect(refSection, isNot(contains('CatalogItemDto')));

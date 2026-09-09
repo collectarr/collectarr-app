@@ -441,175 +441,273 @@ final collectarrKindMetadataDecoders =
   CatalogMediaKind.music: MusicCatalogMetadata.fromJson,
   CatalogMediaKind.tv: TvSeriesMetadata.fromJson,
 };
-final collectarrTypedOwnedItemPersisters =
-    <CatalogMediaKind, Future<void> Function(LocalDatabase, Object)>{
-  CatalogMediaKind.anime: (database, item) =>
-      AnimeOwnedRepository(database).upsert(item as AnimeOwnedItem),
-  CatalogMediaKind.boardgame: (database, item) =>
-      BoardGameOwnedRepository(database).upsert(item as BoardGameOwnedItem),
-  CatalogMediaKind.book: (database, item) =>
-      BookOwnedRepository(database).upsert(item as BookOwnedItem),
-  CatalogMediaKind.comic: (database, item) =>
-      ComicOwnedRepository(database).upsert(item as ComicOwnedItem),
-  CatalogMediaKind.game: (database, item) =>
-      GameOwnedRepository(database).upsert(item as GameOwnedItem),
-  CatalogMediaKind.manga: (database, item) =>
-      MangaOwnedRepository(database).upsert(item as MangaOwnedItem),
-  CatalogMediaKind.movie: (database, item) =>
-      MovieOwnedRepository(database).upsert(item as MovieOwnedItem),
-  CatalogMediaKind.music: (database, item) =>
-      MusicOwnedRepository(database).upsert(item as MusicOwnedItem),
-  CatalogMediaKind.tv: (database, item) =>
-      TvOwnedRepository(database).upsert(item as TvOwnedItem),
-};
+Future<void> collectarrUpsertTypedOwnedItem(
+    LocalDatabase database, CatalogMediaKind kind, Object item) async {
+  if (kind == CatalogMediaKind.anime) {
+    if (item is! AnimeOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected AnimeOwnedItem for anime');
+    await AnimeOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.boardgame) {
+    if (item is! BoardGameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BoardGameOwnedItem for boardgame');
+    await BoardGameOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.book) {
+    if (item is! BookOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BookOwnedItem for book');
+    await BookOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.comic) {
+    if (item is! ComicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected ComicOwnedItem for comic');
+    await ComicOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.game) {
+    if (item is! GameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected GameOwnedItem for game');
+    await GameOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.manga) {
+    if (item is! MangaOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MangaOwnedItem for manga');
+    await MangaOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.movie) {
+    if (item is! MovieOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MovieOwnedItem for movie');
+    await MovieOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.music) {
+    if (item is! MusicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MusicOwnedItem for music');
+    await MusicOwnedRepository(database).upsert(item);
+    return;
+  }
+  if (kind == CatalogMediaKind.tv) {
+    if (item is! TvOwnedItem)
+      throw ArgumentError.value(item, 'item', 'Expected TvOwnedItem for tv');
+    await TvOwnedRepository(database).upsert(item);
+    return;
+  }
+  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
+}
 
-final collectarrTypedOwnedLocationUpdaters =
-    <CatalogMediaKind, Future<void> Function(LocalDatabase, String, String?)>{
-  CatalogMediaKind.anime: (database, id, locationId) async {
+Future<void> collectarrUpdateTypedOwnedLocation(LocalDatabase database,
+    CatalogMediaKind kind, String id, String? locationId) async {
+  if (kind == CatalogMediaKind.anime) {
     final item =
         await AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id));
     if (item == null) return;
     await AnimeOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.boardgame: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.boardgame) {
     final item = await BoardGameOwnedRepository(database)
         .findById(BoardGameOwnedItemId(id));
     if (item == null) return;
     await BoardGameOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.book: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.book) {
     final item =
         await BookOwnedRepository(database).findById(BookOwnedItemId(id));
     if (item == null) return;
     await BookOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.comic: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.comic) {
     final item =
         await ComicOwnedRepository(database).findById(ComicOwnedItemId(id));
     if (item == null) return;
     await ComicOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.game: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.game) {
     final item =
         await GameOwnedRepository(database).findById(GameOwnedItemId(id));
     if (item == null) return;
     await GameOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.manga: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.manga) {
     final item =
         await MangaOwnedRepository(database).findById(MangaOwnedItemId(id));
     if (item == null) return;
     await MangaOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.movie: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.movie) {
     final item =
         await MovieOwnedRepository(database).findById(MovieOwnedItemId(id));
     if (item == null) return;
     await MovieOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.music: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.music) {
     final item =
         await MusicOwnedRepository(database).findById(MusicOwnedItemId(id));
     if (item == null) return;
     await MusicOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-  CatalogMediaKind.tv: (database, id, locationId) async {
+    return;
+  }
+  if (kind == CatalogMediaKind.tv) {
     final item = await TvOwnedRepository(database).findById(TvOwnedItemId(id));
     if (item == null) return;
     await TvOwnedRepository(database)
         .upsert(item.copyWith(locationId: locationId));
-  },
-};
+    return;
+  }
+  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
+}
 
-final collectarrTypedOwnedItemFinders =
-    <CatalogMediaKind, Future<Object?> Function(LocalDatabase, String)>{
-  CatalogMediaKind.anime: (database, id) =>
-      AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id)),
-  CatalogMediaKind.boardgame: (database, id) =>
-      BoardGameOwnedRepository(database).findById(BoardGameOwnedItemId(id)),
-  CatalogMediaKind.book: (database, id) =>
-      BookOwnedRepository(database).findById(BookOwnedItemId(id)),
-  CatalogMediaKind.comic: (database, id) =>
-      ComicOwnedRepository(database).findById(ComicOwnedItemId(id)),
-  CatalogMediaKind.game: (database, id) =>
-      GameOwnedRepository(database).findById(GameOwnedItemId(id)),
-  CatalogMediaKind.manga: (database, id) =>
-      MangaOwnedRepository(database).findById(MangaOwnedItemId(id)),
-  CatalogMediaKind.movie: (database, id) =>
-      MovieOwnedRepository(database).findById(MovieOwnedItemId(id)),
-  CatalogMediaKind.music: (database, id) =>
-      MusicOwnedRepository(database).findById(MusicOwnedItemId(id)),
-  CatalogMediaKind.tv: (database, id) =>
-      TvOwnedRepository(database).findById(TvOwnedItemId(id)),
-};
-
-final collectarrTypedOwnedItemDeleters =
-    <CatalogMediaKind, Future<void> Function(LocalDatabase, Object, DateTime)>{
-  CatalogMediaKind.anime: (database, item, deletedAt) =>
-      AnimeOwnedRepository(database)
-          .markDeleted(item as AnimeOwnedItem, deletedAt),
-  CatalogMediaKind.boardgame: (database, item, deletedAt) =>
-      BoardGameOwnedRepository(database)
-          .markDeleted(item as BoardGameOwnedItem, deletedAt),
-  CatalogMediaKind.book: (database, item, deletedAt) =>
-      BookOwnedRepository(database)
-          .markDeleted(item as BookOwnedItem, deletedAt),
-  CatalogMediaKind.comic: (database, item, deletedAt) =>
-      ComicOwnedRepository(database)
-          .markDeleted(item as ComicOwnedItem, deletedAt),
-  CatalogMediaKind.game: (database, item, deletedAt) =>
-      GameOwnedRepository(database)
-          .markDeleted(item as GameOwnedItem, deletedAt),
-  CatalogMediaKind.manga: (database, item, deletedAt) =>
-      MangaOwnedRepository(database)
-          .markDeleted(item as MangaOwnedItem, deletedAt),
-  CatalogMediaKind.movie: (database, item, deletedAt) =>
-      MovieOwnedRepository(database)
-          .markDeleted(item as MovieOwnedItem, deletedAt),
-  CatalogMediaKind.music: (database, item, deletedAt) =>
-      MusicOwnedRepository(database)
-          .markDeleted(item as MusicOwnedItem, deletedAt),
-  CatalogMediaKind.tv: (database, item, deletedAt) =>
-      TvOwnedRepository(database).markDeleted(item as TvOwnedItem, deletedAt),
-};
-
-Future<(CatalogMediaKind kind, Object item)?> collectarrFindTypedOwnedItem(
-    LocalDatabase database, String id) async {
-  final animeItem =
-      await AnimeOwnedRepository(database).findById(AnimeOwnedItemId(id));
-  if (animeItem != null) return (CatalogMediaKind.anime, animeItem);
-  final boardgameItem = await BoardGameOwnedRepository(database)
-      .findById(BoardGameOwnedItemId(id));
-  if (boardgameItem != null) return (CatalogMediaKind.boardgame, boardgameItem);
-  final bookItem =
-      await BookOwnedRepository(database).findById(BookOwnedItemId(id));
-  if (bookItem != null) return (CatalogMediaKind.book, bookItem);
-  final comicItem =
-      await ComicOwnedRepository(database).findById(ComicOwnedItemId(id));
-  if (comicItem != null) return (CatalogMediaKind.comic, comicItem);
-  final gameItem =
-      await GameOwnedRepository(database).findById(GameOwnedItemId(id));
-  if (gameItem != null) return (CatalogMediaKind.game, gameItem);
-  final mangaItem =
-      await MangaOwnedRepository(database).findById(MangaOwnedItemId(id));
-  if (mangaItem != null) return (CatalogMediaKind.manga, mangaItem);
-  final movieItem =
-      await MovieOwnedRepository(database).findById(MovieOwnedItemId(id));
-  if (movieItem != null) return (CatalogMediaKind.movie, movieItem);
-  final musicItem =
-      await MusicOwnedRepository(database).findById(MusicOwnedItemId(id));
-  if (musicItem != null) return (CatalogMediaKind.music, musicItem);
-  final tvItem = await TvOwnedRepository(database).findById(TvOwnedItemId(id));
-  if (tvItem != null) return (CatalogMediaKind.tv, tvItem);
+Future<(CatalogMediaKind kind, Object item)?> collectarrFindTypedOwnedItemByRef(
+    LocalDatabase database, OwnedItemRef ref) async {
+  if (ref.kind == CatalogMediaKind.anime) {
+    final item = await AnimeOwnedRepository(database)
+        .findById(AnimeOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.anime, item);
+  }
+  if (ref.kind == CatalogMediaKind.boardgame) {
+    final item = await BoardGameOwnedRepository(database)
+        .findById(BoardGameOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.boardgame, item);
+  }
+  if (ref.kind == CatalogMediaKind.book) {
+    final item = await BookOwnedRepository(database)
+        .findById(BookOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.book, item);
+  }
+  if (ref.kind == CatalogMediaKind.comic) {
+    final item = await ComicOwnedRepository(database)
+        .findById(ComicOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.comic, item);
+  }
+  if (ref.kind == CatalogMediaKind.game) {
+    final item = await GameOwnedRepository(database)
+        .findById(GameOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.game, item);
+  }
+  if (ref.kind == CatalogMediaKind.manga) {
+    final item = await MangaOwnedRepository(database)
+        .findById(MangaOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.manga, item);
+  }
+  if (ref.kind == CatalogMediaKind.movie) {
+    final item = await MovieOwnedRepository(database)
+        .findById(MovieOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.movie, item);
+  }
+  if (ref.kind == CatalogMediaKind.music) {
+    final item = await MusicOwnedRepository(database)
+        .findById(MusicOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.music, item);
+  }
+  if (ref.kind == CatalogMediaKind.tv) {
+    final item =
+        await TvOwnedRepository(database).findById(TvOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    return (CatalogMediaKind.tv, item);
+  }
   return null;
+}
+
+Future<void> collectarrMarkTypedOwnedItemDeleted(LocalDatabase database,
+    CatalogMediaKind kind, Object item, DateTime deletedAt) async {
+  if (kind == CatalogMediaKind.anime) {
+    if (item is! AnimeOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected AnimeOwnedItem for anime');
+    await AnimeOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.boardgame) {
+    if (item is! BoardGameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BoardGameOwnedItem for boardgame');
+    await BoardGameOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.book) {
+    if (item is! BookOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BookOwnedItem for book');
+    await BookOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.comic) {
+    if (item is! ComicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected ComicOwnedItem for comic');
+    await ComicOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.game) {
+    if (item is! GameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected GameOwnedItem for game');
+    await GameOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.manga) {
+    if (item is! MangaOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MangaOwnedItem for manga');
+    await MangaOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.movie) {
+    if (item is! MovieOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MovieOwnedItem for movie');
+    await MovieOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.music) {
+    if (item is! MusicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MusicOwnedItem for music');
+    await MusicOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  if (kind == CatalogMediaKind.tv) {
+    if (item is! TvOwnedItem)
+      throw ArgumentError.value(item, 'item', 'Expected TvOwnedItem for tv');
+    await TvOwnedRepository(database).markDeleted(item, deletedAt);
+    return;
+  }
+  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
 }
 
 OwnedItemRef collectarrTypedOwnedItemRef(Object item) {
@@ -669,109 +767,132 @@ bool? collectarrTypedOwnedItemIsDigital(Object item) {
   throw ArgumentError.value(item, 'item', 'Unsupported typed Owned seed');
 }
 
-final collectarrTypedOwnedItemSyncSerializers = <CatalogMediaKind,
-    ({Map<String, dynamic> payload, bool isDeleted}) Function(Object)>{
-  CatalogMediaKind.anime: (item) {
-    final payload =
-        Map<String, dynamic>.from((item as AnimeOwnedItem).toJson());
+({Map<String, dynamic> payload, bool isDeleted})
+    collectarrTypedOwnedItemSyncPayload(CatalogMediaKind kind, Object item) {
+  if (kind == CatalogMediaKind.anime) {
+    if (item is! AnimeOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected AnimeOwnedItem for anime');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.boardgame: (item) {
-    final payload =
-        Map<String, dynamic>.from((item as BoardGameOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.boardgame) {
+    if (item is! BoardGameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BoardGameOwnedItem for boardgame');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.book: (item) {
-    final payload = Map<String, dynamic>.from((item as BookOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.book) {
+    if (item is! BookOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BookOwnedItem for book');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.comic: (item) {
-    final payload =
-        Map<String, dynamic>.from((item as ComicOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.comic) {
+    if (item is! ComicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected ComicOwnedItem for comic');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.game: (item) {
-    final payload = Map<String, dynamic>.from((item as GameOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.game) {
+    if (item is! GameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected GameOwnedItem for game');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.manga: (item) {
-    final payload =
-        Map<String, dynamic>.from((item as MangaOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.manga) {
+    if (item is! MangaOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MangaOwnedItem for manga');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.movie: (item) {
-    final payload =
-        Map<String, dynamic>.from((item as MovieOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.movie) {
+    if (item is! MovieOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MovieOwnedItem for movie');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.music: (item) {
-    final payload =
-        Map<String, dynamic>.from((item as MusicOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.music) {
+    if (item is! MusicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MusicOwnedItem for music');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-  CatalogMediaKind.tv: (item) {
-    final payload = Map<String, dynamic>.from((item as TvOwnedItem).toJson());
+  }
+  if (kind == CatalogMediaKind.tv) {
+    if (item is! TvOwnedItem)
+      throw ArgumentError.value(item, 'item', 'Expected TvOwnedItem for tv');
+    final payload = Map<String, dynamic>.from(item.toJson());
     final isDeleted = payload['deleted_at'] != null;
     payload.remove('id');
     payload.remove('updated_at');
     payload.remove('deleted_at');
     payload.remove('reading');
     return (payload: payload, isDeleted: isDeleted);
-  },
-};
+  }
+  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
+}
 
-final collectarrTypedOwnedItemSyncDeserializers =
-    <CatalogMediaKind, Object Function(Map<String, dynamic>)>{
-  CatalogMediaKind.anime: AnimeOwnedItem.fromJson,
-  CatalogMediaKind.boardgame: BoardGameOwnedItem.fromJson,
-  CatalogMediaKind.book: BookOwnedItem.fromJson,
-  CatalogMediaKind.comic: ComicOwnedItem.fromJson,
-  CatalogMediaKind.game: GameOwnedItem.fromJson,
-  CatalogMediaKind.manga: MangaOwnedItem.fromJson,
-  CatalogMediaKind.movie: MovieOwnedItem.fromJson,
-  CatalogMediaKind.music: MusicOwnedItem.fromJson,
-  CatalogMediaKind.tv: TvOwnedItem.fromJson,
-};
+Object collectarrTypedOwnedItemFromSyncPayload(
+    CatalogMediaKind kind, Map<String, dynamic> payload) {
+  if (kind == CatalogMediaKind.anime) return AnimeOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.boardgame)
+    return BoardGameOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.book) return BookOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.comic) return ComicOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.game) return GameOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.manga) return MangaOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.movie) return MovieOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.music) return MusicOwnedItem.fromJson(payload);
+  if (kind == CatalogMediaKind.tv) return TvOwnedItem.fromJson(payload);
+  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
+}
 
 final collectarrOwnedItemSummaryReaders =
     <CatalogMediaKind, Future<List<OwnedItemSummary>> Function(LocalDatabase)>{

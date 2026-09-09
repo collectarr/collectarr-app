@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -487,14 +486,7 @@ final class CollectionImportService {
     );
     if (importedDetails != null) payload.addAll(importedDetails);
 
-    final deserializer = collectarrTypedOwnedItemSyncDeserializers[kind];
-    if (deserializer == null) {
-      throw StateError(
-        'Collection import cannot resolve typed Owned model for '
-        '${kind.apiValue}',
-      );
-    }
-    final item = deserializer(payload);
+    final item = collectarrTypedOwnedItemFromSyncPayload(kind, payload);
     return (
       kind: kind,
       item: item,

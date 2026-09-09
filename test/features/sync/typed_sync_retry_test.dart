@@ -35,6 +35,13 @@ void main() {
         entityType: 'owned_item',
         entityId: 'owned-retry',
         reason: 'conflict',
+        localPayload: {
+          'catalog_ref': {
+            'kind': 'comic',
+            'entity_type': 'work',
+            'id': 'comic-retry',
+          },
+        },
       ),
       db: db,
       changedAt: updatedAt,
@@ -75,6 +82,13 @@ void main() {
         entityType: 'owned_item',
         entityId: 'owned-deleted-retry',
         reason: 'conflict',
+        localPayload: {
+          'catalog_ref': {
+            'kind': 'comic',
+            'entity_type': 'work',
+            'id': 'comic-deleted-retry',
+          },
+        },
       ),
       db: db,
       changedAt: DateTime.utc(2026, 5, 12, 9),
@@ -83,5 +97,36 @@ void main() {
 
     expect(retry?.action, 'delete');
     expect(retry?.payload, isNot(contains('deleted_at')));
+  });
+
+  test('owned retry does not scan unrelated kinds without a typed ref',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await ComicOwnedRepository(db).upsert(
+      ComicOwnedItem(
+        id: ComicOwnedItemId('owned-untyped-retry'),
+        catalogRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'comic-untyped-retry',
+        ),
+        updatedAt: DateTime.utc(2026, 5, 12, 8),
+        details: const ComicOwnedDetails(),
+      ),
+    );
+
+    final retry = await SyncRetryMapper.localRetryChange(
+      const SyncRejectedChange(
+        entityType: 'owned_item',
+        entityId: 'owned-untyped-retry',
+        reason: 'conflict',
+      ),
+      db: db,
+      changedAt: DateTime.utc(2026, 5, 12, 9),
+      uuid: const Uuid(),
+    );
+
+    expect(retry, isNull);
   });
 }

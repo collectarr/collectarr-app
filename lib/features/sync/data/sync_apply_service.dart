@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -273,15 +272,9 @@ class SyncApplyService {
       Map<String, dynamic>.from(rawCatalogRef),
     );
     final kind = catalogRef.mediaKind;
-    final deserializer = collectarrTypedOwnedItemSyncDeserializers[kind];
-    if (deserializer == null) {
-      throw UnsupportedError(
-        'No kind-owned Owned model is registered for ${kind.apiValue}',
-      );
-    }
     return (
       kind,
-      deserializer({
+      collectarrTypedOwnedItemFromSyncPayload(kind, {
         ...payload,
         'id': entity['entity_id'],
         'created_at': payload['created_at'] ?? entity['client_changed_at'],

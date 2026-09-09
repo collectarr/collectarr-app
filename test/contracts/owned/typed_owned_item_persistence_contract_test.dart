@@ -89,9 +89,8 @@ void main() {
 
     for (final item in items) {
       final ref = collectarrTypedOwnedItemRef(item);
-      final sync = collectarrTypedOwnedItemSyncSerializers[ref.kind]!(item);
-      final decode = collectarrTypedOwnedItemSyncDeserializers[ref.kind]!;
-      final decoded = decode({
+      final sync = collectarrTypedOwnedItemSyncPayload(ref.kind, item);
+      final decoded = collectarrTypedOwnedItemFromSyncPayload(ref.kind, {
         ...sync.payload,
         'id': ref.id.value,
         'created_at': now.toIso8601String(),
