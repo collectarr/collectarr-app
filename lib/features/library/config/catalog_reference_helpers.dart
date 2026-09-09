@@ -22,6 +22,7 @@ CatalogEntityRef catalogRefForLibrarySelection(
     );
   }
 
+  final edition = _normalized(editionId);
   final variant = _normalized(variantId);
   if (variant != null) {
     return CatalogEntityRef(
@@ -29,10 +30,10 @@ CatalogEntityRef catalogRefForLibrarySelection(
       entityType: const CatalogEntityTypeId('release'),
       id: variant,
       rootId: itemRef.id,
+      parentId: edition,
     );
   }
 
-  final edition = _normalized(editionId);
   if (edition != null) {
     return CatalogEntityRef(
       kind: itemRef.kind,

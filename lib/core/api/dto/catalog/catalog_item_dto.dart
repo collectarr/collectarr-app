@@ -242,6 +242,7 @@ final class CatalogItemDto {
           entityType: const CatalogEntityTypeId('release'),
           id: anchor.variantId ?? anchor.editionId ?? id,
           rootId: id,
+          parentId: anchor.editionId,
         );
       case PersonalItemAnchorType.bundleRelease:
         return CatalogEntityRef(

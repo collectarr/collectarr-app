@@ -186,23 +186,24 @@ void main() {
         );
 
         final metadataItem = testCatalogItemWithKindMetadata(item);
+        final selectedAnchor = PersonalItemAnchor.fromRaw(
+          anchorType: PersonalItemAnchorType.edition.apiValue,
+          editionId: 'edition-${kind.apiValue}',
+        );
         final command = addCap.buildCommand(
           LibraryAddCatalogItem.fromItem(metadataItem),
           common,
           initialDraft,
-          anchor: PersonalItemAnchor.fromRaw(
-            anchorType: PersonalItemAnchorType.edition.apiValue,
-            editionId: 'edition-${kind.apiValue}',
-          ),
+          anchor: selectedAnchor,
           tracking: const LibraryAddTrackingDraft(rating: 9),
         );
         expect(command.catalogRef.id, item.id);
-        expect(command.anchor?.editionId, 'edition-${kind.apiValue}');
+        expect(command.targetRef?.id, 'edition-${kind.apiValue}');
         expect(command.tracking?.rating, 9);
         expect(command.tracking?.notes, isNull);
         expect(command.typedPayload, isNotNull,
             reason: '$kind must build a kind-owned Owned create payload');
-        expect(command.typedPayload!.catalogRef.kind, kind.apiValue,
+        expect(command.typedPayload!.catalogRef.kind.apiValue, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
         expect(runtime.edit.ownedIndexUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned Owned index payload');
@@ -220,14 +221,13 @@ void main() {
           id: 'existing-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 1),
           existingIsDigital: metadataItem.physicalFormat == 'digital',
-          anchor: command.anchor,
           ownerUserId: null,
           ownerLabel: null,
         );
         final duplicate = addCap.buildCommandFromOwnedItem(
           LibraryAddCatalogItem.fromItem(metadataItem),
           _ownedItemForLegacyAddBoundary(existing),
-          anchor: command.anchor,
+          anchor: selectedAnchor,
           tracking: const LibraryAddTrackingDraft(readStatus: 'Completed'),
         );
         expect(duplicate, isNotNull,
@@ -238,7 +238,6 @@ void main() {
           id: 'duplicate-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 2),
           existingIsDigital: metadataItem.physicalFormat == 'digital',
-          anchor: duplicate.anchor,
           ownerUserId: null,
           ownerLabel: null,
         );

@@ -82,7 +82,6 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     required String id,
     required DateTime createdAt,
     required bool? existingIsDigital,
-    required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
@@ -91,7 +90,7 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       catalogRef: resolvedCatalogRef,
       createdAt: createdAt,
       isDigital: isDigital ?? existingIsDigital,
-      anchor: anchor,
+      anchor: _legacyAnchorForCatalogRef(resolvedCatalogRef),
       details: details.toDetails(),
       condition: condition,
       grade: grade,
@@ -109,4 +108,27 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
       updatedAt: createdAt,
     );
   }
+}
+
+PersonalItemAnchor? _legacyAnchorForCatalogRef(CatalogEntityRef ref) {
+  final rootId = ref.rootId ?? ref.id;
+  return switch (ref.entityType.apiValue) {
+    'edition' => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.edition.apiValue,
+        editionId: ref.id,
+      ),
+    'release' => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.variant.apiValue,
+        editionId: ref.parentId,
+        variantId: ref.id,
+      ),
+    'bundle_release' => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
+        bundleReleaseId: ref.id,
+      ),
+    _ when rootId == ref.id => null,
+    _ => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.item.apiValue,
+      ),
+  };
 }

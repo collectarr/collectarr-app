@@ -35,6 +35,7 @@ void main() {
       entityType: const CatalogEntityTypeId('edition'),
       id: 'edition-1',
       rootId: 'book-1',
+      parentId: 'series-1',
     );
 
     expect(ref.kind, CatalogMediaKind.book);
@@ -44,6 +45,7 @@ void main() {
       'entity_type': 'edition',
       'id': 'edition-1',
       'root_id': 'book-1',
+      'parent_id': 'series-1',
     });
     expect(CatalogEntityRef.fromJson(ref.toJson()), ref);
   });
@@ -55,7 +57,7 @@ void main() {
     );
     expect(
       CatalogEntityTypeId.fromApiValue('future_entity').apiValue,
-      'unknown',
+      'future_entity',
     );
   });
 }

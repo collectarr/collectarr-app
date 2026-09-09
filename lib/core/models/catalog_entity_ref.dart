@@ -14,20 +14,6 @@ const Object _catalogEntityRefUnset = Object();
 final class CatalogEntityTypeId {
   const CatalogEntityTypeId(this.apiValue);
 
-  static const _knownApiValues = <String>{
-    'work',
-    'season',
-    'edition',
-    'release',
-    'issue',
-    'episode',
-    'track',
-    'bundle_release',
-    'owned_copy',
-    'tracking_entry',
-    'copy',
-  };
-
   final String apiValue;
 
   static CatalogEntityTypeId fromApiValue(String? value) {
@@ -35,10 +21,10 @@ final class CatalogEntityTypeId {
     if (normalized == null || normalized.isEmpty) {
       return const CatalogEntityTypeId('unknown');
     }
-    if (_knownApiValues.contains(normalized)) {
-      return CatalogEntityTypeId(normalized);
-    }
-    return const CatalogEntityTypeId('unknown');
+    // Entity types are owned by the kind that interprets them. Core must keep
+    // unknown/future identifiers opaque so a newer server can round-trip
+    // through an older v1 client without silently changing the target.
+    return CatalogEntityTypeId(normalized);
   }
 
   @override
@@ -57,6 +43,7 @@ class CatalogEntityRef {
     required this.entityType,
     required this.id,
     this.rootId,
+    this.parentId,
   });
 
   /// The owning media kind is typed in memory. It is serialized as the
@@ -71,6 +58,13 @@ class CatalogEntityRef {
   /// for targets such as editions and releases that belong to a work.
   final String? rootId;
 
+  /// Immediate structural parent for nested catalog targets.
+  ///
+  /// This is intentionally an opaque identifier. It lets a target such as a
+  /// release preserve both its work and edition context without making core
+  /// aware of the owning kind's hierarchy.
+  final String? parentId;
+
   CatalogMediaKind get mediaKind => kind;
 
   bool get isKnown =>
@@ -84,6 +78,7 @@ class CatalogEntityRef {
       'entity_type': entityType.apiValue,
       'id': id,
       if (rootId != null) 'root_id': rootId,
+      if (parentId != null) 'parent_id': parentId,
     };
   }
 
@@ -94,6 +89,7 @@ class CatalogEntityRef {
           CatalogEntityTypeId.fromApiValue(json['entity_type'] as String?),
       id: json['id'] as String? ?? '',
       rootId: json['root_id'] as String?,
+      parentId: json['parent_id'] as String?,
     );
   }
 
@@ -102,6 +98,7 @@ class CatalogEntityRef {
     CatalogEntityTypeId? entityType,
     String? id,
     Object? rootId = _catalogEntityRefUnset,
+    Object? parentId = _catalogEntityRefUnset,
   }) {
     return CatalogEntityRef(
       kind: kind ?? this.kind,
@@ -110,6 +107,9 @@ class CatalogEntityRef {
       rootId: identical(rootId, _catalogEntityRefUnset)
           ? this.rootId
           : rootId as String?,
+      parentId: identical(parentId, _catalogEntityRefUnset)
+          ? this.parentId
+          : parentId as String?,
     );
   }
 
@@ -120,9 +120,10 @@ class CatalogEntityRef {
             other.kind == kind &&
             other.entityType == entityType &&
             other.id == id &&
-            other.rootId == rootId;
+            other.rootId == rootId &&
+            other.parentId == parentId;
   }
 
   @override
-  int get hashCode => Object.hash(kind, entityType, id, rootId);
+  int get hashCode => Object.hash(kind, entityType, id, rootId, parentId);
 }

@@ -35,11 +35,9 @@ import 'package:collectarr_app/features/library/add/services/library_provider_ac
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -121,7 +119,7 @@ class LibraryAddSessionController
     }
     await trackingMutations.syncOwnedTrackingEntry(
       ownedItem,
-      anchor: command.anchor,
+      targetRef: command.targetRef,
       status: tracking.status,
       rating: tracking.rating,
       startedAt: tracking.startedAt,

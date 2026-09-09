@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
 
 /// Structural behavior contract for a kind-owned Owned create payload.
@@ -23,7 +22,6 @@ abstract interface class OwnedItemCreatePayload {
     required String id,
     required DateTime createdAt,
     required bool? existingIsDigital,
-    required PersonalItemAnchor? anchor,
     required String? ownerUserId,
     required String? ownerLabel,
   });

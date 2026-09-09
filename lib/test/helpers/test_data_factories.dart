@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
@@ -168,7 +169,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     return AddOwnedItemCommand(
       catalogRef: catalogRef,
       typedPayload: typedPayload,
-      anchor: anchor,
+      targetRef: _targetRefForAnchor(catalogRef, anchor),
       tracking: tracking,
     );
   }
@@ -205,6 +206,18 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       finishedAt: tracking?.finishedAt,
       notes: tracking?.notes,
     ),
+  );
+}
+
+CatalogEntityRef? _targetRefForAnchor(
+  CatalogEntityRef catalogRef,
+  PersonalItemAnchor? anchor,
+) {
+  return catalogRefForLibrarySelection(
+    catalogRef,
+    editionId: anchor?.editionId,
+    variantId: anchor?.variantId,
+    bundleReleaseId: anchor?.bundleReleaseId,
   );
 }
 
