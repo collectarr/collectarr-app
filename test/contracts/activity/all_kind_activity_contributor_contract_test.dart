@@ -32,7 +32,7 @@ LibraryActivityContext _contextFor(CatalogMediaKind kind) {
         id: '${kind.apiValue}-activity-contract-session',
         targetRef: CatalogEntityRef(
           kind: kind,
-          entityType: CatalogEntityType.episode,
+          entityType: const CatalogEntityTypeId('episode'),
           id: itemId,
         ),
         watchedAt: DateTime.utc(2026, 9, 6),

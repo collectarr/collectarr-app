@@ -5,19 +5,19 @@ void main() {
   test('CatalogEntityRef is a stable value key', () {
     const first = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityType.issue,
+      entityType: const CatalogEntityTypeId('issue'),
       id: 'issue-1',
       rootId: 'series-1',
     );
     const equal = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityType.issue,
+      entityType: const CatalogEntityTypeId('issue'),
       id: 'issue-1',
       rootId: 'series-1',
     );
     const different = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityType.issue,
+      entityType: const CatalogEntityTypeId('issue'),
       id: 'issue-2',
       rootId: 'series-1',
     );
@@ -28,10 +28,11 @@ void main() {
     expect(first, isNot(different));
   });
 
-  test('CatalogEntityRef keeps kind typed in memory and stable on the v1 wire', () {
+  test('CatalogEntityRef keeps kind typed in memory and stable on the v1 wire',
+      () {
     const ref = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityType.edition,
+      entityType: const CatalogEntityTypeId('edition'),
       id: 'edition-1',
       rootId: 'book-1',
     );
@@ -45,5 +46,16 @@ void main() {
       'root_id': 'book-1',
     });
     expect(CatalogEntityRef.fromJson(ref.toJson()), ref);
+  });
+
+  test('CatalogEntityTypeId is an opaque value object', () {
+    expect(
+      CatalogEntityTypeId.fromApiValue('  RELEASE '),
+      const CatalogEntityTypeId('release'),
+    );
+    expect(
+      CatalogEntityTypeId.fromApiValue('future_entity').apiValue,
+      'unknown',
+    );
   });
 }

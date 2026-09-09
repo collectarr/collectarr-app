@@ -213,11 +213,10 @@ List<CatalogEditionDto> _resolveVideoCatalogEditions(
 }
 
 VideoReleaseAnchor _videoReleaseAnchorFromCatalogRef(CatalogEntityRef ref) {
-  return switch (ref.entityType) {
-    CatalogEntityType.edition => VideoReleaseAnchor(editionId: ref.id),
-    CatalogEntityType.release => VideoReleaseAnchor(variantId: ref.id),
-    CatalogEntityType.bundleRelease =>
-      VideoReleaseAnchor(bundleReleaseId: ref.id),
+  return switch (ref.entityType.apiValue) {
+    'edition' => VideoReleaseAnchor(editionId: ref.id),
+    'release' => VideoReleaseAnchor(variantId: ref.id),
+    'bundle_release' => VideoReleaseAnchor(bundleReleaseId: ref.id),
     _ => const VideoReleaseAnchor(),
   };
 }

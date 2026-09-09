@@ -35,7 +35,7 @@ void main() {
     const localRef = CatalogEntityRef(
       id: 'movie-1',
       kind: CatalogMediaKind.movie,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
     );
     await tracking.upsert(
       TrackingEntry(

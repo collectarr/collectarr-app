@@ -20,7 +20,7 @@ void main() {
         id: const ComicOwnedItemId('owned-comic-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'comic-1',
         ),
         condition: 'Near Mint',

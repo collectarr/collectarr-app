@@ -110,14 +110,14 @@ class WatchSessionsRepository {
     if (rootId != null && rootId.isNotEmpty) {
       return ref.copyWith(
         id: rootId,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         rootId: null,
       );
     }
-    if (ref.entityType == CatalogEntityType.ownedCopy ||
-        ref.entityType == CatalogEntityType.copy ||
-        ref.entityType == CatalogEntityType.trackingEntry) {
-      return ref.copyWith(entityType: CatalogEntityType.work);
+    if (ref.entityType == const CatalogEntityTypeId('owned_copy') ||
+        ref.entityType == const CatalogEntityTypeId('copy') ||
+        ref.entityType == const CatalogEntityTypeId('tracking_entry')) {
+      return ref.copyWith(entityType: const CatalogEntityTypeId('work'));
     }
     return ref;
   }

@@ -204,7 +204,7 @@ void main() {
   test('personal models preserve catalog entity refs in sync payloads', () {
     final ref = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityType.edition,
+      entityType: const CatalogEntityTypeId('edition'),
       id: 'edition-1',
     );
     final owned = testOwnedItem(
@@ -350,7 +350,7 @@ void main() {
       itemId: 'comic-1',
       catalogRef: CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'comic-1',
       ),
       createdAt: DateTime.utc(2026, 5, 10),
@@ -428,7 +428,7 @@ void main() {
       'id': 'bundle-1',
     });
 
-    expect(ref.entityType, CatalogEntityType.unknown);
+    expect(ref.entityType, const CatalogEntityTypeId('unknown'));
     expect(ref.isKnown, isFalse);
   });
 

@@ -35,7 +35,7 @@ void main() {
       title: 'Spirited Away',
       catalogRef: CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.edition,
+        entityType: const CatalogEntityTypeId('edition'),
         id: 'edition-4k',
         rootId: itemId,
       ),
@@ -202,7 +202,7 @@ void main() {
         id: 'wishlist-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.edition,
+          entityType: const CatalogEntityTypeId('edition'),
           id: 'edition-4k',
           rootId: 'movie-1',
         ),
@@ -272,7 +272,7 @@ void main() {
                 id: 'wishlist-1',
                 catalogRef: const CatalogEntityRef(
                   kind: CatalogMediaKind.movie,
-                  entityType: CatalogEntityType.edition,
+                  entityType: const CatalogEntityTypeId('edition'),
                   id: 'edition-4k',
                   rootId: 'movie-1',
                 ),

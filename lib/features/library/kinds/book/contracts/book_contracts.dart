@@ -231,7 +231,7 @@ final class BookCatalog {
       ref: CatalogEntityRef(
         id: id,
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.book,
       common: CatalogCommonDto(

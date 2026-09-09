@@ -14,7 +14,7 @@ void main() {
       id: '$kind-entry',
       catalogRef: CatalogEntityRef(
         kind: catalogMediaKindFromApiValue(kind),
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: '$kind-work',
       ),
       updatedAt: updatedAt,
@@ -64,7 +64,7 @@ void main() {
       id: 'legacy-tv-entry',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityType.episode,
+        entityType: const CatalogEntityTypeId('episode'),
         id: 'episode-1',
         rootId: 'series-1',
       ),

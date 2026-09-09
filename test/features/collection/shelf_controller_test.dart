@@ -103,7 +103,7 @@ void main() {
           itemId: 'owned-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           updatedAt: DateTime.utc(2026, 5, 11),
@@ -114,7 +114,7 @@ void main() {
           id: 'wish-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           createdAt: DateTime.utc(2026, 5, 9),
@@ -126,7 +126,7 @@ void main() {
           id: 'track-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           updatedAt: DateTime.utc(2026, 5, 8),
@@ -151,12 +151,12 @@ void main() {
   test('shelf keeps equal catalog ids distinct across kinds', () {
     const bookRef = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: 'shared-id',
     );
     const comicRef = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: 'shared-id',
     );
     final state = ShelfState.from(

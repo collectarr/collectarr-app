@@ -134,7 +134,7 @@ ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
             catalogRef: CatalogEntityRef(
               id: id,
               kind: CatalogMediaKind.manga,
-              entityType: CatalogEntityType.work,
+              entityType: const CatalogEntityTypeId('work'),
             ),
             details: const TestOwnedDetails(),
             updatedAt: DateTime.utc(2026, 1, 1),

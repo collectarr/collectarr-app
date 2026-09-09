@@ -121,7 +121,7 @@ void main() {
         editionId: 'ed_1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.ownedCopy,
+          entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'movie_1',
         ),
         details: const TestOwnedDetails(),
@@ -157,7 +157,7 @@ void main() {
         updatedAt: DateTime(2026),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.edition,
+          entityType: const CatalogEntityTypeId('edition'),
           id: 'ed_1',
           rootId: 'movie_1',
         ),
@@ -201,7 +201,7 @@ void main() {
         variantId: 'var_b',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.ownedCopy,
+          entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'movie_1',
         ),
         details: const TestOwnedDetails(),
@@ -237,7 +237,7 @@ void main() {
         bundleReleaseId: 'ed_1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.ownedCopy,
+          entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'movie_1',
         ),
         details: const TestOwnedDetails(),

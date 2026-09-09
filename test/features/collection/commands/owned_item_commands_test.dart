@@ -102,7 +102,7 @@ void main() {
     final command = typedAddOwnedItemCommand(
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityType.ownedCopy,
+        entityType: const CatalogEntityTypeId('owned_copy'),
         id: 'comic-cmd-1',
       ),
       anchor: PersonalItemAnchor.fromRaw(
@@ -160,7 +160,7 @@ void main() {
       typedAddOwnedItemCommand(
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.ownedCopy,
+          entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'comic-cmd-2',
         ),
         common: const LibraryAddCommonDraft(

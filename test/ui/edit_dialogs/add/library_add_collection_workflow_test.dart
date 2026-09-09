@@ -211,7 +211,7 @@ void main() {
     final variantRef = CatalogEntityRef.fromJson(
       jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
     );
-    expect(variantRef.entityType, CatalogEntityType.release);
+    expect(variantRef.entityType, const CatalogEntityTypeId('release'));
     expect(variantRef.id, 'variant-2b');
     expect(variantRef.rootId, 'comic-release-2');
   });
@@ -240,7 +240,7 @@ void main() {
     );
     expect(
       bundleRef.entityType,
-      CatalogEntityType.bundleRelease,
+      const CatalogEntityTypeId('bundle_release'),
     );
     expect(bundleRef.id, 'bundle-1');
     expect(bundleRef.rootId, 'comic-bundle-1');

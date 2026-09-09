@@ -114,7 +114,7 @@ final class MusicCatalog {
       ref: CatalogEntityRef(
         id: id,
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.music,
       common: CatalogCommonDto(

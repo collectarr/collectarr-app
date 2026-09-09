@@ -147,7 +147,7 @@ Future<void> showTvCustomEpisodeDialog(
           id: existingEpisode?.id,
           catalogRef: CatalogEntityRef(
             kind: type.kind,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: itemId,
           ),
           seasonNumber: parsedSeason,

@@ -8,7 +8,7 @@ void main() {
   test('watch session sync payload uses catalog ref', () {
     final ref = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: CatalogEntityType.release,
+      entityType: const CatalogEntityTypeId('release'),
       id: 'release-1',
     );
     final watchedAt = DateTime.utc(2026, 7, 5, 12, 30);
@@ -47,7 +47,7 @@ void main() {
     );
 
     expect(roundTrip.targetRef.id, 'release-1');
-    expect(roundTrip.targetRef.entityType, CatalogEntityType.release);
+    expect(roundTrip.targetRef.entityType, const CatalogEntityTypeId('release'));
     expect(roundTrip.seasonNumber, 1);
     expect(roundTrip.episodeNumber, 3);
     expect(roundTrip.sourceType, TrackingSourceType.digital);

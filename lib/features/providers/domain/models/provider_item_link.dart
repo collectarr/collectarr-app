@@ -100,7 +100,7 @@ final class ProviderItemLink {
       localEntityRef: CatalogEntityRef(
         id: refMap['id']?.toString() ?? '',
         kind: catalogMediaKindFromApiValue(refMap['kind']?.toString()),
-        entityType: CatalogEntityType.fromApiValue(
+        entityType: CatalogEntityTypeId.fromApiValue(
           refMap['entityType']?.toString() ?? refMap['entity_type']?.toString(),
         ),
       ),

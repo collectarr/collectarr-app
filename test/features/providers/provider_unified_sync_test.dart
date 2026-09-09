@@ -98,7 +98,7 @@ void main() {
         localRef: const CatalogEntityRef(
           id: 'local_1',
           kind: CatalogMediaKind.anime,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
       );
 

@@ -110,7 +110,7 @@ void main() {
           catalogRef: const CatalogEntityRef(
             id: 'comic_1',
             kind: CatalogMediaKind.comic,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
           ),
           condition: '9.8',
           grade: '9.8',

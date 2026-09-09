@@ -14,7 +14,7 @@ void main() {
     final repository = UserMetadataOverridesCacheRepository(db);
     const target = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityType.edition,
+      entityType: const CatalogEntityTypeId('edition'),
       id: 'edition-1',
     );
     final updatedAt = DateTime.utc(2026, 9, 7, 12);
@@ -42,7 +42,7 @@ void main() {
       ),
     );
     expect(restored?.targetRef.kind, CatalogMediaKind.book);
-    expect(restored?.targetRef.entityType, CatalogEntityType.edition);
+    expect(restored?.targetRef.entityType, const CatalogEntityTypeId('edition'));
     expect(restored?.targetRef.id, 'edition-1');
     expect(restored?.overrideValue, 'Corrected');
     expect(
@@ -55,12 +55,12 @@ void main() {
     final repository = UserMetadataOverridesCacheRepository(db);
     const bookTarget = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityType.edition,
+      entityType: const CatalogEntityTypeId('edition'),
       id: 'shared-id',
     );
     const comicTarget = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityType.issue,
+      entityType: const CatalogEntityTypeId('issue'),
       id: 'shared-id',
     );
 

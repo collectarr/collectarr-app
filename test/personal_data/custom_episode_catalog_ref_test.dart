@@ -7,7 +7,7 @@ void main() {
   test('custom episode sync payload uses catalog ref', () {
     final ref = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: 'series-1',
     );
     final episode = CustomEpisode(
@@ -40,7 +40,7 @@ void main() {
     );
 
     expect(roundTrip.seriesRef.id, 'series-1');
-    expect(roundTrip.seriesRef.entityType, CatalogEntityType.work);
+    expect(roundTrip.seriesRef.entityType, const CatalogEntityTypeId('work'));
     expect(roundTrip.title, 'Custom title');
   });
 }

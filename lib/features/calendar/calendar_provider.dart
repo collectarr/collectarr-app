@@ -65,7 +65,7 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   if (rootId == null || rootId.isEmpty) return ref;
   return ref.copyWith(
     id: rootId,
-    entityType: CatalogEntityType.work,
+    entityType: const CatalogEntityTypeId('work'),
     rootId: null,
   );
 }

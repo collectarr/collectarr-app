@@ -60,7 +60,7 @@ void main() {
               itemId: 'comic-1',
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityType.work,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'comic-1',
               ),
               quantity: 1,
@@ -79,7 +79,7 @@ void main() {
               itemId: 'comic-2',
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityType.work,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'comic-2',
               ),
               quantity: 1,

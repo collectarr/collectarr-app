@@ -169,7 +169,7 @@ class _LibraryVideoDetailPageState
     );
     final itemRef = CatalogEntityRef(
       kind: request.type.kind,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: request.item.source.itemId,
     );
     final watchHistoryTargets = <WatchHistoryTargetOption>[
@@ -182,7 +182,7 @@ class _LibraryVideoDetailPageState
         (release) => WatchHistoryTargetOption(
           ref: CatalogEntityRef(
             kind: itemRef.kind,
-            entityType: CatalogEntityType.release,
+            entityType: const CatalogEntityTypeId('release'),
             id: release.node.releaseId,
           ),
           label: release.node.edition.title.isEmpty

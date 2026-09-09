@@ -17,7 +17,7 @@ void main() {
       id: const BoardGameOwnedItemId('owned-boardgame-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.boardgame,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'boardgame-1',
       ),
       condition: 'Mint',
@@ -56,7 +56,7 @@ void main() {
       id: const BoardGameOwnedItemId('owned-boardgame-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.game,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'game-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),

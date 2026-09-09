@@ -163,7 +163,7 @@ final class MovieLocalMapper {
       id: MovieOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: row.itemId,
       ),
       createdAt: row.createdAt,

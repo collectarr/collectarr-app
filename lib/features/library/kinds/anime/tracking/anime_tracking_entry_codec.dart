@@ -70,7 +70,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
             id: entry.id,
             mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
             episodeId: Value(
-              entry.catalogRef.entityType == CatalogEntityType.episode
+              entry.catalogRef.entityType == const CatalogEntityTypeId('episode')
                   ? entry.catalogRef.id
                   : null,
             ),
@@ -133,7 +133,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     return AnimeTrackingEntry(
       id: id,
       catalogRef: seasonNumber != null || episodeNumber != null
-          ? catalogRef.copyWith(entityType: CatalogEntityType.episode)
+          ? catalogRef.copyWith(entityType: const CatalogEntityTypeId('episode'))
           : catalogRef,
       coordinates: AnimeTrackingCoordinates(
         seasonNumber: seasonNumber,
@@ -166,7 +166,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     return AnimeTrackingEntry(
       id: row.id,
       catalogRef: typed.hasEpisodeCoordinates
-          ? row.catalogRef.copyWith(entityType: CatalogEntityType.episode)
+          ? row.catalogRef.copyWith(entityType: const CatalogEntityTypeId('episode'))
           : row.catalogRef,
       ownedRef: row.ownedRef,
       sourceType: row.sourceType,

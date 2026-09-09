@@ -52,7 +52,7 @@ void main() {
                   : const ComicOwnedDetails(),
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityType.ownedCopy,
+                entityType: const CatalogEntityTypeId('owned_copy'),
                 id: id,
               ),
             )
@@ -63,7 +63,7 @@ void main() {
               id: 'wish-$id',
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityType.issue,
+                entityType: const CatalogEntityTypeId('issue'),
                 id: id,
               ),
               createdAt: DateTime.utc(2026, 1, 1),

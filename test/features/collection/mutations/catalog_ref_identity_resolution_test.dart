@@ -131,7 +131,7 @@ void main() {
         typedAddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
             kind: CatalogMediaKind.music,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'music-album-1',
           ),
           common: LibraryAddCommonDraft(),

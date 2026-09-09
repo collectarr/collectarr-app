@@ -215,7 +215,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-work-21',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       );
 
       // Pre-link catalog item
@@ -277,7 +277,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-work-21',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       );
 
       await coordinator.linkImportedItem(

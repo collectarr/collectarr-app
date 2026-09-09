@@ -122,7 +122,7 @@ void main() {
           catalogRef: const CatalogEntityRef(
             id: 'manga_1',
             kind: CatalogMediaKind.manga,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
           ),
           condition: 'Near Mint',
           updatedAt: DateTime.now(),
@@ -205,7 +205,7 @@ void main() {
           catalogRef: const CatalogEntityRef(
             id: 'manga_1',
             kind: CatalogMediaKind.manga,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
           ),
           updatedAt: DateTime.now(),
           details: const MangaOwnedDetails(

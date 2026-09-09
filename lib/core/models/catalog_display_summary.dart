@@ -27,7 +27,7 @@ final class CatalogDisplaySummary {
     return CatalogDisplaySummary(
       ref: CatalogEntityRef(
         kind: kind,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: id,
       ),
       kind: kind,

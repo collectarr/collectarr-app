@@ -98,7 +98,7 @@ void main() {
           catalogRef: const CatalogEntityRef(
             id: 'bg_1',
             kind: CatalogMediaKind.boardgame,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
           ),
           details: const TestOwnedDetails(),
           condition: 'Mint',

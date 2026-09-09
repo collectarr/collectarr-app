@@ -46,7 +46,7 @@ void main() {
           watchSessionsByCatalogRefProvider(
             const CatalogEntityRef(
               kind: CatalogMediaKind.book,
-              entityType: CatalogEntityType.work,
+              entityType: const CatalogEntityTypeId('work'),
               id: 'book-1',
             ),
           ).overrideWithValue(
@@ -58,7 +58,7 @@ void main() {
             body: WatchHistorySection(
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.book,
-                entityType: CatalogEntityType.work,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'book-1',
               ),
               accent: Colors.teal,
@@ -80,7 +80,7 @@ void main() {
       id: 'session-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       watchedAt: DateTime.utc(2026, 5, 14),
@@ -93,7 +93,7 @@ void main() {
           watchSessionsByCatalogRefProvider(
             const CatalogEntityRef(
               kind: CatalogMediaKind.book,
-              entityType: CatalogEntityType.work,
+              entityType: const CatalogEntityTypeId('work'),
               id: 'book-1',
             ),
           ).overrideWithValue(
@@ -105,7 +105,7 @@ void main() {
             body: WatchHistorySection(
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.book,
-                entityType: CatalogEntityType.work,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'book-1',
               ),
               accent: Colors.teal,

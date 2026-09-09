@@ -179,7 +179,7 @@ CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
 CatalogEntityRef testCatalogRef(
   String id, {
   String kind = 'unknown',
-  CatalogEntityType entityType = CatalogEntityType.work,
+  CatalogEntityTypeId entityType = const CatalogEntityTypeId('work'),
 }) {
   return CatalogEntityRef(
     kind: catalogMediaKindFromApiValue(kind),
@@ -308,7 +308,7 @@ OwnedItem testOwnedItem({
   final resolvedCatalogRef = catalogRef ??
       CatalogEntityRef(
         kind: catalogMediaKindFromApiValue(kind),
-        entityType: CatalogEntityType.ownedCopy,
+        entityType: const CatalogEntityTypeId('owned_copy'),
         id: itemId,
       );
 

@@ -80,7 +80,7 @@ void main() {
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'movie-target-1',
       );
 
@@ -108,7 +108,7 @@ void main() {
         id: BookOwnedItemId('owned-item-77'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'book-77',
         ),
         details: const BookOwnedDetails(),
@@ -150,7 +150,7 @@ void main() {
         ),
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'book-anchor-target',
         ),
         anchor: PersonalItemAnchor.fromRaw(
@@ -166,7 +166,7 @@ void main() {
       ]))
           .single;
       expect(entry.ownedRef, OwnedItemRef.fromKey('book:book-anchor-target'));
-      expect(entry.catalogRef.entityType, CatalogEntityType.release);
+      expect(entry.catalogRef.entityType, const CatalogEntityTypeId('release'));
       expect(entry.catalogRef.id, 'variant-anchor');
       expect(entry.catalogRef.rootId, 'book-anchor-target');
     });
@@ -175,7 +175,7 @@ void main() {
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-anchor-clear',
       );
 
@@ -195,7 +195,7 @@ void main() {
 
       final entry =
           (await trackingEntries.findActiveByCatalogRoots([ref])).single;
-      expect(entry.catalogRef.entityType, CatalogEntityType.work);
+      expect(entry.catalogRef.entityType, const CatalogEntityTypeId('work'));
       expect(entry.catalogRef.id, ref.id);
     });
 
@@ -217,7 +217,7 @@ void main() {
     test('handles unknown tracking source cleanly', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.game,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'game-100',
       );
 
@@ -237,7 +237,7 @@ void main() {
     test('preserves typed unit ratings map', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'tv-series-1',
       );
 
@@ -270,7 +270,7 @@ void main() {
     test('does not introduce hardcoded comic fallback kind', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'music-album-99',
       );
 
@@ -290,7 +290,7 @@ void main() {
     test('forwards file import origin through tracking mutation', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'anime-import-1',
       );
 
@@ -330,7 +330,7 @@ void main() {
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'tv-owned-1',
       );
       final owned = TvOwnedItem(
@@ -388,7 +388,7 @@ void main() {
     test('owned sync can explicitly clear an inherited anchor', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-owned-anchor-clear',
       );
       final owned = BookOwnedItem(
@@ -429,14 +429,14 @@ void main() {
 
       final entry =
           (await trackingEntries.findActiveByCatalogRoots([ref])).single;
-      expect(entry.catalogRef.entityType, CatalogEntityType.work);
+      expect(entry.catalogRef.entityType, const CatalogEntityTypeId('work'));
       expect(entry.catalogRef.id, ref.id);
     });
 
     test('updateTrackingEntry applies explicit clears', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-clear-1',
       );
       final existing = TrackingEntry(

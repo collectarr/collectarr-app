@@ -98,7 +98,7 @@ void main() {
         id: ComicOwnedItemId('owned-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.ownedCopy,
+          entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'item-1',
         ),
         condition: 'Near Mint',
@@ -157,7 +157,7 @@ void main() {
         id: const ComicOwnedItemId('owned-merge-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.ownedCopy,
+          entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'item-merge-1',
         ),
         condition: 'Near Mint',

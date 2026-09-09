@@ -14,7 +14,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'cat_1',
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
         details: const TestOwnedDetails(),
         condition: 'Near Mint',
@@ -62,7 +62,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'cat_2',
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
         notes: 'Looking for 4K edition',
         createdAt: now,

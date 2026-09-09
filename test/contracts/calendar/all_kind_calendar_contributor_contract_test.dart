@@ -37,7 +37,7 @@ LibraryCalendarContext _contextFor(CatalogMediaKind kind) {
               id: '${kind.apiValue}-calendar-session',
               targetRef: CatalogEntityRef(
                 kind: kind,
-                entityType: CatalogEntityType.episode,
+                entityType: const CatalogEntityTypeId('episode'),
                 id: '${kind.apiValue}-calendar-contract-item',
               ),
               watchedAt: DateTime.utc(2026, 9, 2),

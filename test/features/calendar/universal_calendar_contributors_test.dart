@@ -18,7 +18,7 @@ void main() {
       title: 'book-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       purchaseDate: DateTime.utc(2026, 1, 1),
@@ -65,7 +65,7 @@ void main() {
       id: 'watch-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       watchedAt: DateTime.utc(2026, 1, 5),
@@ -98,7 +98,7 @@ void main() {
       title: 'Book copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
@@ -111,7 +111,7 @@ void main() {
       title: 'Comic copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'comic-1',
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
@@ -153,7 +153,7 @@ void main() {
           id: 'tv-watch-1',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.tv,
-            entityType: CatalogEntityType.episode,
+            entityType: const CatalogEntityTypeId('episode'),
             id: 'tv-1',
           ),
           watchedAt: DateTime.utc(2026, 1, 5),

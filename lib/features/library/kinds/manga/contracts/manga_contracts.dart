@@ -188,7 +188,7 @@ final class MangaCatalog {
       ref: CatalogEntityRef(
         id: id,
         kind: CatalogMediaKind.manga,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.manga,
       common: CatalogCommonDto(

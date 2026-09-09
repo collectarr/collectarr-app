@@ -132,7 +132,7 @@ final class TvCustomEpisodeCodec implements CustomEpisodeCodec {
       id: row.id,
       seriesRef: CatalogEntityRef(
         kind: kind,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: row.seriesId,
       ),
       seasonNumber: row.seasonNumber,

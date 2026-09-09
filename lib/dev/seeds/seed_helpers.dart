@@ -35,7 +35,7 @@ CatalogEntityRef seedCatalogRef(String itemId) {
   final kind = itemId.startsWith('seed-') ? itemId.split('-')[1] : 'unknown';
   return CatalogEntityRef(
     kind: catalogMediaKindFromApiValue(kind),
-    entityType: CatalogEntityType.work,
+    entityType: const CatalogEntityTypeId('work'),
     id: itemId,
   );
 }

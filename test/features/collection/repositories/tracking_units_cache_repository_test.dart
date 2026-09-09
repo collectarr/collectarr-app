@@ -30,7 +30,7 @@ void main() {
         id: 'episode-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityType.episode,
+          entityType: const CatalogEntityTypeId('episode'),
           id: 'series-1',
         ),
         seasonNumber: 2,
@@ -71,7 +71,7 @@ void main() {
         id: 'chapter-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.manga,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'manga-1',
         ),
         volumeNumber: 3,
@@ -83,7 +83,7 @@ void main() {
         id: 'issue-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.issue,
+          entityType: const CatalogEntityTypeId('issue'),
           id: 'comic-1',
         ),
         issueNumber: '8A',
@@ -118,7 +118,7 @@ void main() {
         id: 'tv-session-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'tv-1',
         ),
         seasonNumber: 1,
@@ -130,7 +130,7 @@ void main() {
         id: 'anime-session-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.anime,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'anime-1',
         ),
         seasonNumber: 1,
@@ -146,7 +146,7 @@ void main() {
       await repository.listActiveByCatalogRefs([
         const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'tv-1',
         ),
       ]),
@@ -156,7 +156,7 @@ void main() {
       (await repository.listActiveByCatalogRefs([
         const CatalogEntityRef(
           kind: CatalogMediaKind.anime,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'anime-1',
         ),
       ]))
@@ -182,7 +182,7 @@ void main() {
         id: 'tv-custom-1',
         seriesRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'tv-1',
         ),
         seasonNumber: 1,
@@ -194,7 +194,7 @@ void main() {
         id: 'anime-custom-1',
         seriesRef: const CatalogEntityRef(
           kind: CatalogMediaKind.anime,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'anime-1',
         ),
         seasonNumber: 2,
@@ -226,7 +226,7 @@ void main() {
           id: 'untyped-unit',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.unknown,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'item-1',
           ),
           unitType: 'unit',

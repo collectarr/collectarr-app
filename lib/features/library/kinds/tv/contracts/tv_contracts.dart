@@ -166,7 +166,7 @@ final class TvCatalog {
       ref: CatalogEntityRef(
         id: id,
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.tv,
       common: CatalogCommonDto(

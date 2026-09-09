@@ -169,7 +169,7 @@ Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
         id: 'seed-unit-anime-${item.id}-$episodeId',
         targetRef: CatalogEntityRef(
           kind: item.mediaKind,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: item.id,
         ),
         seasonNumber: 1,

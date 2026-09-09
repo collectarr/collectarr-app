@@ -196,19 +196,17 @@ class CustomFieldRepository {
     if (ref == null) {
       return null;
     }
-    return switch (ref.entityType) {
-      CatalogEntityType.work => CustomFieldTargetScope.work,
-      CatalogEntityType.season => CustomFieldTargetScope.work,
-      CatalogEntityType.edition => CustomFieldTargetScope.edition,
-      CatalogEntityType.release => CustomFieldTargetScope.release,
-      CatalogEntityType.issue => CustomFieldTargetScope.issue,
-      CatalogEntityType.episode => CustomFieldTargetScope.episode,
-      CatalogEntityType.track => CustomFieldTargetScope.track,
-      CatalogEntityType.ownedCopy ||
-      CatalogEntityType.copy =>
-        CustomFieldTargetScope.ownedCopy,
-      CatalogEntityType.trackingEntry => CustomFieldTargetScope.trackingEntry,
-      CatalogEntityType.bundleRelease || CatalogEntityType.unknown => null,
+    return switch (ref.entityType.apiValue) {
+      'work' => CustomFieldTargetScope.work,
+      'season' => CustomFieldTargetScope.work,
+      'edition' => CustomFieldTargetScope.edition,
+      'release' => CustomFieldTargetScope.release,
+      'issue' => CustomFieldTargetScope.issue,
+      'episode' => CustomFieldTargetScope.episode,
+      'track' => CustomFieldTargetScope.track,
+      'owned_copy' || 'copy' => CustomFieldTargetScope.ownedCopy,
+      'tracking_entry' => CustomFieldTargetScope.trackingEntry,
+      _ => null,
     };
   }
 }

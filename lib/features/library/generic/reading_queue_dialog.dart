@@ -357,12 +357,12 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   if (rootId != null && rootId.isNotEmpty) {
     return ref.copyWith(
       id: rootId,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       rootId: null,
     );
   }
-  if (ref.entityType != CatalogEntityType.work) {
-    return ref.copyWith(entityType: CatalogEntityType.work);
+  if (ref.entityType != const CatalogEntityTypeId('work')) {
+    return ref.copyWith(entityType: const CatalogEntityTypeId('work'));
   }
   return ref;
 }

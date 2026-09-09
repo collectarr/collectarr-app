@@ -23,7 +23,7 @@ void main() {
       id: const TvOwnedItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'tv-1',
       ),
       condition: 'Very Good',

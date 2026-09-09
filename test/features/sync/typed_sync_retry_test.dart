@@ -21,7 +21,7 @@ void main() {
         id: ComicOwnedItemId('owned-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'comic-retry',
         ),
         condition: 'Near Mint',
@@ -62,7 +62,7 @@ void main() {
         id: ComicOwnedItemId('owned-deleted-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'comic-deleted-retry',
         ),
         updatedAt: DateTime.utc(2026, 5, 12, 8),

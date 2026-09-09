@@ -157,13 +157,10 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
 }
 
 VideoReleaseAnchor _wishlistReleaseAnchor(WishlistItem item) {
-  return switch (item.catalogRef.entityType) {
-    CatalogEntityType.edition =>
-      VideoReleaseAnchor(editionId: item.catalogRef.id),
-    CatalogEntityType.release =>
-      VideoReleaseAnchor(variantId: item.catalogRef.id),
-    CatalogEntityType.bundleRelease =>
-      VideoReleaseAnchor(bundleReleaseId: item.catalogRef.id),
+  return switch (item.catalogRef.entityType.apiValue) {
+    'edition' => VideoReleaseAnchor(editionId: item.catalogRef.id),
+    'release' => VideoReleaseAnchor(variantId: item.catalogRef.id),
+    'bundle_release' => VideoReleaseAnchor(bundleReleaseId: item.catalogRef.id),
     _ => const VideoReleaseAnchor(),
   };
 }

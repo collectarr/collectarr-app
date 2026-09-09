@@ -470,10 +470,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     if (_draft.hasWishlistContext) {
       final wishlistRef = _draft.personal.selectedWishlistCatalogRef;
       final wishlistTargetType =
-          wishlistRef?.entityType == CatalogEntityType.bundleRelease &&
+          wishlistRef?.entityType == const CatalogEntityTypeId('bundle_release') &&
                   widget.availableBundleReleases.isNotEmpty
-              ? CatalogEntityType.bundleRelease
-              : CatalogEntityType.work;
+              ? const CatalogEntityTypeId('bundle_release')
+              : const CatalogEntityTypeId('work');
       return EditTabShell(
         children: [
           EditSection(
@@ -482,32 +482,32 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DropdownButtonFormField<CatalogEntityType>(
+                DropdownButtonFormField<CatalogEntityTypeId>(
                   key: const Key('library-edit-wishlist-target-field'),
                   initialValue: wishlistTargetType,
                   decoration:
                       const InputDecoration(labelText: 'Wishlist target'),
                   items: [
                     const DropdownMenuItem(
-                      value: CatalogEntityType.work,
+                      value: const CatalogEntityTypeId('work'),
                       child: Text('Item / Work'),
                     ),
                     if (widget.availableBundleReleases.isNotEmpty)
                       const DropdownMenuItem(
-                        value: CatalogEntityType.bundleRelease,
+                        value: const CatalogEntityTypeId('bundle_release'),
                         child: Text('Bundle release'),
                       ),
                   ],
                   onChanged: (val) {
                     setState(() {
-                      final targetType = val ?? CatalogEntityType.work;
-                      if (targetType == CatalogEntityType.bundleRelease &&
+                      final targetType = val ?? const CatalogEntityTypeId('work');
+                      if (targetType == const CatalogEntityTypeId('bundle_release') &&
                           widget.availableBundleReleases.isNotEmpty) {
                         final bundle = widget.availableBundleReleases.first;
                         _draft.personal.selectedWishlistCatalogRef =
                             CatalogEntityRef(
                           kind: catalogMediaKindFromApiValue(_draft.item.kind),
-                          entityType: CatalogEntityType.bundleRelease,
+                          entityType: const CatalogEntityTypeId('bundle_release'),
                           id: bundle.id,
                           rootId: _draft.item.id,
                         );

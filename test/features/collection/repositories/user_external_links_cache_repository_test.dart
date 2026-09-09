@@ -24,7 +24,7 @@ void main() {
         id: 'link-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'item-1',
         ),
         label: 'Review',
@@ -37,7 +37,7 @@ void main() {
         id: 'link-2',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'item-1',
         ),
         label: 'Trailer',
@@ -50,7 +50,7 @@ void main() {
 
     const catalogRef = CatalogEntityRef(
       kind: CatalogMediaKind.movie,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: 'item-1',
     );
     await repo.replaceForCatalogRef(catalogRef, links);

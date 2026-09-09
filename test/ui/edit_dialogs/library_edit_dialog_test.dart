@@ -1445,7 +1445,7 @@ void main() {
 
     expect(
       selection?.wishlist?.catalogRef.entityType,
-      CatalogEntityType.bundleRelease,
+      const CatalogEntityTypeId('bundle_release'),
     );
     expect(selection?.wishlist?.catalogRef.id, 'bundle-akira');
     expect(selection?.wishlist?.catalogRef.rootId, 'movie-wishlist-1');

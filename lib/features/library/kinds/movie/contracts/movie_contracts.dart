@@ -173,7 +173,7 @@ final class MovieCatalog {
       ref: CatalogEntityRef(
         id: id,
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.movie,
       common: CatalogCommonDto(

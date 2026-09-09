@@ -130,7 +130,7 @@ void main() {
       id: const BoardGameOwnedItemId('owned-boardgame-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.boardgame,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'boardgame-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
@@ -220,7 +220,7 @@ void main() {
           id: const BoardGameOwnedItemId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.boardgame,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'boardgame-1',
           ),
           updatedAt: DateTime.utc(2026, 1, 1),

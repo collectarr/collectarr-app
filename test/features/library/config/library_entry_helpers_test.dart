@@ -23,7 +23,7 @@ void main() {
       id: 'tracking-item',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       progressCurrent: 10,
@@ -33,7 +33,7 @@ void main() {
       id: 'tracking-copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       ownedRef: OwnedItemRef.fromKey('book:owned-1'),
@@ -47,7 +47,7 @@ void main() {
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'book-1',
         ),
         details: const TestOwnedDetails(),
@@ -155,7 +155,7 @@ void main() {
       id: 'wishlist-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.release,
+        entityType: const CatalogEntityTypeId('release'),
         id: 'variant-uhd',
         rootId: 'movie-1',
       ),

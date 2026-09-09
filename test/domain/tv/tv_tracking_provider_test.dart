@@ -26,7 +26,7 @@ void main() {
     final episodeId = TvEpisodeId('episode-1');
     final targetRef = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: CatalogEntityType.episode,
+      entityType: const CatalogEntityTypeId('episode'),
       id: episodeId.value,
     );
 

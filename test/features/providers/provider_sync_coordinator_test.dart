@@ -100,7 +100,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       );
 
       // BASE snapshot
@@ -182,7 +182,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       );
 
       await linkStore.saveLink(
@@ -253,7 +253,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-55',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       );
 
       const entry = ProviderPersonalEntry(
@@ -302,7 +302,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-policy',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       );
       const base = ProviderPersonalEntry(
         provider: ProviderId.aniList,

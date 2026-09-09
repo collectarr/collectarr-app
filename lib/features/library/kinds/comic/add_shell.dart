@@ -278,7 +278,7 @@ class _ComicSearchRow extends StatelessWidget {
         request.ownedCatalogRefs.contains(
           CatalogEntityRef(
             kind: CatalogMediaKind.comic,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: entry.catalogId,
           ),
         );

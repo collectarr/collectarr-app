@@ -197,7 +197,7 @@ class TrackingUnitsCacheRepository {
     }
     return CatalogEntityRef(
       kind: catalogMediaKindFromApiValue(row.kind),
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: row.itemId,
     );
   }

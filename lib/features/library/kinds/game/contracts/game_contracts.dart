@@ -192,7 +192,7 @@ final class GameCatalog {
       ref: CatalogEntityRef(
         id: id,
         kind: CatalogMediaKind.game,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.game,
       common: CatalogCommonDto(

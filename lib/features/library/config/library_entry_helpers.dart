@@ -262,16 +262,16 @@ PersonalItemAnchor? libraryPersonalAnchorForCatalogRef(CatalogEntityRef? ref) {
   if (ref == null) {
     return null;
   }
-  return switch (ref.entityType) {
-    CatalogEntityType.edition => PersonalItemAnchor.fromRaw(
+  return switch (ref.entityType.apiValue) {
+    'edition' => PersonalItemAnchor.fromRaw(
         anchorType: PersonalItemAnchorType.edition.apiValue,
         editionId: ref.id,
       ),
-    CatalogEntityType.release => PersonalItemAnchor.fromRaw(
+    'release' => PersonalItemAnchor.fromRaw(
         anchorType: PersonalItemAnchorType.variant.apiValue,
         variantId: ref.id,
       ),
-    CatalogEntityType.bundleRelease => PersonalItemAnchor.fromRaw(
+    'bundle_release' => PersonalItemAnchor.fromRaw(
         anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
         bundleReleaseId: ref.id,
       ),
@@ -282,11 +282,15 @@ PersonalItemAnchor? libraryPersonalAnchorForCatalogRef(CatalogEntityRef? ref) {
 }
 
 String? _catalogRefEditionId(CatalogEntityRef? ref) {
-  return ref?.entityType == CatalogEntityType.edition ? ref?.id : null;
+  return ref?.entityType == const CatalogEntityTypeId('edition')
+      ? ref?.id
+      : null;
 }
 
 String? _catalogRefVariantId(CatalogEntityRef? ref) {
-  return ref?.entityType == CatalogEntityType.release ? ref?.id : null;
+  return ref?.entityType == const CatalogEntityTypeId('release')
+      ? ref?.id
+      : null;
 }
 
 TrackingEntry? resolveActiveTrackingEntry(

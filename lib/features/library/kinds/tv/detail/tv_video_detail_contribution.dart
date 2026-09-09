@@ -78,7 +78,7 @@ class _TvVideoDetailContributionState
     final request = widget.request;
     final seriesRef = CatalogEntityRef(
       kind: request.type.kind,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: request.item.source.itemId,
     );
     final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(seriesRef));
@@ -173,7 +173,7 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
           WatchHistoryTargetOption(
             ref: CatalogEntityRef(
               kind: seriesRef.kind,
-              entityType: CatalogEntityType.season,
+              entityType: const CatalogEntityTypeId('season'),
               id: '${seriesRef.id}:season:${season.seasonNumber}',
             ),
             label: season.title ?? 'Season ${season.seasonNumber ?? 0}',
@@ -184,7 +184,7 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
             WatchHistoryTargetOption(
               ref: CatalogEntityRef(
                 kind: seriesRef.kind,
-                entityType: CatalogEntityType.episode,
+                entityType: const CatalogEntityTypeId('episode'),
                 id: '${seriesRef.id}:season:${season.seasonNumber}:episode:${episode.episodeNumber}',
               ),
               label: episode.title ?? 'Episode ${episode.episodeNumber ?? 0}',
@@ -201,7 +201,7 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
       WatchHistoryTargetOption(
         ref: CatalogEntityRef(
           kind: seriesRef.kind,
-          entityType: CatalogEntityType.release,
+          entityType: const CatalogEntityTypeId('release'),
           id: release.id,
         ),
         label: release.title,

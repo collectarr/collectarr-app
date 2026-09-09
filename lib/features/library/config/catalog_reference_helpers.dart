@@ -16,7 +16,7 @@ CatalogEntityRef catalogRefForLibrarySelection(
   if (bundleId != null) {
     return CatalogEntityRef(
       kind: itemRef.kind,
-      entityType: CatalogEntityType.bundleRelease,
+      entityType: const CatalogEntityTypeId('bundle_release'),
       id: bundleId,
       rootId: itemRef.id,
     );
@@ -26,7 +26,7 @@ CatalogEntityRef catalogRefForLibrarySelection(
   if (variant != null) {
     return CatalogEntityRef(
       kind: itemRef.kind,
-      entityType: CatalogEntityType.release,
+      entityType: const CatalogEntityTypeId('release'),
       id: variant,
       rootId: itemRef.id,
     );
@@ -36,7 +36,7 @@ CatalogEntityRef catalogRefForLibrarySelection(
   if (edition != null) {
     return CatalogEntityRef(
       kind: itemRef.kind,
-      entityType: CatalogEntityType.edition,
+      entityType: const CatalogEntityTypeId('edition'),
       id: edition,
       rootId: itemRef.id,
     );

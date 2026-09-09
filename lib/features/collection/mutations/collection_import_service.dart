@@ -216,7 +216,7 @@ final class CollectionImportService {
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
             kind: catalogMediaKindFromApiValue(row.kind ?? catalogKind),
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: row.itemId,
           ),
           createdAt: now,
@@ -382,7 +382,7 @@ final class CollectionImportService {
     }
     return CatalogEntityRef(
       kind: catalogMediaKindFromApiValue(kind),
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: row.itemId,
     );
   }
@@ -445,7 +445,7 @@ final class CollectionImportService {
     final catalogRef = existingSummary?.catalogRef ??
         CatalogEntityRef(
           kind: catalogMediaKindFromApiValue(resolvedKind),
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: row.itemId,
         );
     final payload = existingTyped == null

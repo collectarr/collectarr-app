@@ -108,7 +108,7 @@ Iterable<MangaTrackingUnit> mangaSeedTrackingUnits(
       id: 'seed-unit-manga-${item.id}-$chapterId',
       targetRef: CatalogEntityRef(
         kind: item.mediaKind,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: item.id,
       ),
       volumeNumber: volumeNumber,

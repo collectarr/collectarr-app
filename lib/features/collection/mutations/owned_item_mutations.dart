@@ -232,11 +232,11 @@ final class OwnedItemMutations {
   }
 
   CatalogEntityRef _catalogWorkRef(CatalogEntityRef ref) {
-    if (ref.entityType == CatalogEntityType.ownedCopy ||
-        ref.entityType == CatalogEntityType.copy ||
-        ref.entityType == CatalogEntityType.trackingEntry) {
+    if (ref.entityType == const CatalogEntityTypeId('owned_copy') ||
+        ref.entityType == const CatalogEntityTypeId('copy') ||
+        ref.entityType == const CatalogEntityTypeId('tracking_entry')) {
       return ref.copyWith(
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: ref.rootId ?? ref.id,
         rootId: null,
       );
@@ -250,7 +250,7 @@ final class OwnedItemMutations {
   ) {
     if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
       return baseRef.copyWith(
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: baseRef.rootId ?? baseRef.id,
         rootId: null,
       );
@@ -258,7 +258,7 @@ final class OwnedItemMutations {
     if (anchor.type == PersonalItemAnchorType.bundleRelease &&
         anchor.bundleReleaseId != null) {
       return baseRef.copyWith(
-        entityType: CatalogEntityType.bundleRelease,
+        entityType: const CatalogEntityTypeId('bundle_release'),
         id: anchor.bundleReleaseId,
         rootId: baseRef.rootId ?? baseRef.id,
       );
@@ -266,7 +266,7 @@ final class OwnedItemMutations {
     if (anchor.type == PersonalItemAnchorType.variant &&
         anchor.variantId != null) {
       return baseRef.copyWith(
-        entityType: CatalogEntityType.release,
+        entityType: const CatalogEntityTypeId('release'),
         id: anchor.variantId,
         rootId: baseRef.rootId ?? baseRef.id,
       );
@@ -274,13 +274,13 @@ final class OwnedItemMutations {
     if (anchor.type == PersonalItemAnchorType.edition &&
         anchor.editionId != null) {
       return baseRef.copyWith(
-        entityType: CatalogEntityType.edition,
+        entityType: const CatalogEntityTypeId('edition'),
         id: anchor.editionId,
         rootId: baseRef.rootId ?? baseRef.id,
       );
     }
     return baseRef.copyWith(
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: baseRef.rootId ?? baseRef.id,
       rootId: null,
     );

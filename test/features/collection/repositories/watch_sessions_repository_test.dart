@@ -19,7 +19,7 @@ void main() {
       id: 'tv-session-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityType.episode,
+        entityType: const CatalogEntityTypeId('episode'),
         id: 'tv-1:s1:e2',
       ),
       seasonNumber: 1,
@@ -59,7 +59,7 @@ void main() {
       id: 'movie-session-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'movie-1',
       ),
       seasonNumber: 99,

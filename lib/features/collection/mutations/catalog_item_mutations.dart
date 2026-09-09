@@ -72,7 +72,7 @@ final class CatalogItemMutations {
     final now = DateTime.now().toUtc();
     final localRef = CatalogEntityRef(
       kind: snapshot.kind,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: localItemId,
     );
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
@@ -174,7 +174,7 @@ final class CatalogItemMutations {
     CatalogEntityRef current,
     CatalogEntityRef target,
   ) {
-    if (current.entityType == CatalogEntityType.work ||
+    if (current.entityType == const CatalogEntityTypeId('work') ||
         current.rootId == null) {
       return target;
     }

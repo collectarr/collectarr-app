@@ -40,7 +40,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final catalogItem = item.source.catalogItem;
   final seriesRef = CatalogEntityRef(
     kind: request.type.kind,
-    entityType: CatalogEntityType.work,
+    entityType: const CatalogEntityTypeId('work'),
     id: item.node.titleItemId,
   );
   final catalogPayload = catalogItem?.payload;
@@ -54,7 +54,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       WatchHistoryTargetOption(
         ref: CatalogEntityRef(
           kind: seriesRef.kind,
-          entityType: CatalogEntityType.release,
+          entityType: const CatalogEntityTypeId('release'),
           id: '${seriesRef.id}:release:${edition.id}',
         ),
         label: edition.title.isEmpty ? edition.id : edition.title,

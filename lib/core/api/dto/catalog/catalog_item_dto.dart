@@ -224,7 +224,7 @@ final class CatalogItemDto {
     if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
       return CatalogEntityRef(
         kind: mediaKind,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: id,
       );
     }
@@ -232,28 +232,28 @@ final class CatalogItemDto {
       case PersonalItemAnchorType.edition:
         return CatalogEntityRef(
           kind: mediaKind,
-          entityType: CatalogEntityType.edition,
+          entityType: const CatalogEntityTypeId('edition'),
           id: anchor.editionId ?? id,
           rootId: id,
         );
       case PersonalItemAnchorType.variant:
         return CatalogEntityRef(
           kind: mediaKind,
-          entityType: CatalogEntityType.release,
+          entityType: const CatalogEntityTypeId('release'),
           id: anchor.variantId ?? anchor.editionId ?? id,
           rootId: id,
         );
       case PersonalItemAnchorType.bundleRelease:
         return CatalogEntityRef(
           kind: mediaKind,
-          entityType: CatalogEntityType.bundleRelease,
+          entityType: const CatalogEntityTypeId('bundle_release'),
           id: anchor.bundleReleaseId ?? id,
           rootId: id,
         );
       default:
         return CatalogEntityRef(
           kind: mediaKind,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: id,
         );
     }

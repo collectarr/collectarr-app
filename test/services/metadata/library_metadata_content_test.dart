@@ -157,7 +157,7 @@ void main() {
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityType.ownedCopy,
+          entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'book-1',
         ),
         details: const TestOwnedDetails(),

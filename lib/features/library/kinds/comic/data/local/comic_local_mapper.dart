@@ -229,7 +229,7 @@ final class ComicLocalMapper {
       id: ComicOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: row.itemId,
       ),
       createdAt: row.createdAt,

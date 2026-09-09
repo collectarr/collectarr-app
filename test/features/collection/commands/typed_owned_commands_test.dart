@@ -101,7 +101,7 @@ void main() {
           typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: kind,
-              entityType: CatalogEntityType.ownedCopy,
+              entityType: const CatalogEntityTypeId('owned_copy'),
               id: 'test-${kind.apiValue}-1',
             ),
             common: const LibraryAddCommonDraft(),
@@ -124,7 +124,7 @@ void main() {
             typedAddOwnedItemCommand(
               catalogRef: CatalogEntityRef(
                 kind: kind,
-                entityType: CatalogEntityType.ownedCopy,
+                entityType: const CatalogEntityTypeId('owned_copy'),
                 id: 'test-${kind.apiValue}-bad',
               ),
               common: const LibraryAddCommonDraft(),
@@ -153,7 +153,7 @@ void main() {
           typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
               kind: kind,
-              entityType: CatalogEntityType.ownedCopy,
+              entityType: const CatalogEntityTypeId('owned_copy'),
               id: 'clear-test-${kind.apiValue}',
             ),
             common: const LibraryAddCommonDraft(),

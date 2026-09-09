@@ -80,7 +80,7 @@ void main() {
         id: 'wish-3',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.release,
+          entityType: const CatalogEntityTypeId('release'),
           id: 'variant-3',
           rootId: 'comic-3',
         ),

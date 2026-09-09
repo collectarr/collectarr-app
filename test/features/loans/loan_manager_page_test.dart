@@ -57,7 +57,7 @@ void main() {
           id: OwnedItemId('owned-1'),
         ),
         catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             kind: CatalogMediaKind.comic,
             id: 'comic-1'),
         borrowerName: 'Alice',
@@ -118,7 +118,7 @@ void main() {
           id: OwnedItemId('owned-2'),
         ),
         catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             kind: CatalogMediaKind.comic,
             id: 'comic-2'),
         borrowerName: 'Bob',

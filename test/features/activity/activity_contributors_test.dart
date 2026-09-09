@@ -51,7 +51,7 @@ WatchSession _session(
     id: id,
     targetRef: CatalogEntityRef(
       kind: kind,
-      entityType: CatalogEntityType.episode,
+      entityType: const CatalogEntityTypeId('episode'),
       id: '$id-item',
     ),
     watchedAt: DateTime.utc(2026, 9, 5),

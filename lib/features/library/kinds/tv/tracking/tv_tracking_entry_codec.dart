@@ -115,7 +115,7 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
     return TvTrackingEntry(
       id: id,
       catalogRef: seasonNumber != null || episodeNumber != null
-          ? catalogRef.copyWith(entityType: CatalogEntityType.episode)
+          ? catalogRef.copyWith(entityType: const CatalogEntityTypeId('episode'))
           : catalogRef,
       coordinates: TvTrackingCoordinates(
         seasonNumber: seasonNumber,
@@ -148,7 +148,7 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
     return TvTrackingEntry(
       id: row.id,
       catalogRef: typed.hasEpisodeCoordinates
-          ? row.catalogRef.copyWith(entityType: CatalogEntityType.episode)
+          ? row.catalogRef.copyWith(entityType: const CatalogEntityTypeId('episode'))
           : row.catalogRef,
       ownedRef: row.ownedRef,
       sourceType: row.sourceType,

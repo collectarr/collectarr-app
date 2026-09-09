@@ -38,7 +38,7 @@ void main() {
         typedAddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
             kind: kind,
-            entityType: CatalogEntityType.ownedCopy,
+            entityType: const CatalogEntityTypeId('owned_copy'),
             id: 'contract-owned-${kind.apiValue}',
           ),
           common: const LibraryAddCommonDraft(

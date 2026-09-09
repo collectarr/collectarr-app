@@ -1567,7 +1567,7 @@ void main() {
             (ref) => {
               const CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityType.work,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'comic-423',
               ): const OwnedItemSummary(
                 ref: OwnedItemRef(
@@ -1577,7 +1577,7 @@ void main() {
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
                   kind: CatalogMediaKind.comic,
-                  entityType: CatalogEntityType.work,
+                  entityType: const CatalogEntityTypeId('work'),
                   id: 'comic-423',
                 ),
               ),
@@ -1638,7 +1638,7 @@ void main() {
             (ref) => {
               const CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: CatalogEntityType.work,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'comic-423',
               ): const OwnedItemSummary(
                 ref: OwnedItemRef(
@@ -1648,7 +1648,7 @@ void main() {
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
                   kind: CatalogMediaKind.comic,
-                  entityType: CatalogEntityType.work,
+                  entityType: const CatalogEntityTypeId('work'),
                   id: 'comic-423',
                 ),
               ),

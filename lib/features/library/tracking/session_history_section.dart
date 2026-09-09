@@ -221,11 +221,11 @@ class WatchHistorySection extends ConsumerWidget {
         return option.label;
       }
     }
-    return switch (targetRef.entityType) {
-      CatalogEntityType.work => 'Series',
-      CatalogEntityType.season => 'Season',
-      CatalogEntityType.episode => 'Episode',
-      CatalogEntityType.release => 'Release',
+    return switch (targetRef.entityType.apiValue) {
+      'work' => 'Series',
+      'season' => 'Season',
+      'episode' => 'Episode',
+      'release' => 'Release',
       _ => targetRef.entityType.apiValue,
     };
   }
@@ -375,7 +375,7 @@ class _WatchSessionTile extends StatelessWidget {
   }
 
   IconData labelsForSession(WatchSession session) {
-    return session.targetRef.entityType == CatalogEntityType.episode
+    return session.targetRef.entityType == const CatalogEntityTypeId('episode')
         ? Icons.play_circle_outline
         : Icons.visibility_outlined;
   }

@@ -207,7 +207,7 @@ Iterable<TvTrackingUnit> tvSeedTrackingUnits(
           id: 'seed-unit-tv-${item.id}-$episodeId',
           targetRef: CatalogEntityRef(
             kind: item.mediaKind,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: item.id,
           ),
           seasonNumber: seasonNumber,

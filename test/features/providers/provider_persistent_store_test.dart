@@ -106,7 +106,7 @@ void main() {
       localEntityRef: const CatalogEntityRef(
         id: 'anime-21',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       baseSnapshot: base,
       remoteRevision: 'rev-1',
@@ -116,7 +116,7 @@ void main() {
     await store.saveLink(link);
     final persisted = await store.getLinkByRemoteId('acc-1', 'remote-21');
 
-    expect(persisted?.localEntityRef.entityType, CatalogEntityType.work);
+    expect(persisted?.localEntityRef.entityType, const CatalogEntityTypeId('work'));
     expect(persisted?.baseSnapshot?.progress, 4);
     expect(persisted?.baseSnapshot?.rawPayload['source'], 'anilist');
     expect(persisted?.remoteRevision, 'rev-1');
@@ -151,7 +151,7 @@ void main() {
       const CatalogEntityRef(
         id: 'anime-21',
         kind: CatalogMediaKind.anime,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
       ),
     );
 

@@ -16,7 +16,7 @@ void main() {
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-typed',
-          entityType: CatalogEntityType.issue,
+          entityType: const CatalogEntityTypeId('issue'),
         ),
         details: const ComicOwnedDetails(gradingCompany: 'CGC'),
         updatedAt: DateTime.utc(2025, 1, 1),
@@ -35,7 +35,7 @@ void main() {
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-1',
-          entityType: CatalogEntityType.issue,
+          entityType: const CatalogEntityTypeId('issue'),
         ),
         details: const ComicOwnedDetails(),
         condition: 'Near Mint',
@@ -208,7 +208,7 @@ void main() {
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.book,
           id: 'b-1',
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
         targetPriceCents: 1500,
         currency: 'USD',
@@ -238,7 +238,7 @@ void main() {
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.movie,
           id: 'm-1',
-          entityType: CatalogEntityType.release,
+          entityType: const CatalogEntityTypeId('release'),
         ),
         rating: 9,
         notes: 'Great movie',

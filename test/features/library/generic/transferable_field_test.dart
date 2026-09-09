@@ -17,7 +17,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'work-1',
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
         details: const TestOwnedDetails(),
         condition: 'Mint',
@@ -84,7 +84,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'c-1',
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
         details: const ComicOwnedDetails(keyComic: true),
         updatedAt: DateTime(2026, 1, 1),
@@ -111,7 +111,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'm-1',
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
         details: const MovieOwnedDetails(packaging: 'Steelbook'),
         updatedAt: DateTime(2026, 1, 1),

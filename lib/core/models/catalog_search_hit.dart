@@ -33,8 +33,8 @@ final class CatalogSearchHit {
       ref: CatalogEntityRef(
         kind: kind,
         entityType: json['entity_type'] == null
-            ? CatalogEntityType.work
-            : CatalogEntityType.fromApiValue(
+            ? const CatalogEntityTypeId('work')
+            : CatalogEntityTypeId.fromApiValue(
                 json['entity_type']?.toString(),
               ),
         id: id,

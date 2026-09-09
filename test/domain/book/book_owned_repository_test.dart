@@ -16,7 +16,7 @@ void main() {
       id: const BookOwnedItemId('owned-book-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       condition: 'Fine',
@@ -53,7 +53,7 @@ void main() {
       id: const BookOwnedItemId('owned-book-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'comic-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),

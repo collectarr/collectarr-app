@@ -15,7 +15,7 @@ void main() {
 
     final ref = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityType.edition,
+      entityType: const CatalogEntityTypeId('edition'),
       id: 'book-edition-1',
     );
     final value = CustomFieldValue(

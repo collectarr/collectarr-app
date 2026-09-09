@@ -126,7 +126,7 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogRefProvider)[CatalogEntityRef(
               kind: CatalogMediaKind.tv,
-              entityType: CatalogEntityType.work,
+              entityType: const CatalogEntityTypeId('work'),
               id: itemId,
             )] ??
             const <TrackingEntry>[];

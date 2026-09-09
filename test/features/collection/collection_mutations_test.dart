@@ -341,7 +341,7 @@ void main() {
     );
 
     expect(tracking.ownedItemId, owned.key);
-    expect(trackingRef.entityType, CatalogEntityType.release);
+    expect(trackingRef.entityType, const CatalogEntityTypeId('release'));
     expect(trackingRef.id, 'variant-4k');
     expect(trackingRef.rootId, 'movie-2');
     expect(tracking.status, 'Completed');
@@ -619,7 +619,7 @@ void main() {
           original,
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
-            entityType: CatalogEntityType.bundleRelease,
+            entityType: const CatalogEntityTypeId('bundle_release'),
             id: 'bundle-1',
             rootId: 'movie-1',
           ),
@@ -634,7 +634,7 @@ void main() {
     final updatedRef = CatalogEntityRef.fromJson(
       jsonDecode(updated.catalogRefJson) as Map<String, dynamic>,
     );
-    expect(updatedRef.entityType, CatalogEntityType.bundleRelease);
+    expect(updatedRef.entityType, const CatalogEntityTypeId('bundle_release'));
     expect(updatedRef.id, 'bundle-1');
     expect(updatedRef.rootId, 'movie-1');
     expect(updated.targetPriceCents, 4599);
@@ -657,7 +657,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.edition,
+        entityType: const CatalogEntityTypeId('edition'),
         id: 'edition-4k',
         rootId: 'movie-1',
       ),
@@ -665,7 +665,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.edition,
+        entityType: const CatalogEntityTypeId('edition'),
         id: 'edition-bluray',
         rootId: 'movie-1',
       ),
@@ -700,7 +700,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.edition,
+        entityType: const CatalogEntityTypeId('edition'),
         id: 'edition-4k',
         rootId: 'movie-1',
       ),
@@ -708,7 +708,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.edition,
+        entityType: const CatalogEntityTypeId('edition'),
         id: 'edition-bluray',
         rootId: 'movie-1',
       ),
@@ -717,7 +717,7 @@ void main() {
     await wishlistMutations.removeFromWishlist(
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: CatalogEntityType.edition,
+        entityType: const CatalogEntityTypeId('edition'),
         id: 'edition-4k',
         rootId: 'movie-1',
       ),

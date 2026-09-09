@@ -17,7 +17,7 @@ void main() {
       id: const MusicOwnedItemId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'music-1',
       ),
       condition: 'Mint',
@@ -60,7 +60,7 @@ void main() {
       id: const MusicOwnedItemId('owned-music-invalid'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       updatedAt: DateTime.utc(2026, 9, 1),

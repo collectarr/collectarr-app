@@ -16,7 +16,7 @@ void main() {
       id: 'tv-sync-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: CatalogEntityType.work,
+        entityType: const CatalogEntityTypeId('work'),
         id: 'tv-1',
       ),
       coordinates: TvTrackingCoordinates(
@@ -32,7 +32,7 @@ void main() {
       id: entry.id,
       updatedAt: updatedAt,
     );
-    expect(restored.catalogRef.entityType, CatalogEntityType.episode);
+    expect(restored.catalogRef.entityType, const CatalogEntityTypeId('episode'));
     final coordinates = tvTrackingCoordinatesFor(restored);
     expect(coordinates.seasonNumber, 3);
     expect(coordinates.episodeNumber, 7);
@@ -52,7 +52,7 @@ void main() {
         id: 'tv-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: CatalogEntityType.episode,
+          entityType: const CatalogEntityTypeId('episode'),
           id: 'episode-1',
           rootId: 'tv-1',
         ),
@@ -67,7 +67,7 @@ void main() {
 
     final entry = await repository.findById('tv-tracking-1');
     final typed = await db.select(db.tvTrackingRows).getSingle();
-    expect(entry?.catalogRef.entityType, CatalogEntityType.episode);
+    expect(entry?.catalogRef.entityType, const CatalogEntityTypeId('episode'));
     expect(entry?.catalogRef.id, 'episode-1');
     expect(entry?.catalogRef.rootId, 'tv-1');
     final coordinates = tvTrackingCoordinatesFor(entry!);
@@ -98,7 +98,7 @@ void main() {
         id: 'movie-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'movie-1',
         ),
         updatedAt: DateTime.utc(2026, 9, 6),

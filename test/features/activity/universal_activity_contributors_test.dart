@@ -16,7 +16,7 @@ void main() {
   test('projects universal lifecycle domains without kind semantics', () {
     final catalogRef = const CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: 'book-activity',
     );
     final now = DateTime.utc(2026, 9, 1);
@@ -103,7 +103,7 @@ void main() {
           id: 'watch-1',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           watchedAt: DateTime.utc(2026, 1, 5),
@@ -129,7 +129,7 @@ void main() {
           id: 'tv-watch-1',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.tv,
-            entityType: CatalogEntityType.episode,
+            entityType: const CatalogEntityTypeId('episode'),
             id: 'tv-1',
           ),
           watchedAt: DateTime.utc(2026, 1, 5),

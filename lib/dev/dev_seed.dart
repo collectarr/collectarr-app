@@ -1041,7 +1041,7 @@ void _validateSeedTrackingUnits(
       );
     }
     if (unit.targetRef.kind.apiValue != catalog.kind ||
-        unit.targetRef.entityType != CatalogEntityType.work) {
+        unit.targetRef.entityType != const CatalogEntityTypeId('work')) {
       throw StateError(
         'Seed tracking unit ${unit.id} has invalid catalog reference '
         '${unit.targetRef.toJson()}',

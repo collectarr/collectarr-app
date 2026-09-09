@@ -213,7 +213,7 @@ final class TvTrackingRepository {
       targetRef: targetRef == null
           ? CatalogEntityRef(
               kind: CatalogMediaKind.tv,
-              entityType: CatalogEntityType.work,
+              entityType: const CatalogEntityTypeId('work'),
               id: row.seriesId,
             )
           : CatalogEntityRef.fromJson(

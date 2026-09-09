@@ -159,7 +159,7 @@ final watchSessionsByCatalogRefProvider =
         final targetId = session.targetRef.id;
         return targetId == catalogRef.id ||
             targetId.startsWith(rootPrefix) ||
-            (catalogRef.entityType == CatalogEntityType.work &&
+            (catalogRef.entityType == const CatalogEntityTypeId('work') &&
                 targetId.startsWith('${catalogRef.id}:release:'));
       }).toList(growable: false);
       matched.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
@@ -170,11 +170,11 @@ final watchSessionsByCatalogRefProvider =
 });
 
 String _catalogRefSessionPrefix(CatalogEntityRef catalogRef) {
-  return switch (catalogRef.entityType) {
-    CatalogEntityType.work => '${catalogRef.id}:season:',
-    CatalogEntityType.season => '${catalogRef.id}:episode:',
-    CatalogEntityType.episode => '${catalogRef.id}:',
-    CatalogEntityType.release => '${catalogRef.id}:',
+  return switch (catalogRef.entityType.apiValue) {
+    'work' => '${catalogRef.id}:season:',
+    'season' => '${catalogRef.id}:episode:',
+    'episode' => '${catalogRef.id}:',
+    'release' => '${catalogRef.id}:',
     _ => '${catalogRef.id}:',
   };
 }

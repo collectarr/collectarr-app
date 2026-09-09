@@ -15,7 +15,7 @@ void main() {
     id: const ComicOwnedItemId('owned-comic-1'),
     catalogRef: const CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityType.work,
+      entityType: const CatalogEntityTypeId('work'),
       id: 'comic-1',
     ),
     createdAt: DateTime.utc(2024, 1, 1),
@@ -107,7 +107,7 @@ void main() {
         ...item.toJson(),
         'catalog_ref': const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'book-1',
         ).toJson(),
       }),

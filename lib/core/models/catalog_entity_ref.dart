@@ -5,36 +5,49 @@ export 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 const Object _catalogEntityRefUnset = Object();
 
-enum CatalogEntityType {
-  work('work'),
-  season('season'),
-  edition('edition'),
-  release('release'),
-  issue('issue'),
-  episode('episode'),
-  track('track'),
-  bundleRelease('bundle_release'),
-  ownedCopy('owned_copy'),
-  trackingEntry('tracking_entry'),
-  copy('copy'),
-  unknown('unknown');
+/// Opaque entity identity carried by structural cross-feature references.
+///
+/// The owning kind decides which entity types it supports. Generic code may
+/// transport and compare this identifier, but must not treat the identifier
+/// set as a universal media ontology.
+@immutable
+final class CatalogEntityTypeId {
+  const CatalogEntityTypeId(this.apiValue);
 
-  const CatalogEntityType(this.apiValue);
+  static const _knownApiValues = <String>{
+    'work',
+    'season',
+    'edition',
+    'release',
+    'issue',
+    'episode',
+    'track',
+    'bundle_release',
+    'owned_copy',
+    'tracking_entry',
+    'copy',
+  };
 
   final String apiValue;
 
-  static CatalogEntityType fromApiValue(String? value) {
+  static CatalogEntityTypeId fromApiValue(String? value) {
     final normalized = value?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) {
-      return CatalogEntityType.unknown;
+      return const CatalogEntityTypeId('unknown');
     }
-    for (final type in CatalogEntityType.values) {
-      if (type.apiValue == normalized) {
-        return type;
-      }
+    if (_knownApiValues.contains(normalized)) {
+      return CatalogEntityTypeId(normalized);
     }
-    return CatalogEntityType.unknown;
+    return const CatalogEntityTypeId('unknown');
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CatalogEntityTypeId && other.apiValue == apiValue;
+
+  @override
+  int get hashCode => apiValue.hashCode;
 }
 
 @immutable
@@ -49,7 +62,7 @@ class CatalogEntityRef {
   /// The owning media kind is typed in memory. It is serialized as the
   /// stable API value only at transport/database boundaries.
   final CatalogMediaKind kind;
-  final CatalogEntityType entityType;
+  final CatalogEntityTypeId entityType;
   final String id;
 
   /// Root catalog entity used to group child targets in feature projections.
@@ -63,7 +76,7 @@ class CatalogEntityRef {
   bool get isKnown =>
       !kind.isUnknown &&
       id.trim().isNotEmpty &&
-      entityType != CatalogEntityType.unknown;
+      entityType != const CatalogEntityTypeId('unknown');
 
   Map<String, Object?> toJson() {
     return {
@@ -78,7 +91,7 @@ class CatalogEntityRef {
     return CatalogEntityRef(
       kind: catalogMediaKindFromApiValue(json['kind'] as String?),
       entityType:
-          CatalogEntityType.fromApiValue(json['entity_type'] as String?),
+          CatalogEntityTypeId.fromApiValue(json['entity_type'] as String?),
       id: json['id'] as String? ?? '',
       rootId: json['root_id'] as String?,
     );
@@ -86,7 +99,7 @@ class CatalogEntityRef {
 
   CatalogEntityRef copyWith({
     CatalogMediaKind? kind,
-    CatalogEntityType? entityType,
+    CatalogEntityTypeId? entityType,
     String? id,
     Object? rootId = _catalogEntityRefUnset,
   }) {

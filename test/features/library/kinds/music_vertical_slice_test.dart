@@ -128,7 +128,7 @@ void main() {
           catalogRef: const CatalogEntityRef(
             id: 'music_1',
             kind: CatalogMediaKind.music,
-            entityType: CatalogEntityType.work,
+            entityType: const CatalogEntityTypeId('work'),
           ),
           details: const TestOwnedDetails(),
           condition: 'Near Mint',

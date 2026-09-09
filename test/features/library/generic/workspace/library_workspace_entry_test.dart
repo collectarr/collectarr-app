@@ -66,7 +66,7 @@ void main() {
         id: 'tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
           id: 'book-1',
         ),
         status: MediaTrackingStatus.inProgress,
