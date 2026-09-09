@@ -45,13 +45,22 @@ class WishlistItemsCacheRepository {
   Future<WishlistItem?> findActiveByCatalogRef(
     CatalogEntityRef catalogRef,
   ) async {
-    final items = await listActiveByItemId(catalogRef.rootId ?? catalogRef.id);
-    for (final item in items) {
-      if (_sameCatalogRef(item.catalogRef, catalogRef)) {
-        return item;
-      }
-    }
-    return null;
+    return (await findActiveByCatalogRefs([catalogRef])).firstOrNull;
+  }
+
+  Future<List<WishlistItem>> findActiveByCatalogRefs(
+    Iterable<CatalogEntityRef> catalogRefs,
+  ) async {
+    final wanted = catalogRefs.toSet();
+    if (wanted.isEmpty) return const [];
+
+    final rows = await (_db.select(_db.wishlistItemsCache)
+          ..where((row) => row.deletedAt.isNull()))
+        .get();
+    return [
+      for (final row in rows)
+        if (wanted.contains(_fromCache(row).catalogRef)) _fromCache(row),
+    ];
   }
 
   Future<List<WishlistItem>> findActiveByItemIds(
@@ -153,12 +162,5 @@ class WishlistItemsCacheRepository {
       updatedAt: item.updatedAt,
       deletedAt: Value(item.deletedAt),
     );
-  }
-
-  bool _sameCatalogRef(CatalogEntityRef left, CatalogEntityRef right) {
-    return left.kind == right.kind &&
-        left.entityType == right.entityType &&
-        left.id == right.id &&
-        left.rootId == right.rootId;
   }
 }

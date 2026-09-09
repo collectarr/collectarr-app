@@ -63,69 +63,72 @@ final class CollectionImportService {
     // already exists and which kind owns it. Do not rehydrate full catalog
     // DTO graphs here; the kind CSV profile creates a transport snapshot only
     // for genuinely new catalog identities below.
-    final existingCatalogSummaries = await catalogSummaries.findByIds(
-      resolvedRows.map((row) => row.itemId),
-    );
+    final rowRefs = [
+      for (final row in resolvedRows)
+        if (_catalogRefForRow(row) case final ref?) ref,
+    ];
+    final existingCatalogSummaries = await catalogSummaries.findByRefs(rowRefs);
     final importedCatalogSnapshots = <CatalogImportSnapshot>[];
-    final importedCatalogSnapshotsById = <String, CatalogImportSnapshot>{};
+    final importedCatalogSnapshotsByRef =
+        <CatalogEntityRef, CatalogImportSnapshot>{};
     for (final row in resolvedRows) {
+      final rowRef = _catalogRefForRow(row);
+      if (rowRef == null) continue;
       // An existing catalog item is already authoritative local state. Only
       // a kind-owned CSV projection may create a new catalog snapshot for an
       // import row; Collection must not re-persist existing metadata or
       // synthesize a generic semantic fallback.
-      if (existingCatalogSummaries.containsKey(row.itemId)) continue;
+      if (existingCatalogSummaries.containsKey(rowRef)) continue;
       final snapshot = _catalogSnapshotFromCsvRow(row);
       if (snapshot == null) continue;
-      importedCatalogSnapshotsById[row.itemId] = snapshot;
+      importedCatalogSnapshotsByRef[rowRef] = snapshot;
       importedCatalogSnapshots.add(snapshot);
     }
 
     final now = DateTime.now().toUtc();
     final existingWishlist = {
-      for (final item in await wishlist.findActiveByItemIds(
-        resolvedRows.map((row) => row.itemId),
-      ))
-        item.itemId: item,
+      for (final item in await wishlist.findActiveByCatalogRefs(rowRefs))
+        item.catalogRef: item,
     };
     final existingOwned = {
       for (final item in await ownedItems.listActiveSummaries().then(
             (items) => items.where(
-              (item) => resolvedRows.any(
-                (row) => row.itemId == item.itemId,
-              ),
+              (item) =>
+                  item.catalogRef != null && rowRefs.contains(item.catalogRef),
             ),
           ))
-        item.itemId: item,
+        if (item.catalogRef != null) item.catalogRef!: item,
     };
     final existingTracking = {
-      for (final entry in await trackingEntries.findActiveByItemIds(
-        resolvedRows.map((row) => row.itemId),
-      ))
-        entry.ownedItemId ?? entry.itemId: entry,
+      for (final entry
+          in await trackingEntries.findActiveByCatalogRefs(rowRefs))
+        entry.catalogRef: entry,
     };
 
-    final activeWishlistItemIds = existingWishlist.keys.toSet();
+    final activeWishlistRefs = existingWishlist.keys.toSet();
     final ownedItemRefs = <OwnedItemRef>[];
     final typedOwnedItems = <(CatalogMediaKind kind, Object item)>[];
     final trackingEntriesList = <TrackingEntry>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
-    final snapshotItemIds = <String>{};
+    final snapshotRefs = <CatalogEntityRef>{};
     var imported = 0;
 
     for (final row in resolvedRows) {
       if (!row.isOwned && !row.isWishlisted) continue;
+      final rowRef = _catalogRefForRow(row);
+      if (rowRef == null) continue;
 
       imported++;
-      final importedCatalogSnapshot = importedCatalogSnapshotsById[row.itemId];
-      final existingCatalogSummary = existingCatalogSummaries[row.itemId];
+      final importedCatalogSnapshot = importedCatalogSnapshotsByRef[rowRef];
+      final existingCatalogSummary = existingCatalogSummaries[rowRef];
       final catalogKind = importedCatalogSnapshot?.kind.apiValue ??
           existingCatalogSummary?.kind.apiValue ??
           row.kind;
       final catalogId = importedCatalogSnapshot?.id ?? row.itemId;
       if ((importedCatalogSnapshot != null || existingCatalogSummary != null) &&
-          snapshotItemIds.add(catalogId)) {
+          snapshotRefs.add(rowRef)) {
         syncChanges.add(
           SyncChange(
             id: 'catalog:$catalogId:upsert:${now.millisecondsSinceEpoch}',
@@ -138,9 +141,9 @@ final class CollectionImportService {
         );
       }
 
-      final existingWishlistItem = existingWishlist[row.itemId];
+      final existingWishlistItem = existingWishlist[rowRef];
       if (row.isOwned) {
-        final existingOwnedSummary = existingOwned[row.itemId];
+        final existingOwnedSummary = existingOwned[rowRef];
         final existingTypedOwned = existingOwnedSummary == null
             ? null
             : await ownedItems.findTypedByRef(existingOwnedSummary.ref);
@@ -171,8 +174,7 @@ final class CollectionImportService {
           ownedRef: ownedRef,
           catalogRef: typedImport.catalogRef,
           now: now,
-          existing: existingTracking[ownedRef.id.value] ??
-              existingTracking[typedImport.catalogRef.id],
+          existing: existingTracking[typedImport.catalogRef],
         );
         if (trackingEntry != null) {
           trackingEntriesList.add(trackingEntry);
@@ -189,7 +191,7 @@ final class CollectionImportService {
         }
 
         if (existingWishlistItem != null &&
-            activeWishlistItemIds.contains(row.itemId)) {
+            activeWishlistRefs.contains(rowRef)) {
           final deleted = existingWishlistItem.copyWith(
             updatedAt: now,
             deletedAt: now,
@@ -205,11 +207,11 @@ final class CollectionImportService {
               clientChangedAt: now,
             ),
           );
-          activeWishlistItemIds.remove(row.itemId);
+          activeWishlistRefs.remove(rowRef);
         }
       }
 
-      if (row.isWishlisted && !activeWishlistItemIds.contains(row.itemId)) {
+      if (row.isWishlisted && !activeWishlistRefs.contains(rowRef)) {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
@@ -231,7 +233,7 @@ final class CollectionImportService {
             clientChangedAt: now,
           ),
         );
-        activeWishlistItemIds.add(row.itemId);
+        activeWishlistRefs.add(rowRef);
       }
     }
 
@@ -309,7 +311,7 @@ final class CollectionImportService {
           }
         }
       }
-      if (row.itemId.trim().isNotEmpty) {
+      if (row.itemId.trim().isNotEmpty && _catalogRefForRow(row) != null) {
         candidateRows.add(row);
       } else if ((row.title != null && row.title!.trim().isNotEmpty) ||
           lookup.barcode != null ||
@@ -322,33 +324,42 @@ final class CollectionImportService {
 
     final validRows = candidateRows;
 
-    final seenItemIds = <String>{};
+    final seenRefs = <CatalogEntityRef>{};
     final uniqueRows = <CollectionCsvRow>[];
     final duplicateRows = <CollectionCsvRow>[];
 
     for (final row in validRows) {
-      if (seenItemIds.contains(row.itemId)) {
+      final ref = _catalogRefForRow(row);
+      if (ref == null) {
+        unresolvedRows.add(row);
+        continue;
+      }
+      if (seenRefs.contains(ref)) {
         duplicateRows.add(row);
       } else {
-        seenItemIds.add(row.itemId);
+        seenRefs.add(ref);
         uniqueRows.add(row);
       }
     }
 
-    final uniqueItemIds = uniqueRows.map((row) => row.itemId).toSet();
+    final uniqueRefs =
+        uniqueRows.map(_catalogRefForRow).whereType<CatalogEntityRef>().toSet();
     final existingOwnedMap = {
       for (final item
           in await ownedItems.listActiveSummaries().then((items) => items.where(
-                (item) => uniqueItemIds.contains(item.itemId),
+                (item) =>
+                    item.catalogRef != null &&
+                    uniqueRefs.contains(item.catalogRef),
               )))
-        item.itemId: item,
+        if (item.catalogRef != null) item.catalogRef!: item,
     };
 
     final resolvedRows = <CollectionCsvRow>[];
     final conflictRows = <CollectionCsvRow>[];
 
     for (final row in uniqueRows) {
-      if (existingOwnedMap.containsKey(row.itemId)) {
+      final rowRef = _catalogRefForRow(row);
+      if (rowRef != null && existingOwnedMap.containsKey(rowRef)) {
         conflictRows.add(row);
       } else {
         resolvedRows.add(row);
@@ -361,6 +372,18 @@ final class CollectionImportService {
       duplicateRows: duplicateRows,
       skippedRows: skippedRows,
       unresolvedRows: unresolvedRows,
+    );
+  }
+
+  CatalogEntityRef? _catalogRefForRow(CollectionCsvRow row) {
+    final kind = row.kind?.trim();
+    if (kind == null || kind.isEmpty || row.itemId.trim().isEmpty) {
+      return null;
+    }
+    return CatalogEntityRef(
+      kind: kind,
+      entityType: CatalogEntityType.work,
+      id: row.itemId,
     );
   }
 

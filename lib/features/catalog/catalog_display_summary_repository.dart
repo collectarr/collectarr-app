@@ -20,23 +20,6 @@ final class CatalogDisplaySummaryRepository {
   final LocalDatabase _db;
   final List<CatalogKindSummaryReader> _readers;
 
-  Future<Map<String, CatalogDisplaySummary>> findByIds(
-    Iterable<String> ids,
-  ) async {
-    final wanted = ids.toSet();
-    if (wanted.isEmpty) return const {};
-
-    final result = <String, CatalogDisplaySummary>{};
-    for (final reader in _readers) {
-      for (final summary in await reader.listSummaries(_db)) {
-        if (wanted.contains(summary.id)) {
-          result[summary.id] = summary;
-        }
-      }
-    }
-    return result;
-  }
-
   Future<List<CatalogDisplaySummary>> findAll({String? kind}) async {
     final normalizedKind = kind?.trim().toLowerCase();
     final summaries = <CatalogDisplaySummary>[];

@@ -1328,6 +1328,7 @@ void main() {
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
+          kind: 'comic',
           status: 'owned',
           grade: '7.5',
         ),
@@ -1363,6 +1364,7 @@ void main() {
       const [
         CollectionCsvRow(
           itemId: 'comic-1',
+          kind: 'comic',
           status: 'owned',
           grade: '7.5',
           locationId: 'loc-box-6',

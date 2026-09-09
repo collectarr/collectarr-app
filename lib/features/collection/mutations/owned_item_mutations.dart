@@ -49,17 +49,17 @@ final class OwnedItemMutations {
     final catalogRef = command.catalogRef;
     final anchor = command.anchor;
     final wishlistTargetRef = command.targetRef ?? catalogRef;
+    final catalogLookupRef = _catalogWorkRef(command.targetRef ?? catalogRef);
 
     final existingWishlist =
         await wishlist.findActiveByCatalogRef(wishlistTargetRef);
+    final existingCatalog = (await catalogSummaries
+        .findByRefs([catalogLookupRef]))[catalogLookupRef];
     final wishlistChanged = existingWishlist != null;
     final newItemId = idGenerator();
 
     final ownedRef = await mutationRunner.run(
       action: () async {
-        final existingCatalog =
-            (await catalogSummaries.findByRefs([catalogRef]))[catalogRef];
-
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef,
           existingCatalog?.ref,
@@ -223,6 +223,19 @@ final class OwnedItemMutations {
       );
     }
     return catalogRef;
+  }
+
+  CatalogEntityRef _catalogWorkRef(CatalogEntityRef ref) {
+    if (ref.entityType == CatalogEntityType.ownedCopy ||
+        ref.entityType == CatalogEntityType.copy ||
+        ref.entityType == CatalogEntityType.trackingEntry) {
+      return ref.copyWith(
+        entityType: CatalogEntityType.work,
+        id: ref.rootId ?? ref.id,
+        rootId: null,
+      );
+    }
+    return ref;
   }
 
   CatalogEntityRef _catalogRefForAnchor(

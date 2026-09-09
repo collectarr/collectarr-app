@@ -67,6 +67,16 @@ class TrackingEntriesCacheRepository {
     return items;
   }
 
+  Future<List<TrackingEntry>> findActiveByCatalogRefs(
+    Iterable<CatalogEntityRef> catalogRefs,
+  ) async {
+    final wanted = catalogRefs.toSet();
+    if (wanted.isEmpty) return const [];
+    return (await listActive())
+        .where((entry) => wanted.contains(entry.catalogRef))
+        .toList(growable: false);
+  }
+
   Future<void> upsert(TrackingEntry item) async {
     await _db.transaction(() async {
       await _db.into(_db.trackingEntriesCache).insert(
