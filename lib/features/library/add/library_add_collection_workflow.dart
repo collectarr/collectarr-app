@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_tracking_
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 class LibraryAddDefaults {
   const LibraryAddDefaults({
@@ -118,7 +117,7 @@ Future<void> addLibraryItemsToTarget({
           item,
           itemCommon,
           kindDraftsByItemId[item.id] ?? capability.createInitialDraft(),
-          anchor: itemAnchor,
+          targetRef: reference.catalogRef,
           tracking: baseTracking,
         );
         final ownedItem = await ownedMutations.addOwnedItem(addCmd);

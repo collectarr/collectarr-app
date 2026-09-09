@@ -230,7 +230,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       isDigital: common.isDigital,
     ),
     details,
-    anchor: anchor,
+    targetRef: _targetRefForAnchor(catalogRef, anchor),
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,

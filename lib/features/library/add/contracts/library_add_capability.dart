@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
@@ -210,21 +208,21 @@ abstract interface class LibraryAddCapability<
 
   AddOwnedItemCommand buildCommand(LibraryAddCatalogItem item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
-      {PersonalItemAnchor? anchor,
+      {CatalogEntityRef? targetRef,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 
   AddOwnedItemCommand buildCommandFromDetails(
     LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details, {
-    PersonalItemAnchor? anchor,
+    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   });
 
   AddOwnedItemCommand? buildCommandFromOwnedItem(
     LibraryAddCatalogItem item,
     OwnedItem ownedItem, {
-    PersonalItemAnchor? anchor,
+    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   });
 }
@@ -333,7 +331,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   AddOwnedItemCommand buildCommand(LibraryAddCatalogItem item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
-      {PersonalItemAnchor? anchor,
+      {CatalogEntityRef? targetRef,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     final details = effectiveDraft.toOwnedDetailsDraft();
@@ -345,7 +343,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       typedPayload: typedPayload,
-      targetRef: item.catalogRefForPersonalAnchor(anchor),
+      targetRef: targetRef ?? item.catalogRef,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
@@ -361,7 +359,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details, {
-    PersonalItemAnchor? anchor,
+    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   }) {
     final typedPayload = _buildOwnedPayload(item, common, details);
@@ -372,7 +370,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       typedPayload: typedPayload,
-      targetRef: item.catalogRefForPersonalAnchor(anchor),
+      targetRef: targetRef ?? item.catalogRef,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,
@@ -387,7 +385,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   AddOwnedItemCommand? buildCommandFromOwnedItem(
     LibraryAddCatalogItem item,
     OwnedItem ownedItem, {
-    PersonalItemAnchor? anchor,
+    CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   }) {
     final payload = existingOwnedPayloadBuilder?.call(
@@ -404,7 +402,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
         id: item.id,
       ),
       typedPayload: payload,
-      targetRef: item.catalogRefForPersonalAnchor(anchor),
+      targetRef: targetRef ?? ownedItem.catalogRef,
       tracking: OwnedItemTrackingDraft(
         status: mediaTrackingStatusFromValue(tracking.readStatus),
         rating: tracking.rating,

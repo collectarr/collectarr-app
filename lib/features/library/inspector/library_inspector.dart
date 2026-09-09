@@ -653,10 +653,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView item, {
     OwnedItem? ownedItem,
   }) async {
-    final anchor = resolveLibraryMutationAnchor(
-      item: item,
-      ownedItem: ownedItem,
-    );
     final catalogItem = item.source.catalogItem;
     if (catalogItem == null) {
       return;
@@ -666,7 +662,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             LibraryAddCatalogItem.fromItem(catalogItem),
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
-            anchor: anchor,
+            targetRef: ownedItem?.catalogRef ?? catalogItem.catalogRef,
           ),
         );
     if (!mounted) {
@@ -702,7 +698,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final command = widget.type.add.buildCommandFromOwnedItem(
       LibraryAddCatalogItem.fromItem(catalogItem),
       ownedItem,
-      anchor: ownedItem.anchor,
+      targetRef: ownedItem.catalogRef,
       tracking: LibraryAddTrackingDraft(
         readStatus: mediaTrackingStatusToStorageValue(
           item.source.trackingEntry?.status,

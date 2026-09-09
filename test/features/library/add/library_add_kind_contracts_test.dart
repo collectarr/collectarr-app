@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_ad
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
@@ -194,7 +195,11 @@ void main() {
           LibraryAddCatalogItem.fromItem(metadataItem),
           common,
           initialDraft,
-          anchor: selectedAnchor,
+          targetRef: catalogRefForLibrarySelection(
+            metadataItem.catalogRef,
+            editionId: selectedAnchor?.editionId,
+            variantId: selectedAnchor?.variantId,
+          ),
           tracking: const LibraryAddTrackingDraft(rating: 9),
         );
         expect(command.catalogRef.id, item.id);
@@ -203,7 +208,7 @@ void main() {
         expect(command.tracking?.notes, isNull);
         expect(command.typedPayload, isNotNull,
             reason: '$kind must build a kind-owned Owned create payload');
-        expect(command.typedPayload!.catalogRef.kind.apiValue, kind.apiValue,
+        expect(command.typedPayload.catalogRef.kind.apiValue, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
         expect(runtime.edit.ownedIndexUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned Owned index payload');
@@ -216,7 +221,7 @@ void main() {
         expect(runtime.edit.ownedTransferUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned transfer payload');
 
-        final existing = command.typedPayload!.toOwnedItem(
+        final existing = command.typedPayload.toOwnedItem(
           resolvedCatalogRef: command.catalogRef,
           id: 'existing-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 1),
@@ -227,14 +232,18 @@ void main() {
         final duplicate = addCap.buildCommandFromOwnedItem(
           LibraryAddCatalogItem.fromItem(metadataItem),
           _ownedItemForLegacyAddBoundary(existing),
-          anchor: selectedAnchor,
+          targetRef: catalogRefForLibrarySelection(
+            metadataItem.catalogRef,
+            editionId: selectedAnchor?.editionId,
+            variantId: selectedAnchor?.variantId,
+          ),
           tracking: const LibraryAddTrackingDraft(readStatus: 'Completed'),
         );
         expect(duplicate, isNotNull,
             reason: '$kind must support typed Owned duplication');
-        expect(duplicate!.typedPayload, isNotNull);
-        final duplicatedOwned = duplicate.typedPayload!.toOwnedItem(
-          resolvedCatalogRef: duplicate.catalogRef,
+        final duplicateCommand = duplicate!;
+        final duplicatedOwned = duplicateCommand.typedPayload.toOwnedItem(
+          resolvedCatalogRef: duplicateCommand.catalogRef,
           id: 'duplicate-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 2),
           existingIsDigital: metadataItem.physicalFormat == 'digital',
@@ -242,12 +251,12 @@ void main() {
           ownerLabel: null,
         );
         _expectDuplicatedOwnedFields(duplicatedOwned);
-        expect(command.typedPayload!.detailsDraft,
+        expect(command.typedPayload.detailsDraft,
             isNot(isA<TestOwnedDetailsDraft>()),
             reason: '$kind command details must not be TestOwnedDetailsDraft');
 
         expect(
-          command.typedPayload!.detailsDraft.runtimeType,
+          command.typedPayload.detailsDraft.runtimeType,
           expectedOwnedDetailsDraftTypes[kind],
           reason: '$kind must expose its concrete owned details draft type',
         );

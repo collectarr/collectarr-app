@@ -19,11 +19,6 @@ class LibraryCollectionActions {
   final WishlistMutations wishlistMutations;
 
   Future<void> addOwned(LibraryProjectionItem item) {
-    final anchor = resolveLibraryMutationAnchor(
-      item: item,
-      ownedItem: item.source.ownedItem,
-      wishlistItem: item.source.wishlistItem,
-    );
     final catalogItem = item.source.catalogItem!;
     final runtime = libraryKindModuleForKind(
       catalogMediaKindFromApiValue(catalogItem.kind),
@@ -33,7 +28,9 @@ class LibraryCollectionActions {
         LibraryAddCatalogItem.fromItem(catalogItem),
         const LibraryAddCommonDraft(),
         runtime.add.createInitialDraft(),
-        anchor: anchor,
+        targetRef: item.source.ownedItem?.catalogRef ??
+            item.source.wishlistItem?.catalogRef ??
+            catalogItem.catalogRef,
       ),
     );
   }

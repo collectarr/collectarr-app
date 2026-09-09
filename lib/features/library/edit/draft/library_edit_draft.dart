@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -571,8 +572,8 @@ class LibraryEditDraft {
       LibraryAddCatalogItem.fromItem(item),
       buildCommonDraft(),
       buildDetailsDraft(),
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: personal.selectedOwnedAnchorType.apiValue,
+      targetRef: catalogRefForLibrarySelection(
+        item.catalogRef,
         editionId: personal.selectedEditionId,
         variantId: personal.selectedVariantId,
         bundleReleaseId: personal.selectedBundleReleaseId,

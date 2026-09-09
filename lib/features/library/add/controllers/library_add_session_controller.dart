@@ -38,7 +38,6 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_it
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
@@ -170,6 +169,16 @@ class LibraryAddSessionController
   }
 
   CatalogEntityRef _selectedWishlistRef(LibraryAddCatalogItem item) {
+    final selection = state.selection;
+    return catalogRefForLibrarySelection(
+      item.catalogRef,
+      editionId: selection.selectedReferenceEditionId,
+      variantId: selection.selectedReferenceVariantId,
+      bundleReleaseId: selection.selectedBundleReleaseId,
+    );
+  }
+
+  CatalogEntityRef _selectedTargetRef(LibraryAddCatalogItem item) {
     final selection = state.selection;
     return catalogRefForLibrarySelection(
       item.catalogRef,
@@ -1314,7 +1323,7 @@ class LibraryAddSessionController
         item,
         state.commonDraft,
         state.manualDraft,
-        anchor: _selectedAnchor,
+        targetRef: _selectedTargetRef(item),
         tracking: state.trackingDraft,
       );
 
@@ -1435,7 +1444,7 @@ class LibraryAddSessionController
             metadataItem,
             state.commonDraft,
             state.manualDraft,
-            anchor: _selectedAnchor,
+            targetRef: _selectedTargetRef(metadataItem),
             tracking: state.trackingDraft,
           );
 
@@ -1496,7 +1505,7 @@ class LibraryAddSessionController
           selectedResult,
           state.commonDraft,
           state.manualDraft,
-          anchor: _selectedAnchor,
+          targetRef: _selectedTargetRef(selectedResult),
           tracking: state.trackingDraft,
         );
 

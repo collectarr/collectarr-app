@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -198,7 +197,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       isDigital: common.isDigital,
     ),
     details,
-    anchor: anchor,
+    targetRef: _targetRefForAnchor(catalogRef, anchor),
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,

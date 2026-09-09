@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -82,10 +81,6 @@ class LibraryBulkActions {
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
       final entry = entriesToOwn[index];
-      final anchor = resolveLibraryMutationAnchor(
-        ownedItem: entry.ownedItem,
-        wishlistItem: entry.wishlistItem,
-      );
       final resolvedKind = entry.catalogItem?.mediaKind ??
           entry.wishlistItem?.catalogRef.mediaKind ??
           entry.trackingEntry?.catalogRef.mediaKind ??
@@ -107,7 +102,9 @@ class LibraryBulkActions {
             LibraryAddCatalogItem.fromItem(catalogItem),
             common,
             libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
-            anchor: anchor,
+            targetRef: entry.ownedItem?.catalogRef ??
+                entry.wishlistItem?.catalogRef ??
+                entry.catalogItem?.catalogRef,
             tracking: LibraryAddTrackingDraft(
               readStatus: defaultReadStatus,
             ),
@@ -170,7 +167,7 @@ class LibraryBulkActions {
           : runtime.add.buildCommandFromOwnedItem(
               LibraryAddCatalogItem.fromItem(catalogItem),
               src,
-              anchor: src.anchor,
+              targetRef: src.catalogRef,
               tracking: tracking ?? const LibraryAddTrackingDraft(),
             );
       if (typedCommand == null) {
