@@ -165,7 +165,7 @@ final class TvCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.tv,

@@ -18,7 +18,7 @@ void main() {
     final episode = CustomEpisode(
       id: 'tv-custom-1',
       seriesRef: const CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.work,
         id: 'tv-series-1',
       ),
@@ -62,7 +62,7 @@ void main() {
     final episode = CustomEpisode(
       id: 'movie-custom-1',
       seriesRef: const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.work,
         id: 'movie-1',
       ),

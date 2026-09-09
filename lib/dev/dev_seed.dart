@@ -677,14 +677,15 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     require(catalog != null,
         'owned ${row.ref.id.value} references missing ${row.catalogRef?.id}');
     require(
-      row.catalogRef?.kind == catalog?.kind,
+      row.catalogRef?.kind.apiValue == catalog?.kind,
       'owned ${row.ref.id.value} kind ${row.catalogRef?.kind} does not match '
       'catalog ${row.catalogRef?.id}',
     );
   }
   for (final row in seededTrackingRows) {
+    final ownedRef = ownedItemRefFromSerialized(row.ownedItemId);
     require(
-      row.ownedItemId != null && ownedById.containsKey(row.ownedItemId),
+      ownedRef != null && ownedById.containsKey(ownedRef.id.value),
       'tracking ${row.id} references missing owned item',
     );
     require(
@@ -1039,14 +1040,14 @@ void _validateSeedTrackingUnits(
         '${unit.targetRef.id}',
       );
     }
-    if (unit.targetRef.kind != catalog.kind ||
+    if (unit.targetRef.kind.apiValue != catalog.kind ||
         unit.targetRef.entityType != CatalogEntityType.work) {
       throw StateError(
         'Seed tracking unit ${unit.id} has invalid catalog reference '
         '${unit.targetRef.toJson()}',
       );
     }
-    if (!supportedKinds.contains(unit.targetRef.kind)) {
+    if (!supportedKinds.contains(unit.targetRef.kind.apiValue)) {
       throw StateError(
         'Seed tracking unit ${unit.id} has no typed coordinate codec for '
         '${unit.targetRef.kind}',
@@ -1163,7 +1164,7 @@ void _validateSeedFixtures({
         'Tracking seed ${entry.id} references missing catalog ${entry.catalogRef.id}',
       );
     }
-    if (entry.catalogRef.kind != catalog.kind) {
+    if (entry.catalogRef.kind.apiValue != catalog.kind) {
       throw StateError(
         'Tracking seed ${entry.id} kind ${entry.catalogRef.kind} does not '
         'match catalog ${catalog.id} kind ${catalog.kind}',

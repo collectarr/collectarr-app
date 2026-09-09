@@ -130,7 +130,7 @@ void main() {
       final owned = await ownedMutations.addOwnedItem(
         typedAddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
-            kind: 'music',
+            kind: CatalogMediaKind.music,
             entityType: CatalogEntityType.work,
             id: 'music-album-1',
           ),

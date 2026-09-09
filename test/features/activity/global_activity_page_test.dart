@@ -15,7 +15,7 @@ GlobalActivityEntry _entry(
   return GlobalActivityEntry(
     event: ActivityEvent(kind: kind, timestamp: ts),
     itemRef: CatalogEntityRef(
-      kind: mediaType,
+      kind: catalogMediaKindFromApiValue(mediaType),
       entityType: CatalogEntityType.work,
       id: title,
     ),

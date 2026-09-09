@@ -42,7 +42,7 @@ final class CatalogItemEnvelopeDto {
         (json['id'] ?? json['ref_id'] ?? _mapValue(json['ref'])?['id'] ?? '')
             .toString();
     final ref = CatalogEntityRef(
-      kind: resolvedKind.apiValue,
+      kind: resolvedKind,
       entityType: CatalogEntityType.work,
       id: id,
     );

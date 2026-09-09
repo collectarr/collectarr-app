@@ -13,7 +13,7 @@ void main() {
         id: 'owned_1',
         catalogRef: const CatalogEntityRef(
           id: 'cat_1',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.work,
         ),
         details: const TestOwnedDetails(),
@@ -61,7 +61,7 @@ void main() {
         id: 'wish_1',
         catalogRef: const CatalogEntityRef(
           id: 'cat_2',
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           entityType: CatalogEntityType.work,
         ),
         notes: 'Looking for 4K edition',

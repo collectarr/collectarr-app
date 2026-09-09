@@ -36,7 +36,7 @@ LibraryCalendarContext _contextFor(CatalogMediaKind kind) {
             WatchSession(
               id: '${kind.apiValue}-calendar-session',
               targetRef: CatalogEntityRef(
-                kind: kind.apiValue,
+                kind: kind,
                 entityType: CatalogEntityType.episode,
                 id: '${kind.apiValue}-calendar-contract-item',
               ),

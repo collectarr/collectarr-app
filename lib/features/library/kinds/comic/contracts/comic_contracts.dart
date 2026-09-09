@@ -287,7 +287,7 @@ final class ComicCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.comic,

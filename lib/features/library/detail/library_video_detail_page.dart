@@ -168,7 +168,7 @@ class _LibraryVideoDetailPageState
       wishlistItems: wishlistItems,
     );
     final itemRef = CatalogEntityRef(
-      kind: request.type.kind.apiValue,
+      kind: request.type.kind,
       entityType: CatalogEntityType.work,
       id: request.item.source.itemId,
     );

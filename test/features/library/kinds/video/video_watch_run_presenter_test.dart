@@ -7,7 +7,7 @@ WatchSession _session(int season, int episode, DateTime at) {
   return WatchSession(
     id: '$season-$episode-$at',
     targetRef: const CatalogEntityRef(
-      kind: 'tv',
+      kind: CatalogMediaKind.tv,
       entityType: CatalogEntityType.work,
       id: 'series-1',
     ),

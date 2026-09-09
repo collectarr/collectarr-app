@@ -30,7 +30,7 @@ class TvEpisodeDiscMapTab extends ConsumerWidget {
     final customEpisodesAsync = ref.watch(
       customEpisodesByCatalogRefProvider(
         CatalogEntityRef(
-          kind: type.kind.apiValue,
+          kind: type.kind,
           entityType: CatalogEntityType.work,
           id: item.id,
         ),

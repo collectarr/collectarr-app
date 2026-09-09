@@ -13,7 +13,7 @@ void main() {
     return TrackingEntry(
       id: '$kind-entry',
       catalogRef: CatalogEntityRef(
-        kind: kind,
+        kind: catalogMediaKindFromApiValue(kind),
         entityType: CatalogEntityType.work,
         id: '$kind-work',
       ),
@@ -63,7 +63,7 @@ void main() {
     final legacy = TrackingEntry(
       id: 'legacy-tv-entry',
       catalogRef: const CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.episode,
         id: 'episode-1',
         rootId: 'series-1',

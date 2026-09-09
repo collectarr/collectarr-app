@@ -24,7 +24,7 @@ void main() {
         ),
         title: 'Saga #1',
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.work,
           id: 'comic-1',
         ),
@@ -32,7 +32,7 @@ void main() {
       ),
       trackingSummary: TrackingSummary(
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.work,
           id: 'comic-1',
         ),

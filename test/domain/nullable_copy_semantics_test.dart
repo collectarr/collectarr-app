@@ -14,7 +14,7 @@ void main() {
       final item = OwnedItem<ComicOwnedDetails>(
         id: 'item-typed',
         catalogRef: CatalogEntityRef(
-          kind: CatalogMediaKind.comic.apiValue,
+          kind: CatalogMediaKind.comic,
           id: 'cat-typed',
           entityType: CatalogEntityType.issue,
         ),
@@ -33,7 +33,7 @@ void main() {
       final item = OwnedItem(
         id: 'item-1',
         catalogRef: CatalogEntityRef(
-          kind: CatalogMediaKind.comic.apiValue,
+          kind: CatalogMediaKind.comic,
           id: 'cat-1',
           entityType: CatalogEntityType.issue,
         ),
@@ -206,7 +206,7 @@ void main() {
       final wishlist = WishlistItem(
         id: 'wish-1',
         catalogRef: CatalogEntityRef(
-          kind: CatalogMediaKind.book.apiValue,
+          kind: CatalogMediaKind.book,
           id: 'b-1',
           entityType: CatalogEntityType.work,
         ),
@@ -236,7 +236,7 @@ void main() {
       final tracking = TrackingEntry(
         id: 'track-1',
         catalogRef: CatalogEntityRef(
-          kind: CatalogMediaKind.movie.apiValue,
+          kind: CatalogMediaKind.movie,
           id: 'm-1',
           entityType: CatalogEntityType.release,
         ),

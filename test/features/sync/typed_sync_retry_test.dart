@@ -20,7 +20,7 @@ void main() {
       ComicOwnedItem(
         id: ComicOwnedItemId('owned-retry'),
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.work,
           id: 'comic-retry',
         ),
@@ -61,7 +61,7 @@ void main() {
       ComicOwnedItem(
         id: ComicOwnedItemId('owned-deleted-retry'),
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.work,
           id: 'comic-deleted-retry',
         ),

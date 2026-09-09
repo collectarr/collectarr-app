@@ -99,7 +99,7 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       );
 
@@ -181,7 +181,7 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       );
 
@@ -252,7 +252,7 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-anime-55',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       );
 
@@ -301,7 +301,7 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-anime-policy',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       );
       const base = ProviderPersonalEntry(

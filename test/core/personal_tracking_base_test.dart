@@ -27,7 +27,7 @@ void main() {
       id: 'tracking-1',
       catalogRef: const CatalogEntityRef(
         id: 'movie-1',
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.work,
       ),
       finishedAt: DateTime.utc(2026, 2, 3),

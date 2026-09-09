@@ -197,7 +197,7 @@ final class AnimeLocalMapper {
     return AnimeOwnedItem(
       id: AnimeOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

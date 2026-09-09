@@ -16,7 +16,7 @@ void main() {
     final item = MusicOwnedItem(
       id: const MusicOwnedItemId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         entityType: CatalogEntityType.work,
         id: 'music-1',
       ),
@@ -59,7 +59,7 @@ void main() {
     final item = MusicOwnedItem(
       id: const MusicOwnedItemId('owned-music-invalid'),
       catalogRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),

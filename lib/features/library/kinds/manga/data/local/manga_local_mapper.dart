@@ -118,7 +118,7 @@ final class MangaLocalMapper {
     return MangaOwnedItem(
       id: MangaOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

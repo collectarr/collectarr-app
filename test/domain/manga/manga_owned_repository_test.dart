@@ -16,7 +16,7 @@ void main() {
     final item = MangaOwnedItem(
       id: const MangaOwnedItemId('owned-manga-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         entityType: CatalogEntityType.work,
         id: 'manga-1',
       ),
@@ -59,7 +59,7 @@ void main() {
     final item = MangaOwnedItem(
       id: const MangaOwnedItemId('owned-manga-invalid'),
       catalogRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),

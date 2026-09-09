@@ -14,7 +14,7 @@ void main() {
       'payload': {'should_not': 'leak'},
     });
 
-    expect(hit.ref.kind, 'movie');
+    expect(hit.ref.kind, CatalogMediaKind.movie);
     expect(hit.ref.entityType, CatalogEntityType.work);
     expect(hit.ref.id, 'movie-1');
     expect(hit.kind, CatalogMediaKind.movie);
@@ -34,7 +34,7 @@ void main() {
   test('keeps a typed work reference in the structural projection', () {
     final hit = CatalogSearchHit(
       ref: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
@@ -45,7 +45,7 @@ void main() {
     );
 
     expect(hit.ref, isA<CatalogEntityRef>());
-    expect(hit.ref.kind, 'book');
+    expect(hit.ref.kind, CatalogMediaKind.book);
     expect(hit.ref.entityType, CatalogEntityType.work);
     expect(hit.ref.id, 'book-1');
     expect(hit.subtitle, '1');

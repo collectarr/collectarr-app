@@ -129,7 +129,7 @@ class TrackingEntriesCacheRepository {
     return TrackingEntriesCacheCompanion.insert(
       id: item.id,
       itemId: item.itemId,
-      kind: Value(item.catalogRef.kind),
+      kind: Value(item.catalogRef.kind.apiValue),
       catalogRefJson: Value(jsonEncode(item.catalogRef.toJson())),
       ownedItemId: Value(item.ownedRef?.key),
       sourceType: Value(item.sourceTypeApiValue),
@@ -185,7 +185,7 @@ class TrackingEntriesCacheRepository {
       return storedRef;
     }
     return CatalogEntityRef(
-      kind: catalogKind ?? 'unknown',
+      kind: catalogMediaKindFromApiValue(catalogKind),
       entityType: CatalogEntityType.work,
       id: row.itemId,
     );

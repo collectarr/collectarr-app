@@ -31,7 +31,7 @@ final class CatalogSearchHit {
 
     return CatalogSearchHit(
       ref: CatalogEntityRef(
-        kind: kind.apiValue,
+        kind: kind,
         entityType: json['entity_type'] == null
             ? CatalogEntityType.work
             : CatalogEntityType.fromApiValue(

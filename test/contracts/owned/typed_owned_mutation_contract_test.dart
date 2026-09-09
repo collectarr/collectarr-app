@@ -37,7 +37,7 @@ void main() {
       await coordinator.addOwnedItem(
         typedAddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
-            kind: kind.apiValue,
+            kind: kind,
             entityType: CatalogEntityType.ownedCopy,
             id: 'contract-owned-${kind.apiValue}',
           ),

@@ -182,7 +182,7 @@ final class BookLocalMapper {
     return BookOwnedItem(
       id: BookOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

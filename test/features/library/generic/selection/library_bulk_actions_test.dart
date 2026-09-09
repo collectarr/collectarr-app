@@ -268,7 +268,7 @@ void main() {
 
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.edition,
         id: 'edition-4k',
         rootId: 'movie-1',
@@ -276,7 +276,7 @@ void main() {
     );
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.edition,
         id: 'edition-bluray',
         rootId: 'movie-1',

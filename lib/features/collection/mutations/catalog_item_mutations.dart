@@ -71,7 +71,7 @@ final class CatalogItemMutations {
   ) async {
     final now = DateTime.now().toUtc();
     final localRef = CatalogEntityRef(
-      kind: snapshot.kind.apiValue,
+      kind: snapshot.kind,
       entityType: CatalogEntityType.work,
       id: localItemId,
     );

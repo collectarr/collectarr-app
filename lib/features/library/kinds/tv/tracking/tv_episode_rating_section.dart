@@ -125,7 +125,7 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
     final trackingEntries =
         ref.watch(trackingEntriesByCatalogRefProvider)[CatalogEntityRef(
-              kind: CatalogMediaKind.tv.apiValue,
+              kind: CatalogMediaKind.tv,
               entityType: CatalogEntityType.work,
               id: itemId,
             )] ??

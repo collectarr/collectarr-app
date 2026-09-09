@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('custom episode sync payload uses catalog ref', () {
     final ref = CatalogEntityRef(
-      kind: 'tv',
+      kind: CatalogMediaKind.tv,
       entityType: CatalogEntityType.work,
       id: 'series-1',
     );

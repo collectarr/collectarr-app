@@ -39,7 +39,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
   final dto = item.dto;
   final catalogItem = item.source.catalogItem;
   final seriesRef = CatalogEntityRef(
-    kind: request.type.kind.apiValue,
+    kind: request.type.kind,
     entityType: CatalogEntityType.work,
     id: item.node.titleItemId,
   );

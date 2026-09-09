@@ -97,7 +97,7 @@ void main() {
       ComicOwnedItem(
         id: ComicOwnedItemId('owned-1'),
         catalogRef: CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.ownedCopy,
           id: 'item-1',
         ),
@@ -156,7 +156,7 @@ void main() {
       ComicOwnedItem(
         id: const ComicOwnedItemId('owned-merge-1'),
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.ownedCopy,
           id: 'item-merge-1',
         ),

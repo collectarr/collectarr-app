@@ -183,7 +183,7 @@ LibraryCalendarContext _context({
     catalogRefs: {
       for (final id in ids)
         CatalogEntityRef(
-          kind: id.split('-').first,
+          kind: catalogMediaKindFromApiValue(id.split('-').first),
           entityType: CatalogEntityType.work,
           id: id,
         ),
@@ -201,7 +201,7 @@ WatchSession _session(
   return WatchSession(
     id: '${kind.apiValue}-session',
     targetRef: CatalogEntityRef(
-      kind: kind.apiValue,
+      kind: kind,
       entityType: CatalogEntityType.episode,
       id: '${kind.apiValue}-item',
     ),

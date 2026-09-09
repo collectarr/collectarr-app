@@ -113,7 +113,7 @@ class TrackingUnitsCacheRepository {
     return TrackingUnitsCacheCompanion(
       id: Value(unit.id),
       itemId: Value(unit.targetRef.rootId ?? unit.targetRef.id),
-      kind: Value(unit.targetRef.kind),
+      kind: Value(unit.targetRef.kind.apiValue),
       targetRefJson: Value(jsonEncode(unit.targetRef.toJson())),
       trackingEntryId: Value(unit.trackingEntryId),
       ownedItemId: Value(unit.ownedRef?.key),
@@ -196,7 +196,7 @@ class TrackingUnitsCacheRepository {
       }
     }
     return CatalogEntityRef(
-      kind: row.kind,
+      kind: catalogMediaKindFromApiValue(row.kind),
       entityType: CatalogEntityType.work,
       id: row.itemId,
     );

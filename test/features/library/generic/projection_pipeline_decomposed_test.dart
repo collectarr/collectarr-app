@@ -51,7 +51,7 @@ void main() {
                   ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
                   : const ComicOwnedDetails(),
               catalogRef: CatalogEntityRef(
-                kind: 'comic',
+                kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityType.ownedCopy,
                 id: id,
               ),
@@ -62,7 +62,7 @@ void main() {
           ? WishlistItem(
               id: 'wish-$id',
               catalogRef: CatalogEntityRef(
-                kind: 'comic',
+                kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityType.issue,
                 id: id,
               ),

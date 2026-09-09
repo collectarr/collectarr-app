@@ -23,7 +23,7 @@ void main() {
       UserExternalLink(
         id: 'link-1',
         catalogRef: const CatalogEntityRef(
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           entityType: CatalogEntityType.work,
           id: 'item-1',
         ),
@@ -36,7 +36,7 @@ void main() {
       UserExternalLink(
         id: 'link-2',
         catalogRef: const CatalogEntityRef(
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           entityType: CatalogEntityType.work,
           id: 'item-1',
         ),
@@ -49,7 +49,7 @@ void main() {
     ];
 
     const catalogRef = CatalogEntityRef(
-      kind: 'movie',
+      kind: CatalogMediaKind.movie,
       entityType: CatalogEntityType.work,
       id: 'item-1',
     );

@@ -102,7 +102,7 @@ void main() {
           id: 'owned-1',
           itemId: 'owned-1',
           catalogRef: const CatalogEntityRef(
-            kind: 'book',
+            kind: CatalogMediaKind.book,
             entityType: CatalogEntityType.work,
             id: 'book-1',
           ),
@@ -113,7 +113,7 @@ void main() {
         WishlistItem(
           id: 'wish-1',
           catalogRef: const CatalogEntityRef(
-            kind: 'book',
+            kind: CatalogMediaKind.book,
             entityType: CatalogEntityType.work,
             id: 'book-1',
           ),
@@ -125,7 +125,7 @@ void main() {
         TrackingEntry(
           id: 'track-1',
           catalogRef: const CatalogEntityRef(
-            kind: 'book',
+            kind: CatalogMediaKind.book,
             entityType: CatalogEntityType.work,
             id: 'book-1',
           ),
@@ -150,12 +150,12 @@ void main() {
 
   test('shelf keeps equal catalog ids distinct across kinds', () {
     const bookRef = CatalogEntityRef(
-      kind: 'book',
+      kind: CatalogMediaKind.book,
       entityType: CatalogEntityType.work,
       id: 'shared-id',
     );
     const comicRef = CatalogEntityRef(
-      kind: 'comic',
+      kind: CatalogMediaKind.comic,
       entityType: CatalogEntityType.work,
       id: 'shared-id',
     );

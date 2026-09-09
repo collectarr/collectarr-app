@@ -65,7 +65,7 @@ void main() {
       trackingEntry: TrackingEntry(
         id: 'tracking-1',
         catalogRef: const CatalogEntityRef(
-          kind: 'book',
+          kind: CatalogMediaKind.book,
           entityType: CatalogEntityType.work,
           id: 'book-1',
         ),

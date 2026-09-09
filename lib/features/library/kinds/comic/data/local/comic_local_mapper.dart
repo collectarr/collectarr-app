@@ -228,7 +228,7 @@ final class ComicLocalMapper {
     return ComicOwnedItem(
       id: ComicOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

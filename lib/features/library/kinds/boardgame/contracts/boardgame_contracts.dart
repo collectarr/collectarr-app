@@ -185,7 +185,7 @@ final class BoardGameCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.boardgame,

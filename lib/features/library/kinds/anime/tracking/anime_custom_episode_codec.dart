@@ -131,7 +131,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
     return CustomEpisode(
       id: row.id,
       seriesRef: CatalogEntityRef(
-        kind: kind.apiValue,
+        kind: kind,
         entityType: CatalogEntityType.work,
         id: row.seriesId,
       ),

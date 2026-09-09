@@ -74,7 +74,7 @@ void main() {
     final item = MangaOwnedItem(
       id: const MangaOwnedItemId('owned-manga-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         entityType: CatalogEntityType.work,
         id: 'manga-1',
       ),

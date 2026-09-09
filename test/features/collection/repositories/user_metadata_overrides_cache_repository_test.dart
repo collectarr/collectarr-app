@@ -12,7 +12,7 @@ void main() {
     addTearDown(db.close);
     final repository = UserMetadataOverridesCacheRepository(db);
     const target = CatalogEntityRef(
-      kind: 'book',
+      kind: CatalogMediaKind.book,
       entityType: CatalogEntityType.edition,
       id: 'edition-1',
     );
@@ -44,12 +44,12 @@ void main() {
     addTearDown(db.close);
     final repository = UserMetadataOverridesCacheRepository(db);
     const bookTarget = CatalogEntityRef(
-      kind: 'book',
+      kind: CatalogMediaKind.book,
       entityType: CatalogEntityType.edition,
       id: 'shared-id',
     );
     const comicTarget = CatalogEntityRef(
-      kind: 'comic',
+      kind: CatalogMediaKind.comic,
       entityType: CatalogEntityType.issue,
       id: 'shared-id',
     );

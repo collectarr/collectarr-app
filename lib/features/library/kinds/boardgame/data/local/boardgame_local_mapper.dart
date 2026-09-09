@@ -185,7 +185,7 @@ final class BoardGameLocalMapper {
     return BoardGameOwnedItem(
       id: BoardGameOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

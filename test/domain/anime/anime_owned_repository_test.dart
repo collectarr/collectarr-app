@@ -23,7 +23,7 @@ void main() {
     final item = AnimeOwnedItem(
       id: const AnimeOwnedItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
         id: 'anime-1',
       ),

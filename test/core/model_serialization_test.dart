@@ -203,7 +203,7 @@ void main() {
 
   test('personal models preserve catalog entity refs in sync payloads', () {
     final ref = CatalogEntityRef(
-      kind: 'book',
+      kind: CatalogMediaKind.book,
       entityType: CatalogEntityType.edition,
       id: 'edition-1',
     );
@@ -349,7 +349,7 @@ void main() {
       id: 'owned-1',
       itemId: 'comic-1',
       catalogRef: CatalogEntityRef(
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         entityType: CatalogEntityType.work,
         id: 'comic-1',
       ),

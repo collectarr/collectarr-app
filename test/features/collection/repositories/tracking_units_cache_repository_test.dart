@@ -29,7 +29,7 @@ void main() {
       TvTrackingUnit(
         id: 'episode-1',
         targetRef: const CatalogEntityRef(
-          kind: 'tv',
+          kind: CatalogMediaKind.tv,
           entityType: CatalogEntityType.episode,
           id: 'series-1',
         ),
@@ -70,7 +70,7 @@ void main() {
       MangaTrackingUnit(
         id: 'chapter-1',
         targetRef: const CatalogEntityRef(
-          kind: 'manga',
+          kind: CatalogMediaKind.manga,
           entityType: CatalogEntityType.work,
           id: 'manga-1',
         ),
@@ -82,7 +82,7 @@ void main() {
       ComicTrackingUnit(
         id: 'issue-1',
         targetRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.issue,
           id: 'comic-1',
         ),
@@ -117,7 +117,7 @@ void main() {
       WatchSession(
         id: 'tv-session-1',
         targetRef: const CatalogEntityRef(
-          kind: 'tv',
+          kind: CatalogMediaKind.tv,
           entityType: CatalogEntityType.work,
           id: 'tv-1',
         ),
@@ -129,7 +129,7 @@ void main() {
       WatchSession(
         id: 'anime-session-1',
         targetRef: const CatalogEntityRef(
-          kind: 'anime',
+          kind: CatalogMediaKind.anime,
           entityType: CatalogEntityType.work,
           id: 'anime-1',
         ),
@@ -145,7 +145,7 @@ void main() {
     expect(
       await repository.listActiveByCatalogRefs([
         const CatalogEntityRef(
-          kind: 'tv',
+          kind: CatalogMediaKind.tv,
           entityType: CatalogEntityType.work,
           id: 'tv-1',
         ),
@@ -155,14 +155,15 @@ void main() {
     expect(
       (await repository.listActiveByCatalogRefs([
         const CatalogEntityRef(
-          kind: 'anime',
+          kind: CatalogMediaKind.anime,
           entityType: CatalogEntityType.work,
           id: 'anime-1',
         ),
       ]))
           .single
           .targetRef
-          .kind,
+          .kind
+          .apiValue,
       'anime',
     );
   });
@@ -180,7 +181,7 @@ void main() {
       CustomEpisode(
         id: 'tv-custom-1',
         seriesRef: const CatalogEntityRef(
-          kind: 'tv',
+          kind: CatalogMediaKind.tv,
           entityType: CatalogEntityType.work,
           id: 'tv-1',
         ),
@@ -192,7 +193,7 @@ void main() {
       CustomEpisode(
         id: 'anime-custom-1',
         seriesRef: const CatalogEntityRef(
-          kind: 'anime',
+          kind: CatalogMediaKind.anime,
           entityType: CatalogEntityType.work,
           id: 'anime-1',
         ),
@@ -206,7 +207,7 @@ void main() {
     expect(await db.select(db.tvCustomEpisodeRows).get(), hasLength(1));
     expect(await db.select(db.animeCustomEpisodeRows).get(), hasLength(1));
     expect(
-      (await repository.findById('anime-custom-1'))?.seriesRef.kind,
+      (await repository.findById('anime-custom-1'))?.seriesRef.kind.apiValue,
       'anime',
     );
   });
@@ -224,7 +225,7 @@ void main() {
         TrackingUnit(
           id: 'untyped-unit',
           targetRef: const CatalogEntityRef(
-            kind: 'unknown',
+            kind: CatalogMediaKind.unknown,
             entityType: CatalogEntityType.work,
             id: 'item-1',
           ),

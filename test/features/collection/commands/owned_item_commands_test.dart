@@ -101,7 +101,7 @@ void main() {
     final coordinator = container.read(collectionCommandCoordinatorProvider);
     final command = typedAddOwnedItemCommand(
       catalogRef: const CatalogEntityRef(
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         entityType: CatalogEntityType.ownedCopy,
         id: 'comic-cmd-1',
       ),
@@ -159,7 +159,7 @@ void main() {
     final initialRef = await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.ownedCopy,
           id: 'comic-cmd-2',
         ),

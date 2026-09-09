@@ -1566,7 +1566,7 @@ void main() {
           collectionByCatalogRefProvider.overrideWith(
             (ref) => {
               const CatalogEntityRef(
-                kind: 'comic',
+                kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityType.work,
                 id: 'comic-423',
               ): const OwnedItemSummary(
@@ -1576,7 +1576,7 @@ void main() {
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
-                  kind: 'comic',
+                  kind: CatalogMediaKind.comic,
                   entityType: CatalogEntityType.work,
                   id: 'comic-423',
                 ),
@@ -1637,7 +1637,7 @@ void main() {
           collectionByCatalogRefProvider.overrideWith(
             (ref) => {
               const CatalogEntityRef(
-                kind: 'comic',
+                kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityType.work,
                 id: 'comic-423',
               ): const OwnedItemSummary(
@@ -1647,7 +1647,7 @@ void main() {
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
-                  kind: 'comic',
+                  kind: CatalogMediaKind.comic,
                   entityType: CatalogEntityType.work,
                   id: 'comic-423',
                 ),

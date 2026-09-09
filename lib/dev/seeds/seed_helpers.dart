@@ -34,7 +34,7 @@ Iterable<String> seedIds(CatalogMediaKind kind, int count) sync* {
 CatalogEntityRef seedCatalogRef(String itemId) {
   final kind = itemId.startsWith('seed-') ? itemId.split('-')[1] : 'unknown';
   return CatalogEntityRef(
-    kind: kind,
+    kind: catalogMediaKindFromApiValue(kind),
     entityType: CatalogEntityType.work,
     id: itemId,
   );

@@ -187,7 +187,7 @@ final class MangaCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'manga',
+        kind: CatalogMediaKind.manga,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.manga,

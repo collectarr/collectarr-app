@@ -99,7 +99,7 @@ final class ProviderItemLink {
       remoteEntryId: json['remoteEntryId']?.toString(),
       localEntityRef: CatalogEntityRef(
         id: refMap['id']?.toString() ?? '',
-        kind: refMap['kind']?.toString() ?? '',
+        kind: catalogMediaKindFromApiValue(refMap['kind']?.toString()),
         entityType: CatalogEntityType.fromApiValue(
           refMap['entityType']?.toString() ?? refMap['entity_type']?.toString(),
         ),

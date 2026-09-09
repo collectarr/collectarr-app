@@ -15,7 +15,7 @@ void main() {
     final item = BookOwnedItem(
       id: const BookOwnedItemId('owned-book-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
@@ -52,7 +52,7 @@ void main() {
     final item = BookOwnedItem(
       id: const BookOwnedItemId('owned-book-invalid'),
       catalogRef: const CatalogEntityRef(
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         entityType: CatalogEntityType.work,
         id: 'comic-1',
       ),

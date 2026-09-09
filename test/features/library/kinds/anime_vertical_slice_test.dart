@@ -94,7 +94,7 @@ void main() {
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'anime_1',
-            kind: 'anime',
+            kind: CatalogMediaKind.anime,
             entityType: CatalogEntityType.work,
           ),
           details: const TestOwnedDetails(),

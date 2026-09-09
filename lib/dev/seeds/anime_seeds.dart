@@ -168,7 +168,7 @@ Iterable<AnimeTrackingUnit> animeSeedTrackingUnits(
       yield AnimeTrackingUnit(
         id: 'seed-unit-anime-${item.id}-$episodeId',
         targetRef: CatalogEntityRef(
-          kind: item.kind,
+          kind: item.mediaKind,
           entityType: CatalogEntityType.work,
           id: item.id,
         ),

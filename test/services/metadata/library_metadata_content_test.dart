@@ -156,7 +156,7 @@ void main() {
       ownedItem: OwnedItem(
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(
-          kind: 'book',
+          kind: CatalogMediaKind.book,
           entityType: CatalogEntityType.ownedCopy,
           id: 'book-1',
         ),

@@ -100,7 +100,7 @@ void main() {
         final itemRef = await coordinator.addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
-              kind: kind.apiValue,
+              kind: kind,
               entityType: CatalogEntityType.ownedCopy,
               id: 'test-${kind.apiValue}-1',
             ),
@@ -123,7 +123,7 @@ void main() {
           () => coordinator.addOwnedItem(
             typedAddOwnedItemCommand(
               catalogRef: CatalogEntityRef(
-                kind: kind.apiValue,
+                kind: kind,
                 entityType: CatalogEntityType.ownedCopy,
                 id: 'test-${kind.apiValue}-bad',
               ),
@@ -152,7 +152,7 @@ void main() {
         final initialRef = await coordinator.addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
-              kind: kind.apiValue,
+              kind: kind,
               entityType: CatalogEntityType.ownedCopy,
               id: 'clear-test-${kind.apiValue}',
             ),

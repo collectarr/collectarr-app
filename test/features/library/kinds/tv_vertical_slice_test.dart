@@ -100,7 +100,7 @@ void main() {
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'tv_1',
-            kind: 'tv',
+            kind: CatalogMediaKind.tv,
             entityType: CatalogEntityType.work,
           ),
           details: const TestOwnedDetails(),

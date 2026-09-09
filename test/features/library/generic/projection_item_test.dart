@@ -79,7 +79,7 @@ void main() {
       wishlistItem: WishlistItem(
         id: 'wish-3',
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.release,
           id: 'variant-3',
           rootId: 'comic-3',

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -363,7 +364,11 @@ void main() {
     final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
     for (final entry in expectedCatalogCounts.entries) {
       final kindOwned = ownedRows
-          .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
+          .where(
+            (row) =>
+                row.catalogRef?.id.startsWith('seed-${entry.key.apiValue}-') ??
+                false,
+          )
           .toList();
       expect(kindOwned, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} owned seed count');
@@ -519,12 +524,12 @@ void main() {
       expect(kindTracking, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} tracking seed count');
     }
-    final ownedIds = ownedRows.map((row) => row.ref.id.value).toSet();
+    final ownedRefs = ownedRows.map((row) => row.ref.key).toSet();
     expect(trackingRows.map((row) => row.id).toSet(),
         hasLength(expectedSeedTotal));
     expect(
         trackingRows.every((row) =>
-            row.ownedItemId != null && ownedIds.contains(row.ownedItemId)),
+            row.ownedItemId != null && ownedRefs.contains(row.ownedItemId)),
         isTrue);
     expect(
       trackingRows.every((row) =>
@@ -586,12 +591,19 @@ void main() {
       reason: 'Seed custom-field values must target an existing owned item',
     );
 
-    final tvOwned =
-        ownedRows.where((row) => row.itemId.startsWith('seed-tv-')).toList();
-    final animeOwned =
-        ownedRows.where((row) => row.itemId.startsWith('seed-anime-')).toList();
-    final mangaOwned =
-        ownedRows.where((row) => row.itemId.startsWith('seed-manga-')).toList();
+    final tvOwned = ownedRows
+            .where((row) => row.catalogRef?.id.startsWith('seed-tv-') ?? false)
+        .toList();
+    final animeOwned = ownedRows
+            .where(
+              (row) => row.catalogRef?.id.startsWith('seed-anime-') ?? false,
+            )
+        .toList();
+    final mangaOwned = ownedRows
+            .where(
+              (row) => row.catalogRef?.id.startsWith('seed-manga-') ?? false,
+            )
+        .toList();
 
     expect(tvOwned, hasLength(15));
     expect(animeOwned, hasLength(15));
@@ -669,8 +681,9 @@ Future<int> _countImages(
   String imageType,
 ) async {
   final rows = await db.select(db.itemImagesCache).get();
-  return rows
-      .where((row) =>
-          row.ownedItemId.startsWith(ownedPrefix) && row.imageType == imageType)
-      .length;
+  return rows.where((row) {
+    final ownedRef = ownedItemRefFromSerialized(row.ownedItemId);
+    return ownedRef?.id.value.startsWith(ownedPrefix) == true &&
+        row.imageType == imageType;
+  }).length;
 }

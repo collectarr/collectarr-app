@@ -25,7 +25,7 @@ void main() {
     final seasonId = TvSeasonId('season-1');
     final episodeId = TvEpisodeId('episode-1');
     final targetRef = CatalogEntityRef(
-      kind: CatalogMediaKind.tv.apiValue,
+      kind: CatalogMediaKind.tv,
       entityType: CatalogEntityType.episode,
       id: episodeId.value,
     );

@@ -16,7 +16,7 @@ void main() {
         id: 'item-1',
         catalogRef: const CatalogEntityRef(
           id: 'work-1',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.work,
         ),
         details: const TestOwnedDetails(),
@@ -83,7 +83,7 @@ void main() {
         id: 'c-1',
         catalogRef: const CatalogEntityRef(
           id: 'c-1',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           entityType: CatalogEntityType.work,
         ),
         details: const ComicOwnedDetails(keyComic: true),
@@ -110,7 +110,7 @@ void main() {
         id: 'm-1',
         catalogRef: const CatalogEntityRef(
           id: 'm-1',
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           entityType: CatalogEntityType.work,
         ),
         details: const MovieOwnedDetails(packaging: 'Steelbook'),

@@ -215,7 +215,7 @@ final class CollectionImportService {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
-            kind: row.kind ?? catalogKind ?? CatalogMediaKind.unknown.apiValue,
+            kind: catalogMediaKindFromApiValue(row.kind ?? catalogKind),
             entityType: CatalogEntityType.work,
             id: row.itemId,
           ),
@@ -381,7 +381,7 @@ final class CollectionImportService {
       return null;
     }
     return CatalogEntityRef(
-      kind: kind,
+      kind: catalogMediaKindFromApiValue(kind),
       entityType: CatalogEntityType.work,
       id: row.itemId,
     );
@@ -444,7 +444,7 @@ final class CollectionImportService {
     final kind = catalogMediaKindFromApiValue(resolvedKind);
     final catalogRef = existingSummary?.catalogRef ??
         CatalogEntityRef(
-          kind: resolvedKind ?? CatalogMediaKind.unknown.apiValue,
+          kind: catalogMediaKindFromApiValue(resolvedKind),
           entityType: CatalogEntityType.work,
           id: row.itemId,
         );

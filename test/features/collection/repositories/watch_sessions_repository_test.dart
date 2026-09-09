@@ -18,7 +18,7 @@ void main() {
     final session = WatchSession(
       id: 'tv-session-1',
       targetRef: const CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.episode,
         id: 'tv-1:s1:e2',
       ),
@@ -58,7 +58,7 @@ void main() {
     final session = WatchSession(
       id: 'movie-session-1',
       targetRef: const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.work,
         id: 'movie-1',
       ),

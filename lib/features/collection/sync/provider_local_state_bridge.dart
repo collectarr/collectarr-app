@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
@@ -39,7 +38,7 @@ final class ProviderLocalStateBridge {
       provider: link?.provider ?? ProviderId.aniList,
       remoteItemId: link?.remoteItemId ?? localRef.id,
       remoteEntryId: link?.remoteEntryId,
-      kind: catalogMediaKindFromApiValue(localRef.kind),
+      kind: localRef.kind,
       title: catalog?.title,
       status: ProviderEntryStatus.planning,
       notes: wishlistItem.notes,
@@ -76,7 +75,7 @@ final class ProviderLocalStateBridge {
       provider: link?.provider ?? ProviderId.aniList,
       remoteItemId: link?.remoteItemId ?? localRef.id,
       remoteEntryId: link?.remoteEntryId,
-      kind: catalogMediaKindFromApiValue(localRef.kind),
+      kind: localRef.kind,
       title: title,
       status: _providerStatus(entry.status),
       rating: entry.rating == null ? null : entry.rating! * 10,
@@ -104,6 +103,6 @@ final class ProviderLocalStateBridge {
   bool matches(CatalogEntityRef left, CatalogEntityRef right) {
     return left.id == right.id &&
         left.entityType == right.entityType &&
-        (left.kind == right.kind || left.kind == 'unknown');
+        (left.kind == right.kind || left.kind.isUnknown);
   }
 }

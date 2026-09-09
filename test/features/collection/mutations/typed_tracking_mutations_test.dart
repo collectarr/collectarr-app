@@ -79,7 +79,7 @@ void main() {
     test('supports CatalogTrackingTarget with valid CatalogEntityRef',
         () async {
       const ref = CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.work,
         id: 'movie-target-1',
       );
@@ -107,7 +107,7 @@ void main() {
       final owned = BookOwnedItem(
         id: BookOwnedItemId('owned-item-77'),
         catalogRef: const CatalogEntityRef(
-          kind: 'book',
+          kind: CatalogMediaKind.book,
           entityType: CatalogEntityType.work,
           id: 'book-77',
         ),
@@ -149,7 +149,7 @@ void main() {
           ),
         ),
         targetRef: const CatalogEntityRef(
-          kind: 'book',
+          kind: CatalogMediaKind.book,
           entityType: CatalogEntityType.work,
           id: 'book-anchor-target',
         ),
@@ -174,7 +174,7 @@ void main() {
     test('replaces an existing catalog anchor when explicitly cleared',
         () async {
       const ref = CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-anchor-clear',
       );
@@ -216,7 +216,7 @@ void main() {
 
     test('handles unknown tracking source cleanly', () async {
       const ref = CatalogEntityRef(
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         entityType: CatalogEntityType.work,
         id: 'game-100',
       );
@@ -236,7 +236,7 @@ void main() {
 
     test('preserves typed unit ratings map', () async {
       const ref = CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.work,
         id: 'tv-series-1',
       );
@@ -269,7 +269,7 @@ void main() {
 
     test('does not introduce hardcoded comic fallback kind', () async {
       const ref = CatalogEntityRef(
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         entityType: CatalogEntityType.work,
         id: 'music-album-99',
       );
@@ -289,7 +289,7 @@ void main() {
 
     test('forwards file import origin through tracking mutation', () async {
       const ref = CatalogEntityRef(
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
         id: 'anime-import-1',
       );
@@ -329,7 +329,7 @@ void main() {
     test('owned sync preserves kind-owned tracking state on existing entries',
         () async {
       const ref = CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.work,
         id: 'tv-owned-1',
       );
@@ -340,7 +340,11 @@ void main() {
         updatedAt: DateTime.utc(2026, 6, 1),
       );
       await catalogCache.upsertAll([
-        testCatalogItem(id: ref.id, kind: ref.kind, title: 'Tracked Show'),
+        testCatalogItem(
+          id: ref.id,
+          kind: ref.kind.apiValue,
+          title: 'Tracked Show',
+        ),
       ]);
       await ownedItems.upsertTyped(CatalogMediaKind.tv, owned);
       await trackingEntries.upsert(
@@ -383,7 +387,7 @@ void main() {
 
     test('owned sync can explicitly clear an inherited anchor', () async {
       const ref = CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-owned-anchor-clear',
       );
@@ -398,7 +402,11 @@ void main() {
         updatedAt: DateTime.utc(2026, 6, 1),
       );
       await catalogCache.upsertAll([
-        testCatalogItem(id: ref.id, kind: ref.kind, title: 'Anchored Book'),
+        testCatalogItem(
+          id: ref.id,
+          kind: ref.kind.apiValue,
+          title: 'Anchored Book',
+        ),
       ]);
       await ownedItems.upsertTyped(CatalogMediaKind.book, owned);
       final ownedRef = OwnedItemRef(
@@ -427,7 +435,7 @@ void main() {
 
     test('updateTrackingEntry applies explicit clears', () async {
       const ref = CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-clear-1',
       );

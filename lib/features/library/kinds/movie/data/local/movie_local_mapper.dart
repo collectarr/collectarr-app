@@ -162,7 +162,7 @@ final class MovieLocalMapper {
     return MovieOwnedItem(
       id: MovieOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

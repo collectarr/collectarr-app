@@ -57,7 +57,9 @@ void main() {
           id: OwnedItemId('owned-1'),
         ),
         catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-1'),
+            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.comic,
+            id: 'comic-1'),
         borrowerName: 'Alice',
         lentDate: DateTime.utc(2026, 5, 1),
         dueDate: DateTime.utc(2026, 5, 15),
@@ -116,7 +118,9 @@ void main() {
           id: OwnedItemId('owned-2'),
         ),
         catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-2'),
+            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.comic,
+            id: 'comic-2'),
         borrowerName: 'Bob',
         lentDate: DateTime.utc(2020, 1, 1),
         dueDate: DateTime.utc(2020, 1, 15),

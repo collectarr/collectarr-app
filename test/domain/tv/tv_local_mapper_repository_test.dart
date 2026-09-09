@@ -35,7 +35,7 @@ void main() {
     final item = TvOwnedItem(
       id: const TvOwnedItemId('owned-tv-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.work,
         id: 'tv-1',
       ),

@@ -95,11 +95,13 @@ final class GameCatalog {
     final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
     ];
 
@@ -189,7 +191,7 @@ final class GameCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.game,

@@ -150,7 +150,7 @@ CatalogEntityRef testCatalogRef(
   CatalogEntityType entityType = CatalogEntityType.work,
 }) {
   return CatalogEntityRef(
-    kind: kind,
+    kind: catalogMediaKindFromApiValue(kind),
     entityType: entityType,
     id: id,
   );
@@ -173,13 +173,13 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     );
   }
   final add = libraryKindModuleForKind(
-    catalogMediaKindFromApiValue(catalogRef.kind),
+    catalogRef.mediaKind,
   ).add;
   return add.buildCommandFromDetails(
     LibraryAddCatalogItem.fromItem(
       testCatalogItem(
         id: catalogRef.id,
-        kind: catalogRef.kind,
+        kind: catalogRef.kind.apiValue,
       ),
     ),
     LibraryAddCommonDraft(
@@ -276,7 +276,7 @@ OwnedItem testOwnedItem({
 }) {
   final resolvedCatalogRef = catalogRef ??
       CatalogEntityRef(
-        kind: kind,
+        kind: catalogMediaKindFromApiValue(kind),
         entityType: CatalogEntityType.ownedCopy,
         id: itemId,
       );

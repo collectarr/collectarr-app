@@ -22,7 +22,7 @@ ProviderPersonalEntry _entry(String id, String title,
 }
 
 CatalogEntityRef _ref(String id) => CatalogEntityRef(
-      kind: 'anime',
+      kind: CatalogMediaKind.anime,
       entityType: CatalogEntityType.work,
       id: id,
     );

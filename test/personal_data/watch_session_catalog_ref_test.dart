@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('watch session sync payload uses catalog ref', () {
     final ref = CatalogEntityRef(
-      kind: 'tv',
+      kind: CatalogMediaKind.tv,
       entityType: CatalogEntityType.release,
       id: 'release-1',
     );

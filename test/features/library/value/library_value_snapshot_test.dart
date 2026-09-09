@@ -16,7 +16,7 @@ void main() {
     final ownedItem = OwnedItem(
       id: 'owned-1',
       catalogRef: const CatalogEntityRef(
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         entityType: CatalogEntityType.ownedCopy,
         id: 'comic-1',
       ),

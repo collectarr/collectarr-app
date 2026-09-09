@@ -618,7 +618,7 @@ void main() {
     await container.read(wishlistMutationsProvider).updateWishlistItem(
           original,
           catalogRef: const CatalogEntityRef(
-            kind: 'movie',
+            kind: CatalogMediaKind.movie,
             entityType: CatalogEntityType.bundleRelease,
             id: 'bundle-1',
             rootId: 'movie-1',
@@ -656,7 +656,7 @@ void main() {
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.edition,
         id: 'edition-4k',
         rootId: 'movie-1',
@@ -664,7 +664,7 @@ void main() {
     );
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.edition,
         id: 'edition-bluray',
         rootId: 'movie-1',
@@ -699,7 +699,7 @@ void main() {
     final wishlistMutations = container.read(wishlistMutationsProvider);
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.edition,
         id: 'edition-4k',
         rootId: 'movie-1',
@@ -707,7 +707,7 @@ void main() {
     );
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.edition,
         id: 'edition-bluray',
         rootId: 'movie-1',
@@ -716,7 +716,7 @@ void main() {
 
     await wishlistMutations.removeFromWishlist(
       catalogRef: const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.edition,
         id: 'edition-4k',
         rootId: 'movie-1',

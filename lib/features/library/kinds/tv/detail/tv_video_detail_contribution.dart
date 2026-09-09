@@ -77,7 +77,7 @@ class _TvVideoDetailContributionState
   Widget build(BuildContext context) {
     final request = widget.request;
     final seriesRef = CatalogEntityRef(
-      kind: request.type.kind.apiValue,
+      kind: request.type.kind,
       entityType: CatalogEntityType.work,
       id: request.item.source.itemId,
     );

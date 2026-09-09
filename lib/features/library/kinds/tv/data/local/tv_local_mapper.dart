@@ -348,7 +348,7 @@ final class TvLocalMapper {
     return TvOwnedItem(
       id: TvOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

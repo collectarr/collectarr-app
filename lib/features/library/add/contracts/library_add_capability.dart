@@ -340,7 +340,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     final typedPayload = _buildOwnedPayload(item, common, details);
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
-        kind: kind.apiValue,
+        kind: kind,
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),
@@ -368,7 +368,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     final typedPayload = _buildOwnedPayload(item, common, details);
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
-        kind: kind.apiValue,
+        kind: kind,
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),
@@ -401,7 +401,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     }
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
-        kind: kind.apiValue,
+        kind: kind,
         entityType: CatalogEntityType.ownedCopy,
         id: item.id,
       ),

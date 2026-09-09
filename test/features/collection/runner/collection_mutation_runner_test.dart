@@ -159,7 +159,7 @@ void main() {
     );
     const localRef = CatalogEntityRef(
       id: 'movie-1',
-      kind: 'movie',
+      kind: CatalogMediaKind.movie,
       entityType: CatalogEntityType.work,
     );
 

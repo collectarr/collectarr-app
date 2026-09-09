@@ -15,7 +15,7 @@ void main() {
     final entry = TvTrackingEntry(
       id: 'tv-sync-1',
       catalogRef: const CatalogEntityRef(
-        kind: 'tv',
+        kind: CatalogMediaKind.tv,
         entityType: CatalogEntityType.work,
         id: 'tv-1',
       ),
@@ -51,7 +51,7 @@ void main() {
       TvTrackingEntry(
         id: 'tv-tracking-1',
         catalogRef: const CatalogEntityRef(
-          kind: 'tv',
+          kind: CatalogMediaKind.tv,
           entityType: CatalogEntityType.episode,
           id: 'episode-1',
           rootId: 'tv-1',
@@ -97,7 +97,7 @@ void main() {
       TrackingEntry(
         id: 'movie-tracking-1',
         catalogRef: const CatalogEntityRef(
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           entityType: CatalogEntityType.work,
           id: 'movie-1',
         ),

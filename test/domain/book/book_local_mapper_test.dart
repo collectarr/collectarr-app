@@ -165,7 +165,7 @@ void main() {
         BookOwnedItem(
           id: const BookOwnedItemId(''),
           catalogRef: const CatalogEntityRef(
-            kind: 'book',
+            kind: CatalogMediaKind.book,
             entityType: CatalogEntityType.work,
             id: 'book-1',
           ),
@@ -182,7 +182,7 @@ void main() {
     final item = BookOwnedItem(
       id: const BookOwnedItemId('owned-book-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),

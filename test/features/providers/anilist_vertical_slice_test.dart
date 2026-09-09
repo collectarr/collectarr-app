@@ -214,7 +214,7 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-work-21',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       );
 
@@ -276,7 +276,7 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-work-21',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       );
 

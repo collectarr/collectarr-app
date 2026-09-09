@@ -157,7 +157,7 @@ final class GameLocalMapper {
     return GameOwnedItem(
       id: GameOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),

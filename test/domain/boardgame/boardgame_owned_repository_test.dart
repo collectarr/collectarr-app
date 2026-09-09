@@ -16,7 +16,7 @@ void main() {
     final item = BoardGameOwnedItem(
       id: const BoardGameOwnedItemId('owned-boardgame-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         entityType: CatalogEntityType.work,
         id: 'boardgame-1',
       ),
@@ -55,7 +55,7 @@ void main() {
     final item = BoardGameOwnedItem(
       id: const BoardGameOwnedItemId('owned-boardgame-invalid'),
       catalogRef: const CatalogEntityRef(
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         entityType: CatalogEntityType.work,
         id: 'game-1',
       ),

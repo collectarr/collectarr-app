@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
 
+export 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
 const Object _catalogEntityRefUnset = Object();
 
 enum CatalogEntityType {
@@ -44,7 +46,9 @@ class CatalogEntityRef {
     this.rootId,
   });
 
-  final String kind;
+  /// The owning media kind is typed in memory. It is serialized as the
+  /// stable API value only at transport/database boundaries.
+  final CatalogMediaKind kind;
   final CatalogEntityType entityType;
   final String id;
 
@@ -54,16 +58,16 @@ class CatalogEntityRef {
   /// for targets such as editions and releases that belong to a work.
   final String? rootId;
 
-  CatalogMediaKind get mediaKind => catalogMediaKindFromValue(kind);
+  CatalogMediaKind get mediaKind => kind;
 
   bool get isKnown =>
-      kind.trim().isNotEmpty &&
+      !kind.isUnknown &&
       id.trim().isNotEmpty &&
       entityType != CatalogEntityType.unknown;
 
   Map<String, Object?> toJson() {
     return {
-      'kind': kind,
+      'kind': kind.apiValue,
       'entity_type': entityType.apiValue,
       'id': id,
       if (rootId != null) 'root_id': rootId,
@@ -72,7 +76,7 @@ class CatalogEntityRef {
 
   factory CatalogEntityRef.fromJson(Map<String, Object?> json) {
     return CatalogEntityRef(
-      kind: json['kind'] as String? ?? 'unknown',
+      kind: catalogMediaKindFromApiValue(json['kind'] as String?),
       entityType:
           CatalogEntityType.fromApiValue(json['entity_type'] as String?),
       id: json['id'] as String? ?? '',
@@ -81,7 +85,7 @@ class CatalogEntityRef {
   }
 
   CatalogEntityRef copyWith({
-    String? kind,
+    CatalogMediaKind? kind,
     CatalogEntityType? entityType,
     String? id,
     Object? rootId = _catalogEntityRefUnset,

@@ -45,7 +45,7 @@ void main() {
         overrides: [
           watchSessionsByCatalogRefProvider(
             const CatalogEntityRef(
-              kind: 'book',
+              kind: CatalogMediaKind.book,
               entityType: CatalogEntityType.work,
               id: 'book-1',
             ),
@@ -57,7 +57,7 @@ void main() {
           home: Scaffold(
             body: WatchHistorySection(
               catalogRef: CatalogEntityRef(
-                kind: 'book',
+                kind: CatalogMediaKind.book,
                 entityType: CatalogEntityType.work,
                 id: 'book-1',
               ),
@@ -79,7 +79,7 @@ void main() {
     final session = WatchSession(
       id: 'session-1',
       targetRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
@@ -92,7 +92,7 @@ void main() {
         overrides: [
           watchSessionsByCatalogRefProvider(
             const CatalogEntityRef(
-              kind: 'book',
+              kind: CatalogMediaKind.book,
               entityType: CatalogEntityType.work,
               id: 'book-1',
             ),
@@ -104,7 +104,7 @@ void main() {
           home: Scaffold(
             body: WatchHistorySection(
               catalogRef: CatalogEntityRef(
-                kind: 'book',
+                kind: CatalogMediaKind.book,
                 entityType: CatalogEntityType.work,
                 id: 'book-1',
               ),

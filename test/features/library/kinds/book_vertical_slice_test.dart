@@ -109,7 +109,7 @@ void main() {
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'book_1',
-            kind: 'book',
+            kind: CatalogMediaKind.book,
             entityType: CatalogEntityType.work,
           ),
           details: const TestOwnedDetails(),

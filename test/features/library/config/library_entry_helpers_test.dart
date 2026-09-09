@@ -22,7 +22,7 @@ void main() {
     final trackedOnly = TrackingEntry(
       id: 'tracking-item',
       catalogRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
@@ -32,7 +32,7 @@ void main() {
     final copyTracked = TrackingEntry(
       id: 'tracking-copy',
       catalogRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
@@ -46,7 +46,7 @@ void main() {
       OwnedItem(
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(
-          kind: 'book',
+          kind: CatalogMediaKind.book,
           entityType: CatalogEntityType.work,
           id: 'book-1',
         ),
@@ -154,7 +154,7 @@ void main() {
     final wishlistItem = WishlistItem(
       id: 'wishlist-1',
       catalogRef: const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.release,
         id: 'variant-uhd',
         rootId: 'movie-1',

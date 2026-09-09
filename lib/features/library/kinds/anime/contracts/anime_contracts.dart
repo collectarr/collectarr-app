@@ -173,7 +173,7 @@ final class AnimeCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.anime,

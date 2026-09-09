@@ -389,7 +389,7 @@ class _InspectorPersonalDetailsEditorState
     final currency = _currencyController.text.trim().toUpperCase();
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           libraryKindModuleForKind(
-            catalogMediaKindFromApiValue(widget.ownedItem.catalogRef.kind),
+            widget.ownedItem.catalogRef.mediaKind,
           ).edit.buildPersonalDetailsUpdateCommand(
                 ownedRef: widget.ownedItem.ref,
                 purchaseDate: _purchaseDate,

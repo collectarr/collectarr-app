@@ -33,7 +33,7 @@ class TvEpisodesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seriesRef = CatalogEntityRef(
-      kind: type.kind.apiValue,
+      kind: type.kind,
       entityType: CatalogEntityType.work,
       id: item.id,
     );

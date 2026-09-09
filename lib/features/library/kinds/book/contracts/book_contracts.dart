@@ -230,7 +230,7 @@ final class BookCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.book,

@@ -35,7 +35,7 @@ class LibraryBulkActions {
     for (var index = 0; index < ownedEntries.length; index++) {
       final ownedItem = ownedEntries[index].ownedItem!;
       final runtime = libraryKindModuleForKind(
-        catalogMediaKindFromApiValue(ownedItem.catalogRef.kind),
+        ownedItem.catalogRef.mediaKind,
       );
       final updateCmd = runtime.edit.buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
@@ -86,10 +86,10 @@ class LibraryBulkActions {
         ownedItem: entry.ownedItem,
         wishlistItem: entry.wishlistItem,
       );
-      final resolvedKindStr = entry.catalogItem?.kind ??
-          entry.wishlistItem?.catalogRef.kind ??
-          entry.trackingEntry?.catalogRef.kind;
-      final resolvedKind = catalogMediaKindFromApiValue(resolvedKindStr);
+      final resolvedKind = entry.catalogItem?.mediaKind ??
+          entry.wishlistItem?.catalogRef.mediaKind ??
+          entry.trackingEntry?.catalogRef.mediaKind ??
+          CatalogMediaKind.unknown;
       final common = LibraryAddCommonDraft(
         condition: defaultCondition,
         grade: defaultGrade,
@@ -151,7 +151,7 @@ class LibraryBulkActions {
       final entry = ownedEntries[index];
       final src = entry.ownedItem!;
       final runtime = libraryKindModuleForKind(
-        catalogMediaKindFromApiValue(src.catalogRef.kind),
+        src.catalogRef.mediaKind,
       );
       final catalogItem = entry.catalogItem;
       final tracking = entry.trackingEntry == null
@@ -175,7 +175,7 @@ class LibraryBulkActions {
             );
       if (typedCommand == null) {
         throw StateError(
-          'Cannot duplicate ${src.catalogRef.kind} item without a typed '
+          'Cannot duplicate ${src.catalogRef.kind.apiValue} item without a typed '
           'catalog payload: ${src.itemId}',
         );
       }

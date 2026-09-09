@@ -138,7 +138,7 @@ void main() {
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'game_1',
-            kind: 'game',
+            kind: CatalogMediaKind.game,
             entityType: CatalogEntityType.work,
           ),
           details: const TestOwnedDetails(),

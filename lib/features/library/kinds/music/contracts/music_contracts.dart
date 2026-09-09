@@ -113,7 +113,7 @@ final class MusicCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         entityType: CatalogEntityType.work,
       ),
       kind: CatalogMediaKind.music,

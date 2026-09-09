@@ -68,7 +68,7 @@ final class OwnedItemMutations {
           anchor: anchor,
         );
 
-        final mediaKind = catalogMediaKindFromApiValue(catalogRef.kind);
+        final mediaKind = catalogRef.mediaKind;
         final typedPayload = command.typedPayload;
         final typedOwnedItem = typedPayload.toOwnedItem(
           resolvedCatalogRef: resolvedCatalogRef,

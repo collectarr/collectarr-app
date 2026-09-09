@@ -50,7 +50,7 @@ WatchSession _session(
   return WatchSession(
     id: id,
     targetRef: CatalogEntityRef(
-      kind: kind.apiValue,
+      kind: kind,
       entityType: CatalogEntityType.episode,
       id: '$id-item',
     ),

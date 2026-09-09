@@ -23,7 +23,7 @@ void main() {
     final item = MovieOwnedItem(
       id: const MovieOwnedItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'movie',
+        kind: CatalogMediaKind.movie,
         entityType: CatalogEntityType.work,
         id: 'movie-1',
       ),

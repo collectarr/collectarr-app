@@ -17,7 +17,7 @@ void main() {
       ),
       title: 'book-1',
       catalogRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
@@ -64,7 +64,7 @@ void main() {
     final session = WatchSession(
       id: 'watch-1',
       targetRef: const CatalogEntityRef(
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
@@ -97,7 +97,7 @@ void main() {
         WatchSession(
           id: 'tv-watch-1',
           targetRef: const CatalogEntityRef(
-            kind: 'tv',
+            kind: CatalogMediaKind.tv,
             entityType: CatalogEntityType.episode,
             id: 'tv-1',
           ),

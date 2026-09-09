@@ -105,7 +105,7 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
     yield BookTrackingUnit(
       id: 'seed-unit-book-${item.id}',
       targetRef: CatalogEntityRef(
-        kind: item.kind,
+        kind: item.mediaKind,
         entityType: CatalogEntityType.work,
         id: item.id,
       ),

@@ -14,7 +14,7 @@ void main() {
     final repo = CustomFieldRepository(db);
 
     final ref = CatalogEntityRef(
-      kind: 'book',
+      kind: CatalogMediaKind.book,
       entityType: CatalogEntityType.edition,
       id: 'book-edition-1',
     );

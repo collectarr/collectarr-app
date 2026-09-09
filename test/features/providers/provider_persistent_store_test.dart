@@ -105,7 +105,7 @@ void main() {
       remoteEntryId: 'entry-21',
       localEntityRef: const CatalogEntityRef(
         id: 'anime-21',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       ),
       baseSnapshot: base,
@@ -150,7 +150,7 @@ void main() {
     final updated = await store.getLinkByLocalRef(
       const CatalogEntityRef(
         id: 'anime-21',
-        kind: 'anime',
+        kind: CatalogMediaKind.anime,
         entityType: CatalogEntityType.work,
       ),
     );

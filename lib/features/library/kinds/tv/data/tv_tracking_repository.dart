@@ -212,7 +212,7 @@ final class TvTrackingRepository {
       episodeId: row.episodeId == null ? null : TvEpisodeId(row.episodeId!),
       targetRef: targetRef == null
           ? CatalogEntityRef(
-              kind: 'tv',
+              kind: CatalogMediaKind.tv,
               entityType: CatalogEntityType.work,
               id: row.seriesId,
             )

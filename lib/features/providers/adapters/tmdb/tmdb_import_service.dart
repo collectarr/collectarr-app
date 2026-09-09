@@ -323,7 +323,7 @@ class TmdbCatalogMatchCandidate {
   final List<String> searchAliases;
 
   CatalogEntityRef get catalogRef => CatalogEntityRef(
-        kind: kind.apiValue,
+        kind: kind,
         entityType: CatalogEntityType.work,
         id: id,
       );

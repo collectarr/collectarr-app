@@ -103,7 +103,7 @@ void main() {
     final item = GameOwnedItem(
       id: const GameOwnedItemId('owned-game-1'),
       catalogRef: const CatalogEntityRef(
-        kind: 'game',
+        kind: CatalogMediaKind.game,
         entityType: CatalogEntityType.work,
         id: 'game-1',
       ),
@@ -190,7 +190,7 @@ void main() {
         GameOwnedItem(
           id: GameOwnedItemId(''),
           catalogRef: CatalogEntityRef(
-            kind: 'game',
+            kind: CatalogMediaKind.game,
             entityType: CatalogEntityType.work,
             id: 'game-1',
           ),

@@ -146,7 +146,7 @@ Future<void> showTvCustomEpisodeDialog(
     await ref.read(customEpisodeMutationsProvider).upsertCustomEpisode(
           id: existingEpisode?.id,
           catalogRef: CatalogEntityRef(
-            kind: type.kind.apiValue,
+            kind: type.kind,
             entityType: CatalogEntityType.work,
             id: itemId,
           ),

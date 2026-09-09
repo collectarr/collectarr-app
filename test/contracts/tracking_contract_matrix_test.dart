@@ -85,7 +85,7 @@ void _defineTrackingEntryContract(
       id: '$name-tracking-1',
       catalogRef: CatalogEntityRef(
         id: '$name-work-1',
-        kind: kind.apiValue,
+        kind: kind,
         entityType: CatalogEntityType.work,
       ),
       status: MediaTrackingStatus.inProgress,

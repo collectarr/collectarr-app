@@ -196,7 +196,7 @@ final class MusicLocalMapper {
     return MusicOwnedItem(
       id: MusicOwnedItemId(row.id),
       catalogRef: CatalogEntityRef(
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         entityType: CatalogEntityType.work,
         id: row.itemId,
       ),
