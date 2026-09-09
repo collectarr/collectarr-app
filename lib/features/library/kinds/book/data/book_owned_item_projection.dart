@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
@@ -22,12 +20,7 @@ final class BookOwnedItemProjection {
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
-      targetRef: catalogRefForLibrarySelection(
-        item.catalogRef,
-        editionId: item.anchor?.editionId,
-        variantId: item.anchor?.variantId,
-        bundleReleaseId: item.anchor?.bundleReleaseId,
-      ),
+      targetRef: item.targetRef,
       condition: item.condition,
       grade: item.grade,
       purchaseDate: item.purchaseDate,
@@ -94,12 +87,7 @@ final class BookOwnedItemProjection {
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: item.anchorType,
-        editionId: item.editionId,
-        variantId: item.variantId,
-        bundleReleaseId: item.bundleReleaseId,
-      ),
+      targetRef: item.targetRef,
       condition: item.condition,
       grade: item.grade,
       purchaseDate: item.purchaseDate,

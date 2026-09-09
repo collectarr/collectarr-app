@@ -15,6 +15,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     required this.catalogRef,
     this.createdAt,
     this.isDigital,
+    CatalogEntityRef? targetRef,
     PersonalItemAnchor? anchor,
     String? anchorType,
     String? editionId,
@@ -41,19 +42,29 @@ class OwnedItem<TDetails extends JsonEncodable> {
     this.purchaseStore,
     this.collectionStatus,
     this.marketValueCents,
-  }) : anchor = anchor ??
-            PersonalItemAnchor.fromRaw(
-              anchorType: anchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
+  }) : targetRef = targetRef ??
+            _targetRefFromLegacy(
+              catalogRef,
+              anchor ??
+                  PersonalItemAnchor.fromRaw(
+                    anchorType: anchorType,
+                    editionId: editionId,
+                    variantId: variantId,
+                    bundleReleaseId: bundleReleaseId,
+                  ),
             );
 
   final String id;
   final CatalogEntityRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
-  final PersonalItemAnchor? anchor;
+
+  /// Canonical in-memory target for this owned copy.
+  ///
+  /// The v1 anchor fields are intentionally not stored as a second domain
+  /// representation. They are reconstructed only by the compatibility
+  /// accessors and serializers below.
+  final CatalogEntityRef? targetRef;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -88,6 +99,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
   Money? get sellPrice => Money.fromCents(sellPriceCents, currency);
   Money? get marketValue => Money.fromCents(marketValueCents, currency);
 
+  PersonalItemAnchor? get anchor => _legacyAnchorFromTarget(targetRef);
   String? get anchorType => anchor?.apiValue;
   String? get editionId => anchor?.editionId;
   String? get variantId => anchor?.variantId;
@@ -176,11 +188,14 @@ class OwnedItem<TDetails extends JsonEncodable> {
           ? null
           : DateTime.parse(json['created_at'] as String),
       isDigital: json['is_digital'] as bool?,
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: json['anchor_type'] as String?,
-        editionId: json['edition_id'] as String?,
-        variantId: json['variant_id'] as String?,
-        bundleReleaseId: json['bundle_release_id'] as String?,
+      targetRef: _targetRefFromLegacy(
+        catalogRef,
+        PersonalItemAnchor.fromRaw(
+          anchorType: json['anchor_type'] as String?,
+          editionId: json['edition_id'] as String?,
+          variantId: json['variant_id'] as String?,
+          bundleReleaseId: json['bundle_release_id'] as String?,
+        ),
       ),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
@@ -216,6 +231,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     CatalogEntityRef? catalogRef,
     Object? createdAt = _ownedItemUnset,
     Object? isDigital = _ownedItemUnset,
+    Object? targetRef = _ownedItemUnset,
     Object? anchor = _ownedItemUnset,
     String? anchorType,
     String? editionId,
@@ -243,14 +259,22 @@ class OwnedItem<TDetails extends JsonEncodable> {
     Object? collectionStatus = _ownedItemUnset,
     Object? marketValueCents = _ownedItemUnset,
   }) {
-    final resolvedAnchor = identical(anchor, _ownedItemUnset)
-        ? PersonalItemAnchor.fromRaw(
-            anchorType: anchorType ?? this.anchorType,
-            editionId: editionId ?? this.editionId,
-            variantId: variantId ?? this.variantId,
-            bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
-          )
-        : anchor as PersonalItemAnchor?;
+    final resolvedTargetRef = identical(targetRef, _ownedItemUnset)
+        ? identical(anchor, _ownedItemUnset)
+            ? _targetRefFromLegacy(
+                catalogRef ?? this.catalogRef,
+                PersonalItemAnchor.fromRaw(
+                  anchorType: anchorType ?? this.anchorType,
+                  editionId: editionId ?? this.editionId,
+                  variantId: variantId ?? this.variantId,
+                  bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+                ),
+              )
+            : _targetRefFromLegacy(
+                catalogRef ?? this.catalogRef,
+                anchor as PersonalItemAnchor?,
+              )
+        : targetRef as CatalogEntityRef?;
 
     return OwnedItem<TDetails>(
       id: id ?? this.id,
@@ -261,7 +285,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       isDigital: identical(isDigital, _ownedItemUnset)
           ? this.isDigital
           : isDigital as bool?,
-      anchor: resolvedAnchor,
+      targetRef: resolvedTargetRef,
       details: details ?? this.details,
       condition: identical(condition, _ownedItemUnset)
           ? this.condition
@@ -316,4 +340,66 @@ class OwnedItem<TDetails extends JsonEncodable> {
           : marketValueCents as int?,
     );
   }
+}
+
+CatalogEntityRef? _targetRefFromLegacy(
+  CatalogEntityRef catalogRef, [
+  PersonalItemAnchor? anchor,
+]) {
+  if (anchor == null) return null;
+  final rootId = catalogRef.rootId ?? catalogRef.id;
+  return switch (anchor.type) {
+    PersonalItemAnchorType.edition => anchor.editionId == null
+        ? null
+        : CatalogEntityRef(
+            kind: catalogRef.kind,
+            entityType: const CatalogEntityTypeId('edition'),
+            id: anchor.editionId!,
+            rootId: rootId,
+          ),
+    PersonalItemAnchorType.variant => anchor.variantId == null
+        ? null
+        : CatalogEntityRef(
+            kind: catalogRef.kind,
+            entityType: const CatalogEntityTypeId('release'),
+            id: anchor.variantId!,
+            rootId: rootId,
+            parentId: anchor.editionId,
+          ),
+    PersonalItemAnchorType.bundleRelease => anchor.bundleReleaseId == null
+        ? null
+        : CatalogEntityRef(
+            kind: catalogRef.kind,
+            entityType: const CatalogEntityTypeId('bundle_release'),
+            id: anchor.bundleReleaseId!,
+            rootId: rootId,
+          ),
+    PersonalItemAnchorType.item => catalogRef.copyWith(
+        id: rootId,
+        entityType: const CatalogEntityTypeId('work'),
+        rootId: null,
+      ),
+  };
+}
+
+PersonalItemAnchor? _legacyAnchorFromTarget(CatalogEntityRef? targetRef) {
+  if (targetRef == null) return null;
+  return switch (targetRef.entityType.apiValue) {
+    'edition' => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.edition.apiValue,
+        editionId: targetRef.id,
+      ),
+    'release' => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.variant.apiValue,
+        editionId: targetRef.parentId,
+        variantId: targetRef.id,
+      ),
+    'bundle_release' => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
+        bundleReleaseId: targetRef.id,
+      ),
+    _ => PersonalItemAnchor.fromRaw(
+        anchorType: PersonalItemAnchorType.item.apiValue,
+      ),
+  };
 }

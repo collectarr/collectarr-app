@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -75,12 +74,7 @@ void main() {
       catalogRef: item.catalogRef,
       createdAt: item.createdAt,
       isDigital: item.isDigital,
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: item.anchorType,
-        editionId: item.editionId,
-        variantId: item.variantId,
-        bundleReleaseId: item.bundleReleaseId,
-      ),
+      targetRef: item.targetRef,
       condition: item.condition,
       grade: item.grade,
       purchaseDate: item.purchaseDate,
