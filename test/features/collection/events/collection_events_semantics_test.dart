@@ -187,7 +187,7 @@ void main() {
     await trackingMutations.removeTrackingEntry(trackingEntry);
 
     await Future<void>.delayed(Duration.zero);
-    expect(events, [TrackingChanged(trackingEntry.id)]);
+    expect(events, const [TrackingChanged()]);
     await sub.cancel();
   });
 }

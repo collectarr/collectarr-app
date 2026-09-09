@@ -121,7 +121,7 @@ final class CatalogItemMutations {
       eventsToEmit: [
         CatalogItemChanged(snapshot.catalogRef),
         for (final item in wishlistEntries) WishlistChanged(item.catalogRef),
-        for (final item in trackingList) TrackingChanged(item.id),
+        for (final _ in trackingList) const TrackingChanged(),
       ],
     );
   }

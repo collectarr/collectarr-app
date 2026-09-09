@@ -66,7 +66,7 @@ final class TrackingMutations {
         await syncQueue
             .enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
       },
-      eventsToEmit: [TrackingChanged(updated.id)],
+      eventsToEmit: const [TrackingChanged()],
     );
   }
 
@@ -172,7 +172,7 @@ final class TrackingMutations {
         await syncQueue
             .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
       },
-      eventsToEmit: [TrackingChanged(entryId)],
+      eventsToEmit: const [TrackingChanged()],
     );
   }
 
@@ -195,7 +195,7 @@ final class TrackingMutations {
           ),
         );
       },
-      eventsToEmit: [TrackingChanged(entry.id)],
+      eventsToEmit: const [TrackingChanged()],
     );
   }
 
@@ -293,7 +293,7 @@ final class TrackingMutations {
         await syncQueue
             .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
       },
-      eventsToEmit: [TrackingChanged(entryId)],
+      eventsToEmit: const [TrackingChanged()],
     );
   }
 
@@ -343,7 +343,7 @@ final class TrackingMutations {
               .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
         }
       },
-      eventsToEmit: [TrackingChanged(entryId)],
+      eventsToEmit: const [TrackingChanged()],
     );
   }
 
@@ -356,7 +356,7 @@ final class TrackingMutations {
         await syncQueue
             .enqueue(_syncChangeForTrackingUnit(updated, 'upsert', now));
       },
-      eventsToEmit: [TrackingChanged(updated.id)],
+      eventsToEmit: const [TrackingChanged()],
     );
   }
 

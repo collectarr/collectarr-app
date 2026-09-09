@@ -59,7 +59,7 @@ final class CustomEpisodeMutations {
         await syncQueue
             .enqueue(_syncChangeForCustomEpisode(episode, 'upsert', now));
       },
-      eventsToEmit: [CustomEpisodeChanged(episode.id)],
+      eventsToEmit: const [CustomEpisodeChanged()],
     );
 
     return episode;
@@ -75,7 +75,7 @@ final class CustomEpisodeMutations {
         await syncQueue
             .enqueue(_syncChangeForCustomEpisode(deleted, 'delete', now));
       },
-      eventsToEmit: [CustomEpisodeChanged(episode.id)],
+      eventsToEmit: const [CustomEpisodeChanged()],
     );
   }
 

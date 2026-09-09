@@ -83,33 +83,27 @@ final class WishlistChanged extends CollectionEvent {
 }
 
 final class TrackingChanged extends CollectionEvent {
-  const TrackingChanged(this.trackingEntryId);
-  final String trackingEntryId;
+  const TrackingChanged();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TrackingChanged &&
-          runtimeType == other.runtimeType &&
-          trackingEntryId == other.trackingEntryId;
+      other is TrackingChanged && runtimeType == other.runtimeType;
 
   @override
-  int get hashCode => trackingEntryId.hashCode;
+  int get hashCode => runtimeType.hashCode;
 }
 
 final class WatchSessionChanged extends CollectionEvent {
-  const WatchSessionChanged(this.watchSessionId);
-  final String watchSessionId;
+  const WatchSessionChanged();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WatchSessionChanged &&
-          runtimeType == other.runtimeType &&
-          watchSessionId == other.watchSessionId;
+      other is WatchSessionChanged && runtimeType == other.runtimeType;
 
   @override
-  int get hashCode => watchSessionId.hashCode;
+  int get hashCode => runtimeType.hashCode;
 }
 
 final class MetadataOverrideChanged extends CollectionEvent {
@@ -128,16 +122,13 @@ final class MetadataOverrideChanged extends CollectionEvent {
 }
 
 final class CustomEpisodeChanged extends CollectionEvent {
-  const CustomEpisodeChanged(this.customEpisodeId);
-  final String customEpisodeId;
+  const CustomEpisodeChanged();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CustomEpisodeChanged &&
-          runtimeType == other.runtimeType &&
-          customEpisodeId == other.customEpisodeId;
+      other is CustomEpisodeChanged && runtimeType == other.runtimeType;
 
   @override
-  int get hashCode => customEpisodeId.hashCode;
+  int get hashCode => runtimeType.hashCode;
 }

@@ -57,7 +57,7 @@ final class WatchSessionMutations {
         await syncQueue
             .enqueue(_syncChangeForWatchSession(session, 'upsert', now));
       },
-      eventsToEmit: [WatchSessionChanged(session.id)],
+      eventsToEmit: const [WatchSessionChanged()],
     );
 
     return session;
@@ -73,7 +73,7 @@ final class WatchSessionMutations {
         await syncQueue
             .enqueue(_syncChangeForWatchSession(deleted, 'delete', now));
       },
-      eventsToEmit: [WatchSessionChanged(session.id)],
+      eventsToEmit: const [WatchSessionChanged()],
     );
   }
 
