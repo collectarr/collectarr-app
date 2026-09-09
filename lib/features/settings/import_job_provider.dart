@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -382,7 +383,6 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }) async {
     accountId = await _validatedAccountId(provider, accountId);
     final api = ref.read(apiClientProvider);
-    final ownedMutations = ref.read(ownedItemMutationsProvider);
     final catalogMutations = ref.read(catalogItemMutationsProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
@@ -397,7 +397,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       ),
     );
 
-    final matchedItems = <String, CatalogItemDto>{};
+    final matchedItems = <String, CatalogSearchCandidate>{};
     var matchedCount = 0;
     var unmatchedCount = 0;
     var importedCount = 0;
@@ -407,10 +407,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final runner = ImportRunner(
       matcher: (entry) async {
         final type = _resolvedTypeForEntry(entry);
-        CatalogItemDto? item;
+        CatalogSearchCandidate? item;
         if (type != null) {
           final year = entry.startedAt?.year ?? entry.completedAt?.year;
-          final candidates = await searchLibraryMetadata(
+          final candidates = await searchLibraryMetadataCandidates(
             api,
             type,
             query: entry.title ?? '',
@@ -435,7 +435,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           jobId,
           (j) => j.copyWith(matched: matchedCount),
         );
-        return ImportMapping.matched(entry, item.catalogRef);
+        return ImportMapping.matched(entry, item.summary.ref);
       },
       applier: (mapping, config) async {
         final item = matchedItems[mapping.entry.remoteItemId];
@@ -445,20 +445,20 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           (j) => j.copyWith(phase: ImportJobPhase.importing),
         );
         await catalogMutations.updateSnapshot(
-          CatalogImportSnapshot.fromItem(item),
+          item.toImportSnapshot(),
           origin: config.origin,
         );
         await _applyEntry(
           catalogMutations: catalogMutations,
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
-          item: item,
+          catalogRef: item.summary.ref,
           entry: mapping.entry,
           origin: config.origin,
         );
         await _linkImportedEntry(
           accountId: accountId,
-          localEntityRef: item.catalogRef,
+          localEntityRef: item.summary.ref,
           entry: mapping.entry,
         );
         importedCount++;
@@ -485,7 +485,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             catalogMutations: catalogMutations,
             wishlistMutations: wishlistMutations,
             trackingMutations: trackingMutations,
-            item: localItem,
+            snapshot: localItem,
+            catalogRef: localItem.catalogRef,
             entry: entry,
             origin: config.origin,
           );
@@ -632,7 +633,6 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       );
     }
 
-    final ownedMutations = ref.read(ownedItemMutationsProvider);
     final catalogMutations = ref.read(catalogItemMutationsProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
@@ -1019,21 +1019,17 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return libraryKindModuleForKind(entry.kind);
   }
 
-  CatalogItemDto? _bestImportMatch(
-      ProviderPersonalEntry entry, List<CatalogItemDto> candidates) {
+  CatalogSearchCandidate? _bestImportMatch(
+    ProviderPersonalEntry entry,
+    List<CatalogSearchCandidate> candidates,
+  ) {
     if (candidates.isEmpty) {
       return null;
     }
     final title = entry.title ?? '';
     final normalizedTitle = title.trim().toLowerCase();
     for (final candidate in candidates) {
-      final names = <String?>[
-        candidate.title,
-        candidate.displayTitle,
-        candidate.localizedTitle,
-        candidate.originalTitle,
-        ...?candidate.searchAliases,
-      ];
+      final names = <String?>[candidate.title, candidate.subtitle];
       if (names.whereType<String>().any(
             (name) => name.trim().toLowerCase() == normalizedTitle,
           )) {
@@ -1047,23 +1043,18 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required CatalogItemMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required CatalogItemDto item,
+    required CatalogEntityRef catalogRef,
     required ProviderPersonalEntry entry,
     required MutationOrigin origin,
   }) async {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addToWishlist(
-        item.catalogRef,
+        catalogRef,
         origin: origin,
       );
       return;
     }
-    final catalogRef = CatalogEntityRef(
-      kind: item.kind,
-      entityType: CatalogEntityType.work,
-      id: item.id,
-    );
     await trackingMutations.upsertTrackingEntry(
       TrackingTarget.catalog(catalogRef),
       sourceType: TrackingSourceType.streaming,
@@ -1084,24 +1075,25 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     required CatalogItemMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required CatalogItemDto item,
+    required CatalogImportSnapshot snapshot,
+    required CatalogEntityRef catalogRef,
     required ProviderPersonalEntry entry,
     required MutationOrigin origin,
   }) async {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addLocalOnlyWishlistItem(
-        CatalogImportSnapshot.fromItem(item),
+        snapshot,
         origin: origin,
       );
       return;
     }
     await catalogMutations.updateSnapshot(
-      CatalogImportSnapshot.fromItem(item),
+      snapshot,
       origin: origin,
     );
     await trackingMutations.addLocalOnlyTrackingEntry(
-      item.catalogRef,
+      catalogRef,
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
       rating: entry.rating == null || entry.rating == 0
@@ -1117,7 +1109,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     );
   }
 
-  CatalogItemDto _syntheticImportCatalogItem(
+  CatalogImportSnapshot _syntheticImportCatalogItem(
     ProviderId provider,
     ProviderPersonalEntry entry,
   ) {
@@ -1125,19 +1117,12 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final sourceKey = entry.remoteItemId.trim().isEmpty
         ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         : entry.remoteItemId.trim();
-    return CatalogItemDto.fromJson({
-      'id': '${provider.storageValue}-local:$sourceKey',
-      'kind': entry.kind.apiValue,
-      'title': title,
-      'display_title': title,
-      'localized_title': title,
-      'original_title': title,
-      'search_aliases': [title],
-      if (entry.startedAt != null)
-        'release_date': entry.startedAt!.toIso8601String()
-      else if (entry.completedAt != null)
-        'release_date': entry.completedAt!.toIso8601String(),
-    });
+    return CatalogImportSnapshot.synthetic(
+      id: '${provider.storageValue}-local:$sourceKey',
+      kind: entry.kind,
+      title: title,
+      releaseDate: entry.startedAt ?? entry.completedAt,
+    );
   }
 
   MediaTrackingStatus? _trackingStatusForEntry(ProviderPersonalEntry entry) {

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
+import 'catalog_import_snapshot.dart';
 
 /// Search result that can cross into a mixed/global UI without exposing the
 /// canonical catalog DTO. The DTO remains opaque until the catalog transport
@@ -35,4 +36,7 @@ final class CatalogSearchCandidate {
   String? get imageUrl => summary.imageUrl;
 
   CatalogItemDto toTransportItem() => _item;
+
+  CatalogImportSnapshot toImportSnapshot() =>
+      CatalogImportSnapshot.fromItem(_item);
 }

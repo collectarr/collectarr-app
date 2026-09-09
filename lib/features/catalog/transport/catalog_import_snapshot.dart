@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 /// Opaque catalog snapshot crossing from a kind-owned import profile into the
 /// catalog transport writer.
@@ -14,10 +14,31 @@ final class CatalogImportSnapshot {
     return CatalogImportSnapshot._(item);
   }
 
+  factory CatalogImportSnapshot.synthetic({
+    required String id,
+    required CatalogMediaKind kind,
+    required String title,
+    DateTime? releaseDate,
+  }) {
+    return CatalogImportSnapshot.fromItem(
+      CatalogItemDto.fromJson({
+        'id': id,
+        'kind': kind.apiValue,
+        'title': title,
+        'display_title': title,
+        'localized_title': title,
+        'original_title': title,
+        'search_aliases': [title],
+        if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
+      }),
+    );
+  }
+
   final CatalogItemDto _item;
 
   String get id => _item.id;
   CatalogMediaKind get kind => _item.mediaKind;
+  CatalogEntityRef get catalogRef => _item.catalogRef;
   String get title => _item.title;
   String? get coverImageData => _item.coverImageData;
 
