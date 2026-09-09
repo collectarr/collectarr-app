@@ -52,18 +52,18 @@ final class OwnedItemRemoved extends CollectionEvent {
 }
 
 final class CatalogItemChanged extends CollectionEvent {
-  const CatalogItemChanged(this.catalogItemId);
-  final String catalogItemId;
+  const CatalogItemChanged(this.catalogRef);
+  final CatalogEntityRef catalogRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is CatalogItemChanged &&
           runtimeType == other.runtimeType &&
-          catalogItemId == other.catalogItemId;
+          catalogRef == other.catalogRef;
 
   @override
-  int get hashCode => catalogItemId.hashCode;
+  int get hashCode => catalogRef.hashCode;
 }
 
 final class WishlistChanged extends CollectionEvent {
@@ -112,18 +112,18 @@ final class WatchSessionChanged extends CollectionEvent {
 }
 
 final class MetadataOverrideChanged extends CollectionEvent {
-  const MetadataOverrideChanged(this.itemId);
-  final String itemId;
+  const MetadataOverrideChanged(this.catalogRef);
+  final CatalogEntityRef catalogRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MetadataOverrideChanged &&
           runtimeType == other.runtimeType &&
-          itemId == other.itemId;
+          catalogRef == other.catalogRef;
 
   @override
-  int get hashCode => itemId.hashCode;
+  int get hashCode => catalogRef.hashCode;
 }
 
 final class CustomEpisodeChanged extends CollectionEvent {

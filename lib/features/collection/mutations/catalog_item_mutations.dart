@@ -42,7 +42,7 @@ final class CatalogItemMutations {
         await catalogCache.upsertImportSnapshots([snapshot]);
         await syncQueue.enqueue(_syncChangeForSnapshot(snapshot, now));
       },
-      eventsToEmit: [CatalogItemChanged(snapshot.id)],
+      eventsToEmit: [CatalogItemChanged(snapshot.catalogRef)],
     );
   }
 
@@ -60,7 +60,7 @@ final class CatalogItemMutations {
         ]);
       },
       eventsToEmit: [
-        for (final snapshot in pending) CatalogItemChanged(snapshot.id),
+        for (final snapshot in pending) CatalogItemChanged(snapshot.catalogRef),
       ],
     );
   }
@@ -119,7 +119,7 @@ final class CatalogItemMutations {
         return count;
       },
       eventsToEmit: [
-        CatalogItemChanged(snapshot.id),
+        CatalogItemChanged(snapshot.catalogRef),
         for (final item in wishlistEntries) WishlistChanged(item.catalogRef),
         for (final item in trackingList) TrackingChanged(item.id),
       ],

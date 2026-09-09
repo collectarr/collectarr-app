@@ -51,7 +51,7 @@ final class MetadataOverrideMutations {
         await syncQueue
             .enqueue(_syncChangeForMetadataOverride(override, 'upsert', now));
       },
-      eventsToEmit: [MetadataOverrideChanged(targetRef.id)],
+      eventsToEmit: [MetadataOverrideChanged(targetRef)],
     );
 
     return override;
@@ -67,7 +67,7 @@ final class MetadataOverrideMutations {
         await syncQueue
             .enqueue(_syncChangeForMetadataOverride(deleted, 'delete', now));
       },
-      eventsToEmit: [MetadataOverrideChanged(override.targetRef.id)],
+      eventsToEmit: [MetadataOverrideChanged(override.targetRef)],
     );
   }
 

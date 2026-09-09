@@ -268,7 +268,7 @@ final class CollectionImportService {
         for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
         for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
         for (final snapshot in importedCatalogSnapshots)
-          CatalogItemChanged(snapshot.id),
+          CatalogItemChanged(snapshot.catalogRef),
       ],
     );
 
