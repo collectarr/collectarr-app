@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -11,6 +10,8 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 class LibraryAddDefaults {
   const LibraryAddDefaults({
@@ -59,7 +60,7 @@ Future<void> addLibraryItemsToTarget({
   required OwnedItemMutations ownedMutations,
   required WishlistMutations wishlistMutations,
   required TrackingMutations trackingMutations,
-  required Iterable<CatalogItemDto> items,
+  required Iterable<LibraryAddCatalogItem> items,
   required LibraryAddTarget target,
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
@@ -74,7 +75,9 @@ Future<void> addLibraryItemsToTarget({
     return;
   }
 
-  await catalog.upsertMetadataItems(values);
+  await catalog.upsertMetadataItems(
+    values.map((item) => item.toTransportItem()).toList(growable: false),
+  );
 
   final baseCommon = commonDraft ?? defaults.toCommonDraft();
   final baseTracking = trackingDraft ?? defaults.toTrackingDraft();
@@ -151,7 +154,7 @@ Future<void> addLibraryItemsToTarget({
   }
 }
 
-bool? _digitalOwnedItemFlag(CatalogItemDto item) {
+bool? _digitalOwnedItemFlag(LibraryAddCatalogItem item) {
   final payload = item.payload;
   if (payload['is_digital'] is bool) {
     return payload['is_digital'] as bool;
@@ -177,7 +180,7 @@ bool? _digitalOwnedItemFlag(CatalogItemDto item) {
 }
 
 _ResolvedAddReference _resolveReferenceForItem(
-  CatalogItemDto item, {
+  LibraryAddCatalogItem item, {
   required LibraryAddReferenceType referenceType,
   LibraryAddEditionSelection? editionSelection,
   String? bundleReleaseId,
@@ -190,7 +193,7 @@ _ResolvedAddReference _resolveReferenceForItem(
     case LibraryAddReferenceType.bundleRelease:
       return _ResolvedAddReference(
         catalogRef: catalogRefForLibrarySelection(
-          item,
+          item.toTransportItem(),
           bundleReleaseId: bundleReleaseId,
         ),
         anchor: PersonalItemAnchor.fromRaw(
@@ -204,7 +207,7 @@ _ResolvedAddReference _resolveReferenceForItem(
         final variantId = editionSelection?.variantId?.trim();
         return _ResolvedAddReference(
           catalogRef: catalogRefForLibrarySelection(
-            item,
+            item.toTransportItem(),
             editionId: explicitEditionId,
             variantId: variantId?.isEmpty == true ? null : variantId,
           ),
@@ -223,7 +226,7 @@ _ResolvedAddReference _resolveReferenceForItem(
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
         catalogRef: catalogRefForLibrarySelection(
-          item,
+          item.toTransportItem(),
           editionId: firstEdition.id,
           variantId:
               explicitVariantId?.isEmpty == true ? null : explicitVariantId,

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -72,7 +73,7 @@ class _LibraryVideoDetailPageState
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.request.type.add.buildCommand(
-            catalogItem,
+            LibraryAddCatalogItem.fromItem(catalogItem),
             const LibraryAddCommonDraft(),
             widget.request.type.add.createInitialDraft(),
             anchor: PersonalItemAnchor.fromRaw(

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 
 class LibraryAddCoreSearchResult {
@@ -14,7 +14,7 @@ class LibraryAddCoreSearchResult {
     required this.shouldSearchProvider,
   });
 
-  final List<CatalogItemDto> items;
+  final List<LibraryAddCatalogItem> items;
   final bool shouldSearchProvider;
 }
 
@@ -66,7 +66,10 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     catalog: catalog,
     input: input,
   ).timeout(timeout);
-  final rankedItems = ranking.rankMetadata(items, searchContext);
+  final rankedItems = ranking.rankMetadata(
+    [for (final item in items) LibraryAddCatalogItem.fromItem(item)],
+    searchContext,
+  );
   return LibraryAddCoreSearchResult(
     items: rankedItems,
     shouldSearchProvider: providerSearchAvailable &&
@@ -74,7 +77,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   );
 }
 
-Future<List<CatalogItemDto>> fetchLibraryAddSuggestions({
+Future<List<LibraryAddCatalogItem>> fetchLibraryAddSuggestions({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
@@ -90,7 +93,7 @@ Future<List<CatalogItemDto>> fetchLibraryAddSuggestions({
     input: input,
   ).timeout(timeout);
   return filterAndRankCatalogItems(
-    items,
+    [for (final item in items) LibraryAddCatalogItem.fromItem(item)],
     ranking,
     searchContext,
   );
@@ -110,9 +113,9 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
     catalog: catalog,
     barcodes: [barcode],
   ).timeout(timeout);
-  final foundItems = [
+  final foundItems = <LibraryAddCatalogItem>[
     for (final result in results)
-      if (result.item != null) result.item!,
+      if (result.item != null) LibraryAddCatalogItem.fromItem(result.item!),
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

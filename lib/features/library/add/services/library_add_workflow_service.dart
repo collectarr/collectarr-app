@@ -20,9 +20,10 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -30,7 +31,7 @@ import 'package:uuid/uuid.dart';
 class LibraryAddWorkflowService {
   const LibraryAddWorkflowService();
 
-  CatalogItemDto metadataItemFromPreview(
+  LibraryAddCatalogItem metadataItemFromPreview(
     AdminProviderPreview preview, {
     String? itemId,
   }) {
@@ -45,10 +46,12 @@ class LibraryAddWorkflowService {
     if (mapper == null) {
       throw StateError('No provider mapper registered for ${preview.kind}');
     }
-    return mapper(
-      NormalizedProviderEnvelopeV1.fromAdminPreview(
-        preview,
-        itemId: id,
+    return LibraryAddCatalogItem.fromItem(
+      mapper(
+        NormalizedProviderEnvelopeV1.fromAdminPreview(
+          preview,
+          itemId: id,
+        ),
       ),
     );
   }
@@ -62,7 +65,7 @@ class LibraryAddWorkflowService {
     return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
   }
 
-  Future<CatalogItemDto> providerAddItemForCandidate({
+  Future<LibraryAddCatalogItem> providerAddItemForCandidate({
     required ApiClient? api,
     required ProviderCandidate candidate,
     required bool mounted,
@@ -94,7 +97,7 @@ class LibraryAddWorkflowService {
     required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required Iterable<CatalogItemDto> items,
+    required Iterable<LibraryAddCatalogItem> items,
     required LibraryAddTarget target,
     LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults defaults = const LibraryAddDefaults(),
@@ -232,7 +235,7 @@ class LibraryAddWorkflowService {
           context,
           LibraryEditDialogRequest(
             type: type,
-            item: previewItem,
+            item: previewItem.toTransportItem(),
             ownedItem: null,
             accent: accent,
             scope: LibraryEditScope.all,
@@ -268,7 +271,7 @@ class LibraryAddWorkflowService {
           candidate: currentCandidate,
         );
 
-        final edited = result.item;
+        final edited = LibraryAddCatalogItem.fromItem(result.item);
         final ingested = metadataItemFromIngestResult(ingest.item);
         if (mounted) {
           await providerOrchestrationService.applyIngestCorrections(

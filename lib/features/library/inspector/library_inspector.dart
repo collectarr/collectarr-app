@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/details/library_detail_wiring.da
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -659,7 +660,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.type.add.buildCommand(
-            catalogItem,
+            LibraryAddCatalogItem.fromItem(catalogItem),
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
             anchor: anchor,
@@ -696,7 +697,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       return;
     }
     final command = widget.type.add.buildCommandFromOwnedItem(
-      catalogItem,
+      LibraryAddCatalogItem.fromItem(catalogItem),
       ownedItem,
       anchor: ownedItem.anchor,
       tracking: LibraryAddTrackingDraft(

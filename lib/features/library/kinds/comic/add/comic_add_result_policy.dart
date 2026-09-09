@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_result
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';
 const comicAddHideVariantsOptionId = 'comic.hide-variants';
@@ -50,12 +50,12 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   providerCandidateComparator: compareComicIssueCandidates,
 );
 
-bool _comicItemIsVariant(CatalogItemDto item) {
+bool _comicItemIsVariant(LibraryAddCatalogItem item) {
   final metadata = item.kindMetadata;
   return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
 }
 
-String _comicGroupTitle(CatalogItemDto item) {
+String _comicGroupTitle(LibraryAddCatalogItem item) {
   final metadata = item.kindMetadata;
   if (metadata is ComicMedia) {
     final seriesTitle =

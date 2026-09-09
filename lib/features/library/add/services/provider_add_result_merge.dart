@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
-CatalogItemDto mergeProviderAddResult({
-  required CatalogItemDto ingested,
-  required CatalogItemDto edited,
+LibraryAddCatalogItem mergeProviderAddResult({
+  required LibraryAddCatalogItem ingested,
+  required LibraryAddCatalogItem edited,
 }) {
   return ingested.copyWith(
     title: edited.title,
@@ -21,9 +22,9 @@ CatalogItemDto mergeProviderAddResult({
   );
 }
 
-CatalogItemDto mergeResolvedProviderAddItem({
-  required CatalogItemDto fallback,
-  required CatalogItemDto fullItem,
+LibraryAddCatalogItem mergeResolvedProviderAddItem({
+  required LibraryAddCatalogItem fallback,
+  required LibraryAddCatalogItem fullItem,
 }) {
   return fullItem.displayCoverUrl != null
       ? fullItem
@@ -36,7 +37,7 @@ CatalogItemDto mergeResolvedProviderAddItem({
 
 Map<String, dynamic> mergeHydratedProviderAddResultRaw({
   required Map<String, dynamic> raw,
-  required CatalogItemDto sourceSelection,
+  required LibraryAddCatalogItem sourceSelection,
 }) {
   final payload = sourceSelection.payload;
   final merged = <String, dynamic>{
@@ -56,7 +57,7 @@ Future<void> applyProviderIngestCorrections({
   required String kind,
   required String itemId,
   required Map<String, Object?> corrections,
-  required CatalogItemDto edited,
+  required LibraryAddCatalogItem edited,
 }) {
   final payload = edited.payload;
   return api.adminUpdateCatalogItem(

@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
 typedef LibraryAddMetadataSearchScore = int Function(
-  CatalogItemDto item,
+  LibraryAddCatalogItem item,
   LibraryAddSearchContext context,
 );
 
@@ -25,7 +25,7 @@ class LibraryAddSearchRankField {
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
-  final Iterable<Object?> Function(CatalogItemDto item) metadataValues;
+  final Iterable<Object?> Function(LibraryAddCatalogItem item) metadataValues;
   final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
 }
 
@@ -40,8 +40,8 @@ class LibraryAddSearchRanking {
   final LibraryAddProviderSearchScore scoreProvider;
   final int Function(LibraryAddSearchContext context) maxScore;
 
-  List<CatalogItemDto> rankMetadata(
-    List<CatalogItemDto> items,
+  List<LibraryAddCatalogItem> rankMetadata(
+    List<LibraryAddCatalogItem> items,
     LibraryAddSearchContext context,
   ) {
     if (items.length < 2 || !context.hasAnyInput) {
@@ -61,7 +61,7 @@ class LibraryAddSearchRanking {
   }
 
   bool shouldSearchProviderForCoreResults(
-    List<CatalogItemDto> items,
+    List<LibraryAddCatalogItem> items,
     LibraryAddSearchContext context, {
     double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
   }) {
@@ -83,7 +83,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
   required List<LibraryAddSearchRankField> fields,
 }) {
   int scoreMetadata(
-    CatalogItemDto item,
+    LibraryAddCatalogItem item,
     LibraryAddSearchContext context,
   ) {
     var score = _scoreText(
@@ -210,8 +210,8 @@ String _normalize(Object? value) {
       '';
 }
 
-List<CatalogItemDto> filterAndRankCatalogItems(
-  List<CatalogItemDto> items,
+List<LibraryAddCatalogItem> filterAndRankCatalogItems(
+  List<LibraryAddCatalogItem> items,
   LibraryAddSearchRanking ranking,
   LibraryAddSearchContext context, {
   int minimumScore = 1,

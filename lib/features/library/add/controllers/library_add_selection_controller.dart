@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
 class LibraryAddSelectionController {
   LibraryAddSelectionController({LibraryAddSelectionState? state})
@@ -126,7 +126,7 @@ class LibraryAddSelectionController {
   }
 
   void handleReferenceEditionSelected(
-      CatalogItemDto? item, String? editionId) {
+      LibraryAddCatalogItem? item, String? editionId) {
     if (item == null) return;
     state = state.copyWith(
       selectedReferenceEditionId: editionId,

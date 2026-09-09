@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
 CatalogItemDto testCatalogItem({
   String id = 'test-item-1',
@@ -175,9 +176,11 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     catalogMediaKindFromApiValue(catalogRef.kind),
   ).add;
   return add.buildCommandFromDetails(
-    testCatalogItem(
-      id: catalogRef.id,
-      kind: catalogRef.kind,
+    LibraryAddCatalogItem.fromItem(
+      testCatalogItem(
+        id: catalogRef.id,
+        kind: catalogRef.kind,
+      ),
     ),
     LibraryAddCommonDraft(
       condition: common.condition,

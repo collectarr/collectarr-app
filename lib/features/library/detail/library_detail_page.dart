@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
@@ -235,7 +236,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.type.add.buildCommand(
-            catalogItem,
+            LibraryAddCatalogItem.fromItem(catalogItem),
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
             anchor: anchor,

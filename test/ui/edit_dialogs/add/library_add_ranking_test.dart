@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -212,18 +213,20 @@ void main() {
   });
 }
 
-CatalogItemDto _item({
+LibraryAddCatalogItem _item({
   required String title,
   String? publisher,
   String? itemNumber,
   int? releaseYear,
 }) {
-  return testCatalogItemFromJson({
-    'id': 'test-${title.hashCode}',
-    'kind': 'comic',
-    'title': title,
-    if (publisher != null) 'publisher': publisher,
-    if (itemNumber != null) 'item_number': itemNumber,
-    if (releaseYear != null) 'release_year': releaseYear,
-  });
+  return LibraryAddCatalogItem.fromItem(
+    testCatalogItemFromJson({
+      'id': 'test-${title.hashCode}',
+      'kind': 'comic',
+      'title': title,
+      if (publisher != null) 'publisher': publisher,
+      if (itemNumber != null) 'item_number': itemNumber,
+      if (releaseYear != null) 'release_year': releaseYear,
+    }),
+  );
 }

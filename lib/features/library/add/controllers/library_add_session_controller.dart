@@ -34,6 +34,8 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -169,10 +171,10 @@ class LibraryAddSessionController
     };
   }
 
-  CatalogEntityRef _selectedWishlistRef(CatalogItemDto item) {
+  CatalogEntityRef _selectedWishlistRef(LibraryAddCatalogItem item) {
     final selection = state.selection;
     return catalogRefForLibrarySelection(
-      item,
+      item.toTransportItem(),
       editionId: selection.selectedReferenceEditionId,
       variantId: selection.selectedReferenceVariantId,
       bundleReleaseId: selection.selectedBundleReleaseId,
@@ -291,7 +293,7 @@ class LibraryAddSessionController
     }
   }
 
-  void selectSuggestion(CatalogItemDto item) {
+  void selectSuggestion(LibraryAddCatalogItem item) {
     state = state.copyWith(
       search: state.search.copyWith(
         query: item.title,
@@ -958,7 +960,7 @@ class LibraryAddSessionController
       return;
     }
 
-    CatalogItemDto? selected;
+    LibraryAddCatalogItem? selected;
     for (final item in state.search.results) {
       if (item.id == itemId) {
         selected = item;
@@ -975,12 +977,12 @@ class LibraryAddSessionController
     );
 
     try {
-      final CatalogItemDto hydrated = await api!
+      final LibraryAddCatalogItem hydrated = await api!
           .getTypedMetadataItem(
         kind: catalogMediaKindFromApiValue(selected.kind),
         id: itemId,
       )
-          .then<CatalogItemDto>((dto) {
+          .then<LibraryAddCatalogItem>((dto) {
         final raw = mergeHydratedProviderAddResultRaw(
           raw: <String, dynamic>{
             ...dto.raw,
@@ -990,7 +992,7 @@ class LibraryAddSessionController
           },
           sourceSelection: selected!,
         );
-        final item = CatalogItemDto.fromJson(raw);
+        final item = LibraryAddCatalogItem.fromJson(raw);
         final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
         return decoder == null
             ? item
@@ -1020,14 +1022,15 @@ class LibraryAddSessionController
             selectedEditionsPayload.isNotEmpty)
           'editions': selectedEditionsPayload,
       };
-      final mergedItem = CatalogItemDto.fromJson({
+      final mergedItem = LibraryAddCatalogItem.fromJson({
         'id': hydratedItem.id,
         'kind': hydratedItem.kind,
         ...mergedPayload,
       });
 
-      final hydratedMap =
-          Map<String, CatalogItemDto>.from(state.preview.hydratedResults);
+      final hydratedMap = Map<String, LibraryAddCatalogItem>.from(
+        state.preview.hydratedResults,
+      );
       hydratedMap[itemId] = mergedItem;
       final pendingUpdated =
           Set<String>.from(state.preview.pendingHydratedResultIds)
@@ -1301,7 +1304,7 @@ class LibraryAddSessionController
     );
   }
 
-  Future<bool> submitSelectedItem(CatalogItemDto item) async {
+  Future<bool> submitSelectedItem(LibraryAddCatalogItem item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     state = state.copyWith(
       isAdding: true,
@@ -1395,12 +1398,7 @@ class LibraryAddSessionController
             previewState: previewController,
             providerActionService: providerActionService,
             providerOrchestrationService: providerOrchestrationService,
-            providerMapper:
-                libraryKindProviderCorrectionBuilderForKind(type.kind) ??
-                    ((
-                            {required CatalogItemDto edited,
-                            required CatalogItemDto preview}) =>
-                        const <String, Object?>{}),
+            providerMapper: _providerCorrectionsForKind(type.kind),
             visibleProviderResults: () => state.visibleProviderResults(
               type.add.resultPolicy,
             ),
@@ -1429,7 +1427,9 @@ class LibraryAddSessionController
               : catalogItemFromProviderCandidate(selectedCandidate);
 
           if (catalog != null) {
-            await catalog!.upsertMetadataItems([metadataItem]);
+            await catalog!.upsertMetadataItems(
+              [metadataItem.toTransportItem()],
+            );
           }
 
           final capability = libraryKindModuleForKind(kind).add;
@@ -1596,4 +1596,23 @@ class LibraryAddSessionController
     _autocompleteTimer?.cancel();
     super.dispose();
   }
+}
+
+Map<String, Object?> _emptyProviderCorrections({
+  required LibraryAddCatalogItem edited,
+  required LibraryAddCatalogItem preview,
+}) =>
+    const <String, Object?>{};
+
+BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
+  final builder = libraryKindProviderCorrectionBuilderForKind(kind);
+  if (builder == null) return _emptyProviderCorrections;
+  return ({
+    required LibraryAddCatalogItem edited,
+    required LibraryAddCatalogItem preview,
+  }) =>
+      builder(
+        preview: preview.toTransportItem(),
+        edited: edited.toTransportItem(),
+      );
 }

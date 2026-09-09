@@ -272,6 +272,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/kinds/music/data/remote/music_core_mapper.dart',
     'lib/features/library/kinds/tv/data/remote/tv_core_mapper.dart',
     'lib/features/library/kinds/tv/data/remote/tv_remote_source.dart',
+    // Add result wrapper is an explicit catalog transport boundary. It may
+    // decode/encode the generated DTO, while Add code carries its wrapper.
+    'lib/features/catalog/transport/library_add_catalog_item.dart',
   };
 
   static const _structuralProjectionAllowlist = {
@@ -328,6 +331,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   bool _isStrictGenericContext(String path) {
     if (path.startsWith('lib/features/library/kinds/') ||
+        path.startsWith('lib/features/catalog/transport/') ||
         path.startsWith('lib/features/providers/') ||
         path.startsWith('lib/core/api/generated/')) {
       return false;

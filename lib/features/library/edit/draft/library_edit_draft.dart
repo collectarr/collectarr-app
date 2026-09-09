@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
@@ -567,7 +568,7 @@ class LibraryEditDraft {
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return type.add.buildCommandFromDetails(
-      item,
+      LibraryAddCatalogItem.fromItem(item),
       buildCommonDraft(),
       buildDetailsDraft(),
       anchor: PersonalItemAnchor.fromRaw(

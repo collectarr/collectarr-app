@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -16,7 +18,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
@@ -64,7 +66,7 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
 );
 
 typedef LibraryAddOwnedPayloadBuilder = OwnedItemCreatePayload Function(
-  CatalogItemDto item,
+  LibraryAddCatalogItem item,
   LibraryAddCommonDraft common,
   OwnedDetailsDraft details,
 );
@@ -104,7 +106,8 @@ class LibraryAddSearchCapability {
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
-  final LibraryAddMatchSummaryBuilder<CatalogItemDto>? coreMatchSummaryBuilder;
+  final LibraryAddMatchSummaryBuilder<LibraryAddCatalogItem>?
+      coreMatchSummaryBuilder;
   final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
       providerMatchSummaryBuilder;
 
@@ -151,7 +154,7 @@ class LibraryAddSearchCapability {
       coverScanFilterValuesBuilder?.call(result) ?? const {};
 
   String? coreMatchSummary(
-    CatalogItemDto item,
+    LibraryAddCatalogItem item,
     LibraryAddSearchContext context,
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
@@ -205,13 +208,13 @@ abstract interface class LibraryAddCapability<
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddOwnedItemCommand buildCommand(CatalogItemDto item,
+  AddOwnedItemCommand buildCommand(LibraryAddCatalogItem item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 
   AddOwnedItemCommand buildCommandFromDetails(
-    CatalogItemDto item,
+    LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details, {
     PersonalItemAnchor? anchor,
@@ -219,7 +222,7 @@ abstract interface class LibraryAddCapability<
   });
 
   AddOwnedItemCommand? buildCommandFromOwnedItem(
-    CatalogItemDto item,
+    LibraryAddCatalogItem item,
     OwnedItem ownedItem, {
     PersonalItemAnchor? anchor,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
@@ -307,7 +310,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   OwnedItemCreatePayload _buildOwnedPayload(
-    CatalogItemDto item,
+    LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details,
   ) {
@@ -328,7 +331,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   @override
-  AddOwnedItemCommand buildCommand(CatalogItemDto item,
+  AddOwnedItemCommand buildCommand(LibraryAddCatalogItem item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {PersonalItemAnchor? anchor,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
@@ -356,7 +359,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommandFromDetails(
-    CatalogItemDto item,
+    LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
     OwnedDetailsDraft details, {
     PersonalItemAnchor? anchor,
@@ -384,12 +387,15 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand? buildCommandFromOwnedItem(
-    CatalogItemDto item,
+    LibraryAddCatalogItem item,
     OwnedItem ownedItem, {
     PersonalItemAnchor? anchor,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   }) {
-    final payload = existingOwnedPayloadBuilder?.call(item, ownedItem);
+    final payload = existingOwnedPayloadBuilder?.call(
+      item.toTransportItem(),
+      ownedItem,
+    );
     if (payload == null) {
       return null;
     }

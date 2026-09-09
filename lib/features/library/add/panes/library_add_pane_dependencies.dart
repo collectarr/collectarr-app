@@ -1,6 +1,7 @@
 export 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 export 'package:collectarr_app/core/api/dto/bundle_release.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+export 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 export 'package:collectarr_app/core/models/custom_field.dart';
 export 'package:collectarr_app/core/models/item_image.dart';
 export 'package:collectarr_app/features/library/add/compact_controls.dart';

@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
 class LibraryProviderActionService {
   const LibraryProviderActionService();
@@ -32,7 +32,7 @@ class LibraryProviderActionService {
     required ApiClient api,
     required LibraryKindModule type,
     required ProviderCandidate candidate,
-    required CatalogItemDto proposalItem,
+    required LibraryAddCatalogItem proposalItem,
   }) {
     return createAndRecordLibraryMetadataProposal(
       api: api,

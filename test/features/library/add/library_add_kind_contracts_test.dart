@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
@@ -186,7 +187,7 @@ void main() {
 
         final metadataItem = testCatalogItemWithKindMetadata(item);
         final command = addCap.buildCommand(
-          metadataItem,
+          LibraryAddCatalogItem.fromItem(metadataItem),
           common,
           initialDraft,
           anchor: PersonalItemAnchor.fromRaw(
@@ -224,7 +225,7 @@ void main() {
           ownerLabel: null,
         );
         final duplicate = addCap.buildCommandFromOwnedItem(
-          metadataItem,
+          LibraryAddCatalogItem.fromItem(metadataItem),
           _ownedItemForLegacyAddBoundary(existing),
           anchor: command.anchor,
           tracking: const LibraryAddTrackingDraft(readStatus: 'Completed'),

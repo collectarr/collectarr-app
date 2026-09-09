@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
@@ -181,7 +182,9 @@ void main() {
         ),
       );
 
-      final success = await controller.submitSelectedItem(item);
+      final success = await controller.submitSelectedItem(
+        LibraryAddCatalogItem.fromItem(item),
+      );
       expect(success, true);
 
       final owned = (await ComicOwnedRepository(db).listActive()).single;
@@ -198,7 +201,9 @@ void main() {
         ),
       );
 
-      final success = await controller.submitSelectedItem(item);
+      final success = await controller.submitSelectedItem(
+        LibraryAddCatalogItem.fromItem(item),
+      );
       expect(success, true);
 
       final wishlist = await db.select(db.wishlistItemsCache).getSingle();
@@ -220,7 +225,9 @@ void main() {
         ),
       );
 
-      final success = await controller.submitSelectedItem(item);
+      final success = await controller.submitSelectedItem(
+        LibraryAddCatalogItem.fromItem(item),
+      );
       expect(success, true);
 
       final tracking = await db.select(db.trackingEntriesCache).getSingle();
@@ -292,7 +299,7 @@ void main() {
         'title': 'Daredevil',
       });
 
-      controller.selectSuggestion(suggestion);
+      controller.selectSuggestion(LibraryAddCatalogItem.fromItem(suggestion));
 
       expect(controller.state.search.query, 'Daredevil');
       expect(controller.state.selection.selectedResultId, 'sugg-1');
@@ -347,7 +354,7 @@ void main() {
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.comic).add;
       final command = cap.buildCommand(
-        item,
+        LibraryAddCatalogItem.fromItem(item),
         common,
         draft,
         tracking: const LibraryAddTrackingDraft(rating: 10),
@@ -368,7 +375,11 @@ void main() {
       const draft = MovieAddDraft(packaging: 'SteelBook', region: 'Region A');
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.movie).add;
-      final command = cap.buildCommand(item, common, draft);
+      final command = cap.buildCommand(
+        LibraryAddCatalogItem.fromItem(item),
+        common,
+        draft,
+      );
 
       expect(command.catalogRef.id, 'v1');
       final details = command.typedPayload.detailsDraft.toDetails();
@@ -385,7 +396,11 @@ void main() {
       const draft = GameAddDraft(completeness: 'CIB', hasBox: true);
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.game).add;
-      final command = cap.buildCommand(item, common, draft);
+      final command = cap.buildCommand(
+        LibraryAddCatalogItem.fromItem(item),
+        common,
+        draft,
+      );
 
       expect(command.catalogRef.id, 'g1');
       final details = command.typedPayload.detailsDraft.toDetails();
@@ -402,7 +417,11 @@ void main() {
       const draft = MusicAddDraft(storageDevice: 'Shelf A', storageSlot: '12');
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.music).add;
-      final command = cap.buildCommand(item, common, draft);
+      final command = cap.buildCommand(
+        LibraryAddCatalogItem.fromItem(item),
+        common,
+        draft,
+      );
 
       expect(command.catalogRef.id, 'm1');
       final details = command.typedPayload.detailsDraft.toDetails();

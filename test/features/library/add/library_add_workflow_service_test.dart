@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -41,7 +41,7 @@ void main() {
 
     final item = service.metadataItemFromPreview(preview);
 
-    expect(item, isA<CatalogItemDto>());
+    expect(item, isA<LibraryAddCatalogItem>());
     expect(item.id, startsWith('preview-comic-'));
     expect(item.kind, 'comic');
     expect(item.title, 'Example');

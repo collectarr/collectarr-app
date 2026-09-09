@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,7 +54,7 @@ final class LibraryAddSessionState {
   final String? physicalFormatId;
   final bool isAdding;
 
-  CatalogItemDto? get selectedItem {
+  LibraryAddCatalogItem? get selectedItem {
     if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
@@ -88,11 +88,13 @@ final class LibraryAddSessionState {
     return preview.providerPreviewFor(candidate.localCatalogId);
   }
 
-  List<CatalogItemDto> visibleCoreResults(
+  List<LibraryAddCatalogItem> visibleCoreResults(
     LibraryAddResultPolicy policy, {
     required bool Function(String id) isOwnedCatalogItem,
   }) {
-    if (!selection.showCoreResults) return const <CatalogItemDto>[];
+    if (!selection.showCoreResults) {
+      return const <LibraryAddCatalogItem>[];
+    }
     final ownedIds = <String>{
       for (final item in search.results)
         if (isOwnedCatalogItem(item.id)) item.id,

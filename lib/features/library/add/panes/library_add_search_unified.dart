@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_result
 // ---------------------------------------------------------------------------
 // Unified grouped search results.
 //
-// Merges Core results (CatalogItemDto) and Provider candidates
+// Merges Core transport results and Provider candidates
 // (ProviderCandidate) into series groups, displayed collapsed by default
 // so the user picks a series first, then drills down into individual items.
 // ---------------------------------------------------------------------------
@@ -30,7 +30,7 @@ class LibraryAddUnifiedSearchGroup {
   final String? publisher;
   final int? year;
   final String? coverUrl;
-  final List<CatalogItemDto> coreItems;
+  final List<LibraryAddCatalogItem> coreItems;
   final ProviderCandidate? groupCandidate;
   final List<ProviderCandidate> providerItems;
   final Set<String> sources;
@@ -50,7 +50,7 @@ class LibraryAddUnifiedSearchGroup {
 /// then Core items are merged into matching groups or added as new groups
 /// at the top.
 List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
-  required List<CatalogItemDto> coreResults,
+  required List<LibraryAddCatalogItem> coreResults,
   required List<ProviderCandidate> providerResults,
   required LibraryAddResultPolicy resultPolicy,
 }) {
@@ -59,7 +59,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   final publishers = <String, String?>{};
   final years = <String, int?>{};
   final coverUrls = <String, String?>{};
-  final coreItems = <String, List<CatalogItemDto>>{};
+  final coreItems = <String, List<LibraryAddCatalogItem>>{};
   final groupCandidates = <String, ProviderCandidate>{};
   final providerItemsMap = <String, List<ProviderCandidate>>{};
   final sourceSets = <String, Set<String>>{};
@@ -188,7 +188,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
-  final String? Function(CatalogItemDto item)? coreMatchSummary;
+  final String? Function(LibraryAddCatalogItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
 
   @override
@@ -566,7 +566,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final CatalogItemDto item;
+  final LibraryAddCatalogItem item;
   final Color accent;
   final bool selected;
   final bool checked;
@@ -674,7 +674,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
   }
 }
 
-String _coreChildDisplayTitle(CatalogItemDto item) {
+String _coreChildDisplayTitle(LibraryAddCatalogItem item) {
   final itemNumber = item.itemNumber;
   if (itemNumber != null && itemNumber.trim().isNotEmpty) {
     return '${item.title} #$itemNumber';

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -16,7 +17,7 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        testCatalogItemFromJson({
+        LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
           'id': 'comic-423',
           'kind': 'comic',
           'title': 'Batman',
@@ -27,7 +28,7 @@ void main() {
             'series_title': 'Batman',
             'volume_start_year': 1988,
           },
-        }),
+        })),
       ],
       LibraryAddSearchContext(
         query: 'Batman',
@@ -50,13 +51,13 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        testCatalogItemFromJson({
+        LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
           'id': 'movie-1',
           'kind': 'movie',
           'title': 'Blade Runner 2049',
           'publisher': 'Warner Bros.',
           'release_year': 2017,
-        }),
+        })),
       ],
       LibraryAddSearchContext(query: 'Blade Runner'),
     );

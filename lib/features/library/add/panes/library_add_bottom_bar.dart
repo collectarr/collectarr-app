@@ -39,7 +39,7 @@ class LibraryAddBottomBar extends StatelessWidget {
   final List<String> grades;
   final String? defaultTags;
   final Color accent;
-  final CatalogItemDto? selectedItem;
+  final LibraryAddCatalogItem? selectedItem;
   final ProviderCandidate? selectedCandidate;
   final LibraryQueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;

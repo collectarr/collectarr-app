@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
@@ -332,104 +333,112 @@ class _WorkflowFixture {
   }
 }
 
-CatalogItemDto _comic(String id) {
-  return testCatalogItemWithKindMetadata(
-    testCatalogItem(
-      id: id,
-      kind: 'comic',
-      title: 'Superman, Vol. 4',
-      itemNumber: '8A',
-      publisher: 'DC',
-      releaseYear: 2016,
-      barcode: '76194134192700811',
+LibraryAddCatalogItem _comic(String id) {
+  return LibraryAddCatalogItem.fromItem(
+    testCatalogItemWithKindMetadata(
+      testCatalogItem(
+        id: id,
+        kind: 'comic',
+        title: 'Superman, Vol. 4',
+        itemNumber: '8A',
+        publisher: 'DC',
+        releaseYear: 2016,
+        barcode: '76194134192700811',
+      ),
     ),
   );
 }
 
-CatalogItemDto _comicWithRelease(String id) {
-  return testCatalogItemWithKindMetadata(
-    testCatalogItem(
-      id: id,
-      kind: 'comic',
-      title: 'Batman #1',
-      itemNumber: '1',
-      publisher: 'DC',
-      editions: const [
-        CatalogEditionDto(
-          id: 'edition-1',
-          title: 'Direct Edition',
-          physicalFormat: 'single_issue',
-          physicalFormatLabel: 'Single Issue',
-          variants: [
-            CatalogVariantDto(
-              id: 'variant-1',
-              name: 'Cover A',
-              variantType: 'cover',
-              isPrimary: true,
-            ),
-          ],
-        ),
-      ],
+LibraryAddCatalogItem _comicWithRelease(String id) {
+  return LibraryAddCatalogItem.fromItem(
+    testCatalogItemWithKindMetadata(
+      testCatalogItem(
+        id: id,
+        kind: 'comic',
+        title: 'Batman #1',
+        itemNumber: '1',
+        publisher: 'DC',
+        editions: const [
+          CatalogEditionDto(
+            id: 'edition-1',
+            title: 'Direct Edition',
+            physicalFormat: 'single_issue',
+            physicalFormatLabel: 'Single Issue',
+            variants: [
+              CatalogVariantDto(
+                id: 'variant-1',
+                name: 'Cover A',
+                variantType: 'cover',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
+      ),
     ),
   );
 }
 
-CatalogItemDto _digitalMovie(String id) {
-  return testCatalogItemWithKindMetadata(
-    testCatalogItem(
-      id: id,
-      kind: 'movie',
-      title: 'Akira',
-      publisher: 'GKIDS',
-      physicalFormat: 'digital',
-      physicalFormatLabel: 'Digital',
+LibraryAddCatalogItem _digitalMovie(String id) {
+  return LibraryAddCatalogItem.fromItem(
+    testCatalogItemWithKindMetadata(
+      testCatalogItem(
+        id: id,
+        kind: 'movie',
+        title: 'Akira',
+        publisher: 'GKIDS',
+        physicalFormat: 'digital',
+        physicalFormatLabel: 'Digital',
+      ),
     ),
   );
 }
 
-CatalogItemDto _comicWithMultipleReleases(String id) {
-  return testCatalogItemWithKindMetadata(
-    testCatalogItem(
-      id: id,
-      kind: 'comic',
-      title: 'Detective Comics #27',
-      itemNumber: '27',
-      publisher: 'DC',
-      editions: const [
-        CatalogEditionDto(
-          id: 'edition-1',
-          title: 'Standard Edition',
-          physicalFormat: 'single_issue',
-          physicalFormatLabel: 'Single Issue',
-          variants: [
-            CatalogVariantDto(
-              id: 'variant-1',
-              name: 'Cover A',
-              variantType: 'cover',
-              isPrimary: true,
-            ),
-          ],
-        ),
-        CatalogEditionDto(
-          id: 'edition-2',
-          title: 'Collector Edition',
-          physicalFormat: 'single_issue',
-          physicalFormatLabel: 'Collector Issue',
-          variants: [
-            CatalogVariantDto(
-              id: 'variant-2a',
-              name: 'Foil Cover',
-              variantType: 'foil',
-            ),
-            CatalogVariantDto(
-              id: 'variant-2b',
-              name: 'Sketch Cover',
-              variantType: 'sketch',
-              isPrimary: true,
-            ),
-          ],
-        ),
-      ],
+LibraryAddCatalogItem _comicWithMultipleReleases(String id) {
+  return LibraryAddCatalogItem.fromItem(
+    testCatalogItemWithKindMetadata(
+      testCatalogItem(
+        id: id,
+        kind: 'comic',
+        title: 'Detective Comics #27',
+        itemNumber: '27',
+        publisher: 'DC',
+        editions: const [
+          CatalogEditionDto(
+            id: 'edition-1',
+            title: 'Standard Edition',
+            physicalFormat: 'single_issue',
+            physicalFormatLabel: 'Single Issue',
+            variants: [
+              CatalogVariantDto(
+                id: 'variant-1',
+                name: 'Cover A',
+                variantType: 'cover',
+                isPrimary: true,
+              ),
+            ],
+          ),
+          CatalogEditionDto(
+            id: 'edition-2',
+            title: 'Collector Edition',
+            physicalFormat: 'single_issue',
+            physicalFormatLabel: 'Collector Issue',
+            variants: [
+              CatalogVariantDto(
+                id: 'variant-2a',
+                name: 'Foil Cover',
+                variantType: 'foil',
+              ),
+              CatalogVariantDto(
+                id: 'variant-2b',
+                name: 'Sketch Cover',
+                variantType: 'sketch',
+                isPrimary: true,
+              ),
+            ],
+          ),
+        ],
+      ),
     ),
   );
 }

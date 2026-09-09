@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 bool sameStringList(List<String>? a, List<String>? b) {
@@ -147,11 +148,11 @@ List<Map<String, dynamic>> normalizeTracks(List<CatalogTrackDto>? values) {
   return normalized;
 }
 
-CatalogItemDto metadataItemFromIngestResult(AdminMetadataItem item) {
+LibraryAddCatalogItem metadataItemFromIngestResult(AdminMetadataItem item) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
-  return CatalogItemDto.fromJson({
+  return LibraryAddCatalogItem.fromJson({
     'id': item.id,
     'kind': item.kind,
     'title': item.title,

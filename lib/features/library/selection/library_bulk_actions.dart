@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -104,7 +105,7 @@ class LibraryBulkActions {
         );
       }
       final addCmd = libraryKindModuleForKind(resolvedKind).add.buildCommand(
-            catalogItem,
+            LibraryAddCatalogItem.fromItem(catalogItem),
             common,
             libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
             anchor: anchor,
@@ -168,7 +169,7 @@ class LibraryBulkActions {
       final typedCommand = catalogItem == null
           ? null
           : runtime.add.buildCommandFromOwnedItem(
-              catalogItem,
+              LibraryAddCatalogItem.fromItem(catalogItem),
               src,
               anchor: src.anchor,
               tracking: tracking ?? const LibraryAddTrackingDraft(),

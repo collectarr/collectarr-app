@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/registry/owned_details_exp
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
@@ -207,9 +208,11 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     catalogMediaKindFromApiValue(catalogRef.kind),
   ).add;
   return add.buildCommandFromDetails(
-    testCatalogItem(
-      id: catalogRef.id,
-      kind: catalogRef.kind,
+    LibraryAddCatalogItem.fromItem(
+      testCatalogItem(
+        id: catalogRef.id,
+        kind: catalogRef.kind,
+      ),
     ),
     LibraryAddCommonDraft(
       condition: common.condition,

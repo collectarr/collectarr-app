@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class LibraryCollectionActions {
     );
     return coordinator.addOwnedItem(
       runtime.add.buildCommand(
-        catalogItem,
+        LibraryAddCatalogItem.fromItem(catalogItem),
         const LibraryAddCommonDraft(),
         runtime.add.createInitialDraft(),
         anchor: anchor,
