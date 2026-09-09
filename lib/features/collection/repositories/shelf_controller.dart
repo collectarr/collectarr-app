@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -25,14 +26,15 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final trackingEntries = await ref.watch(trackingEntriesProvider.future);
   final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
-  final ids = {
+  final catalogRefs = <CatalogEntityRef>{
     for (final item in ownedSummaries)
-      if (item.catalogRef != null) item.catalogRef!.id,
-    for (final item in wishlist) item.itemId,
-    for (final item in trackingEntries) item.catalogRef.id,
+      if (item.catalogRef != null) _rootCatalogRef(item.catalogRef!),
+    for (final item in wishlist) _rootCatalogRef(item.catalogRef),
+    for (final item in trackingEntries) _rootCatalogRef(item.catalogRef),
   };
+  final ids = {for (final ref in catalogRefs) ref.id};
   final catalogSummaries =
-      await CatalogDisplaySummaryRepository(db).findByIds(ids);
+      await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
   // This is a compatibility adapter for Library kind contributors only.
   final legacyCatalogItems = await CatalogSnapshotRepository(db).findByIds(ids);
   final locations = await LocationRepository(db).getAll();
@@ -51,7 +53,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
         trackingEntries.map(TrackingSummary.fromEntry).toList(growable: false),
     legacyTrackingEntries: trackingEntries,
     watchSessions: watchSessions,
-    catalogSummaries: catalogSummaries,
+    catalogSummariesByRef: catalogSummaries,
     legacyCatalogItems: legacyCatalogItems,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
@@ -92,6 +94,7 @@ class ShelfState {
     List<TrackingEntry> trackingEntries = const [],
     Iterable<TrackingEntry>? legacyTrackingEntries,
     List<WatchSession> watchSessions = const [],
+    Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
     Map<String, CatalogDisplaySummary>? catalogSummaries,
     Map<String, CatalogItemDto>? catalogItems,
     Map<String, CatalogItemDto>? legacyCatalogItems,
@@ -117,12 +120,18 @@ class ShelfState {
           for (final item in legacyCatalogById.values)
             item.id: _catalogSummaryFromLegacy(item),
         };
+    final resolvedCatalogSummariesByRef = catalogSummariesByRef ??
+        {
+          for (final summary in resolvedCatalogSummaries.values)
+            summary.ref: summary,
+        };
     final resolvedOwnedSummaries = ownedSummaries?.toList(growable: false) ??
         [
           for (final item in legacyOwnedList)
             _ownedSummaryFromLegacy(
               item,
-              catalogSummary: resolvedCatalogSummaries[item.catalogRef.id],
+              catalogSummary: resolvedCatalogSummariesByRef[
+                  _rootCatalogRef(item.catalogRef)],
             ),
         ];
     final resolvedTrackingSummaries =
@@ -135,21 +144,22 @@ class ShelfState {
       for (final location in locations)
         location.id: location.fullPath(locations),
     };
-    final ownedByItemId = {
+    final ownedByCatalogRef = <CatalogEntityRef, OwnedItemSummary>{
       for (final item in resolvedOwnedSummaries)
-        if (!item.isDeleted && item.catalogRef != null) item.itemId: item,
+        if (!item.isDeleted && item.catalogRef != null)
+          _rootCatalogRef(item.catalogRef!): item,
     };
-    final wishlistByItemId = {
+    final wishlistByCatalogRef = <CatalogEntityRef, WishlistItem>{
       for (final item in wishlistItems)
-        if (!item.isDeleted) item.itemId: item,
+        if (!item.isDeleted) _rootCatalogRef(item.catalogRef): item,
     };
-    final trackingByItemId = <String, TrackingSummary>{};
+    final trackingByCatalogRef = <CatalogEntityRef, TrackingSummary>{};
     for (final entry in resolvedTrackingSummaries) {
-      if (entry.isDeleted ||
-          trackingByItemId.containsKey(entry.catalogRef.id)) {
+      final catalogRef = _rootCatalogRef(entry.catalogRef);
+      if (entry.isDeleted || trackingByCatalogRef.containsKey(catalogRef)) {
         continue;
       }
-      trackingByItemId[entry.catalogRef.id] = entry;
+      trackingByCatalogRef[catalogRef] = entry;
     }
     final legacyOwnedByItemId = <String, OwnedItem>{};
     for (final item in legacyOwnedList) {
@@ -174,44 +184,53 @@ class ShelfState {
     for (final sessions in watchSessionsByItemId.values) {
       sessions.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
     }
-    final ids = {
-      ...ownedByItemId.keys,
-      ...wishlistByItemId.keys,
-      ...trackingByItemId.keys,
+    final refs = <CatalogEntityRef>{
+      ...ownedByCatalogRef.keys,
+      ...wishlistByCatalogRef.keys,
+      ...trackingByCatalogRef.keys,
     };
     final workspaceEntries = [
-      for (final id in ids)
+      for (final ref in refs) ...[
         ShelfEntry(
-          itemId: id,
-          catalogSummary: resolvedCatalogSummaries[id],
-          ownedSummary: ownedByItemId[id],
-          trackingSummary: trackingByItemId[id],
+          itemId: ref.id,
+          catalogSummary: resolvedCatalogSummariesByRef[ref] ??
+              resolvedCatalogSummaries[ref.id],
+          ownedSummary: ownedByCatalogRef[ref],
+          trackingSummary: trackingByCatalogRef[ref],
           // Compatibility adapters for unchanged Library contributors.
-          catalogItem: legacyCatalogById[id],
-          ownedItem: legacyOwnedByItemId[id],
-          trackingEntry: legacyTrackingByItemId[id],
-          wishlistItem: wishlistByItemId[id],
-          locationPath: locationPathsById[ownedByItemId[id]?.locationLabel] ??
-              locationPathsById[legacyOwnedByItemId[id]?.locationId],
-          watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
-          itemImages: itemImagesByOwnedItem[ownedByItemId[id]?.ref.id.value ??
-                  legacyOwnedByItemId[id]?.id] ??
+          catalogItem: legacyCatalogById[ref.id],
+          ownedItem: legacyOwnedByItemId[ref.id],
+          trackingEntry: legacyTrackingByItemId[ref.id],
+          wishlistItem: wishlistByCatalogRef[ref],
+          locationPath:
+              locationPathsById[ownedByCatalogRef[ref]?.locationLabel] ??
+                  locationPathsById[legacyOwnedByItemId[ref.id]?.locationId],
+          watchSessions:
+              watchSessionsByItemId[ref.id] ?? const <WatchSession>[],
+          itemImages: itemImagesByOwnedItem[
+                  ownedByCatalogRef[ref]?.ref.id.value ??
+                      legacyOwnedByItemId[ref.id]?.id] ??
               const <ItemImage>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
+      ],
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final entries = [
-      for (final id in ids)
+      for (final ref in refs)
         LibraryEntry(
-          itemId: id,
-          catalogSummary: resolvedCatalogSummaries[id],
-          ownedSummary: ownedByItemId[id],
-          trackingSummary: trackingByItemId[id],
-          wishlistItem: wishlistByItemId[id],
-          locationPath: locationPathsById[ownedByItemId[id]?.locationLabel],
-          watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
-          itemImages: itemImagesByOwnedItem[ownedByItemId[id]?.ref.id.value] ??
-              const <ItemImage>[],
+          itemId: ref.id,
+          catalogSummary: resolvedCatalogSummariesByRef[ref] ??
+              resolvedCatalogSummaries[ref.id],
+          ownedSummary: ownedByCatalogRef[ref],
+          trackingSummary: trackingByCatalogRef[ref],
+          wishlistItem: wishlistByCatalogRef[ref],
+          locationPath:
+              locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
+          watchSessions:
+              watchSessionsByItemId[ref.id] ?? const <WatchSession>[],
+          itemImages:
+              itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref.id.value] ??
+                  const <ItemImage>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -223,16 +242,16 @@ class ShelfState {
       for (final item in pricedOwned) item.currency!,
     };
     final hasMixedCurrencies = currencies.length > 1;
-    final activeOwned = ownedByItemId.values.toList(growable: false);
+    final activeOwned = ownedByCatalogRef.values.toList(growable: false);
     final legacyActiveOwned =
         legacyOwnedByItemId.values.toList(growable: false);
     return ShelfState(
       entries: entries,
       workspaceEntries: workspaceEntries,
-      ownedCount: ownedByItemId.length,
+      ownedCount: ownedByCatalogRef.length,
       missingGradeCount:
           legacyActiveOwned.where((item) => item.grade == null).length,
-      wishlistCount: wishlistByItemId.length,
+      wishlistCount: wishlistByCatalogRef.length,
       pricedCount: pricedOwned.length,
       totalPaidCents: hasMixedCurrencies
           ? null
@@ -362,6 +381,16 @@ class ShelfEntry extends LibraryWorkspaceEntry implements LibraryEntry {
   });
 }
 
+CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
+  final rootId = ref.rootId;
+  if (rootId == null || rootId.isEmpty) return ref;
+  return ref.copyWith(
+    id: rootId,
+    entityType: CatalogEntityType.work,
+    rootId: null,
+  );
+}
+
 CatalogDisplaySummary _catalogSummaryFromLegacy(CatalogItemDto item) {
   final itemNumber = item.itemNumber?.trim();
   final title = item.resolvedDisplayTitle.trim();
@@ -390,10 +419,10 @@ OwnedItemSummary _ownedSummaryFromLegacy(
     purchaseStore: item.purchaseStore,
     pricePaidCents: item.pricePaidCents,
     currency: item.currency,
-      soldAt: item.soldAt,
-      soldTo: item.soldTo,
-      sellPriceCents: item.sellPriceCents,
-      marketValueCents: item.marketValueCents,
+    soldAt: item.soldAt,
+    soldTo: item.soldTo,
+    sellPriceCents: item.sellPriceCents,
+    marketValueCents: item.marketValueCents,
     quantity: item.quantity,
     ownerLabel: item.ownerLabel,
     locationLabel: item.locationId,

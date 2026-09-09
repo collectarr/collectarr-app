@@ -6,6 +6,9 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -137,5 +140,43 @@ void main() {
     expect(state.entries.single.title, 'Catalog keyed by ref');
     expect(state.ownedCount, 1);
     expect(state.wishlistCount, 1);
+  });
+
+  test('shelf keeps equal catalog ids distinct across kinds', () {
+    const bookRef = CatalogEntityRef(
+      kind: 'book',
+      entityType: CatalogEntityType.work,
+      id: 'shared-id',
+    );
+    const comicRef = CatalogEntityRef(
+      kind: 'comic',
+      entityType: CatalogEntityType.work,
+      id: 'shared-id',
+    );
+    final state = ShelfState.from(
+      ownedSummaries: [
+        const OwnedItemSummary(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.book,
+            id: OwnedItemId('book-copy'),
+          ),
+          title: 'Book copy',
+          catalogRef: bookRef,
+        ),
+        const OwnedItemSummary(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.comic,
+            id: OwnedItemId('comic-copy'),
+          ),
+          title: 'Comic copy',
+          catalogRef: comicRef,
+        ),
+      ],
+      wishlistItems: const [],
+    );
+
+    expect(state.ownedCount, 2);
+    expect(state.entries.map((entry) => entry.catalogRef?.kind),
+        containsAll(<String>['book', 'comic']));
   });
 }

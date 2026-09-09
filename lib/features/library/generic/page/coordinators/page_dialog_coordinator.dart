@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -267,9 +268,11 @@ class LibraryPageDialogCoordinator {
     final queuedOwnedItems = ownedItems
         .where((item) => queueIds.contains(item.ref.id.value))
         .toList(growable: false);
-    final catalogSummariesById =
-        await CatalogDisplaySummaryRepository(db).findByIds(
-      queuedOwnedItems.map((item) => item.catalogRef?.id).whereType<String>(),
+    final catalogSummariesByRef =
+        await CatalogDisplaySummaryRepository(db).findByRefs(
+      queuedOwnedItems
+          .map((item) => item.catalogRef)
+          .whereType<CatalogEntityRef>(),
     );
     if (!_page.mounted) {
       return;
@@ -283,7 +286,7 @@ class LibraryPageDialogCoordinator {
       mediaKind: _page.type.kind.apiValue,
       ownedItems: queuedOwnedItems,
       trackingEntries: trackingEntries,
-      catalogSummariesById: catalogSummariesById,
+      catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: _page.selectItem,
     );
   }

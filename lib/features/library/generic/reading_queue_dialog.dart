@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -15,7 +16,7 @@ Future<void> showReadingQueueDialog({
   required String mediaKind,
   required Iterable<OwnedItemSummary> ownedItems,
   Iterable<TrackingEntry> trackingEntries = const [],
-  required Map<String, CatalogDisplaySummary> catalogSummariesById,
+  required Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef,
   ValueChanged<String>? onSelectItem,
 }) {
   return showDialog<void>(
@@ -25,7 +26,7 @@ Future<void> showReadingQueueDialog({
       mediaKind: mediaKind,
       ownedItems: ownedItems.toList(growable: false),
       trackingEntries: trackingEntries.toList(growable: false),
-      catalogSummariesById: catalogSummariesById,
+      catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: onSelectItem,
     ),
   );
@@ -37,7 +38,7 @@ class _ReadingQueueDialog extends StatefulWidget {
     required this.mediaKind,
     required this.ownedItems,
     required this.trackingEntries,
-    required this.catalogSummariesById,
+    required this.catalogSummariesByRef,
     this.onSelectItem,
   });
 
@@ -45,7 +46,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   final String mediaKind;
   final List<OwnedItemSummary> ownedItems;
   final List<TrackingEntry> trackingEntries;
-  final Map<String, CatalogDisplaySummary> catalogSummariesById;
+  final Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef;
   final ValueChanged<String>? onSelectItem;
 
   @override
@@ -90,11 +91,11 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       if (summary == null) {
         continue;
       }
-      final catalogId = summary.catalogRef?.id;
-      if (catalogId == null) {
+      final catalogRef = summary.catalogRef;
+      if (catalogRef == null) {
         continue;
       }
-      final catalogSummary = widget.catalogSummariesById[catalogId];
+      final catalogSummary = widget.catalogSummariesByRef[catalogRef];
       if (catalogSummary == null ||
           catalogSummary.kind.apiValue != widget.mediaKind) {
         continue;
@@ -104,7 +105,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
           summary: summary,
           catalogSummary: catalogSummary,
           trackingEntry: trackingByOwnedId[summary.ref.id.value] ??
-              trackingByItemId[catalogId],
+              trackingByItemId[catalogRef.id],
         ),
       );
     }

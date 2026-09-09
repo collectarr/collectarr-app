@@ -71,13 +71,15 @@ void main() {
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),
                   ],
-                  catalogSummariesById: {
-                    'book-1': CatalogDisplaySummary.work(
+                  catalogSummariesByRef: {
+                    testCatalogRef('book-1', kind: 'book'):
+                        CatalogDisplaySummary.work(
                       id: 'book-1',
                       kind: CatalogMediaKind.book,
                       title: 'Dune',
                     ),
-                    'book-2': CatalogDisplaySummary.work(
+                    testCatalogRef('book-2', kind: 'book'):
+                        CatalogDisplaySummary.work(
                       id: 'book-2',
                       kind: CatalogMediaKind.book,
                       title: 'Foundation',
