@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 
@@ -67,7 +66,10 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     input: input,
   ).timeout(timeout);
   final rankedItems = ranking.rankMetadata(
-    [for (final item in items) LibraryAddCatalogItem.fromItem(item)],
+    [
+      for (final item in items)
+        LibraryAddCatalogItem.fromItem(item.toTransportItem()),
+    ],
     searchContext,
   );
   return LibraryAddCoreSearchResult(
@@ -93,7 +95,10 @@ Future<List<LibraryAddCatalogItem>> fetchLibraryAddSuggestions({
     input: input,
   ).timeout(timeout);
   return filterAndRankCatalogItems(
-    [for (final item in items) LibraryAddCatalogItem.fromItem(item)],
+    [
+      for (final item in items)
+        LibraryAddCatalogItem.fromItem(item.toTransportItem()),
+    ],
     ranking,
     searchContext,
   );
@@ -115,7 +120,8 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
   ).timeout(timeout);
   final foundItems = <LibraryAddCatalogItem>[
     for (final result in results)
-      if (result.item != null) LibraryAddCatalogItem.fromItem(result.item!),
+      if (result.item != null)
+        LibraryAddCatalogItem.fromItem(result.item!.toTransportItem()),
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

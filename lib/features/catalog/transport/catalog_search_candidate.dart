@@ -25,6 +25,35 @@ final class CatalogSearchCandidate {
     );
   }
 
+  /// Decodes a Core search response at the catalog transport boundary and
+  /// immediately projects it to the small candidate shape used by mixed
+  /// search/import hosts. The generated catalog DTO never leaves this
+  /// transport object unless the user selects the candidate.
+  factory CatalogSearchCandidate.fromApiJson({
+    required Map<String, dynamic> json,
+    Object? Function(Map<String, dynamic> payload)? metadataDecoder,
+  }) {
+    var item = CatalogItemDto.fromJson(json);
+    if (metadataDecoder != null) {
+      item = item.withKindMetadata(metadataDecoder(item.payload));
+    }
+    final rawBarcode = item.payload['barcode'] ?? item.payload['upc'];
+    final normalizedBarcode =
+        rawBarcode is String && rawBarcode.trim().isNotEmpty
+            ? rawBarcode.replaceAll(RegExp(r'[^0-9A-Za-z]'), '').toUpperCase()
+            : null;
+    return CatalogSearchCandidate._(
+      item: item,
+      summary: CatalogDisplaySummary.work(
+        kind: item.mediaKind,
+        id: item.id,
+        title: item.title,
+        imageUrl: item.displayCoverUrl,
+      ),
+      normalizedBarcode: normalizedBarcode,
+    );
+  }
+
   final CatalogItemDto _item;
   final CatalogDisplaySummary summary;
   final String? normalizedBarcode;
@@ -34,6 +63,8 @@ final class CatalogSearchCandidate {
   String get title => summary.title;
   String? get subtitle => summary.subtitle;
   String? get imageUrl => summary.imageUrl;
+  int? get releaseYear => _item.releaseYear;
+  List<String> get searchAliases => _item.searchAliases ?? const [];
 
   CatalogItemDto toTransportItem() => _item;
 

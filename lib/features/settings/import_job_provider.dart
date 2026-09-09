@@ -4,8 +4,6 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -588,25 +586,16 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           limit: 10,
         );
         for (final item in items) {
-          final summary = CatalogDisplaySummary.work(
-            kind: item.mediaKind,
-            id: item.id,
-            title: item.title,
-            imageUrl: item.displayCoverUrl,
-          );
-          catalogCandidatesById[item.id] = CatalogSearchCandidate.fromTransport(
-            item: item,
-            summary: summary,
-          );
+          catalogCandidatesById[item.id] = item;
         }
         return [
           for (final item in items)
             TmdbCatalogMatchCandidate(
               id: item.id,
-              kind: item.mediaKind,
+              kind: item.kind,
               title: item.title,
               releaseYear: item.releaseYear,
-              searchAliases: item.searchAliases ?? const [],
+              searchAliases: item.searchAliases,
             ),
         ];
       },

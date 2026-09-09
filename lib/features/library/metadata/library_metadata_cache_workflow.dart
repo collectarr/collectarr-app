@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 typedef LibraryBarcodeLookupResultCallback = void Function(
   LibraryBarcodeLookupResult result,
@@ -44,7 +44,7 @@ class LibraryMetadataSearchInput {
 class LibraryBarcodeLookupResult {
   const LibraryBarcodeLookupResult.found({
     required this.barcode,
-    required CatalogItemDto this.item,
+    required CatalogSearchCandidate this.item,
   }) : error = null;
 
   const LibraryBarcodeLookupResult.missing({
@@ -53,13 +53,13 @@ class LibraryBarcodeLookupResult {
   }) : item = null;
 
   final String barcode;
-  final CatalogItemDto? item;
+  final CatalogSearchCandidate? item;
   final Object? error;
 
   bool get found => item != null;
 }
 
-Future<List<CatalogItemDto>> searchAndCacheLibraryMetadata({
+Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
@@ -76,7 +76,7 @@ Future<List<CatalogItemDto>> searchAndCacheLibraryMetadata({
     barcode: input.barcode,
     limit: input.limit,
   );
-  await catalog.upsertMetadataItems(items);
+  await catalog.upsertSearchCandidates(items);
   return items;
 }
 
@@ -88,7 +88,7 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   LibraryBarcodeLookupResultCallback? onResult,
 }) async {
   final results = <LibraryBarcodeLookupResult>[];
-  final foundItems = <CatalogItemDto>[];
+  final foundItems = <CatalogSearchCandidate>[];
   for (final barcode in barcodes) {
     try {
       final item = await lookupLibraryBarcode(api, type, barcode);
@@ -108,6 +108,6 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
       onResult?.call(result);
     }
   }
-  await catalog.upsertMetadataItems(foundItems);
+  await catalog.upsertSearchCandidates(foundItems);
   return results;
 }
