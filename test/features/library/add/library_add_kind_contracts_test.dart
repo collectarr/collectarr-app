@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -34,15 +33,6 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_i
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -79,21 +69,6 @@ void _expectDuplicatedOwnedFields(Object owned) {
     default:
       fail('Unexpected non-kind Owned value: ${owned.runtimeType}');
   }
-}
-
-OwnedItem _ownedItemForLegacyAddBoundary(Object owned) {
-  return switch (owned) {
-    AnimeOwnedItem item => AnimeOwnedItemProjection.toOwnedItem(item),
-    BoardGameOwnedItem item => BoardGameOwnedItemProjection.toOwnedItem(item),
-    BookOwnedItem item => BookOwnedItemProjection.toOwnedItem(item),
-    ComicOwnedItem item => ComicOwnedItemProjection.toOwnedItem(item),
-    GameOwnedItem item => GameOwnedItemProjection.toOwnedItem(item),
-    MangaOwnedItem item => MangaOwnedItemProjection.toOwnedItem(item),
-    MovieOwnedItem item => MovieOwnedItemProjection.toOwnedItem(item),
-    MusicOwnedItem item => MusicOwnedItemProjection.toOwnedItem(item),
-    TvOwnedItem item => TvOwnedItemProjection.toOwnedItem(item),
-    _ => throw ArgumentError.value(owned, 'owned'),
-  };
 }
 
 void _expectOwnedFields(
@@ -235,25 +210,18 @@ void main() {
           ownerUserId: null,
           ownerLabel: null,
         );
-        final duplicate = addCap.buildCommandFromOwnedItem(
-          LibraryAddCatalogItem.fromItem(metadataItem),
-          _ownedItemForLegacyAddBoundary(existing),
-          targetRef: catalogRefForLibrarySelection(
-            metadataItem.catalogRef,
-            editionId: selectedTarget.entityType.apiValue == 'edition'
-                ? selectedTarget.id
-                : null,
-            variantId: selectedTarget.entityType.apiValue == 'release'
-                ? selectedTarget.id
-                : null,
-          ),
-          tracking: const LibraryAddTrackingDraft(readStatus: 'Completed'),
+        final duplicatePayload = collectarrOwnedCreatePayloadFromTyped(
+          kind,
+          existing,
         );
-        expect(duplicate, isNotNull,
+        expect(duplicatePayload.catalogRef.kind,
+            command.typedPayload.catalogRef.kind,
             reason: '$kind must support typed Owned duplication');
-        final duplicateCommand = duplicate!;
-        final duplicatedOwned = duplicateCommand.typedPayload.toOwnedItem(
-          resolvedCatalogRef: duplicateCommand.catalogRef,
+        expect(
+            duplicatePayload.catalogRef.id, command.typedPayload.catalogRef.id,
+            reason: '$kind duplication must preserve its catalog target');
+        final duplicatedOwned = duplicatePayload.toOwnedItem(
+          resolvedCatalogRef: duplicatePayload.catalogRef,
           id: 'duplicate-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 2),
           existingIsDigital: metadataItem.physicalFormat == 'digital',

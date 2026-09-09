@@ -328,10 +328,14 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
     '${kindDirectory.path}/domain/${folder}_owned_item.dart',
   );
   final idsFile = File('${kindDirectory.path}/domain/${folder}_ids.dart');
+  final createPayloadFile = File(
+    '${kindDirectory.path}/ownership/${folder}_owned_item_create_payload.dart',
+  );
   if (!repositoryFile.existsSync() ||
       !projectionFile.existsSync() ||
       !ownedModelFile.existsSync() ||
-      !idsFile.existsSync()) {
+      !idsFile.existsSync() ||
+      !createPayloadFile.existsSync()) {
     return null;
   }
 
@@ -351,10 +355,15 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
     ownedModelFile,
     RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItem)'),
   );
+  final createPayloadClass = _findClass(
+    createPayloadFile,
+    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemCreatePayload)'),
+  );
   if (repositoryClass == null ||
       projectionClass == null ||
       ownedIdClass == null ||
-      ownedModelClass == null) {
+      ownedModelClass == null ||
+      createPayloadClass == null) {
     throw StateError(
       'Could not discover complete owned persistence for $folder',
     );
@@ -375,6 +384,10 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
     ownedModel: _Contributor(
       importPath: _packageImportPath(ownedModelFile),
       className: ownedModelClass,
+    ),
+    createPayload: _Contributor(
+      importPath: _packageImportPath(createPayloadFile),
+      className: createPayloadClass,
     ),
   );
 }
@@ -520,6 +533,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
@@ -568,6 +582,7 @@ import 'package:go_router/go_router.dart';
       persistence.projection,
       persistence.ownedId,
       persistence.ownedModel,
+      persistence.createPayload,
     ]) {
       if (importedContributorPaths.add(contributor.importPath)) {
         buffer.writeln(
@@ -933,7 +948,6 @@ void _renderRegistrationClass(
   buffer.writeln('    );');
   buffer.writeln('  }');
   buffer.writeln('}');
-  buffer.writeln();
 }
 
 void _renderContributorMap(
@@ -1286,6 +1300,9 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln('};');
   buffer.writeln();
 
+  // Legacy detail surfaces still receive the common read projection. Keep
+  // this generated adapter isolated at the composition boundary until those
+  // surfaces accept OwnedItemRef/OwnedItemSummary directly.
   buffer.writeln(
     'final collectarrActiveOwnedItemReaders = '
     '<CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{',
@@ -1302,6 +1319,31 @@ void _renderOwnedPersistenceMaps(
     );
   }
   buffer.writeln('};');
+  buffer.writeln();
+
+  buffer.writeln(
+    'OwnedItemCreatePayload collectarrOwnedCreatePayloadFromTyped('
+    'CatalogMediaKind kind, Object item) {',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final ownedModel = persistence.ownedModel.className;
+    final createPayload = persistence.createPayload.className;
+    buffer.writeln(
+      '  if (kind == CatalogMediaKind.${descriptor.folder}) {',
+    );
+    buffer.writeln(
+      '    if (item is! $ownedModel) throw ArgumentError.value('
+      "item, 'item', 'Expected $ownedModel for ${descriptor.folder}');",
+    );
+    buffer.writeln('    return $createPayload.fromTypedItem(item);');
+    buffer.writeln('  }');
+  }
+  buffer.writeln(
+    "  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');",
+  );
+  buffer.writeln('}');
   buffer.writeln();
 }
 
@@ -1491,12 +1533,14 @@ final class _OwnedPersistence {
     required this.projection,
     required this.ownedId,
     required this.ownedModel,
+    required this.createPayload,
   });
 
   final _Contributor repository;
   final _Contributor projection;
   final _Contributor ownedId;
   final _Contributor ownedModel;
+  final _Contributor createPayload;
 }
 
 final class _VocabularyModule {

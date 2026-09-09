@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
@@ -139,38 +140,47 @@ import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_rep
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_catalog_repository_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_catalog_repository_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_repository_codec.dart';
@@ -973,6 +983,64 @@ final collectarrActiveOwnedItemReaders =
           .map(TvOwnedItemProjection.toOwnedItem)
           .toList(growable: false),
 };
+
+OwnedItemCreatePayload collectarrOwnedCreatePayloadFromTyped(
+    CatalogMediaKind kind, Object item) {
+  if (kind == CatalogMediaKind.anime) {
+    if (item is! AnimeOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected AnimeOwnedItem for anime');
+    return AnimeOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.boardgame) {
+    if (item is! BoardGameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BoardGameOwnedItem for boardgame');
+    return BoardgameOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.book) {
+    if (item is! BookOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected BookOwnedItem for book');
+    return BookOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.comic) {
+    if (item is! ComicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected ComicOwnedItem for comic');
+    return ComicOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.game) {
+    if (item is! GameOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected GameOwnedItem for game');
+    return GameOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.manga) {
+    if (item is! MangaOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MangaOwnedItem for manga');
+    return MangaOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.movie) {
+    if (item is! MovieOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MovieOwnedItem for movie');
+    return MovieOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.music) {
+    if (item is! MusicOwnedItem)
+      throw ArgumentError.value(
+          item, 'item', 'Expected MusicOwnedItem for music');
+    return MusicOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  if (kind == CatalogMediaKind.tv) {
+    if (item is! TvOwnedItem)
+      throw ArgumentError.value(item, 'item', 'Expected TvOwnedItem for tv');
+    return TvOwnedItemCreatePayload.fromTypedItem(item);
+  }
+  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
+}
 
 const List<CatalogKindRepositoryCodec> collectarrKindCatalogRepositoryCodecs = [
   AnimeCatalogRepositoryCodec(),

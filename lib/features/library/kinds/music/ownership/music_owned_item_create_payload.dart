@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
@@ -25,27 +23,24 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
     this.tags,
   });
 
-  factory MusicOwnedItemCreatePayload.fromOwnedItem(
-    CatalogEntityRef catalogRef,
-    OwnedItem ownedItem,
+  factory MusicOwnedItemCreatePayload.fromTypedItem(
+    MusicOwnedItem item,
   ) {
     return MusicOwnedItemCreatePayload(
-      catalogRef: catalogRef,
-      details: MusicOwnedDetailsCodec().draftFromDetails(
-        ownedItem.details as MusicOwnedDetails,
-      ),
-      quantity: ownedItem.quantity,
-      condition: ownedItem.condition,
-      grade: ownedItem.grade,
-      purchaseDate: ownedItem.purchaseDate,
-      pricePaidCents: ownedItem.pricePaidCents,
-      currency: ownedItem.currency,
-      personalNotes: ownedItem.personalNotes,
-      locationId: ownedItem.locationId,
-      purchaseStore: ownedItem.purchaseStore,
-      collectionStatus: ownedItem.collectionStatus,
-      isDigital: ownedItem.isDigital,
-      tags: ownedItem.tags,
+      catalogRef: item.catalogRef,
+      details: MusicOwnedDetailsCodec().draftFromDetails(item.details),
+      quantity: item.quantity,
+      condition: item.condition,
+      grade: item.grade,
+      purchaseDate: item.purchaseDate,
+      pricePaidCents: item.pricePaidCents,
+      currency: item.currency,
+      personalNotes: item.personalNotes,
+      locationId: item.locationId,
+      purchaseStore: item.purchaseStore,
+      collectionStatus: item.collectionStatus,
+      isDigital: item.isDigital,
+      tags: item.tags,
     );
   }
 

@@ -3,9 +3,9 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
@@ -24,7 +24,6 @@ import 'package:collectarr_app/features/library/sharing/collection_share_dialog.
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
@@ -691,30 +690,20 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView item,
     OwnedItem ownedItem,
   ) async {
-    final catalogItem = item.source.catalogItem;
-    if (catalogItem == null) {
-      return;
-    }
-    final command = widget.type.add.buildCommandFromOwnedItem(
-      LibraryAddCatalogItem.fromItem(catalogItem),
-      ownedItem,
-      targetRef: ownedItem.catalogRef,
-      tracking: LibraryAddTrackingDraft(
-        readStatus: mediaTrackingStatusToStorageValue(
-          item.source.trackingSummary?.status,
-        ),
-        rating: item.source.trackingSummary?.rating,
-        startedAt: item.source.trackingSummary?.startedAt,
-        finishedAt: item.source.trackingSummary?.completedAt,
-        notes: item.source.trackingSummary?.notes,
-      ),
-    );
-    if (command == null) {
-      return;
-    }
-    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          command,
+    final duplicated = await ref.read(ownedItemMutationsProvider).duplicateItem(
+          ownedItem.ref,
+          targetRef: ownedItem.catalogRef,
+          tracking: OwnedItemTrackingDraft(
+            status: item.source.trackingSummary?.status,
+            rating: item.source.trackingSummary?.rating,
+            startedAt: item.source.trackingSummary?.startedAt,
+            finishedAt: item.source.trackingSummary?.completedAt,
+            notes: item.source.trackingSummary?.notes,
+          ),
         );
+    if (duplicated == null) {
+      return;
+    }
     if (!mounted) {
       return;
     }

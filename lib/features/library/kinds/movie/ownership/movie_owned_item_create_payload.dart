@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
@@ -25,27 +23,24 @@ final class MovieOwnedItemCreatePayload implements OwnedItemCreatePayload {
     this.tags,
   });
 
-  factory MovieOwnedItemCreatePayload.fromOwnedItem(
-    CatalogEntityRef catalogRef,
-    OwnedItem ownedItem,
+  factory MovieOwnedItemCreatePayload.fromTypedItem(
+    MovieOwnedItem item,
   ) {
     return MovieOwnedItemCreatePayload(
-      catalogRef: catalogRef,
-      details: MovieOwnedDetailsCodec().draftFromDetails(
-        ownedItem.details as MovieOwnedDetails,
-      ),
-      quantity: ownedItem.quantity,
-      condition: ownedItem.condition,
-      grade: ownedItem.grade,
-      purchaseDate: ownedItem.purchaseDate,
-      pricePaidCents: ownedItem.pricePaidCents,
-      currency: ownedItem.currency,
-      personalNotes: ownedItem.personalNotes,
-      locationId: ownedItem.locationId,
-      purchaseStore: ownedItem.purchaseStore,
-      collectionStatus: ownedItem.collectionStatus,
-      isDigital: ownedItem.isDigital,
-      tags: ownedItem.tags,
+      catalogRef: item.catalogRef,
+      details: MovieOwnedDetailsCodec().draftFromDetails(item.details),
+      quantity: item.quantity,
+      condition: item.condition,
+      grade: item.grade,
+      purchaseDate: item.purchaseDate,
+      pricePaidCents: item.pricePaidCents,
+      currency: item.currency,
+      personalNotes: item.personalNotes,
+      locationId: item.locationId,
+      purchaseStore: item.purchaseStore,
+      collectionStatus: item.collectionStatus,
+      isDigital: item.isDigital,
+      tags: item.tags,
     );
   }
 

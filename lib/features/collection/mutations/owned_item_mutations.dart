@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -41,6 +40,34 @@ final class OwnedItemMutations {
   final String? userId;
   final String? userEmail;
   final IdGenerator idGenerator;
+
+  /// Creates a new copy directly from the persisted kind-owned aggregate.
+  ///
+  /// The generated registry performs the one composition-boundary dispatch
+  /// and immediately turns the concrete aggregate into its owning kind's
+  /// create payload. No common Owned model or catalog snapshot is involved.
+  Future<OwnedItemRef?> duplicateItem(
+    OwnedItemRef sourceRef, {
+    CatalogEntityRef? targetRef,
+    OwnedItemTrackingDraft? tracking,
+  }) async {
+    final typed = await ownedItems.findTypedByRef(sourceRef);
+    if (typed == null) return null;
+
+    final payload = collectarrOwnedCreatePayloadFromTyped(typed.$1, typed.$2);
+    return addOwnedItem(
+      AddOwnedItemCommand(
+        catalogRef: CatalogEntityRef(
+          kind: typed.$1,
+          entityType: const CatalogEntityTypeId('owned_copy'),
+          id: sourceRef.id.value,
+        ),
+        typedPayload: payload,
+        targetRef: targetRef ?? payload.catalogRef,
+        tracking: tracking,
+      ),
+    );
+  }
 
   Future<OwnedItemRef> addOwnedItem(
     AddOwnedItemCommand command,

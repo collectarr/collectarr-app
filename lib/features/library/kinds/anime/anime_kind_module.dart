@@ -186,7 +186,6 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
-    existingOwnedPayloadBuilder: AnimeOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
         libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.anime},

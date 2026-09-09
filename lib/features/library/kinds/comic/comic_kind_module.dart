@@ -196,7 +196,6 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
-    existingOwnedPayloadBuilder: ComicOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildComicCoreSearchInput,

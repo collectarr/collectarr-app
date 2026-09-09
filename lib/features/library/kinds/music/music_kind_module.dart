@@ -137,7 +137,6 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
-    existingOwnedPayloadBuilder: MusicOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildMusicAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildMusicCoreSearchInput,

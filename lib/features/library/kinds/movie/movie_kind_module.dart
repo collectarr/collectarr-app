@@ -231,7 +231,6 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
-    existingOwnedPayloadBuilder: MovieOwnedItemCreatePayload.fromOwnedItem,
     search: LibraryAddSearchCapability(
       initialAdvancedFilters: {
         libraryAddVideoKindFilterId: {LibraryAddVideoSearchScope.movie},
