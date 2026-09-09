@@ -499,7 +499,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           widget.db != null &&
           widget.type.inspector.supportsOwnedItemImages)
         InspectorItemImagesSection(
-          ownedItemId: activeOwnedItem.id,
+          ownedRef: activeOwnedItem.ref,
           db: widget.db!,
           accent: widget.accent,
         ),

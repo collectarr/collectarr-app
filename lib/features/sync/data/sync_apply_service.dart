@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -181,7 +182,7 @@ class SyncApplyService {
     // first and images are processed in the background.
     if (imageDataByItemId.isNotEmpty && typedOwned.isNotEmpty) {
       final imagesRepo = ItemImagesCacheRepository(db);
-      final ownedByItemId = <String, String>{};
+      final ownedByCatalogId = <String, OwnedItemRef>{};
       for (final item in typedOwned) {
         final json = collectarrTypedOwnedItemJson(item.$2);
         final rawCatalogRef = json['catalog_ref'];
@@ -190,16 +191,16 @@ class SyncApplyService {
           Map<String, dynamic>.from(rawCatalogRef),
         );
         final ownedRef = collectarrTypedOwnedItemRef(item.$2);
-        ownedByItemId[catalogRef.id] = ownedRef.id.value;
+        ownedByCatalogId[catalogRef.id] = ownedRef;
       }
       for (final entry in imageDataByItemId.entries) {
-        final ownedItemId = ownedByItemId[entry.key];
-        if (ownedItemId == null) continue;
+        final ownedRef = ownedByCatalogId[entry.key];
+        if (ownedRef == null) continue;
         final deterministicId =
-            _uuid.v5(Namespace.url.value, '$ownedItemId:front_cover');
+            _uuid.v5(Namespace.url.value, '${ownedRef.key}:front_cover');
         await imagesRepo.upsert(
           id: deterministicId,
-          ownedItemId: ownedItemId,
+          ownedRef: ownedRef,
           imageType: 'front_cover',
           imageData: base64Decode(entry.value),
         );

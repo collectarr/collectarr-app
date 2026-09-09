@@ -673,9 +673,9 @@ class _VideoReleaseTile extends StatelessWidget {
                   child: LibraryCoverImage(
                     title: release.edition.title,
                     imageUrl: null,
-                    ownedItemId: release.ownedCopies.isEmpty
+                    ownedRef: release.ownedCopies.isEmpty
                         ? null
-                        : release.ownedCopies.first.id,
+                        : release.ownedCopies.first.ref,
                     borderRadius: 12,
                   ),
                 ),

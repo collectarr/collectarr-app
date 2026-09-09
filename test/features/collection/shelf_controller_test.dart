@@ -63,10 +63,16 @@ void main() {
         ),
       },
       itemImagesByOwnedItem: {
-        'owned-1': [
+        OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId('owned-1'),
+        ): [
           ItemImage(
             id: 'img-1',
-            ownedItemId: 'owned-1',
+            ownedRef: OwnedItemRef(
+              kind: CatalogMediaKind.comic,
+              id: OwnedItemId('owned-1'),
+            ),
             imageType: 'back_cover',
             imageData: Uint8List.fromList('data'.codeUnits),
             createdAt: DateTime.utc(2026, 5, 8),

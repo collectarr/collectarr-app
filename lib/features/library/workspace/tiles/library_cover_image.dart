@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -15,7 +16,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.itemNumber,
     this.imageUrl,
     this.localBytes,
-    this.ownedItemId,
+    this.ownedRef,
     this.targetCacheWidth,
     this.localImageType = 'front_cover',
     this.borderRadius = 4,
@@ -27,7 +28,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final String? itemNumber;
   final String? imageUrl;
   final Uint8List? localBytes;
-  final String? ownedItemId;
+  final OwnedItemRef? ownedRef;
   final int? targetCacheWidth;
   final String localImageType;
   final double borderRadius;
@@ -40,11 +41,11 @@ class LibraryCoverImage extends ConsumerWidget {
     // Resolve local image: prefer explicit local bytes; query DB only when
     // there is no usable remote URL to avoid first-load source swapping.
     var local = localBytes;
-    if (local == null && ownedItemId != null && url == null) {
+    if (local == null && ownedRef != null && url == null) {
       local = ref
           .watch(
             localItemImageProvider((
-              ownedItemId: ownedItemId!,
+              ownedRef: ownedRef!,
               imageType: localImageType,
             )),
           )
@@ -399,7 +400,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.targetCacheWidth,
     this.secondaryImageUrl,
     this.secondaryLocalBytes,
-    this.ownedItemId,
+    this.ownedRef,
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
     this.accentColor = kAppAccent,
@@ -417,7 +418,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final int? targetCacheWidth;
   final String? secondaryImageUrl;
   final Uint8List? secondaryLocalBytes;
-  final String? ownedItemId;
+  final OwnedItemRef? ownedRef;
   final double borderRadius;
   final BoxFit fit;
   final Color accentColor;
@@ -439,7 +440,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   @override
   void didUpdateWidget(covariant LibraryInteractiveCover oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final coverChanged = oldWidget.ownedItemId != widget.ownedItemId ||
+    final coverChanged = oldWidget.ownedRef != widget.ownedRef ||
         oldWidget.imageUrl != widget.imageUrl ||
         oldWidget.secondaryImageUrl != widget.secondaryImageUrl ||
         oldWidget.localBytes != widget.localBytes ||
@@ -460,7 +461,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   bool get _hasFront {
     return (widget.localBytes?.isNotEmpty ?? false) ||
         (widget.imageUrl?.trim().isNotEmpty ?? false) ||
-        (widget.ownedItemId?.trim().isNotEmpty ?? false);
+        (widget.ownedRef != null);
   }
 
   String? get _activeImageUrl =>
@@ -569,7 +570,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         Widget buildCover({
                           required String? imageUrl,
                           required Uint8List? localBytes,
-                          String? ownedItemId,
+                          OwnedItemRef? ownedRef,
                         }) {
                           return AspectRatio(
                             aspectRatio: coverAspectRatio,
@@ -584,7 +585,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                   itemNumber: widget.itemNumber,
                                   imageUrl: imageUrl,
                                   localBytes: localBytes,
-                                  ownedItemId: ownedItemId,
+                                  ownedRef: ownedRef,
                                   targetCacheWidth: widget.targetCacheWidth,
                                   borderRadius: 0,
                                   fit: BoxFit.contain,
@@ -601,7 +602,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                           localBytes: showBackOnly
                               ? widget.secondaryLocalBytes
                               : widget.localBytes,
-                          ownedItemId: showBackOnly ? null : widget.ownedItemId,
+                          ownedRef: showBackOnly ? null : widget.ownedRef,
                         );
 
                         return ConstrainedBox(
@@ -634,8 +635,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                                     imageUrl: widget.imageUrl,
                                                     localBytes:
                                                         widget.localBytes,
-                                                    ownedItemId:
-                                                        widget.ownedItemId,
+                                                    ownedRef: widget.ownedRef,
                                                   ),
                                                 ),
                                                 const SizedBox(width: 12),
@@ -800,7 +800,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         itemNumber: widget.itemNumber,
                         imageUrl: _activeImageUrl,
                         localBytes: _activeLocalBytes,
-                        ownedItemId: widget.ownedItemId,
+                        ownedRef: widget.ownedRef,
                         targetCacheWidth: widget.targetCacheWidth,
                         borderRadius: widget.borderRadius,
                         fit: widget.fit,

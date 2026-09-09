@@ -200,7 +200,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                             ? (dto).itemNumber
                             : null),
                         imageUrl: dto.coverImageUrl,
-                        ownedItemId: item.source.ownedRef?.id.value,
+                        ownedRef: item.source.ownedRef,
                         targetCacheWidth: targetCacheWidth,
                         accentColor: widget.accentColor,
                         fit: BoxFit.cover,

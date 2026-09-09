@@ -114,7 +114,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             title: dto.title,
                             itemNumber: adapter?.itemNumber,
                             imageUrl: dto.coverImageUrl,
-                            ownedItemId: item.source.ownedRef?.id.value,
+                            ownedRef: item.source.ownedRef,
                             targetCacheWidth: coverCacheWidth,
                             accentColor: accentColor,
                             enableFullscreen: false,

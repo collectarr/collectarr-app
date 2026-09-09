@@ -29,7 +29,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-only-1',
-            ownedItemId: 'owned-1',
+            ownedItemId: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -94,7 +94,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            ownedItemId: 'owned-1',
+            ownedItemId: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -103,7 +103,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            ownedItemId: 'owned-1',
+            ownedItemId: 'book:owned-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),

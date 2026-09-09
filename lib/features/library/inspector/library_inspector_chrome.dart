@@ -26,7 +26,7 @@ class InspectorBackdrop extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final ownedItemId = resolveLibraryOwnedItemId(item, ownedItem);
+    final ownedRef = resolveLibraryOwnedItemRef(item, ownedItem);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -36,7 +36,7 @@ class InspectorBackdrop extends StatelessWidget {
             title: dto.title,
             itemNumber: (dto is WorkspaceDtoAdapter ? (dto).itemNumber : null),
             imageUrl: dto.coverImageUrl,
-            ownedItemId: ownedItemId,
+            ownedRef: ownedRef,
           ),
         ),
         DecoratedBox(

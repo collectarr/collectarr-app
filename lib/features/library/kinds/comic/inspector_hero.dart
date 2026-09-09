@@ -46,28 +46,28 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
-    final ownedItemId = resolveLibraryOwnedItemId(item, request.ownedItem);
-    final localFront = ownedItemId == null
+    final ownedRef = resolveLibraryOwnedItemRef(item, request.ownedItem);
+    final localFront = ownedRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                ownedItemId: ownedItemId,
+                ownedRef: ownedRef,
                 imageType: 'front_cover',
               )),
             )
             .value;
-    final localBack = ownedItemId == null
+    final localBack = ownedRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                ownedItemId: ownedItemId,
+                ownedRef: ownedRef,
                 imageType: 'back_cover',
               )),
             )
             .value;
-    final db = ownedItemId == null ? null : ref.watch(localDatabaseProvider);
+    final db = ownedRef == null ? null : ref.watch(localDatabaseProvider);
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final comicDto = dto is ComicWorkspaceDto ? dto : null;
     final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
@@ -80,11 +80,12 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
         ? comic!.series!.seriesTitle!.trim()
         : null;
-    final editionLabel = adapter?.referenceFormatLabel?.trim().isNotEmpty == true
-        ? adapter!.referenceFormatLabel!.trim()
-        : adapter?.variant?.trim().isNotEmpty == true
-            ? adapter!.variant!.trim()
-            : 'Regular edition';
+    final editionLabel =
+        adapter?.referenceFormatLabel?.trim().isNotEmpty == true
+            ? adapter!.referenceFormatLabel!.trim()
+            : adapter?.variant?.trim().isNotEmpty == true
+                ? adapter!.variant!.trim()
+                : 'Regular edition';
     final formatLabel = adapter?.referenceFormatLabel?.trim().isNotEmpty == true
         ? adapter!.referenceFormatLabel!.trim()
         : null;
@@ -180,26 +181,26 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                           : (dto.coverImageUrl ??
                               comic?.releases.firstOrNull?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
-                      ownedItemId: back ? null : ownedItemId,
+                      ownedRef: back ? null : ownedRef,
                       accentColor: request.accent,
                       fit: BoxFit.cover,
                       enableHoverCue: true,
                       enableSecondaryControl: false,
                       onMissingSecondaryPressed:
-                          back || ownedItemId == null || db == null
+                          back || ownedRef == null || db == null
                               ? null
                               : () async {
                                   final savedType =
                                       await pickAndStoreOwnedItemImage(
                                     context: context,
                                     db: db,
-                                    ownedItemId: ownedItemId,
+                                    ownedRef: ownedRef,
                                     imageType: 'back_cover',
                                   );
                                   if (savedType == 'back_cover') {
                                     ref.invalidate(
                                       localItemImageProvider((
-                                        ownedItemId: ownedItemId,
+                                        ownedRef: ownedRef,
                                         imageType: 'back_cover',
                                       )),
                                     );

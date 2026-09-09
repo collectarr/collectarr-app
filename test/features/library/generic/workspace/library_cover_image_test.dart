@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -278,7 +279,7 @@ void main() {
               child: LibraryInteractiveCover(
                 title: 'The Hobbit',
                 localBytes: base64Decode(_tinyPngBase64),
-                ownedItemId: 'owned-1',
+                ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
                 enableFullscreen: false,
                 enableSecondaryControl: false,
               ),

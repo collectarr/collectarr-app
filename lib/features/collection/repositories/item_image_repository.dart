@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:drift/drift.dart';
 
 class ItemImageRepository {
@@ -7,35 +8,33 @@ class ItemImageRepository {
 
   final LocalDatabase _db;
 
-  Future<List<ItemImage>> listForItem(String ownedItemId) async {
+  Future<List<ItemImage>> listForOwnedRef(OwnedItemRef ownedRef) async {
     final rows = await (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedItemId))
+          ..where((row) => row.ownedItemId.equals(ownedRef.key))
           ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)]))
         .get();
     return rows.map(_fromRow).toList(growable: false);
   }
 
-  Future<Map<String, List<ItemImage>>> listForOwnedItemIds(
-    Iterable<String> ownedItemIds,
+  Future<Map<OwnedItemRef, List<ItemImage>>> listForOwnedRefs(
+    Iterable<OwnedItemRef> ownedRefs,
   ) async {
-    final ids = ownedItemIds.where((value) => value.isNotEmpty).toSet().toList(
-          growable: false,
-        );
-    if (ids.isEmpty) {
-      return const <String, List<ItemImage>>{};
+    final refs = ownedRefs.toSet().toList(growable: false);
+    if (refs.isEmpty) {
+      return const <OwnedItemRef, List<ItemImage>>{};
     }
+    final keys = refs.map((ref) => ref.key).toList(growable: false);
     final rows = await (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.isIn(ids))
+          ..where((row) => row.ownedItemId.isIn(keys))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
             (row) => OrderingTerm.asc(row.createdAt),
           ]))
         .get();
-    final grouped = <String, List<ItemImage>>{};
+    final grouped = <OwnedItemRef, List<ItemImage>>{};
     for (final row in rows) {
-      grouped
-          .putIfAbsent(row.ownedItemId, () => <ItemImage>[])
-          .add(_fromRow(row));
+      final ref = OwnedItemRef.fromKey(row.ownedItemId);
+      grouped.putIfAbsent(ref, () => <ItemImage>[]).add(_fromRow(row));
     }
     return grouped;
   }
@@ -44,7 +43,7 @@ class ItemImageRepository {
     return _db.into(_db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: image.id,
-            ownedItemId: image.ownedItemId,
+            ownedItemId: image.ownedRef.key,
             imageType: Value(image.imageType),
             imageData: image.imageData,
             caption: Value(image.caption),
@@ -84,17 +83,17 @@ class ItemImageRepository {
         .go();
   }
 
-  Future<void> deleteAllForItem(String ownedItemId) {
+  Future<void> deleteAllForOwnedRef(OwnedItemRef ownedRef) {
     return (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedItemId)))
+          ..where((row) => row.ownedItemId.equals(ownedRef.key)))
         .go();
   }
 
-  Future<int> countForItem(String ownedItemId) async {
+  Future<int> countForOwnedRef(OwnedItemRef ownedRef) async {
     final count = _db.itemImagesCache.id.count();
     final query = _db.selectOnly(_db.itemImagesCache)
       ..addColumns([count])
-      ..where(_db.itemImagesCache.ownedItemId.equals(ownedItemId));
+      ..where(_db.itemImagesCache.ownedItemId.equals(ownedRef.key));
     final row = await query.getSingle();
     return row.read(count) ?? 0;
   }
@@ -102,7 +101,7 @@ class ItemImageRepository {
   ItemImage _fromRow(ItemImagesCacheData row) {
     return ItemImage(
       id: row.id,
-      ownedItemId: row.ownedItemId,
+      ownedRef: OwnedItemRef.fromKey(row.ownedItemId),
       imageType: row.imageType,
       imageData: row.imageData,
       caption: row.caption,

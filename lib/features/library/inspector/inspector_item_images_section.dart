@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/library/inspector/item_image_picker.dart';
@@ -11,31 +12,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorItemImagesRequest = ({
   LocalDatabase db,
-  String ownedItemId,
+  OwnedItemRef ownedRef,
 });
 
 final _inspectorItemImagesProvider = FutureProvider.autoDispose
     .family<List<ItemImage>, _InspectorItemImagesRequest>(
   (ref, request) async {
-    return ItemImageRepository(request.db).listForItem(request.ownedItemId);
+    return ItemImageRepository(request.db).listForOwnedRef(request.ownedRef);
   },
 );
 
 class InspectorItemImagesSection extends ConsumerWidget {
   const InspectorItemImagesSection({
     super.key,
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.db,
     required this.accent,
   });
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final request = (db: db, ownedItemId: ownedItemId);
+    final request = (db: db, ownedRef: ownedRef);
     final imagesAsync = ref.watch(_inspectorItemImagesProvider(request));
     final images = imagesAsync.value ?? const <ItemImage>[];
     final visibleImages = images
@@ -112,11 +113,11 @@ class InspectorItemImagesSection extends ConsumerWidget {
     final savedType = await pickAndStoreOwnedItemImage(
       context: context,
       db: db,
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
     );
     if (savedType != null && context.mounted) {
       ref.invalidate(
-          _inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
+          _inspectorItemImagesProvider((db: db, ownedRef: ownedRef)));
     }
   }
 
@@ -146,8 +147,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
 
     final repo = ItemImagesCacheRepository(db);
     await repo.deleteById(imageId);
-    ref.invalidate(
-        _inspectorItemImagesProvider((db: db, ownedItemId: ownedItemId)));
+    ref.invalidate(_inspectorItemImagesProvider((db: db, ownedRef: ownedRef)));
   }
 }
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -409,7 +410,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               .where((e) => !e.deleted && e.imageData != null)
               .map((e) => ItemImage(
                     id: e.id,
-                    ownedItemId: 'draft',
+                    ownedRef: OwnedItemRef.fromKey(
+                      '${widget.type.kind.apiValue}:draft',
+                    ),
                     imageData: e.imageData!,
                     imageType: e.imageType,
                     caption: e.caption,

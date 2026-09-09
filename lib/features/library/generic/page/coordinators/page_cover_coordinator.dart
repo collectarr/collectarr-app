@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/services/image_download_service.dart';
@@ -22,11 +23,11 @@ class LibraryPageCoverCoordinator {
     final imagesRepo = ItemImagesCacheRepository(db);
     final service = ImageDownloadService(imagesRepo: imagesRepo);
 
-    final itemsToCover = <String, String?>{};
+    final itemsToCover = <OwnedItemRef, String?>{};
     for (final entry in shelfState.resolvedWorkspaceEntries) {
-      final ownedId = entry.ownedRef?.id.value;
-      if (ownedId == null) continue;
-      itemsToCover[ownedId] = entry.catalogSummary?.imageUrl;
+      final ownedRef = entry.ownedRef;
+      if (ownedRef == null) continue;
+      itemsToCover[ownedRef] = entry.catalogSummary?.imageUrl;
     }
     if (itemsToCover.isEmpty) return;
 

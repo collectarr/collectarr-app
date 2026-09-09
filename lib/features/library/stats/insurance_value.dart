@@ -58,10 +58,10 @@ class InsuranceValueRepository {
 
     final replacementValues =
         await CatalogReplacementValueRepository(_db).findByIds(
-      filteredRows.map((row) => row.itemId),
+      filteredRows.map((row) => row.catalogRef?.id).whereType<String>(),
     );
     final totalCoverPrice = filteredRows.fold<int>(0, (total, row) {
-      return total + (replacementValues[row.itemId] ?? 0);
+      return total + (replacementValues[row.catalogRef?.id] ?? 0);
     });
 
     return InsuranceValueSummary(

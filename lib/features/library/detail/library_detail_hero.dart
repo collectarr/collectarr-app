@@ -32,7 +32,7 @@ class LibraryDetailHero extends StatelessWidget {
     final palette = appPalette(context);
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
+    final resolvedOwnedRef = resolveLibraryOwnedItemRef(item, ownedItem);
     final resolvedIsOwned =
         isOwned ?? (ownedItem != null || item.source.isOwned);
     final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
@@ -150,7 +150,7 @@ class LibraryDetailHero extends StatelessWidget {
                     context,
                     coverWidth: 140,
                   ),
-                  ownedItemId: resolvedOwnedItemId,
+                  ownedRef: resolvedOwnedRef,
                 ),
               ),
               const SizedBox(width: 20),

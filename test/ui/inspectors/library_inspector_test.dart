@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
@@ -581,7 +582,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            ownedItemId: 'owned-1',
+            ownedItemId: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -590,7 +591,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            ownedItemId: 'owned-1',
+            ownedItemId: 'book:owned-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -602,7 +603,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorItemImagesSection(
-              ownedItemId: 'owned-1',
+              ownedRef: OwnedItemRef.fromKey('book:owned-1'),
               db: db,
               accent: Colors.orange,
             ),
@@ -807,7 +808,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-owned-2',
-            ownedItemId: 'owned-2',
+            ownedItemId: 'book:owned-2',
             imageType: const Value('back_cover'),
             imageData: base64Decode('AQIDBA=='),
             createdAt: DateTime.utc(2026, 5, 23, 11),

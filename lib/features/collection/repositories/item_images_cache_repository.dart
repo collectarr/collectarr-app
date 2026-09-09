@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:drift/drift.dart';
 
 class ItemImagesCacheRepository {
@@ -9,7 +10,7 @@ class ItemImagesCacheRepository {
   /// Upsert an image entry (insert or replace by id).
   Future<void> upsert({
     required String id,
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required String imageType,
     required Uint8List imageData,
     String? caption,
@@ -18,7 +19,7 @@ class ItemImagesCacheRepository {
     await _db.into(_db.itemImagesCache).insertOnConflictUpdate(
           ItemImagesCacheCompanion.insert(
             id: id,
-            ownedItemId: ownedItemId,
+            ownedItemId: ownedRef.key,
             imageType: Value(imageType),
             imageData: imageData,
             caption: Value(caption),
@@ -29,9 +30,10 @@ class ItemImagesCacheRepository {
   }
 
   /// Get all images for an owned item, ordered by sort order.
-  Future<List<ItemImagesCacheData>> listByOwnedItem(String ownedItemId) async {
+  Future<List<ItemImagesCacheData>> listByOwnedRef(
+      OwnedItemRef ownedRef) async {
     return (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedItemId))
+          ..where((row) => row.ownedItemId.equals(ownedRef.key))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
             (row) => OrderingTerm.asc(row.createdAt),
@@ -41,12 +43,12 @@ class ItemImagesCacheRepository {
 
   /// Get the primary (first) image of a given type for an owned item.
   Future<ItemImagesCacheData?> primaryImageForItem(
-    String ownedItemId, {
+    OwnedItemRef ownedRef, {
     String imageType = 'front_cover',
   }) async {
     return (_db.select(_db.itemImagesCache)
           ..where((row) =>
-              row.ownedItemId.equals(ownedItemId) &
+              row.ownedItemId.equals(ownedRef.key) &
               row.imageType.equals(imageType))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
@@ -57,15 +59,15 @@ class ItemImagesCacheRepository {
   }
 
   /// Get front cover bytes for an owned item (for display).
-  Future<Uint8List?> frontCoverBytes(String ownedItemId) async {
-    final row = await primaryImageForItem(ownedItemId);
+  Future<Uint8List?> frontCoverBytes(OwnedItemRef ownedRef) async {
+    final row = await primaryImageForItem(ownedRef);
     return row?.imageData;
   }
 
   /// Delete all images for an owned item.
-  Future<void> deleteByOwnedItem(String ownedItemId) async {
+  Future<void> deleteByOwnedRef(OwnedItemRef ownedRef) async {
     await (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedItemId)))
+          ..where((row) => row.ownedItemId.equals(ownedRef.key)))
         .go();
   }
 

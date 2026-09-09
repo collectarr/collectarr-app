@@ -576,7 +576,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? (item.dto as WorkspaceDtoAdapter)
         : null;
     final variant = adapter?.variant;
-      final releaseDate = adapter?.releaseDate;
+    final releaseDate = adapter?.releaseDate;
     final format = adapter?.format;
     final subtitle = [
       if (item.node is! LibraryTitleNodeRef &&
@@ -772,7 +772,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       title: item.dto.title,
       itemNumber: adapter?.itemNumber,
       imageUrl: item.dto.coverImageUrl,
-      ownedItemId: item.source.ownedRef?.id.value,
+      ownedRef: item.source.ownedRef,
       targetCacheWidth: coverCacheWidth,
       accentColor: accentColor,
       fit: fit,

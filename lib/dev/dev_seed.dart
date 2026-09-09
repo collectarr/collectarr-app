@@ -832,7 +832,10 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   );
 
   final seedImages = imageRows
-      .where((row) => ownedById.containsKey(row.ownedItemId))
+      .where(
+        (row) =>
+            ownedById.values.any((owned) => owned.ref.key == row.ownedItemId),
+      )
       .toList(growable: false);
   for (final entry in devSeedAuxiliaryMinimumCounts.entries.where(
     (entry) => entry.key.startsWith('images.'),
@@ -1202,10 +1205,11 @@ Future<void> _seedItemImages(
 ) async {
   for (var i = 0; i < ownedItems.length; i++) {
     final owned = ownedItems[i];
-    final ownedId = collectarrTypedOwnedItemRef(owned).id.value;
+    final ownedRef = collectarrTypedOwnedItemRef(owned);
+    final ownedId = ownedRef.id.value;
     await repo.upsert(
       id: 'seed-img-front-$ownedId',
-      ownedItemId: ownedId,
+      ownedRef: ownedRef,
       imageType: 'front_cover',
       imageData: seedTinyPngBytes,
       caption: 'Seed front cover',
@@ -1214,7 +1218,7 @@ Future<void> _seedItemImages(
     if (i.isEven) {
       await repo.upsert(
         id: 'seed-img-back-$ownedId',
-        ownedItemId: ownedId,
+        ownedRef: ownedRef,
         imageType: 'back_cover',
         imageData: seedTinyPngBytes,
         caption: 'Seed back cover',
@@ -1224,7 +1228,7 @@ Future<void> _seedItemImages(
     if (i % 3 == 0) {
       await repo.upsert(
         id: 'seed-img-extra-$ownedId',
-        ownedItemId: ownedId,
+        ownedRef: ownedRef,
         imageType: 'detail_photo',
         imageData: seedTinyPngBytes,
         caption: 'Seed extra image',

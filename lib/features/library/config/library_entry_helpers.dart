@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -223,6 +224,13 @@ String? resolveLibraryOwnedItemId(
   OwnedItem? ownedItem,
 ) {
   return ownedItem?.id ?? item.source.ownedItem?.id;
+}
+
+OwnedItemRef? resolveLibraryOwnedItemRef(
+  LibraryProjectionView item,
+  OwnedItem? ownedItem,
+) {
+  return ownedItem?.ref ?? item.source.ownedRef;
 }
 
 PersonalItemAnchor? resolveLibraryMutationAnchor({

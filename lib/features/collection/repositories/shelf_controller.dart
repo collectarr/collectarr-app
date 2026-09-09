@@ -45,9 +45,8 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     db,
     codecs: collectarrWatchSessionCodecs,
   ).listActiveByCatalogRefs(catalogRefs);
-  final itemImagesByOwnedItem =
-      await ItemImageRepository(db).listForOwnedItemIds(
-    ownedSummaries.map((item) => item.ref.id.value),
+  final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedRefs(
+    ownedSummaries.map((item) => item.ref),
   );
   return ShelfState.from(
     ownedSummaries: ownedSummaries,
@@ -103,8 +102,8 @@ class ShelfState {
     Map<String, CatalogItemDto>? legacyCatalogItems,
     Map<CatalogEntityRef, CatalogItemDto>? legacyCatalogItemsByRef,
     List<StorageLocation> locations = const [],
-    Map<String, List<ItemImage>> itemImagesByOwnedItem =
-        const <String, List<ItemImage>>{},
+    Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
+        const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
     final legacyOwnedList = [
@@ -223,9 +222,8 @@ class ShelfState {
                   locationPathsById[legacyOwnedByCatalogRef[ref]?.locationId],
           watchSessions:
               watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
-          itemImages: itemImagesByOwnedItem[
-                  ownedByCatalogRef[ref]?.ref.id.value ??
-                      legacyOwnedByCatalogRef[ref]?.id] ??
+          itemImages: itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref ??
+                  legacyOwnedByCatalogRef[ref]?.ref] ??
               const <ItemImage>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
@@ -244,9 +242,8 @@ class ShelfState {
               locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
           watchSessions:
               watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
-          itemImages:
-              itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref.id.value] ??
-                  const <ItemImage>[],
+          itemImages: itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref] ??
+              const <ItemImage>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));

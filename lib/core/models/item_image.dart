@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+
 class ItemImage {
   const ItemImage({
     required this.id,
-    required this.ownedItemId,
+    required this.ownedRef,
     this.imageType = 'front_cover',
     required this.imageData,
     this.caption,
@@ -13,7 +15,7 @@ class ItemImage {
   });
 
   final String id;
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final String imageType; // front_cover, back_cover, auxiliary
   final Uint8List imageData;
   final String? caption;
@@ -23,7 +25,7 @@ class ItemImage {
   factory ItemImage.fromJson(Map<String, Object?> json) {
     return ItemImage(
       id: json['id'] as String,
-      ownedItemId: json['owned_item_id'] as String,
+      ownedRef: ownedItemRefFromSerialized(json['owned_ref'])!,
       imageType: json['image_type'] as String? ?? 'front_cover',
       imageData: base64Decode(json['image_data'] as String),
       caption: json['caption'] as String?,
@@ -34,7 +36,7 @@ class ItemImage {
 
   Map<String, Object?> toSyncPayload() {
     return {
-      'owned_item_id': ownedItemId,
+      'owned_ref': ownedRef.toJson(),
       'image_type': imageType,
       'image_data': base64Encode(imageData),
       'caption': caption,
@@ -44,7 +46,7 @@ class ItemImage {
 
   ItemImage copyWith({
     String? id,
-    String? ownedItemId,
+    OwnedItemRef? ownedRef,
     String? imageType,
     Uint8List? imageData,
     String? caption,
@@ -53,7 +55,7 @@ class ItemImage {
   }) {
     return ItemImage(
       id: id ?? this.id,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRef: ownedRef ?? this.ownedRef,
       imageType: imageType ?? this.imageType,
       imageData: imageData ?? this.imageData,
       caption: caption ?? this.caption,

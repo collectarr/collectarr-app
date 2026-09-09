@@ -171,7 +171,7 @@ class LibraryPageEditCoordinator {
                 )
               : Future.value(const <CustomFieldValue>[]);
           final imagesFuture = owned != null
-              ? itemImageRepo.listForItem(owned.id)
+              ? itemImageRepo.listForOwnedRef(owned.ref)
               : Future.value(const <ItemImage>[]);
 
           final definitions = await definitionsFuture;
@@ -322,7 +322,7 @@ class LibraryPageEditCoordinator {
         } else if (edit.imageData != null) {
           await itemImageRepo.add(ItemImage(
             id: edit.id,
-            ownedItemId: owned.id,
+            ownedRef: owned.ref,
             imageType: edit.imageType,
             imageData: edit.imageData!,
             caption: edit.caption,
