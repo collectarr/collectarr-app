@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -106,7 +109,7 @@ void main() {
     );
 
     await Future<void>.delayed(Duration.zero);
-    expect(events, [OwnedItemAdded(item.id.value)]);
+    expect(events, [OwnedItemAdded(item)]);
     await sub.cancel();
   });
 
@@ -130,7 +133,7 @@ void main() {
 
     await Future<void>.delayed(Duration.zero);
     expect(events, [
-      OwnedItemAdded(item.id.value),
+      OwnedItemAdded(item),
       WishlistChanged(testCatalogRef('movie-200', kind: 'movie')),
     ]);
     await sub.cancel();
@@ -146,7 +149,12 @@ void main() {
           throw Exception('Database mutation failed');
         },
         eventsToEmit: [
-          OwnedItemAdded('should-not-emit'),
+          OwnedItemAdded(
+            const OwnedItemRef(
+              kind: CatalogMediaKind.movie,
+              id: OwnedItemId('should-not-emit'),
+            ),
+          ),
           WishlistChanged(testCatalogRef('should-not-emit', kind: 'movie')),
         ],
       ),

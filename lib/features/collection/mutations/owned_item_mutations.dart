@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -112,7 +113,12 @@ final class OwnedItemMutations {
         return ownedRef;
       },
       eventsToEmit: [
-        OwnedItemAdded(newItemId),
+        OwnedItemAdded(
+          OwnedItemRef(
+            kind: catalogRef.mediaKind,
+            id: OwnedItemId(newItemId),
+          ),
+        ),
         if (wishlistChanged) WishlistChanged(wishlistTargetRef),
       ],
     );
@@ -175,7 +181,7 @@ final class OwnedItemMutations {
         );
         return updatedRef;
       },
-      eventsToEmit: [OwnedItemUpdated(command.ownedRef.id.value)],
+      eventsToEmit: [OwnedItemUpdated(command.ownedRef)],
     );
 
     return updated;
@@ -198,7 +204,7 @@ final class OwnedItemMutations {
           ),
         );
       },
-      eventsToEmit: [OwnedItemRemoved(ref.id.value)],
+      eventsToEmit: [OwnedItemRemoved(ref)],
     );
   }
 

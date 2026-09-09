@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 @immutable
 sealed class CollectionEvent {
@@ -7,48 +8,48 @@ sealed class CollectionEvent {
 }
 
 final class OwnedItemAdded extends CollectionEvent {
-  const OwnedItemAdded(this.ownedItemId);
-  final String ownedItemId;
+  const OwnedItemAdded(this.ownedRef);
+  final OwnedItemRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OwnedItemAdded &&
           runtimeType == other.runtimeType &&
-          ownedItemId == other.ownedItemId;
+          ownedRef == other.ownedRef;
 
   @override
-  int get hashCode => ownedItemId.hashCode;
+  int get hashCode => ownedRef.hashCode;
 }
 
 final class OwnedItemUpdated extends CollectionEvent {
-  const OwnedItemUpdated(this.ownedItemId);
-  final String ownedItemId;
+  const OwnedItemUpdated(this.ownedRef);
+  final OwnedItemRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OwnedItemUpdated &&
           runtimeType == other.runtimeType &&
-          ownedItemId == other.ownedItemId;
+          ownedRef == other.ownedRef;
 
   @override
-  int get hashCode => ownedItemId.hashCode;
+  int get hashCode => ownedRef.hashCode;
 }
 
 final class OwnedItemRemoved extends CollectionEvent {
-  const OwnedItemRemoved(this.ownedItemId);
-  final String ownedItemId;
+  const OwnedItemRemoved(this.ownedRef);
+  final OwnedItemRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OwnedItemRemoved &&
           runtimeType == other.runtimeType &&
-          ownedItemId == other.ownedItemId;
+          ownedRef == other.ownedRef;
 
   @override
-  int get hashCode => ownedItemId.hashCode;
+  int get hashCode => ownedRef.hashCode;
 }
 
 final class CatalogItemChanged extends CollectionEvent {

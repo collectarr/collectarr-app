@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -52,13 +55,26 @@ void main() {
         ]);
         return 42;
       },
-      eventsToEmit: const [OwnedItemAdded('owned-1')],
+      eventsToEmit: const [
+        OwnedItemAdded(
+          OwnedItemRef(
+            kind: CatalogMediaKind.comic,
+            id: OwnedItemId('owned-1'),
+          ),
+        ),
+      ],
     );
 
     expect(result, 42);
     await Future<void>.delayed(Duration.zero);
     expect(eventsReceived, hasLength(1));
-    expect((eventsReceived.first as OwnedItemAdded).ownedItemId, 'owned-1');
+    expect(
+      (eventsReceived.first as OwnedItemAdded).ownedRef,
+      const OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId('owned-1'),
+      ),
+    );
     expect(syncScheduled, isTrue);
 
     final items = await CatalogSnapshotRepository(db).findAll();
@@ -90,7 +106,14 @@ void main() {
           ]);
           throw Exception('Simulated write failure');
         },
-        eventsToEmit: const [OwnedItemAdded('owned-fail')],
+        eventsToEmit: const [
+          OwnedItemAdded(
+            OwnedItemRef(
+              kind: CatalogMediaKind.comic,
+              id: OwnedItemId('owned-fail'),
+            ),
+          ),
+        ],
       ),
       throwsA(isA<Exception>()),
     );
