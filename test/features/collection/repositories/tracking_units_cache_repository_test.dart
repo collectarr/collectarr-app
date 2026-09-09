@@ -142,9 +142,27 @@ void main() {
 
     expect(await db.select(db.tvWatchSessionRows).get(), hasLength(1));
     expect(await db.select(db.animeWatchSessionRows).get(), hasLength(1));
-    expect(await repository.listActiveByItemId('tv-1'), hasLength(1));
     expect(
-      (await repository.listActiveByItemId('anime-1')).single.targetRef.kind,
+      await repository.listActiveByCatalogRefs([
+        const CatalogEntityRef(
+          kind: 'tv',
+          entityType: CatalogEntityType.work,
+          id: 'tv-1',
+        ),
+      ]),
+      hasLength(1),
+    );
+    expect(
+      (await repository.listActiveByCatalogRefs([
+        const CatalogEntityRef(
+          kind: 'anime',
+          entityType: CatalogEntityType.work,
+          id: 'anime-1',
+        ),
+      ]))
+          .single
+          .targetRef
+          .kind,
       'anime',
     );
   });

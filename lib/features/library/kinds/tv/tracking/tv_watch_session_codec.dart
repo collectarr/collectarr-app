@@ -17,14 +17,13 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
   @override
   Future<List<WatchSession>> listActive(
     LocalDatabase db, {
-    Iterable<String>? itemIds,
+    CatalogEntityRef? catalogRef,
   }) async {
-    final ids = itemIds?.toSet().toList(growable: false);
-    if (ids != null && ids.isEmpty) return const [];
     final query = db.select(db.tvWatchSessionRows)
       ..where((row) => row.deletedAt.isNull());
-    if (ids != null) {
-      query.where((row) => row.seriesId.isIn(ids));
+    if (catalogRef != null) {
+      if (catalogRef.mediaKind != kind) return const [];
+      query.where((row) => row.seriesId.equals(catalogRef.id));
     }
     final rows = await query.get();
     return rows.map(_fromRow).toList(growable: false);

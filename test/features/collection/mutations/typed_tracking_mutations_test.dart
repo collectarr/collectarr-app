@@ -91,9 +91,10 @@ void main() {
         rating: 8,
       );
 
-      final entry =
-          (await trackingEntries.findActiveByItemIds(['movie-target-1']))
-              .single;
+      final entry = (await trackingEntries.findActiveByCatalogRoots([
+        testCatalogRef('movie-target-1', kind: 'movie'),
+      ]))
+          .single;
       expect(entry.catalogRef.kind, 'movie');
       expect(entry.catalogRef.id, 'movie-target-1');
       expect(entry.sourceType, TrackingSourceType.streaming);
@@ -129,8 +130,10 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry =
-          (await trackingEntries.findActiveByItemIds(['book-77'])).single;
+      final entry = (await trackingEntries.findActiveByCatalogRoots([
+        testCatalogRef('book-77', kind: 'book'),
+      ]))
+          .single;
       expect(entry.ownedItemId, 'owned-item-77');
       expect(entry.catalogRef.kind, 'book');
       expect(entry.status, MediaTrackingStatus.completed);
@@ -158,9 +161,10 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry =
-          (await trackingEntries.findActiveByItemIds(['book-anchor-target']))
-              .single;
+      final entry = (await trackingEntries.findActiveByCatalogRoots([
+        testCatalogRef('book-anchor-target', kind: 'book'),
+      ]))
+          .single;
       expect(entry.ownedItemId, 'book-anchor-target');
       expect(entry.catalogRef.entityType, CatalogEntityType.release);
       expect(entry.catalogRef.id, 'variant-anchor');
@@ -190,7 +194,7 @@ void main() {
       );
 
       final entry =
-          (await trackingEntries.findActiveByItemIds([ref.id])).single;
+          (await trackingEntries.findActiveByCatalogRoots([ref])).single;
       expect(entry.catalogRef.entityType, CatalogEntityType.work);
       expect(entry.catalogRef.id, ref.id);
     });
@@ -223,8 +227,10 @@ void main() {
         status: MediaTrackingStatus.planned,
       );
 
-      final entry =
-          (await trackingEntries.findActiveByItemIds(['game-100'])).single;
+      final entry = (await trackingEntries.findActiveByCatalogRoots([
+        testCatalogRef('game-100', kind: 'game'),
+      ]))
+          .single;
       expect(entry.sourceType, isNull);
     });
 
@@ -251,8 +257,10 @@ void main() {
         ),
       );
 
-      final entry =
-          (await trackingEntries.findActiveByItemIds(['tv-series-1'])).single;
+      final entry = (await trackingEntries.findActiveByCatalogRoots([
+        testCatalogRef('tv-series-1', kind: 'tv'),
+      ]))
+          .single;
       final coordinates = tvTrackingCoordinatesFor(entry);
       expect(coordinates.seasonNumber, 2);
       expect(coordinates.episodeNumber, 4);
@@ -271,9 +279,10 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry =
-          (await trackingEntries.findActiveByItemIds(['music-album-99']))
-              .single;
+      final entry = (await trackingEntries.findActiveByCatalogRoots([
+        testCatalogRef('music-album-99', kind: 'music'),
+      ]))
+          .single;
       expect(entry.catalogRef.kind, 'music');
       expect(entry.catalogRef.kind, isNot('comic'));
     });
@@ -361,7 +370,7 @@ void main() {
       );
 
       final entry =
-          (await trackingEntries.findActiveByItemIds([ref.id])).single;
+          (await trackingEntries.findActiveByCatalogRoots([ref])).single;
       final coordinates = tvTrackingCoordinatesFor(entry);
       expect(coordinates.seasonNumber, 4);
       expect(coordinates.episodeNumber, 9);
@@ -408,7 +417,7 @@ void main() {
       );
 
       final entry =
-          (await trackingEntries.findActiveByItemIds([ref.id])).single;
+          (await trackingEntries.findActiveByCatalogRoots([ref])).single;
       expect(entry.catalogRef.entityType, CatalogEntityType.work);
       expect(entry.catalogRef.id, ref.id);
     });

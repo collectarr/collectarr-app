@@ -31,19 +31,23 @@ class WatchSessionsRepository {
   Future<List<WatchSession>> listActiveByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
-    final refsByKind = <CatalogMediaKind, Set<String>>{};
+    final refsByKind = <CatalogMediaKind, Set<CatalogEntityRef>>{};
     for (final ref in catalogRefs) {
       final rootRef = _rootCatalogRef(ref);
       refsByKind
-          .putIfAbsent(rootRef.mediaKind, () => <String>{})
-          .add(rootRef.id);
+          .putIfAbsent(rootRef.mediaKind, () => <CatalogEntityRef>{})
+          .add(rootRef);
     }
     if (refsByKind.isEmpty) return const [];
     final sessions = <WatchSession>[];
     for (final entry in refsByKind.entries) {
       final codec = _codecs[entry.key];
       if (codec == null) continue;
-      sessions.addAll(await codec.listActive(_db, itemIds: entry.value));
+      for (final catalogRef in entry.value) {
+        sessions.addAll(
+          await codec.listActive(_db, catalogRef: catalogRef),
+        );
+      }
     }
     sessions.sort(_compareSessions);
     return sessions;

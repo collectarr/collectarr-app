@@ -208,16 +208,6 @@ final userExternalLinksByItemProvider =
   return UserExternalLinksCacheRepository(db).listByCatalogRef(catalogRef);
 });
 
-final customEpisodesByItemProvider =
-    FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
-        (ref, itemId) async {
-  final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesRepository(
-    db,
-    codecs: collectarrCustomEpisodeCodecs,
-  ).listByItemIdGrouped(itemId);
-});
-
 final customEpisodesByCatalogRefProvider =
     FutureProvider.family<Map<int, List<CustomEpisode>>, CatalogEntityRef>(
         (ref, catalogRef) async {
@@ -225,7 +215,7 @@ final customEpisodesByCatalogRefProvider =
   return CustomEpisodesRepository(
     db,
     codecs: collectarrCustomEpisodeCodecs,
-  ).listByItemIdGrouped(catalogRef.id);
+  ).listByCatalogRefGrouped(catalogRef);
 });
 
 final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {

@@ -26,23 +26,16 @@ class TrackingUnitsCacheRepository {
     return _toModels(rows, coordinates);
   }
 
-  Future<List<TrackingUnit>> findActiveByItemIds(
-    Iterable<String> itemIds,
+  Future<List<TrackingUnit>> findActiveByCatalogRefs(
+    Iterable<CatalogEntityRef> catalogRefs,
   ) async {
-    final ids = itemIds
-        .where((value) => value.isNotEmpty)
-        .toSet()
-        .toList(growable: false);
-    if (ids.isEmpty) {
+    final wanted = catalogRefs.toSet();
+    if (wanted.isEmpty) {
       return const <TrackingUnit>[];
     }
-    final rows = await (_db.select(_db.trackingUnitsCache)
-          ..where((tbl) => tbl.deletedAt.isNull() & tbl.itemId.isIn(ids)))
-        .get();
-    final coordinates = await _loadCoordinates(
-      rows.map((row) => row.id),
-    );
-    return _toModels(rows, coordinates);
+    return (await listActive())
+        .where((unit) => wanted.contains(unit.targetRef))
+        .toList(growable: false);
   }
 
   Future<TrackingUnit?> findById(String id) async {

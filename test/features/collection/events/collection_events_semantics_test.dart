@@ -168,7 +168,9 @@ void main() {
     final entries = await TrackingEntriesCacheRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,
-    ).findActiveByItemIds(['book-300']);
+    ).findActiveByCatalogRoots([
+      testCatalogRef('book-300', kind: 'book'),
+    ]);
     final trackingEntry = entries.single;
 
     final events = <CollectionEvent>[];

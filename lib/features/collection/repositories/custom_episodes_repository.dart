@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
@@ -18,19 +19,23 @@ class CustomEpisodesRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, CustomEpisodeCodec> _codecs;
 
-  Future<List<CustomEpisode>> listByItemId(String itemId) async {
-    final episodes = <CustomEpisode>[];
-    for (final codec in _codecs.values) {
-      episodes.addAll(await codec.listActive(_db, itemId: itemId));
-    }
+  Future<List<CustomEpisode>> listByCatalogRef(
+    CatalogEntityRef catalogRef,
+  ) async {
+    final codec = _codecs[catalogRef.mediaKind];
+    if (codec == null) return const [];
+    final episodes = await codec.listActive(
+      _db,
+      catalogRef: catalogRef,
+    );
     episodes.sort(_compareEpisodes);
     return episodes;
   }
 
-  Future<Map<int, List<CustomEpisode>>> listByItemIdGrouped(
-    String itemId,
+  Future<Map<int, List<CustomEpisode>>> listByCatalogRefGrouped(
+    CatalogEntityRef catalogRef,
   ) async {
-    final episodes = await listByItemId(itemId);
+    final episodes = await listByCatalogRef(catalogRef);
     final grouped = <int, List<CustomEpisode>>{};
     for (final episode in episodes) {
       final codec = _codecs[episode.seriesRef.mediaKind];

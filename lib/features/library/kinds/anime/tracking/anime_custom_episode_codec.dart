@@ -14,12 +14,13 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
   @override
   Future<List<CustomEpisode>> listActive(
     LocalDatabase db, {
-    String? itemId,
+    CatalogEntityRef? catalogRef,
   }) async {
     final query = db.select(db.animeCustomEpisodeRows)
       ..where((row) => row.deletedAt.isNull());
-    if (itemId != null) {
-      query.where((row) => row.seriesId.equals(itemId));
+    if (catalogRef != null) {
+      if (catalogRef.mediaKind != kind) return const [];
+      query.where((row) => row.seriesId.equals(catalogRef.id));
     }
     final rows = await query.get();
     return rows.map(_fromRow).toList(growable: false);

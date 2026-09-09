@@ -15,8 +15,6 @@ class TrackingEntriesCacheRepository {
           for (final codec in codecs) codec.kind: codec,
         };
 
-  static const _lookupBatchSize = 500;
-
   final LocalDatabase _db;
   final Map<CatalogMediaKind, TrackingEntryCodec> _codecs;
 
@@ -40,31 +38,6 @@ class TrackingEntriesCacheRepository {
     if (row == null) return null;
     final coordinates = await _loadCoordinates([row.id]);
     return _fromCache(row, coordinates[row.id], catalogKind: row.kind);
-  }
-
-  Future<List<TrackingEntry>> findActiveByItemIds(
-      Iterable<String> itemIds) async {
-    final values = itemIds.toSet().toList(growable: false);
-    if (values.isEmpty) {
-      return const [];
-    }
-    final items = <TrackingEntry>[];
-    for (var index = 0; index < values.length; index += _lookupBatchSize) {
-      final end = (index + _lookupBatchSize).clamp(0, values.length);
-      final batch = values.sublist(index, end);
-      final rows = await (_db.select(_db.trackingEntriesCache)
-            ..where(
-              (row) => row.itemId.isIn(batch) & row.deletedAt.isNull(),
-            ))
-          .get();
-      final coordinates = await _loadCoordinates(rows.map((row) => row.id));
-      items.addAll(
-        rows.map(
-          (r) => _fromCache(r, coordinates[r.id], catalogKind: r.kind),
-        ),
-      );
-    }
-    return items;
   }
 
   Future<List<TrackingEntry>> findActiveByCatalogRefs(
