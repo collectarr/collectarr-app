@@ -3,8 +3,9 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -571,7 +572,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     accountId = await _validatedAccountId(ProviderId.tmdb, accountId);
     final api = ref.read(apiClientProvider);
 
-    final catalogItemsById = <String, CatalogItemDto>{};
+    final catalogCandidatesById = <String, CatalogSearchCandidate>{};
 
     // Phase 2: Match against catalog
     final preview = await _service.previewImport(
@@ -587,7 +588,16 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           limit: 10,
         );
         for (final item in items) {
-          catalogItemsById[item.id] = item;
+          final summary = CatalogDisplaySummary.work(
+            kind: item.mediaKind,
+            id: item.id,
+            title: item.title,
+            imageUrl: item.displayCoverUrl,
+          );
+          catalogCandidatesById[item.id] = CatalogSearchCandidate.fromTransport(
+            item: item,
+            summary: summary,
+          );
         }
         return [
           for (final item in items)
@@ -644,7 +654,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
     for (final match in preview.matches) {
       final candidate = match.catalogItem;
-      final item = candidate != null ? catalogItemsById[candidate.id] : null;
+      final item = candidate == null
+          ? null
+          : catalogCandidatesById[candidate.id]?.toTransportItem();
       if (item != null) {
         final enrichedEntry = _enrichFromCache(
           match.entry,
@@ -654,7 +666,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         final enriched = await enrichedEntry;
         final mergedItem =
             const TmdbCatalogMerger().mergeMatchedCatalogItem(item, enriched);
-        if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
+        if (const TmdbCatalogMerger().hasMeaningfulChanges(item, mergedItem)) {
           await catalogMutations.updateSnapshot(
             CatalogImportSnapshot.fromItem(mergedItem),
             origin: origin,
@@ -1139,20 +1151,6 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             ? MediaTrackingStatus.inProgress
             : null,
     };
-  }
-
-  bool _shouldUpdateCatalogSnapshot(
-      CatalogItemDto current, CatalogItemDto next) {
-    return current.displayTitle != next.displayTitle ||
-        current.localizedTitle != next.localizedTitle ||
-        current.originalTitle != next.originalTitle ||
-        current.synopsis != next.synopsis ||
-        current.coverImageUrl != next.coverImageUrl ||
-        current.thumbnailImageUrl != next.thumbnailImageUrl ||
-        current.releaseDate != next.releaseDate ||
-        current.releaseYear != next.releaseYear ||
-        current.payload != next.payload ||
-        current.displayCoverUrl != next.displayCoverUrl;
   }
 
   String _describeError(Object error) {

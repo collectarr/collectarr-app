@@ -1,6 +1,4 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 
 /// Provider-layer adapter responsible for building synthetic catalog items
@@ -163,6 +161,22 @@ class TmdbCatalogMerger {
       common: common,
       payload: mergedPayload,
     );
+  }
+
+  bool hasMeaningfulChanges(
+    CatalogItemDto current,
+    CatalogItemDto next,
+  ) {
+    return current.displayTitle != next.displayTitle ||
+        current.localizedTitle != next.localizedTitle ||
+        current.originalTitle != next.originalTitle ||
+        current.synopsis != next.synopsis ||
+        current.coverImageUrl != next.coverImageUrl ||
+        current.thumbnailImageUrl != next.thumbnailImageUrl ||
+        current.releaseDate != next.releaseDate ||
+        current.releaseYear != next.releaseYear ||
+        current.payload != next.payload ||
+        current.displayCoverUrl != next.displayCoverUrl;
   }
 
   static String? _normalizedText(String? value) {
