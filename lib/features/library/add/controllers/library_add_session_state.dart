@@ -90,14 +90,14 @@ final class LibraryAddSessionState {
 
   List<LibraryAddCatalogItem> visibleCoreResults(
     LibraryAddResultPolicy policy, {
-    required bool Function(String id) isOwnedCatalogItem,
+    required bool Function(LibraryAddCatalogItem item) isOwnedCatalogItem,
   }) {
     if (!selection.showCoreResults) {
       return const <LibraryAddCatalogItem>[];
     }
     final ownedIds = <String>{
       for (final item in search.results)
-        if (isOwnedCatalogItem(item.id)) item.id,
+        if (isOwnedCatalogItem(item)) item.id,
     };
     return policy.filterCoreResults(
       items: search.results,

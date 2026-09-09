@@ -207,9 +207,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         clearNewest: ownedResolution.clearNewest,
       );
     }
-    final trackingEntries = ref.watch(trackingEntriesByCatalogItemProvider)[
-            selected.source.catalogItem?.id] ??
-        const <TrackingEntry>[];
+    final trackingEntries = switch (selected.source.catalogRef) {
+      final catalogRef? =>
+        ref.watch(trackingEntriesByCatalogRefProvider)[catalogRef] ??
+            const <TrackingEntry>[],
+      _ => const <TrackingEntry>[],
+    };
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,

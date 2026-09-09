@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -20,11 +21,13 @@ class ActivityTimelineSection extends ConsumerStatefulWidget {
   const ActivityTimelineSection({
     super.key,
     required this.itemId,
+    required this.itemRef,
     required this.ownedItemIds,
     required this.accent,
   });
 
   final String itemId;
+  final CatalogEntityRef itemRef;
 
   /// All owned-item IDs for this catalog item (needed for loan lookup).
   final List<String> ownedItemIds;
@@ -82,13 +85,13 @@ class _ActivityTimelineSectionState
           orElse: () => const <OwnedItemSummary>[],
         );
     final trackingEntries =
-        ref.watch(trackingEntriesByCatalogItemProvider)[widget.itemId] ??
+        ref.watch(trackingEntriesByCatalogRefProvider)[widget.itemRef] ??
             const <TrackingEntry>[];
     final watchSessions =
         ref.watch(watchSessionsByItemProvider)[widget.itemId] ??
             const <WatchSession>[];
     final wishlistItems =
-        ref.watch(wishlistByCatalogItemProvider)[widget.itemId] ??
+        ref.watch(wishlistByCatalogRefProvider)[widget.itemRef] ??
             const <WishlistItem>[];
 
     final events = ActivityEventAggregator.aggregate(

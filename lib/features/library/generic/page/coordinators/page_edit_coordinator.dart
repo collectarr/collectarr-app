@@ -91,7 +91,8 @@ class LibraryPageEditCoordinator {
       }
     }
     final activeTrackingEntry = resolveActiveTrackingEntry(
-      _s.ref.read(trackingEntriesByCatalogItemProvider)[catalogItem.id] ??
+      _s.ref.read(
+              trackingEntriesByCatalogRefProvider)[catalogItem.catalogRef] ??
           const <TrackingEntry>[],
       owned,
     );

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
@@ -73,8 +74,13 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ownedItemIds =
-        ref.watch(collectionByCatalogItemProvider).keys.toSet();
+    final ownedCatalogRefs =
+        ref.watch(collectionByCatalogRefProvider).keys.toSet();
+    bool isOwnedId(String? id) =>
+        id != null &&
+        ownedCatalogRefs.any(
+          (ref) => ref.kind == CatalogMediaKind.comic.apiValue && ref.id == id,
+        );
     final series = data.series;
     final description = series['description']?.toString();
     final itemCount =
@@ -185,7 +191,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
               Builder(builder: (context) {
                 final ownedCount = data.items.where((item) {
                   final id = item['id']?.toString();
-                  return id != null && ownedItemIds.contains(id);
+                  return isOwnedId(id);
                 }).length;
                 return Text(
                   '$ownedCount / ${data.items.length} owned',
@@ -202,8 +208,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         Builder(builder: (context) {
-          final missingNumbers =
-              _computeMissingIssues(data.items, ownedItemIds);
+          final missingNumbers = _computeMissingIssues(data.items, isOwnedId);
           if (missingNumbers.isEmpty) return const SizedBox.shrink();
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -255,7 +260,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
           for (final item in data.items)
             _ComicSeriesItemTile(
               item: item,
-              isOwned: ownedItemIds.contains(item['id']?.toString()),
+              isOwned: isOwnedId(item['id']?.toString()),
             ),
       ],
     );
@@ -362,7 +367,7 @@ final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
 
 List<int> _computeMissingIssues(
   List<dynamic> items,
-  Set<String> ownedItemIds,
+  bool Function(String? id) isOwnedId,
 ) {
   final ownedNumbers = <int>{};
   final allNumbers = <int>{};
@@ -375,7 +380,7 @@ List<int> _computeMissingIssues(
     if (number == null) continue;
     allNumbers.add(number);
     final id = item['id']?.toString();
-    if (id != null && ownedItemIds.contains(id)) {
+    if (isOwnedId(id)) {
       ownedNumbers.add(number);
     }
   }

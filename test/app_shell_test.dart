@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -86,7 +87,8 @@ void main() {
           ),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
       ),
     );
@@ -172,7 +174,8 @@ void main() {
           ),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
       ),
     );
@@ -410,7 +413,8 @@ List<Override> _baseShellOverrides() {
     ),
     collectionProvider.overrideWith((ref) async => const []),
     wishlistProvider.overrideWith((ref) async => const []),
-    wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+    wishlistRefsProvider
+        .overrideWith((ref) async => const <CatalogEntityRef>{}),
   ];
 }
 

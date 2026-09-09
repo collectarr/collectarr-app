@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
@@ -122,7 +124,11 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
     final trackingEntries =
-        ref.watch(trackingEntriesByCatalogItemProvider)[itemId] ??
+        ref.watch(trackingEntriesByCatalogRefProvider)[CatalogEntityRef(
+              kind: CatalogMediaKind.tv.apiValue,
+              entityType: CatalogEntityType.work,
+              id: itemId,
+            )] ??
             const <TrackingEntry>[];
     final ratings = trackingEntries.isEmpty
         ? const <String, int>{}

@@ -428,12 +428,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         LibraryAccentScope.accentOf(context,
             fallback: widget.type.identity.accent);
     final state = _controller.state;
-    final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
+    final ownedByCatalogRef = ref.watch(collectionByCatalogRefProvider);
     final isWideLayout = widget.type.uiPolicy.wideDialog;
     final resultPolicy = widget.type.add.resultPolicy;
     final visibleCore = state.visibleCoreResults(
       resultPolicy,
-      isOwnedCatalogItem: (id) => ownedByCatalogId.containsKey(id),
+      isOwnedCatalogItem: (item) =>
+          ownedByCatalogRef.containsKey(item.catalogRef),
     );
     final visibleProvider = state.visibleProviderResults(resultPolicy);
     final selectedCandidate = state.selectedCandidate;
@@ -649,7 +650,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     state.selection.selectedProviderCandidateId,
                 checkedResultIds: state.selection.checkedResultIds,
                 checkedProviderIds: state.selection.checkedProviderIds,
-                ownedCatalogItemIds: ownedByCatalogId.keys.toSet(),
+                ownedCatalogItemIds:
+                    ownedByCatalogRef.keys.map((ref) => ref.id).toSet(),
                 coreMatchSummary: (item) =>
                     addCapability.search.coreMatchSummary(item, searchContext),
                 providerMatchSummary: (candidate) => addCapability.search

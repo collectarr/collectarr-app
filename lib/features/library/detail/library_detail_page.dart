@@ -121,9 +121,12 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedItem = ownedResolution.ownedItem;
-    final trackingEntries = ref.watch(trackingEntriesByCatalogItemProvider)[
-            widget.item.source.catalogItem?.id] ??
-        const <TrackingEntry>[];
+    final trackingEntries = switch (widget.item.source.catalogRef) {
+      final catalogRef? =>
+        ref.watch(trackingEntriesByCatalogRefProvider)[catalogRef] ??
+            const <TrackingEntry>[],
+      _ => const <TrackingEntry>[],
+    };
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
       activeOwnedItem,

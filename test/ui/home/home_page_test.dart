@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -60,7 +61,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -121,7 +123,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -183,7 +186,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -233,7 +237,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -299,7 +304,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
           localDatabaseProvider.overrideWithValue(db),
         ],
         child: MaterialApp(
@@ -346,7 +352,8 @@ void main() {
           ),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(

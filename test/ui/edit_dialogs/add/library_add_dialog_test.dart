@@ -1563,9 +1563,13 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          collectionByCatalogItemProvider.overrideWith(
+          collectionByCatalogRefProvider.overrideWith(
             (ref) => {
-              'comic-423': const OwnedItemSummary(
+              const CatalogEntityRef(
+                kind: 'comic',
+                entityType: CatalogEntityType.work,
+                id: 'comic-423',
+              ): const OwnedItemSummary(
                 ref: OwnedItemRef(
                   kind: CatalogMediaKind.comic,
                   id: OwnedItemId('owned-comic-423'),
@@ -1630,9 +1634,13 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          collectionByCatalogItemProvider.overrideWith(
+          collectionByCatalogRefProvider.overrideWith(
             (ref) => {
-              'comic-423': const OwnedItemSummary(
+              const CatalogEntityRef(
+                kind: 'comic',
+                entityType: CatalogEntityType.work,
+                id: 'comic-423',
+              ): const OwnedItemSummary(
                 ref: OwnedItemRef(
                   kind: CatalogMediaKind.comic,
                   id: OwnedItemId('owned-comic-423'),

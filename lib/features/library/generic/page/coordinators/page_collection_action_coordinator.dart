@@ -164,9 +164,12 @@ class LibraryPageCollectionActionCoordinator {
       case LibraryItemContextAction.removeFromWishlist:
         await runCollectionAction((a) => a.removeWishlist(item));
       case LibraryItemContextAction.removeTracking:
-        final trackingEntries = _page.ref
-                .read(trackingEntriesByCatalogItemProvider)[item.node.id] ??
-            const <TrackingEntry>[];
+        final trackingEntries = switch (item.source.catalogRef) {
+          final catalogRef? =>
+            _page.ref.read(trackingEntriesByCatalogRefProvider)[catalogRef] ??
+                const <TrackingEntry>[],
+          _ => const <TrackingEntry>[],
+        };
         final active = resolveActiveTrackingEntry(trackingEntries, null);
         if (active != null) {
           await _page.ref

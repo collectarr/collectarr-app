@@ -27,15 +27,15 @@ final collectionProvider = FutureProvider<List<OwnedItemSummary>>((ref) async {
   return cache.listActiveSummaries();
 });
 
-final collectionByCatalogItemProvider =
-    Provider<Map<String, OwnedItemSummary>>((ref) {
+final collectionByCatalogRefProvider =
+    Provider<Map<CatalogEntityRef, OwnedItemSummary>>((ref) {
   final collection = ref.watch(collectionSummariesProvider);
   return collection.maybeWhen(
     data: (items) => {
       for (final item in items)
-        if (!item.isDeleted && item.catalogRef != null) item.itemId: item,
+        if (!item.isDeleted && item.catalogRef != null) item.catalogRef!: item,
     },
-    orElse: () => const {},
+    orElse: () => const <CatalogEntityRef, OwnedItemSummary>{},
   );
 });
 
@@ -54,26 +54,24 @@ final trackingEntriesProvider =
   return cache.listActive();
 });
 
-final trackingEntriesByCatalogItemProvider =
-    Provider<Map<String, List<TrackingEntry>>>((ref) {
+final trackingEntriesByCatalogRefProvider =
+    Provider<Map<CatalogEntityRef, List<TrackingEntry>>>((ref) {
   final tracking = ref.watch(trackingEntriesProvider);
   return tracking.maybeWhen(
     data: (items) {
-      final grouped = <String, List<TrackingEntry>>{};
+      final grouped = <CatalogEntityRef, List<TrackingEntry>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
         }
-        grouped
-            .putIfAbsent(item.catalogRef.id, () => <TrackingEntry>[])
-            .add(item);
+        grouped.putIfAbsent(item.catalogRef, () => <TrackingEntry>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
       }
       return grouped;
     },
-    orElse: () => const <String, List<TrackingEntry>>{},
+    orElse: () => const <CatalogEntityRef, List<TrackingEntry>>{},
   );
 });
 
@@ -85,62 +83,60 @@ final trackingUnitsProvider = FutureProvider<List<TrackingUnit>>((ref) async {
   return cache.listActive();
 });
 
-final trackingUnitsByCatalogItemProvider =
-    Provider<Map<String, List<TrackingUnit>>>((ref) {
+final trackingUnitsByCatalogRefMapProvider =
+    Provider<Map<CatalogEntityRef, List<TrackingUnit>>>((ref) {
   final tracking = ref.watch(trackingUnitsProvider);
   return tracking.maybeWhen(
     data: (items) {
-      final grouped = <String, List<TrackingUnit>>{};
+      final grouped = <CatalogEntityRef, List<TrackingUnit>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
         }
-        grouped
-            .putIfAbsent(item.targetRef.id, () => <TrackingUnit>[])
-            .add(item);
+        grouped.putIfAbsent(item.targetRef, () => <TrackingUnit>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
       }
       return grouped;
     },
-    orElse: () => const <String, List<TrackingUnit>>{},
+    orElse: () => const <CatalogEntityRef, List<TrackingUnit>>{},
   );
 });
 
 final trackingUnitsByCatalogRefProvider =
     Provider.family<List<TrackingUnit>, CatalogEntityRef>((ref, catalogRef) {
-  return ref.watch(trackingUnitsByCatalogItemProvider)[catalogRef.id] ??
+  return ref.watch(trackingUnitsByCatalogRefMapProvider)[catalogRef] ??
       const <TrackingUnit>[];
 });
 
-final wishlistByCatalogItemProvider =
-    Provider<Map<String, List<WishlistItem>>>((ref) {
+final wishlistByCatalogRefProvider =
+    Provider<Map<CatalogEntityRef, List<WishlistItem>>>((ref) {
   final wishlist = ref.watch(wishlistProvider);
   return wishlist.maybeWhen(
     data: (items) {
-      final grouped = <String, List<WishlistItem>>{};
+      final grouped = <CatalogEntityRef, List<WishlistItem>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.itemId, () => <WishlistItem>[]).add(item);
+        grouped.putIfAbsent(item.catalogRef, () => <WishlistItem>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
       }
       return grouped;
     },
-    orElse: () => const <String, List<WishlistItem>>{},
+    orElse: () => const <CatalogEntityRef, List<WishlistItem>>{},
   );
 });
 
-final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
+final wishlistRefsProvider = FutureProvider<Set<CatalogEntityRef>>((ref) async {
   final cache = WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
   final items = await cache.listActive();
   return {
     for (final item in items)
-      if (!item.isDeleted) item.itemId,
+      if (!item.isDeleted) item.catalogRef,
   };
 });
 

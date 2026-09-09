@@ -506,10 +506,10 @@ String? _ownedCopyEditionLabel(
   return (edition: matchedEdition, variant: matchedVariant);
 }
 
-Set<String> watchWishlistIds(WidgetRef ref) {
-  return ref.watch(wishlistIdsProvider).maybeWhen(
+Set<CatalogEntityRef> watchWishlistRefs(WidgetRef ref) {
+  return ref.watch(wishlistRefsProvider).maybeWhen(
         data: (ids) => ids,
-        orElse: () => const <String>{},
+        orElse: () => const <CatalogEntityRef>{},
       );
 }
 

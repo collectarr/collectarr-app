@@ -67,8 +67,8 @@ class SyncController extends Notifier<SyncState> {
       ref.invalidate(collectionProvider);
       ref.invalidate(collectionSummariesProvider);
       ref.invalidate(trackingEntriesProvider);
-      ref.invalidate(trackingEntriesByCatalogItemProvider);
-      ref.invalidate(wishlistIdsProvider);
+      ref.invalidate(trackingEntriesByCatalogRefProvider);
+      ref.invalidate(wishlistRefsProvider);
       ref.invalidate(wishlistProvider);
       ref.invalidate(shelfProvider);
 
