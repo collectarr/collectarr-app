@@ -66,7 +66,7 @@ final class MangaCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceEntry entry) {
+  List<String> catalogCells(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = catalog == null
         ? null
@@ -97,7 +97,7 @@ final class MangaCollectionCsvProjection
 
   @override
   List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return clzFriendly ? const [''] : const [];
@@ -105,7 +105,7 @@ final class MangaCollectionCsvProjection
 
   @override
   List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

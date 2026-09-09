@@ -95,7 +95,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
 
 CatalogSearchCandidate _catalogSearchCandidateForItem(CatalogItemDto item) {
   final projection = libraryCollectionCsvProjectionForKind(item.mediaKind);
-  final workspaceEntry = LibraryWorkspaceEntry(
+  final workspaceEntry = LibraryWorkspaceSource(
     itemId: item.id,
     catalogItem: item,
   );

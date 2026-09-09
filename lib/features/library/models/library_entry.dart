@@ -139,8 +139,13 @@ final class TrackingSummary {
 /// projection and the post-dispatch workspace source have different
 /// ownership rules; making one inherit from the other recreates the generic
 /// catalog/Owned compatibility union we are removing.
-class LibraryWorkspaceEntry {
-  const LibraryWorkspaceEntry({
+/// Complete compatibility source consumed by typed workspace/CSV adapters.
+///
+/// This is not a mixed/global domain entry. It remains at the explicit
+/// workspace transport boundary until every kind projector reads its concrete
+/// media and Owned aggregate directly.
+class LibraryWorkspaceSource {
+  const LibraryWorkspaceSource({
     required this.itemId,
     this.catalogSummary,
     this.ownedSummary,

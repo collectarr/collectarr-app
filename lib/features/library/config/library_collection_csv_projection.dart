@@ -47,15 +47,15 @@ abstract interface class LibraryCollectionCsvProjection {
 
   Map<String, List<String>> get columnAliases;
 
-  List<String> catalogCells(LibraryWorkspaceEntry entry);
+  List<String> catalogCells(LibraryWorkspaceSource entry);
 
   List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   });
 
   List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   });
 }
@@ -77,7 +77,7 @@ abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
 /// payload keys while allowing every projection to share the same wire-level
 /// presentation rules.
 mixin LibraryCollectionCsvProjectionPresentation {
-  List<String> catalogCells(LibraryWorkspaceEntry entry);
+  List<String> catalogCells(LibraryWorkspaceSource entry);
 
   String importDisplayTitle(List<String> catalogCells) {
     final title = catalogCells.elementAtOrNull(2) ?? '';

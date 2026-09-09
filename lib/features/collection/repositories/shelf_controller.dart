@@ -377,7 +377,7 @@ class ShelfState {
   }
 }
 
-class ShelfEntry extends LibraryWorkspaceEntry implements LibraryEntry {
+class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
   const ShelfEntry({
     required super.itemId,
     super.catalogSummary,
