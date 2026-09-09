@@ -458,7 +458,8 @@ class LibraryEditDraft {
       personal: ownedItem == null
           ? null
           : LibraryPersonalEditSelection(
-              anchor: PersonalItemAnchor.fromRaw(
+              targetRef: catalogRefForOwnedSelection(
+                type.kind,
                 anchorType: personal.selectedOwnedAnchorType.apiValue,
                 editionId: personal.selectedEditionId,
                 variantId: personal.selectedVariantId,

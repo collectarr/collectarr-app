@@ -47,7 +47,7 @@ void main() {
     final cmd = draft.toAddOwnedItemCommand();
 
     expect(cmd.catalogRef.id, 'comic-draft-1');
-    expect(cmd.catalogRef.kind, 'comic');
+    expect(cmd.catalogRef.kind.apiValue, 'comic');
     expect(cmd.tracking, isNotNull);
     expect(cmd.tracking?.notes, isNull);
     final payload = cmd.typedPayload as ComicOwnedItemCreatePayload;

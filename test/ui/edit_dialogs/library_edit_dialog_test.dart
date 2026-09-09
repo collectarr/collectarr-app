@@ -290,9 +290,15 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchor?.apiValue, 'edition');
-    expect(selection?.personal?.anchor?.editionId, 'edition-steelbook');
-    expect(selection?.personal?.anchor?.variantId, isNull);
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      'edition',
+    );
+    expect(selection?.personal?.targetRef?.id, 'edition-steelbook');
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      isNot('release'),
+    );
   }, skip: true);
 
   testWidgets('movie edit dialog hides book-style publishing fields', (
@@ -1178,8 +1184,11 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchor?.apiValue, 'bundle_release');
-    expect(selection?.personal?.anchor?.bundleReleaseId, 'bundle-1');
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      'bundle_release',
+    );
+    expect(selection?.personal?.targetRef?.id, 'bundle-1');
     expect(selection?.tracking?.targetRef, isNull);
   }, skip: true);
 
@@ -1250,8 +1259,11 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchor?.apiValue, 'bundle_release');
-    expect(selection?.personal?.anchor?.bundleReleaseId, 'bundle-existing-1');
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      'bundle_release',
+    );
+    expect(selection?.personal?.targetRef?.id, 'bundle-existing-1');
   }, skip: true);
 
   testWidgets(

@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 
@@ -74,7 +73,7 @@ class LibraryEditSelection {
 
 class LibraryPersonalEditSelection {
   const LibraryPersonalEditSelection({
-    required this.anchor,
+    required this.targetRef,
     required this.condition,
     required this.purchaseDate,
     required this.pricePaidCents,
@@ -94,7 +93,12 @@ class LibraryPersonalEditSelection {
     this.ownerLabel,
   });
 
-  final PersonalItemAnchor? anchor;
+  /// Exact catalog target selected by the edit form.
+  ///
+  /// The generic edit result carries this structural ref directly. Kind-owned
+  /// update payloads interpret it after dispatch; no common anchor ontology is
+  /// needed here.
+  final CatalogEntityRef? targetRef;
   final String? condition;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
@@ -114,7 +118,7 @@ class LibraryPersonalEditSelection {
   final String? ownerLabel;
 
   LibraryPersonalEditSelection copyWith({
-    PersonalItemAnchor? anchor,
+    CatalogEntityRef? targetRef,
     String? condition,
     DateTime? purchaseDate,
     int? pricePaidCents,
@@ -134,7 +138,7 @@ class LibraryPersonalEditSelection {
     String? ownerLabel,
   }) {
     return LibraryPersonalEditSelection(
-      anchor: anchor ?? this.anchor,
+      targetRef: targetRef ?? this.targetRef,
       condition: condition ?? this.condition,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,

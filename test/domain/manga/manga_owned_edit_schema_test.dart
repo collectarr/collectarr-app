@@ -114,7 +114,7 @@ void main() {
     final selection = LibraryEditSelection(
       item: _mangaItem(),
       personal: const LibraryPersonalEditSelection(
-        anchor: null,
+        targetRef: null,
         condition: null,
         purchaseDate: null,
         pricePaidCents: null,

@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
@@ -1908,11 +1907,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(
-                anchor: PersonalItemAnchor.fromRaw(
-                  anchorType:
-                      (_selectedEditionId != null || _selectedVariantId != null)
-                          ? PersonalItemAnchorType.variant.apiValue
-                          : PersonalItemAnchorType.item.apiValue,
+                targetRef: catalogRefForLibrarySelection(
+                  _item.catalogRef,
                   editionId: _selectedEditionId,
                   variantId: _selectedVariantId,
                 ),
