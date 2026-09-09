@@ -17,6 +17,27 @@ final class OwnedItemRef {
 
   String get key => '${kind.apiValue}:${id.value}';
 
+  /// Decode the stable storage key used by cross-kind infrastructure.
+  ///
+  /// This format is intentionally strict. A bare ID is not an owned-item
+  /// reference because it does not identify the owning kind.
+  factory OwnedItemRef.fromKey(String key) {
+    final separator = key.indexOf(':');
+    if (separator <= 0 || separator == key.length - 1) {
+      throw const FormatException(
+        'OwnedItemRef key must be <kind>:<id>',
+      );
+    }
+    final kind = catalogMediaKindFromApiValue(key.substring(0, separator));
+    final id = key.substring(separator + 1);
+    if (kind.isUnknown || id.trim().isEmpty) {
+      throw const FormatException(
+        'OwnedItemRef key must contain a known kind and non-empty id',
+      );
+    }
+    return OwnedItemRef(kind: kind, id: OwnedItemId(id));
+  }
+
   Map<String, Object?> toJson() => {
         'kind': kind.apiValue,
         'id': id.value,

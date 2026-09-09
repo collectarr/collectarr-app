@@ -72,9 +72,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
   Future<void> _load() async {
     final repo = ReadingQueueRepository(widget.db);
-    final queueIds = await repo.getQueue();
-    final ownedById = {
-      for (final item in widget.ownedItems) item.ref.id.value: item,
+    final queueRefs = await repo.getQueue();
+    final ownedByRef = {
+      for (final item in widget.ownedItems) item.ref: item,
     };
     final trackingByOwnedId = {
       for (final entry in widget.trackingEntries)
@@ -86,8 +86,8 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         if (!entry.isDeleted) entry.itemId: entry,
     };
     final entries = <_ReadingQueueDialogEntry>[];
-    for (final queuedId in queueIds) {
-      final summary = ownedById[queuedId];
+    for (final queuedRef in queueRefs) {
+      final summary = ownedByRef[queuedRef];
       if (summary == null) {
         continue;
       }
@@ -123,15 +123,14 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     int newPosition,
   ) async {
     await ReadingQueueRepository(widget.db).moveToPosition(
-      entry.summary.ref.id.value,
+      entry.summary.ref,
       newPosition,
     );
     await _load();
   }
 
   Future<void> _remove(_ReadingQueueDialogEntry entry) async {
-    await ReadingQueueRepository(widget.db)
-        .removeFromQueue(entry.summary.ref.id.value);
+    await ReadingQueueRepository(widget.db).removeFromQueue(entry.summary.ref);
     await _load();
   }
 
@@ -149,8 +148,8 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     final reorderedFiltered = [...filteredWithoutMoved]
       ..insert(clampedIndex, movedEntry);
 
-    final fullWithoutMoved = [..._entries]..removeWhere((entry) =>
-        entry.summary.ref.id.value == movedEntry.summary.ref.id.value);
+    final fullWithoutMoved = [..._entries]
+      ..removeWhere((entry) => entry.summary.ref != movedEntry.summary.ref);
     final predecessor =
         clampedIndex > 0 ? reorderedFiltered[clampedIndex - 1] : null;
     final successor = clampedIndex < reorderedFiltered.length - 1
@@ -159,12 +158,12 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
     int targetIndex;
     if (predecessor != null) {
-      targetIndex = fullWithoutMoved.indexWhere((entry) =>
-              entry.summary.ref.id.value == predecessor.summary.ref.id.value) +
+      targetIndex = fullWithoutMoved.indexWhere(
+              (entry) => entry.summary.ref == predecessor.summary.ref) +
           1;
     } else if (successor != null) {
-      targetIndex = fullWithoutMoved.indexWhere((entry) =>
-          entry.summary.ref.id.value == successor.summary.ref.id.value);
+      targetIndex = fullWithoutMoved
+          .indexWhere((entry) => entry.summary.ref == successor.summary.ref);
     } else {
       targetIndex = 0;
     }
@@ -297,11 +296,11 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                   }
                                   final queuePosition = _entries.indexWhere(
                                           (e) =>
-                                              e.summary.ref.id.value ==
-                                              entry.summary.ref.id.value) +
+                                              e.summary.ref ==
+                                              entry.summary.ref) +
                                       1;
                                   return Material(
-                                    key: ValueKey(entry.summary.ref.id.value),
+                                    key: ValueKey(entry.summary.ref),
                                     color: Colors.transparent,
                                     child: ListTile(
                                       leading: CircleAvatar(

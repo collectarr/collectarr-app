@@ -261,12 +261,12 @@ class LibraryPageDialogCoordinator {
   Future<void> showReadingQueueFlow() async {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
-    final queueIds = await ReadingQueueRepository(db).getQueue();
+    final queueRefs = await ReadingQueueRepository(db).getQueue();
     final ownedItems = await OwnedItemsRepository(db).listActiveSummaries();
     final trackingEntries =
         await _page.ref.read(trackingEntriesProvider.future);
     final queuedOwnedItems = ownedItems
-        .where((item) => queueIds.contains(item.ref.id.value))
+        .where((item) => queueRefs.contains(item.ref))
         .toList(growable: false);
     final catalogSummariesByRef =
         await CatalogDisplaySummaryRepository(db).findByRefs(

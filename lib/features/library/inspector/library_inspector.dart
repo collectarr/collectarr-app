@@ -847,12 +847,12 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
 
 class _InspectorReadingQueueActionButton extends StatefulWidget {
   const _InspectorReadingQueueActionButton({
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.db,
     required this.accent,
   });
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -875,7 +875,7 @@ class _InspectorReadingQueueActionButtonState
 
   Future<void> _load() async {
     final queue = await ReadingQueueRepository(widget.db).getQueue();
-    final index = queue.indexOf(widget.ownedItemId);
+    final index = queue.indexOf(widget.ownedRef);
     if (!mounted) {
       return;
     }
@@ -895,7 +895,7 @@ class _InspectorReadingQueueActionButtonState
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: InspectorReadingQueueSection(
-              ownedItemId: widget.ownedItemId,
+              ownedRef: widget.ownedRef,
               db: widget.db,
               accent: widget.accent,
             ),

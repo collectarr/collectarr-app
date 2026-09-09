@@ -27,8 +27,16 @@ void main() {
       (
     tester,
   ) async {
-    await ReadingQueueRepository(db).addToQueue('owned-1');
-    await ReadingQueueRepository(db).addToQueue('owned-2');
+    const ownedRef1 = OwnedItemRef(
+      kind: CatalogMediaKind.book,
+      id: OwnedItemId('owned-1'),
+    );
+    const ownedRef2 = OwnedItemRef(
+      kind: CatalogMediaKind.book,
+      id: OwnedItemId('owned-2'),
+    );
+    await ReadingQueueRepository(db).addToQueue(ownedRef1);
+    await ReadingQueueRepository(db).addToQueue(ownedRef2);
 
     String? selectedItemId;
 
