@@ -1937,7 +1937,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         tracking: !_hasTrackingContext
             ? null
             : LibraryTrackingEditSelection(
-                anchor: PersonalItemAnchor.fromRaw(
+                targetRef: catalogRefForLibrarySelection(
+                  _item.catalogRef,
                   editionId: _selectedEditionId,
                   variantId: _selectedVariantId,
                 ),

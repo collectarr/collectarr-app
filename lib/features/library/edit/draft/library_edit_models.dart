@@ -172,7 +172,7 @@ class LibraryWishlistEditSelection {
 
 class LibraryTrackingEditSelection {
   const LibraryTrackingEditSelection({
-    required this.anchor,
+    required this.targetRef,
     required this.rating,
     required this.readStatus,
     this.progressCurrent,
@@ -183,7 +183,7 @@ class LibraryTrackingEditSelection {
     this.finishedAt,
   });
 
-  final PersonalItemAnchor? anchor;
+  final CatalogEntityRef? targetRef;
   final int? rating;
   final String? readStatus;
   final int? progressCurrent;
@@ -194,7 +194,7 @@ class LibraryTrackingEditSelection {
   final DateTime? finishedAt;
 
   LibraryTrackingEditSelection copyWith({
-    PersonalItemAnchor? anchor,
+    CatalogEntityRef? targetRef,
     int? rating,
     String? readStatus,
     int? progressCurrent,
@@ -205,7 +205,7 @@ class LibraryTrackingEditSelection {
     DateTime? finishedAt,
   }) {
     return LibraryTrackingEditSelection(
-      anchor: anchor ?? this.anchor,
+      targetRef: targetRef ?? this.targetRef,
       rating: rating ?? this.rating,
       readStatus: readStatus ?? this.readStatus,
       progressCurrent: progressCurrent ?? this.progressCurrent,

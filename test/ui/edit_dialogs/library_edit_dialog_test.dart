@@ -1079,8 +1079,10 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.personal, isNull);
-    expect(selection?.tracking?.anchor?.editionId, 'edition-digital');
-    expect(selection?.tracking?.anchor?.variantId, 'variant-stream');
+    expect(selection?.tracking?.targetRef?.entityType.apiValue, 'release');
+    expect(selection?.tracking?.targetRef?.id, 'variant-stream');
+    expect(selection?.tracking?.targetRef?.rootId, 'movie-tracked-1');
+    expect(selection?.tracking?.targetRef?.parentId, 'edition-digital');
     expect(selection?.tracking?.readStatus, 'Planned');
     expect(selection?.tracking?.rating, 8);
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 1));
@@ -1178,7 +1180,7 @@ void main() {
 
     expect(selection?.personal?.anchor?.apiValue, 'bundle_release');
     expect(selection?.personal?.anchor?.bundleReleaseId, 'bundle-1');
-    expect(selection?.tracking?.anchor, isNull);
+    expect(selection?.tracking?.targetRef, isNull);
   }, skip: true);
 
   testWidgets(

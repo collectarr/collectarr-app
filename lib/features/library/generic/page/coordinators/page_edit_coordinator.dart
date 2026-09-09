@@ -273,9 +273,7 @@ class LibraryPageEditCoordinator {
           owned.ref,
           catalogRef: owned.catalogRef,
           isDigital: owned.isDigital,
-          targetRef: catalogItem.catalogRefForPersonalAnchor(
-            tracking?.anchor ?? owned.anchor,
-          ),
+          targetRef: tracking?.targetRef ?? owned.catalogRef,
           status: mediaTrackingStatusFromValue(tracking?.readStatus),
           rating: tracking?.rating,
           startedAt: tracking?.startedAt,
@@ -288,7 +286,7 @@ class LibraryPageEditCoordinator {
         );
       } else {
         final baseTracking = activeTrackingEntry.copyWith(
-          catalogRef: catalogItem.catalogRefForPersonalAnchor(tracking.anchor),
+          catalogRef: tracking.targetRef ?? catalogItem.catalogRef,
           status: mediaTrackingStatusFromValue(tracking.readStatus),
           rating: tracking.rating,
           startedAt: tracking.startedAt,
@@ -355,9 +353,7 @@ class LibraryPageEditCoordinator {
         result.tracking != null) {
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(catalogItem.catalogRef),
-        targetRef: catalogItem.catalogRefForPersonalAnchor(
-          result.tracking!.anchor,
-        ),
+        targetRef: result.tracking!.targetRef ?? catalogItem.catalogRef,
         sourceType: activeTrackingEntry.sourceType,
         status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
         rating: result.tracking!.rating,

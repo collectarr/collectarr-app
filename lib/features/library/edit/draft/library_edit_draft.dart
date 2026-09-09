@@ -506,7 +506,8 @@ class LibraryEditDraft {
       tracking: !hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              anchor: PersonalItemAnchor.fromRaw(
+              targetRef: catalogRefForLibrarySelection(
+                item.catalogRef,
                 editionId: tracking.selectedTrackingEditionId,
                 variantId: tracking.selectedTrackingVariantId,
               ),
