@@ -83,7 +83,6 @@ void main() {
       trackingEntries: trackingRepo,
       trackingUnits: trackingUnitsRepo,
       watchSessions: watchSessionsRepo,
-      catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );

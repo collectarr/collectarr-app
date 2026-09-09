@@ -1,7 +1,6 @@
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -66,7 +65,6 @@ void main() {
         db,
         codecs: collectarrWatchSessionCodecs,
       ),
-      catalogSummaries: CatalogDisplaySummaryRepository(db),
       ownedItems: ownedItems,
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
@@ -140,20 +138,17 @@ void main() {
 
     test('resolves a structural anchor when the owned row is unavailable',
         () async {
-      await catalogCache.upsertAll([
-        testCatalogItem(
-          id: 'book-anchor-target',
-          kind: 'book',
-          title: 'Anchored Book',
-        ),
-      ]);
-
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.owned(
           const OwnedItemRef(
             kind: CatalogMediaKind.book,
             id: OwnedItemId('book-anchor-target'),
           ),
+        ),
+        targetRef: const CatalogEntityRef(
+          kind: 'book',
+          entityType: CatalogEntityType.work,
+          id: 'book-anchor-target',
         ),
         anchor: PersonalItemAnchor.fromRaw(
           anchorType: PersonalItemAnchorType.variant.apiValue,

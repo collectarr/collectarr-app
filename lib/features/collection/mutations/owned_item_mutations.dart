@@ -58,7 +58,7 @@ final class OwnedItemMutations {
     final ownedRef = await mutationRunner.run(
       action: () async {
         final existingCatalog =
-            (await catalogSummaries.findByIds([catalogRef.id]))[catalogRef.id];
+            (await catalogSummaries.findByRefs([catalogRef]))[catalogRef];
 
         final resolvedCatalogRef = _catalogRefForItem(
           catalogRef,
