@@ -112,7 +112,9 @@ class UserMetadataOverridesCacheRepository {
     }
     return UserMetadataOverride(
       id: row.id,
-      targetRef: CatalogEntityRef.fromJson(rawTarget.cast<String, dynamic>()),
+      targetRef: CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(rawTarget),
+      ),
       fieldKey: row.fieldKey,
       originalValue: row.originalValue,
       overrideValue: row.overrideValue,

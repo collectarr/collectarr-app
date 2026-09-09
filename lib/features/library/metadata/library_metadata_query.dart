@@ -109,8 +109,7 @@ CatalogSearchCandidate _catalogSearchCandidateForItem(CatalogItemDto item) {
     summary: CatalogDisplaySummary.work(
       kind: item.mediaKind,
       id: item.id,
-      title: projection?.catalogDisplayTitle(item) ?? item.title,
-      subtitle: projection?.catalogDisplaySubtitle(item),
+      title: item.title,
       imageUrl: item.displayCoverUrl,
     ),
     normalizedBarcode: normalizedBarcode,

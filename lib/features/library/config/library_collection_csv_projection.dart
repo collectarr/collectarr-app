@@ -1,6 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
@@ -12,10 +11,6 @@ import 'package:collectarr_app/features/library/models/library_entry.dart';
 /// model shared by kinds.
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
-
-  String catalogDisplayTitle(CatalogItemDto item);
-
-  String catalogDisplaySubtitle(CatalogItemDto item);
 
   String importDisplayTitle(List<String> catalogCells);
 
@@ -31,8 +26,6 @@ abstract interface class LibraryCollectionCsvProjection {
   String? importBarcode(List<String> catalogCells);
 
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> catalogCells);
-
-  bool catalogMatchesBarcode(CatalogItemDto item, String normalizedBarcode);
 
   /// The complete CLZ header for a single-kind export.
 
@@ -86,39 +79,6 @@ abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
 mixin LibraryCollectionCsvProjectionPresentation {
   List<String> catalogCells(LibraryWorkspaceEntry entry);
 
-  /// Presents a catalog item using the kind-owned catalog cells.
-  ///
-  /// This is intentionally derived from [catalogCells], rather than reading
-  /// the transport payload. The collection host may render the result without
-  /// learning what an item number means for any particular kind.
-  String catalogDisplayTitle(CatalogItemDto item) {
-    final cells = catalogCells(
-      LibraryWorkspaceEntry(itemId: item.id, catalogItem: item),
-    );
-    final title = cells.elementAtOrNull(2) ?? item.title;
-    final itemNumber = cells.elementAtOrNull(3) ?? '';
-    if (itemNumber.trim().isEmpty) {
-      return title;
-    }
-    return '$title #$itemNumber';
-  }
-
-  /// Presents the non-title catalog summary using kind-owned cells.
-  String catalogDisplaySubtitle(CatalogItemDto item) {
-    final cells = catalogCells(
-      LibraryWorkspaceEntry(itemId: item.id, catalogItem: item),
-    );
-    return [
-      if ((cells.elementAtOrNull(4) ?? '').trim().isNotEmpty)
-        cells.elementAtOrNull(4),
-      if ((cells.elementAtOrNull(8) ?? '').trim().isNotEmpty)
-        cells.elementAtOrNull(8),
-      if (item.releaseYear != null) item.releaseYear!.toString(),
-      if ((cells.elementAtOrNull(10) ?? '').trim().isNotEmpty)
-        cells.elementAtOrNull(10),
-    ].join(' | ');
-  }
-
   String importDisplayTitle(List<String> catalogCells) {
     final title = catalogCells.elementAtOrNull(2) ?? '';
     final itemNumber = catalogCells.elementAtOrNull(3) ?? '';
@@ -152,16 +112,6 @@ mixin LibraryCollectionCsvProjectionPresentation {
   String? importBarcode(List<String> catalogCells) {
     final value = catalogCells.elementAtOrNull(10)?.trim();
     return value == null || value.isEmpty ? null : value;
-  }
-
-  /// Matches the normalized barcode cell projected by the owning kind.
-  bool catalogMatchesBarcode(CatalogItemDto item, String normalizedBarcode) {
-    final cells = catalogCells(
-      LibraryWorkspaceEntry(itemId: item.id, catalogItem: item),
-    );
-    final itemBarcode = cells.elementAtOrNull(10);
-    return itemBarcode != null &&
-        MetadataSearchQuery.normalizeBarcode(itemBarcode) == normalizedBarcode;
   }
 }
 
