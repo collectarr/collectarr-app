@@ -38,4 +38,40 @@ void main() {
     expect(
         restored?.toSyncPayload(), containsPair('target_ref', target.toJson()));
   });
+
+  test('filters active overrides by the complete structural target', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = UserMetadataOverridesCacheRepository(db);
+    const bookTarget = CatalogEntityRef(
+      kind: 'book',
+      entityType: CatalogEntityType.edition,
+      id: 'shared-id',
+    );
+    const comicTarget = CatalogEntityRef(
+      kind: 'comic',
+      entityType: CatalogEntityType.issue,
+      id: 'shared-id',
+    );
+
+    await repository.upsertAll([
+      UserMetadataOverride(
+        id: 'book-override',
+        targetRef: bookTarget,
+        fieldKey: 'publisher',
+        overrideValue: 'Book publisher',
+        updatedAt: DateTime.utc(2026, 9, 7),
+      ),
+      UserMetadataOverride(
+        id: 'comic-override',
+        targetRef: comicTarget,
+        fieldKey: 'publisher',
+        overrideValue: 'Comic publisher',
+        updatedAt: DateTime.utc(2026, 9, 7),
+      ),
+    ]);
+
+    final matches = await repository.listActiveByTargets([bookTarget]);
+    expect(matches.map((item) => item.id), ['book-override']);
+  });
 }

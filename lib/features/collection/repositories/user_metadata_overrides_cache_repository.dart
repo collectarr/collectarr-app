@@ -20,14 +20,14 @@ class UserMetadataOverridesCacheRepository {
         .toList(growable: false);
   }
 
-  Future<List<UserMetadataOverride>> listActiveByTargetIds(
-    Iterable<String> targetIds,
+  Future<List<UserMetadataOverride>> listActiveByTargets(
+    Iterable<CatalogEntityRef> targets,
   ) async {
-    final ids = targetIds.where((value) => value.isNotEmpty).toSet();
-    if (ids.isEmpty) return const <UserMetadataOverride>[];
+    final targetSet = targets.toSet();
+    if (targetSet.isEmpty) return const <UserMetadataOverride>[];
     final overrides = await listActive();
     return overrides
-        .where((override) => ids.contains(override.targetRef.id))
+        .where((override) => targetSet.contains(override.targetRef))
         .toList(growable: false);
   }
 
@@ -122,7 +122,5 @@ class UserMetadataOverridesCacheRepository {
   }
 
   bool _sameTarget(CatalogEntityRef left, CatalogEntityRef right) =>
-      left.kind == right.kind &&
-      left.entityType == right.entityType &&
-      left.id == right.id;
+      left == right;
 }

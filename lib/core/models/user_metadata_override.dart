@@ -35,10 +35,6 @@ class UserMetadataOverride {
 
   bool get isDeleted => deletedAt != null;
 
-  /// Stable structural scope key used by read-only grouping UI.
-  String get scopeKey =>
-      '${targetRef.kind}:${targetRef.entityType.apiValue}:${targetRef.id}';
-
   Map<String, Object?> toSyncPayload() {
     return {
       'target_ref': targetRef.toJson(),

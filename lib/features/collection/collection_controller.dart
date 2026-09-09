@@ -211,20 +211,18 @@ final metadataOverridesProvider =
 });
 
 final metadataOverridesByItemProvider =
-    Provider<Map<String, List<UserMetadataOverride>>>((ref) {
+    Provider<Map<CatalogEntityRef, List<UserMetadataOverride>>>((ref) {
   final overrides = ref.watch(metadataOverridesProvider);
   return overrides.maybeWhen(
     data: (items) {
-      final grouped = <String, List<UserMetadataOverride>>{};
+      final grouped = <CatalogEntityRef, List<UserMetadataOverride>>{};
       for (final o in items) {
         if (o.isDeleted) continue;
-        grouped
-            .putIfAbsent(o.targetRef.id, () => <UserMetadataOverride>[])
-            .add(o);
+        grouped.putIfAbsent(o.targetRef, () => <UserMetadataOverride>[]).add(o);
       }
       return grouped;
     },
-    orElse: () => const <String, List<UserMetadataOverride>>{},
+    orElse: () => const <CatalogEntityRef, List<UserMetadataOverride>>{},
   );
 });
 
