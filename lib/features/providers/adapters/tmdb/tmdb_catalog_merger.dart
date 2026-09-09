@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 
 /// Provider-layer adapter responsible for building synthetic catalog items
 /// and merging TMDB metadata into catalog DTOs.

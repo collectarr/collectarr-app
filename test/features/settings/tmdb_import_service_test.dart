@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_catalog_merger.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
-import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -67,8 +67,7 @@ void main() {
         rawPayload: const <String, dynamic>{'id': 603, 'title': 'The Matrix'},
       );
 
-      final item =
-          const TmdbCatalogMerger().localSyntheticCatalogItem(entry);
+      final item = const TmdbCatalogMerger().localSyntheticCatalogItem(entry);
 
       expect(item.displayTitle, 'The Matrix');
       expect(item.localizedTitle, 'The Matrix');

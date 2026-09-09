@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TmdbPendingImportRecord {

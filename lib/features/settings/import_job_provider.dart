@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/imports/personal_lists/provider_csv_impo
 import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
 import 'package:collectarr_app/features/settings/provider_import_models.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_catalog_merger.dart';
-import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
