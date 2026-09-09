@@ -49,9 +49,16 @@ class LibraryEntry {
       (ownedSummary?.hasNotes ?? false) ||
       (wishlistItem?.notes?.trim().isNotEmpty ?? false);
 
-  MediaTracking get tracking =>
-      trackingSummary?.tracking ??
-      const MediaTracking(status: MediaTrackingStatus.none);
+  MediaTracking get tracking => trackingSummary == null
+      ? const MediaTracking(status: MediaTrackingStatus.none)
+      : MediaTracking(
+          status: trackingSummary!.status,
+          rating: trackingSummary!.rating,
+          startedAt: trackingSummary!.startedAt,
+          completedAt: trackingSummary!.completedAt,
+          lastActivityAt: trackingSummary!.updatedAt,
+          notes: trackingSummary!.notes,
+        );
 
   DateTime get updatedAt {
     final values = <DateTime>[
@@ -91,27 +98,39 @@ class LibraryEntry {
 final class TrackingSummary {
   const TrackingSummary({
     required this.catalogRef,
-    required this.tracking,
+    required this.status,
     required this.updatedAt,
+    this.rating,
+    this.startedAt,
+    this.completedAt,
+    this.notes,
     this.deletedAt,
   });
 
   factory TrackingSummary.fromEntry(TrackingEntry entry) {
     return TrackingSummary(
       catalogRef: entry.catalogRef,
-      tracking: entry.mediaTracking,
+      status: entry.status ?? MediaTrackingStatus.none,
+      rating: entry.rating,
+      startedAt: entry.startedAt,
+      completedAt: entry.finishedAt,
+      notes: entry.notes,
       updatedAt: entry.updatedAt,
       deletedAt: entry.deletedAt,
     );
   }
 
   final CatalogEntityRef catalogRef;
-  final MediaTracking tracking;
+  final MediaTrackingStatus status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? completedAt;
+  final String? notes;
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
   bool get isDeleted => deletedAt != null;
-  String get statusLabel => tracking.statusLabel;
+  String get statusLabel => status.label;
 }
 
 /// Full source used after a kind has been selected by the Library workspace.
@@ -155,7 +174,9 @@ class LibraryWorkspaceEntry {
       wishlistItem?.catalogRef ??
       catalogItem?.catalogRef;
   CatalogMediaKind get mediaKind =>
-      catalogSummary?.kind ?? catalogItem?.mediaKind ?? CatalogMediaKind.unknown;
+      catalogSummary?.kind ??
+      catalogItem?.mediaKind ??
+      CatalogMediaKind.unknown;
   OwnedItemRef? get ownedRef => ownedSummary?.ref ?? ownedItem?.ref;
 
   bool get isOwned => ownedSummary != null || ownedItem != null;
@@ -204,9 +225,17 @@ class LibraryWorkspaceEntry {
   }
 
   MediaTracking get tracking =>
-      trackingSummary?.tracking ??
       trackingEntry?.mediaTracking ??
-      const MediaTracking(status: MediaTrackingStatus.none);
+      (trackingSummary == null
+          ? const MediaTracking(status: MediaTrackingStatus.none)
+          : MediaTracking(
+              status: trackingSummary!.status,
+              rating: trackingSummary!.rating,
+              startedAt: trackingSummary!.startedAt,
+              completedAt: trackingSummary!.completedAt,
+              lastActivityAt: trackingSummary!.updatedAt,
+              notes: trackingSummary!.notes,
+            ));
 
   String? get ownerLabel =>
       ownedSummary?.ownerLabel ?? ownedItem?.ownerLabel ?? fallbackOwnerLabel;

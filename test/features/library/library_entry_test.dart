@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -36,7 +36,7 @@ void main() {
           entityType: CatalogEntityType.work,
           id: 'comic-1',
         ),
-        tracking: const MediaTracking(status: MediaTrackingStatus.inProgress),
+        status: MediaTrackingStatus.inProgress,
         updatedAt: DateTime.utc(2026, 5, 12),
       ),
     );

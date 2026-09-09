@@ -182,7 +182,11 @@ void main() {
     );
 
     expect(state.ownedCount, 2);
-    expect(state.entries.map((entry) => entry.catalogRef?.kind),
-        containsAll(<String>['book', 'comic']));
+    expect(
+        state.entries.map((entry) => entry.catalogRef?.kind),
+        containsAll(<CatalogMediaKind>[
+          CatalogMediaKind.book,
+          CatalogMediaKind.comic,
+        ]));
   });
 }
