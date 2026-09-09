@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_result
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
@@ -102,7 +103,13 @@ void main() {
     final visible = comicAddResultPolicy.filterCoreResults(
       items: [owned, variant, regular],
       state: state,
-      ownedCatalogItemIds: {'comic-owned'},
+      ownedCatalogRefs: {
+        CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityType.work,
+          id: 'comic-owned',
+        ),
+      },
     );
     final visibleProviders = comicAddResultPolicy.filterProviderResults(
       candidates: const [

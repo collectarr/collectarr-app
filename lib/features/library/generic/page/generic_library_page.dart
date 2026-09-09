@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repos
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -161,7 +162,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   String? _selectionAnchorId;
   var _filterSelection = LibraryFilterSelection.none;
   final _detailHydrationInFlight = <String>{};
-  Set<String> _activeLoanOwnedItemIds = const {};
+  Set<OwnedItemRef> _activeLoanOwnedItemIds = const {};
   List<LibraryFolderPreset> _pinnedFolderPresets = const [];
   String? _activeSmartListId;
   String? _activeSmartListName;
@@ -612,7 +613,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       (item) =>
           _selection.itemIds.contains(item.node.id) &&
           item.source.ownedRef != null &&
-          !_activeLoanOwnedItemIds.contains(item.source.ownedRef?.id.value),
+          !_activeLoanOwnedItemIds.contains(item.source.ownedRef),
     );
   }
 

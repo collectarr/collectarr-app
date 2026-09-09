@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -19,7 +20,7 @@ class LibraryFilterEngine {
     required LibrarySearchDocument searchDoc,
     required LibraryKindModule type,
     LibraryProjectionIndex? index,
-    Set<String> activeLoanOwnedItemIds = const {},
+    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
   }) {
@@ -152,7 +153,7 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryKindModule type,
     LibraryFilterSelection filters,
-    Set<String> activeLoanOwnedItemIds,
+    Set<OwnedItemRef> activeLoanOwnedItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
   ) {
     if (!filters.hasActiveFilters) {
@@ -220,16 +221,16 @@ class LibraryFilterEngine {
   bool _matchesLoanFilter(
     LibraryProjectionItem item,
     LibraryLoanStatusFilter filter,
-    Set<String> activeLoanOwnedItemIds,
+    Set<OwnedItemRef> activeLoanOwnedItemIds,
   ) {
     if (filter == LibraryLoanStatusFilter.all) {
       return true;
     }
-    final ownedItemId = item.source.ownedRef?.id.value;
-    if (ownedItemId == null) {
+    final ownedRef = item.source.ownedRef;
+    if (ownedRef == null) {
       return false;
     }
-    final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedItemId);
+    final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedRef);
     return switch (filter) {
       LibraryLoanStatusFilter.all => true,
       LibraryLoanStatusFilter.onLoan => hasActiveLoan,

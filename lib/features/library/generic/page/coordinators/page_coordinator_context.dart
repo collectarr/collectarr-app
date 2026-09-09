@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -84,7 +85,7 @@ class LibraryPageCoordinatorContext {
     required List<LibrarySidebarScopeSnapshot> Function() getScopeHistory,
     required void Function(List<LibrarySidebarScopeSnapshot> value)
         setScopeHistory,
-    required Set<String> Function() getActiveLoanOwnedItemIds,
+    required Set<OwnedItemRef> Function() getActiveLoanOwnedItemIds,
     required Set<String> Function() getPinnedSortFavoriteIds,
     required void Function(Set<String> value) setPinnedSortFavoriteIds,
     required Set<String> Function() getPinnedColumnFavoriteKeys,
@@ -214,7 +215,7 @@ class LibraryPageCoordinatorContext {
   final void Function(String? value) _setActiveSmartListName;
   final List<LibrarySidebarScopeSnapshot> Function() _getScopeHistory;
   final void Function(List<LibrarySidebarScopeSnapshot> value) _setScopeHistory;
-  final Set<String> Function() _getActiveLoanOwnedItemIds;
+  final Set<OwnedItemRef> Function() _getActiveLoanOwnedItemIds;
   final Set<String> Function() _getPinnedSortFavoriteIds;
   final void Function(Set<String> value) _setPinnedSortFavoriteIds;
   final Set<String> Function() _getPinnedColumnFavoriteKeys;
@@ -309,7 +310,7 @@ class LibraryPageCoordinatorContext {
   set scopeHistory(List<LibrarySidebarScopeSnapshot> value) =>
       _setScopeHistory(value);
 
-  Set<String> get activeLoanOwnedItemIds => _getActiveLoanOwnedItemIds();
+  Set<OwnedItemRef> get activeLoanOwnedItemIds => _getActiveLoanOwnedItemIds();
 
   Set<String> get pinnedSortFavoriteIds => _getPinnedSortFavoriteIds();
   set pinnedSortFavoriteIds(Set<String> value) =>

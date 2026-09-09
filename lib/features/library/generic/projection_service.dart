@@ -25,7 +25,7 @@ class LibraryProjectionService {
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<String> activeLoanOwnedItemIds = const {},
+    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     final fields = libraryKindWorkspaceForKind(type.kind).fields;

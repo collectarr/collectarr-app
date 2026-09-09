@@ -474,16 +474,16 @@ class LibraryPageDialogCoordinator {
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final context = _page.context;
-    final ownedItemsById = <String, OwnedItem>{};
+    final ownedItemsByRef = <OwnedItemRef, OwnedItem>{};
     for (final item in projection.filteredItems) {
       final ownedItem = item.source.ownedItem;
       if (_page.selection.itemIds.contains(item.node.id) &&
           ownedItem != null &&
-          !_page.activeLoanOwnedItemIds.contains(ownedItem.id)) {
-        ownedItemsById[ownedItem.id] = ownedItem;
+          !_page.activeLoanOwnedItemIds.contains(ownedItem.ref)) {
+        ownedItemsByRef[ownedItem.ref] = ownedItem;
       }
     }
-    final ownedItems = ownedItemsById.values.toList(growable: false);
+    final ownedItems = ownedItemsByRef.values.toList(growable: false);
     if (ownedItems.isEmpty || !_page.mounted) return;
 
     final draft = await showDialog<BatchLoanDraft>(

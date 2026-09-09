@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
@@ -266,7 +267,7 @@ class LibraryAddSearchPaneRequest {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     this.coreMatchSummary,
     this.providerMatchSummary,
     required this.resultPolicy,
@@ -297,7 +298,7 @@ class LibraryAddSearchPaneRequest {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(LibraryAddCatalogItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final LibraryAddResultPolicy resultPolicy;

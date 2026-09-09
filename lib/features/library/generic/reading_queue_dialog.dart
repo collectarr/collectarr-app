@@ -80,9 +80,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       for (final entry in widget.trackingEntries)
         if (!entry.isDeleted && entry.ownedRef != null) entry.ownedRef!: entry,
     };
-    final trackingByItemId = {
+    final trackingByCatalogRef = {
       for (final entry in widget.trackingEntries)
-        if (!entry.isDeleted) entry.itemId: entry,
+        if (!entry.isDeleted) _rootCatalogRef(entry.catalogRef): entry,
     };
     final entries = <_ReadingQueueDialogEntry>[];
     for (final queuedRef in queueRefs) {
@@ -104,7 +104,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
           summary: summary,
           catalogSummary: catalogSummary,
           trackingEntry: trackingByOwnedRef[summary.ref] ??
-              trackingByItemId[catalogRef.id],
+              trackingByCatalogRef[_rootCatalogRef(catalogRef)],
         ),
       );
     }
@@ -350,6 +350,21 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       ),
     );
   }
+}
+
+CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
+  final rootId = ref.rootId;
+  if (rootId != null && rootId.isNotEmpty) {
+    return ref.copyWith(
+      id: rootId,
+      entityType: CatalogEntityType.work,
+      rootId: null,
+    );
+  }
+  if (ref.entityType != CatalogEntityType.work) {
+    return ref.copyWith(entityType: CatalogEntityType.work);
+  }
+  return ref;
 }
 
 class _ReadingQueueDialogEntry {

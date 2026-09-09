@@ -653,8 +653,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     state.selection.selectedProviderCandidateId,
                 checkedResultIds: state.selection.checkedResultIds,
                 checkedProviderIds: state.selection.checkedProviderIds,
-                ownedCatalogItemIds:
-                    ownedByCatalogRef.keys.map((ref) => ref.id).toSet(),
+                ownedCatalogRefs: ownedByCatalogRef.keys.toSet(),
                 coreMatchSummary: (item) =>
                     addCapability.search.coreMatchSummary(item, searchContext),
                 providerMatchSummary: (candidate) => addCapability.search
@@ -695,7 +694,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         searchPaneRequest.selectedProviderCandidateId,
                     checkedResultIds: searchPaneRequest.checkedResultIds,
                     checkedProviderIds: searchPaneRequest.checkedProviderIds,
-                    ownedCatalogItemIds: searchPaneRequest.ownedCatalogItemIds,
+                    ownedCatalogRefs: searchPaneRequest.ownedCatalogRefs,
                     coreMatchSummary: searchPaneRequest.coreMatchSummary,
                     providerMatchSummary:
                         searchPaneRequest.providerMatchSummary,

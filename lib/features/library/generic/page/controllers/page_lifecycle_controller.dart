@@ -242,8 +242,8 @@ abstract final class _LibraryPageLifecycleControllerOps {
       final db = state.ref.read(localDatabaseProvider);
       final repo = LoanRepository(db);
       final activeLoans = await repo.getActiveLoans();
-      final next = <String>{
-        for (final loan in activeLoans) loan.ownedRef.id.value,
+      final next = <OwnedItemRef>{
+        for (final loan in activeLoans) loan.ownedRef,
       };
       if (!state.mounted ||
           loadToken != state._activeLoanIdsLoadToken ||

@@ -1,6 +1,7 @@
 import 'library_add_pane_dependencies.dart';
 import 'library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 // ---------------------------------------------------------------------------
 // Unified grouped search results.
@@ -164,7 +165,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     required this.queuedProviderIngests,
     required this.providerLabel,
     required this.onSelectResult,
@@ -181,7 +182,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String Function(String providerId) providerLabel;
   final ValueChanged<String> onSelectResult;
@@ -249,7 +250,7 @@ class LibraryAddUnifiedGroupNodeState
           selected: group.coreItems.first.id == widget.selectedResultId,
           checked: widget.checkedResultIds.contains(group.coreItems.first.id),
           isOwned:
-              widget.ownedCatalogItemIds.contains(group.coreItems.first.id),
+              widget.ownedCatalogRefs.contains(group.coreItems.first.catalogRef),
           onSelect: () => widget.onSelectResult(group.coreItems.first.id),
           onToggleCheck: () =>
               widget.onToggleResultCheck(group.coreItems.first.id),
@@ -423,7 +424,9 @@ class LibraryAddUnifiedGroupNodeState
               selected: group.coreItems[i].id == widget.selectedResultId,
               checked: widget.checkedResultIds.contains(group.coreItems[i].id),
               isOwned:
-                  widget.ownedCatalogItemIds.contains(group.coreItems[i].id),
+                  widget.ownedCatalogRefs.contains(
+                    group.coreItems[i].catalogRef,
+                  ),
               onSelect: () => widget.onSelectResult(group.coreItems[i].id),
               onToggleCheck: () =>
                   widget.onToggleResultCheck(group.coreItems[i].id),

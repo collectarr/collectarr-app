@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
@@ -61,12 +62,12 @@ class LibraryAddResultPolicyState {
 class LibraryAddResultPolicyContext {
   const LibraryAddResultPolicyContext({
     required this.state,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     required this.defaultValues,
   });
 
   final LibraryAddResultPolicyState state;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final Map<String, bool> defaultValues;
 
   bool optionIsEnabled(String id) {
@@ -101,11 +102,11 @@ class LibraryAddResultPolicy {
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,
-    Set<String> ownedCatalogItemIds = const {},
+    Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
     return LibraryAddResultPolicyContext(
       state: state,
-      ownedCatalogItemIds: ownedCatalogItemIds,
+      ownedCatalogRefs: ownedCatalogRefs,
       defaultValues: {
         for (final option in options) option.id: option.initialValue,
       },
@@ -115,11 +116,11 @@ class LibraryAddResultPolicy {
   List<LibraryAddCatalogItem> filterCoreResults({
     required List<LibraryAddCatalogItem> items,
     required LibraryAddResultPolicyState state,
-    Set<String> ownedCatalogItemIds = const {},
+    Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
     final resultContext = context(
       state: state,
-      ownedCatalogItemIds: ownedCatalogItemIds,
+      ownedCatalogRefs: ownedCatalogRefs,
     );
     final predicate = coreResultVisibility;
     if (predicate == null) {
@@ -133,11 +134,11 @@ class LibraryAddResultPolicy {
   List<ProviderCandidate> filterProviderResults({
     required List<ProviderCandidate> candidates,
     required LibraryAddResultPolicyState state,
-    Set<String> ownedCatalogItemIds = const {},
+    Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
     final resultContext = context(
       state: state,
-      ownedCatalogItemIds: ownedCatalogItemIds,
+      ownedCatalogRefs: ownedCatalogRefs,
     );
     final predicate = providerResultVisibility;
     if (predicate == null) {

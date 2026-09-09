@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -416,13 +417,13 @@ final class LibrarySessionAsyncState {
   final bool isLoading;
   final Object? error;
   final Set<String> detailHydrationInFlight;
-  final Set<String> activeLoanOwnedItemIds;
+  final Set<OwnedItemRef> activeLoanOwnedItemIds;
 
   LibrarySessionAsyncState copyWith({
     bool? isLoading,
     Object? Function()? error,
     Set<String>? detailHydrationInFlight,
-    Set<String>? activeLoanOwnedItemIds,
+    Set<OwnedItemRef>? activeLoanOwnedItemIds,
   }) {
     return LibrarySessionAsyncState(
       isLoading: isLoading ?? this.isLoading,

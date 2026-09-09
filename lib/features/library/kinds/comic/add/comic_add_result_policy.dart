@@ -31,7 +31,7 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   ],
   coreResultVisibility: (item, context) {
     if (context.optionIsEnabled(comicAddHideOwnedOptionId) &&
-        context.ownedCatalogItemIds.contains(item.id)) {
+        context.ownedCatalogRefs.contains(item.catalogRef)) {
       return false;
     }
     if (context.optionIsEnabled(comicAddHideVariantsOptionId) &&

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -95,14 +96,14 @@ final class LibraryAddSessionState {
     if (!selection.showCoreResults) {
       return const <LibraryAddCatalogItem>[];
     }
-    final ownedIds = <String>{
+    final ownedRefs = <CatalogEntityRef>{
       for (final item in search.results)
-        if (isOwnedCatalogItem(item)) item.id,
+        if (isOwnedCatalogItem(item)) item.catalogRef,
     };
     return policy.filterCoreResults(
       items: search.results,
       state: selection.resultPolicyState,
-      ownedCatalogItemIds: ownedIds,
+      ownedCatalogRefs: ownedRefs,
     );
   }
 

@@ -302,8 +302,8 @@ Widget buildMovieAddSearchPane(
                                       ),
                                     ],
                                     if (isCore &&
-                                        request.ownedCatalogItemIds
-                                            .contains(item.id)) ...[
+                                        request.ownedCatalogRefs
+                                            .contains(item.catalogRef)) ...[
                                       const SizedBox(height: 5),
                                       const LibraryAddResultBadge(
                                           'In collection'),

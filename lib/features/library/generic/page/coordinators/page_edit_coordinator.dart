@@ -70,7 +70,7 @@ class LibraryPageEditCoordinator {
     final customFieldRepo = CustomFieldRepository(db);
     final itemImageRepo = ItemImageRepository(db);
     final cached = (await CatalogSnapshotRepository(db)
-        .findByIds({catalogItem.id}))[catalogItem.id];
+        .findByRefs([catalogItem.catalogRef]))[catalogItem.catalogRef];
     final freshMetadataItem = cached ?? catalogItem;
     OwnedItem? owned = ownedItemOverride;
     owned ??= item.source.ownedItem;

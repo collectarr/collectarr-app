@@ -45,7 +45,7 @@ class LibraryProjectionRequest {
   final Map<String, List<String>> customFieldValuesByItem;
   final Map<String, Map<String, String>> customFieldValuesByDefinitionByItem;
   final List<CustomFieldDefinition> customFieldDefinitions;
-  final Set<String> activeLoanOwnedItemIds;
+  final Set<OwnedItemRef> activeLoanOwnedItemIds;
   final LibrarySearchTarget searchTarget;
 
   @override

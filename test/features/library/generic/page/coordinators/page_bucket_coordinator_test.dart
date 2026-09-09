@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -336,7 +337,7 @@ final class _CoordinatorHarness {
       setActiveSmartListName: (_) {},
       getScopeHistory: () => const [],
       setScopeHistory: (_) {},
-      getActiveLoanOwnedItemIds: () => const <String>{},
+      getActiveLoanOwnedItemIds: () => const <OwnedItemRef>{},
       getPinnedSortFavoriteIds: () => const <String>{},
       setPinnedSortFavoriteIds: (_) {},
       getPinnedColumnFavoriteKeys: () => const <String>{},

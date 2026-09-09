@@ -3,6 +3,8 @@ import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dar
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
@@ -273,7 +275,13 @@ class _ComicSearchRow extends StatelessWidget {
     final checked = entry.catalog != null &&
         request.checkedResultIds.contains(entry.catalogId);
     final owned = entry.catalog != null &&
-        request.ownedCatalogItemIds.contains(entry.catalogId);
+        request.ownedCatalogRefs.contains(
+          CatalogEntityRef(
+            kind: CatalogMediaKind.comic,
+            entityType: CatalogEntityType.work,
+            id: entry.catalogId,
+          ),
+        );
     final background = selected
         ? Color.alphaBlend(
             request.accent.withValues(alpha: 0.2), palette.selection)

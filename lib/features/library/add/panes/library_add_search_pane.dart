@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/add/contracts/library_add_result
 
 import 'library_add_pane_dependencies.dart';
 import 'library_add_search_unified.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 class LibraryAddSearchPane extends StatelessWidget {
   const LibraryAddSearchPane({
@@ -19,7 +20,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     this.coreMatchSummary,
     this.providerMatchSummary,
     required this.isWideLayout,
@@ -50,7 +51,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(LibraryAddCatalogItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final bool isWideLayout;
@@ -105,7 +106,7 @@ class LibraryAddSearchPane extends StatelessWidget {
               selectedProviderCandidateId: selectedProviderCandidateId,
               checkedResultIds: checkedResultIds,
               checkedProviderIds: checkedProviderIds,
-              ownedCatalogItemIds: ownedCatalogItemIds,
+              ownedCatalogRefs: ownedCatalogRefs,
               coreMatchSummary: coreMatchSummary,
               providerMatchSummary: providerMatchSummary,
               onSearchCore: onSearchCore,
@@ -344,7 +345,7 @@ class _SearchResultsList extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     this.coreMatchSummary,
     this.providerMatchSummary,
     required this.onSearchCore,
@@ -369,7 +370,7 @@ class _SearchResultsList extends StatelessWidget {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final String? Function(LibraryAddCatalogItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final VoidCallback onSearchCore;
@@ -418,7 +419,7 @@ class _SearchResultsList extends StatelessWidget {
         selectedResultId: selectedResultId,
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
-        ownedCatalogItemIds: ownedCatalogItemIds,
+        ownedCatalogRefs: ownedCatalogRefs,
         providerLabel: type.metadata.providerLabel,
         coreMatchSummary: coreMatchSummary,
         providerMatchSummary: providerMatchSummary,
@@ -454,7 +455,7 @@ class _SearchResultsList extends StatelessWidget {
             selectedResultId: selectedResultId,
             selectedProviderCandidateId: selectedProviderCandidateId,
             checkedResultIds: checkedResultIds,
-            ownedCatalogItemIds: ownedCatalogItemIds,
+            ownedCatalogRefs: ownedCatalogRefs,
             queuedProviderIngests: queuedProviderIngests,
             providerLabel: type.metadata.providerLabel,
             onSelectResult: onSelectResult,
@@ -504,7 +505,7 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     required this.providerLabel,
     this.coreMatchSummary,
     this.providerMatchSummary,
@@ -521,7 +522,7 @@ class _SearchResultsGrid extends StatelessWidget {
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final String Function(String providerId) providerLabel;
   final String? Function(LibraryAddCatalogItem item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
@@ -554,7 +555,7 @@ class _SearchResultsGrid extends StatelessWidget {
         final item = entry.item;
         final candidate = entry.candidate;
         final isCore = item != null;
-        final isOwned = isCore && ownedCatalogItemIds.contains(item.id);
+        final isOwned = isCore && ownedCatalogRefs.contains(item.catalogRef);
         final selected = isCore
             ? item.id == selectedResultId
             : candidate!.localCatalogId == selectedProviderCandidateId;
