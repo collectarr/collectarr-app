@@ -23,8 +23,6 @@ class WishlistItem {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  String get itemId => catalogRef.rootId ?? catalogRef.id;
-
   bool get isDeleted => deletedAt != null;
 
   Map<String, Object?> toSyncPayload() {

@@ -72,7 +72,7 @@ final class WishlistMutations {
           }
         }
       },
-      eventsToEmit: [WishlistChanged(itemId)],
+      eventsToEmit: [WishlistChanged(localRef)],
     );
   }
 
@@ -106,7 +106,7 @@ final class WishlistMutations {
           }
         }
       },
-      eventsToEmit: [WishlistChanged(itemId)],
+      eventsToEmit: [WishlistChanged(localRef)],
     );
   }
 
@@ -120,7 +120,7 @@ final class WishlistMutations {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final itemId = item.itemId;
+    final itemId = item.catalogRef.rootId ?? item.catalogRef.id;
     final updatedCatalogRef = catalogRef ?? item.catalogRef;
     final updated = WishlistItem(
       id: item.id,
@@ -141,7 +141,7 @@ final class WishlistMutations {
             .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
         await syncQueue.enqueue(_syncChangeForCatalogItemId(itemId, now));
       },
-      eventsToEmit: [WishlistChanged(itemId)],
+      eventsToEmit: [WishlistChanged(updatedCatalogRef)],
     );
     return updated;
   }
@@ -157,9 +157,7 @@ final class WishlistMutations {
       wishlistItemId: wishlistItemId,
       catalogRef: catalogRef,
     );
-    final itemId = items.isEmpty
-        ? catalogRef?.rootId ?? catalogRef?.id ?? ''
-        : items.first.itemId;
+    final eventRef = items.isEmpty ? catalogRef : items.first.catalogRef;
     final localRef = items.isEmpty ? null : items.first.catalogRef;
     await mutationRunner.run(
       origin: origin,
@@ -180,7 +178,9 @@ final class WishlistMutations {
           );
         }
       },
-      eventsToEmit: [WishlistChanged(itemId)],
+      eventsToEmit: [
+        if (eventRef != null) WishlistChanged(eventRef),
+      ],
     );
   }
 

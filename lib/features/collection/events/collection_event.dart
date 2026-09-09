@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 @immutable
 sealed class CollectionEvent {
@@ -66,18 +67,18 @@ final class CatalogItemChanged extends CollectionEvent {
 }
 
 final class WishlistChanged extends CollectionEvent {
-  const WishlistChanged(this.catalogItemId);
-  final String catalogItemId;
+  const WishlistChanged(this.catalogRef);
+  final CatalogEntityRef catalogRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is WishlistChanged &&
           runtimeType == other.runtimeType &&
-          catalogItemId == other.catalogItemId;
+          catalogRef == other.catalogRef;
 
   @override
-  int get hashCode => catalogItemId.hashCode;
+  int get hashCode => catalogRef.hashCode;
 }
 
 final class TrackingChanged extends CollectionEvent {

@@ -131,7 +131,7 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(events, [
       OwnedItemAdded(item.id.value),
-      const WishlistChanged('movie-200'),
+      WishlistChanged(testCatalogRef('movie-200', kind: 'movie')),
     ]);
     await sub.cancel();
   });
@@ -145,9 +145,9 @@ void main() {
         action: () async {
           throw Exception('Database mutation failed');
         },
-        eventsToEmit: const [
+        eventsToEmit: [
           OwnedItemAdded('should-not-emit'),
-          WishlistChanged('should-not-emit'),
+          WishlistChanged(testCatalogRef('should-not-emit', kind: 'movie')),
         ],
       ),
       throwsA(isA<Exception>()),

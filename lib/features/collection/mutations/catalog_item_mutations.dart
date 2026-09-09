@@ -120,7 +120,7 @@ final class CatalogItemMutations {
       },
       eventsToEmit: [
         CatalogItemChanged(snapshot.id),
-        for (final item in wishlistEntries) WishlistChanged(item.id),
+        for (final item in wishlistEntries) WishlistChanged(item.catalogRef),
         for (final item in trackingList) TrackingChanged(item.id),
       ],
     );

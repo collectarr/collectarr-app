@@ -155,7 +155,9 @@ class _LibraryVideoDetailPageState
       data: (items) => items
           .where(
             (item) =>
-                !item.isDeleted && item.itemId == request.item.source.itemId,
+                !item.isDeleted &&
+                (item.catalogRef.rootId ?? item.catalogRef.id) ==
+                    request.item.source.itemId,
           )
           .toList(growable: false),
       orElse: () => const <WishlistItem>[],

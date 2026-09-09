@@ -113,7 +113,7 @@ final class OwnedItemMutations {
       },
       eventsToEmit: [
         OwnedItemAdded(newItemId),
-        if (wishlistChanged) WishlistChanged(wishlistTargetRef.id),
+        if (wishlistChanged) WishlistChanged(wishlistTargetRef),
       ],
     );
 

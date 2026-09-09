@@ -265,8 +265,8 @@ final class CollectionImportService {
       eventsToEmit: [
         for (final item in ownedItemRefs) OwnedItemAdded(item.id.value),
         for (final entry in trackingEntriesList) TrackingChanged(entry.id),
-        for (final item in wishlistUpserts) WishlistChanged(item.itemId),
-        for (final item in wishlistDeletes) WishlistChanged(item.itemId),
+        for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
+        for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
         for (final snapshot in importedCatalogSnapshots)
           CatalogItemChanged(snapshot.id),
       ],
