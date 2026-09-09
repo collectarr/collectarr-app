@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -33,11 +32,11 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   });
 
   factory ComicOwnedItemCreatePayload.fromOwnedItem(
-    CatalogItemDto item,
+    CatalogEntityRef catalogRef,
     OwnedItem ownedItem,
   ) {
     return ComicOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
+      catalogRef: catalogRef,
       details: ComicOwnedDetailsCodec().draftFromDetails(
         ownedItem.details as ComicOwnedDetails,
       ),

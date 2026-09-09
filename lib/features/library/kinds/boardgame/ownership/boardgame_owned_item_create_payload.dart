@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -28,11 +27,11 @@ final class BoardgameOwnedItemCreatePayload implements OwnedItemCreatePayload {
   });
 
   factory BoardgameOwnedItemCreatePayload.fromOwnedItem(
-    CatalogItemDto item,
+    CatalogEntityRef catalogRef,
     OwnedItem ownedItem,
   ) {
     return BoardgameOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
+      catalogRef: catalogRef,
       details: BoardgameOwnedDetailsCodec().draftFromDetails(
         ownedItem.details as BoardgameOwnedDetails,
       ),

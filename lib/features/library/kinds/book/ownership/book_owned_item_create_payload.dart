@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
@@ -28,11 +27,11 @@ final class BookOwnedItemCreatePayload implements OwnedItemCreatePayload {
   });
 
   factory BookOwnedItemCreatePayload.fromOwnedItem(
-    CatalogItemDto item,
+    CatalogEntityRef catalogRef,
     OwnedItem ownedItem,
   ) {
     return BookOwnedItemCreatePayload(
-      catalogRef: item.catalogRef,
+      catalogRef: catalogRef,
       details: BookOwnedDetailsCodec().draftFromDetails(
         ownedItem.details as BookOwnedDetails,
       ),

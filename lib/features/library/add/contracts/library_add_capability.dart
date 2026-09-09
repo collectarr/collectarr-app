@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -70,7 +69,7 @@ typedef LibraryAddOwnedPayloadBuilder = OwnedItemCreatePayload Function(
 );
 
 typedef LibraryAddExistingOwnedPayloadBuilder = OwnedItemCreatePayload Function(
-  CatalogItemDto item,
+  CatalogEntityRef catalogRef,
   OwnedItem ownedItem,
 );
 
@@ -389,7 +388,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   }) {
     final payload = existingOwnedPayloadBuilder?.call(
-      item.toTransportItem(),
+      item.catalogRef,
       ownedItem,
     );
     if (payload == null) {
