@@ -121,7 +121,7 @@ class _LibraryVideoDetailPageState
       return;
     }
     await ref.read(wishlistMutationsProvider).removeFromWishlist(
-          widget.request.item.source.itemId,
+          catalogRef: wishlistItem.catalogRef,
           wishlistItemId: wishlistItem.id,
         );
   }
@@ -316,7 +316,7 @@ class _LibraryVideoDetailPageState
             ),
             const SizedBox(height: 16),
             WatchHistorySection(
-              itemId: request.item.source.itemId,
+              catalogRef: itemRef,
               accent: request.accent,
               defaultTargetRef: itemRef,
               targetOptions: watchHistoryTargets,

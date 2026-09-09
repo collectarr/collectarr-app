@@ -26,22 +26,6 @@ class WishlistItemsCacheRepository {
     return row == null ? null : _fromCache(row);
   }
 
-  Future<WishlistItem?> findActiveByItemId(String itemId) async {
-    final items = await listActiveByItemId(itemId);
-    return items.firstOrNull;
-  }
-
-  Future<List<WishlistItem>> listActiveByItemId(String itemId) async {
-    final rows = await (_db.select(_db.wishlistItemsCache)
-          ..where((row) => row.deletedAt.isNull())
-          ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
-        .get();
-    return rows
-        .map(_fromCache)
-        .where((item) => item.itemId == itemId)
-        .toList(growable: false);
-  }
-
   Future<WishlistItem?> findActiveByCatalogRef(
     CatalogEntityRef catalogRef,
   ) async {
@@ -61,26 +45,6 @@ class WishlistItemsCacheRepository {
       for (final row in rows)
         if (wanted.contains(_fromCache(row).catalogRef)) _fromCache(row),
     ];
-  }
-
-  Future<List<WishlistItem>> findActiveByItemIds(
-      Iterable<String> itemIds) async {
-    final values = itemIds.toSet().toList(growable: false);
-    if (values.isEmpty) {
-      return const [];
-    }
-    final items = <WishlistItem>[];
-    final rows = await (_db.select(_db.wishlistItemsCache)
-          ..where((row) => row.deletedAt.isNull()))
-        .get();
-    final requested = values.toSet();
-    for (final row in rows) {
-      final item = _fromCache(row);
-      if (requested.contains(item.itemId)) {
-        items.add(item);
-      }
-    }
-    return items;
   }
 
   Future<void> upsert(WishlistItem item) {

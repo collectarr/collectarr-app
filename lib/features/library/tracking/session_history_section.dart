@@ -96,27 +96,22 @@ SessionHistoryLabels sessionHistoryLabelsForKind(CatalogMediaKind kind) =>
 class WatchHistorySection extends ConsumerWidget {
   const WatchHistorySection({
     super.key,
-    required this.itemId,
+    required this.catalogRef,
     required this.accent,
-    this.catalogRef,
     this.labels = SessionHistoryLabels.watch,
     this.defaultTargetRef,
     this.targetOptions = const <WatchHistoryTargetOption>[],
   });
 
-  final String itemId;
   final Color accent;
-  final CatalogEntityRef? catalogRef;
+  final CatalogEntityRef catalogRef;
   final SessionHistoryLabels labels;
   final CatalogEntityRef? defaultTargetRef;
   final List<WatchHistoryTargetOption> targetOptions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sessions = catalogRef == null
-        ? ref.watch(watchSessionsByItemProvider)[itemId] ??
-            const <WatchSession>[]
-        : ref.watch(watchSessionsByCatalogRefProvider(catalogRef!));
+    final sessions = ref.watch(watchSessionsByCatalogRefProvider(catalogRef));
     final runSummary = const SessionHistoryPresenter().build(sessions);
     final palette = appPalette(context);
     final resolvedTargets = _resolvedTargetOptions();
@@ -206,13 +201,7 @@ class WatchHistorySection extends ConsumerWidget {
     if (targetOptions.isNotEmpty) {
       return targetOptions;
     }
-    final fallbackRef = defaultTargetRef ??
-        catalogRef ??
-        CatalogEntityRef(
-          kind: 'unknown',
-          entityType: CatalogEntityType.work,
-          id: itemId,
-        );
+    final fallbackRef = defaultTargetRef ?? catalogRef;
     return [
       WatchHistoryTargetOption(
         ref: fallbackRef,

@@ -108,7 +108,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'grading',
     'hdr',
     'audio',
-    'subtitle',
     'platform',
     'region',
     'creator',

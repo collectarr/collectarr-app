@@ -128,9 +128,8 @@ final class TrackingMutations {
       catalogRef = _catalogRefForAnchor(catalogRef, anchor);
     }
 
-    final existingEntries = await trackingEntries.findActiveByItemIds(
-      [catalogRef.rootId ?? catalogRef.id],
-    );
+    final existingEntries =
+        await trackingEntries.findActiveByCatalogRoots([catalogRef]);
     final existing = existingEntries.isEmpty ? null : existingEntries.first;
     final entryId = existing?.id ?? idGenerator();
 
@@ -241,9 +240,8 @@ final class TrackingMutations {
     final resolvedIsDigital = typedOwned == null
         ? isDigital
         : collectarrTypedOwnedItemIsDigital(typedOwned.$2);
-    final existingEntries = await trackingEntries.findActiveByItemIds(
-      [resolvedCatalogRef.rootId ?? resolvedCatalogRef.id],
-    );
+    final existingEntries =
+        await trackingEntries.findActiveByCatalogRoots([resolvedCatalogRef]);
     final existing = existingEntries.isEmpty
         ? null
         : existingEntries.firstWhere(

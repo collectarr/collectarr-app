@@ -1,11 +1,8 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -20,17 +17,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ActivityTimelineSection extends ConsumerStatefulWidget {
   const ActivityTimelineSection({
     super.key,
-    required this.itemId,
     required this.itemRef,
-    required this.ownedItemIds,
+    required this.ownedItemRefs,
     required this.accent,
   });
 
-  final String itemId;
   final CatalogEntityRef itemRef;
 
-  /// All owned-item IDs for this catalog item (needed for loan lookup).
-  final List<String> ownedItemIds;
+  /// All owned-item references for this catalog item (needed for loan lookup).
+  final List<OwnedItemRef> ownedItemRefs;
   final Color accent;
 
   @override
@@ -51,7 +46,7 @@ class _ActivityTimelineSectionState
   @override
   void didUpdateWidget(covariant ActivityTimelineSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.itemId != oldWidget.itemId) {
+    if (widget.itemRef != oldWidget.itemRef) {
       _loans = null;
       _loadLoans();
     }
@@ -61,15 +56,8 @@ class _ActivityTimelineSectionState
     final db = ref.read(localDatabaseProvider);
     final repo = LoanRepository(db);
     final allLoans = <Loan>[];
-    for (final ownedItemId in widget.ownedItemIds) {
-      allLoans.addAll(
-        await repo.getLoansForItem(
-          OwnedItemRef(
-            kind: CatalogMediaKind.unknown,
-            id: OwnedItemId(ownedItemId),
-          ),
-        ),
-      );
+    for (final ownedItemRef in widget.ownedItemRefs) {
+      allLoans.addAll(await repo.getLoansForItem(ownedItemRef));
     }
     if (mounted) setState(() => _loans = allLoans);
   }
@@ -80,7 +68,11 @@ class _ActivityTimelineSectionState
     final theme = Theme.of(context);
     final ownedItems = ref.watch(collectionSummariesProvider).maybeWhen(
           data: (items) => items
-              .where((i) => i.itemId == widget.itemId)
+              .where(
+                (i) =>
+                    i.catalogRef != null &&
+                    _rootCatalogRef(i.catalogRef!) == widget.itemRef,
+              )
               .toList(growable: false),
           orElse: () => const <OwnedItemSummary>[],
         );
@@ -88,8 +80,7 @@ class _ActivityTimelineSectionState
         ref.watch(trackingEntriesByCatalogRefProvider)[widget.itemRef] ??
             const <TrackingEntry>[];
     final watchSessions =
-        ref.watch(watchSessionsByItemProvider)[widget.itemId] ??
-            const <WatchSession>[];
+        ref.watch(watchSessionsByCatalogRefProvider(widget.itemRef));
     final wishlistItems =
         ref.watch(wishlistByCatalogRefProvider)[widget.itemRef] ??
             const <WishlistItem>[];
@@ -146,6 +137,23 @@ class _ActivityTimelineSectionState
       ),
     );
   }
+}
+
+CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
+  final rootId = ref.rootId;
+  if (rootId != null && rootId.isNotEmpty) {
+    return ref.copyWith(
+      id: rootId,
+      entityType: CatalogEntityType.work,
+      rootId: null,
+    );
+  }
+  if (ref.entityType == CatalogEntityType.ownedCopy ||
+      ref.entityType == CatalogEntityType.copy ||
+      ref.entityType == CatalogEntityType.trackingEntry) {
+    return ref.copyWith(entityType: CatalogEntityType.work);
+  }
+  return ref;
 }
 
 class _ActivityEventTile extends StatelessWidget {

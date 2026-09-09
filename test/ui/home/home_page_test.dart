@@ -43,6 +43,7 @@ void main() {
         testOwnedItem(
           id: 'owned-1',
           itemId: game.id,
+          kind: 'game',
           condition: 'New',
           pricePaidCents: 2499,
           currency: 'USD',
@@ -109,7 +110,12 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedItems: [
-        testOwnedItem(id: 'owned-1', itemId: game.id, updatedAt: now),
+        testOwnedItem(
+          id: 'owned-1',
+          itemId: game.id,
+          kind: 'game',
+          updatedAt: now,
+        ),
       ],
       wishlistItems: const [],
       catalogItems: {game.id: game},
@@ -223,7 +229,12 @@ void main() {
     );
     final shelf = ShelfState.from(
       ownedItems: [
-        testOwnedItem(id: 'owned-game-rail-1', itemId: game.id, updatedAt: now),
+        testOwnedItem(
+          id: 'owned-game-rail-1',
+          itemId: game.id,
+          kind: 'game',
+          updatedAt: now,
+        ),
       ],
       wishlistItems: const [],
       catalogItems: {game.id: game},
@@ -276,6 +287,7 @@ void main() {
     final owned = testOwnedItem(
       id: 'owned-overdue-1',
       itemId: game.id,
+      kind: 'game',
       updatedAt: now,
     );
     final shelf = ShelfState.from(

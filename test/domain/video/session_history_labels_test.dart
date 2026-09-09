@@ -43,14 +43,24 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          watchSessionsByItemProvider.overrideWithValue(
-            const <String, List<WatchSession>>{},
+          watchSessionsByCatalogRefProvider(
+            const CatalogEntityRef(
+              kind: 'book',
+              entityType: CatalogEntityType.work,
+              id: 'book-1',
+            ),
+          ).overrideWithValue(
+            const <WatchSession>[],
           ),
         ],
         child: const MaterialApp(
           home: Scaffold(
             body: WatchHistorySection(
-              itemId: 'book-1',
+              catalogRef: CatalogEntityRef(
+                kind: 'book',
+                entityType: CatalogEntityType.work,
+                id: 'book-1',
+              ),
               accent: Colors.teal,
               labels: SessionHistoryLabels.read,
             ),
@@ -80,16 +90,24 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          watchSessionsByItemProvider.overrideWithValue(
-            <String, List<WatchSession>>{
-              'book-1': [session],
-            },
+          watchSessionsByCatalogRefProvider(
+            const CatalogEntityRef(
+              kind: 'book',
+              entityType: CatalogEntityType.work,
+              id: 'book-1',
+            ),
+          ).overrideWithValue(
+            [session],
           ),
         ],
         child: const MaterialApp(
           home: Scaffold(
             body: WatchHistorySection(
-              itemId: 'book-1',
+              catalogRef: CatalogEntityRef(
+                kind: 'book',
+                entityType: CatalogEntityType.work,
+                id: 'book-1',
+              ),
               accent: Colors.teal,
               labels: SessionHistoryLabels.read,
             ),

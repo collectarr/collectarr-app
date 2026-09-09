@@ -142,7 +142,7 @@ class _TvVideoDetailContributionState
             ],
             const SizedBox(height: 16),
             WatchHistorySection(
-              itemId: request.item.source.itemId,
+              catalogRef: seriesRef,
               accent: request.accent,
               defaultTargetRef: seriesRef,
               targetOptions: watchTargets,

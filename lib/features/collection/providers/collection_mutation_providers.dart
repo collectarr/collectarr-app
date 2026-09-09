@@ -325,7 +325,7 @@ Future<void> _applyProviderEntry(
         origin: origin,
       );
   await ref.read(wishlistMutationsProvider).removeFromWishlist(
-        localRef.id,
+        catalogRef: localRef,
         wishlistItemId: wishlistItemId,
         origin: origin,
       );

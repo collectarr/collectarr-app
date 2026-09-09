@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -146,8 +145,8 @@ void main() {
           wishlistProvider.overrideWith(
             (ref) async => const <WishlistItem>[],
           ),
-          watchSessionsByItemProvider.overrideWith(
-            (ref) => const <String, List<WatchSession>>{},
+          watchSessionsProvider.overrideWith(
+            (ref) async => const <WatchSession>[],
           ),
         ],
         child: MaterialApp.router(routerConfig: router),
@@ -282,8 +281,8 @@ void main() {
               ),
             ],
           ),
-          watchSessionsByItemProvider.overrideWith(
-            (ref) => const <String, List<WatchSession>>{},
+          watchSessionsProvider.overrideWith(
+            (ref) async => const <WatchSession>[],
           ),
         ],
         child: MaterialApp.router(routerConfig: router),
@@ -369,8 +368,8 @@ void main() {
             (ref) async => const <OwnedItemSummary>[],
           ),
           wishlistProvider.overrideWith((ref) async => const <WishlistItem>[]),
-          watchSessionsByItemProvider.overrideWith(
-            (ref) => const <String, List<WatchSession>>{},
+          watchSessionsProvider.overrideWith(
+            (ref) async => const <WatchSession>[],
           ),
         ],
         child: MaterialApp.router(routerConfig: router),

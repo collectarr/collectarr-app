@@ -64,7 +64,6 @@ class LibraryCollectionActions {
       wishlistItem: item.source.wishlistItem,
     );
     return wishlistMutations.removeFromWishlist(
-      item.source.catalogItem!.id,
       wishlistItemId: item.source.wishlistItem?.id,
       catalogRef: item.source.catalogItem!.catalogRefForPersonalAnchor(anchor),
     );

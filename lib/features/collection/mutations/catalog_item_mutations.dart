@@ -70,9 +70,14 @@ final class CatalogItemMutations {
     CatalogImportSnapshot snapshot,
   ) async {
     final now = DateTime.now().toUtc();
-    final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
+    final localRef = CatalogEntityRef(
+      kind: snapshot.kind.apiValue,
+      entityType: CatalogEntityType.work,
+      id: localItemId,
+    );
+    final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
     final trackingList =
-        await trackingEntries.findActiveByItemIds([localItemId]);
+        await trackingEntries.findActiveByCatalogRefs([localRef]);
     final targetRef = snapshot.toTransportItem().catalogRef;
 
     return mutationRunner.run(

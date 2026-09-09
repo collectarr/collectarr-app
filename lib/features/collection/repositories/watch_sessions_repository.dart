@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
@@ -27,21 +28,22 @@ class WatchSessionsRepository {
     return sessions;
   }
 
-  Future<List<WatchSession>> listActiveByItemId(String itemId) {
-    return listActiveByItemIds([itemId]);
-  }
-
-  Future<List<WatchSession>> listActiveByItemIds(
-    Iterable<String> itemIds,
+  Future<List<WatchSession>> listActiveByCatalogRefs(
+    Iterable<CatalogEntityRef> catalogRefs,
   ) async {
-    final ids = itemIds
-        .where((value) => value.isNotEmpty)
-        .toSet()
-        .toList(growable: false);
-    if (ids.isEmpty) return const [];
+    final refsByKind = <CatalogMediaKind, Set<String>>{};
+    for (final ref in catalogRefs) {
+      final rootRef = _rootCatalogRef(ref);
+      refsByKind
+          .putIfAbsent(rootRef.mediaKind, () => <String>{})
+          .add(rootRef.id);
+    }
+    if (refsByKind.isEmpty) return const [];
     final sessions = <WatchSession>[];
-    for (final codec in _codecs.values) {
-      sessions.addAll(await codec.listActive(_db, itemIds: ids));
+    for (final entry in refsByKind.entries) {
+      final codec = _codecs[entry.key];
+      if (codec == null) continue;
+      sessions.addAll(await codec.listActive(_db, itemIds: entry.value));
     }
     sessions.sort(_compareSessions);
     return sessions;
@@ -97,5 +99,22 @@ class WatchSessionsRepository {
 
   static int _compareSessions(WatchSession left, WatchSession right) {
     return right.watchedAt.compareTo(left.watchedAt);
+  }
+
+  static CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
+    final rootId = ref.rootId;
+    if (rootId != null && rootId.isNotEmpty) {
+      return ref.copyWith(
+        id: rootId,
+        entityType: CatalogEntityType.work,
+        rootId: null,
+      );
+    }
+    if (ref.entityType == CatalogEntityType.ownedCopy ||
+        ref.entityType == CatalogEntityType.copy ||
+        ref.entityType == CatalogEntityType.trackingEntry) {
+      return ref.copyWith(entityType: CatalogEntityType.work);
+    }
+    return ref;
   }
 }

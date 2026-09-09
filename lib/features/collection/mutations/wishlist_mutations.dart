@@ -146,8 +146,7 @@ final class WishlistMutations {
     return updated;
   }
 
-  Future<void> removeFromWishlist(
-    String itemId, {
+  Future<void> removeFromWishlist({
     String? wishlistItemId,
     CatalogEntityRef? catalogRef,
     bool notify = true,
@@ -155,17 +154,18 @@ final class WishlistMutations {
   }) async {
     final now = DateTime.now().toUtc();
     final items = await _wishlistItemsForMutation(
-      itemId,
       wishlistItemId: wishlistItemId,
       catalogRef: catalogRef,
     );
+    final itemId = items.isEmpty
+        ? catalogRef?.rootId ?? catalogRef?.id ?? ''
+        : items.first.itemId;
     final localRef = items.isEmpty ? null : items.first.catalogRef;
     await mutationRunner.run(
       origin: origin,
       localRef: localRef,
       action: () async {
         final existing = await _wishlistItemsForMutation(
-          itemId,
           wishlistItemId: wishlistItemId,
           catalogRef: catalogRef,
         );
@@ -187,7 +187,6 @@ final class WishlistMutations {
   Future<void> toggleWishlist(
     CatalogEntityRef catalogRef,
   ) async {
-    final itemId = catalogRef.rootId ?? catalogRef.id;
     final existing = await wishlist.findActiveByCatalogRef(catalogRef);
     if (existing == null) {
       await addToWishlist(
@@ -195,7 +194,7 @@ final class WishlistMutations {
       );
     } else {
       await removeFromWishlist(
-        itemId,
+        catalogRef: catalogRef,
         wishlistItemId: existing.id,
       );
     }
@@ -203,8 +202,7 @@ final class WishlistMutations {
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
-  Future<List<WishlistItem>> _wishlistItemsForMutation(
-    String itemId, {
+  Future<List<WishlistItem>> _wishlistItemsForMutation({
     String? wishlistItemId,
     CatalogEntityRef? catalogRef,
   }) async {
@@ -218,7 +216,7 @@ final class WishlistMutations {
       return match != null ? [match] : const [];
     }
 
-    return await wishlist.findActiveByItemIds([itemId]);
+    return const [];
   }
 
   SyncChange _syncChangeForWishlistItem(

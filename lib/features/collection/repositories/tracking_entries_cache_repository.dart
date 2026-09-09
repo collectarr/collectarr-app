@@ -77,6 +77,18 @@ class TrackingEntriesCacheRepository {
         .toList(growable: false);
   }
 
+  Future<List<TrackingEntry>> findActiveByCatalogRoots(
+    Iterable<CatalogEntityRef> catalogRefs,
+  ) async {
+    final wanted = {
+      for (final ref in catalogRefs) _rootCatalogRef(ref),
+    };
+    if (wanted.isEmpty) return const [];
+    return (await listActive())
+        .where((entry) => wanted.contains(_rootCatalogRef(entry.catalogRef)))
+        .toList(growable: false);
+  }
+
   Future<void> upsert(TrackingEntry item) async {
     await _db.transaction(() async {
       await _db.into(_db.trackingEntriesCache).insert(
@@ -175,6 +187,21 @@ class TrackingEntriesCacheRepository {
       coordinates.addAll(await codec.loadCoordinates(_db, ids));
     }
     return coordinates;
+  }
+
+  CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
+    final rootId = ref.rootId;
+    if (rootId != null && rootId.isNotEmpty) {
+      return ref.copyWith(
+        id: rootId,
+        entityType: CatalogEntityType.work,
+        rootId: null,
+      );
+    }
+    if (ref.entityType != CatalogEntityType.work) {
+      return ref.copyWith(entityType: CatalogEntityType.work);
+    }
+    return ref;
   }
 
   CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row,

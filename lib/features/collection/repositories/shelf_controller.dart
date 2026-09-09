@@ -32,16 +32,19 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     for (final item in wishlist) _rootCatalogRef(item.catalogRef),
     for (final item in trackingEntries) _rootCatalogRef(item.catalogRef),
   };
-  final ids = {for (final ref in catalogRefs) ref.id};
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
-  // This is a compatibility adapter for Library kind contributors only.
-  final legacyCatalogItems = await CatalogSnapshotRepository(db).findByIds(ids);
+  // This is a compatibility adapter for Library kind contributors only. Even
+  // while those contributors still consume the transport snapshot, joins are
+  // keyed by the complete catalog reference so equal IDs across kinds cannot
+  // collide.
+  final legacyCatalogItems =
+      await CatalogSnapshotRepository(db).findByRefs(catalogRefs);
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
     codecs: collectarrWatchSessionCodecs,
-  ).listActiveByItemIds(ids);
+  ).listActiveByCatalogRefs(catalogRefs);
   final itemImagesByOwnedItem =
       await ItemImageRepository(db).listForOwnedItemIds(
     ownedSummaries.map((item) => item.ref.id.value),
@@ -54,7 +57,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     legacyTrackingEntries: trackingEntries,
     watchSessions: watchSessions,
     catalogSummariesByRef: catalogSummaries,
-    legacyCatalogItems: legacyCatalogItems,
+    legacyCatalogItemsByRef: legacyCatalogItems,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
     fallbackOwnerLabel: auth.email,
@@ -98,6 +101,7 @@ class ShelfState {
     Map<String, CatalogDisplaySummary>? catalogSummaries,
     Map<String, CatalogItemDto>? catalogItems,
     Map<String, CatalogItemDto>? legacyCatalogItems,
+    Map<CatalogEntityRef, CatalogItemDto>? legacyCatalogItemsByRef,
     List<StorageLocation> locations = const [],
     Map<String, List<ItemImage>> itemImagesByOwnedItem =
         const <String, List<ItemImage>>{},
@@ -114,6 +118,10 @@ class ShelfState {
     final legacyCatalogById = <String, CatalogItemDto>{
       ...?legacyCatalogItems,
       ...?catalogItems,
+    };
+    final legacyCatalogByRef = <CatalogEntityRef, CatalogItemDto>{
+      ...?legacyCatalogItemsByRef,
+      for (final item in legacyCatalogById.values) item.catalogRef: item,
     };
     final resolvedCatalogSummaries = catalogSummaries ??
         {
@@ -161,27 +169,35 @@ class ShelfState {
       }
       trackingByCatalogRef[catalogRef] = entry;
     }
-    final legacyOwnedByItemId = <String, OwnedItem>{};
+    final legacyOwnedByCatalogRef = <CatalogEntityRef, OwnedItem>{};
     for (final item in legacyOwnedList) {
-      if (!item.isDeleted) legacyOwnedByItemId[item.catalogRef.id] = item;
-    }
-    final legacyTrackingByItemId = <String, TrackingEntry>{};
-    for (final entry in legacyTrackingList) {
-      if (!entry.isDeleted &&
-          !legacyTrackingByItemId.containsKey(entry.catalogRef.id)) {
-        legacyTrackingByItemId[entry.catalogRef.id] = entry;
+      if (!item.isDeleted) {
+        legacyOwnedByCatalogRef[_rootCatalogRef(item.catalogRef)] = item;
       }
     }
-    final watchSessionsByItemId = <String, List<WatchSession>>{};
+    final legacyTrackingByCatalogRef = <CatalogEntityRef, TrackingEntry>{};
+    for (final entry in legacyTrackingList) {
+      if (!entry.isDeleted &&
+          !legacyTrackingByCatalogRef
+              .containsKey(_rootCatalogRef(entry.catalogRef))) {
+        legacyTrackingByCatalogRef[_rootCatalogRef(entry.catalogRef)] = entry;
+      }
+    }
+    final watchSessionsByCatalogRef = <CatalogEntityRef, List<WatchSession>>{};
     for (final session in watchSessions) {
       if (session.isDeleted) {
         continue;
       }
-      watchSessionsByItemId
-          .putIfAbsent(session.itemId, () => <WatchSession>[])
+      final catalogRef = CatalogEntityRef(
+        kind: session.targetRef.kind,
+        entityType: CatalogEntityType.work,
+        id: session.itemId,
+      );
+      watchSessionsByCatalogRef
+          .putIfAbsent(catalogRef, () => <WatchSession>[])
           .add(session);
     }
-    for (final sessions in watchSessionsByItemId.values) {
+    for (final sessions in watchSessionsByCatalogRef.values) {
       sessions.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
     }
     final refs = <CatalogEntityRef>{
@@ -198,18 +214,18 @@ class ShelfState {
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
           // Compatibility adapters for unchanged Library contributors.
-          catalogItem: legacyCatalogById[ref.id],
-          ownedItem: legacyOwnedByItemId[ref.id],
-          trackingEntry: legacyTrackingByItemId[ref.id],
+          catalogItem: legacyCatalogByRef[ref],
+          ownedItem: legacyOwnedByCatalogRef[ref],
+          trackingEntry: legacyTrackingByCatalogRef[ref],
           wishlistItem: wishlistByCatalogRef[ref],
           locationPath:
               locationPathsById[ownedByCatalogRef[ref]?.locationLabel] ??
-                  locationPathsById[legacyOwnedByItemId[ref.id]?.locationId],
+                  locationPathsById[legacyOwnedByCatalogRef[ref]?.locationId],
           watchSessions:
-              watchSessionsByItemId[ref.id] ?? const <WatchSession>[],
+              watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
           itemImages: itemImagesByOwnedItem[
                   ownedByCatalogRef[ref]?.ref.id.value ??
-                      legacyOwnedByItemId[ref.id]?.id] ??
+                      legacyOwnedByCatalogRef[ref]?.id] ??
               const <ItemImage>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
@@ -227,7 +243,7 @@ class ShelfState {
           locationPath:
               locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
           watchSessions:
-              watchSessionsByItemId[ref.id] ?? const <WatchSession>[],
+              watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
           itemImages:
               itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref.id.value] ??
                   const <ItemImage>[],
@@ -244,7 +260,7 @@ class ShelfState {
     final hasMixedCurrencies = currencies.length > 1;
     final activeOwned = ownedByCatalogRef.values.toList(growable: false);
     final legacyActiveOwned =
-        legacyOwnedByItemId.values.toList(growable: false);
+        legacyOwnedByCatalogRef.values.toList(growable: false);
     return ShelfState(
       entries: entries,
       workspaceEntries: workspaceEntries,
@@ -383,12 +399,19 @@ class ShelfEntry extends LibraryWorkspaceEntry implements LibraryEntry {
 
 CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   final rootId = ref.rootId;
-  if (rootId == null || rootId.isEmpty) return ref;
-  return ref.copyWith(
-    id: rootId,
-    entityType: CatalogEntityType.work,
-    rootId: null,
-  );
+  if (rootId != null && rootId.isNotEmpty) {
+    return ref.copyWith(
+      id: rootId,
+      entityType: CatalogEntityType.work,
+      rootId: null,
+    );
+  }
+  if (ref.entityType == CatalogEntityType.ownedCopy ||
+      ref.entityType == CatalogEntityType.copy ||
+      ref.entityType == CatalogEntityType.trackingEntry) {
+    return ref.copyWith(entityType: CatalogEntityType.work);
+  }
+  return ref;
 }
 
 CatalogDisplaySummary _catalogSummaryFromLegacy(CatalogItemDto item) {

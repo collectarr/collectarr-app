@@ -149,27 +149,6 @@ final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
   return repository.listActive();
 });
 
-final watchSessionsByItemProvider =
-    Provider<Map<String, List<WatchSession>>>((ref) {
-  final sessions = ref.watch(watchSessionsProvider);
-  return sessions.maybeWhen(
-    data: (items) {
-      final grouped = <String, List<WatchSession>>{};
-      for (final session in items) {
-        if (session.isDeleted) continue;
-        grouped
-            .putIfAbsent(session.targetRef.id, () => <WatchSession>[])
-            .add(session);
-      }
-      for (final entries in grouped.values) {
-        entries.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
-      }
-      return grouped;
-    },
-    orElse: () => const <String, List<WatchSession>>{},
-  );
-});
-
 final watchSessionsByCatalogRefProvider =
     Provider.family<List<WatchSession>, CatalogEntityRef>((ref, catalogRef) {
   final sessions = ref.watch(watchSessionsProvider);

@@ -712,7 +712,6 @@ void main() {
     );
 
     await wishlistMutations.removeFromWishlist(
-      'movie-1',
       catalogRef: const CatalogEntityRef(
         kind: 'movie',
         entityType: CatalogEntityType.edition,
@@ -1458,7 +1457,6 @@ void main() {
     addTearDown(container.dispose);
     final trackingMutations = container.read(trackingMutationsProvider);
     final wishlistMutations = container.read(wishlistMutationsProvider);
-    final ownedMutations = container.read(ownedItemMutationsProvider);
 
     final localSnapshot = testCatalogItem(
       id: 'tmdb-local:movie:603',

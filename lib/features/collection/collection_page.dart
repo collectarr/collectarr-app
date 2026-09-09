@@ -169,10 +169,13 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   }
 
   Future<void> _removeWishlist(LibraryEntry entry) async {
-    if (!entry.isWishlisted) {
+    final catalogRef = entry.catalogRef;
+    if (!entry.isWishlisted || catalogRef == null) {
       return;
     }
-    await ref.read(wishlistMutationsProvider).removeFromWishlist(entry.itemId);
+    await ref
+        .read(wishlistMutationsProvider)
+        .removeFromWishlist(catalogRef: catalogRef);
     ref.invalidate(shelfProvider);
   }
 

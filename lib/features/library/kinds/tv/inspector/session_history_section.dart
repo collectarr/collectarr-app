@@ -18,9 +18,8 @@ class InspectorSessionHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WatchHistorySection(
-      itemId: request.item.node.titleItemId,
-      accent: request.accent,
       catalogRef: seriesRef,
+      accent: request.accent,
       defaultTargetRef: seriesRef,
       targetOptions: releaseOptions,
     );
