@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -229,8 +230,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     final seen = <String>{};
     for (final entry in shelfState.resolvedWorkspaceEntries) {
       final catalogSummary = entry.catalogSummary;
-      if (catalogSummary == null ||
-          catalogSummary.kind.apiValue != kind) {
+      if (catalogSummary == null || catalogSummary.kind.apiValue != kind) {
         continue;
       }
       final candidates = [
@@ -383,15 +383,17 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       data: (value) => value,
       orElse: () => null,
     );
-    final overdueLoanOwnedItemIds = ref
-        .watch(overdueLoanOwnedItemIdsProvider)
-        .maybeWhen(data: (value) => value, orElse: () => const <String>{});
+    final overdueLoanOwnedRefs =
+        ref.watch(overdueLoanOwnedItemIdsProvider).maybeWhen(
+              data: (value) => value,
+              orElse: () => const <OwnedItemRef>{},
+            );
     final shelfForOverdue = ref.watch(shelfProvider);
     final overdueCounts = shelfForOverdue.maybeWhen(
-      data: (value) => overdueLoanCountsByKind(value, overdueLoanOwnedItemIds),
+      data: (value) => overdueLoanCountsByKind(value, overdueLoanOwnedRefs),
       orElse: () => const <String, int>{},
     );
-    final overdueLoanCount = overdueLoanOwnedItemIds.length;
+    final overdueLoanCount = overdueLoanOwnedRefs.length;
     final selectedOverdueLoanCount = overdueCounts[selected.kind] ?? 0;
     final registry = defaultLibraryKindRegistry;
     final topBar = MediaLibraryNav(

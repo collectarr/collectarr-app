@@ -52,21 +52,21 @@ final globalActivityProvider =
 
   final loans = await LoanRepository(db).getAllLoans();
 
-  final ownedByRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
+  final ownedByCatalogRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
   for (final item in owned) {
     final catalogRef = item.catalogRef;
     if (catalogRef == null) continue;
-    ownedByRef
+    ownedByCatalogRef
         .putIfAbsent(_rootCatalogRef(catalogRef), () => <OwnedItemSummary>[])
         .add(item);
   }
-  final ownedById = <String, OwnedItemSummary>{
+  final ownedByRef = <OwnedItemRef, OwnedItemSummary>{
     for (final item in owned)
-      if (item.catalogRef != null) item.ref.id.value: item,
+      if (item.catalogRef != null) item.ref: item,
   };
   final loansByRef = <CatalogEntityRef, List<Loan>>{};
   for (final loan in loans) {
-    final ownedItem = ownedById[loan.ownedRef.id.value];
+    final ownedItem = ownedByRef[loan.ownedRef];
     final catalogRef = ownedItem?.catalogRef;
     if (catalogRef == null) continue;
     loansByRef
@@ -96,7 +96,7 @@ final globalActivityProvider =
         .add(item);
   }
   final refs = <CatalogEntityRef>{
-    ...ownedByRef.keys,
+    ...ownedByCatalogRef.keys,
     ...trackingByRef.keys,
     ...watchByRef.keys,
     ...wishlistByRef.keys,
@@ -111,7 +111,7 @@ final globalActivityProvider =
   final entries = <GlobalActivityEntry>[];
   for (final itemRef in refs) {
     final events = ActivityEventAggregator.aggregate(
-      ownedItems: ownedByRef[itemRef] ?? const <OwnedItemSummary>[],
+      ownedItems: ownedByCatalogRef[itemRef] ?? const <OwnedItemSummary>[],
       trackingEntries: trackingByRef[itemRef] ?? const <TrackingEntry>[],
       wishlistItems: wishlistByRef[itemRef] ?? const <WishlistItem>[],
       loans: loansByRef[itemRef] ?? const <Loan>[],

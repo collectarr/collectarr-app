@@ -29,7 +29,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   var _filter = _LoanFilter.active;
   var _loading = true;
   List<Loan> _loans = const [];
-  Map<String, OwnedItemSummary> _ownedById = const {};
+  Map<OwnedItemRef, OwnedItemSummary> _ownedByRef = const {};
   Map<CatalogEntityRef, List<OwnedItemSummary>> _ownedByCatalogRef = const {};
 
   @override
@@ -93,8 +93,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     }
     setState(() {
       _loans = loans;
-      _ownedById = {
-        for (final item in summaries) item.ref.id.value: item,
+      _ownedByRef = {
+        for (final item in summaries) item.ref: item,
       };
       _ownedByCatalogRef = ownedByCatalogRef;
       _loading = false;
@@ -119,7 +119,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       if (query.isEmpty) {
         return true;
       }
-      final owned = _ownedById[loan.ownedRef.id.value];
+      final owned = _ownedByRef[loan.ownedRef];
       final title = owned?.title ?? '';
       return loan.borrowerName.toLowerCase().contains(query) ||
           (loan.notes ?? '').toLowerCase().contains(query) ||
@@ -219,8 +219,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       return;
     }
     final activeLoans = _loans
-        .where((loan) =>
-            loan.ownedRef.id.value == ownedItem.ref.id.value && loan.isActive)
+        .where((loan) => loan.ownedRef == ownedItem.ref && loan.isActive)
         .toList();
     if (activeLoans.isEmpty) {
       showAppToast(context, 'No active loan found for that item.',
@@ -360,7 +359,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   String _loanTitle(Loan loan) {
-    final owned = _ownedById[loan.ownedRef.id.value];
+    final owned = _ownedByRef[loan.ownedRef];
     return owned?.title ?? 'Unknown item';
   }
 }

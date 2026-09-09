@@ -89,6 +89,61 @@ void main() {
     expect(events.single.eventId, 'watch:watch-1');
   });
 
+  test('keeps equal owned ids distinct by media kind', () {
+    final book = OwnedItemSummary(
+      ref: const OwnedItemRef(
+        kind: CatalogMediaKind.book,
+        id: OwnedItemId('shared-id'),
+      ),
+      title: 'Book copy',
+      catalogRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.book,
+        entityType: CatalogEntityType.work,
+        id: 'book-1',
+      ),
+      updatedAt: DateTime.utc(2026, 1, 3),
+    );
+    final comic = OwnedItemSummary(
+      ref: const OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId('shared-id'),
+      ),
+      title: 'Comic copy',
+      catalogRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityType.work,
+        id: 'comic-1',
+      ),
+      updatedAt: DateTime.utc(2026, 1, 3),
+    );
+    final context = UniversalCalendarContext(
+      ownedItems: [book, comic],
+      loans: [
+        Loan(
+          id: 'book-loan',
+          ownedRef: book.ref,
+          borrowerName: 'Reader',
+          lentDate: DateTime.utc(2026, 1, 4),
+          dueDate: DateTime.utc(2026, 1, 10),
+        ),
+        Loan(
+          id: 'comic-loan',
+          ownedRef: comic.ref,
+          borrowerName: 'Collector',
+          lentDate: DateTime.utc(2026, 1, 4),
+          dueDate: DateTime.utc(2026, 1, 11),
+        ),
+      ],
+      titleForRef: (ref) => ref.id,
+    );
+
+    final events = const LoanCalendarContributor().contribute(context).toList();
+
+    expect(events, hasLength(2));
+    expect(
+        events.map((event) => event.title), containsAll(['book-1', 'comic-1']));
+  });
+
   test('does not duplicate a watch handled by a kind contributor', () {
     final context = UniversalCalendarContext(
       ownedItems: const [],

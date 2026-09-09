@@ -63,12 +63,12 @@ final class LoanCalendarContributor
 
   @override
   Iterable<CalendarEvent> contribute(UniversalCalendarContext context) sync* {
-    final ownedById = <String, OwnedItemSummary>{
-      for (final item in context.ownedItems) item.ref.id.value: item,
+    final ownedByRef = <OwnedItemRef, OwnedItemSummary>{
+      for (final item in context.ownedItems) item.ref: item,
     };
 
     for (final loan in context.loans) {
-      final owned = ownedById[loan.ownedRef.id.value];
+      final owned = ownedByRef[loan.ownedRef];
       final catalogRef = owned?.catalogRef;
       final title =
           catalogRef == null ? 'Unknown item' : context.titleForRef(catalogRef);

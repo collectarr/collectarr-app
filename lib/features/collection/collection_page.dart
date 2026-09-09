@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
@@ -55,9 +56,11 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    final overdueOwnedItemIds = ref
-        .watch(overdueLoanOwnedItemIdsProvider)
-        .maybeWhen(data: (value) => value, orElse: () => const <String>{});
+    final overdueOwnedRefs =
+        ref.watch(overdueLoanOwnedItemIdsProvider).maybeWhen(
+              data: (value) => value,
+              orElse: () => const <OwnedItemRef>{},
+            );
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
     return Scaffold(
@@ -96,14 +99,14 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       ),
       body: shelf.when(
         data: (state) {
-          final entries = _filteredEntries(state.entries, overdueOwnedItemIds);
+          final entries = _filteredEntries(state.entries, overdueOwnedRefs);
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: _ShelfHeader(
                   state: state,
                   filter: filter,
-                  overdueCount: overdueOwnedItemIds.length,
+                  overdueCount: overdueOwnedRefs.length,
                   onFilterChanged: (value) => setState(() => filter = value),
                 ),
               ),
@@ -142,7 +145,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
 
   List<LibraryEntry> _filteredEntries(
     List<LibraryEntry> entries,
-    Set<String> overdueOwnedItemIds,
+    Set<OwnedItemRef> overdueOwnedRefs,
   ) {
     return switch (filter) {
       _ShelfFilter.all => entries,
@@ -150,10 +153,10 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         entries.where((entry) => entry.isOwned).toList(growable: false),
       _ShelfFilter.wishlist =>
         entries.where((entry) => entry.isWishlisted).toList(growable: false),
-      _ShelfFilter.overdue => entries
-          .where((entry) =>
-              overdueOwnedItemIds.contains(entry.ownedSummary?.ref.id.value))
-          .toList(growable: false),
+      _ShelfFilter.overdue => entries.where((entry) {
+          final ref = entry.ownedSummary?.ref;
+          return ref != null && overdueOwnedRefs.contains(ref);
+        }).toList(growable: false),
       _ShelfFilter.notes =>
         entries.where((entry) => entry.hasNotes).toList(growable: false),
     };
