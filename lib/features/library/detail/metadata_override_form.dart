@@ -2,26 +2,27 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 
 /// Structural option supplied by the owning kind to the override form.
 final class MetadataOverrideFieldOption {
   const MetadataOverrideFieldOption({
-    required this.key,
+    required this.id,
     required this.label,
   });
 
-  final String key;
+  final MetadataFieldId id;
   final String label;
 }
 
 final class MetadataOverrideFormResult {
   const MetadataOverrideFormResult({
-    required this.fieldKey,
+    required this.fieldId,
     required this.overrideValue,
     this.originalValue,
   });
 
-  final String fieldKey;
+  final MetadataFieldId fieldId;
   final String overrideValue;
   final String? originalValue;
 }
@@ -45,7 +46,7 @@ final class MetadataOverrideFormDialog extends StatefulWidget {
 
 class _MetadataOverrideFormDialogState
     extends State<MetadataOverrideFormDialog> {
-  String? _selectedField;
+  MetadataFieldId? _selectedField;
   final _originalController = TextEditingController();
   final _overrideController = TextEditingController();
 
@@ -73,13 +74,13 @@ class _MetadataOverrideFormDialogState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<MetadataFieldId>(
               initialValue: _selectedField,
               decoration: const InputDecoration(labelText: 'Field'),
               items: [
                 for (final field in widget.fields)
                   DropdownMenuItem(
-                    value: field.key,
+                    value: field.id,
                     child: Text(field.label),
                   ),
               ],
@@ -114,7 +115,7 @@ class _MetadataOverrideFormDialogState
               ? () => Navigator.pop(
                     context,
                     MetadataOverrideFormResult(
-                      fieldKey: _selectedField!,
+                      fieldId: _selectedField!,
                       overrideValue: _overrideController.text.trim(),
                       originalValue: _originalController.text.trim().isEmpty
                           ? null

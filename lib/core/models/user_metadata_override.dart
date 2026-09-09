@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 
 /// A user-level correction for one field on one catalog entity.
 ///
@@ -8,7 +9,7 @@ class UserMetadataOverride {
   UserMetadataOverride({
     required this.id,
     required this.targetRef,
-    required this.fieldKey,
+    required this.fieldId,
     required this.overrideValue,
     required this.updatedAt,
     this.originalValue,
@@ -21,8 +22,9 @@ class UserMetadataOverride {
   /// Structural catalog target. Its semantic meaning belongs to the kind.
   final CatalogEntityRef targetRef;
 
-  /// Kind-owned field identifier. The generic layer does not inspect it.
-  final String fieldKey;
+  /// Kind-owned field identifier. The generic layer does not inspect its
+  /// value; it only carries the typed identity to a serialization boundary.
+  final MetadataFieldId fieldId;
 
   /// Original value captured when the override was created.
   final String? originalValue;
@@ -38,7 +40,7 @@ class UserMetadataOverride {
   Map<String, Object?> toSyncPayload() {
     return {
       'target_ref': targetRef.toJson(),
-      'field_key': fieldKey,
+      'field_key': fieldId.serializedValue,
       'original_value': originalValue,
       'override_value': overrideValue,
     };
@@ -49,11 +51,16 @@ class UserMetadataOverride {
     if (rawTarget is! Map) {
       throw const FormatException('Metadata override target_ref is required');
     }
+    final targetRef = CatalogEntityRef.fromJson(
+      Map<String, Object?>.from(rawTarget),
+    );
     return UserMetadataOverride(
       id: json['id'] as String,
-      targetRef:
-          CatalogEntityRef.fromJson(Map<String, Object?>.from(rawTarget)),
-      fieldKey: json['field_key'] as String,
+      targetRef: targetRef,
+      fieldId: MetadataFieldId(
+        kind: targetRef.mediaKind,
+        value: json['field_key'] as String,
+      ),
       originalValue: json['original_value'] as String?,
       overrideValue: json['override_value'] as String,
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -66,7 +73,7 @@ class UserMetadataOverride {
   UserMetadataOverride copyWith({
     String? id,
     CatalogEntityRef? targetRef,
-    String? fieldKey,
+    MetadataFieldId? fieldId,
     String? originalValue,
     String? overrideValue,
     DateTime? updatedAt,
@@ -75,7 +82,7 @@ class UserMetadataOverride {
     return UserMetadataOverride(
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
-      fieldKey: fieldKey ?? this.fieldKey,
+      fieldId: fieldId ?? this.fieldId,
       originalValue: originalValue ?? this.originalValue,
       overrideValue: overrideValue ?? this.overrideValue,
       updatedAt: updatedAt ?? this.updatedAt,

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
@@ -75,10 +76,16 @@ class MetadataCorrectionsSection extends ConsumerWidget {
   Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
     final contributor = libraryAdminContributorForKind(targetRef.mediaKind);
     final fields = [
-      const MetadataOverrideFieldOption(key: 'title', label: 'Title'),
+      MetadataOverrideFieldOption(
+        id: MetadataFieldId(kind: targetRef.mediaKind, value: 'title'),
+        label: 'Title',
+      ),
       for (final field
           in contributor?.proposalFields ?? const <LibraryAdminProposalField>[])
-        MetadataOverrideFieldOption(key: field.key, label: field.label),
+        MetadataOverrideFieldOption(
+          id: MetadataFieldId(kind: targetRef.mediaKind, value: field.key),
+          label: field.label,
+        ),
     ];
     final result = await showDialog<MetadataOverrideFormResult>(
       context: context,
@@ -92,15 +99,15 @@ class MetadataCorrectionsSection extends ConsumerWidget {
     }
     await ref.read(metadataOverrideMutationsProvider).setMetadataOverride(
           targetRef,
-          fieldKey: result.fieldKey,
+          fieldId: result.fieldId,
           overrideValue: result.overrideValue,
           originalValue: result.originalValue,
         );
   }
 }
 
-String _humanFieldPath(String path) {
-  return path.replaceAll('_', ' ').replaceAll('.', ' > ');
+String _humanFieldPath(MetadataFieldId fieldId) {
+  return fieldId.value.replaceAll('_', ' ').replaceAll('.', ' > ');
 }
 
 class _OverrideTile extends ConsumerWidget {
@@ -129,7 +136,7 @@ class _OverrideTile extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _humanFieldPath(entry.fieldKey),
+                  _humanFieldPath(entry.fieldId),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: accent,
                         fontWeight: FontWeight.w700,
@@ -173,7 +180,7 @@ class _OverrideTile extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Remove Override'),
         content: Text(
-          'Revert "${_humanFieldPath(entry.fieldKey)}" back to standard metadata?',
+          'Revert "${_humanFieldPath(entry.fieldId)}" back to standard metadata?',
         ),
         actions: [
           TextButton(

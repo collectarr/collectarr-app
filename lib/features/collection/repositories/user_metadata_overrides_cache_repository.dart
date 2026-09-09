@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:drift/drift.dart';
 
@@ -51,11 +52,11 @@ class UserMetadataOverridesCacheRepository {
 
   Future<UserMetadataOverride?> findByField(
     CatalogEntityRef target,
-    String fieldKey,
+    MetadataFieldId fieldId,
   ) async {
     final overrides = await listActiveByTarget(target);
     for (final override in overrides) {
-      if (override.fieldKey == fieldKey) return override;
+      if (override.fieldId == fieldId) return override;
     }
     return null;
   }
@@ -97,7 +98,7 @@ class UserMetadataOverridesCacheRepository {
     return UserMetadataOverridesCacheCompanion(
       id: Value(override.id),
       targetRefJson: Value(jsonEncode(override.targetRef.toJson())),
-      fieldKey: Value(override.fieldKey),
+      fieldKey: Value(override.fieldId.serializedValue),
       originalValue: Value(override.originalValue),
       overrideValue: Value(override.overrideValue),
       updatedAt: Value(override.updatedAt),
@@ -110,12 +111,16 @@ class UserMetadataOverridesCacheRepository {
     if (rawTarget is! Map) {
       throw const FormatException('Metadata override target_ref is invalid');
     }
+    final targetRef = CatalogEntityRef.fromJson(
+      Map<String, Object?>.from(rawTarget),
+    );
     return UserMetadataOverride(
       id: row.id,
-      targetRef: CatalogEntityRef.fromJson(
-        Map<String, Object?>.from(rawTarget),
+      targetRef: targetRef,
+      fieldId: MetadataFieldId(
+        kind: targetRef.mediaKind,
+        value: row.fieldKey,
       ),
-      fieldKey: row.fieldKey,
       originalValue: row.originalValue,
       overrideValue: row.overrideValue,
       updatedAt: row.updatedAt,

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 
 /// Resolves opaque kind-owned metadata overrides for catalog display.
@@ -10,16 +11,16 @@ class MetadataOverrideResolver {
       : _byField = {
           for (final override in overrides)
             if (!override.isDeleted)
-              _key(override.targetRef, override.fieldKey): override,
+              _key(override.targetRef, override.fieldId): override,
         };
 
-  final Map<(CatalogEntityRef, String), UserMetadataOverride> _byField;
+  final Map<(CatalogEntityRef, MetadataFieldId), UserMetadataOverride> _byField;
 
-  static (CatalogEntityRef, String) _key(
+  static (CatalogEntityRef, MetadataFieldId) _key(
     CatalogEntityRef target,
-    String fieldKey,
+    MetadataFieldId fieldId,
   ) =>
-      (target, fieldKey);
+      (target, fieldId);
 
   bool get hasOverrides => _byField.isNotEmpty;
 
@@ -27,16 +28,16 @@ class MetadataOverrideResolver {
 
   UserMetadataOverride? find(
     CatalogEntityRef target,
-    String fieldKey,
+    MetadataFieldId fieldId,
   ) =>
-      _byField[_key(target, fieldKey)];
+      _byField[_key(target, fieldId)];
 
   String? resolve(
     CatalogEntityRef target,
-    String fieldKey,
+    MetadataFieldId fieldId,
     String? original,
   ) =>
-      find(target, fieldKey)?.overrideValue ?? original;
+      find(target, fieldId)?.overrideValue ?? original;
 
   Map<CatalogEntityRef, List<UserMetadataOverride>> groupedByTarget() {
     final result = <CatalogEntityRef, List<UserMetadataOverride>>{};

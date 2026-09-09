@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -26,20 +27,25 @@ final class MetadataOverrideMutations {
 
   Future<UserMetadataOverride> setMetadataOverride(
     CatalogEntityRef targetRef, {
-    required String fieldKey,
+    required MetadataFieldId fieldId,
     required String overrideValue,
     String? originalValue,
   }) async {
     final now = DateTime.now().toUtc();
-    final existing = await overrides.findByField(
-      targetRef,
-      fieldKey,
-    );
+    if (!fieldId.appliesTo(targetRef)) {
+      throw ArgumentError.value(
+        fieldId,
+        'fieldId',
+        'Metadata field belongs to ${fieldId.kind.apiValue}, '
+            'not ${targetRef.mediaKind.apiValue}',
+      );
+    }
+    final existing = await overrides.findByField(targetRef, fieldId);
 
     final override = UserMetadataOverride(
       id: existing?.id ?? idGenerator(),
       targetRef: targetRef,
-      fieldKey: fieldKey,
+      fieldId: fieldId,
       originalValue: originalValue ?? existing?.originalValue,
       overrideValue: overrideValue,
       updatedAt: now,
