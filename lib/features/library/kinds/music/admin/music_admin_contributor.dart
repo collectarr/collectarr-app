@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 
 List<Map<String, dynamic>> _musicTrackRows(Object? value) {
   if (value is! List) {
@@ -11,8 +12,8 @@ List<Map<String, dynamic>> _musicTrackRows(Object? value) {
   ];
 }
 
-String _readMusicTracks(Map<String, dynamic> payload) {
-  return _musicTrackRows(payload['tracks'])
+String _readMusicTracks(LibraryMetadataCorrectionValues values) {
+  return _musicTrackRows(values.read('tracks'))
       .map(
         (track) => [
           track['title']?.toString() ?? '',
@@ -25,7 +26,10 @@ String _readMusicTracks(Map<String, dynamic> payload) {
       .join('\n');
 }
 
-void _writeMusicTracks(Map<String, dynamic> payload, String rawValue) {
+void _writeMusicTracks(
+  LibraryMetadataCorrectionValues values,
+  String rawValue,
+) {
   final rows = <Map<String, dynamic>>[];
   final lines = rawValue.split('\n');
   for (var index = 0; index < lines.length; index++) {
@@ -72,9 +76,9 @@ void _writeMusicTracks(Map<String, dynamic> payload, String rawValue) {
     rows.add(track);
   }
   if (rows.isEmpty) {
-    payload.remove('tracks');
+    values.remove('tracks');
   } else {
-    payload['tracks'] = rows;
+    values.write('tracks', rows);
   }
 }
 

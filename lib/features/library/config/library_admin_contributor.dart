@@ -1,17 +1,18 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 
 typedef LibraryAdminProposalFieldReader = String Function(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
 );
 
 typedef LibraryAdminProposalFieldWriter = void Function(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
   String rawValue,
 );
 
 /// Structural description of one kind-owned admin proposal field.
 ///
-/// The payload is a provider boundary representation. A kind owns the key,
+/// The values object is a provider boundary representation. A kind owns the key,
 /// display semantics, and codec; the Admin feature only owns the editor host.
 class LibraryAdminProposalField {
   const LibraryAdminProposalField({
@@ -34,7 +35,7 @@ class LibraryAdminProposalField {
 /// Semantic admin contribution supplied by one library kind.
 ///
 /// Admin may render the fields structurally, but it must not interpret their
-/// payload keys or decide which kind-specific fields are applicable.
+/// serialized keys or decide which kind-specific fields are applicable.
 abstract interface class LibraryAdminContributor {
   CatalogMediaKind get kind;
 
@@ -42,29 +43,29 @@ abstract interface class LibraryAdminContributor {
 }
 
 String readAdminProposalText(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
   String key,
 ) =>
-    payload[key]?.toString() ?? '';
+    values.read(key)?.toString() ?? '';
 
 void writeAdminProposalText(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
   String key,
   String rawValue,
 ) {
   final value = rawValue.trim();
   if (value.isEmpty) {
-    payload.remove(key);
+    values.remove(key);
   } else {
-    payload[key] = value;
+    values.write(key, value);
   }
 }
 
 String readAdminProposalStringList(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
   String key,
 ) {
-  final value = payload[key];
+  final value = values.read(key);
   if (value is! List) {
     return '';
   }
@@ -75,19 +76,19 @@ String readAdminProposalStringList(
 }
 
 void writeAdminProposalStringList(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
   String key,
   String rawValue,
 ) {
-  final values = rawValue
+  final items = rawValue
       .split(',')
       .map((entry) => entry.trim())
       .where((entry) => entry.isNotEmpty)
       .toList(growable: false);
-  if (values.isEmpty) {
-    payload.remove(key);
+  if (items.isEmpty) {
+    values.remove(key);
   } else {
-    payload[key] = values;
+    values.write(key, items);
   }
 }
 
@@ -122,10 +123,10 @@ LibraryAdminProposalField adminStringListProposalField({
 }
 
 String readAdminProposalExternalLinks(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
   String key,
 ) {
-  final value = payload[key];
+  final value = values.read(key);
   if (value is! List) {
     return '';
   }
@@ -142,7 +143,7 @@ String readAdminProposalExternalLinks(
 }
 
 void writeAdminProposalExternalLinks(
-  Map<String, Object?> payload,
+  LibraryMetadataCorrectionValues values,
   String key,
   String rawValue,
 ) {
@@ -183,9 +184,9 @@ void writeAdminProposalExternalLinks(
     });
   }
   if (rows.isEmpty) {
-    payload.remove(key);
+    values.remove(key);
   } else {
-    payload[key] = rows;
+    values.write(key, rows);
   }
 }
 

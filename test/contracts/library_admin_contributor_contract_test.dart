@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,20 +29,20 @@ void main() {
     final contributor = libraryAdminContributorForKind(CatalogMediaKind.game)!;
     final field = contributor.proposalFields
         .singleWhere((field) => field.key == 'platforms');
-    final payload = <String, Object?>{
+    final values = LibraryMetadataCorrectionValues.fromSerialized({
       'platforms': ['Switch'],
-    };
+    });
 
-    expect(field.read(payload), 'Switch');
-    field.write(payload, 'PlayStation 5, Nintendo Switch');
-    expect(payload['platforms'], ['PlayStation 5', 'Nintendo Switch']);
+    expect(field.read(values), 'Switch');
+    field.write(values, 'PlayStation 5, Nintendo Switch');
+    expect(values.read('platforms'), ['PlayStation 5', 'Nintendo Switch']);
   });
 
   test('Music owns the track proposal payload codec and validation', () {
     final contributor = libraryAdminContributorForKind(CatalogMediaKind.music)!;
     final field = contributor.proposalFields
         .singleWhere((field) => field.key == 'tracks');
-    final payload = <String, Object?>{
+    final values = LibraryMetadataCorrectionValues.fromSerialized({
       'tracks': [
         {
           'title': 'Intro',
@@ -51,11 +52,11 @@ void main() {
           'duration_seconds': 90,
         },
       ],
-    };
+    });
 
-    expect(field.read(payload), 'Intro | Band | 1 | 2 | 90');
-    field.write(payload, 'Outro | Band | 1 | 3 | 120');
-    expect(payload['tracks'], [
+    expect(field.read(values), 'Intro | Band | 1 | 2 | 90');
+    field.write(values, 'Outro | Band | 1 | 3 | 120');
+    expect(values.read('tracks'), [
       {
         'title': 'Outro',
         'artist': 'Band',
@@ -65,7 +66,7 @@ void main() {
       },
     ]);
     expect(
-      () => field.write(payload, 'Broken | Band | one'),
+      () => field.write(values, 'Broken | Band | one'),
       throwsA(isA<FormatException>()),
     );
   });

@@ -107,7 +107,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     _fieldControllers = {
       for (final field in _kindFields)
         field.key: TextEditingController(
-          text: field.read(widget.source.payload),
+          text: field.read(widget.source.values),
         ),
     };
   }
@@ -216,9 +216,9 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       'Original:',
       'title: ${widget.source.title}',
     ];
-    final originalPayload = widget.source.payload;
+    final originalValues = widget.source.values;
     for (final field in _kindFields) {
-      final value = field.read(originalPayload).trim();
+      final value = field.read(originalValues).trim();
       if (value.isNotEmpty) {
         lines.add('${field.label}: $value');
       }

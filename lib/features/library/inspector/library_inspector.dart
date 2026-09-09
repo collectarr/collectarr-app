@@ -236,7 +236,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               ref: ref,
               source: LibraryMetadataCorrectionSource(
                 title: selected.source.catalogItem!.title,
-                payload: Map<String, Object?>.from(
+                values: LibraryMetadataCorrectionValues.fromSerialized(
                   selected.source.catalogItem!.toSyncPayload(),
                 ),
               ),

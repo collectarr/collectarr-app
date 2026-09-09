@@ -362,10 +362,11 @@ class _ProposalPayloadPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final fields = libraryAdminContributorForKind(kind)?.proposalFields ??
         const <LibraryAdminProposalField>[];
+    final values = LibraryMetadataCorrectionValues.fromSerialized(payload);
     final badges = <String>[
       for (final field in fields)
-        if (field.read(payload).trim().isNotEmpty)
-          '${field.label}: ${field.read(payload).trim()}',
+        if (field.read(values).trim().isNotEmpty)
+          '${field.label}: ${field.read(values).trim()}',
     ];
     if (badges.isEmpty) {
       return const SizedBox.shrink();
@@ -472,9 +473,10 @@ class _ProposalMetadataEditDialogState
     if (contributor == null) {
       return <String, TextEditingController>{};
     }
+    final values = LibraryMetadataCorrectionValues.fromSerialized(payload);
     return {
       for (final field in contributor.proposalFields)
-        field.key: TextEditingController(text: field.read(payload)),
+        field.key: TextEditingController(text: field.read(values)),
     };
   }
 
@@ -508,11 +510,13 @@ class _ProposalMetadataEditDialogState
       if (decoded is! Map) {
         throw const FormatException('Metadata payload must be a JSON object.');
       }
-      final payload = Map<String, Object?>.from(decoded);
+      final values = LibraryMetadataCorrectionValues.fromSerialized(
+        Map<String, Object?>.from(decoded),
+      );
       for (final field in _adminProposalFields) {
-        field.write(payload, _kindFieldControllers[field.key]!.text);
+        field.write(values, _kindFieldControllers[field.key]!.text);
       }
-      return Map<String, dynamic>.from(payload);
+      return Map<String, dynamic>.from(values.toSerialized());
     } on FormatException catch (error) {
       setState(() {
         _errorMessage = error.message;
@@ -545,19 +549,24 @@ class _ProposalMetadataEditDialogState
       });
       return;
     }
-    final semanticPayload = Map<String, Object?>.from(payload);
-    _setPayloadTextValue(semanticPayload, 'kind', _kind);
+    final semanticValues = LibraryMetadataCorrectionValues.fromSerialized(
+      Map<String, Object?>.from(payload),
+    );
+    semanticValues.write('kind', _kind);
     for (final contributor in libraryAdminContributors) {
       if (contributor.kind == _catalogKind) {
         continue;
       }
       for (final field in contributor.proposalFields) {
-        semanticPayload.remove(field.key);
+        semanticValues.remove(field.key);
       }
     }
     try {
       for (final field in _adminProposalFields) {
-        field.write(semanticPayload, _kindFieldControllers[field.key]!.text);
+        field.write(
+          semanticValues,
+          _kindFieldControllers[field.key]!.text,
+        );
       }
     } on FormatException catch (error) {
       setState(() {
@@ -575,7 +584,9 @@ class _ProposalMetadataEditDialogState
         title: _emptyToNull(_titleController.text),
         summary: _emptyToNull(_summaryController.text),
         imageUrl: _emptyToNull(_imageUrlController.text),
-        metadataPayload: Map<String, dynamic>.from(semanticPayload),
+        metadataPayload: Map<String, dynamic>.from(
+          semanticValues.toSerialized(),
+        ),
       ),
     );
   }

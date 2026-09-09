@@ -1,11 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 
-String _readGamePlatforms(Map<String, dynamic> payload) =>
-    readAdminProposalStringList(payload, 'platforms');
+String _readGamePlatforms(LibraryMetadataCorrectionValues values) =>
+    readAdminProposalStringList(values, 'platforms');
 
-void _writeGamePlatforms(Map<String, dynamic> payload, String rawValue) =>
-    writeAdminProposalStringList(payload, 'platforms', rawValue);
+void _writeGamePlatforms(
+  LibraryMetadataCorrectionValues values,
+  String rawValue,
+) =>
+    writeAdminProposalStringList(values, 'platforms', rawValue);
 
 /// Game owns the platform proposal field and its payload codec.
 class GameAdminContributor implements LibraryAdminContributor {
