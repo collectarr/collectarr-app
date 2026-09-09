@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:flutter/foundation.dart';
 
 const Object _catalogEntityRefUnset = Object();
 
@@ -34,6 +35,7 @@ enum CatalogEntityType {
   }
 }
 
+@immutable
 class CatalogEntityRef {
   const CatalogEntityRef({
     required this.kind,
@@ -93,4 +95,17 @@ class CatalogEntityRef {
           : rootId as String?,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is CatalogEntityRef &&
+            other.kind == kind &&
+            other.entityType == entityType &&
+            other.id == id &&
+            other.rootId == rootId;
+  }
+
+  @override
+  int get hashCode => Object.hash(kind, entityType, id, rootId);
 }

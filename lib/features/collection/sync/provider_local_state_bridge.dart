@@ -26,8 +26,7 @@ final class ProviderLocalStateBridge {
     ProviderItemLink? link,
   }) async {
     final tracking = await _findTracking(localRef);
-    final catalog =
-        (await catalogSummaries.findByIds([localRef.id]))[localRef.id];
+    final catalog = await catalogSummaries.findByRef(localRef);
     if (tracking != null) {
       return _fromTracking(localRef, tracking, catalog?.title, link: link);
     }

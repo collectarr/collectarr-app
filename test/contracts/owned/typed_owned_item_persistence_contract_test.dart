@@ -61,7 +61,7 @@ void main() {
     for (final item in items) {
       final ref = collectarrTypedOwnedItemRef(item);
       await persistence.upsertTyped(ref.kind, item);
-      final roundTrip = await persistence.findTypedById(ref.id.value);
+      final roundTrip = await persistence.findTypedByRef(ref);
       expect(roundTrip, isNotNull, reason: ref.kind.apiValue);
       final resolved = roundTrip!;
       expect(resolved.$1, ref.kind);

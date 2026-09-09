@@ -143,9 +143,7 @@ final class CollectionImportService {
         final existingOwnedSummary = existingOwned[row.itemId];
         final existingTypedOwned = existingOwnedSummary == null
             ? null
-            : await ownedItems.findTypedById(
-                existingOwnedSummary.ref.id.value,
-              );
+            : await ownedItems.findTypedByRef(existingOwnedSummary.ref);
         final typedImport = _typedOwnedItemFromCsvRow(
           row,
           now,

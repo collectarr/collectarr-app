@@ -139,7 +139,7 @@ final class OwnedItemMutations {
     final updated = await mutationRunner.run(
       action: () async {
         final typedExistingResult =
-            await ownedItems.findTypedById(command.ownedRef.id.value);
+            await ownedItems.findTypedByRef(command.ownedRef);
         if (typedExistingResult == null) {
           throw StateError('OwnedItem not found: ${command.ownedRef.key}');
         }
@@ -225,7 +225,7 @@ final class OwnedItemMutations {
 
   Future<void> removeItem(OwnedItemRef ref) async {
     final now = DateTime.now().toUtc();
-    final typedExisting = await ownedItems.findTypedById(ref.id.value);
+    final typedExisting = await ownedItems.findTypedByRef(ref);
     if (typedExisting == null) return;
     await mutationRunner.run(
       action: () async {

@@ -25,8 +25,21 @@ final class OwnedItemsRepository {
     return null;
   }
 
+  Future<OwnedItemSummary?> findSummaryByRef(OwnedItemRef ref) async {
+    for (final item in await listActiveSummaries()) {
+      if (item.ref == ref) return item;
+    }
+    return null;
+  }
+
   Future<(CatalogMediaKind kind, Object item)?> findTypedById(String id) {
     return _persistence.findTypedById(id);
+  }
+
+  Future<(CatalogMediaKind kind, Object item)?> findTypedByRef(
+    OwnedItemRef ref,
+  ) {
+    return _persistence.findTypedByRef(ref);
   }
 
   ({Map<String, dynamic> payload, bool isDeleted}) syncPayloadForTyped(

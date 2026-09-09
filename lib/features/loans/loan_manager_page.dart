@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
@@ -29,7 +30,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   var _loading = true;
   List<Loan> _loans = const [];
   Map<String, OwnedItemSummary> _ownedById = const {};
-  Map<String, List<OwnedItemSummary>> _ownedByCatalogId = const {};
+  Map<CatalogEntityRef, List<OwnedItemSummary>> _ownedByCatalogRef = const {};
 
   @override
   void initState() {
@@ -55,10 +56,10 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
     final loans = await loansRepo.getAllLoans();
     final ownedItems = await ownedRepo.listActiveSummaries();
-    final catalogIds =
-        ownedItems.map((item) => item.catalogRef?.id).whereType<String>();
-    final catalogById =
-        await CatalogDisplaySummaryRepository(db).findByIds(catalogIds);
+    final catalogRefs =
+        ownedItems.map((item) => item.catalogRef).whereType<CatalogEntityRef>();
+    final catalogByRef =
+        await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
     final locations = await locationRepo.getAll();
     final locationLabelsById = {
       for (final location in locations)
@@ -69,21 +70,21 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
         item.copyWith(
           title: item.catalogRef == null
               ? item.title
-              : catalogById[item.catalogRef!.id]?.title ?? item.title,
+              : catalogByRef[item.catalogRef!]?.title ?? item.title,
           imageUrl: item.catalogRef == null
               ? null
-              : catalogById[item.catalogRef!.id]?.imageUrl,
+              : catalogByRef[item.catalogRef!]?.imageUrl,
           locationLabel: item.locationLabel == null
               ? null
               : locationLabelsById[item.locationLabel!],
         ),
     ];
-    final ownedByCatalogId = <String, List<OwnedItemSummary>>{};
+    final ownedByCatalogRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
     for (final item in summaries) {
-      final catalogId = item.catalogRef?.id;
-      if (catalogId != null) {
-        ownedByCatalogId
-            .putIfAbsent(catalogId, () => <OwnedItemSummary>[])
+      final catalogRef = item.catalogRef;
+      if (catalogRef != null) {
+        ownedByCatalogRef
+            .putIfAbsent(catalogRef, () => <OwnedItemSummary>[])
             .add(item);
       }
     }
@@ -95,7 +96,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       _ownedById = {
         for (final item in summaries) item.ref.id.value: item,
       };
-      _ownedByCatalogId = ownedByCatalogId;
+      _ownedByCatalogRef = ownedByCatalogRef;
       _loading = false;
     });
   }
@@ -161,7 +162,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     if (catalog == null) {
       return null;
     }
-    final ownedItems = _ownedByCatalogId[catalog.ref.id] ?? const [];
+    final ownedItems = _ownedByCatalogRef[catalog.ref] ?? const [];
     if (ownedItems.isEmpty) {
       return null;
     }

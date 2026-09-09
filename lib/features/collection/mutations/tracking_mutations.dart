@@ -102,7 +102,7 @@ final class TrackingMutations {
       case OwnedItemTrackingTarget(:final ownedRef):
         targetOwnedItemId = ownedRef.id.value;
         if (ownedItems != null) {
-          final owned = await ownedItems!.findSummaryById(ownedRef.id.value);
+          final owned = await ownedItems!.findSummaryByRef(ownedRef);
           if (owned != null && owned.ref.kind != ownedRef.kind) {
             throw ArgumentError(
               'Owned tracking reference kind ${ownedRef.kind.apiValue} '
@@ -235,7 +235,7 @@ final class TrackingMutations {
   }) async {
     final now = DateTime.now().toUtc();
     final ownedSummary = catalogRef == null
-        ? await ownedItems?.findSummaryById(ownedRef.id.value)
+        ? await ownedItems?.findSummaryByRef(ownedRef)
         : null;
     final baseCatalogRef = targetRef ?? catalogRef ?? ownedSummary?.catalogRef;
     if (baseCatalogRef == null) {
@@ -248,7 +248,7 @@ final class TrackingMutations {
     if (anchor != null || replaceAnchor) {
       resolvedCatalogRef = _catalogRefForAnchor(resolvedCatalogRef, anchor);
     }
-    final typedOwned = await ownedItems?.findTypedById(ownedRef.id.value);
+    final typedOwned = await ownedItems?.findTypedByRef(ownedRef);
     final resolvedIsDigital = typedOwned == null
         ? isDigital
         : collectarrTypedOwnedItemIsDigital(typedOwned.$2);

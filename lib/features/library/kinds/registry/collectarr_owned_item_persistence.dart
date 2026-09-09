@@ -61,6 +61,15 @@ final class CollectarrOwnedItemPersistence {
     return collectarrFindTypedOwnedItem(_database, id);
   }
 
+  Future<(CatalogMediaKind kind, Object item)?> findTypedByRef(
+    OwnedItemRef ref,
+  ) async {
+    final finder = _typedFinders[ref.kind];
+    if (finder == null) return null;
+    final item = await finder(_database, ref.id.value);
+    return item == null ? null : (ref.kind, item);
+  }
+
   ({Map<String, dynamic> payload, bool isDeleted}) syncPayloadForTyped(
     CatalogMediaKind kind,
     Object item,
