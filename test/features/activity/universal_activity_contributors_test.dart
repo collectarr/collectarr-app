@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -62,7 +63,7 @@ void main() {
           (contributor) => contributor.contribute(
             UniversalActivityContext(
               ownedItems: [owned],
-              trackingEntries: [tracking],
+              trackingEntries: [TrackingActivitySummary.fromEntry(tracking)],
               wishlistItems: [wishlist],
               loans: [loan],
             ),

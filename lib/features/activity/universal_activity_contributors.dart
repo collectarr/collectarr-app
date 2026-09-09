@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/activity/activity_event_contributor.dart';
@@ -22,7 +22,7 @@ final class UniversalActivityContext {
   });
 
   final Iterable<OwnedItemSummary> ownedItems;
-  final Iterable<TrackingEntry> trackingEntries;
+  final Iterable<TrackingActivitySummary> trackingEntries;
   final Iterable<WishlistItem> wishlistItems;
   final Iterable<Loan> loans;
   final Iterable<WatchSession> watchSessions;
@@ -84,10 +84,10 @@ final class TrackingActivityContributor
           timestamp: entry.startedAt!,
         );
       }
-      if (entry.finishedAt != null) {
+      if (entry.completedAt != null) {
         yield ActivityEvent(
           kind: ActivityEventKind.finished,
-          timestamp: entry.finishedAt!,
+          timestamp: entry.completedAt!,
         );
       }
       if (entry.rating != null) {

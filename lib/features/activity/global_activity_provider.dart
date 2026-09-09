@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
@@ -74,12 +75,15 @@ final globalActivityProvider =
         .add(loan);
   }
 
-  final trackingByRef = <CatalogEntityRef, List<TrackingEntry>>{};
+  final trackingByRef = <CatalogEntityRef, List<TrackingActivitySummary>>{};
   for (final entry in trackingEntries) {
     if (entry.isDeleted) continue;
     trackingByRef
-        .putIfAbsent(_rootCatalogRef(entry.catalogRef), () => <TrackingEntry>[])
-        .add(entry);
+        .putIfAbsent(
+          _rootCatalogRef(entry.catalogRef),
+          () => <TrackingActivitySummary>[],
+        )
+        .add(TrackingActivitySummary.fromEntry(entry));
   }
   final watchByRef = <CatalogEntityRef, List<WatchSession>>{};
   for (final session in watchSessions) {
@@ -112,7 +116,8 @@ final globalActivityProvider =
   for (final itemRef in refs) {
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedByCatalogRef[itemRef] ?? const <OwnedItemSummary>[],
-      trackingEntries: trackingByRef[itemRef] ?? const <TrackingEntry>[],
+      trackingEntries:
+          trackingByRef[itemRef] ?? const <TrackingActivitySummary>[],
       wishlistItems: wishlistByRef[itemRef] ?? const <WishlistItem>[],
       loans: loansByRef[itemRef] ?? const <Loan>[],
       watchSessions: watchByRef[itemRef] ?? const <WatchSession>[],
