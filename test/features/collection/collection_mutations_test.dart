@@ -1528,7 +1528,9 @@ Future<T> _typedOwned<T>(LocalDatabase db, OwnedItemRef ref) async {
 
 Future<T> _typedOwnedForCatalog<T>(LocalDatabase db, String itemId) async {
   final summaries = await OwnedItemsRepository(db).listActiveSummaries();
-  final summary = summaries.firstWhere((item) => item.itemId == itemId);
+  final summary = summaries.firstWhere(
+    (item) => (item.catalogRef?.rootId ?? item.catalogRef?.id) == itemId,
+  );
   return _typedOwned<T>(db, summary.ref);
 }
 
