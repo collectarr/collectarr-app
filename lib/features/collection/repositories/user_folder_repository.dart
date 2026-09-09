@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -64,15 +65,15 @@ class UserFolderRepository {
         .go();
   }
 
-  Future<List<String>> getItemIdsInFolder(String folderId) async {
+  Future<List<OwnedItemRef>> getOwnedRefsInFolder(String folderId) async {
     final rows = await (_db.select(_db.userFolderItemsCache)
           ..where((t) => t.folderId.equals(folderId))
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
         .get();
-    return rows.map((r) => r.ownedItemId).toList();
+    return rows.map((r) => OwnedItemRef.fromKey(r.ownedItemId)).toList();
   }
 
-  Future<void> addItemToFolder(String folderId, String ownedItemId) async {
+  Future<void> addItemToFolder(String folderId, OwnedItemRef ownedRef) async {
     final maxSort = await _db.customSelect(
       'SELECT COALESCE(MAX(sort_order), 0) AS m FROM user_folder_items_cache WHERE folder_id = ?',
       variables: [Variable.withString(folderId)],
@@ -82,22 +83,25 @@ class UserFolderRepository {
     await _db.into(_db.userFolderItemsCache).insertOnConflictUpdate(
           UserFolderItemsCacheCompanion.insert(
             folderId: folderId,
-            ownedItemId: ownedItemId,
+            ownedItemId: ownedRef.key,
             sortOrder: Value(sortOrder),
           ),
         );
   }
 
-  Future<void> removeItemFromFolder(String folderId, String ownedItemId) async {
+  Future<void> removeItemFromFolder(
+    String folderId,
+    OwnedItemRef ownedRef,
+  ) async {
     await (_db.delete(_db.userFolderItemsCache)
           ..where((t) =>
-              t.folderId.equals(folderId) & t.ownedItemId.equals(ownedItemId)))
+              t.folderId.equals(folderId) & t.ownedItemId.equals(ownedRef.key)))
         .go();
   }
 
-  Future<List<UserFolder>> getFoldersForItem(String ownedItemId) async {
+  Future<List<UserFolder>> getFoldersForItem(OwnedItemRef ownedRef) async {
     final rows = await (_db.select(_db.userFolderItemsCache)
-          ..where((t) => t.ownedItemId.equals(ownedItemId)))
+          ..where((t) => t.ownedItemId.equals(ownedRef.key)))
         .get();
     if (rows.isEmpty) return [];
     final folderIds = rows.map((r) => r.folderId).toSet();

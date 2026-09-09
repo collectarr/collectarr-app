@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -27,7 +28,7 @@ class _UserFoldersDialog extends StatefulWidget {
 
 class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   List<UserFolder> _folders = [];
-  Map<String, List<String>> _folderItemIds = {};
+  Map<String, List<OwnedItemRef>> _folderOwnedRefs = {};
   bool _loading = true;
 
   @override
@@ -39,14 +40,14 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
     final folders = await repo.getAll();
-    final itemIds = <String, List<String>>{};
+    final ownedRefs = <String, List<OwnedItemRef>>{};
     for (final folder in folders) {
-      itemIds[folder.id] = await repo.getItemIdsInFolder(folder.id);
+      ownedRefs[folder.id] = await repo.getOwnedRefsInFolder(folder.id);
     }
     if (mounted) {
       setState(() {
         _folders = folders;
-        _folderItemIds = itemIds;
+        _folderOwnedRefs = ownedRefs;
         _loading = false;
       });
     }
@@ -180,7 +181,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                         Divider(height: 1, color: palette.divider),
                     itemBuilder: (context, i) {
                       final folder = _folders[i];
-                      final count = _folderItemIds[folder.id]?.length ?? 0;
+                      final count = _folderOwnedRefs[folder.id]?.length ?? 0;
                       return ListTile(
                         leading: Icon(
                           _iconForFolder(folder.iconName),

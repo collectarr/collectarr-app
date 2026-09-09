@@ -181,7 +181,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                         showFolderAssignmentDialog(
                           context: context,
                           db: db,
-                          ownedItemId: activeOwnedItem.id,
+                          ownedRef: activeOwnedItem.ref,
                         );
                       },
               ),

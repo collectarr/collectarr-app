@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -10,22 +11,22 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 Future<void> showFolderAssignmentDialog({
   required BuildContext context,
   required LocalDatabase db,
-  required String ownedItemId,
+  required OwnedItemRef ownedRef,
 }) async {
   return showDialog<void>(
     context: context,
-    builder: (_) => _FolderAssignmentDialog(db: db, ownedItemId: ownedItemId),
+    builder: (_) => _FolderAssignmentDialog(db: db, ownedRef: ownedRef),
   );
 }
 
 class _FolderAssignmentDialog extends StatefulWidget {
   const _FolderAssignmentDialog({
     required this.db,
-    required this.ownedItemId,
+    required this.ownedRef,
   });
 
   final LocalDatabase db;
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
 
   @override
   State<_FolderAssignmentDialog> createState() =>
@@ -46,7 +47,7 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
     final folders = await repo.getAll();
-    final belonging = await repo.getFoldersForItem(widget.ownedItemId);
+    final belonging = await repo.getFoldersForItem(widget.ownedRef);
     if (mounted) {
       setState(() {
         _folders = folders;
@@ -59,10 +60,10 @@ class _FolderAssignmentDialogState extends State<_FolderAssignmentDialog> {
   Future<void> _toggle(String folderId) async {
     final repo = UserFolderRepository(widget.db);
     if (_memberOf.contains(folderId)) {
-      await repo.removeItemFromFolder(folderId, widget.ownedItemId);
+      await repo.removeItemFromFolder(folderId, widget.ownedRef);
       if (mounted) setState(() => _memberOf.remove(folderId));
     } else {
-      await repo.addItemToFolder(folderId, widget.ownedItemId);
+      await repo.addItemToFolder(folderId, widget.ownedRef);
       if (mounted) setState(() => _memberOf.add(folderId));
     }
   }
