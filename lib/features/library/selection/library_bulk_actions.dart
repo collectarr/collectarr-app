@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
@@ -49,7 +50,12 @@ class LibraryBulkActions {
           ownedItem.ref,
           catalogRef: ownedItem.catalogRef,
           isDigital: ownedItem.isDigital,
-          anchor: ownedItem.anchor,
+          targetRef: catalogRefForLibrarySelection(
+            ownedItem.catalogRef,
+            editionId: ownedItem.anchor?.editionId,
+            variantId: ownedItem.anchor?.variantId,
+            bundleReleaseId: ownedItem.anchor?.bundleReleaseId,
+          ),
           status: mediaTrackingStatusFromValue(selection.readStatus),
           rating: selection.rating,
         );

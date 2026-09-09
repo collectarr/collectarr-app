@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
@@ -831,7 +831,8 @@ class _InspectorTrackingDetailsEditorState
         : TrackingTarget.catalog(widget.trackingEntry.catalogRef);
     await ref.read(trackingMutationsProvider).upsertTrackingEntry(
           target,
-          anchor: PersonalItemAnchor.fromRaw(
+          targetRef: catalogRefForLibrarySelection(
+            widget.trackingEntry.catalogRef,
             editionId: _selectedEditionId,
             variantId: _selectedVariantId,
           ),

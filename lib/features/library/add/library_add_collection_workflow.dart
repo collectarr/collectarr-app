@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -107,8 +106,6 @@ Future<void> addLibraryItemsToTarget({
       collectionStatus: baseCommon.collectionStatus,
       isDigital: digitalOwnedItem ?? baseCommon.isDigital,
     );
-    final itemAnchor = reference.anchor;
-
     switch (target) {
       case LibraryAddTarget.owned:
         final itemKind = catalogMediaKindFromApiValue(item.kind);
@@ -125,7 +122,7 @@ Future<void> addLibraryItemsToTarget({
         if (tracking != null) {
           await trackingMutations.syncOwnedTrackingEntry(
             ownedItem,
-            anchor: itemAnchor,
+            targetRef: reference.catalogRef,
             status: tracking.status,
             rating: tracking.rating,
             startedAt: tracking.startedAt,
@@ -142,7 +139,7 @@ Future<void> addLibraryItemsToTarget({
       case LibraryAddTarget.track:
         await trackingMutations.addLocalOnlyTrackingEntry(
           item.catalogRef,
-          anchor: itemAnchor,
+          targetRef: reference.catalogRef,
           status: baseTracking.readStatus == null
               ? null
               : mediaTrackingStatusFromValue(baseTracking.readStatus),
@@ -195,10 +192,6 @@ _ResolvedAddReference _resolveReferenceForItem(
           item.catalogRef,
           bundleReleaseId: bundleReleaseId,
         ),
-        anchor: PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
-          bundleReleaseId: bundleReleaseId,
-        ),
       );
     case LibraryAddReferenceType.edition:
       final explicitEditionId = editionSelection?.editionId.trim();
@@ -207,11 +200,6 @@ _ResolvedAddReference _resolveReferenceForItem(
         return _ResolvedAddReference(
           catalogRef: catalogRefForLibrarySelection(
             item.catalogRef,
-            editionId: explicitEditionId,
-            variantId: variantId?.isEmpty == true ? null : variantId,
-          ),
-          anchor: PersonalItemAnchor.fromRaw(
-            anchorType: PersonalItemAnchorType.edition.apiValue,
             editionId: explicitEditionId,
             variantId: variantId?.isEmpty == true ? null : variantId,
           ),
@@ -230,19 +218,12 @@ _ResolvedAddReference _resolveReferenceForItem(
           variantId:
               explicitVariantId?.isEmpty == true ? null : explicitVariantId,
         ),
-        anchor: PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.edition.apiValue,
-          editionId: firstEdition.id,
-          variantId:
-              explicitVariantId?.isEmpty == true ? null : explicitVariantId,
-        ),
       );
   }
 }
 
 class _ResolvedAddReference {
-  const _ResolvedAddReference({required this.catalogRef, this.anchor});
+  const _ResolvedAddReference({required this.catalogRef});
 
-  final PersonalItemAnchor? anchor;
   final CatalogEntityRef catalogRef;
 }

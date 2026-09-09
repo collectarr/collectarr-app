@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -151,22 +150,6 @@ class LibraryAddSessionController
 
   LibraryAddSessionState get state => value;
   set state(LibraryAddSessionState newState) => value = newState;
-
-  PersonalItemAnchor? get _selectedAnchor {
-    final selection = state.selection;
-    return switch (selection.referenceType) {
-      LibraryAddReferenceType.media => null,
-      LibraryAddReferenceType.edition => PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.edition.apiValue,
-          editionId: selection.selectedReferenceEditionId,
-          variantId: selection.selectedReferenceVariantId,
-        ),
-      LibraryAddReferenceType.bundleRelease => PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
-          bundleReleaseId: selection.selectedBundleReleaseId,
-        ),
-    };
-  }
 
   CatalogEntityRef _selectedWishlistRef(LibraryAddCatalogItem item) {
     final selection = state.selection;
@@ -1337,7 +1320,7 @@ class LibraryAddSessionController
         case LibraryAddTarget.track:
           await trackingMutations.addLocalOnlyTrackingEntry(
             item.catalogRef,
-            anchor: _selectedAnchor,
+            targetRef: _selectedTargetRef(item),
           );
       }
 
@@ -1458,7 +1441,7 @@ class LibraryAddSessionController
             case LibraryAddTarget.track:
               await trackingMutations.addLocalOnlyTrackingEntry(
                 metadataItem.catalogRef,
-                anchor: _selectedAnchor,
+                targetRef: _selectedTargetRef(metadataItem),
               );
           }
         }
@@ -1519,7 +1502,7 @@ class LibraryAddSessionController
           case LibraryAddTarget.track:
             await trackingMutations.addLocalOnlyTrackingEntry(
               selectedResult.catalogRef,
-              anchor: _selectedAnchor,
+              targetRef: _selectedTargetRef(selectedResult),
             );
         }
       }

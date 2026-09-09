@@ -323,10 +323,12 @@ void main() {
             );
     await container.read(trackingMutationsProvider).syncOwnedTrackingEntry(
           owned,
-          anchor: PersonalItemAnchor.fromRaw(
-            anchorType: PersonalItemAnchorType.variant.apiValue,
-            editionId: 'edition-steelbook',
-            variantId: 'variant-4k',
+          targetRef: const CatalogEntityRef(
+            kind: CatalogMediaKind.movie,
+            entityType: CatalogEntityTypeId('release'),
+            id: 'variant-4k',
+            rootId: 'movie-2',
+            parentId: 'edition-steelbook',
           ),
           status: MediaTrackingStatus.completed,
           rating: 10,

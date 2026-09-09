@@ -95,7 +95,7 @@ void main() {
         testCatalogRef('movie-target-1', kind: 'movie'),
       ]))
           .single;
-      expect(entry.catalogRef.kind, 'movie');
+      expect(entry.catalogRef.kind.apiValue, 'movie');
       expect(entry.catalogRef.id, 'movie-target-1');
       expect(entry.sourceType, TrackingSourceType.streaming);
       expect(entry.status, MediaTrackingStatus.inProgress);
@@ -135,11 +135,11 @@ void main() {
       ]))
           .single;
       expect(entry.ownedRef, OwnedItemRef.fromKey('book:owned-item-77'));
-      expect(entry.catalogRef.kind, 'book');
+      expect(entry.catalogRef.kind.apiValue, 'book');
       expect(entry.status, MediaTrackingStatus.completed);
     });
 
-    test('resolves a structural anchor when the owned row is unavailable',
+    test('accepts a structural target when the owned row is unavailable',
         () async {
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.owned(
@@ -150,13 +150,10 @@ void main() {
         ),
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: const CatalogEntityTypeId('work'),
-          id: 'book-anchor-target',
-        ),
-        anchor: PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.variant.apiValue,
-          editionId: 'edition-anchor',
-          variantId: 'variant-anchor',
+          entityType: const CatalogEntityTypeId('release'),
+          id: 'variant-anchor',
+          rootId: 'book-anchor-target',
+          parentId: 'edition-anchor',
         ),
         status: MediaTrackingStatus.completed,
       );
@@ -171,7 +168,7 @@ void main() {
       expect(entry.catalogRef.rootId, 'book-anchor-target');
     });
 
-    test('replaces an existing catalog anchor when explicitly cleared',
+    test('replaces an existing catalog target when explicitly cleared',
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
@@ -181,16 +178,17 @@ void main() {
 
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(ref),
-        anchor: PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.variant.apiValue,
-          editionId: 'edition-before-clear',
-          variantId: 'variant-before-clear',
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.book,
+          entityType: CatalogEntityTypeId('release'),
+          id: 'variant-before-clear',
+          rootId: 'book-anchor-clear',
+          parentId: 'edition-before-clear',
         ),
       );
       await trackingMutations.upsertTrackingEntry(
         TrackingTarget.catalog(ref),
-        anchor: null,
-        replaceAnchor: true,
+        targetRef: ref,
       );
 
       final entry =
@@ -283,7 +281,7 @@ void main() {
         testCatalogRef('music-album-99', kind: 'music'),
       ]))
           .single;
-      expect(entry.catalogRef.kind, 'music');
+      expect(entry.catalogRef.kind.apiValue, 'music');
       expect(entry.catalogRef.kind, isNot('comic'));
     });
 
@@ -318,7 +316,7 @@ void main() {
       );
 
       final entry = (await trackingEntries.listActive()).single;
-      expect(entry.catalogRef.kind, 'tv');
+      expect(entry.catalogRef.kind.apiValue, 'tv');
       expect(tvTrackingCoordinatesFor(entry).seasonNumber, 2);
       expect(
         trackingEntries.toSyncPayload(entry)['season_number'],
@@ -371,7 +369,7 @@ void main() {
         ),
         catalogRef: owned.catalogRef,
         isDigital: owned.isDigital,
-        anchor: owned.anchor,
+        targetRef: ref,
         status: MediaTrackingStatus.inProgress,
         progressCurrent: 9,
       );
@@ -385,7 +383,7 @@ void main() {
       expect(entry.progressCurrent, 9);
     });
 
-    test('owned sync can explicitly clear an inherited anchor', () async {
+    test('owned sync can explicitly replace its catalog target', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
         entityType: const CatalogEntityTypeId('work'),
@@ -416,15 +414,19 @@ void main() {
       await trackingMutations.syncOwnedTrackingEntry(
         ownedRef,
         catalogRef: owned.catalogRef,
-        anchor: owned.anchor,
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.book,
+          entityType: CatalogEntityTypeId('edition'),
+          id: 'edition-owned-before-clear',
+          rootId: 'book-owned-anchor-clear',
+        ),
         isDigital: owned.isDigital,
       );
 
       await trackingMutations.syncOwnedTrackingEntry(
         ownedRef,
         catalogRef: owned.catalogRef,
-        anchor: null,
-        replaceAnchor: true,
+        targetRef: ref,
       );
 
       final entry =

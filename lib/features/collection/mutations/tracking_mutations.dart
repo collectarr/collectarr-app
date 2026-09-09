@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -73,8 +72,6 @@ final class TrackingMutations {
   Future<void> upsertTrackingEntry(
     TrackingTarget target, {
     CatalogEntityRef? targetRef,
-    PersonalItemAnchor? anchor,
-    bool replaceAnchor = false,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status,
     int? rating,
@@ -122,10 +119,6 @@ final class TrackingMutations {
             'repository is configured: ${ownedRef.key}',
           );
         }
-    }
-
-    if (anchor != null || replaceAnchor) {
-      catalogRef = _catalogRefForAnchor(catalogRef, anchor);
     }
 
     final existingEntries =
@@ -207,8 +200,6 @@ final class TrackingMutations {
     CatalogEntityRef? catalogRef,
     bool? isDigital,
     CatalogEntityRef? targetRef,
-    PersonalItemAnchor? anchor,
-    bool replaceAnchor = false,
     MediaTrackingStatus? status,
     int? rating,
     DateTime? startedAt,
@@ -232,10 +223,7 @@ final class TrackingMutations {
         '${ownedRef.id.value}',
       );
     }
-    var resolvedCatalogRef = baseCatalogRef;
-    if (anchor != null || replaceAnchor) {
-      resolvedCatalogRef = _catalogRefForAnchor(resolvedCatalogRef, anchor);
-    }
+    final resolvedCatalogRef = baseCatalogRef;
     final typedOwned = await ownedItems?.findTypedByRef(ownedRef);
     final resolvedIsDigital = typedOwned == null
         ? isDigital
@@ -300,7 +288,6 @@ final class TrackingMutations {
   Future<void> addLocalOnlyTrackingEntry(
     CatalogEntityRef catalogRef, {
     CatalogEntityRef? targetRef,
-    PersonalItemAnchor? anchor,
     TrackingSourceType? sourceType,
     MediaTrackingStatus? status = MediaTrackingStatus.planned,
     int? rating,
@@ -317,8 +304,7 @@ final class TrackingMutations {
     final itemId = catalogRef.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
     final entryId = idGenerator();
-    final resolvedCatalogRef =
-        targetRef ?? _catalogRefForAnchor(catalogRef, anchor);
+    final resolvedCatalogRef = targetRef ?? catalogRef;
     await mutationRunner.run(
       origin: origin,
       localRef: resolvedCatalogRef,
@@ -381,48 +367,6 @@ final class TrackingMutations {
       action: action,
       payload: unit.toSyncPayload(),
       clientChangedAt: now,
-    );
-  }
-
-  CatalogEntityRef _catalogRefForAnchor(
-    CatalogEntityRef baseRef,
-    PersonalItemAnchor? anchor,
-  ) {
-    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
-      return baseRef.copyWith(
-        entityType: const CatalogEntityTypeId('work'),
-        id: baseRef.rootId ?? baseRef.id,
-        rootId: null,
-      );
-    }
-    if (anchor.type == PersonalItemAnchorType.bundleRelease &&
-        anchor.bundleReleaseId != null) {
-      return baseRef.copyWith(
-        entityType: const CatalogEntityTypeId('bundle_release'),
-        id: anchor.bundleReleaseId,
-        rootId: baseRef.rootId ?? baseRef.id,
-      );
-    }
-    if (anchor.type == PersonalItemAnchorType.variant &&
-        anchor.variantId != null) {
-      return baseRef.copyWith(
-        entityType: const CatalogEntityTypeId('release'),
-        id: anchor.variantId,
-        rootId: baseRef.rootId ?? baseRef.id,
-      );
-    }
-    if (anchor.type == PersonalItemAnchorType.edition &&
-        anchor.editionId != null) {
-      return baseRef.copyWith(
-        entityType: const CatalogEntityTypeId('edition'),
-        id: anchor.editionId,
-        rootId: baseRef.rootId ?? baseRef.id,
-      );
-    }
-    return baseRef.copyWith(
-      entityType: const CatalogEntityTypeId('work'),
-      id: baseRef.rootId ?? baseRef.id,
-      rootId: null,
     );
   }
 }

@@ -170,10 +170,14 @@ class TrackingEntriesCacheRepository {
         id: rootId,
         entityType: const CatalogEntityTypeId('work'),
         rootId: null,
+        parentId: null,
       );
     }
     if (ref.entityType != const CatalogEntityTypeId('work')) {
-      return ref.copyWith(entityType: const CatalogEntityTypeId('work'));
+      return ref.copyWith(
+        entityType: const CatalogEntityTypeId('work'),
+        parentId: null,
+      );
     }
     return ref;
   }
