@@ -64,7 +64,6 @@ void main() {
     ownedMutations = OwnedItemMutations(
       ownedItems: OwnedItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
-      catalogCache: catalogCache,
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       trackingEntries: TrackingEntriesCacheRepository(
         db,

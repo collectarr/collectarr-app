@@ -11,6 +11,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -196,12 +197,14 @@ void main() {
           ),
         );
 
-    await container.read(ownedItemMutationsProvider).updateCatalogSnapshot(
-          testCatalogItem(
-            id: 'comic-1',
-            kind: 'comic',
-            title: 'Updated',
-            synopsis: 'Refreshed metadata',
+    await container.read(catalogItemMutationsProvider).updateSnapshot(
+          CatalogImportSnapshot.fromItem(
+            testCatalogItem(
+              id: 'comic-1',
+              kind: 'comic',
+              title: 'Updated',
+              synopsis: 'Refreshed metadata',
+            ),
           ),
         );
 
@@ -1458,15 +1461,17 @@ void main() {
     );
     await wishlistMutations.addLocalOnlyWishlistItem(localSnapshot);
 
-    final promotedCount = await ownedMutations.promoteLocalOnlyItemToCatalog(
-      'tmdb-local:movie:603',
-      testCatalogItem(
-        id: 'movie-603',
-        kind: 'movie',
-        title: 'The Matrix',
-        releaseYear: 1999,
-      ),
-    );
+    final promotedCount = await container
+        .read(catalogItemMutationsProvider)
+        .promoteLocalOnlyItemToCatalog(
+          'tmdb-local:movie:603',
+          CatalogImportSnapshot.fromItem(testCatalogItem(
+            id: 'movie-603',
+            kind: 'movie',
+            title: 'The Matrix',
+            releaseYear: 1999,
+          )),
+        );
 
     final tracking = await db.select(db.trackingEntriesCache).get();
     final wishlist = await db.select(db.wishlistItemsCache).get();

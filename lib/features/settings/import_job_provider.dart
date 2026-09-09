@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_persona
 import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/imports/personal_lists/anime_list_import_service.dart';
 import 'package:collectarr_app/features/imports/personal_lists/provider_csv_import_service.dart';
 import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
@@ -382,6 +383,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     accountId = await _validatedAccountId(provider, accountId);
     final api = ref.read(apiClientProvider);
     final ownedMutations = ref.read(ownedItemMutationsProvider);
+    final catalogMutations = ref.read(catalogItemMutationsProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
     _updateJob(
@@ -442,8 +444,12 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           jobId,
           (j) => j.copyWith(phase: ImportJobPhase.importing),
         );
-        await ownedMutations.updateCatalogSnapshot(item, origin: config.origin);
+        await catalogMutations.updateSnapshot(
+          CatalogImportSnapshot.fromItem(item),
+          origin: config.origin,
+        );
         await _applyEntry(
+          catalogMutations: catalogMutations,
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           item: item,
@@ -476,7 +482,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         if (keepUnmatchedLocally) {
           final localItem = _syntheticImportCatalogItem(provider, entry);
           await _applyLocalOnlyEntry(
-            ownedMutations: ownedMutations,
+            catalogMutations: catalogMutations,
             wishlistMutations: wishlistMutations,
             trackingMutations: trackingMutations,
             item: localItem,
@@ -627,6 +633,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     }
 
     final ownedMutations = ref.read(ownedItemMutationsProvider);
+    final catalogMutations = ref.read(catalogItemMutationsProvider);
     final wishlistMutations = ref.read(wishlistMutationsProvider);
     final trackingMutations = ref.read(trackingMutationsProvider);
     var importedCount = 0;
@@ -648,8 +655,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         final mergedItem =
             const TmdbCatalogMerger().mergeMatchedCatalogItem(item, enriched);
         if (_shouldUpdateCatalogSnapshot(item, mergedItem)) {
-          await ownedMutations.updateCatalogSnapshot(
-            mergedItem,
+          await catalogMutations.updateSnapshot(
+            CatalogImportSnapshot.fromItem(mergedItem),
             origin: origin,
           );
         }
@@ -669,7 +676,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           );
         }
         await _importTvSeasons(
-          ownedMutations: ownedMutations,
+          catalogMutations: catalogMutations,
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
           seriesEntry: enriched,
@@ -734,8 +741,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             final localItem =
                 const TmdbCatalogMerger().localSyntheticCatalogItem(enriched);
             if (enriched.collection.isRated) {
-              await ownedMutations.updateCatalogSnapshot(
-                localItem,
+              await catalogMutations.updateSnapshot(
+                CatalogImportSnapshot.fromItem(localItem),
                 origin: origin,
               );
               await trackingMutations.addLocalOnlyTrackingEntry(
@@ -753,7 +760,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               );
             }
             await _importTvSeasons(
-              ownedMutations: ownedMutations,
+              catalogMutations: catalogMutations,
               wishlistMutations: wishlistMutations,
               trackingMutations: trackingMutations,
               seriesEntry: enriched,
@@ -935,7 +942,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _importTvSeasons({
-    required OwnedItemMutations ownedMutations,
+    required CatalogItemMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required TmdbImportEntry seriesEntry,
@@ -955,8 +962,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       final seasonNumber =
           (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
       if (seriesEntry.collection.isRated) {
-        await ownedMutations.updateCatalogSnapshot(
-          seasonItem,
+        await catalogMutations.updateSnapshot(
+          CatalogImportSnapshot.fromItem(seasonItem),
           origin: origin,
         );
         await tvTrackingImportContribution.addLocalOnlySeasonEntry(
@@ -1037,6 +1044,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _applyEntry({
+    required CatalogItemMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required CatalogItemDto item,
@@ -1073,7 +1081,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
   }
 
   Future<void> _applyLocalOnlyEntry({
-    required OwnedItemMutations ownedMutations,
+    required CatalogItemMutations catalogMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
     required CatalogItemDto item,
@@ -1088,7 +1096,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       );
       return;
     }
-    await ownedMutations.updateCatalogSnapshot(item, origin: origin);
+    await catalogMutations.updateSnapshot(
+      CatalogImportSnapshot.fromItem(item),
+      origin: origin,
+    );
     await trackingMutations.addLocalOnlyTrackingEntry(
       item.catalogRef,
       sourceType: TrackingSourceType.streaming,

@@ -252,7 +252,6 @@ Future<_CoordinatorHarness> _pumpHarness(
   final mutations = OwnedItemMutations(
     ownedItems: OwnedItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
-    catalogCache: CatalogTransportRepository(db),
     catalogSummaries: CatalogDisplaySummaryRepository(db),
     trackingEntries: TrackingEntriesCacheRepository(
       db,

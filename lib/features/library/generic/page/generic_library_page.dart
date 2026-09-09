@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -580,8 +581,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     if (projection == null) {
       return false;
     }
-    return projection.filteredItems
-        .any((item) => item.source.ownedRef != null);
+    return projection.filteredItems.any((item) => item.source.ownedRef != null);
   }
 
   bool _hasOwnedItemsInSelection(LibraryProjection? projection) {

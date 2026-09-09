@@ -292,6 +292,12 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   // serialized representation. This is not generic feature dispatch.
   static const _structuralKindComparisonAllowlist = {
     'lib/core/models/catalog_media_kind.dart',
+    // These hosts only validate/dispatch a structural kind value before
+    // handing semantics to a registered contributor or provider parser.
+    'lib/features/collection/csv/collection_csv.dart',
+    'lib/features/collection/mutations/wishlist_mutations.dart',
+    'lib/features/imports/personal_lists/anime_list_import_service.dart',
+    'lib/features/library/selection/library_bulk_actions.dart',
   };
 
   // These models switch over their own structural event enum to provide

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -103,12 +104,15 @@ class LibraryPageBucketCoordinator {
     if (catalogUpdates.isEmpty && ownedUpdates.isEmpty) {
       return 0;
     }
-    final mutations = _page.ref.read(ownedItemMutationsProvider);
+    final catalogMutations = _page.ref.read(catalogItemMutationsProvider);
+    final ownedMutations = _page.ref.read(ownedItemMutationsProvider);
     if (catalogUpdates.isNotEmpty) {
-      await mutations.updateCatalogSnapshots(catalogUpdates.values);
+      await catalogMutations.updateSnapshots(
+        catalogUpdates.values.map(CatalogImportSnapshot.fromItem),
+      );
     }
     for (final update in ownedUpdates.values) {
-      await mutations.updateOwnedItem(update);
+      await ownedMutations.updateOwnedItem(update);
     }
     if (!_page.mounted) {
       return catalogUpdates.length + ownedUpdates.length;

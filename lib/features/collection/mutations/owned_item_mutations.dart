@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -16,7 +14,6 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -26,7 +23,6 @@ final class OwnedItemMutations {
   const OwnedItemMutations({
     required this.ownedItems,
     required this.wishlist,
-    required this.catalogCache,
     required this.catalogSummaries,
     required this.trackingEntries,
     required this.syncQueue,
@@ -38,7 +34,6 @@ final class OwnedItemMutations {
 
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
-  final CatalogTransportRepository catalogCache;
   final CatalogDisplaySummaryRepository catalogSummaries;
   final TrackingEntriesCacheRepository trackingEntries;
   final SyncQueueRepository syncQueue;
@@ -186,43 +181,6 @@ final class OwnedItemMutations {
     return updated;
   }
 
-  Future<void> updateCatalogSnapshot(
-    CatalogItemDto item, {
-    MutationOrigin origin = MutationOrigin.user,
-  }) async {
-    final now = DateTime.now().toUtc();
-    final metadataItem = item;
-    final itemId = metadataItem.id;
-    await mutationRunner.run(
-      origin: origin,
-      action: () async {
-        await catalogCache.upsertAll([item]);
-        await syncQueue.enqueue(_syncChangeForCatalogItem(item, now));
-      },
-      eventsToEmit: [CatalogItemChanged(itemId)],
-    );
-  }
-
-  Future<void> updateCatalogSnapshots(
-    Iterable<CatalogItemDto> items,
-  ) async {
-    final pendingItems = items.toList(growable: false);
-    if (pendingItems.isEmpty) return;
-
-    final now = DateTime.now().toUtc();
-    await mutationRunner.run(
-      action: () async {
-        await catalogCache.upsertAll(pendingItems);
-        await syncQueue.enqueueAll([
-          for (final item in pendingItems) _syncChangeForCatalogItem(item, now),
-        ]);
-      },
-      eventsToEmit: [
-        for (final item in pendingItems) CatalogItemChanged(item.id),
-      ],
-    );
-  }
-
   Future<void> removeItem(OwnedItemRef ref) async {
     final now = DateTime.now().toUtc();
     final typedExisting = await ownedItems.findTypedByRef(ref);
@@ -241,70 +199,6 @@ final class OwnedItemMutations {
         );
       },
       eventsToEmit: [OwnedItemRemoved(ref.id.value)],
-    );
-  }
-
-  Future<int> promoteLocalOnlyItemToCatalog(
-    String localItemId,
-    CatalogItemDto targetCatalogItem,
-  ) async {
-    final targetMetadata = targetCatalogItem;
-    final now = DateTime.now().toUtc();
-    final wishlistEntries = await wishlist.findActiveByItemIds([localItemId]);
-    final trackingList =
-        await trackingEntries.findActiveByItemIds([localItemId]);
-
-    return await mutationRunner.run(
-      action: () async {
-        await catalogCache.upsertAll([targetMetadata]);
-        var count = 0;
-
-        for (final item in wishlistEntries) {
-          final updated = item.copyWith(
-            catalogRef: _rebaseCatalogRef(
-              item.catalogRef,
-              targetMetadata.catalogRef,
-            ),
-            updatedAt: now,
-          );
-          await wishlist.upsert(updated);
-          await syncQueue
-              .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
-          count++;
-        }
-
-        for (final item in trackingList) {
-          final updated = item.copyWith(
-            catalogRef: _rebaseCatalogRef(
-              item.catalogRef,
-              targetMetadata.catalogRef,
-            ),
-            updatedAt: now,
-          );
-          await trackingEntries.upsert(updated);
-          await syncQueue
-              .enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
-          count++;
-        }
-
-        await syncQueue.enqueue(
-          SyncChange(
-            id: 'catalog_snapshot:${targetMetadata.id}:upsert:${now.millisecondsSinceEpoch}',
-            entityType: 'library_item_snapshot',
-            entityId: targetMetadata.id,
-            action: 'upsert',
-            payload: targetMetadata.toSyncPayload(),
-            clientChangedAt: now,
-          ),
-        );
-
-        return count;
-      },
-      eventsToEmit: [
-        CatalogItemChanged(targetMetadata.id),
-        for (final item in wishlistEntries) WishlistChanged(item.id),
-        for (final item in trackingList) TrackingChanged(item.id),
-      ],
     );
   }
 
@@ -373,20 +267,6 @@ final class OwnedItemMutations {
     );
   }
 
-  CatalogEntityRef _rebaseCatalogRef(
-    CatalogEntityRef current,
-    CatalogEntityRef target,
-  ) {
-    if (current.entityType == CatalogEntityType.work ||
-        current.rootId == null) {
-      return target;
-    }
-    return current.copyWith(
-      kind: target.kind,
-      rootId: target.id,
-    );
-  }
-
   SyncChange _syncChangeForTypedOwnedItem(
     CatalogMediaKind kind,
     Object item,
@@ -405,44 +285,6 @@ final class OwnedItemMutations {
     );
   }
 
-  SyncChange _syncChangeForWishlistItem(
-      WishlistItem item, String action, DateTime now) {
-    return SyncChange(
-      id: 'wishlist:${item.id}:$action:${now.millisecondsSinceEpoch}',
-      entityType: 'wishlist_item',
-      entityId: item.id,
-      action: action,
-      payload: item.toSyncPayload(),
-      clientChangedAt: now,
-    );
-  }
-
-  SyncChange _syncChangeForTrackingEntry(
-      TrackingEntry entry, String action, DateTime now) {
-    return SyncChange(
-      id: 'tracking_entry:${entry.id}:$action:${now.millisecondsSinceEpoch}',
-      entityType: 'tracking_entry',
-      entityId: entry.id,
-      action: action,
-      payload: trackingEntries.toSyncPayload(entry),
-      clientChangedAt: now,
-    );
-  }
-
-  SyncChange _syncChangeForCatalogItem(CatalogItemDto item, DateTime now) {
-    final metadataItem = item;
-    final itemId = metadataItem.id;
-    final payload = metadataItem.toSyncPayload();
-    return SyncChange(
-      id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',
-      entityType: 'catalog_item',
-      entityId: itemId,
-      action: 'upsert',
-      payload: payload,
-      clientChangedAt: now,
-    );
-  }
-
   SyncChange _syncChangeForCatalogRef(
     CatalogEntityRef ref,
     DateTime now,
@@ -453,6 +295,21 @@ final class OwnedItemMutations {
       entityId: ref.id,
       action: 'upsert',
       payload: {'id': ref.id, 'kind': ref.kind},
+      clientChangedAt: now,
+    );
+  }
+
+  SyncChange _syncChangeForWishlistItem(
+    WishlistItem item,
+    String action,
+    DateTime now,
+  ) {
+    return SyncChange(
+      id: 'wishlist:${item.id}:$action:${now.millisecondsSinceEpoch}',
+      entityType: 'wishlist_item',
+      entityId: item.id,
+      action: action,
+      payload: item.toSyncPayload(),
       clientChangedAt: now,
     );
   }

@@ -241,14 +241,13 @@ class LibraryPageEditCoordinator {
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {
-    final ownedMutations = _s.ref.read(ownedItemMutationsProvider);
     final coordinator = _s.ref.read(collectionCommandCoordinatorProvider);
     final wishlistMutations = _s.ref.read(wishlistMutationsProvider);
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
 
-    await ownedMutations.updateCatalogSnapshot(
-      result.item,
-    );
+    await _s.ref.read(catalogItemMutationsProvider).updateSnapshot(
+          CatalogImportSnapshot.fromItem(result.item),
+        );
     final personal = result.personal;
     if (owned != null && personal != null) {
       final payload = result.ownedUpdatePayload;

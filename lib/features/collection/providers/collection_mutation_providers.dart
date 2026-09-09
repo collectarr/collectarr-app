@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/collection_import_service.dart';
+import 'package:collectarr_app/features/collection/mutations/catalog_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/custom_episode_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
@@ -163,7 +164,6 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
   return OwnedItemMutations(
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),
@@ -172,6 +172,16 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
     userId: auth.userId,
     userEmail: auth.email,
+  );
+});
+
+final catalogItemMutationsProvider = Provider<CatalogItemMutations>((ref) {
+  return CatalogItemMutations(
+    catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    syncQueue: ref.watch(syncQueueRepositoryProvider),
+    mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
 });
 
