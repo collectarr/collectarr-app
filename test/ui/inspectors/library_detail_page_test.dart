@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
@@ -13,6 +15,7 @@ import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repos
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -226,11 +229,12 @@ void main() {
         kind: 'movie',
         title: 'Dune',
       ),
-      trackingEntry: TrackingEntry(
+      trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-        sourceType: 'digital',
-        status: 'Watching',
+        sourceType: trackingSourceTypeFromValue('digital'),
+        status: mediaTrackingStatusFromValue('Watching') ??
+            MediaTrackingStatus.none,
         rating: 8,
         updatedAt: DateTime.utc(2026, 5, 23),
       ),

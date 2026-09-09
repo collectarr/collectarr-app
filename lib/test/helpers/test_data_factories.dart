@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -392,6 +392,30 @@ OwnedItem testOwnedItem({
   );
 }
 
+OwnedItemSummary testOwnedItemSummary(OwnedItem item) {
+  return OwnedItemSummary(
+    ref: item.ref,
+    title: item.itemId,
+    catalogRef: item.catalogRef,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+    deletedAt: item.deletedAt,
+    purchaseDate: item.purchaseDate,
+    purchaseStore: item.purchaseStore,
+    pricePaidCents: item.pricePaidCents,
+    currency: item.currency,
+    soldAt: item.soldAt,
+    soldTo: item.soldTo,
+    sellPriceCents: item.sellPriceCents,
+    marketValueCents: item.marketValueCents,
+    quantity: item.quantity,
+    ownerLabel: item.ownerLabel,
+    locationLabel: item.locationId,
+    notes: item.personalNotes,
+    hasNotes: item.personalNotes?.trim().isNotEmpty == true,
+  );
+}
+
 ShelfEntry testShelfEntry({
   String itemId = 'test-item-1',
   String kind = 'comic',
@@ -399,7 +423,6 @@ ShelfEntry testShelfEntry({
   CatalogItemDto? catalogItem,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
-  TrackingEntry? trackingEntry,
   String? locationPath,
 }) {
   final resolvedCatalogItem = catalogItem ??
@@ -413,7 +436,6 @@ ShelfEntry testShelfEntry({
     catalogItem: testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ownedItem: ownedItem,
     wishlistItem: wishlistItem,
-    trackingEntry: trackingEntry,
     locationPath: locationPath,
   );
 }

@@ -195,6 +195,17 @@ final class TrackingMutations {
   Future<void> removeTrackingEntry(TrackingEntry entry, {bool notify = true}) =>
       deleteTrackingEntry(entry, notify: notify);
 
+  /// Deletes a tracking row selected from a structural Shelf summary.
+  ///
+  /// Mixed/global UI should not carry the full [TrackingEntry] aggregate just
+  /// to perform this operation. The repository resolves the v1 row at the
+  /// mutation boundary and the existing sync/delete semantics remain intact.
+  Future<void> removeTrackingById(String id, {bool notify = true}) async {
+    final entry = await trackingEntries.findById(id);
+    if (entry == null || entry.isDeleted) return;
+    await removeTrackingEntry(entry, notify: notify);
+  }
+
   Future<void> syncOwnedTrackingEntry(
     OwnedItemRef ownedRef, {
     CatalogEntityRef? catalogRef,

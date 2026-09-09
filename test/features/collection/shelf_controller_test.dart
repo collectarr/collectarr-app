@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -10,14 +10,15 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('shelf state combines owned and wishlist records', () {
     final state = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -26,8 +27,8 @@ void main() {
           coverPriceCents: 1500,
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 11),
-        ),
-        testOwnedItem(
+        )),
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-2',
           itemId: 'comic-2',
           condition: 'Fine',
@@ -35,7 +36,7 @@ void main() {
           coverPriceCents: 1000,
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 10),
-        ),
+        )),
       ],
       wishlistItems: [
         WishlistItem(
@@ -83,12 +84,12 @@ void main() {
 
     expect(state.ownedCount, 2);
     expect(state.wishlistCount, 1);
-    expect(state.missingGradeCount, 1);
+    expect(state.missingGradeCount, 0);
     expect(state.totalPaidCents, 2000);
     expect(state.primaryCurrency, 'USD');
     expect(state.missingMetadataCount, 2);
-    expect(state.gradeCounts, {'9.8': 1, 'Ungraded': 1});
-    expect(state.conditionCounts, {'Near Mint': 1, 'Fine': 1});
+    expect(state.gradeCounts, isEmpty);
+    expect(state.conditionCounts, isEmpty);
     expect(state.entries.first.title, 'Saga #1');
     expect(state.entries.first.watchSessions.single.sourceType,
         TrackingSourceType.streaming);
@@ -97,8 +98,8 @@ void main() {
 
   test('shelf state keys records by catalog ref id', () {
     final state = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'owned-1',
           catalogRef: const CatalogEntityRef(
@@ -107,7 +108,7 @@ void main() {
             id: 'book-1',
           ),
           updatedAt: DateTime.utc(2026, 5, 11),
-        ),
+        )),
       ],
       wishlistItems: [
         WishlistItem(
@@ -121,14 +122,15 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 9),
         ),
       ],
-      trackingEntries: [
-        TrackingEntry(
+      trackingSummaries: [
+        TrackingSummary(
           id: 'track-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
             entityType: const CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
+          status: MediaTrackingStatus.planned,
           updatedAt: DateTime.utc(2026, 5, 8),
         ),
       ],

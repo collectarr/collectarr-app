@@ -286,7 +286,7 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final source = item.source;
-    final rating = source.trackingEntry?.rating;
+    final rating = source.trackingSummary?.rating;
     final personalFacts = <LibraryDetailField>[
       if (source.condition?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Condition', value: source.condition!.trim()),

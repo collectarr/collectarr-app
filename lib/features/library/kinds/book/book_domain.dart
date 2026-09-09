@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 export 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -23,11 +23,10 @@ export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 
-
 final class BookPersonalOverlay {
   const BookPersonalOverlay({
     this.ownedItem,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.locationPath,
     this.updatedAt,
@@ -36,7 +35,7 @@ final class BookPersonalOverlay {
   factory BookPersonalOverlay.fromShelf(ShelfEntry source) {
     return BookPersonalOverlay(
       ownedItem: source.ownedItem,
-      trackingEntry: source.trackingEntry,
+      trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
       updatedAt: source.updatedAt,
@@ -44,7 +43,7 @@ final class BookPersonalOverlay {
   }
 
   final OwnedItem? ownedItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;
   final DateTime? updatedAt;

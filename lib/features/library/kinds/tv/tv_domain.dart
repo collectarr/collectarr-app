@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
@@ -45,7 +45,7 @@ export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_
 final class TvPersonalOverlay {
   const TvPersonalOverlay({
     this.ownedItem,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.locationPath,
     this.watchSessions = const <WatchSession>[],
@@ -59,7 +59,7 @@ final class TvPersonalOverlay {
   factory TvPersonalOverlay.fromShelf(ShelfEntry source) {
     return TvPersonalOverlay(
       ownedItem: source.ownedItem,
-      trackingEntry: source.trackingEntry,
+      trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
       watchSessions: source.watchSessions,
@@ -69,7 +69,7 @@ final class TvPersonalOverlay {
   }
 
   final OwnedItem? ownedItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;
   final List<WatchSession> watchSessions;
@@ -80,7 +80,7 @@ final class TvPersonalOverlay {
   final bool? isWishlistedOverride;
 
   bool get isOwned => isOwnedOverride ?? ownedItem != null;
-  bool get isTracked => isTrackedOverride ?? trackingEntry != null;
+  bool get isTracked => isTrackedOverride ?? trackingSummary != null;
   bool get isWishlisted => isWishlistedOverride ?? wishlistItem != null;
 }
 

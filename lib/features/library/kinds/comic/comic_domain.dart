@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
@@ -28,7 +28,7 @@ export 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 final class ComicPersonalOverlay {
   const ComicPersonalOverlay({
     this.ownedItem,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.locationPath,
     this.lastBagBoardDate,
@@ -41,7 +41,7 @@ final class ComicPersonalOverlay {
         ComicOwnedItemProjection.tryFromOwnedItem(source.ownedItem);
     return ComicPersonalOverlay(
       ownedItem: ownedItem,
-      trackingEntry: source.trackingEntry,
+      trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
       lastBagBoardDate: ownedItem?.details.lastBagBoardDate,
@@ -51,7 +51,7 @@ final class ComicPersonalOverlay {
   }
 
   final ComicOwnedItem? ownedItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;
   final DateTime? lastBagBoardDate;

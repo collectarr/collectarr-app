@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -94,34 +95,52 @@ class LibraryEntry {
 /// Small mixed-Shelf tracking projection.
 final class TrackingSummary {
   const TrackingSummary({
+    required this.id,
     required this.catalogRef,
     required this.status,
     required this.updatedAt,
+    this.ownedRef,
+    this.sourceType,
     this.rating,
     this.startedAt,
     this.completedAt,
+    this.progressCurrent,
+    this.progressTotal,
+    this.timesCompleted,
     this.notes,
     this.deletedAt,
   });
 
   factory TrackingSummary.fromEntry(TrackingEntry entry) {
     return TrackingSummary(
+      id: entry.id,
       catalogRef: entry.catalogRef,
       status: entry.status ?? MediaTrackingStatus.none,
+      ownedRef: entry.ownedRef,
+      sourceType: entry.sourceType,
       rating: entry.rating,
       startedAt: entry.startedAt,
       completedAt: entry.finishedAt,
+      progressCurrent: entry.progressCurrent,
+      progressTotal: entry.progressTotal,
+      timesCompleted: entry.timesCompleted,
       notes: entry.notes,
       updatedAt: entry.updatedAt,
       deletedAt: entry.deletedAt,
     );
   }
 
+  final String id;
   final CatalogEntityRef catalogRef;
   final MediaTrackingStatus status;
+  final OwnedItemRef? ownedRef;
+  final TrackingSourceType? sourceType;
   final int? rating;
   final DateTime? startedAt;
   final DateTime? completedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
   final String? notes;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -136,11 +155,10 @@ final class TrackingSummary {
 /// projection and the post-dispatch workspace source have different
 /// ownership rules; making one inherit from the other recreates the generic
 /// catalog/Owned compatibility union we are removing.
-/// Complete compatibility source consumed by typed workspace/CSV adapters.
 ///
-/// This is not a mixed/global domain entry. It remains at the explicit
-/// workspace transport boundary until every kind projector reads its concrete
-/// media and Owned aggregate directly.
+/// Tracking is intentionally represented only by [TrackingSummary]. A full
+/// [TrackingEntry] is a persistence aggregate and must not be carried through
+/// every workspace row.
 class LibraryWorkspaceSource {
   const LibraryWorkspaceSource({
     required this.itemId,
@@ -154,7 +172,6 @@ class LibraryWorkspaceSource {
     this.fallbackOwnerLabel,
     this.catalogItem,
     this.ownedItem,
-    this.trackingEntry,
   });
 
   final String itemId;
@@ -168,7 +185,6 @@ class LibraryWorkspaceSource {
   final String? fallbackOwnerLabel;
   final CatalogItemDto? catalogItem;
   final OwnedItem? ownedItem;
-  final TrackingEntry? trackingEntry;
 
   CatalogEntityRef? get catalogRef =>
       catalogSummary?.ref ??
@@ -182,7 +198,7 @@ class LibraryWorkspaceSource {
   OwnedItemRef? get ownedRef => ownedSummary?.ref ?? ownedItem?.ref;
 
   bool get isOwned => ownedSummary != null || ownedItem != null;
-  bool get isTracked => trackingSummary != null || trackingEntry != null;
+  bool get isTracked => trackingSummary != null;
   bool get isWishlisted => wishlistItem != null;
 
   String get subtitle {
@@ -205,7 +221,6 @@ class LibraryWorkspaceSource {
       if (trackingSummary?.updatedAt case final value?) value,
       if (wishlistItem?.updatedAt case final value?) value,
       if (ownedItem?.updatedAt case final value?) value,
-      if (trackingEntry?.updatedAt case final value?) value,
     ];
     if (values.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
     values.sort((a, b) => b.compareTo(a));
@@ -227,15 +242,11 @@ class LibraryWorkspaceSource {
   }
 
   MediaTrackingStatus get trackingStatus =>
-      trackingEntry?.status ??
-      trackingSummary?.status ??
-      MediaTrackingStatus.none;
-  int? get trackingRating => trackingEntry?.rating ?? trackingSummary?.rating;
-  DateTime? get trackingStartedAt =>
-      trackingEntry?.startedAt ?? trackingSummary?.startedAt;
-  DateTime? get trackingCompletedAt =>
-      trackingEntry?.finishedAt ?? trackingSummary?.completedAt;
-  String? get trackingNotes => trackingEntry?.notes ?? trackingSummary?.notes;
+      trackingSummary?.status ?? MediaTrackingStatus.none;
+  int? get trackingRating => trackingSummary?.rating;
+  DateTime? get trackingStartedAt => trackingSummary?.startedAt;
+  DateTime? get trackingCompletedAt => trackingSummary?.completedAt;
+  String? get trackingNotes => trackingSummary?.notes;
   String get trackingStatusLabel => trackingStatus.label;
 
   String? get ownerLabel =>

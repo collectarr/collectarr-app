@@ -89,7 +89,7 @@ class LibraryBulkActions {
       final entry = entriesToOwn[index];
       final resolvedKind = entry.catalogItem?.mediaKind ??
           entry.wishlistItem?.catalogRef.mediaKind ??
-          entry.trackingEntry?.catalogRef.mediaKind ??
+          entry.trackingSummary?.catalogRef.mediaKind ??
           CatalogMediaKind.unknown;
       final common = LibraryAddCommonDraft(
         condition: defaultCondition,
@@ -125,7 +125,7 @@ class LibraryBulkActions {
       final catalogRef = entry.catalogItem?.catalogRef ??
           entry.ownedItem?.catalogRef ??
           entry.wishlistItem?.catalogRef ??
-          entry.trackingEntry?.catalogRef;
+          entry.trackingSummary?.catalogRef;
       if (catalogRef == null) {
         throw StateError(
           'Cannot move selected item to wishlist without a catalog reference: '
@@ -157,16 +157,16 @@ class LibraryBulkActions {
         src.catalogRef.mediaKind,
       );
       final catalogItem = entry.catalogItem;
-      final tracking = entry.trackingEntry == null
+      final tracking = entry.trackingSummary == null
           ? null
           : LibraryAddTrackingDraft(
               readStatus: mediaTrackingStatusToStorageValue(
-                entry.trackingEntry!.status,
+                entry.trackingSummary!.status,
               ),
-              rating: entry.trackingEntry!.rating,
-              startedAt: entry.trackingEntry!.startedAt,
-              finishedAt: entry.trackingEntry!.finishedAt,
-              notes: entry.trackingEntry!.notes,
+              rating: entry.trackingSummary!.rating,
+              startedAt: entry.trackingSummary!.startedAt,
+              finishedAt: entry.trackingSummary!.completedAt,
+              notes: entry.trackingSummary!.notes,
             );
       final typedCommand = catalogItem == null
           ? null
@@ -199,7 +199,7 @@ class LibraryBulkActions {
     ];
     final trackedEntries = [
       for (final entry in entries)
-        if (entry.trackingEntry != null && entry.ownedItem == null) entry,
+        if (entry.trackingSummary != null && entry.ownedItem == null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
       await ownedMutations.removeItem(ownedEntries[index].ownedItem!.ref);
@@ -211,8 +211,8 @@ class LibraryBulkActions {
       );
     }
     for (var index = 0; index < trackedEntries.length; index++) {
-      await trackingMutations.removeTrackingEntry(
-        trackedEntries[index].trackingEntry!,
+      await trackingMutations.removeTrackingById(
+        trackedEntries[index].trackingSummary!.id,
       );
     }
   }

@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,7 +53,7 @@ void main() {
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
         ),
-        trackingEntry: TrackingEntry(
+        trackingSummary: TrackingSummary(
           id: 'tracking-1',
           catalogRef: testCatalogRef('comic-1', kind: 'comic'),
           ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
@@ -191,7 +192,7 @@ void main() {
         finishedAt: DateTime.utc(2020, 1, 2),
         updatedAt: DateTime.utc(2026, 1, 1),
       ),
-      trackingEntry: TrackingEntry(
+      trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: testCatalogRef('book-1', kind: 'book'),
         ownedRef: OwnedItemRef.fromKey('book:owned-1'),

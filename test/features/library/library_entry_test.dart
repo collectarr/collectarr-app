@@ -31,6 +31,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 12),
       ),
       trackingSummary: TrackingSummary(
+        id: 'tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: const CatalogEntityTypeId('work'),

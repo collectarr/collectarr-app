@@ -39,8 +39,8 @@ void main() {
       barcode: '123456789012',
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-1',
           itemId: game.id,
           kind: 'game',
@@ -48,7 +48,7 @@ void main() {
           pricePaidCents: 2499,
           currency: 'USD',
           updatedAt: now,
-        ),
+        )),
       ],
       wishlistItems: const [],
       catalogItems: {game.id: game},
@@ -109,13 +109,13 @@ void main() {
       releaseYear: 2020,
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-1',
           itemId: game.id,
           kind: 'game',
           updatedAt: now,
-        ),
+        )),
       ],
       wishlistItems: const [],
       catalogItems: {game.id: game},
@@ -178,7 +178,7 @@ void main() {
       releaseYear: 2026,
     );
     final shelf = ShelfState.from(
-      ownedItems: const [],
+      ownedSummaries: const [],
       wishlistItems: const [],
       catalogItems: {podcast.id: podcast},
     );
@@ -228,13 +228,13 @@ void main() {
       releaseYear: 2018,
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-game-rail-1',
           itemId: game.id,
           kind: 'game',
           updatedAt: now,
-        ),
+        )),
       ],
       wishlistItems: const [],
       catalogItems: {game.id: game},
@@ -291,7 +291,7 @@ void main() {
       updatedAt: now,
     );
     final shelf = ShelfState.from(
-      ownedItems: [owned],
+      ownedSummaries: [testOwnedItemSummary(owned)],
       wishlistItems: const [],
       catalogItems: {game.id: game},
     );

@@ -701,12 +701,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       targetRef: ownedItem.catalogRef,
       tracking: LibraryAddTrackingDraft(
         readStatus: mediaTrackingStatusToStorageValue(
-          item.source.trackingEntry?.status,
+          item.source.trackingSummary?.status,
         ),
-        rating: item.source.trackingEntry?.rating,
-        startedAt: item.source.trackingEntry?.startedAt,
-        finishedAt: item.source.trackingEntry?.finishedAt,
-        notes: item.source.trackingEntry?.notes,
+        rating: item.source.trackingSummary?.rating,
+        startedAt: item.source.trackingSummary?.startedAt,
+        finishedAt: item.source.trackingSummary?.completedAt,
+        notes: item.source.trackingSummary?.notes,
       ),
     );
     if (command == null) {
