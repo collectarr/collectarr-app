@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 
 /// Comic-owned issue progress unit.
@@ -10,7 +11,7 @@ final class ComicTrackingUnit extends TrackingUnit {
     required super.updatedAt,
     this.issueNumber,
     super.trackingEntryId,
-    super.ownedItemId,
+    super.ownedRef,
     super.deletedAt,
   }) : super(unitType: ComicTrackingUnit.type);
 
@@ -28,7 +29,7 @@ final class ComicTrackingUnit extends TrackingUnit {
     String? id,
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    String? ownedItemId,
+    OwnedItemRef? ownedRef,
     String? unitType,
     DateTime? completedAt,
     DateTime? updatedAt,
@@ -38,7 +39,7 @@ final class ComicTrackingUnit extends TrackingUnit {
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRef: ownedRef ?? this.ownedRef,
       issueNumber: issueNumber,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,

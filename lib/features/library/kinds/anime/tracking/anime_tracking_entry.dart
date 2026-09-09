@@ -32,7 +32,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
     required super.id,
     required super.catalogRef,
     required this.coordinates,
-    super.ownedItemId,
+    super.ownedRef,
     super.sourceType,
     super.status,
     super.rating,
@@ -56,7 +56,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
       id: entry.id,
       catalogRef: entry.catalogRef,
       coordinates: coordinates ?? AnimeTrackingCoordinates.fromLegacy(entry),
-      ownedItemId: entry.ownedItemId,
+      ownedRef: entry.ownedRef,
       sourceType: entry.sourceType,
       status: entry.status,
       rating: entry.rating,
@@ -75,7 +75,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
   AnimeTrackingEntry copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedItemId = trackingEntryUnset,
+    Object? ownedRef = trackingEntryUnset,
     Object? sourceType = trackingEntryUnset,
     Object? status = trackingEntryUnset,
     Object? rating = trackingEntryUnset,
@@ -91,7 +91,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
     final copied = super.copyWith(
       id: id,
       catalogRef: catalogRef,
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -110,7 +110,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
   AnimeTrackingEntry copyWithCoordinates({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedItemId = trackingEntryUnset,
+    Object? ownedRef = trackingEntryUnset,
     Object? sourceType = trackingEntryUnset,
     Object? status = trackingEntryUnset,
     Object? rating = trackingEntryUnset,
@@ -129,7 +129,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
     final copied = super.copyWith(
       id: id,
       catalogRef: catalogRef,
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       sourceType: sourceType,
       status: status,
       rating: rating,

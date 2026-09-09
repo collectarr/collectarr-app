@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
@@ -121,7 +122,7 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
         episodeNumber: episodeNumber,
         episodeRatings: _decodeEpisodeRatingsValue(payload['episode_ratings']),
       ),
-      ownedItemId: payload['owned_item_id'] as String?,
+      ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -149,7 +150,7 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
       catalogRef: typed.hasEpisodeCoordinates
           ? row.catalogRef.copyWith(entityType: CatalogEntityType.episode)
           : row.catalogRef,
-      ownedItemId: row.ownedItemId,
+      ownedRef: row.ownedRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,

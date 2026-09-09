@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 
 /// The serialized, kind-neutral portion of a tracking-entry row.
@@ -12,7 +13,7 @@ final class TrackingEntryStorageRow {
   const TrackingEntryStorageRow({
     required this.id,
     required this.catalogRef,
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.sourceType,
     required this.status,
     required this.rating,
@@ -28,7 +29,7 @@ final class TrackingEntryStorageRow {
 
   final String id;
   final CatalogEntityRef catalogRef;
-  final String? ownedItemId;
+  final OwnedItemRef? ownedRef;
   final String? sourceType;
   final String? status;
   final int? rating;

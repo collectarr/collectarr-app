@@ -64,7 +64,7 @@ final class TvTrackingUnitCodec implements TrackingUnitCodec {
       id: row.id,
       targetRef: row.targetRef,
       trackingEntryId: row.trackingEntryId,
-      ownedItemId: row.ownedItemId,
+      ownedRef: row.ownedRef,
       seasonNumber: typedCoordinates.seasonNumber,
       episodeNumber: typedCoordinates.episodeNumber,
       completedAt: row.completedAt,

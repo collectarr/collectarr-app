@@ -91,13 +91,13 @@ final class TrackingMutations {
   }) async {
     final now = DateTime.now().toUtc();
     late CatalogEntityRef catalogRef;
-    String? targetOwnedItemId;
+    OwnedItemRef? targetOwnedRef;
 
     switch (target) {
       case CatalogTrackingTarget(:final ref):
         catalogRef = targetRef ?? ref;
       case OwnedItemTrackingTarget(:final ownedRef):
-        targetOwnedItemId = ownedRef.id.value;
+        targetOwnedRef = ownedRef;
         if (ownedItems != null) {
           final owned = await ownedItems!.findSummaryByRef(ownedRef);
           if (owned != null && owned.ref.kind != ownedRef.kind) {
@@ -140,7 +140,7 @@ final class TrackingMutations {
         final baseEntry = existing?.copyWith(
               id: entryId,
               catalogRef: catalogRef,
-              ownedItemId: targetOwnedItemId ?? existing.ownedItemId,
+              ownedRef: targetOwnedRef ?? existing.ownedRef,
               sourceType: sourceType ?? existing.sourceType,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
@@ -155,7 +155,7 @@ final class TrackingMutations {
             TrackingEntry(
               id: entryId,
               catalogRef: catalogRef,
-              ownedItemId: targetOwnedItemId,
+              ownedRef: targetOwnedRef,
               sourceType: sourceType,
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
@@ -245,7 +245,7 @@ final class TrackingMutations {
     final existing = existingEntries.isEmpty
         ? null
         : existingEntries.firstWhere(
-            (e) => e.ownedItemId == ownedRef.id.value,
+            (e) => e.ownedRef == ownedRef,
             orElse: () => existingEntries.first,
           );
     final entryId = existing?.id ?? idGenerator();
@@ -256,7 +256,7 @@ final class TrackingMutations {
         final baseEntry = existing?.copyWith(
               id: entryId,
               catalogRef: resolvedCatalogRef,
-              ownedItemId: ownedRef.id.value,
+              ownedRef: ownedRef,
               status: status ?? existing.status ?? MediaTrackingStatus.planned,
               rating: rating ?? existing.rating,
               notes: notes ?? existing.notes,
@@ -274,7 +274,7 @@ final class TrackingMutations {
             TrackingEntry(
               id: entryId,
               catalogRef: resolvedCatalogRef,
-              ownedItemId: ownedRef.id.value,
+              ownedRef: ownedRef,
               status: status ?? MediaTrackingStatus.planned,
               rating: rating,
               notes: notes,

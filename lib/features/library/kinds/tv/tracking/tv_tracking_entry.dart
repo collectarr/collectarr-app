@@ -34,7 +34,7 @@ final class TvTrackingEntry extends TrackingEntry {
     required super.id,
     required super.catalogRef,
     required this.coordinates,
-    super.ownedItemId,
+    super.ownedRef,
     super.sourceType,
     super.status,
     super.rating,
@@ -58,7 +58,7 @@ final class TvTrackingEntry extends TrackingEntry {
       id: entry.id,
       catalogRef: entry.catalogRef,
       coordinates: coordinates ?? TvTrackingCoordinates.fromLegacy(entry),
-      ownedItemId: entry.ownedItemId,
+      ownedRef: entry.ownedRef,
       sourceType: entry.sourceType,
       status: entry.status,
       rating: entry.rating,
@@ -77,7 +77,7 @@ final class TvTrackingEntry extends TrackingEntry {
   TvTrackingEntry copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedItemId = trackingEntryUnset,
+    Object? ownedRef = trackingEntryUnset,
     Object? sourceType = trackingEntryUnset,
     Object? status = trackingEntryUnset,
     Object? rating = trackingEntryUnset,
@@ -93,7 +93,7 @@ final class TvTrackingEntry extends TrackingEntry {
     final copied = super.copyWith(
       id: id,
       catalogRef: catalogRef,
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -112,7 +112,7 @@ final class TvTrackingEntry extends TrackingEntry {
   TvTrackingEntry copyWithCoordinates({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedItemId = trackingEntryUnset,
+    Object? ownedRef = trackingEntryUnset,
     Object? sourceType = trackingEntryUnset,
     Object? status = trackingEntryUnset,
     Object? rating = trackingEntryUnset,
@@ -131,7 +131,7 @@ final class TvTrackingEntry extends TrackingEntry {
     final copied = super.copyWith(
       id: id,
       catalogRef: catalogRef,
-      ownedItemId: ownedItemId,
+      ownedRef: ownedRef,
       sourceType: sourceType,
       status: status,
       rating: rating,

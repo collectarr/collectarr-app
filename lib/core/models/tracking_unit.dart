@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 /// Kind-neutral tracking-unit persistence projection.
 ///
@@ -13,14 +14,14 @@ class TrackingUnit {
     required this.completedAt,
     required this.updatedAt,
     this.trackingEntryId,
-    this.ownedItemId,
+    this.ownedRef,
     this.deletedAt,
   });
 
   final String id;
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final String? ownedItemId;
+  final OwnedItemRef? ownedRef;
   final String unitType;
   final DateTime completedAt;
   final DateTime updatedAt;
@@ -34,7 +35,7 @@ class TrackingUnit {
       'catalog_ref': targetRef.toJson(),
       'unit_type': unitType,
       'tracking_entry_id': trackingEntryId,
-      'owned_item_id': ownedItemId,
+      'owned_ref': ownedRef?.toJson(),
       'completed_at': completedAt.toUtc().toIso8601String(),
     };
   }
@@ -43,7 +44,7 @@ class TrackingUnit {
     String? id,
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    String? ownedItemId,
+    OwnedItemRef? ownedRef,
     String? unitType,
     DateTime? completedAt,
     DateTime? updatedAt,
@@ -53,7 +54,7 @@ class TrackingUnit {
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRef: ownedRef ?? this.ownedRef,
       unitType: unitType ?? this.unitType,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,

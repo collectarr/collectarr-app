@@ -823,7 +823,8 @@ List<TrackingEntry> comicSeedTrackingEntries(DateTime now) => [
         TrackingEntry(
           id: 'seed-track-comic-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-comic-${seedOrdinal2(i)}'),
-          ownedItemId: 'seed-owned-seed-comic-${seedOrdinal2(i)}',
+          ownedRef:
+              seedOwnedRefFromId('seed-owned-seed-comic-${seedOrdinal2(i)}'),
           sourceType: TrackingSourceType.physical,
           status: i <= 12
               ? MediaTrackingStatus.completed

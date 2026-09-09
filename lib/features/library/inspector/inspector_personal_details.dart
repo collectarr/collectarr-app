@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -827,13 +826,8 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
-    final target = widget.trackingEntry.ownedItemId != null
-        ? TrackingTarget.owned(
-            OwnedItemRef(
-              kind: widget.trackingEntry.catalogRef.mediaKind,
-              id: OwnedItemId(widget.trackingEntry.ownedItemId!),
-            ),
-          )
+    final target = widget.trackingEntry.ownedRef != null
+        ? TrackingTarget.owned(widget.trackingEntry.ownedRef!)
         : TrackingTarget.catalog(widget.trackingEntry.catalogRef);
     await ref.read(trackingMutationsProvider).upsertTrackingEntry(
           target,

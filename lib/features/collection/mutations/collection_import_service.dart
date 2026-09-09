@@ -537,7 +537,7 @@ final class CollectionImportService {
     if (existing != null) {
       return existing.copyWith(
         catalogRef: catalogRef,
-        ownedItemId: ownedRef.id.value,
+        ownedRef: ownedRef,
         status: status ?? existing.status,
         rating: row.rating ?? existing.rating,
         startedAt: row.startedAt ?? existing.startedAt,
@@ -549,7 +549,7 @@ final class CollectionImportService {
     return TrackingEntry(
       id: idGenerator(),
       catalogRef: catalogRef,
-      ownedItemId: ownedRef.id.value,
+      ownedRef: ownedRef,
       status: status ?? MediaTrackingStatus.planned,
       rating: row.rating,
       startedAt: row.startedAt,

@@ -1406,7 +1406,8 @@ List<TrackingEntry> musicSeedTrackingEntries(DateTime now) => [
         TrackingEntry(
           id: 'seed-track-music-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-music-${seedOrdinal2(i)}'),
-          ownedItemId: 'seed-owned-seed-music-${seedOrdinal2(i)}',
+          ownedRef:
+              seedOwnedRefFromId('seed-owned-seed-music-${seedOrdinal2(i)}'),
           sourceType: TrackingSourceType.physical,
           status: MediaTrackingStatus.completed,
           rating: 10,

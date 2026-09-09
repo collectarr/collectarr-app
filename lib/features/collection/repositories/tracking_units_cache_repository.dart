@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 import 'package:drift/drift.dart';
@@ -115,7 +116,7 @@ class TrackingUnitsCacheRepository {
       kind: Value(unit.targetRef.kind),
       targetRefJson: Value(jsonEncode(unit.targetRef.toJson())),
       trackingEntryId: Value(unit.trackingEntryId),
-      ownedItemId: Value(unit.ownedItemId),
+      ownedItemId: Value(unit.ownedRef?.key),
       unitType: Value(unit.unitType),
       completedAt: Value(unit.completedAt),
       updatedAt: Value(unit.updatedAt),
@@ -167,7 +168,7 @@ class TrackingUnitsCacheRepository {
       id: row.id,
       targetRef: targetRef,
       trackingEntryId: row.trackingEntryId,
-      ownedItemId: row.ownedItemId,
+      ownedRef: ownedItemRefFromSerialized(row.ownedItemId),
       unitType: row.unitType,
       completedAt: row.completedAt,
       updatedAt: row.updatedAt,

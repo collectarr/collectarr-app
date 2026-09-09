@@ -1049,7 +1049,7 @@ List<TrackingEntry> tvSeedTrackingEntries(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedItemId: 'seed-owned-seed-tv-${seedOrdinal2(i)}',
+          ownedRef: seedOwnedRefFromId('seed-owned-seed-tv-${seedOrdinal2(i)}'),
           sourceType: TrackingSourceType.physical,
           status: i <= 10
               ? MediaTrackingStatus.completed

@@ -76,10 +76,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     final ownedByRef = {
       for (final item in widget.ownedItems) item.ref: item,
     };
-    final trackingByOwnedId = {
+    final trackingByOwnedRef = {
       for (final entry in widget.trackingEntries)
-        if (!entry.isDeleted && entry.ownedItemId != null)
-          entry.ownedItemId!: entry,
+        if (!entry.isDeleted && entry.ownedRef != null) entry.ownedRef!: entry,
     };
     final trackingByItemId = {
       for (final entry in widget.trackingEntries)
@@ -104,7 +103,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         _ReadingQueueDialogEntry(
           summary: summary,
           catalogSummary: catalogSummary,
-          trackingEntry: trackingByOwnedId[summary.ref.id.value] ??
+          trackingEntry: trackingByOwnedRef[summary.ref] ??
               trackingByItemId[catalogRef.id],
         ),
       );

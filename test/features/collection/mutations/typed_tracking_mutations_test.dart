@@ -134,7 +134,7 @@ void main() {
         testCatalogRef('book-77', kind: 'book'),
       ]))
           .single;
-      expect(entry.ownedItemId, 'owned-item-77');
+      expect(entry.ownedRef, OwnedItemRef.fromKey('book:owned-item-77'));
       expect(entry.catalogRef.kind, 'book');
       expect(entry.status, MediaTrackingStatus.completed);
     });
@@ -165,7 +165,7 @@ void main() {
         testCatalogRef('book-anchor-target', kind: 'book'),
       ]))
           .single;
-      expect(entry.ownedItemId, 'book-anchor-target');
+      expect(entry.ownedRef, OwnedItemRef.fromKey('book:book-anchor-target'));
       expect(entry.catalogRef.entityType, CatalogEntityType.release);
       expect(entry.catalogRef.id, 'variant-anchor');
       expect(entry.catalogRef.rootId, 'book-anchor-target');
@@ -347,7 +347,10 @@ void main() {
         TvTrackingEntry(
           id: 'tracking-tv-1',
           catalogRef: ref,
-          ownedItemId: owned.id.value,
+          ownedRef: OwnedItemRef(
+            kind: CatalogMediaKind.tv,
+            id: OwnedItemId(owned.id.value),
+          ),
           coordinates: TvTrackingCoordinates(
             seasonNumber: 4,
             episodeNumber: 9,

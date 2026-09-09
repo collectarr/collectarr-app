@@ -244,7 +244,10 @@ void main() {
     final queued = await db.select(db.syncQueue).get();
 
     expect(tracking.itemId, 'movie-1');
-    expect(tracking.ownedItemId, owned.id.value);
+    expect(
+      tracking.ownedItemId,
+      OwnedItemRef.fromKey('movie:${owned.id.value}').key,
+    );
     expect(tracking.sourceType, 'physical');
     expect(tracking.status, 'Completed');
     expect(tracking.rating, 8);
@@ -337,7 +340,7 @@ void main() {
       jsonDecode(tracking.catalogRefJson!) as Map<String, dynamic>,
     );
 
-    expect(tracking.ownedItemId, owned.id.value);
+    expect(tracking.ownedItemId, owned.key);
     expect(trackingRef.entityType, CatalogEntityType.release);
     expect(trackingRef.id, 'variant-4k');
     expect(trackingRef.rootId, 'movie-2');
@@ -1298,7 +1301,10 @@ void main() {
     );
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     expect(imported, 1);
-    expect(tracking.ownedItemId, owned.id.value);
+    expect(
+      tracking.ownedItemId,
+      OwnedItemRef.fromKey('comic:${owned.id.value}').key,
+    );
     expect(tracking.status, 'Completed');
     expect(tracking.rating, 8);
     expect(tracking.startedAt?.toUtc(), DateTime.utc(2026, 6, 1));

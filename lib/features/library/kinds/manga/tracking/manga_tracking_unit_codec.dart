@@ -66,7 +66,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitCodec {
       id: row.id,
       targetRef: row.targetRef,
       trackingEntryId: row.trackingEntryId,
-      ownedItemId: row.ownedItemId,
+      ownedRef: row.ownedRef,
       volumeNumber: typedCoordinates.volumeNumber,
       chapterNumber: typedCoordinates.chapterNumber,
       completedAt: row.completedAt,

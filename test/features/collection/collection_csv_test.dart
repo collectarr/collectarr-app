@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
@@ -54,7 +55,7 @@ void main() {
         trackingEntry: TrackingEntry(
           id: 'tracking-1',
           catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-          ownedItemId: 'owned-1',
+          ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
           status: MediaTrackingStatus.completed,
           rating: 5,
           updatedAt: DateTime.utc(2026, 5, 12),
@@ -193,7 +194,7 @@ void main() {
       trackingEntry: TrackingEntry(
         id: 'tracking-1',
         catalogRef: testCatalogRef('book-1', kind: 'book'),
-        ownedItemId: 'owned-1',
+        ownedRef: OwnedItemRef.fromKey('book:owned-1'),
         status: MediaTrackingStatus.inProgress,
         rating: 8,
         startedAt: DateTime.utc(2026, 1, 3),

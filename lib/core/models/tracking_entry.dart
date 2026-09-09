@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -15,7 +16,7 @@ class TrackingEntry extends PersonalTrackingBase {
   TrackingEntry({
     required this.id,
     required this.catalogRef,
-    this.ownedItemId,
+    this.ownedRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -34,7 +35,7 @@ class TrackingEntry extends PersonalTrackingBase {
 
   final String id;
   final CatalogEntityRef catalogRef;
-  final String? ownedItemId;
+  final OwnedItemRef? ownedRef;
   final TrackingSourceType? sourceType;
   final int? progressCurrent;
   final int? progressTotal;
@@ -57,7 +58,7 @@ class TrackingEntry extends PersonalTrackingBase {
   Map<String, dynamic> toSyncPayload() {
     return {
       'catalog_ref': catalogRef.toJson(),
-      'owned_item_id': ownedItemId,
+      'owned_ref': ownedRef?.toJson(),
       'source_type': sourceTypeApiValue,
       'status': statusStorageValue,
       'rating': rating,
@@ -73,7 +74,7 @@ class TrackingEntry extends PersonalTrackingBase {
   TrackingEntry copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedItemId = trackingEntryUnset,
+    Object? ownedRef = trackingEntryUnset,
     Object? sourceType = trackingEntryUnset,
     Object? status = trackingEntryUnset,
     Object? rating = trackingEntryUnset,
@@ -89,9 +90,9 @@ class TrackingEntry extends PersonalTrackingBase {
     return TrackingEntry(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      ownedItemId: identical(ownedItemId, trackingEntryUnset)
-          ? this.ownedItemId
-          : ownedItemId as String?,
+      ownedRef: identical(ownedRef, trackingEntryUnset)
+          ? this.ownedRef
+          : ownedRef as OwnedItemRef?,
       sourceType: identical(sourceType, trackingEntryUnset)
           ? this.sourceType
           : trackingSourceTypeFromValue(sourceType),

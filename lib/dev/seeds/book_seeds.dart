@@ -786,7 +786,8 @@ List<TrackingEntry> bookSeedTrackingEntries(DateTime now) => [
         TrackingEntry(
           id: 'seed-track-book-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-book-${seedOrdinal2(i)}'),
-          ownedItemId: 'seed-owned-seed-book-${seedOrdinal2(i)}',
+          ownedRef:
+              seedOwnedRefFromId('seed-owned-seed-book-${seedOrdinal2(i)}'),
           sourceType: TrackingSourceType.physical,
           status: i <= 10
               ? MediaTrackingStatus.completed

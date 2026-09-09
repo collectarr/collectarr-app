@@ -1247,7 +1247,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-01',
         catalogRef: seedCatalogRef('seed-movie-01'),
-        ownedItemId: 'seed-owned-movie-01',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-01'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1260,7 +1260,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-02',
         catalogRef: seedCatalogRef('seed-movie-02'),
-        ownedItemId: 'seed-owned-movie-02',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-02'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1273,7 +1273,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-03',
         catalogRef: seedCatalogRef('seed-movie-03'),
-        ownedItemId: 'seed-owned-movie-03',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-03'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1284,7 +1284,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       ),
       TrackingEntry(
         id: 'seed-track-movie-04',
-        ownedItemId: 'seed-owned-movie-04',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-04'),
         catalogRef: seedCatalogRef('seed-movie-04'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1296,7 +1296,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       ),
       TrackingEntry(
         id: 'seed-track-movie-07',
-        ownedItemId: 'seed-owned-movie-07',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-07'),
         catalogRef: seedCatalogRef('seed-movie-07'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1310,7 +1310,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-05',
         catalogRef: seedCatalogRef('seed-movie-05'),
-        ownedItemId: 'seed-owned-movie-05',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-05'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1322,7 +1322,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-06',
         catalogRef: seedCatalogRef('seed-movie-06'),
-        ownedItemId: 'seed-owned-movie-06',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-06'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1334,7 +1334,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-08',
         catalogRef: seedCatalogRef('seed-movie-08'),
-        ownedItemId: 'seed-owned-movie-08',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-08'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1346,7 +1346,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-09',
         catalogRef: seedCatalogRef('seed-movie-09'),
-        ownedItemId: 'seed-owned-movie-09',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-09'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1357,7 +1357,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       ),
       TrackingEntry(
         id: 'seed-track-movie-10',
-        ownedItemId: 'seed-owned-movie-10',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-10'),
         catalogRef: seedCatalogRef('seed-movie-10'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1369,7 +1369,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       ),
       TrackingEntry(
         id: 'seed-track-movie-13',
-        ownedItemId: 'seed-owned-movie-13',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-13'),
         catalogRef: seedCatalogRef('seed-movie-13'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
@@ -1383,7 +1383,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-11',
         catalogRef: seedCatalogRef('seed-movie-11'),
-        ownedItemId: 'seed-owned-movie-11',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-11'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1395,7 +1395,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-12',
         catalogRef: seedCatalogRef('seed-movie-12'),
-        ownedItemId: 'seed-owned-movie-12',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-12'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1407,7 +1407,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-14',
         catalogRef: seedCatalogRef('seed-movie-14'),
-        ownedItemId: 'seed-owned-movie-14',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-14'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1419,7 +1419,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
       TrackingEntry(
         id: 'seed-track-movie-15',
         catalogRef: seedCatalogRef('seed-movie-15'),
-        ownedItemId: 'seed-owned-movie-15',
+        ownedRef: seedOwnedRefFromId('seed-owned-movie-15'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,

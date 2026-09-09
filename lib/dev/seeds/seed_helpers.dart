@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
@@ -35,6 +37,22 @@ CatalogEntityRef seedCatalogRef(String itemId) {
     kind: kind,
     entityType: CatalogEntityType.work,
     id: itemId,
+  );
+}
+
+OwnedItemRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
+  return OwnedItemRef(kind: kind, id: OwnedItemId(itemId));
+}
+
+OwnedItemRef seedOwnedRefFromId(String itemId) {
+  final parts = itemId.split('-');
+  final kindValue = parts.length > 2 && parts[2] == 'seed'
+      ? (parts.length > 3 ? parts[3] : null)
+      : parts[2];
+  final normalizedKind = kindValue == 'bg' ? 'boardgame' : kindValue;
+  return seedOwnedRef(
+    catalogMediaKindFromApiValue(normalizedKind),
+    itemId,
   );
 }
 

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -101,7 +102,7 @@ void main() {
     final trackingEntry = TrackingEntry(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-      ownedItemId: 'owned-1',
+      ownedRef: OwnedItemRef.fromKey('movie:owned-1'),
       sourceType: 'physical',
       status: 'In progress',
       rating: 9,

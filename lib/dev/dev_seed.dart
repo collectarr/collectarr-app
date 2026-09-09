@@ -394,9 +394,10 @@ Future<List<String>> devSeedTypedOwnedIntegrityIssues(LocalDatabase db) async {
           'expected $kind',
         );
       }
-      if (!owned.itemId.startsWith('seed-$kind-')) {
+      if (!(owned.catalogRef?.id.startsWith('seed-$kind-') ?? false)) {
         issues.add(
-          '$table row $id points to ${owned.itemId}, expected a $kind seed',
+          '$table row $id points to ${owned.catalogRef?.id}, '
+          'expected a $kind seed',
         );
       }
     }
@@ -581,7 +582,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       .where((row) => row.id.startsWith('seed-'))
       .toList(growable: false);
   final seededOwnedRows = ownedRows
-      .where((row) => row.itemId.startsWith('seed-'))
+      .where((row) => row.ref.id.value.startsWith('seed-'))
       .toList(growable: false);
   final seededTrackingRows = trackingRows
       .where((row) => row.itemId.startsWith('seed-'))
@@ -623,7 +624,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
         .where((row) => catalogMediaKindFromApiValue(row.kind) == entry.key)
         .length;
     final ownedCount = seededOwnedRows
-        .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
+        .where((row) =>
+            row.catalogRef?.id.startsWith('seed-${entry.key.apiValue}-') ??
+            false)
         .length;
     final trackingCount = seededTrackingRows
         .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
@@ -669,13 +672,14 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     }
   }
   for (final row in seededOwnedRows) {
-    final catalog = catalogById[row.itemId];
+    final catalog =
+        row.catalogRef == null ? null : catalogById[row.catalogRef!.id];
     require(catalog != null,
-        'owned ${row.ref.id.value} references missing ${row.itemId}');
+        'owned ${row.ref.id.value} references missing ${row.catalogRef?.id}');
     require(
       row.catalogRef?.kind == catalog?.kind,
       'owned ${row.ref.id.value} kind ${row.catalogRef?.kind} does not match '
-      'catalog ${row.itemId}',
+      'catalog ${row.catalogRef?.id}',
     );
   }
   for (final row in seededTrackingRows) {
@@ -1145,7 +1149,7 @@ void _validateSeedFixtures({
     if (!trackingIds.add(entry.id)) {
       throw StateError('Duplicate tracking seed id: ${entry.id}');
     }
-    if (entry.ownedItemId == null) {
+    if (entry.ownedRef == null) {
       throw StateError(
         'Tracking seed ${entry.id} must reference its owned seed item',
       );
@@ -1162,7 +1166,8 @@ void _validateSeedFixtures({
         'match catalog ${catalog.id} kind ${catalog.kind}',
       );
     }
-    if (entry.ownedItemId case final ownedId?) {
+    if (entry.ownedRef case final ownedRef?) {
+      final ownedId = ownedRef.id.value;
       final owned = ownedById[ownedId];
       if (owned == null) {
         throw StateError(

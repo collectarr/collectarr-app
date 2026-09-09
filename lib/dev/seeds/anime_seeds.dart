@@ -898,7 +898,8 @@ List<TrackingEntry> animeSeedTrackingEntries(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedItemId: 'seed-owned-seed-anime-${seedOrdinal2(i)}',
+          ownedRef:
+              seedOwnedRefFromId('seed-owned-seed-anime-${seedOrdinal2(i)}'),
           sourceType: TrackingSourceType.physical,
           status: i <= 12
               ? MediaTrackingStatus.completed

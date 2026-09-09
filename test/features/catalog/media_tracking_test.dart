@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -27,7 +28,7 @@ void main() {
     final trackingEntry = TrackingEntry(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-      ownedItemId: 'owned-1',
+      ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
       rating: 5,
       status: MediaTrackingStatus.completed,
       notes: 'Great issue.',

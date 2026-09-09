@@ -64,6 +64,19 @@ final class OwnedItemRef {
   int get hashCode => Object.hash(kind, id);
 }
 
+/// Decodes the canonical cross-kind Owned reference at a transport boundary.
+///
+/// JSON transports may carry the structured object while schema-v1 text
+/// columns carry [OwnedItemRef.key]. Neither form is a bare Owned id.
+OwnedItemRef? ownedItemRefFromSerialized(Object? value) {
+  if (value == null) return null;
+  if (value is String) return OwnedItemRef.fromKey(value);
+  if (value is Map) {
+    return OwnedItemRef.fromJson(Map<String, Object?>.from(value));
+  }
+  throw FormatException('Invalid serialized OwnedItemRef: $value');
+}
+
 /// Small read projection used by mixed-kind hosts such as Loans and Shelf.
 ///
 /// Keep this projection intentionally boring. If a UI needs condition, grade,

@@ -290,13 +290,13 @@ TrackingEntry? resolveActiveTrackingEntry(
   }
   if (activeOwnedItem != null) {
     for (final entry in entries) {
-      if (entry.ownedItemId == activeOwnedItem.id) {
+      if (entry.ownedRef == activeOwnedItem.ref) {
         return entry;
       }
     }
   }
   for (final entry in entries) {
-    if (entry.ownedItemId == null) {
+    if (entry.ownedRef == null) {
       return entry;
     }
   }

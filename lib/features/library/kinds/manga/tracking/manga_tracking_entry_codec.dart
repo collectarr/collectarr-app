@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 
@@ -45,7 +46,7 @@ final class MangaTrackingEntryCodec implements TrackingEntryCodec {
     return TrackingEntry(
       id: id,
       catalogRef: catalogRef,
-      ownedItemId: payload['owned_item_id'] as String?,
+      ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -69,7 +70,7 @@ final class MangaTrackingEntryCodec implements TrackingEntryCodec {
     return TrackingEntry(
       id: row.id,
       catalogRef: row.catalogRef,
-      ownedItemId: row.ownedItemId,
+      ownedRef: row.ownedRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,

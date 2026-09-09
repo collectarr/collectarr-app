@@ -133,7 +133,7 @@ void main() {
         action: 'upsert',
         payload: const {
           'item_id': 'movie-1',
-          'owned_item_id': 'owned-1',
+          'owned_ref': {'kind': 'movie', 'id': 'owned-1'},
           'edition_id': 'edition-stream',
           'variant_id': 'variant-4k',
           'source_type': 'digital',
@@ -178,7 +178,7 @@ void main() {
       pushed['payload'],
       {
         'item_id': 'movie-1',
-        'owned_item_id': 'owned-1',
+        'owned_ref': {'kind': 'movie', 'id': 'owned-1'},
         'edition_id': 'edition-stream',
         'variant_id': 'variant-4k',
         'source_type': 'digital',
@@ -283,7 +283,7 @@ class _FakeSyncClient extends CollectarrSyncClient {
               'entity_type': 'work',
               'id': 'comic-1',
             },
-            'owned_item_id': 'owned-1',
+            'owned_ref': {'kind': 'comic', 'id': 'owned-1'},
             'source_type': 'physical',
             'status': 'Completed',
             'rating': 9,

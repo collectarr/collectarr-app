@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -214,7 +215,9 @@ void main() {
         trackingEntry: TrackingEntry(
           id: trackingRow.id,
           catalogRef: testCatalogRef(trackingRow.itemId, kind: 'movie'),
-          ownedItemId: trackingRow.ownedItemId,
+          ownedRef: trackingRow.ownedItemId == null
+              ? null
+              : OwnedItemRef.fromKey('movie:${trackingRow.ownedItemId}'),
           sourceType: trackingRow.sourceType,
           status: trackingRow.status,
           rating: trackingRow.rating,

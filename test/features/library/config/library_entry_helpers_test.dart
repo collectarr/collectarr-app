@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -35,7 +36,7 @@ void main() {
         entityType: CatalogEntityType.work,
         id: 'book-1',
       ),
-      ownedItemId: 'owned-1',
+      ownedRef: OwnedItemRef.fromKey('book:owned-1'),
       progressCurrent: 50,
       updatedAt: DateTime.utc(2026, 5, 25, 11),
     );

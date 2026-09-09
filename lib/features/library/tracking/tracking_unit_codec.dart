@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 
 /// The serialized, kind-neutral portion of a tracking-unit row.
@@ -13,7 +14,7 @@ final class TrackingUnitStorageRow {
     required this.id,
     required this.targetRef,
     required this.trackingEntryId,
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.unitType,
     required this.completedAt,
     required this.updatedAt,
@@ -23,7 +24,7 @@ final class TrackingUnitStorageRow {
   final String id;
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final String? ownedItemId;
+  final OwnedItemRef? ownedRef;
   final String unitType;
   final DateTime completedAt;
   final DateTime updatedAt;

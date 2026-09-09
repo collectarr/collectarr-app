@@ -515,8 +515,8 @@ List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
               ? 'seed-track-06'
               : 'seed-track-boardgame-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-boardgame-${seedOrdinal2(i)}'),
-          ownedItemId:
-              i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          ownedRef: seedOwnedRefFromId(
+              i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}'),
           sourceType: TrackingSourceType.physical,
           status: i == 1
               ? MediaTrackingStatus.paused

@@ -74,7 +74,7 @@ void main() {
                     TrackingEntry(
                       id: 'tracking-1',
                       catalogRef: testCatalogRef('book-1', kind: 'book'),
-                      ownedItemId: 'owned-1',
+                      ownedRef: OwnedItemRef.fromKey('book:owned-1'),
                       status: MediaTrackingStatus.inProgress,
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),

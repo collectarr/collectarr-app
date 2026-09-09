@@ -61,7 +61,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
       id: row.id,
       targetRef: row.targetRef,
       trackingEntryId: row.trackingEntryId,
-      ownedItemId: row.ownedItemId,
+      ownedRef: row.ownedRef,
       issueNumber: typedCoordinates.issueNumber,
       completedAt: row.completedAt,
       updatedAt: row.updatedAt,
