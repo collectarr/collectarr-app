@@ -350,7 +350,6 @@ class CollectionCsv {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final tracking = entry.tracking;
     final cfValues = entry.ownedRef != null
         ? _customFieldCells(
             entry.ownedRef!.id.value,
@@ -371,10 +370,10 @@ class CollectionCsv {
       _locationCell(entry),
       entry.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
-      tracking.rating?.toString() ?? '',
-      mediaTrackingStatusToStorageValue(tracking.status) ?? '',
-      _formatDate(tracking.startedAt),
-      _formatDate(tracking.completedAt),
+      entry.trackingRating?.toString() ?? '',
+      mediaTrackingStatusToStorageValue(entry.trackingStatus) ?? '',
+      _formatDate(entry.trackingStartedAt),
+      _formatDate(entry.trackingCompletedAt),
       entry.tags ?? '',
       _formatDate(entry.soldAt),
       entry.sellPriceCents?.toString() ?? '',
@@ -388,7 +387,6 @@ class CollectionCsv {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
-    final tracking = entry.tracking;
     final cfValues = entry.ownedRef != null
         ? _customFieldCells(
             entry.ownedRef!.id.value,
@@ -409,10 +407,10 @@ class CollectionCsv {
       _locationCell(entry),
       entry.indexNumber?.toString() ?? '',
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
-      tracking.rating?.toString() ?? '',
-      mediaTrackingStatusToStorageValue(tracking.status) ?? '',
-      _formatDate(tracking.startedAt),
-      _formatDate(tracking.completedAt),
+      entry.trackingRating?.toString() ?? '',
+      mediaTrackingStatusToStorageValue(entry.trackingStatus) ?? '',
+      _formatDate(entry.trackingStartedAt),
+      _formatDate(entry.trackingCompletedAt),
       entry.tags ?? '',
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
       _formatDate(entry.soldAt),

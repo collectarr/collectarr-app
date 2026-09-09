@@ -167,7 +167,7 @@ class LibraryFilterEngine {
       return false;
     }
     if (!libraryTrackingStatusMatchesFilter(
-      item.source.tracking.status,
+      item.source.trackingStatus,
       filters.trackingStatusFilter,
     )) {
       return false;
@@ -272,8 +272,8 @@ class LibraryFilterEngine {
     return switch (field) {
       LibraryDateRangeField.updated => item.source.updatedAt,
       LibraryDateRangeField.purchased => item.source.purchaseDate,
-      LibraryDateRangeField.started => item.source.tracking.startedAt,
-      LibraryDateRangeField.finished => item.source.tracking.completedAt,
+      LibraryDateRangeField.started => item.source.trackingStartedAt,
+      LibraryDateRangeField.finished => item.source.trackingCompletedAt,
     };
   }
 

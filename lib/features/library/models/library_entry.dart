@@ -5,9 +5,9 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
 
 /// Structural entry used by mixed/global Shelf hosts.
 ///
@@ -49,16 +49,13 @@ class LibraryEntry {
       (ownedSummary?.hasNotes ?? false) ||
       (wishlistItem?.notes?.trim().isNotEmpty ?? false);
 
-  MediaTracking get tracking => trackingSummary == null
-      ? const MediaTracking(status: MediaTrackingStatus.none)
-      : MediaTracking(
-          status: trackingSummary!.status,
-          rating: trackingSummary!.rating,
-          startedAt: trackingSummary!.startedAt,
-          completedAt: trackingSummary!.completedAt,
-          lastActivityAt: trackingSummary!.updatedAt,
-          notes: trackingSummary!.notes,
-        );
+  MediaTrackingStatus get trackingStatus =>
+      trackingSummary?.status ?? MediaTrackingStatus.none;
+  int? get trackingRating => trackingSummary?.rating;
+  DateTime? get trackingStartedAt => trackingSummary?.startedAt;
+  DateTime? get trackingCompletedAt => trackingSummary?.completedAt;
+  String? get trackingNotes => trackingSummary?.notes;
+  String get trackingStatusLabel => trackingStatus.label;
 
   DateTime get updatedAt {
     final values = <DateTime>[
@@ -229,18 +226,17 @@ class LibraryWorkspaceSource {
     return 'Catalog item ${itemId.substring(0, length)}';
   }
 
-  MediaTracking get tracking =>
-      trackingEntry?.mediaTracking ??
-      (trackingSummary == null
-          ? const MediaTracking(status: MediaTrackingStatus.none)
-          : MediaTracking(
-              status: trackingSummary!.status,
-              rating: trackingSummary!.rating,
-              startedAt: trackingSummary!.startedAt,
-              completedAt: trackingSummary!.completedAt,
-              lastActivityAt: trackingSummary!.updatedAt,
-              notes: trackingSummary!.notes,
-            ));
+  MediaTrackingStatus get trackingStatus =>
+      trackingEntry?.status ??
+      trackingSummary?.status ??
+      MediaTrackingStatus.none;
+  int? get trackingRating => trackingEntry?.rating ?? trackingSummary?.rating;
+  DateTime? get trackingStartedAt =>
+      trackingEntry?.startedAt ?? trackingSummary?.startedAt;
+  DateTime? get trackingCompletedAt =>
+      trackingEntry?.finishedAt ?? trackingSummary?.completedAt;
+  String? get trackingNotes => trackingEntry?.notes ?? trackingSummary?.notes;
+  String get trackingStatusLabel => trackingStatus.label;
 
   String? get ownerLabel =>
       ownedSummary?.ownerLabel ?? ownedItem?.ownerLabel ?? fallbackOwnerLabel;

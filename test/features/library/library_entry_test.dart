@@ -45,7 +45,7 @@ void main() {
     expect(entry.subtitle, 'Owned');
     expect(entry.isOwned, isTrue);
     expect(entry.isWishlisted, isFalse);
-    expect(entry.tracking.status, MediaTrackingStatus.inProgress);
+    expect(entry.trackingStatus, MediaTrackingStatus.inProgress);
   });
 
   test('library entry falls back when catalog metadata is missing', () {
@@ -53,6 +53,6 @@ void main() {
 
     expect(entry.title, 'Catalog item abcdef12');
     expect(entry.subtitle, 'Wishlist');
-    expect(entry.tracking.status, MediaTrackingStatus.none);
+    expect(entry.trackingStatus, MediaTrackingStatus.none);
   });
 }
