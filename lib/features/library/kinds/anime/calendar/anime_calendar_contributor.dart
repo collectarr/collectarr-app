@@ -51,7 +51,7 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
         date: session.watchedAt,
         title: '${context.titleForRef(session.targetRef)}$episodeLabel',
         eventId: 'watch:${session.id}',
-        itemId: session.itemId,
+        itemId: session.targetRef.rootId ?? session.targetRef.id,
       ));
     }
     return events;

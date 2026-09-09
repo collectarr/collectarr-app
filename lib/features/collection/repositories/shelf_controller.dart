@@ -191,7 +191,7 @@ class ShelfState {
       final catalogRef = CatalogEntityRef(
         kind: session.targetRef.kind,
         entityType: CatalogEntityType.work,
-        id: session.itemId,
+        id: session.targetRef.rootId ?? session.targetRef.id,
       );
       watchSessionsByCatalogRef
           .putIfAbsent(catalogRef, () => <WatchSession>[])

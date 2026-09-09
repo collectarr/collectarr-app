@@ -22,7 +22,7 @@ void main() {
       updatedAt: DateTime.utc(2026, 7, 5),
     );
 
-    expect(episode.itemId, 'series-1');
+    expect(episode.seriesRef.id, 'series-1');
     expect(episode.toSyncPayload(), {
       'catalog_ref': ref.toJson(),
       'season_number': 1,

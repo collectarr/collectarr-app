@@ -110,7 +110,7 @@ class CustomEpisodesRepository {
         left.seriesRef.mediaKind == right.seriesRef.mediaKind) {
       return leftCodec.compare(left, right);
     }
-    final item = left.itemId.compareTo(right.itemId);
+    final item = left.seriesRef.id.compareTo(right.seriesRef.id);
     if (item != 0) return item;
     return left.id.compareTo(right.id);
   }

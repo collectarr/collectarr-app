@@ -46,7 +46,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
     await db.into(db.animeCustomEpisodeRows).insertOnConflictUpdate(
           AnimeCustomEpisodeRowsCompanion.insert(
             id: episode.id,
-            seriesId: episode.itemId,
+            seriesId: episode.seriesRef.id,
             seasonNumber: episode.seasonNumber,
             episodeNumber: episode.episodeNumber,
             title: episode.title,
@@ -117,7 +117,7 @@ final class AnimeCustomEpisodeCodec implements CustomEpisodeCodec {
 
   @override
   int compare(CustomEpisode left, CustomEpisode right) {
-    final item = left.itemId.compareTo(right.itemId);
+    final item = left.seriesRef.id.compareTo(right.seriesRef.id);
     if (item != 0) return item;
     final season = left.seasonNumber.compareTo(right.seasonNumber);
     if (season != 0) return season;

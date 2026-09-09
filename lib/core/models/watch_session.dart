@@ -32,8 +32,6 @@ class WatchSession {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  String get itemId => targetRef.id;
-
   bool get isDeleted => deletedAt != null;
 
   bool get isEpisodeSession => seasonNumber != null && episodeNumber != null;

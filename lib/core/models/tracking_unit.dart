@@ -26,9 +26,6 @@ class TrackingUnit {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  /// Stable work identifier used for mixed/global queries.
-  String get itemId => targetRef.rootId ?? targetRef.id;
-
   bool get isDeleted => deletedAt != null;
   bool get isCompleted => !isDeleted;
 

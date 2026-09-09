@@ -27,7 +27,7 @@ void main() {
       updatedAt: updatedAt,
     );
 
-    expect(session.itemId, 'release-1');
+    expect(session.targetRef.id, 'release-1');
     expect(session.toSyncPayload(), {
       'catalog_ref': ref.toJson(),
       'tracking_entry_id': 'track-1',

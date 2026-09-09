@@ -111,7 +111,7 @@ class TrackingUnitsCacheRepository {
   TrackingUnitsCacheCompanion _toBaseCompanion(TrackingUnit unit) {
     return TrackingUnitsCacheCompanion(
       id: Value(unit.id),
-      itemId: Value(unit.itemId),
+      itemId: Value(unit.targetRef.rootId ?? unit.targetRef.id),
       kind: Value(unit.targetRef.kind),
       targetRefJson: Value(jsonEncode(unit.targetRef.toJson())),
       trackingEntryId: Value(unit.trackingEntryId),
@@ -202,7 +202,8 @@ class TrackingUnitsCacheRepository {
   }
 
   int _compareForDisplay(TrackingUnit a, TrackingUnit b) {
-    final itemCompare = a.itemId.compareTo(b.itemId);
+    final itemCompare = (a.targetRef.rootId ?? a.targetRef.id)
+        .compareTo(b.targetRef.rootId ?? b.targetRef.id);
     if (itemCompare != 0) return itemCompare;
     final typeCompare = a.unitType.compareTo(b.unitType);
     if (typeCompare != 0) return typeCompare;

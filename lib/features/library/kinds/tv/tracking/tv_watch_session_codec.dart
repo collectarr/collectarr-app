@@ -49,7 +49,7 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
     await db.into(db.tvWatchSessionRows).insertOnConflictUpdate(
           TvWatchSessionRowsCompanion.insert(
             id: session.id,
-            seriesId: session.itemId,
+            seriesId: session.targetRef.rootId ?? session.targetRef.id,
             targetRefJson: Value(jsonEncode(session.targetRef.toJson())),
             trackingEntryId: Value(session.trackingEntryId),
             seasonNumber: Value(session.seasonNumber),

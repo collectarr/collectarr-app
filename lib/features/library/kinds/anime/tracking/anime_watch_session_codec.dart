@@ -49,7 +49,7 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
     await db.into(db.animeWatchSessionRows).insertOnConflictUpdate(
           AnimeWatchSessionRowsCompanion.insert(
             id: session.id,
-            seriesId: session.itemId,
+            seriesId: session.targetRef.rootId ?? session.targetRef.id,
             targetRefJson: Value(jsonEncode(session.targetRef.toJson())),
             trackingEntryId: Value(session.trackingEntryId),
             seasonNumber: Value(session.seasonNumber),

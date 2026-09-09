@@ -32,8 +32,6 @@ final class CustomEpisode {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  String get itemId => seriesRef.id;
-
   bool get isDeleted => deletedAt != null;
 
   Map<String, dynamic> toSyncPayload() {
