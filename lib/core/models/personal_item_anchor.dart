@@ -23,78 +23,6 @@ enum PersonalItemAnchorType {
   }
 }
 
-class PersonalItemAnchor {
-  const PersonalItemAnchor._({
-    required this.type,
-    this.editionId,
-    this.variantId,
-    this.bundleReleaseId,
-  });
-
-  final PersonalItemAnchorType type;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
-
-  String get apiValue => type.apiValue;
-
-  static PersonalItemAnchor? fromRaw({
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-  }) {
-    final type = resolvePersonalItemAnchor(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    if (type == null) {
-      return null;
-    }
-
-    final normalizedEditionId = _normalizedAnchorId(editionId);
-    final normalizedVariantId = _normalizedAnchorId(variantId);
-    final normalizedBundleReleaseId = _normalizedAnchorId(bundleReleaseId);
-
-    return PersonalItemAnchor._(
-      type: type,
-      editionId: switch (type) {
-        PersonalItemAnchorType.edition ||
-        PersonalItemAnchorType.variant =>
-          normalizedEditionId,
-        _ => null,
-      },
-      variantId:
-          type == PersonalItemAnchorType.variant ? normalizedVariantId : null,
-      bundleReleaseId: type == PersonalItemAnchorType.bundleRelease
-          ? normalizedBundleReleaseId
-          : null,
-    );
-  }
-
-  Map<String, dynamic> toSyncPayload() {
-    return {
-      'anchor_type': apiValue,
-      'edition_id': editionId,
-      'variant_id': variantId,
-      'bundle_release_id': bundleReleaseId,
-    };
-  }
-
-  Map<String, dynamic> toJson() => toSyncPayload();
-
-  static PersonalItemAnchor? fromJson(Map<String, dynamic> json) {
-    return PersonalItemAnchor.fromRaw(
-      anchorType: json['anchor_type'] as String?,
-      editionId: json['edition_id'] as String?,
-      variantId: json['variant_id'] as String?,
-      bundleReleaseId: json['bundle_release_id'] as String?,
-    );
-  }
-}
-
 String? normalizePersonalItemAnchorType(String? value) {
   final normalized = value?.trim().toLowerCase();
   if (normalized == null || normalized.isEmpty) {
@@ -158,9 +86,4 @@ String? resolvePersonalItemAnchorType({
 bool _hasAnchorValue(String? value) {
   final trimmed = value?.trim();
   return trimmed != null && trimmed.isNotEmpty;
-}
-
-String? _normalizedAnchorId(String? value) {
-  final trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }

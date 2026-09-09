@@ -314,7 +314,7 @@ void main() {
         wishlistRows.where((row) => row.deletedAt == null).toList();
 
     expect(ownedRows, hasLength(1));
-    expect(ownedRows.single.anchor?.editionId, 'edition-4k');
+    expect(ownedRows.single.targetRef?.id, 'edition-4k');
     expect(activeWishlistRows, hasLength(1));
     expect(
       CatalogEntityRef.fromJson(

@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
@@ -947,7 +948,8 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                   _FlowCarouselReleaseRow(
                     edition: edition,
                     isOwned: edition.id ==
-                        widget.item.source.ownedItem?.anchor?.editionId,
+                        catalogRefEditionId(
+                            widget.item.source.ownedItem?.targetRef),
                     accent: widget.accent,
                   ),
               ],

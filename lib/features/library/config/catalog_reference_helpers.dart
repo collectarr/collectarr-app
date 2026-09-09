@@ -3,9 +3,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 /// Resolves a library UI reference directly to the structural catalog target
 /// used by global features such as Wishlist.
 ///
-/// This intentionally does not pass through [PersonalItemAnchor]. Owned and
-/// tracking flows still have their own legacy selection contracts until their
-/// typed migrations land; Wishlist only needs the target reference.
+/// This intentionally works directly with structural catalog targets. Owned
+/// and tracking flows retain v1 field names only at persistence boundaries.
 CatalogEntityRef catalogRefForLibrarySelection(
   CatalogEntityRef itemRef, {
   String? editionId,
@@ -88,4 +87,23 @@ CatalogEntityRef? catalogRefForOwnedSelection(
 String? _normalized(String? value) {
   final trimmed = value?.trim();
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
+}
+
+/// Returns the edition component of a structural catalog target.
+String? catalogRefEditionId(CatalogEntityRef? ref) {
+  return switch (ref?.entityType.apiValue) {
+    'edition' => ref?.id,
+    'release' => ref?.parentId,
+    _ => null,
+  };
+}
+
+/// Returns the physical-release component of a structural catalog target.
+String? catalogRefVariantId(CatalogEntityRef? ref) {
+  return ref?.entityType.apiValue == 'release' ? ref?.id : null;
+}
+
+/// Returns the bundle-release component of a structural catalog target.
+String? catalogRefBundleReleaseId(CatalogEntityRef? ref) {
+  return ref?.entityType.apiValue == 'bundle_release' ? ref?.id : null;
 }

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/release/comic_release_edit_schema.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:flutter/material.dart';
 
 Widget buildComicReleaseLibraryEditDialog(
@@ -41,7 +42,7 @@ class _ComicReleaseSchemaEditDialogState
     }
     _release = _resolveRelease(
       metadata,
-      widget.request.ownedItem?.anchor?.editionId,
+      catalogRefEditionId(widget.request.ownedItem?.targetRef),
     );
     _releaseDraft = ComicReleaseEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

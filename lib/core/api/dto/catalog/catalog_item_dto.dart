@@ -212,52 +212,58 @@ final class CatalogItemDto {
     String? variantId,
     String? bundleReleaseId,
   }) {
-    return catalogRefForPersonalAnchor(PersonalItemAnchor.fromRaw(
+    final type = resolvePersonalItemAnchor(
       anchorType: anchorType,
       editionId: editionId,
       variantId: variantId,
       bundleReleaseId: bundleReleaseId,
-    ));
+    );
+    final normalizedEditionId = _normalizeLegacyId(editionId);
+    final normalizedVariantId = _normalizeLegacyId(variantId);
+    final normalizedBundleId = _normalizeLegacyId(bundleReleaseId);
+    return switch (type) {
+      PersonalItemAnchorType.edition when normalizedEditionId != null =>
+        CatalogEntityRef(
+          kind: mediaKind,
+          entityType: const CatalogEntityTypeId('edition'),
+          id: normalizedEditionId,
+          rootId: id,
+        ),
+      PersonalItemAnchorType.variant when normalizedVariantId != null =>
+        CatalogEntityRef(
+          kind: mediaKind,
+          entityType: const CatalogEntityTypeId('release'),
+          id: normalizedVariantId,
+          rootId: id,
+          parentId: normalizedEditionId,
+        ),
+      PersonalItemAnchorType.bundleRelease when normalizedBundleId != null =>
+        CatalogEntityRef(
+          kind: mediaKind,
+          entityType: const CatalogEntityTypeId('bundle_release'),
+          id: normalizedBundleId,
+          rootId: id,
+        ),
+      _ => CatalogEntityRef(
+          kind: mediaKind,
+          entityType: const CatalogEntityTypeId('work'),
+          id: id,
+        ),
+    };
   }
 
-  CatalogEntityRef catalogRefForPersonalAnchor(PersonalItemAnchor? anchor) {
-    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
+  CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {
+    if (targetRef == null) {
       return CatalogEntityRef(
         kind: mediaKind,
         entityType: const CatalogEntityTypeId('work'),
         id: id,
       );
     }
-    switch (anchor.type) {
-      case PersonalItemAnchorType.edition:
-        return CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('edition'),
-          id: anchor.editionId ?? id,
-          rootId: id,
-        );
-      case PersonalItemAnchorType.variant:
-        return CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('release'),
-          id: anchor.variantId ?? anchor.editionId ?? id,
-          rootId: id,
-          parentId: anchor.editionId,
-        );
-      case PersonalItemAnchorType.bundleRelease:
-        return CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('bundle_release'),
-          id: anchor.bundleReleaseId ?? id,
-          rootId: id,
-        );
-      default:
-        return CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('work'),
-          id: id,
-        );
-    }
+    return targetRef.copyWith(
+      kind: mediaKind,
+      rootId: targetRef.rootId ?? (targetRef.id == id ? null : id),
+    );
   }
 
   factory CatalogItemDto.fromEnvelope(CatalogItemEnvelopeDto envelope) {
@@ -376,6 +382,11 @@ final class CatalogItemDto {
       kindMetadata: kindMetadata,
     );
   }
+}
+
+String? _normalizeLegacyId(String? value) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
 const _unset = Object();

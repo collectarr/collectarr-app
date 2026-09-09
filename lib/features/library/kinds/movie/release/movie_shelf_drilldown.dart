@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/release/video_release_source.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -63,9 +63,9 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
       if (ownedCopies.any(
             (item) => matchesVideoReleaseAnchor(
               edition,
-              editionId: item.anchor?.editionId,
-              variantId: item.anchor?.variantId,
-              bundleReleaseId: item.anchor?.bundleReleaseId,
+              editionId: catalogRefEditionId(item.targetRef),
+              variantId: catalogRefVariantId(item.targetRef),
+              bundleReleaseId: catalogRefBundleReleaseId(item.targetRef),
             ),
           ) ||
           wishlistItems.any(
@@ -103,9 +103,9 @@ MovieShelfReleaseDrilldownItem _buildDrilldownItem(
       .where(
         (item) => matchesVideoReleaseAnchor(
           edition,
-          editionId: item.anchor?.editionId,
-          variantId: item.anchor?.variantId,
-          bundleReleaseId: item.anchor?.bundleReleaseId,
+          editionId: catalogRefEditionId(item.targetRef),
+          variantId: catalogRefVariantId(item.targetRef),
+          bundleReleaseId: catalogRefBundleReleaseId(item.targetRef),
         ),
       )
       .toList(growable: false);

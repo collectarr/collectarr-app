@@ -177,9 +177,9 @@ List<CatalogEditionDto> _resolveVideoCatalogEditions(
     _mergeAnchorSeed(
       seeds,
       input,
-      editionId: copy.anchor?.editionId,
-      variantId: copy.anchor?.variantId,
-      bundleReleaseId: copy.anchor?.bundleReleaseId,
+      editionId: _catalogRefEditionId(copy.targetRef),
+      variantId: _catalogRefVariantId(copy.targetRef),
+      bundleReleaseId: _catalogRefBundleReleaseId(copy.targetRef),
     );
   }
 
@@ -219,6 +219,22 @@ VideoReleaseAnchor _videoReleaseAnchorFromCatalogRef(CatalogEntityRef ref) {
     'bundle_release' => VideoReleaseAnchor(bundleReleaseId: ref.id),
     _ => const VideoReleaseAnchor(),
   };
+}
+
+String? _catalogRefEditionId(CatalogEntityRef? ref) {
+  return switch (ref?.entityType.apiValue) {
+    'edition' => ref?.id,
+    'release' => ref?.parentId,
+    _ => null,
+  };
+}
+
+String? _catalogRefVariantId(CatalogEntityRef? ref) {
+  return ref?.entityType.apiValue == 'release' ? ref?.id : null;
+}
+
+String? _catalogRefBundleReleaseId(CatalogEntityRef? ref) {
+  return ref?.entityType.apiValue == 'bundle_release' ? ref?.id : null;
 }
 
 void _mergeAnchorSeed(

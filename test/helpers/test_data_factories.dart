@@ -194,14 +194,14 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
   required LibraryAddCommonDraft common,
   required OwnedDetailsDraft details,
   OwnedItemCreatePayload? typedPayload,
-  PersonalItemAnchor? anchor,
+  CatalogEntityRef? targetRef,
   OwnedItemTrackingDraft? tracking,
 }) {
   if (typedPayload != null) {
     return AddOwnedItemCommand(
       catalogRef: catalogRef,
       typedPayload: typedPayload,
-      targetRef: _targetRefForAnchor(catalogRef, anchor),
+      targetRef: targetRef ?? catalogRefForLibrarySelection(catalogRef),
       tracking: tracking,
     );
   }
@@ -230,7 +230,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       isDigital: common.isDigital,
     ),
     details,
-    targetRef: _targetRefForAnchor(catalogRef, anchor),
+    targetRef: targetRef ?? catalogRefForLibrarySelection(catalogRef),
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
@@ -238,18 +238,6 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       finishedAt: tracking?.finishedAt,
       notes: tracking?.notes,
     ),
-  );
-}
-
-CatalogEntityRef? _targetRefForAnchor(
-  CatalogEntityRef catalogRef,
-  PersonalItemAnchor? anchor,
-) {
-  return catalogRefForLibrarySelection(
-    catalogRef,
-    editionId: anchor?.editionId,
-    variantId: anchor?.variantId,
-    bundleReleaseId: anchor?.bundleReleaseId,
   );
 }
 

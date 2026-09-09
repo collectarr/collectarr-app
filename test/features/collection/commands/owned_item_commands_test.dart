@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
@@ -105,10 +104,12 @@ void main() {
         entityType: const CatalogEntityTypeId('owned_copy'),
         id: 'comic-cmd-1',
       ),
-      anchor: PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.variant.apiValue,
-        editionId: 'edition-1',
-        variantId: 'variant-1',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('release'),
+        id: 'variant-1',
+        rootId: 'comic-cmd-1',
+        parentId: 'edition-1',
       ),
       common: const LibraryAddCommonDraft(
         condition: 'Near Mint',
@@ -175,11 +176,13 @@ void main() {
     );
 
     final updatePayload = ComicOwnedItemUpdatePayload.partial(
-      anchor: Patch.set(
-        PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.variant.apiValue,
-          editionId: 'edition-updated',
-          variantId: 'variant-updated',
+      targetRef: Patch.set(
+        const CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('release'),
+          id: 'variant-updated',
+          rootId: 'comic-cmd-2',
+          parentId: 'edition-updated',
         ),
       ),
       condition: const Patch.set('Near Mint'),
@@ -203,9 +206,9 @@ void main() {
     final updatedStored =
         await OwnedItemsRepository(db).findTypedByRef(updatedRef);
     final updated = updatedStored!.$2 as ComicOwnedItem;
-    expect(updated.anchor?.apiValue, 'variant');
-    expect(updated.anchor?.editionId, 'edition-updated');
-    expect(updated.anchor?.variantId, 'variant-updated');
+    expect(updated.targetRef?.entityType.apiValue, 'release');
+    expect(updated.targetRef?.parentId, 'edition-updated');
+    expect(updated.targetRef?.id, 'variant-updated');
     expect(updated.condition, 'Near Mint');
     expect(updated.grade, '9.6');
     expect(updated.pricePaidCents, 1000);

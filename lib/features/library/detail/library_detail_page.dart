@@ -230,7 +230,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     LibraryProjectionView item, {
     OwnedItem? ownedItem,
   }) async {
-    final anchor = resolveLibraryMutationAnchor(
+    final targetRef = resolveLibraryMutationTarget(
       item: item,
       ownedItem: ownedItem,
     );
@@ -245,9 +245,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             widget.type.add.createInitialDraft(),
             targetRef: catalogRefForLibrarySelection(
               catalogItem.catalogRef,
-              editionId: anchor?.editionId,
-              variantId: anchor?.variantId,
-              bundleReleaseId: anchor?.bundleReleaseId,
+              editionId: catalogRefEditionId(targetRef),
+              variantId: catalogRefVariantId(targetRef),
+              bundleReleaseId: catalogRefBundleReleaseId(targetRef),
             ),
           ),
         );

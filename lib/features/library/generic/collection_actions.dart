@@ -44,25 +44,25 @@ class LibraryCollectionActions {
   }
 
   Future<void> addWishlist(LibraryProjectionItem item) {
-    final anchor = resolveLibraryMutationAnchor(
+    final targetRef = resolveLibraryMutationTarget(
       item: item,
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
     return wishlistMutations.addToWishlist(
-      item.source.catalogItem!.catalogRefForPersonalAnchor(anchor),
+      item.source.catalogItem!.catalogRefForTarget(targetRef),
     );
   }
 
   Future<void> removeWishlist(LibraryProjectionItem item) {
-    final anchor = resolveLibraryMutationAnchor(
+    final targetRef = resolveLibraryMutationTarget(
       item: item,
       ownedItem: item.source.ownedItem,
       wishlistItem: item.source.wishlistItem,
     );
     return wishlistMutations.removeFromWishlist(
       wishlistItemId: item.source.wishlistItem?.id,
-      catalogRef: item.source.catalogItem!.catalogRefForPersonalAnchor(anchor),
+      catalogRef: item.source.catalogItem!.catalogRefForTarget(targetRef),
     );
   }
 }

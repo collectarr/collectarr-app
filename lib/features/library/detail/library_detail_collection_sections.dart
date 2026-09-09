@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
@@ -251,8 +252,8 @@ class LibraryDetailLocalSnapshotSection extends StatelessWidget {
             'catalog_id: ${item.node.titleItemId}',
             'kind: ${item.source.catalogItem?.kind ?? '-'}',
             'owned_id: ${ownedItem?.id ?? '-'}',
-            'edition_id: ${ownedItem?.anchor?.editionId ?? '-'}',
-            'variant_id: ${ownedItem?.anchor?.variantId ?? '-'}',
+            'edition_id: ${catalogRefEditionId(ownedItem?.targetRef) ?? '-'}',
+            'variant_id: ${catalogRefVariantId(ownedItem?.targetRef) ?? '-'}',
             'updated_at: ${(ownedItem?.updatedAt ?? DateTime.now()).toUtc().toIso8601String()}',
           ].join('\n'),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(

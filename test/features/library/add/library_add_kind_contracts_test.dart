@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -187,9 +187,11 @@ void main() {
         );
 
         final metadataItem = testCatalogItemWithKindMetadata(item);
-        final selectedAnchor = PersonalItemAnchor.fromRaw(
-          anchorType: PersonalItemAnchorType.edition.apiValue,
-          editionId: 'edition-${kind.apiValue}',
+        final selectedTarget = CatalogEntityRef(
+          kind: kind,
+          entityType: const CatalogEntityTypeId('edition'),
+          id: 'edition-${kind.apiValue}',
+          rootId: item.id,
         );
         final command = addCap.buildCommand(
           LibraryAddCatalogItem.fromItem(metadataItem),
@@ -197,8 +199,12 @@ void main() {
           initialDraft,
           targetRef: catalogRefForLibrarySelection(
             metadataItem.catalogRef,
-            editionId: selectedAnchor?.editionId,
-            variantId: selectedAnchor?.variantId,
+            editionId: selectedTarget.entityType.apiValue == 'edition'
+                ? selectedTarget.id
+                : null,
+            variantId: selectedTarget.entityType.apiValue == 'release'
+                ? selectedTarget.id
+                : null,
           ),
           tracking: const LibraryAddTrackingDraft(rating: 9),
         );
@@ -234,8 +240,12 @@ void main() {
           _ownedItemForLegacyAddBoundary(existing),
           targetRef: catalogRefForLibrarySelection(
             metadataItem.catalogRef,
-            editionId: selectedAnchor?.editionId,
-            variantId: selectedAnchor?.variantId,
+            editionId: selectedTarget.entityType.apiValue == 'edition'
+                ? selectedTarget.id
+                : null,
+            variantId: selectedTarget.entityType.apiValue == 'release'
+                ? selectedTarget.id
+                : null,
           ),
           tracking: const LibraryAddTrackingDraft(readStatus: 'Completed'),
         );

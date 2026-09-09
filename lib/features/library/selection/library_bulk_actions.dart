@@ -52,9 +52,9 @@ class LibraryBulkActions {
           isDigital: ownedItem.isDigital,
           targetRef: catalogRefForLibrarySelection(
             ownedItem.catalogRef,
-            editionId: ownedItem.anchor?.editionId,
-            variantId: ownedItem.anchor?.variantId,
-            bundleReleaseId: ownedItem.anchor?.bundleReleaseId,
+            editionId: catalogRefEditionId(ownedItem.targetRef),
+            variantId: catalogRefVariantId(ownedItem.targetRef),
+            bundleReleaseId: catalogRefBundleReleaseId(ownedItem.targetRef),
           ),
           status: mediaTrackingStatusFromValue(selection.readStatus),
           rating: selection.rating,
@@ -122,7 +122,7 @@ class LibraryBulkActions {
   Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
-      final catalogRef = entry.catalogItem?.catalogRefForPersonalAnchor(null) ??
+      final catalogRef = entry.catalogItem?.catalogRef ??
           entry.ownedItem?.catalogRef ??
           entry.wishlistItem?.catalogRef ??
           entry.trackingEntry?.catalogRef;

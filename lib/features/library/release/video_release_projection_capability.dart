@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 
 final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
     implements ReleaseProjectionCapability<TDto> {
@@ -50,23 +51,19 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
           ? false
           : matchesVideoReleaseAnchor(
               edition,
-              editionId: source.ownedItem!.anchor?.editionId,
-              variantId: source.ownedItem!.anchor?.variantId,
-              bundleReleaseId: source.ownedItem!.anchor?.bundleReleaseId,
+              editionId: catalogRefEditionId(source.ownedItem!.targetRef),
+              variantId: catalogRefVariantId(source.ownedItem!.targetRef),
+              bundleReleaseId:
+                  catalogRefBundleReleaseId(source.ownedItem!.targetRef),
             );
       final wishlistMatches = source.wishlistItem == null
           ? false
           : matchesVideoReleaseAnchor(
               edition,
-              editionId: libraryPersonalAnchorForCatalogRef(
-                source.wishlistItem!.catalogRef,
-              )?.editionId,
-              variantId: libraryPersonalAnchorForCatalogRef(
-                source.wishlistItem!.catalogRef,
-              )?.variantId,
-              bundleReleaseId: libraryPersonalAnchorForCatalogRef(
-                source.wishlistItem!.catalogRef,
-              )?.bundleReleaseId,
+              editionId: catalogRefEditionId(source.wishlistItem!.catalogRef),
+              variantId: catalogRefVariantId(source.wishlistItem!.catalogRef),
+              bundleReleaseId:
+                  catalogRefBundleReleaseId(source.wishlistItem!.catalogRef),
             );
 
       final releaseNode = LibraryReleaseNodeRef(

@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.da
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edition_edit_schema.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBookReleaseLibraryEditDialog(
@@ -46,7 +47,7 @@ class _BookReleaseSchemaEditDialogState
     final book = BookCatalogMapper.mapMetadataItemToBook(widget.request.item);
     _release = _resolveRelease(
       book,
-      widget.request.ownedItem?.anchor?.editionId,
+      catalogRefEditionId(widget.request.ownedItem?.targetRef),
     );
     _releaseDraft = BookEditionEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

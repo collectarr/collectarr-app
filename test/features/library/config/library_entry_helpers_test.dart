@@ -136,7 +136,7 @@ void main() {
   });
 
   test(
-      'resolveLibraryMutationAnchor prefers explicit owned or wishlist release anchors',
+      'resolveLibraryMutationTarget prefers explicit owned or wishlist targets',
       () {
     final source = ShelfEntry(
       itemId: 'movie-1',
@@ -163,14 +163,13 @@ void main() {
       updatedAt: DateTime.utc(2026, 5, 25, 10),
     );
 
-    final resolved = resolveLibraryMutationAnchor(
+    final resolved = resolveLibraryMutationTarget(
       item: item,
       wishlistItem: wishlistItem,
     );
 
-    expect(resolved?.apiValue, 'variant');
-    expect(resolved?.editionId, isNull);
-    expect(resolved?.variantId, 'variant-uhd');
-    expect(resolved?.bundleReleaseId, isNull);
+    expect(resolved?.entityType.apiValue, 'release');
+    expect(resolved?.parentId, isNull);
+    expect(resolved?.id, 'variant-uhd');
   });
 }

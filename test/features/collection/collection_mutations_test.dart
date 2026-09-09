@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
@@ -54,10 +53,12 @@ void main() {
     await container.read(ownedItemMutationsProvider).addOwnedItem(
           typedAddOwnedItemCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-            anchor: PersonalItemAnchor.fromRaw(
-              anchorType: PersonalItemAnchorType.variant.apiValue,
-              editionId: 'edition-1',
-              variantId: 'variant-1',
+            targetRef: const CatalogEntityRef(
+              kind: CatalogMediaKind.comic,
+              entityType: CatalogEntityTypeId('release'),
+              id: 'variant-1',
+              rootId: 'comic-1',
+              parentId: 'edition-1',
             ),
             common: const LibraryAddCommonDraft(
               condition: 'Near Mint',
@@ -311,10 +312,12 @@ void main() {
         await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
               typedAddOwnedItemCommand(
                 catalogRef: testCatalogRef('movie-2', kind: 'movie'),
-                anchor: PersonalItemAnchor.fromRaw(
-                  anchorType: PersonalItemAnchorType.variant.apiValue,
-                  editionId: 'edition-default',
-                  variantId: 'variant-default',
+                targetRef: const CatalogEntityRef(
+                  kind: CatalogMediaKind.movie,
+                  entityType: CatalogEntityTypeId('release'),
+                  id: 'variant-default',
+                  rootId: 'movie-2',
+                  parentId: 'edition-default',
                 ),
                 common: const LibraryAddCommonDraft(),
                 details: const MovieOwnedDetailsDraft(),

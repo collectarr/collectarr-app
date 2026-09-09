@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -79,7 +80,7 @@ String? libraryWishlistReferenceLabel(
 }) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
-    libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)?.type,
+    libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef),
     itemLabel:
         'Wishlisted as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
     editionLabel:
@@ -106,7 +107,7 @@ String? libraryReferenceScopeLabel({
   String? mediaType,
 }) {
   final anchorType = ownedItem?.personalAnchor ??
-      libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)?.type;
+      libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef);
   return _referenceScopeLabelForAnchor(anchorType, mediaType: mediaType);
 }
 
@@ -117,15 +118,15 @@ String? libraryReferenceFormatLabel({
   String? fallbackFormatLabel,
 }) {
   final anchorType = ownedItem?.personalAnchor ??
-      libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef)?.type;
+      libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef);
   if (anchorType == PersonalItemAnchorType.bundleRelease) {
     return null;
   }
   final resolved = _resolveLibraryReferenceRelease(
-    editionId: ownedItem?.anchor?.editionId ??
-        _catalogRefEditionId(wishlistItem?.catalogRef),
-    variantId: ownedItem?.anchor?.variantId ??
-        _catalogRefVariantId(wishlistItem?.catalogRef),
+    editionId: catalogRefEditionId(ownedItem?.targetRef) ??
+        catalogRefEditionId(wishlistItem?.catalogRef),
+    variantId: catalogRefVariantId(ownedItem?.targetRef) ??
+        catalogRefVariantId(wishlistItem?.catalogRef),
     editions: editions,
   );
   final variantLabel = resolved.variant?.physicalFormatLabel?.trim();
@@ -233,15 +234,14 @@ OwnedItemRef? resolveLibraryOwnedItemRef(
   return ownedItem?.ref ?? item.source.ownedRef;
 }
 
-PersonalItemAnchor? resolveLibraryMutationAnchor({
+CatalogEntityRef? resolveLibraryMutationTarget({
   LibraryProjectionView? item,
   OwnedItem? ownedItem,
   WishlistItem? wishlistItem,
 }) {
-  final existingAnchor = ownedItem?.anchor ??
-      libraryPersonalAnchorForCatalogRef(wishlistItem?.catalogRef);
-  if (existingAnchor != null) {
-    return existingAnchor;
+  final existingTarget = ownedItem?.targetRef ?? wishlistItem?.catalogRef;
+  if (existingTarget != null) {
+    return existingTarget;
   }
 
   final releaseNode = item?.node is LibraryReleaseNodeRef
@@ -250,7 +250,10 @@ PersonalItemAnchor? resolveLibraryMutationAnchor({
   if (releaseNode == null) {
     return null;
   }
-  return PersonalItemAnchor.fromRaw(
+  final sourceRef = item?.source.catalogRef;
+  if (sourceRef == null) return null;
+  return catalogRefForLibrarySelection(
+    sourceRef,
     editionId: _normalizedEntryAnchorId(releaseNode.releaseId),
     variantId: _normalizedEntryAnchorId(
       preferredVideoEditionVariantId(releaseNode.edition),
@@ -258,39 +261,16 @@ PersonalItemAnchor? resolveLibraryMutationAnchor({
   );
 }
 
-PersonalItemAnchor? libraryPersonalAnchorForCatalogRef(CatalogEntityRef? ref) {
+PersonalItemAnchorType? libraryTargetScopeForCatalogRef(CatalogEntityRef? ref) {
   if (ref == null) {
     return null;
   }
   return switch (ref.entityType.apiValue) {
-    'edition' => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.edition.apiValue,
-        editionId: ref.id,
-      ),
-    'release' => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.variant.apiValue,
-        variantId: ref.id,
-      ),
-    'bundle_release' => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
-        bundleReleaseId: ref.id,
-      ),
-    _ => PersonalItemAnchor.fromRaw(
-        anchorType: PersonalItemAnchorType.item.apiValue,
-      ),
+    'edition' => PersonalItemAnchorType.edition,
+    'release' => PersonalItemAnchorType.variant,
+    'bundle_release' => PersonalItemAnchorType.bundleRelease,
+    _ => PersonalItemAnchorType.item,
   };
-}
-
-String? _catalogRefEditionId(CatalogEntityRef? ref) {
-  return ref?.entityType == const CatalogEntityTypeId('edition')
-      ? ref?.id
-      : null;
-}
-
-String? _catalogRefVariantId(CatalogEntityRef? ref) {
-  return ref?.entityType == const CatalogEntityTypeId('release')
-      ? ref?.id
-      : null;
 }
 
 TrackingEntry? resolveActiveTrackingEntry(
@@ -477,8 +457,8 @@ String? _ownedCopyEditionLabel(
   List<CatalogEditionDto> editions,
 ) {
   return _resolveLibraryReferenceRelease(
-    editionId: item.anchor?.editionId,
-    variantId: item.anchor?.variantId,
+    editionId: catalogRefEditionId(item.targetRef),
+    variantId: catalogRefVariantId(item.targetRef),
     editions: editions,
   );
 }

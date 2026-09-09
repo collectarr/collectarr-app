@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -102,12 +101,11 @@ class _LibraryVideoDetailPageState
       return;
     }
     await ref.read(wishlistMutationsProvider).addToWishlist(
-          catalogItem.catalogRefForPersonalAnchor(
-            PersonalItemAnchor.fromRaw(
-              editionId: anchor.editionId,
-              variantId: anchor.variantId,
-              bundleReleaseId: anchor.bundleReleaseId,
-            ),
+          catalogRefForLibrarySelection(
+            catalogItem.catalogRef,
+            editionId: anchor.editionId,
+            variantId: anchor.variantId,
+            bundleReleaseId: anchor.bundleReleaseId,
           ),
         );
   }
@@ -413,14 +411,13 @@ bool _matchesReleaseAnchor(Object item, CatalogEditionDto edition) {
   final String? variantId;
   final String? bundleReleaseId;
   if (item is OwnedItem) {
-    editionId = item.anchor?.editionId;
-    variantId = item.anchor?.variantId;
-    bundleReleaseId = item.anchor?.bundleReleaseId;
+    editionId = catalogRefEditionId(item.targetRef);
+    variantId = catalogRefVariantId(item.targetRef);
+    bundleReleaseId = catalogRefBundleReleaseId(item.targetRef);
   } else if (item is WishlistItem) {
-    final wishlistAnchor = libraryPersonalAnchorForCatalogRef(item.catalogRef);
-    editionId = wishlistAnchor?.editionId;
-    variantId = wishlistAnchor?.variantId;
-    bundleReleaseId = wishlistAnchor?.bundleReleaseId;
+    editionId = catalogRefEditionId(item.catalogRef);
+    variantId = catalogRefVariantId(item.catalogRef);
+    bundleReleaseId = catalogRefBundleReleaseId(item.catalogRef);
   } else {
     return false;
   }

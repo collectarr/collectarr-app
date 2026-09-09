@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -161,14 +160,14 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
   required LibraryAddCommonDraft common,
   required OwnedDetailsDraft details,
   OwnedItemCreatePayload? typedPayload,
-  PersonalItemAnchor? anchor,
+  CatalogEntityRef? targetRef,
   OwnedItemTrackingDraft? tracking,
 }) {
   if (typedPayload != null) {
     return AddOwnedItemCommand(
       catalogRef: catalogRef,
       typedPayload: typedPayload,
-      targetRef: _targetRefForAnchor(catalogRef, anchor),
+      targetRef: targetRef ?? catalogRefForLibrarySelection(catalogRef),
       tracking: tracking,
     );
   }
@@ -197,7 +196,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       isDigital: common.isDigital,
     ),
     details,
-    targetRef: _targetRefForAnchor(catalogRef, anchor),
+    targetRef: targetRef ?? catalogRefForLibrarySelection(catalogRef),
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
@@ -205,18 +204,6 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       finishedAt: tracking?.finishedAt,
       notes: tracking?.notes,
     ),
-  );
-}
-
-CatalogEntityRef? _targetRefForAnchor(
-  CatalogEntityRef catalogRef,
-  PersonalItemAnchor? anchor,
-) {
-  return catalogRefForLibrarySelection(
-    catalogRef,
-    editionId: anchor?.editionId,
-    variantId: anchor?.variantId,
-    bundleReleaseId: anchor?.bundleReleaseId,
   );
 }
 
@@ -228,7 +215,7 @@ OwnedItem testOwnedItem({
   DateTime? createdAt,
   DateTime? updatedAt,
   bool? isDigital,
-  PersonalItemAnchor? anchor,
+  CatalogEntityRef? targetRef,
   String? anchorType,
   String? editionId,
   String? variantId,
@@ -377,7 +364,7 @@ OwnedItem testOwnedItem({
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
-    anchor: anchor,
+    targetRef: targetRef,
     anchorType: anchorType,
     editionId: editionId,
     variantId: variantId,

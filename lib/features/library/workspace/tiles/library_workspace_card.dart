@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -153,9 +154,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: item.source.mediaKind.apiValue,
       editions: rawEditions,
-      editionId: item.source.ownedItem?.anchor?.editionId,
-      variantId: item.source.ownedItem?.anchor?.variantId,
-      bundleReleaseId: item.source.ownedItem?.anchor?.bundleReleaseId,
+      editionId: catalogRefEditionId(item.source.ownedItem?.targetRef),
+      variantId: catalogRefVariantId(item.source.ownedItem?.targetRef),
+      bundleReleaseId:
+          catalogRefBundleReleaseId(item.source.ownedItem?.targetRef),
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).

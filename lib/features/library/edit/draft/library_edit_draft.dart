@@ -220,13 +220,11 @@ class LibraryEditDraft {
 
     final editionSelection = resolveLibraryEditionSelection(
       editions,
-      editionId: ownedItem?.anchor?.editionId ??
-          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
-              ?.editionId,
+      editionId: catalogRefEditionId(ownedItem?.targetRef) ??
+          catalogRefEditionId(trackingEntry?.catalogRef),
       editionTitle: editionTitle,
-      variantId: ownedItem?.anchor?.variantId ??
-          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
-              ?.variantId,
+      variantId: catalogRefVariantId(ownedItem?.targetRef) ??
+          catalogRefVariantId(trackingEntry?.catalogRef),
     );
     final metadata = CommonMetadataDraft(
       titleController: titleController,
@@ -267,8 +265,9 @@ class LibraryEditDraft {
           PersonalItemAnchorType.item,
       selectedEditionId: editionSelection.edition?.id,
       selectedVariantId: editionSelection.variant?.id,
-      selectedBundleReleaseId:
-          normalizeLibrarySelectionId(ownedItem?.anchor?.bundleReleaseId),
+      selectedBundleReleaseId: normalizeLibrarySelectionId(
+        catalogRefBundleReleaseId(ownedItem?.targetRef),
+      ),
       selectedWishlistCatalogRef: wishlistItem?.catalogRef,
       locationChanged: false,
       soldAt: ownedItem?.soldAt,
@@ -283,12 +282,10 @@ class LibraryEditDraft {
       timesCompletedController: timesCompletedController,
       trackingNotesController: trackingNotesController,
       selectedTrackingEditionId:
-          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
-                  ?.editionId ??
+          catalogRefEditionId(trackingEntry?.catalogRef) ??
               editionSelection.edition?.id,
       selectedTrackingVariantId:
-          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
-                  ?.variantId ??
+          catalogRefVariantId(trackingEntry?.catalogRef) ??
               editionSelection.variant?.id,
       startedAt: trackingEntry?.startedAt,
       finishedAt: trackingEntry?.finishedAt,
@@ -390,13 +387,11 @@ class LibraryEditDraft {
     final editions = item.editions;
     final editionSelection = resolveLibraryEditionSelection(
       editions,
-      editionId: ownedItem?.anchor?.editionId ??
-          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
-              ?.editionId,
+      editionId: catalogRefEditionId(ownedItem?.targetRef) ??
+          catalogRefEditionId(trackingEntry?.catalogRef),
       editionTitle: (item.titleExtension ?? item.editionTitle)?.trim(),
-      variantId: ownedItem?.anchor?.variantId ??
-          libraryPersonalAnchorForCatalogRef(trackingEntry?.catalogRef)
-              ?.variantId,
+      variantId: catalogRefVariantId(ownedItem?.targetRef) ??
+          catalogRefVariantId(trackingEntry?.catalogRef),
     );
     return (
       selectedLocationId: personal.selectedLocationId,

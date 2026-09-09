@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
 /// Opaque catalog transport item used by the Add host.
@@ -56,8 +55,8 @@ final class LibraryAddCatalogItem {
   CatalogEntityRef get catalogRef => _item.catalogRef;
   Map<String, dynamic> toSyncPayload() => _item.toSyncPayload();
 
-  CatalogEntityRef catalogRefForPersonalAnchor(PersonalItemAnchor? anchor) {
-    return _item.catalogRefForPersonalAnchor(anchor);
+  CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {
+    return _item.catalogRefForTarget(targetRef);
   }
 
   LibraryAddCatalogItem copyWith({
