@@ -1956,7 +1956,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
             ? null
             : LibraryWishlistEditSelection(
                 catalogRef: catalogRefForLibrarySelection(
-                  _item,
+                  _item.catalogRef,
                   editionId: _selectedEditionId,
                   variantId: _selectedVariantId,
                 ),

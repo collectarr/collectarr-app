@@ -57,10 +57,6 @@ final class CollectarrOwnedItemPersistence {
     await persister(_database, item);
   }
 
-  Future<(CatalogMediaKind kind, Object item)?> findTypedById(String id) {
-    return collectarrFindTypedOwnedItem(_database, id);
-  }
-
   Future<(CatalogMediaKind kind, Object item)?> findTypedByRef(
     OwnedItemRef ref,
   ) async {

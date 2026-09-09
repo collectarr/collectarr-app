@@ -174,7 +174,7 @@ class LibraryAddSessionController
   CatalogEntityRef _selectedWishlistRef(LibraryAddCatalogItem item) {
     final selection = state.selection;
     return catalogRefForLibrarySelection(
-      item.toTransportItem(),
+      item.catalogRef,
       editionId: selection.selectedReferenceEditionId,
       variantId: selection.selectedReferenceVariantId,
       bundleReleaseId: selection.selectedBundleReleaseId,

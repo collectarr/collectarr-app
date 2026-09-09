@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
@@ -77,21 +77,20 @@ final class WishlistMutations {
   }
 
   Future<void> addLocalOnlyWishlistItem(
-    CatalogItemDto item, {
+    CatalogImportSnapshot snapshot, {
     CatalogEntityRef? catalogRef,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final metadataItem = item;
-    final itemId = metadataItem.id;
+    final itemId = snapshot.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
-    final localRef = catalogRef ?? metadataItem.catalogRef;
+    final localRef = catalogRef ?? snapshot.toTransportItem().catalogRef;
     await mutationRunner.run(
       origin: origin,
       localRef: localRef,
       action: () async {
-        await catalogCache.upsertAll([item]);
+        await catalogCache.upsertImportSnapshots([snapshot]);
         final existing = await wishlist.findActiveByCatalogRef(localRef);
         if (existing == null) {
           final wishlistItem = WishlistItem(

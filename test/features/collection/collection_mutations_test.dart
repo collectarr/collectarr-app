@@ -532,7 +532,13 @@ void main() {
           ),
         );
 
-    final updated = await _typedOwned<ComicOwnedItem>(db, original.id.value);
+    final updated = await _typedOwned<ComicOwnedItem>(
+      db,
+      OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId(original.id.value),
+      ),
+    );
     expect(updated.purchaseDate, isNull);
     expect(updated.pricePaidCents, isNull);
     expect(updated.currency, isNull);
@@ -570,7 +576,13 @@ void main() {
           ),
         );
 
-    final updated = await _typedOwned<ComicOwnedItem>(db, original.id.value);
+    final updated = await _typedOwned<ComicOwnedItem>(
+      db,
+      OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId(original.id.value),
+      ),
+    );
     expect(updated.locationId, isNull);
   });
 
@@ -1415,7 +1427,7 @@ void main() {
           timesCompleted: 1,
         );
     await container.read(wishlistMutationsProvider).addLocalOnlyWishlistItem(
-          snapshot,
+          CatalogImportSnapshot.fromItem(snapshot),
         );
 
     final catalog = await CatalogSnapshotRepository(db).findAll();
@@ -1459,7 +1471,9 @@ void main() {
       rating: 9,
       timesCompleted: 1,
     );
-    await wishlistMutations.addLocalOnlyWishlistItem(localSnapshot);
+    await wishlistMutations.addLocalOnlyWishlistItem(
+      CatalogImportSnapshot.fromItem(localSnapshot),
+    );
 
     final promotedCount = await container
         .read(catalogItemMutationsProvider)
@@ -1506,16 +1520,16 @@ void main() {
   });
 }
 
-Future<T> _typedOwned<T>(LocalDatabase db, String id) async {
-  final result = await OwnedItemsRepository(db).findTypedById(id);
-  expect(result, isNotNull, reason: 'Missing typed Owned item $id');
+Future<T> _typedOwned<T>(LocalDatabase db, OwnedItemRef ref) async {
+  final result = await OwnedItemsRepository(db).findTypedByRef(ref);
+  expect(result, isNotNull, reason: 'Missing typed Owned item ${ref.key}');
   return result!.$2 as T;
 }
 
 Future<T> _typedOwnedForCatalog<T>(LocalDatabase db, String itemId) async {
   final summaries = await OwnedItemsRepository(db).listActiveSummaries();
   final summary = summaries.firstWhere((item) => item.itemId == itemId);
-  return _typedOwned<T>(db, summary.ref.id.value);
+  return _typedOwned<T>(db, summary.ref);
 }
 
 class _OwnedItemAuthController extends AuthController {

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 /// Resolves a library UI reference directly to the structural catalog target
@@ -8,7 +7,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 /// tracking flows still have their own legacy selection contracts until their
 /// typed migrations land; Wishlist only needs the target reference.
 CatalogEntityRef catalogRefForLibrarySelection(
-  CatalogItemDto item, {
+  CatalogEntityRef itemRef, {
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
@@ -16,34 +15,34 @@ CatalogEntityRef catalogRefForLibrarySelection(
   final bundleId = _normalized(bundleReleaseId);
   if (bundleId != null) {
     return CatalogEntityRef(
-      kind: item.kind,
+      kind: itemRef.kind,
       entityType: CatalogEntityType.bundleRelease,
       id: bundleId,
-      rootId: item.id,
+      rootId: itemRef.id,
     );
   }
 
   final variant = _normalized(variantId);
   if (variant != null) {
     return CatalogEntityRef(
-      kind: item.kind,
+      kind: itemRef.kind,
       entityType: CatalogEntityType.release,
       id: variant,
-      rootId: item.id,
+      rootId: itemRef.id,
     );
   }
 
   final edition = _normalized(editionId);
   if (edition != null) {
     return CatalogEntityRef(
-      kind: item.kind,
+      kind: itemRef.kind,
       entityType: CatalogEntityType.edition,
       id: edition,
-      rootId: item.id,
+      rootId: itemRef.id,
     );
   }
 
-  return item.catalogRef;
+  return itemRef;
 }
 
 String? _normalized(String? value) {

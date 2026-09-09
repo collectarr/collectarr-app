@@ -193,7 +193,7 @@ _ResolvedAddReference _resolveReferenceForItem(
     case LibraryAddReferenceType.bundleRelease:
       return _ResolvedAddReference(
         catalogRef: catalogRefForLibrarySelection(
-          item.toTransportItem(),
+          item.catalogRef,
           bundleReleaseId: bundleReleaseId,
         ),
         anchor: PersonalItemAnchor.fromRaw(
@@ -207,7 +207,7 @@ _ResolvedAddReference _resolveReferenceForItem(
         final variantId = editionSelection?.variantId?.trim();
         return _ResolvedAddReference(
           catalogRef: catalogRefForLibrarySelection(
-            item.toTransportItem(),
+            item.catalogRef,
             editionId: explicitEditionId,
             variantId: variantId?.isEmpty == true ? null : variantId,
           ),
@@ -226,7 +226,7 @@ _ResolvedAddReference _resolveReferenceForItem(
       final explicitVariantId = editionSelection?.variantId?.trim();
       return _ResolvedAddReference(
         catalogRef: catalogRefForLibrarySelection(
-          item.toTransportItem(),
+          item.catalogRef,
           editionId: firstEdition.id,
           variantId:
               explicitVariantId?.isEmpty == true ? null : explicitVariantId,

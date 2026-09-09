@@ -156,18 +156,13 @@ final class CollectionImportService {
         typedOwnedItems.add((mediaKind, typedOwnedItem));
         final ownedRef = collectarrTypedOwnedItemRef(typedOwnedItem);
         ownedItemRefs.add(ownedRef);
-        final serializedOwned = ownedItems.syncPayloadForTyped(
-          mediaKind,
-          typedOwnedItem,
-        );
         syncChanges.add(
-          SyncChange(
-            id: 'owned_item:${ownedRef.id.value}:upsert:${now.millisecondsSinceEpoch}',
-            entityType: 'owned_item',
-            entityId: ownedRef.id.value,
+          ownedItems.syncChangeForTyped(
+            mediaKind,
+            typedOwnedItem,
+            id: ownedRef.id.value,
             action: 'upsert',
-            payload: serializedOwned.payload,
-            clientChangedAt: now,
+            changedAt: now,
           ),
         );
 
@@ -373,8 +368,7 @@ final class CollectionImportService {
   ///
   /// Collection only normalizes the structural identity cell needed by the
   /// serialization boundary. It must not reconstruct a rich
-  /// [CatalogItemDto] when the row did not come from a complete kind-owned
-  /// catalog projection.
+  /// when the row did not come from a complete kind-owned catalog projection.
   CatalogImportSnapshot? _catalogSnapshotFromCsvRow(CollectionCsvRow row) {
     final projection = libraryCollectionCsvProjectionForKind(
       catalogMediaKindFromValue(row.kind),

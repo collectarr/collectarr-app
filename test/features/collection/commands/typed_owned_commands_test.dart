@@ -111,8 +111,7 @@ void main() {
 
         final defaultDetails =
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
-        final stored =
-            await OwnedItemsRepository(db).findTypedById(itemRef.id.value);
+        final stored = await OwnedItemsRepository(db).findTypedByRef(itemRef);
         expect(stored, isNotNull);
         expect(stored!.$1, kind);
         expect(collectarrTypedOwnedItemJson(stored.$2), isNotEmpty);
@@ -175,7 +174,7 @@ void main() {
             collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
 
         final updatedStored =
-            await OwnedItemsRepository(db).findTypedById(updated.id.value);
+            await OwnedItemsRepository(db).findTypedByRef(updated);
         expect(updatedStored, isNotNull);
         expect(updatedStored!.$1, kind);
         expect(collectarrTypedOwnedItemJson(updatedStored.$2), isNotEmpty);

@@ -274,14 +274,12 @@ final class OwnedItemMutations {
     String action,
     DateTime now,
   ) {
-    final serialized = ownedItems.syncPayloadForTyped(kind, item);
-    return SyncChange(
-      id: 'owned_item:$id:$action:${now.millisecondsSinceEpoch}',
-      entityType: 'owned_item',
-      entityId: id,
+    return ownedItems.syncChangeForTyped(
+      kind,
+      item,
+      id: id,
       action: action,
-      payload: serialized.payload,
-      clientChangedAt: now,
+      changedAt: now,
     );
   }
 

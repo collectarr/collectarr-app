@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -38,7 +40,12 @@ void main() {
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
 
-    final row = await OwnedItemsRepository(db).findTypedById('owned-1');
+    final row = await OwnedItemsRepository(db).findTypedByRef(
+      const OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId('owned-1'),
+      ),
+    );
     final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
     final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
@@ -98,7 +105,12 @@ void main() {
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
-    final row = await OwnedItemsRepository(db).findTypedById('owned-1');
+    final row = await OwnedItemsRepository(db).findTypedByRef(
+      const OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId('owned-1'),
+      ),
+    );
     expect(row?.$1, CatalogMediaKind.comic);
     final owned = row?.$2 as ComicOwnedItem?;
     expect(result.rejectedCount, 1);

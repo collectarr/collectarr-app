@@ -126,8 +126,7 @@ void main() {
     );
 
     final itemRef = await coordinator.addOwnedItem(command);
-    final stored =
-        await OwnedItemsRepository(db).findTypedById(itemRef.id.value);
+    final stored = await OwnedItemsRepository(db).findTypedByRef(itemRef);
     final item = stored!.$2 as ComicOwnedItem;
 
     expect(item.itemId, 'comic-cmd-1');
@@ -202,7 +201,7 @@ void main() {
 
     expect(updatedRef.id, initialRef.id);
     final updatedStored =
-        await OwnedItemsRepository(db).findTypedById(updatedRef.id.value);
+        await OwnedItemsRepository(db).findTypedByRef(updatedRef);
     final updated = updatedStored!.$2 as ComicOwnedItem;
     expect(updated.anchor?.apiValue, 'variant');
     expect(updated.anchor?.editionId, 'edition-updated');

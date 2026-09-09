@@ -755,7 +755,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               );
             } else {
               await wishlistMutations.addLocalOnlyWishlistItem(
-                localItem,
+                CatalogImportSnapshot.fromItem(localItem),
                 origin: origin,
               );
             }
@@ -978,7 +978,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         );
       } else {
         await wishlistMutations.addLocalOnlyWishlistItem(
-          seasonItem,
+          CatalogImportSnapshot.fromItem(seasonItem),
           origin: origin,
         );
       }
@@ -1091,7 +1091,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     final trackingStatus = _trackingStatusForEntry(entry);
     if (trackingStatus == null) {
       await wishlistMutations.addLocalOnlyWishlistItem(
-        item,
+        CatalogImportSnapshot.fromItem(item),
         origin: origin,
       );
       return;
