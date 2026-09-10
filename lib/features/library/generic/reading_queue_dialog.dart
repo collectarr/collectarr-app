@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -15,7 +15,7 @@ Future<void> showReadingQueueDialog({
   required LocalDatabase db,
   required String mediaKind,
   required Iterable<OwnedItemSummary> ownedItems,
-  Iterable<TrackingEntry> trackingEntries = const [],
+  Iterable<TrackingSummary> trackingSummaries = const [],
   required Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef,
   ValueChanged<String>? onSelectItem,
 }) {
@@ -25,7 +25,7 @@ Future<void> showReadingQueueDialog({
       db: db,
       mediaKind: mediaKind,
       ownedItems: ownedItems.toList(growable: false),
-      trackingEntries: trackingEntries.toList(growable: false),
+      trackingSummaries: trackingSummaries.toList(growable: false),
       catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: onSelectItem,
     ),
@@ -37,7 +37,7 @@ class _ReadingQueueDialog extends StatefulWidget {
     required this.db,
     required this.mediaKind,
     required this.ownedItems,
-    required this.trackingEntries,
+    required this.trackingSummaries,
     required this.catalogSummariesByRef,
     this.onSelectItem,
   });
@@ -45,7 +45,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   final LocalDatabase db;
   final String mediaKind;
   final List<OwnedItemSummary> ownedItems;
-  final List<TrackingEntry> trackingEntries;
+  final List<TrackingSummary> trackingSummaries;
   final Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef;
   final ValueChanged<String>? onSelectItem;
 
@@ -77,11 +77,11 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       for (final item in widget.ownedItems) item.ref: item,
     };
     final trackingByOwnedRef = {
-      for (final entry in widget.trackingEntries)
+      for (final entry in widget.trackingSummaries)
         if (!entry.isDeleted && entry.ownedRef != null) entry.ownedRef!: entry,
     };
     final trackingByCatalogRef = {
-      for (final entry in widget.trackingEntries)
+      for (final entry in widget.trackingSummaries)
         if (!entry.isDeleted) _rootCatalogRef(entry.catalogRef): entry,
     };
     final entries = <_ReadingQueueDialogEntry>[];
@@ -103,7 +103,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         _ReadingQueueDialogEntry(
           summary: summary,
           catalogSummary: catalogSummary,
-          trackingEntry: trackingByOwnedRef[summary.ref] ??
+          trackingSummary: trackingByOwnedRef[summary.ref] ??
               trackingByCatalogRef[_rootCatalogRef(catalogRef)],
         ),
       );
@@ -188,7 +188,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
   bool _matchesQuery(_ReadingQueueDialogEntry entry, String query) {
     final fields = [
       entry.label,
-      entry.trackingEntry?.statusStorageValue,
+      entry.trackingSummary?.statusStorageValue,
       entry.summary.notes,
       entry.summary.hasNotes ? 'notes' : null,
     ];
@@ -284,7 +284,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                   final entry = filteredEntries[index];
                                   final details = <String>[];
                                   final readStatus = entry
-                                      .trackingEntry?.statusStorageValue
+                                      .trackingSummary?.statusStorageValue
                                       ?.trim();
                                   if (readStatus != null &&
                                       readStatus.isNotEmpty) {
@@ -371,12 +371,12 @@ class _ReadingQueueDialogEntry {
   const _ReadingQueueDialogEntry({
     required this.summary,
     required this.catalogSummary,
-    this.trackingEntry,
+    this.trackingSummary,
   });
 
   final OwnedItemSummary summary;
   final CatalogDisplaySummary catalogSummary;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
 
   String get label {
     return catalogSummary.title;

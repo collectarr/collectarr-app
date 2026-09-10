@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
 /// Structural tracking lifecycle data for mixed/global activity projections.
@@ -20,15 +21,21 @@ final class TrackingActivitySummary {
   });
 
   factory TrackingActivitySummary.fromEntry(TrackingEntry entry) {
+    return TrackingActivitySummary.fromSummary(
+      TrackingSummary.fromEntry(entry),
+    );
+  }
+
+  factory TrackingActivitySummary.fromSummary(TrackingSummary summary) {
     return TrackingActivitySummary(
-      catalogRef: entry.catalogRef,
-      status: entry.status ?? MediaTrackingStatus.none,
-      rating: entry.rating,
-      startedAt: entry.startedAt,
-      completedAt: entry.finishedAt,
-      notes: entry.notes,
-      updatedAt: entry.updatedAt,
-      deletedAt: entry.deletedAt,
+      catalogRef: summary.catalogRef,
+      status: summary.status,
+      rating: summary.rating,
+      startedAt: summary.startedAt,
+      completedAt: summary.completedAt,
+      notes: summary.notes,
+      updatedAt: summary.updatedAt,
+      deletedAt: summary.deletedAt,
     );
   }
 

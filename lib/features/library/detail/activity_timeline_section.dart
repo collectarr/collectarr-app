@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -77,9 +77,9 @@ class _ActivityTimelineSectionState
               .toList(growable: false),
           orElse: () => const <OwnedItemSummary>[],
         );
-    final trackingEntries =
-        ref.watch(trackingEntriesByCatalogRefProvider)[widget.itemRef] ??
-            const <TrackingEntry>[];
+    final trackingSummaries =
+        ref.watch(trackingSummariesByCatalogRefProvider)[widget.itemRef] ??
+            const <TrackingSummary>[];
     final watchSessions =
         ref.watch(watchSessionsByCatalogRefProvider(widget.itemRef));
     final wishlistItems =
@@ -89,8 +89,8 @@ class _ActivityTimelineSectionState
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedItems,
       trackingEntries: [
-        for (final entry in trackingEntries)
-          TrackingActivitySummary.fromEntry(entry),
+        for (final summary in trackingSummaries)
+          TrackingActivitySummary.fromSummary(summary),
       ],
       wishlistItems: wishlistItems,
       loans: _loans ?? const [],

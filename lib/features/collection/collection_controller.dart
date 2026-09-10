@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -72,6 +73,37 @@ final trackingEntriesByCatalogRefProvider =
       return grouped;
     },
     orElse: () => const <CatalogEntityRef, List<TrackingEntry>>{},
+  );
+});
+
+/// Structural tracking projection for mixed/global consumers.
+///
+/// Mutation and kind-specific editor flows use [trackingEntriesProvider].
+/// Collection/Shelf/Activity must not carry the full tracking aggregate.
+final trackingSummariesProvider =
+    FutureProvider<List<TrackingSummary>>((ref) async {
+  final entries = await ref.watch(trackingEntriesProvider.future);
+  return entries.map(TrackingSummary.fromEntry).toList(growable: false);
+});
+
+final trackingSummariesByCatalogRefProvider =
+    Provider<Map<CatalogEntityRef, List<TrackingSummary>>>((ref) {
+  final tracking = ref.watch(trackingSummariesProvider);
+  return tracking.maybeWhen(
+    data: (items) {
+      final grouped = <CatalogEntityRef, List<TrackingSummary>>{};
+      for (final item in items) {
+        if (item.isDeleted) continue;
+        grouped
+            .putIfAbsent(item.catalogRef, () => <TrackingSummary>[])
+            .add(item);
+      }
+      for (final entries in grouped.values) {
+        entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      }
+      return grouped;
+    },
+    orElse: () => const <CatalogEntityRef, List<TrackingSummary>>{},
   );
 });
 

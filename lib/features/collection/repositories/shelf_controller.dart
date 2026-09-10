@@ -22,14 +22,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final ownedSummaries = await ref.watch(collectionSummariesProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
-  final trackingEntries = await ref.watch(trackingEntriesProvider.future);
+  final trackingSummaries = await ref.watch(trackingSummariesProvider.future);
   final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
   final catalogRefs = <CatalogEntityRef>{
     for (final item in ownedSummaries)
       if (item.catalogRef != null) _rootCatalogRef(item.catalogRef!),
     for (final item in wishlist) _rootCatalogRef(item.catalogRef),
-    for (final item in trackingEntries) _rootCatalogRef(item.catalogRef),
+    for (final item in trackingSummaries) _rootCatalogRef(item.catalogRef),
   };
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
@@ -50,8 +50,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   return ShelfState.from(
     ownedSummaries: ownedSummaries,
     wishlistItems: wishlist,
-    trackingSummaries:
-        trackingEntries.map(TrackingSummary.fromEntry).toList(growable: false),
+    trackingSummaries: trackingSummaries,
     watchSessions: watchSessions,
     catalogSummariesByRef: catalogSummaries,
     catalogSnapshotsByRef: catalogSnapshotsByRef,

@@ -2,11 +2,12 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+
+export 'package:collectarr_app/core/models/tracking_summary.dart';
 
 /// Structural entry used by mixed/global Shelf hosts.
 ///
@@ -88,63 +89,6 @@ class LibraryEntry {
   String? get ownerLabel => ownedSummary?.ownerLabel ?? fallbackOwnerLabel;
 
   int get quantity => ownedSummary?.quantity ?? 0;
-}
-
-/// Small mixed-Shelf tracking projection.
-final class TrackingSummary {
-  const TrackingSummary({
-    required this.id,
-    required this.catalogRef,
-    required this.status,
-    required this.updatedAt,
-    this.ownedRef,
-    this.sourceType,
-    this.rating,
-    this.startedAt,
-    this.completedAt,
-    this.progressCurrent,
-    this.progressTotal,
-    this.timesCompleted,
-    this.notes,
-    this.deletedAt,
-  });
-
-  factory TrackingSummary.fromEntry(TrackingEntry entry) {
-    return TrackingSummary(
-      id: entry.id,
-      catalogRef: entry.catalogRef,
-      status: entry.status ?? MediaTrackingStatus.none,
-      ownedRef: entry.ownedRef,
-      sourceType: entry.sourceType,
-      rating: entry.rating,
-      startedAt: entry.startedAt,
-      completedAt: entry.finishedAt,
-      progressCurrent: entry.progressCurrent,
-      progressTotal: entry.progressTotal,
-      timesCompleted: entry.timesCompleted,
-      notes: entry.notes,
-      updatedAt: entry.updatedAt,
-      deletedAt: entry.deletedAt,
-    );
-  }
-
-  final String id;
-  final CatalogEntityRef catalogRef;
-  final MediaTrackingStatus status;
-  final OwnedItemRef? ownedRef;
-  final TrackingSourceType? sourceType;
-  final int? rating;
-  final DateTime? startedAt;
-  final DateTime? completedAt;
-  final int? progressCurrent;
-  final int? progressTotal;
-  final int? timesCompleted;
-  final String? notes;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-
-  bool get isDeleted => deletedAt != null;
-  String get statusLabel => status.label;
 }
 
 /// Full source used after a kind has been selected by the Library workspace.

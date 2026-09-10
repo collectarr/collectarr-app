@@ -263,8 +263,8 @@ class LibraryPageDialogCoordinator {
     final db = _page.ref.read(localDatabaseProvider);
     final queueRefs = await ReadingQueueRepository(db).getQueue();
     final ownedItems = await OwnedItemsRepository(db).listActiveSummaries();
-    final trackingEntries =
-        await _page.ref.read(trackingEntriesProvider.future);
+    final trackingSummaries =
+        await _page.ref.read(trackingSummariesProvider.future);
     final queuedOwnedItems = ownedItems
         .where((item) => queueRefs.contains(item.ref))
         .toList(growable: false);
@@ -285,7 +285,7 @@ class LibraryPageDialogCoordinator {
       db: db,
       mediaKind: _page.type.kind.apiValue,
       ownedItems: queuedOwnedItems,
-      trackingEntries: trackingEntries,
+      trackingSummaries: trackingSummaries,
       catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: _page.selectItem,
     );

@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -164,17 +164,17 @@ class LibraryPageCollectionActionCoordinator {
       case LibraryItemContextAction.removeFromWishlist:
         await runCollectionAction((a) => a.removeWishlist(item));
       case LibraryItemContextAction.removeTracking:
-        final trackingEntries = switch (item.source.catalogRef) {
+        final trackingSummaries = switch (item.source.catalogRef) {
           final catalogRef? =>
-            _page.ref.read(trackingEntriesByCatalogRefProvider)[catalogRef] ??
-                const <TrackingEntry>[],
-          _ => const <TrackingEntry>[],
+            _page.ref.read(trackingSummariesByCatalogRefProvider)[catalogRef] ??
+                const <TrackingSummary>[],
+          _ => const <TrackingSummary>[],
         };
-        final active = resolveActiveTrackingEntry(trackingEntries, null);
+        final active = resolveActiveTrackingSummary(trackingSummaries, null);
         if (active != null) {
           await _page.ref
               .read(trackingMutationsProvider)
-              .removeTrackingEntry(active);
+              .removeTrackingById(active.id);
         }
       case LibraryItemContextAction.copyTitle:
         await Clipboard.setData(ClipboardData(text: item.dto.title));

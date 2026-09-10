@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -43,11 +42,11 @@ final globalActivityProvider =
   final db = ref.watch(localDatabaseProvider);
   final owned = await ref.watch(collectionSummariesProvider.future);
   // Ensure the grouped providers below have resolved data to read.
-  await ref.watch(trackingEntriesProvider.future);
+  await ref.watch(trackingSummariesProvider.future);
   await ref.watch(watchSessionsProvider.future);
   await ref.watch(wishlistProvider.future);
 
-  final trackingEntries = await ref.watch(trackingEntriesProvider.future);
+  final trackingSummaries = await ref.watch(trackingSummariesProvider.future);
   final watchSessions = await ref.watch(watchSessionsProvider.future);
   final wishlistItems = await ref.watch(wishlistProvider.future);
 
@@ -76,14 +75,14 @@ final globalActivityProvider =
   }
 
   final trackingByRef = <CatalogEntityRef, List<TrackingActivitySummary>>{};
-  for (final entry in trackingEntries) {
+  for (final entry in trackingSummaries) {
     if (entry.isDeleted) continue;
     trackingByRef
         .putIfAbsent(
           _rootCatalogRef(entry.catalogRef),
           () => <TrackingActivitySummary>[],
         )
-        .add(TrackingActivitySummary.fromEntry(entry));
+        .add(TrackingActivitySummary.fromSummary(entry));
   }
   final watchByRef = <CatalogEntityRef, List<WatchSession>>{};
   for (final session in watchSessions) {

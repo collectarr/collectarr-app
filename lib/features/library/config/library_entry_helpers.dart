@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -222,6 +223,28 @@ String? libraryTargetScopeForCatalogRef(CatalogEntityRef? ref) {
 
 TrackingEntry? resolveActiveTrackingEntry(
   List<TrackingEntry> entries,
+  OwnedItemSummary? activeOwnedItem,
+) {
+  if (entries.isEmpty) {
+    return null;
+  }
+  if (activeOwnedItem != null) {
+    for (final entry in entries) {
+      if (entry.ownedRef == activeOwnedItem.ref) {
+        return entry;
+      }
+    }
+  }
+  for (final entry in entries) {
+    if (entry.ownedRef == null) {
+      return entry;
+    }
+  }
+  return entries.first;
+}
+
+TrackingSummary? resolveActiveTrackingSummary(
+  List<TrackingSummary> entries,
   OwnedItemSummary? activeOwnedItem,
 ) {
   if (entries.isEmpty) {
