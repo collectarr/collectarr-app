@@ -29,7 +29,7 @@ void main() {
         kind: 'music',
         title: 'Discovery',
         publisher: 'Virgin',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -72,7 +72,7 @@ void main() {
         kind: 'music',
         title: 'Discovery',
         music: const MusicCatalogDetailsDto(trackCount: 10),
-      ),
+      ).asShelfCatalogItem,
     );
     const nodeMusic = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dtoMusic = const MusicWorkspaceProjector().projectTitle(
@@ -92,7 +92,7 @@ void main() {
         kind: 'movie',
         title: 'Andor',
         synopsis: 'Rebellion rises.',
-      ),
+      ).asShelfCatalogItem,
     );
     const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dtoMovie = const GenericWorkspaceProjector().projectTitle(
@@ -152,7 +152,7 @@ void main() {
         publisher: 'Bantam',
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: OwnedItem(
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(

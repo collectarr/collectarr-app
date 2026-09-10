@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/providers/transport/normalized_provider_
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('TV Kind Vertical Slice Tests (C5)', () {
@@ -95,7 +96,7 @@ void main() {
             mediaKind: CatalogMediaKind.tv,
           ),
           kindMetadata: tvMeta,
-        ),
+        ).asShelfCatalogItem,
         ownedItem: OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -243,7 +244,7 @@ void main() {
             mediaKind: CatalogMediaKind.tv,
           ),
           kindMetadata: TvSeriesMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem,
       );
 
       final entry = TvEntry.fromShelf(shelfEntry);

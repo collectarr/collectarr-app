@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('projects a TV snapshot into the TV-owned workspace graph', () {
@@ -49,7 +50,7 @@ void main() {
           mediaKind: CatalogMediaKind.tv,
         ),
         kindMetadata: metadata,
-      ),
+      ).asShelfCatalogItem,
       ownedItem: null,
     );
 

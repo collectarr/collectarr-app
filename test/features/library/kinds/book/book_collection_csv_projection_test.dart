@@ -75,7 +75,7 @@ void main() {
         publisher: 'Allen & Unwin',
         releaseDate: DateTime.utc(1937, 9, 21),
         barcode: '9780261102217',
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',

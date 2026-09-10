@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/providers/transport/normalized_provider_
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Anime Kind Vertical Slice Tests (C2)', () {
@@ -89,7 +90,7 @@ void main() {
             mediaKind: CatalogMediaKind.anime,
           ),
           kindMetadata: animeMeta,
-        ),
+        ).asShelfCatalogItem,
         ownedItem: OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -235,7 +236,7 @@ void main() {
             mediaKind: CatalogMediaKind.anime,
           ),
           kindMetadata: AnimeMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem,
       );
 
       final entry = AnimeEntry.fromShelf(shelfEntry);

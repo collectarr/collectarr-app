@@ -73,8 +73,9 @@ final class ComicCollectionCsvProjection
   @override
   List<String> catalogCells(ShelfEntry entry) {
     final catalog = entry.catalogItem;
-    final comic =
-        catalog == null ? null : ComicCoreMapper.fromCatalogItem(catalog);
+    final comic = catalog == null
+        ? null
+        : ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());
     return [
       entry.itemId,
       catalog?.kind ?? '',

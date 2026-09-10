@@ -24,7 +24,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     if (catalog == null || metadata == null) return null;
     final secondary = (metadata.publisher ?? metadata.recordLabel)?.trim();
     return LibraryStatsMetadataProjection(
-      primaryGroup: (metadata.artist ?? metadata.title).trim(),
+      primaryGroup: metadata.artist?.trim(),
       secondaryGroup: secondary,
       hasCover: catalog.displayCoverUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||

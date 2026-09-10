@@ -163,7 +163,7 @@ ShelfEntry _entry({
       if (issue != null) 'item_number': issue,
       if (publisher != null) 'publisher': publisher,
       if (releaseYear != null) 'release_year': releaseYear,
-    }),
+    }).asShelfCatalogItem,
     ownedItem: owned
         ? testOwnedItem(
             id: 'owned-$itemId',

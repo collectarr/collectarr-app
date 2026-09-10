@@ -16,8 +16,12 @@ final class TvWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final video = TvCatalogMapper.mapMetadataItemToTv(source.catalogItem!);
-    final series = TvWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final video = TvCatalogMapper.mapMetadataItemToTv(
+      source.catalogItem!.toTransportItem(),
+    );
+    final series = TvWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     TvSeriesMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is TvSeriesMetadata) {
@@ -38,8 +42,12 @@ final class TvWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final video = TvCatalogMapper.mapMetadataItemToTv(source.catalogItem!);
-    final series = TvWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final video = TvCatalogMapper.mapMetadataItemToTv(
+      source.catalogItem!.toTransportItem(),
+    );
+    final series = TvWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     TvSeriesMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is TvSeriesMetadata) {
@@ -59,8 +67,12 @@ final class TvWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    final video = TvCatalogMapper.mapMetadataItemToTv(source.catalogItem!);
-    final series = TvWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final video = TvCatalogMapper.mapMetadataItemToTv(
+      source.catalogItem!.toTransportItem(),
+    );
+    final series = TvWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     TvSeriesMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is TvSeriesMetadata) {

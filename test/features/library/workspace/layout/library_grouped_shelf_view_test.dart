@@ -27,7 +27,7 @@ LibraryProjectionItem _item({
     title: title,
     publisher: bucket,
   );
-  final source = ShelfEntry(itemId: id, catalogItem: cat);
+  final source = ShelfEntry(itemId: id, catalogItem: cat.asShelfCatalogItem);
   final node = LibraryTitleNodeRef(titleItemId: id);
   final dto = const GenericWorkspaceProjector().projectTitle(
     source: source,
@@ -127,7 +127,8 @@ void main() {
       series: const CatalogSeriesDetailsDto(seriesTitle: 'Batman'),
       itemNumber: '1',
     );
-    final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
+    final source =
+        ShelfEntry(itemId: 'c1', catalogItem: cat.asShelfCatalogItem);
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);
@@ -185,7 +186,8 @@ void main() {
       series: const CatalogSeriesDetailsDto(seriesTitle: 'Batman'),
       itemNumber: '1',
     );
-    final source = ShelfEntry(itemId: 'c1', catalogItem: cat);
+    final source =
+        ShelfEntry(itemId: 'c1', catalogItem: cat.asShelfCatalogItem);
     final node = const LibraryTitleNodeRef(titleItemId: 'c1');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .project(source: source, node: node);

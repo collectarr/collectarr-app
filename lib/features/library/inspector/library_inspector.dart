@@ -658,7 +658,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.type.add.buildCommand(
-            LibraryAddCatalogItem.fromItem(catalogItem),
+            catalogItem,
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
             targetRef: ownedItem?.catalogRef ?? catalogItem.catalogRef,

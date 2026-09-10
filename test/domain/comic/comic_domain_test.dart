@@ -46,7 +46,7 @@ void main() {
 
     final shelf = ShelfEntry(
       itemId: 'comic-2',
-      catalogItem: catalogItem,
+      catalogItem: catalogItem.asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-comic-2',
         itemId: 'comic-2',
@@ -83,7 +83,7 @@ void main() {
 
     final shelf = ShelfEntry(
       itemId: 'comic-key-1',
-      catalogItem: catalogItem,
+      catalogItem: catalogItem.asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-comic-key-1',
         itemId: 'comic-key-1',

@@ -14,7 +14,7 @@ void main() {
         synopsis: 'A hacker discovers reality is a simulation.',
         video: const {'runtime_minutes': 136},
         kind: 'movie',
-      ),
+      ).asShelfCatalogItem,
     );
 
     final titleDto = const MovieWorkspaceProjector().projectTitle(

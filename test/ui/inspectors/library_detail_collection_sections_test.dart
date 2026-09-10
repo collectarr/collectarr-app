@@ -29,7 +29,7 @@ void main() {
         id: 'movie-1',
         kind: 'movie',
         title: 'Blade Runner 2049',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: owned1,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');

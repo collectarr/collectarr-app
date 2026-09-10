@@ -29,7 +29,7 @@ List<Widget> buildLibraryDetailEditorSections({
         editions: catalogItem == null
             ? const []
             : type.presentation.builder.buildReleaseEditions(
-                item: catalogItem,
+                item: catalogItem.toTransportItem(),
               ),
         accent: accent,
       ),

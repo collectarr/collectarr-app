@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/providers/transport/normalized_provider_
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Music Kind Vertical Slice Tests (C6)', () {
@@ -122,7 +123,7 @@ void main() {
             mediaKind: CatalogMediaKind.music,
           ),
           kindMetadata: musicMeta,
-        ),
+        ).asShelfCatalogItem,
         ownedItem: OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -272,7 +273,7 @@ void main() {
             mediaKind: CatalogMediaKind.music,
           ),
           kindMetadata: MusicCatalogMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem,
       );
 
       final entry = MusicEntry.fromShelf(shelfEntry);

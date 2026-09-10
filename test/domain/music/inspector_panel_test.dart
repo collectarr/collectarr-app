@@ -60,7 +60,7 @@ void main() {
     );
     final source = ShelfEntry(
       itemId: 'music-1',
-      catalogItem: cat,
+      catalogItem: cat.asShelfCatalogItem,
       ownedItem: ownedItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
@@ -150,7 +150,7 @@ void main() {
     );
     final source = ShelfEntry(
       itemId: 'music-2',
-      catalogItem: cat,
+      catalogItem: cat.asShelfCatalogItem,
       ownedItem: ownedItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-2');

@@ -91,7 +91,7 @@ void main() {
           kind: 'comic',
           title: 'Spider-Man #1',
           publisher: 'Marvel',
-        ),
+        ).asShelfCatalogItem,
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto1 = const ComicWorkspaceProjector()
@@ -122,7 +122,7 @@ void main() {
           kind: 'comic',
           title: 'Spider-Man #1',
           publisher: 'Marvel',
-        ),
+        ).asShelfCatalogItem,
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto2 = const ComicWorkspaceProjector()
@@ -155,7 +155,7 @@ void main() {
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem,
       );
       const node0a = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto0a = const GenericWorkspaceProjector()
@@ -201,7 +201,7 @@ void main() {
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem,
       );
       const node0b = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto0b = const GenericWorkspaceProjector()
@@ -237,7 +237,7 @@ void main() {
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem,
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto1 = const GenericWorkspaceProjector()
@@ -278,7 +278,7 @@ void main() {
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem,
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto2 = const GenericWorkspaceProjector()

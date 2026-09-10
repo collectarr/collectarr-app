@@ -95,7 +95,7 @@ void main() {
         id: 'comic-5',
         kind: 'comic',
         title: 'Example Comic',
-      ),
+      ).asShelfCatalogItem,
     );
     final node = LibraryTitleNodeRef(titleItemId: 'comic-5');
     final dto = const ComicWorkspaceProjector()
@@ -117,7 +117,7 @@ void main() {
         kind: 'comic',
         title: 'Example Comic',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Example Comic'),
-      ),
+      ).asShelfCatalogItem,
     );
     final node = const LibraryCopyNodeRef(
       titleItemId: 'comic-2',
@@ -144,7 +144,7 @@ void main() {
         id: 'movie-1',
         kind: 'movie',
         title: 'Spirited Away',
-      ),
+      ).asShelfCatalogItem,
     );
     final node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector()

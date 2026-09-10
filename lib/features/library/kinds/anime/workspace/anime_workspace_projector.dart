@@ -16,9 +16,12 @@ final class AnimeWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final video =
-        AnimeCatalogMapper.mapMetadataItemToAnime(source.catalogItem!);
-    final media = AnimeWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final video = AnimeCatalogMapper.mapMetadataItemToAnime(
+      source.catalogItem!.toTransportItem(),
+    );
+    final media = AnimeWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     final km = source.catalogItem?.kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
@@ -40,9 +43,12 @@ final class AnimeWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final video =
-        AnimeCatalogMapper.mapMetadataItemToAnime(source.catalogItem!);
-    final media = AnimeWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final video = AnimeCatalogMapper.mapMetadataItemToAnime(
+      source.catalogItem!.toTransportItem(),
+    );
+    final media = AnimeWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     final km = source.catalogItem?.kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
@@ -63,9 +69,12 @@ final class AnimeWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    final video =
-        AnimeCatalogMapper.mapMetadataItemToAnime(source.catalogItem!);
-    final media = AnimeWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final video = AnimeCatalogMapper.mapMetadataItemToAnime(
+      source.catalogItem!.toTransportItem(),
+    );
+    final media = AnimeWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     final km = source.catalogItem?.kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km

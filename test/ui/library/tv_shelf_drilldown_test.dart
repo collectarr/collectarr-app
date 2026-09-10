@@ -26,7 +26,7 @@ void main() {
         displayTitle: 'Cowboy Bebop',
         coverImageUrl: null,
         releaseDate: DateTime.utc(1998, 4, 3),
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'series-1');
     final dto = const GenericWorkspaceProjector()

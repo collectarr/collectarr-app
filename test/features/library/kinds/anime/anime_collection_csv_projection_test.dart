@@ -75,7 +75,7 @@ void main() {
         editionTitle: 'Complete Series',
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'anime-1',

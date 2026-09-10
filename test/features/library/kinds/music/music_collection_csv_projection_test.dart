@@ -87,7 +87,7 @@ void main() {
             {'number': '1', 'title': 'So What'},
           ],
         },
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'music-1',

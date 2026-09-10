@@ -35,7 +35,7 @@ void main() {
           kind: 'comic',
           title: 'Amazing Spider-Man',
           publisher: 'Marvel Comics',
-        ),
+        ).asShelfCatalogItem,
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().projectTitle(
@@ -88,7 +88,7 @@ void main() {
           title: 'Discovery',
           publisher: 'Virgin Records',
           genres: ['Electronic', 'House'],
-        ),
+        ).asShelfCatalogItem,
       );
       const node = LibraryTitleNodeRef(titleItemId: 'music-1');
       final dto = const MusicWorkspaceProjector().projectTitle(
@@ -139,7 +139,7 @@ void main() {
           title: 'The Legend of Zelda: Tears of the Kingdom',
           publisher: 'Nintendo',
           genres: ['Action', 'Adventure'],
-        ),
+        ).asShelfCatalogItem,
       );
       const node = LibraryTitleNodeRef(titleItemId: 'game-1');
       final dto = const GameWorkspaceProjector().projectTitle(
@@ -195,7 +195,7 @@ void main() {
           creators: [
             {'name': 'Frank Herbert', 'role': 'Author'},
           ],
-        ),
+        ).asShelfCatalogItem,
       );
       const node = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto = const BookWorkspaceProjector().projectTitle(
@@ -247,7 +247,7 @@ void main() {
           kind: 'comic',
           title: 'Saga #1',
           publisher: 'Image Comics',
-        ),
+        ).asShelfCatalogItem,
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().projectTitle(

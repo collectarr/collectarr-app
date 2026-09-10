@@ -20,7 +20,7 @@ void main() {
         id: 'boardgame-1',
         title: 'Catan',
         kind: 'boardgame',
-      ),
+      ).asShelfCatalogItem,
     );
 
     final dto = const BoardGameWorkspaceProjector().projectTitle(
@@ -49,7 +49,7 @@ void main() {
         kind: 'boardgame',
         title: 'Catan',
         editions: [edition],
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'boardgame-1',
@@ -105,7 +105,7 @@ void main() {
             'bgg_rating': 8.2,
           },
         },
-      ),
+      ).asShelfCatalogItem,
     );
     final item =
         libraryKindWorkspaceForKind(CatalogMediaKind.boardgame).project(

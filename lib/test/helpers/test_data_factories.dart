@@ -123,6 +123,11 @@ CatalogItemDto testCatalogItem({
   );
 }
 
+extension ShelfCatalogFixture on CatalogItemDto {
+  LibraryAddCatalogItem get asShelfCatalogItem =>
+      LibraryAddCatalogItem.fromItem(this);
+}
+
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
   return testCatalogItemWithKindMetadata(CatalogItemDto.fromJson(json));
 }
@@ -437,7 +442,9 @@ ShelfEntry testShelfEntry({
       );
   return ShelfEntry(
     itemId: itemId,
-    catalogItem: testCatalogItemWithKindMetadata(resolvedCatalogItem),
+    catalogItem: LibraryAddCatalogItem.fromItem(
+      testCatalogItemWithKindMetadata(resolvedCatalogItem),
+    ),
     ownedItem: ownedItem,
     wishlistItem: wishlistItem,
     locationPath: locationPath,

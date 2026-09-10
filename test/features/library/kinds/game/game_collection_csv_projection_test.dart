@@ -70,7 +70,7 @@ void main() {
           'platform': 'Nintendo Switch',
           'edition_title': 'Collector edition',
         },
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'game-1',

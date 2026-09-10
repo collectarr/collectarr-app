@@ -37,7 +37,7 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
     final catalog = entry.catalogItem;
     if (catalog == null) continue;
 
-    final comic = ComicCoreMapper.fromCatalogItem(catalog);
+    final comic = ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());
     final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
     if (exportedCount > 0) {
       buffer.writeln();

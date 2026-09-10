@@ -28,7 +28,7 @@ void main() {
           publisher: 'Marvel',
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
-        )),
+        )).asShelfCatalogItem,
         ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
@@ -134,7 +134,7 @@ void main() {
             id: 'book-1',
             kind: 'book',
             title: 'Test Book',
-          )),
+          )).asShelfCatalogItem,
           ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'book-1',
@@ -182,7 +182,7 @@ void main() {
       itemId: 'book-1',
       catalogItem: testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
@@ -224,7 +224,7 @@ void main() {
           releaseDate: DateTime.utc(2005, 7, 1),
           barcode: '75960604716152011',
           variant: 'Regular Cover',
-        )),
+        )).asShelfCatalogItem,
         ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
@@ -264,7 +264,7 @@ void main() {
           editionTitle: 'Final Cut 4K release',
           physicalFormat: '4k-uhd',
           physicalFormatLabel: '4K UHD',
-        )),
+        )).asShelfCatalogItem,
         ownedItem: testOwnedItem(
           id: 'owned-1',
           itemId: 'movie-1',
@@ -552,7 +552,7 @@ void main() {
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          )),
+          )).asShelfCatalogItem,
           ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
@@ -616,7 +616,7 @@ void main() {
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          )),
+          )).asShelfCatalogItem,
           ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',

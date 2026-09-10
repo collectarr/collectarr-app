@@ -96,7 +96,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Batman',
-      ),
+      ).asShelfCatalogItem,
       locationPath: 'Office > Shelf 2 > Short Box 1',
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');

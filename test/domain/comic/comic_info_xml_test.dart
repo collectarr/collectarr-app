@@ -20,7 +20,7 @@ void main() {
           synopsis: 'A public synopsis',
           releaseDate: DateTime.utc(1962, 8, 10),
           releaseYear: 1962,
-        ),
+        ).asShelfCatalogItem,
       ),
     ]);
 

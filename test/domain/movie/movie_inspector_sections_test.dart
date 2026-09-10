@@ -21,7 +21,7 @@ void main() {
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',
         kind: 'movie',
-      ),
+      ).asShelfCatalogItem,
     );
 
     final node = const LibraryTitleNodeRef(titleItemId: 'movie-1');

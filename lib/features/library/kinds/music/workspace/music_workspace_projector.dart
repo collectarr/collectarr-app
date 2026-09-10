@@ -16,9 +16,12 @@ final class MusicWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final music =
-        MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
-    final release = MusicWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final music = MusicCatalogMapper.mapMetadataItemToMusic(
+      source.catalogItem!.toTransportItem(),
+    );
+    final release = MusicWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     MusicCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MusicCatalogMetadata) {
@@ -39,10 +42,11 @@ final class MusicWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final music =
-        MusicCatalogMapper.mapMetadataItemToMusic(source.catalogItem!);
+    final music = MusicCatalogMapper.mapMetadataItemToMusic(
+      source.catalogItem!.toTransportItem(),
+    );
     final release = MusicWorkspaceMapper.fromCatalogItem(
-      source.catalogItem!,
+      source.catalogItem!.toTransportItem(),
       releaseId: node.releaseId,
       edition: node.edition,
     );

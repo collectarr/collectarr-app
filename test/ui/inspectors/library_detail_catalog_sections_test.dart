@@ -23,7 +23,7 @@ void main() {
         title: 'Discovery',
         publisher: 'Virgin',
         genres: ['House', 'Electronic'],
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -66,7 +66,7 @@ void main() {
           {'name': 'Brian K. Vaughan', 'role': 'Writer'},
         ],
         characters: ['Alana'],
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().projectTitle(

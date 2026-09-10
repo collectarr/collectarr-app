@@ -13,7 +13,7 @@ void main() {
         title: 'Guards! Guards!',
         publisher: 'Victor Gollancz Ltd',
         kind: 'book',
-      ),
+      ).asShelfCatalogItem,
     );
 
     final dto = const BookWorkspaceProjector().projectTitle(

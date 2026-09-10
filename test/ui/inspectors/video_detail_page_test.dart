@@ -72,7 +72,7 @@ void main() {
             ],
           ),
         ],
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',
@@ -197,7 +197,7 @@ void main() {
             ],
           ),
         ],
-      ),
+      ).asShelfCatalogItem,
       wishlistItem: WishlistItem(
         id: 'wishlist-1',
         catalogRef: const CatalogEntityRef(
@@ -309,7 +309,7 @@ void main() {
         kind: 'movie',
         title: 'Castle in the Sky',
         displayTitle: 'Castle in the Sky',
-      ),
+      ).asShelfCatalogItem,
     );
     const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
     final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)

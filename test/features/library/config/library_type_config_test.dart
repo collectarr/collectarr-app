@@ -166,7 +166,7 @@ void main() {
         id: 'book-1',
         kind: 'book',
         title: 'Dune',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(

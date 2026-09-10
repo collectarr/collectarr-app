@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/providers/transport/normalized_provider_
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('BoardGame Kind Vertical Slice Tests (C3)', () {
@@ -92,7 +93,7 @@ void main() {
             mediaKind: CatalogMediaKind.boardgame,
           ),
           kindMetadata: bgMeta,
-        ),
+        ).asShelfCatalogItem,
         ownedItem: OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -235,7 +236,7 @@ void main() {
             mediaKind: CatalogMediaKind.boardgame,
           ),
           kindMetadata: BoardGameMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem,
       );
 
       final entry = BoardGameEntry.fromShelf(shelfEntry);

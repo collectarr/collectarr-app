@@ -106,7 +106,7 @@ class LibraryBulkActions {
         );
       }
       final addCmd = libraryKindModuleForKind(resolvedKind).add.buildCommand(
-            LibraryAddCatalogItem.fromItem(catalogItem),
+            catalogItem,
             common,
             libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
             targetRef: entry.ownedItem?.catalogRef ??

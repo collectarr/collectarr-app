@@ -30,7 +30,7 @@ void main() {
           id: id,
           kind: 'comic',
           title: title,
-        ),
+        ).asShelfCatalogItem,
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       return comicWorkspace.project(source: source, node: node);
@@ -43,7 +43,7 @@ void main() {
           id: id,
           kind: 'book',
           title: title,
-        ),
+        ).asShelfCatalogItem,
       );
       const node = LibraryTitleNodeRef(titleItemId: 'book-1');
       return bookWorkspace.project(source: source, node: node);

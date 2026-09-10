@@ -75,7 +75,7 @@ void main() {
         publisher: 'Hakusensha',
         releaseDate: DateTime.utc(1990, 11, 1),
         barcode: '9784592132043',
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'manga-1',

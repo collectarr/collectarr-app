@@ -40,7 +40,7 @@ void main() {
       );
       final shelf = ShelfEntry(
         itemId: 'manga-1',
-        catalogItem: catalogItem,
+        catalogItem: catalogItem.asShelfCatalogItem,
         ownedItem: testOwnedItem(
           id: 'owned-manga-1',
           itemId: 'manga-1',

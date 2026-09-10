@@ -19,11 +19,13 @@ void main() {
       entries: [
         ShelfEntry(
           itemId: 'music-1',
-          catalogItem: testCatalogItem(
-            id: 'music-1',
-            kind: 'music',
-            title: 'Discovery',
-          ),
+          catalogItem: testCatalogItemWithKindMetadata(
+            testCatalogItem(
+              id: 'music-1',
+              kind: 'music',
+              title: 'Discovery',
+            ),
+          ).asShelfCatalogItem,
         ),
       ],
       ownedCount: 0,
@@ -83,7 +85,7 @@ void main() {
             title: 'Elden Ring',
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
-          ),
+          ).asShelfCatalogItem,
           ownedItem: testOwnedItem(
             id: 'owned-1',
             itemId: 'game-1',
@@ -101,7 +103,7 @@ void main() {
             title: 'Dark Souls III',
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
-          ),
+          ).asShelfCatalogItem,
           ownedItem: testOwnedItem(
             id: 'owned-2',
             itemId: 'game-2',
@@ -173,7 +175,7 @@ void main() {
               title: 'Saga',
               itemNumber: itemNumber,
               series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
-            ),
+            ).asShelfCatalogItem,
             ownedItem: testOwnedItem(
               id: 'owned-$itemNumber',
               itemId: 'comic-$itemNumber',
@@ -231,7 +233,7 @@ void main() {
                 seriesTitle: 'Vinland Saga',
                 volumeNumber: '$volume',
               ),
-            ),
+            ).asShelfCatalogItem,
             ownedItem: testOwnedItem(
               id: 'owned-comic-volume-$volume',
               itemId: 'comic-volume-$volume',
@@ -289,7 +291,7 @@ void main() {
                 seriesTitle: 'The Mandalorian',
                 seasonNumber: season,
               ),
-            ),
+            ).asShelfCatalogItem,
             ownedItem: testOwnedItem(
               id: 'owned-movie-season-$season',
               itemId: 'movie-season-$season',

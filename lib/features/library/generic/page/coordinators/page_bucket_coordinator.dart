@@ -76,7 +76,7 @@ class LibraryPageBucketCoordinator {
       final catalogItem = item.source.catalogItem;
       if (catalogItem != null) {
         final updatedCatalog = groupDefinition.bucketValueMutator?.call(
-          catalogItem,
+          catalogItem.toTransportItem(),
           currentLabel,
           replacement: replacement,
         );

@@ -63,7 +63,7 @@ void main() {
         publisher: 'Marvel',
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',

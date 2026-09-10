@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalo
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('movie work dto maps rich metadata into movie domain', () {
@@ -121,7 +122,7 @@ void main() {
 
     final source = ShelfEntry(
       itemId: 'movie-1',
-      catalogItem: dto,
+      catalogItem: dto.asShelfCatalogItem,
     );
 
     final workspaceDto = const MovieWorkspaceProjector().projectTitle(

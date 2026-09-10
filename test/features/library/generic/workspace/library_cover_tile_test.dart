@@ -21,7 +21,7 @@ void main() {
         kind: 'comic',
         title: 'Superman, Vol. 4',
         itemNumber: '8A',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
@@ -75,7 +75,7 @@ void main() {
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
         displayTitle: 'Spirited Away',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -119,7 +119,7 @@ void main() {
         id: 'movie-1',
         kind: 'movie',
         title: 'Spirited Away',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -177,7 +177,7 @@ void main() {
         id: 'music-1',
         kind: 'music',
         title: 'Lupus Dei',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -221,7 +221,7 @@ void main() {
         id: 'music-2',
         kind: 'music',
         title: 'Bible of the Beast',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-2');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -269,7 +269,7 @@ void main() {
         id: 'music-3',
         kind: 'music',
         title: 'Gods of War',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-3');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -322,7 +322,7 @@ void main() {
         id: 'movie-3',
         kind: 'movie',
         title: 'Interstellar',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-3');
     final dto = const GenericWorkspaceProjector().projectTitle(

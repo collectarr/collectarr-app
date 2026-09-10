@@ -16,9 +16,12 @@ final class MovieWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final movie =
-        MovieCatalogMapper.mapMetadataItemToMovie(source.catalogItem!);
-    final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final movie = MovieCatalogMapper.mapMetadataItemToMovie(
+      source.catalogItem!.toTransportItem(),
+    );
+    final media = MovieWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MovieCatalogMetadata) {
@@ -39,9 +42,12 @@ final class MovieWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final movie =
-        MovieCatalogMapper.mapMetadataItemToMovie(source.catalogItem!);
-    final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final movie = MovieCatalogMapper.mapMetadataItemToMovie(
+      source.catalogItem!.toTransportItem(),
+    );
+    final media = MovieWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MovieCatalogMetadata) {
@@ -61,9 +67,12 @@ final class MovieWorkspaceProjector
     required ShelfEntry source,
     required LibraryCopyNodeRef node,
   }) {
-    final movie =
-        MovieCatalogMapper.mapMetadataItemToMovie(source.catalogItem!);
-    final media = MovieWorkspaceMapper.fromCatalogItem(source.catalogItem!);
+    final movie = MovieCatalogMapper.mapMetadataItemToMovie(
+      source.catalogItem!.toTransportItem(),
+    );
+    final media = MovieWorkspaceMapper.fromCatalogItem(
+      source.catalogItem!.toTransportItem(),
+    );
     MovieCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is MovieCatalogMetadata) {

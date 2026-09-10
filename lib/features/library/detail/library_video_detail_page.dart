@@ -73,7 +73,7 @@ class _LibraryVideoDetailPageState
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.request.type.add.buildCommand(
-            LibraryAddCatalogItem.fromItem(catalogItem),
+            catalogItem,
             const LibraryAddCommonDraft(),
             widget.request.type.add.createInitialDraft(),
             targetRef: catalogRefForLibrarySelection(

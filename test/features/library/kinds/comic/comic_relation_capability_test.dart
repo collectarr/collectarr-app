@@ -20,7 +20,7 @@ void main() {
           seriesId: 'series-1',
           seriesTitle: 'Saga',
         ),
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final item = LibraryProjectionItem(

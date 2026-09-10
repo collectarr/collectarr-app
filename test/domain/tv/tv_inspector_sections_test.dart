@@ -44,7 +44,7 @@ void main() {
         trailerUrls: const [
           TrailerLinkDto(url: 'https://example.com/trailer'),
         ],
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'series-1');
     final dto =

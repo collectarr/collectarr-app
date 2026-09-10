@@ -14,7 +14,7 @@ void main() {
         id: 'game-1',
         title: 'Example Game',
         kind: 'game',
-      ),
+      ).asShelfCatalogItem,
     );
 
     final dto = const GameWorkspaceProjector().projectTitle(

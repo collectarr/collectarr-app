@@ -67,7 +67,7 @@ void main() {
         publisher: 'Kosmos',
         releaseDate: DateTime.utc(1995, 4, 1),
         barcode: '4002051693302',
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'boardgame-1',

@@ -1047,7 +1047,7 @@ void main() {
               kind: 'comic',
               title: 'Imported Comic',
             ),
-          ),
+          ).asShelfCatalogItem,
           ownedItem: testOwnedItem(
             id: 'owned-comic-details',
             itemId: 'comic-owned-details',

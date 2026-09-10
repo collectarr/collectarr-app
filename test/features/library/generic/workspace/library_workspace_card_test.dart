@@ -25,7 +25,7 @@ void main() {
         itemNumber: '13A',
         publisher: 'Marvel Comics',
         barcode: '759606083060141',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
@@ -84,7 +84,7 @@ void main() {
         kind: 'music',
         title: 'Discovery',
         publisher: 'Virgin',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-m1',
         itemId: 'music-1',
@@ -133,7 +133,7 @@ void main() {
         id: 'movie-1',
         kind: 'movie',
         title: 'Dune',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(id: 'om1', itemId: 'movie-1'),
     );
     const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
@@ -153,7 +153,7 @@ void main() {
         id: 'game-1',
         kind: 'game',
         title: 'Mario Kart 8 Deluxe',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(id: 'og1', itemId: 'game-1'),
     );
     const nodeGame = LibraryTitleNodeRef(titleItemId: 'game-1');

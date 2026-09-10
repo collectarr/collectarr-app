@@ -25,7 +25,8 @@ void main() {
         kind: 'movie',
         title: 'Empty Movie',
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -60,7 +61,8 @@ void main() {
           ),
         ],
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -88,7 +90,8 @@ void main() {
           CatalogEditionDto(id: 'ed_2', title: '4K Blu-ray'),
         ],
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -132,7 +135,9 @@ void main() {
         details: const TestOwnedDetails(),
       );
       final source = ShelfEntry(
-          itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
+          itemId: 'movie_1',
+          catalogItem: catalogItem.asShelfCatalogItem,
+          ownedItem: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -168,7 +173,9 @@ void main() {
         ),
       );
       final source = ShelfEntry(
-          itemId: 'movie_1', catalogItem: catalogItem, wishlistItem: wishlist);
+          itemId: 'movie_1',
+          catalogItem: catalogItem.asShelfCatalogItem,
+          wishlistItem: wishlist);
 
       final items = capability.projectReleases(
         source: source,
@@ -216,7 +223,9 @@ void main() {
         details: const TestOwnedDetails(),
       );
       final source = ShelfEntry(
-          itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
+          itemId: 'movie_1',
+          catalogItem: catalogItem.asShelfCatalogItem,
+          ownedItem: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -257,7 +266,9 @@ void main() {
         details: const TestOwnedDetails(),
       );
       final source = ShelfEntry(
-          itemId: 'movie_1', catalogItem: catalogItem, ownedItem: owned);
+          itemId: 'movie_1',
+          catalogItem: catalogItem.asShelfCatalogItem,
+          ownedItem: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -294,7 +305,8 @@ void main() {
           ),
         ],
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -322,7 +334,8 @@ void main() {
           CatalogEditionDto(id: 'ed_cf', title: 'CF Edition'),
         ],
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
       final releaseNode = const LibraryReleaseNodeRef(
         titleItemId: 'movie_1',
         releaseId: 'ed_cf',
@@ -343,7 +356,8 @@ void main() {
           CatalogEditionDto(id: 'ed_1', title: 'Nav Edition'),
         ],
       );
-      final source = ShelfEntry(itemId: 'movie_1', catalogItem: catalogItem);
+      final source = ShelfEntry(
+          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final match = capability.projectReleases(
         source: source,
@@ -380,7 +394,7 @@ void main() {
               id: 'comic_1',
               kind: 'comic',
               title: 'Spider-Man #1',
-            ),
+            ).asShelfCatalogItem,
           ),
         ],
         ownedCount: 0,

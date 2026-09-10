@@ -26,7 +26,7 @@ void main() {
         id: 'comic-1',
         kind: 'comic',
         title: 'Batman: Year One',
-      ),
+      ).asShelfCatalogItem,
     );
 
     final item = LibraryProjectionItem.fromShelf(source, type);

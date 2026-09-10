@@ -15,8 +15,9 @@ final class BoardGameWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final boardgame =
-        BoardGameCatalogMapper.mapMetadataItemToBoardGame(source.catalogItem!);
+    final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
+      source.catalogItem!.toTransportItem(),
+    );
     BoardGameMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is BoardGameMetadata) {
@@ -36,8 +37,9 @@ final class BoardGameWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final boardgame =
-        BoardGameCatalogMapper.mapMetadataItemToBoardGame(source.catalogItem!);
+    final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
+      source.catalogItem!.toTransportItem(),
+    );
     final metadata = _metadataFor(source);
     return BoardGameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),

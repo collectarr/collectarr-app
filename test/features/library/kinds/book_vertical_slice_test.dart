@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/providers/transport/normalized_provider_
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Book Kind Vertical Slice Tests (C4)', () {
@@ -104,7 +105,7 @@ void main() {
             mediaKind: CatalogMediaKind.book,
           ),
           kindMetadata: bookMeta,
-        ),
+        ).asShelfCatalogItem,
         ownedItem: OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
@@ -283,7 +284,7 @@ void main() {
             mediaKind: CatalogMediaKind.book,
           ),
           kindMetadata: BookCatalogMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem,
       );
 
       final entry = BookEntry.fromShelf(shelfEntry);

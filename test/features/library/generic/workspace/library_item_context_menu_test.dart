@@ -20,7 +20,7 @@ void main() {
         kind: 'movie',
         title: 'Arrival',
         barcode: '1234567890',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(

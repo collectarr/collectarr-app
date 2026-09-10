@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -8,6 +7,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -36,8 +36,9 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   // Library kind contributors receive transport snapshots only at this
   // explicit boundary. Joins are keyed by the complete catalog reference so
   // equal IDs across kinds cannot collide.
-  final catalogSnapshotsByRef =
-      await CatalogSnapshotRepository(db).findByRefs(catalogRefs);
+  final catalogSnapshotsByRef = (await CatalogSnapshotRepository(db)
+          .findByRefs(catalogRefs))
+      .map((ref, item) => MapEntry(ref, LibraryAddCatalogItem.fromItem(item)));
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -90,13 +91,13 @@ class ShelfState {
     Iterable<TrackingSummary>? trackingSummaries,
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
-    Map<CatalogEntityRef, CatalogItemDto>? catalogSnapshotsByRef,
+    Map<CatalogEntityRef, LibraryAddCatalogItem>? catalogSnapshotsByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
-    final catalogByRef = <CatalogEntityRef, CatalogItemDto>{
+    final catalogByRef = <CatalogEntityRef, LibraryAddCatalogItem>{
       ...?catalogSnapshotsByRef,
     };
     final resolvedCatalogSummariesByRef =
@@ -336,7 +337,7 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
     this.ownedItem,
   });
 
-  final CatalogItemDto? catalogItem;
+  final LibraryAddCatalogItem? catalogItem;
 
   final OwnedItem? ownedItem;
 
@@ -438,7 +439,7 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   return ref;
 }
 
-CatalogDisplaySummary _catalogSummaryFromSnapshot(CatalogItemDto item) {
+CatalogDisplaySummary _catalogSummaryFromSnapshot(LibraryAddCatalogItem item) {
   final itemNumber = item.itemNumber?.trim();
   final title = item.resolvedDisplayTitle.trim();
   return CatalogDisplaySummary.work(

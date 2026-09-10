@@ -74,7 +74,7 @@ void main() {
         variant: 'Complete Series',
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'tv-1',

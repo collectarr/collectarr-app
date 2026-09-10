@@ -75,7 +75,7 @@ void main() {
           kind: 'comic',
           title: 'Detective Comics',
         ),
-      ),
+      ).asShelfCatalogItem,
       wishlistItem: WishlistItem(
         id: 'wish-3',
         catalogRef: const CatalogEntityRef(

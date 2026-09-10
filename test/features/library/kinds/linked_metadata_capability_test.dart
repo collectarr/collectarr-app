@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('kind runtime projects linked metadata from typed catalog values', () {
@@ -135,6 +136,6 @@ ShelfEntry _shelfEntry(
     catalogItem: CatalogItemDto(
       identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
       kindMetadata: metadata,
-    ),
+    ).asShelfCatalogItem,
   );
 }

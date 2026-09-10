@@ -87,7 +87,8 @@ void main() {
 
       final shelf = ShelfEntry(
         itemId: id,
-        catalogItem: testCatalogItemWithKindMetadata(catalog),
+        catalogItem:
+            testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem,
         ownedItem: owned,
         wishlistItem: wishlist,
       );

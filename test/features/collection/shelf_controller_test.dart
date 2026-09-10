@@ -65,7 +65,7 @@ void main() {
           kind: 'comic',
           title: 'Saga',
           itemNumber: '1',
-        ),
+        ).asShelfCatalogItem,
       },
       itemImagesByOwnedItem: {
         OwnedItemRef(
@@ -147,7 +147,7 @@ void main() {
           id: 'book-1',
           kind: 'book',
           title: 'Catalog keyed by ref',
-        ),
+        ).asShelfCatalogItem,
       },
     );
 

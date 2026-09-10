@@ -14,7 +14,7 @@ void main() {
         title: 'Cowboy Bebop',
         synopsis: 'A space western.',
         kind: 'tv',
-      ),
+      ).asShelfCatalogItem,
     );
 
     final dto = const TvWorkspaceProjector().projectTitle(

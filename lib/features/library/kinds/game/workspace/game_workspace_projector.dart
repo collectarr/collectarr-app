@@ -15,7 +15,9 @@ final class GameWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final game = GameCatalogMapper.mapMetadataItemToGame(source.catalogItem!);
+    final game = GameCatalogMapper.mapMetadataItemToGame(
+      source.catalogItem!.toTransportItem(),
+    );
     GameCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is GameCatalogMetadata) {
@@ -37,7 +39,9 @@ final class GameWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final game = GameCatalogMapper.mapMetadataItemToGame(source.catalogItem!);
+    final game = GameCatalogMapper.mapMetadataItemToGame(
+      source.catalogItem!.toTransportItem(),
+    );
     GameCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is GameCatalogMetadata) {

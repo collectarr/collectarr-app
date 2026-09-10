@@ -66,7 +66,7 @@ void main() {
         editionTitle: 'Final Cut 4K release',
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
-      )),
+      )).asShelfCatalogItem,
       ownedItem: testOwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',

@@ -36,7 +36,7 @@ void main() {
         publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 2500,
         ),
-      ),
+      ).asShelfCatalogItem,
       ownedItem: ownedItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');

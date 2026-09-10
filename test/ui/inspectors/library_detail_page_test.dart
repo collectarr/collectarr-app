@@ -62,7 +62,7 @@ void main() {
         id: 'book-1',
         kind: 'book',
         title: 'The Return of the King',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: owned,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
@@ -139,7 +139,7 @@ void main() {
         id: 'book-1',
         kind: 'book',
         title: 'The Return of the King',
-      ),
+      ).asShelfCatalogItem,
       ownedItem: owned,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
@@ -237,7 +237,7 @@ void main() {
         id: 'movie-1',
         kind: 'movie',
         title: 'Dune',
-      ),
+      ).asShelfCatalogItem,
       trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),

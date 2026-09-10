@@ -25,7 +25,7 @@ class LibraryCollectionActions {
     );
     return coordinator.addOwnedItem(
       runtime.add.buildCommand(
-        LibraryAddCatalogItem.fromItem(catalogItem),
+        catalogItem,
         const LibraryAddCommonDraft(),
         runtime.add.createInitialDraft(),
         targetRef: item.source.ownedItem?.catalogRef ??

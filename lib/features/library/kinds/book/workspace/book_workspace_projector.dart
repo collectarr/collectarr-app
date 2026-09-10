@@ -15,7 +15,9 @@ final class BookWorkspaceProjector
     required ShelfEntry source,
     required LibraryTitleNodeRef node,
   }) {
-    final book = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
+    final book = BookCatalogMapper.mapMetadataItemToBook(
+      source.catalogItem!.toTransportItem(),
+    );
     BookCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is BookCatalogMetadata) {
@@ -35,7 +37,9 @@ final class BookWorkspaceProjector
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final book = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
+    final book = BookCatalogMapper.mapMetadataItemToBook(
+      source.catalogItem!.toTransportItem(),
+    );
     BookCatalogMetadata? metadata;
     final km = source.catalogItem?.kindMetadata;
     if (km is BookCatalogMetadata) {

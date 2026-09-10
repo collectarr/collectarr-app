@@ -41,7 +41,7 @@ void main() {
         kind: 'tv',
         title: 'Cowboy Bebop',
         displayTitle: 'Cowboy Bebop',
-      ),
+      ).asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: itemId);
     final dto = const GenericWorkspaceProjector()

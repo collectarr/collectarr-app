@@ -298,7 +298,8 @@ void main() {
     await actions.moveSelectedToOwned([
       ShelfEntry(
         itemId: 'movie-1',
-        catalogItem: testCatalogItem(id: 'movie-1', kind: 'movie'),
+        catalogItem:
+            testCatalogItem(id: 'movie-1', kind: 'movie').asShelfCatalogItem,
         wishlistItem: WishlistItem(
           id: row4k.id,
           catalogRef: CatalogEntityRef.fromJson(

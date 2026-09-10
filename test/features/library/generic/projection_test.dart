@@ -26,7 +26,8 @@ void main() {
     final source = ShelfEntry(
       itemId: 'music-1',
       catalogItem:
-          testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1'),
+          testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1')
+              .asShelfCatalogItem,
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -50,7 +51,7 @@ void main() {
         kind: 'comic',
         title: 'Saga #1',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
-      ),
+      ).asShelfCatalogItem,
       ownedItem: testOwnedItem(id: 'o1', itemId: 'comic-1'),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
