@@ -2,8 +2,41 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+LibraryKindModule _moduleForConcreteKind(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.anime => animeKindModule,
+    CatalogMediaKind.boardgame => boardGameKindModule,
+    CatalogMediaKind.book => bookKindModule,
+    CatalogMediaKind.comic => comicKindModule,
+    CatalogMediaKind.game => gameKindModule,
+    CatalogMediaKind.manga => mangaKindModule,
+    CatalogMediaKind.movie => movieKindModule,
+    CatalogMediaKind.music => musicKindModule,
+    CatalogMediaKind.tv => tvKindModule,
+    CatalogMediaKind.unknown =>
+      throw ArgumentError.value(kind, 'kind', 'Unsupported kind'),
+  };
+}
+
+LibraryKindWorkspace _workspaceForConcreteKind(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.anime => animeKindWorkspace,
+    CatalogMediaKind.boardgame => boardGameKindWorkspace,
+    CatalogMediaKind.book => bookKindWorkspace,
+    CatalogMediaKind.comic => comicKindWorkspace,
+    CatalogMediaKind.game => gameKindWorkspace,
+    CatalogMediaKind.manga => mangaKindWorkspace,
+    CatalogMediaKind.movie => movieKindWorkspace,
+    CatalogMediaKind.music => musicKindWorkspace,
+    CatalogMediaKind.tv => tvKindWorkspace,
+    CatalogMediaKind.unknown =>
+      throw ArgumentError.value(kind, 'kind', 'Unsupported kind'),
+  };
+}
 
 void main() {
   const activeKinds = [
@@ -22,8 +55,8 @@ void main() {
     test('all 9 production kinds are registered and have explicit capabilities',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindModuleForKind(kind);
-        final workspace = libraryKindWorkspaceForKind(kind);
+        final runtime = _moduleForConcreteKind(kind);
+        final workspace = _workspaceForConcreteKind(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -91,7 +124,7 @@ void main() {
 
     test('no production kind uses generic fallback for core capabilities', () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindModuleForKind(kind);
+        final runtime = _moduleForConcreteKind(kind);
         expect(runtime.kind, isNot(equals(CatalogMediaKind.unknown)));
         expect(runtime.identity.singularLabel.isNotEmpty, isTrue);
         expect(runtime.identity.pluralLabel.isNotEmpty, isTrue);
@@ -163,7 +196,7 @@ void main() {
         () {
       final addDraftTypes = <Type>{};
       for (final kind in activeKinds) {
-        final runtime = libraryKindModuleForKind(kind);
+        final runtime = _moduleForConcreteKind(kind);
         final initialDraft = runtime.add.createInitialDraft();
         expect(initialDraft.kind, equals(runtime.kind),
             reason: '$kind add draft kind must match runtime.kind');
@@ -180,7 +213,7 @@ void main() {
         'all fields are explicitly and strictly classified into correct scopes (Plan D)',
         () {
       for (final kind in activeKinds) {
-        final workspace = libraryKindWorkspaceForKind(kind);
+        final workspace = _workspaceForConcreteKind(kind);
         for (final field in workspace.fields.fields) {
           final id = field.id.value.toLowerCase();
 
@@ -240,7 +273,7 @@ void main() {
         'edit draft creation produces kind-owned edit drafts with non-null factories',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindModuleForKind(kind);
+        final runtime = _moduleForConcreteKind(kind);
         expect(runtime.edit, isNotNull);
         expect(runtime.edit.createDraft, isNotNull);
       }

@@ -978,19 +978,11 @@ LibraryCollectionCsvProjection? _importProjection(CollectionCsvRow row) {
 }
 
 LibraryKindModule _runtimeForImportRow(CollectionCsvRow row) {
-  return switch (catalogMediaKindFromValue(row.kind)) {
-    CatalogMediaKind.anime => animeKindModule,
-    CatalogMediaKind.boardgame => boardGameKindModule,
-    CatalogMediaKind.book => bookKindModule,
-    CatalogMediaKind.comic => comicKindModule,
-    CatalogMediaKind.game => gameKindModule,
-    CatalogMediaKind.manga => mangaKindModule,
-    CatalogMediaKind.movie => movieKindModule,
-    CatalogMediaKind.music => musicKindModule,
-    CatalogMediaKind.tv => tvKindModule,
-    CatalogMediaKind.unknown =>
-      throw ArgumentError.value(row.kind, 'row.kind', 'Unsupported kind'),
-  };
+  final kind = catalogMediaKindFromValue(row.kind);
+  if (kind == CatalogMediaKind.unknown) {
+    throw ArgumentError.value(row.kind, 'row.kind', 'Unsupported kind');
+  }
+  return libraryKindModuleForKind(kind);
 }
 
 String _friendlyImportError(Object error) {

@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.da
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,8 +20,8 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Isolated Runtime Type Erasure Tests', () {
-    final comicWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.comic);
-    final bookWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.book);
+    final comicWorkspace = comicKindWorkspace;
+    final bookWorkspace = bookKindWorkspace;
 
     LibraryProjectionView createComicItem(String id, String title) {
       final source = ShelfEntry(
@@ -114,25 +113,33 @@ void main() {
     });
 
     test('every concrete kind exposes its typed workspace directly', () {
-      void expectKind(CatalogMediaKind kind, Object module, Object workspace) {
-        expect(module, isNotNull);
-        expect(workspace, isNotNull);
-        expect(kind, isNot(CatalogMediaKind.unknown));
-      }
-
-      expectKind(CatalogMediaKind.anime, animeKindModule, animeKindWorkspace);
-      expectKind(
-        CatalogMediaKind.boardgame,
-        boardGameKindModule,
-        boardGameKindWorkspace,
-      );
-      expectKind(CatalogMediaKind.book, bookKindModule, bookKindWorkspace);
-      expectKind(CatalogMediaKind.comic, comicKindModule, comicKindWorkspace);
-      expectKind(CatalogMediaKind.game, gameKindModule, gameKindWorkspace);
-      expectKind(CatalogMediaKind.manga, mangaKindModule, mangaKindWorkspace);
-      expectKind(CatalogMediaKind.movie, movieKindModule, movieKindWorkspace);
-      expectKind(CatalogMediaKind.music, musicKindModule, musicKindWorkspace);
-      expectKind(CatalogMediaKind.tv, tvKindModule, tvKindWorkspace);
+      expect(animeKindModule.kind, CatalogMediaKind.anime);
+      expect(animeKindWorkspace.fields, isNotNull);
+      expect(animeKindWorkspace.projector, isNotNull);
+      expect(boardGameKindModule.kind, CatalogMediaKind.boardgame);
+      expect(boardGameKindWorkspace.fields, isNotNull);
+      expect(boardGameKindWorkspace.projector, isNotNull);
+      expect(bookKindModule.kind, CatalogMediaKind.book);
+      expect(bookKindWorkspace.fields, isNotNull);
+      expect(bookKindWorkspace.projector, isNotNull);
+      expect(comicKindModule.kind, CatalogMediaKind.comic);
+      expect(comicKindWorkspace.fields, isNotNull);
+      expect(comicKindWorkspace.projector, isNotNull);
+      expect(gameKindModule.kind, CatalogMediaKind.game);
+      expect(gameKindWorkspace.fields, isNotNull);
+      expect(gameKindWorkspace.projector, isNotNull);
+      expect(mangaKindModule.kind, CatalogMediaKind.manga);
+      expect(mangaKindWorkspace.fields, isNotNull);
+      expect(mangaKindWorkspace.projector, isNotNull);
+      expect(movieKindModule.kind, CatalogMediaKind.movie);
+      expect(movieKindWorkspace.fields, isNotNull);
+      expect(movieKindWorkspace.projector, isNotNull);
+      expect(musicKindModule.kind, CatalogMediaKind.music);
+      expect(musicKindWorkspace.fields, isNotNull);
+      expect(musicKindWorkspace.projector, isNotNull);
+      expect(tvKindModule.kind, CatalogMediaKind.tv);
+      expect(tvKindWorkspace.fields, isNotNull);
+      expect(tvKindWorkspace.projector, isNotNull);
     });
   });
 }
