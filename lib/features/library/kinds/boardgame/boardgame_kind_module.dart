@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
@@ -107,6 +109,16 @@ final boardGameLibraryFacetModule =
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getBoardGameFacetValues,
 );
+
+BoardGameOwnedItem _boardGameTransferOwnedItem(Object value) {
+  if (value is BoardGameOwnedItem) return value;
+  if (value is OwnedItem) {
+    return BoardGameOwnedItem.fromJson(
+      Map<String, dynamic>.from(value.toJson()),
+    );
+  }
+  throw ArgumentError.value(value, 'updated', 'Expected BoardGameOwnedItem');
+}
 
 final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   presentation: boardGamesLibraryMediaPresentation,
@@ -267,28 +279,30 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
-        BoardgameOwnedItemUpdatePayload.partial(
-      condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.collectionValue),
-      personalNotes: Patch.set(updated.personalNotes),
-      locationId: Patch.set(updated.locationId),
-      tags: Patch.set(updated.tags),
-      currency: Patch.set(updated.currency),
-      soldTo: Patch.set(updated.soldTo),
-      purchaseStore: Patch.set(updated.purchaseStore),
-      pricePaidCents: Patch.set(updated.pricePaidCents),
-      sellPriceCents: Patch.set(updated.sellPriceCents),
-      quantity: Patch.set(updated.quantity),
-      indexNumber: Patch.set(updated.indexNumber),
-      purchaseDate: Patch.set(updated.purchaseDate),
-      soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(
-        const BoardgameOwnedDetailsCodec().draftFromDetails(
-          updated.details as BoardgameOwnedDetails,
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+      final typed = _boardGameTransferOwnedItem(updated);
+      return BoardgameOwnedItemUpdatePayload.partial(
+        condition: Patch.set(typed.condition),
+        grade: Patch.set(typed.grade),
+        personalNotes: Patch.set(typed.personalNotes),
+        locationId: Patch.set(typed.locationId),
+        tags: Patch.set(typed.tags),
+        currency: Patch.set(typed.currency),
+        soldTo: Patch.set(typed.soldTo),
+        purchaseStore: Patch.set(typed.purchaseStore),
+        pricePaidCents: Patch.set(typed.pricePaidCents),
+        sellPriceCents: Patch.set(typed.sellPriceCents),
+        quantity: Patch.set(typed.quantity),
+        indexNumber: Patch.set(typed.indexNumber),
+        purchaseDate: Patch.set(typed.purchaseDate),
+        soldAt: Patch.set(typed.soldAt),
+        details: Patch.set(
+          const BoardgameOwnedDetailsCodec().draftFromDetails(
+            typed.details,
+          ),
         ),
-      ),
-    ),
+      );
+    },
     ownedDetailsResetPayloadBuilder: () =>
         BoardgameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),

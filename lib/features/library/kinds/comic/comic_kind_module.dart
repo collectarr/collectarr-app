@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_preview.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_shell.dart';
@@ -114,6 +116,14 @@ final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
     'comic.character': ComicFacetIds.character,
   },
 );
+
+ComicOwnedItem _comicTransferOwnedItem(Object value) {
+  if (value is ComicOwnedItem) return value;
+  if (value is OwnedItem) {
+    return ComicOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
+  }
+  throw ArgumentError.value(value, 'updated', 'Expected ComicOwnedItem');
+}
 
 final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   presentation: comicLibraryMediaPresentation,
@@ -323,28 +333,30 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
-        ComicOwnedItemUpdatePayload.partial(
-      condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.collectionValue),
-      personalNotes: Patch.set(updated.personalNotes),
-      locationId: Patch.set(updated.locationId),
-      tags: Patch.set(updated.tags),
-      currency: Patch.set(updated.currency),
-      soldTo: Patch.set(updated.soldTo),
-      purchaseStore: Patch.set(updated.purchaseStore),
-      pricePaidCents: Patch.set(updated.pricePaidCents),
-      sellPriceCents: Patch.set(updated.sellPriceCents),
-      quantity: Patch.set(updated.quantity),
-      indexNumber: Patch.set(updated.indexNumber),
-      purchaseDate: Patch.set(updated.purchaseDate),
-      soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(
-        const ComicOwnedDetailsCodec().draftFromDetails(
-          updated.details as ComicOwnedDetails,
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+      final typed = _comicTransferOwnedItem(updated);
+      return ComicOwnedItemUpdatePayload.partial(
+        condition: Patch.set(typed.condition),
+        grade: Patch.set(typed.grade),
+        personalNotes: Patch.set(typed.personalNotes),
+        locationId: Patch.set(typed.locationId),
+        tags: Patch.set(typed.tags),
+        currency: Patch.set(typed.currency),
+        soldTo: Patch.set(typed.soldTo),
+        purchaseStore: Patch.set(typed.purchaseStore),
+        pricePaidCents: Patch.set(typed.pricePaidCents),
+        sellPriceCents: Patch.set(typed.sellPriceCents),
+        quantity: Patch.set(typed.quantity),
+        indexNumber: Patch.set(typed.indexNumber),
+        purchaseDate: Patch.set(typed.purchaseDate),
+        soldAt: Patch.set(typed.soldAt),
+        details: Patch.set(
+          const ComicOwnedDetailsCodec().draftFromDetails(
+            typed.details,
+          ),
         ),
-      ),
-    ),
+      );
+    },
     ownedDetailsResetPayloadBuilder: () =>
         ComicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),

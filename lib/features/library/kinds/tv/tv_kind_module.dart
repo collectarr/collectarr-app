@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
@@ -131,6 +133,14 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
 const tvLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
+
+TvOwnedItem _tvTransferOwnedItem(Object value) {
+  if (value is TvOwnedItem) return value;
+  if (value is OwnedItem) {
+    return TvOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
+  }
+  throw ArgumentError.value(value, 'updated', 'Expected TvOwnedItem');
+}
 
 final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   presentation: tvLibraryMediaPresentation,
@@ -325,28 +335,30 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
-        TvOwnedItemUpdatePayload.partial(
-      condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.collectionValue),
-      personalNotes: Patch.set(updated.personalNotes),
-      locationId: Patch.set(updated.locationId),
-      tags: Patch.set(updated.tags),
-      currency: Patch.set(updated.currency),
-      soldTo: Patch.set(updated.soldTo),
-      purchaseStore: Patch.set(updated.purchaseStore),
-      pricePaidCents: Patch.set(updated.pricePaidCents),
-      sellPriceCents: Patch.set(updated.sellPriceCents),
-      quantity: Patch.set(updated.quantity),
-      indexNumber: Patch.set(updated.indexNumber),
-      purchaseDate: Patch.set(updated.purchaseDate),
-      soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(
-        const TvOwnedDetailsCodec().draftFromDetails(
-          updated.details as TvOwnedDetails,
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+      final typed = _tvTransferOwnedItem(updated);
+      return TvOwnedItemUpdatePayload.partial(
+        condition: Patch.set(typed.condition),
+        grade: Patch.set(typed.grade),
+        personalNotes: Patch.set(typed.personalNotes),
+        locationId: Patch.set(typed.locationId),
+        tags: Patch.set(typed.tags),
+        currency: Patch.set(typed.currency),
+        soldTo: Patch.set(typed.soldTo),
+        purchaseStore: Patch.set(typed.purchaseStore),
+        pricePaidCents: Patch.set(typed.pricePaidCents),
+        sellPriceCents: Patch.set(typed.sellPriceCents),
+        quantity: Patch.set(typed.quantity),
+        indexNumber: Patch.set(typed.indexNumber),
+        purchaseDate: Patch.set(typed.purchaseDate),
+        soldAt: Patch.set(typed.soldAt),
+        details: Patch.set(
+          const TvOwnedDetailsCodec().draftFromDetails(
+            typed.details,
+          ),
         ),
-      ),
-    ),
+      );
+    },
     ownedDetailsResetPayloadBuilder: () =>
         TvOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),

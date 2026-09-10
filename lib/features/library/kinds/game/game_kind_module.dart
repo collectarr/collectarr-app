@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
@@ -75,6 +77,14 @@ final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
     'game.region': GameFacetIds.region,
   },
 );
+
+GameOwnedItem _gameTransferOwnedItem(Object value) {
+  if (value is GameOwnedItem) return value;
+  if (value is OwnedItem) {
+    return GameOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
+  }
+  throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
+}
 
 final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   presentation: gamesLibraryMediaPresentation,
@@ -223,28 +233,30 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
-        GameOwnedItemUpdatePayload.partial(
-      condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.collectionValue),
-      personalNotes: Patch.set(updated.personalNotes),
-      locationId: Patch.set(updated.locationId),
-      tags: Patch.set(updated.tags),
-      currency: Patch.set(updated.currency),
-      soldTo: Patch.set(updated.soldTo),
-      purchaseStore: Patch.set(updated.purchaseStore),
-      pricePaidCents: Patch.set(updated.pricePaidCents),
-      sellPriceCents: Patch.set(updated.sellPriceCents),
-      quantity: Patch.set(updated.quantity),
-      indexNumber: Patch.set(updated.indexNumber),
-      purchaseDate: Patch.set(updated.purchaseDate),
-      soldAt: Patch.set(updated.soldAt),
-      details: Patch.set(
-        const GameOwnedDetailsCodec().draftFromDetails(
-          updated.details as GameOwnedDetails,
+    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+      final typed = _gameTransferOwnedItem(updated);
+      return GameOwnedItemUpdatePayload.partial(
+        condition: Patch.set(typed.condition),
+        grade: Patch.set(typed.grade),
+        personalNotes: Patch.set(typed.personalNotes),
+        locationId: Patch.set(typed.locationId),
+        tags: Patch.set(typed.tags),
+        currency: Patch.set(typed.currency),
+        soldTo: Patch.set(typed.soldTo),
+        purchaseStore: Patch.set(typed.purchaseStore),
+        pricePaidCents: Patch.set(typed.pricePaidCents),
+        sellPriceCents: Patch.set(typed.sellPriceCents),
+        quantity: Patch.set(typed.quantity),
+        indexNumber: Patch.set(typed.indexNumber),
+        purchaseDate: Patch.set(typed.purchaseDate),
+        soldAt: Patch.set(typed.soldAt),
+        details: Patch.set(
+          const GameOwnedDetailsCodec().draftFromDetails(
+            typed.details,
+          ),
         ),
-      ),
-    ),
+      );
+    },
     ownedDetailsResetPayloadBuilder: () =>
         GameOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -61,7 +60,7 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder
 typedef LibraryOwnedTransferUpdatePayloadBuilder
     = OwnedItemUpdatePayload<Object?> Function(
   String ownedItemId,
-  OwnedItem updated,
+  Object updated,
 );
 
 typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload<Object?>
@@ -227,7 +226,7 @@ class LibraryEditCapability {
 
   UpdateOwnedItemCommand buildTransferUpdateCommand({
     required OwnedItemRef ownedRef,
-    required OwnedItem updated,
+    required Object updated,
   }) {
     final builder = ownedTransferUpdatePayloadBuilder;
     if (builder == null) {
