@@ -42,6 +42,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _musicArtistFilterId = LibraryAddFilterId('music.artist');
 const _musicLabelFilterId = LibraryAddFilterId('music.label');
@@ -304,11 +305,11 @@ List<LibraryAddAdvancedFilterField<String>> buildMusicAddAdvancedFilterFields(
       ),
     ];
 
-LibraryMetadataSearchInput _buildMusicCoreSearchInput(
+MetadataSearchQuery _buildMusicCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query: _optionalMusicText(context.query),
     series: _optionalMusicText(context.textValueFor(_musicArtistFilterId)),
     publisher: _optionalMusicText(context.textValueFor(_musicLabelFilterId)),

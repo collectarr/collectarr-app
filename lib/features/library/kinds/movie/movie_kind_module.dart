@@ -48,6 +48,7 @@ import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_ca
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
 const _movieYearFilterId = LibraryAddFilterId('movie.year');
@@ -375,11 +376,11 @@ List<LibraryAddAdvancedFilterField<String>> buildMovieAddAdvancedFilterFields(
       ),
     ];
 
-LibraryMetadataSearchInput _buildMovieCoreSearchInput(
+MetadataSearchQuery _buildMovieCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query: _optionalMovieText(
       buildLibraryAddSearchQuery([
         context.query,

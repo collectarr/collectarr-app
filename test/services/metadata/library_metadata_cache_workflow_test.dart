@@ -18,7 +18,7 @@ void main() {
       api: api,
       type: comicKindModule,
       catalog: CatalogTransportRepository(db),
-      input: const LibraryMetadataSearchInput(
+      input: const MetadataSearchQuery(
         query: 'Batman',
         issueNumber: '1',
         limit: 25,
@@ -60,13 +60,13 @@ void main() {
   });
 
   test('search input detects blank requests', () {
-    expect(const LibraryMetadataSearchInput().isEmpty, isTrue);
+    expect(const MetadataSearchQuery().isEmpty, isTrue);
     expect(
-      const LibraryMetadataSearchInput(query: '   ', barcode: '').isEmpty,
+      const MetadataSearchQuery(query: '   ', barcode: '').isEmpty,
       isTrue,
     );
-    expect(const LibraryMetadataSearchInput(series: 'Batman').isEmpty, isFalse);
-    expect(const LibraryMetadataSearchInput(year: 2024).isEmpty, isFalse);
+    expect(const MetadataSearchQuery(series: 'Batman').isEmpty, isFalse);
+    expect(const MetadataSearchQuery(year: 2024).isEmpty, isFalse);
   });
 }
 

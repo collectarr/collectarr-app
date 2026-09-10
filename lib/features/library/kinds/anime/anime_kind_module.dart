@@ -44,6 +44,7 @@ import 'package:collectarr_app/features/library/add/library_add_video_kind_filte
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/stats/anime_stats_capability.dart';
@@ -367,11 +368,11 @@ List<LibraryAddAdvancedFilterField<String>> buildAnimeAddAdvancedFilterFields(
       ),
     ];
 
-LibraryMetadataSearchInput _buildAnimeCoreSearchInput(
+MetadataSearchQuery _buildAnimeCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query: _optionalAnimeText(context.query),
     series: _optionalAnimeText(context.textValueFor(_animeSeriesFilterId)),
     publisher: _optionalAnimeText(context.textValueFor(_animeStudioFilterId)),

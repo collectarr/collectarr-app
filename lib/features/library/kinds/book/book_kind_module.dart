@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
@@ -437,13 +438,13 @@ List<LibraryAddAdvancedFilterField<String>> buildBookAddAdvancedFilterFields(
       ),
     ];
 
-LibraryMetadataSearchInput _buildBookCoreSearchInput(
+MetadataSearchQuery _buildBookCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   final author = context.textValueFor(_bookAuthorFilterId);
   final isbn = context.textValueFor(_bookIsbnFilterId);
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query:
         _optionalBookText(buildLibraryAddSearchQuery([context.query, author])),
     publisher: _optionalBookText(

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
@@ -7,39 +8,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 typedef LibraryBarcodeLookupResultCallback = void Function(
   LibraryBarcodeLookupResult result,
 );
-
-class LibraryMetadataSearchInput {
-  const LibraryMetadataSearchInput({
-    this.query,
-    this.series,
-    this.issueNumber,
-    this.publisher,
-    this.year,
-    this.barcode,
-    this.limit,
-  });
-
-  final String? query;
-  final String? series;
-  final String? issueNumber;
-  final String? publisher;
-  final int? year;
-  final String? barcode;
-  final int? limit;
-
-  bool get isEmpty {
-    return _isBlank(query) &&
-        _isBlank(series) &&
-        _isBlank(issueNumber) &&
-        _isBlank(publisher) &&
-        _isBlank(barcode) &&
-        year == null;
-  }
-
-  bool _isBlank(String? value) {
-    return value == null || value.trim().isEmpty;
-  }
-}
 
 class LibraryBarcodeLookupResult {
   const LibraryBarcodeLookupResult.found({
@@ -63,7 +31,7 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
-  required LibraryMetadataSearchInput input,
+  required MetadataSearchQuery input,
 }) async {
   final items = await searchLibraryMetadata(
     api,

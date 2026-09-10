@@ -40,6 +40,7 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/manga/stats/manga_stats_capability.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -440,11 +441,11 @@ List<LibraryAddAdvancedFilterField<String>> buildMangaAddAdvancedFilterFields(
       ),
     ];
 
-LibraryMetadataSearchInput _buildMangaCoreSearchInput(
+MetadataSearchQuery _buildMangaCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query: _optionalMangaText(context.query),
     series: _optionalMangaText(context.textValueFor(_mangaSeriesFilterId)),
     issueNumber: _optionalMangaText(context.textValueFor(_mangaVolumeFilterId)),

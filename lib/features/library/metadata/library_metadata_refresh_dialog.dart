@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
@@ -342,14 +343,14 @@ class _LibraryMetadataRefreshDialogState
     return _dedupe(values);
   }
 
-  LibraryMetadataSearchInput _inputForEntry(LibraryProjectionView item) {
+  MetadataSearchQuery _inputForEntry(LibraryProjectionView item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
     final barcodeVal =
         (payload['barcode'] ?? payload['upc'])?.toString().trim();
     if (barcodeVal != null && barcodeVal.isNotEmpty) {
-      return LibraryMetadataSearchInput(
+      return MetadataSearchQuery(
         query: dto.title,
         barcode: barcodeVal,
         limit: 5,
@@ -361,7 +362,7 @@ class _LibraryMetadataRefreshDialogState
             payload['network'])
         ?.toString()
         .trim();
-    return LibraryMetadataSearchInput(
+    return MetadataSearchQuery(
       query: dto.title,
       issueNumber: adapter?.itemNumber,
       publisher: publisherVal,

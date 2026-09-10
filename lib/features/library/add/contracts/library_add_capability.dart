@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -28,7 +29,7 @@ typedef LibraryAddAdvancedFilterDescriptorsBuilder
   LibraryAddModeBarRequest request,
 );
 
-typedef LibraryAddCoreSearchInputBuilder = LibraryMetadataSearchInput Function(
+typedef LibraryAddCoreSearchInputBuilder = MetadataSearchQuery Function(
   LibraryAddSearchContext context, {
   required int limit,
 });

@@ -37,6 +37,7 @@ import 'package:collectarr_app/features/library/config/library_kind_browser_dele
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
 const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
@@ -320,11 +321,11 @@ List<LibraryAddAdvancedFilterField<String>>
           ),
         ];
 
-LibraryMetadataSearchInput _buildBoardGameCoreSearchInput(
+MetadataSearchQuery _buildBoardGameCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query: _optionalBoardGameText(context.query),
     publisher: _optionalBoardGameText(
         context.textValueFor(_boardGamePublisherFilterId)),

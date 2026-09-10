@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
@@ -53,7 +54,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
-  required LibraryMetadataSearchInput input,
+  required MetadataSearchQuery input,
   required Duration timeout,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
@@ -83,7 +84,7 @@ Future<List<LibraryAddCatalogItem>> fetchLibraryAddSuggestions({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
-  required LibraryMetadataSearchInput input,
+  required MetadataSearchQuery input,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
   Duration timeout = const Duration(seconds: 5),

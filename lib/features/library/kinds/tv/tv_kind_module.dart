@@ -49,6 +49,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_it
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
@@ -380,11 +381,11 @@ List<LibraryAddAdvancedFilterField<String>> buildTvAddAdvancedFilterFields(
       ),
     ];
 
-LibraryMetadataSearchInput _buildTvCoreSearchInput(
+MetadataSearchQuery _buildTvCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query: _optionalTvText(context.query),
     series: _optionalTvText(context.textValueFor(_tvShowFilterId)),
     publisher: _optionalTvText(context.textValueFor(_tvNetworkFilterId)),
