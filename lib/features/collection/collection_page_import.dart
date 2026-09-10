@@ -193,7 +193,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
-          _runtimeForImportRow(row),
+          _runtimeForImportRow(row).kind,
           row,
           limit: 5,
         );
@@ -682,7 +682,7 @@ class _ResolveImportRowDialogState
     try {
       final items = await _searchCoreForRow(
         ref,
-        widget.type,
+        widget.type.kind,
         widget.row,
         queryOverride: _queryController.text,
       );
@@ -1001,14 +1001,14 @@ String _friendlyImportError(Object error) {
 
 Future<List<CatalogSearchCandidate>> _searchCoreForRow(
   WidgetRef ref,
-  LibraryKindModule type,
+  CatalogMediaKind kind,
   CollectionCsvRow row, {
   String? queryOverride,
   int limit = 20,
 }) async {
   return await searchLibraryMetadataCandidates(
     ref.read(apiClientProvider),
-    type,
+    kind,
     query: _searchQueryForRow(row, queryOverride: queryOverride),
     barcode: _importRowBarcode(row),
     limit: limit,

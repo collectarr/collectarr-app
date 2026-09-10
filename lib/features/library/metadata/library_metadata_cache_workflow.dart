@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
@@ -29,13 +29,13 @@ class LibraryBarcodeLookupResult {
 
 Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
   required ApiClient api,
-  required LibraryKindModule type,
+  required CatalogMediaKind kind,
   required CatalogTransportRepository catalog,
   required MetadataSearchQuery input,
 }) async {
   final items = await searchLibraryMetadata(
     api,
-    type,
+    kind,
     query: input.query,
     series: input.series,
     issueNumber: input.issueNumber,
@@ -50,7 +50,7 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
 
 Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   required ApiClient api,
-  required LibraryKindModule type,
+  required CatalogMediaKind kind,
   required CatalogTransportRepository catalog,
   required Iterable<String> codes,
   LibraryBarcodeLookupResultCallback? onResult,
@@ -59,7 +59,7 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   final foundItems = <CatalogSearchCandidate>[];
   for (final code in codes) {
     try {
-      final item = await lookupLibraryBarcode(api, type, code);
+      final item = await lookupLibraryBarcode(api, kind, code);
       foundItems.add(item);
       final result = LibraryBarcodeLookupResult.found(
         code: code,

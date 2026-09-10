@@ -411,7 +411,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           final year = entry.startedAt?.year ?? entry.completedAt?.year;
           final candidates = await searchLibraryMetadataCandidates(
             api,
-            type,
+            type.kind,
             query: entry.title ?? '',
             year: year,
             limit: 10,
@@ -580,7 +580,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
         final type = _resolvedTypeForTmdbEntry(entry);
         final items = await searchLibraryMetadata(
           api,
-          type,
+          type.kind,
           query: entry.title,
           year: entry.releaseYear,
           limit: 10,

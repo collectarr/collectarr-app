@@ -452,32 +452,40 @@ final class CollectionImportService {
             'id': idGenerator(),
             'catalog_ref': catalogRef.toJson(),
             'created_at': now.toUtc().toIso8601String(),
-            'quantity': row.quantity ?? 1,
+            'quantity': row.personal.quantity ?? 1,
           }
         : collectarrTypedOwnedItemJson(existingTyped.$2);
 
     payload['catalog_ref'] = catalogRef.toJson();
     payload['updated_at'] = now.toUtc().toIso8601String();
-    if (row.condition != null) payload['condition'] = row.condition;
-    if (row.purchaseDate != null) {
-      payload['purchase_date'] = row.purchaseDate!.toUtc().toIso8601String();
+    final personal = row.personal;
+    if (personal.condition != null) {
+      payload['condition'] = personal.condition;
     }
-    if (row.pricePaidCents != null) {
-      payload['price_paid_cents'] = row.pricePaidCents;
+    if (personal.purchaseDate != null) {
+      payload['purchase_date'] =
+          personal.purchaseDate!.toUtc().toIso8601String();
     }
-    if (row.currency != null) payload['currency'] = row.currency;
-    if (row.notes != null) payload['personal_notes'] = row.notes;
-    if (row.quantity != null) payload['quantity'] = row.quantity;
-    if (row.locationId != null) payload['location_id'] = row.locationId;
-    if (row.indexNumber != null) payload['index_number'] = row.indexNumber;
-    if (row.tags != null) payload['tags'] = row.tags;
-    if (row.soldAt != null) {
-      payload['sold_at'] = row.soldAt!.toUtc().toIso8601String();
+    if (personal.pricePaidCents != null) {
+      payload['price_paid_cents'] = personal.pricePaidCents;
     }
-    if (row.sellPriceCents != null) {
-      payload['sell_price_cents'] = row.sellPriceCents;
+    if (personal.currency != null) payload['currency'] = personal.currency;
+    if (personal.notes != null) payload['personal_notes'] = personal.notes;
+    if (personal.quantity != null) payload['quantity'] = personal.quantity;
+    if (personal.locationId != null) {
+      payload['location_id'] = personal.locationId;
     }
-    if (row.soldTo != null) payload['sold_to'] = row.soldTo;
+    if (personal.indexNumber != null) {
+      payload['index_number'] = personal.indexNumber;
+    }
+    if (personal.tags != null) payload['tags'] = personal.tags;
+    if (personal.soldAt != null) {
+      payload['sold_at'] = personal.soldAt!.toUtc().toIso8601String();
+    }
+    if (personal.sellPriceCents != null) {
+      payload['sell_price_cents'] = personal.sellPriceCents;
+    }
+    if (personal.soldTo != null) payload['sold_to'] = personal.soldTo;
 
     final importedDetails = _ownedDetailsFromCsvRow(
       row,
@@ -513,23 +521,21 @@ final class CollectionImportService {
     required DateTime now,
     TrackingEntry? existing,
   }) {
-    final hasTrackingValues = row.rating != null ||
-        row.readStatus != null ||
-        row.startedAt != null ||
-        row.finishedAt != null;
+    final tracking = row.tracking;
+    final hasTrackingValues = !tracking.isEmpty;
     if (!hasTrackingValues) {
       return null;
     }
 
-    final status = mediaTrackingStatusFromValue(row.readStatus);
+    final status = mediaTrackingStatusFromValue(tracking.status);
     if (existing != null) {
       return existing.copyWith(
         catalogRef: catalogRef,
         ownedRef: ownedRef,
         status: status ?? existing.status,
-        rating: row.rating ?? existing.rating,
-        startedAt: row.startedAt ?? existing.startedAt,
-        finishedAt: row.finishedAt ?? existing.finishedAt,
+        rating: tracking.rating ?? existing.rating,
+        startedAt: tracking.startedAt ?? existing.startedAt,
+        finishedAt: tracking.finishedAt ?? existing.finishedAt,
         updatedAt: now,
       );
     }
@@ -539,9 +545,9 @@ final class CollectionImportService {
       catalogRef: catalogRef,
       ownedRef: ownedRef,
       status: status ?? MediaTrackingStatus.planned,
-      rating: row.rating,
-      startedAt: row.startedAt,
-      finishedAt: row.finishedAt,
+      rating: tracking.rating,
+      startedAt: tracking.startedAt,
+      finishedAt: tracking.finishedAt,
       updatedAt: now,
     );
   }

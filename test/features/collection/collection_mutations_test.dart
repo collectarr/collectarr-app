@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -764,10 +763,12 @@ void main() {
           itemId: 'comic-1',
           kind: 'comic',
           status: 'owned',
-          condition: 'Near Mint',
           kindOwnedCells: ['9.8'],
-          pricePaidCents: 1299,
-          currency: 'USD',
+          personal: CollectionCsvPersonalValues(
+            condition: 'Near Mint',
+            pricePaidCents: 1299,
+            currency: 'USD',
+          ),
         ),
         const CollectionCsvRow(
           itemId: 'comic-2',
@@ -990,19 +991,21 @@ void main() {
           kind: 'book',
           status: 'owned',
           title: 'Imported book',
-          condition: 'Very Good',
           kindOwnedCells: ['8.5'],
-          purchaseDate: DateTime.utc(2026, 8, 1),
-          pricePaidCents: 2599,
-          currency: 'EUR',
-          notes: 'Imported note',
-          quantity: 3,
-          locationId: 'shelf-a',
-          indexNumber: 12,
-          tags: 'gift,read',
-          soldAt: DateTime.utc(2026, 8, 15),
-          sellPriceCents: 3199,
-          soldTo: 'collector@example.test',
+          personal: CollectionCsvPersonalValues(
+            condition: 'Very Good',
+            purchaseDate: DateTime.utc(2026, 8, 1),
+            pricePaidCents: 2599,
+            currency: 'EUR',
+            notes: 'Imported note',
+            quantity: 3,
+            locationId: 'shelf-a',
+            indexNumber: 12,
+            tags: 'gift,read',
+            soldAt: DateTime.utc(2026, 8, 15),
+            sellPriceCents: 3199,
+            soldTo: 'collector@example.test',
+          ),
         ),
       ],
     );
@@ -1292,10 +1295,12 @@ void main() {
           itemId: 'comic-tracking-import',
           kind: 'comic',
           status: 'owned',
-          rating: 8,
-          readStatus: 'Read',
-          startedAt: DateTime.utc(2026, 6, 1),
-          finishedAt: DateTime.utc(2026, 6, 2),
+          tracking: CollectionCsvTrackingValues(
+            rating: 8,
+            status: 'Read',
+            startedAt: DateTime.utc(2026, 6, 1),
+            finishedAt: DateTime.utc(2026, 6, 2),
+          ),
         ),
       ],
     );
@@ -1379,7 +1384,7 @@ void main() {
           kind: 'comic',
           status: 'owned',
           kindOwnedCells: ['7.5'],
-          locationId: 'loc-box-6',
+          personal: CollectionCsvPersonalValues(locationId: 'loc-box-6'),
         ),
       ],
     );
@@ -1407,7 +1412,9 @@ void main() {
           itemId: 'comic-1',
           kind: 'comic',
           status: 'owned',
-          locationId: 'loc-short-box-6',
+          personal: CollectionCsvPersonalValues(
+            locationId: 'loc-short-box-6',
+          ),
         ),
       ],
     );

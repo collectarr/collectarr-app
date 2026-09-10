@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
-  LibraryKindModule type, {
+  CatalogMediaKind kind, {
   String? query,
   String? series,
   String? issueNumber,
@@ -15,7 +16,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
 }) {
   return MetadataSearchQuery(
     query: query,
-    kind: type.kind.apiValue,
+    kind: kind.apiValue,
     series: series,
     issueNumber: issueNumber,
     publisher: publisher,
@@ -27,7 +28,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
 
 Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
   ApiClient api,
-  LibraryKindModule type, {
+  CatalogMediaKind kind, {
   String? query,
   String? series,
   String? issueNumber,
@@ -38,7 +39,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
 }) async {
   final rows = await api.searchMetadata(
     libraryMetadataSearchQuery(
-      type,
+      kind,
       query: query,
       series: series,
       issueNumber: issueNumber,
@@ -48,7 +49,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
+  final decoder = libraryKindCatalogMetadataDecoderForKind(kind);
   return [
     for (final row in rows)
       CatalogSearchCandidate.fromApiJson(
@@ -63,7 +64,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
 /// available only behind [CatalogSearchCandidate.toTransportItem].
 Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
   ApiClient api,
-  LibraryKindModule type, {
+  CatalogMediaKind kind, {
   String? query,
   String? series,
   String? issueNumber,
@@ -74,7 +75,7 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
 }) async {
   return searchLibraryMetadata(
     api,
-    type,
+    kind,
     query: query,
     series: series,
     issueNumber: issueNumber,
@@ -87,20 +88,20 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
 
 Future<CatalogSearchCandidate> lookupLibraryBarcode(
   ApiClient api,
-  LibraryKindModule type,
+  CatalogMediaKind kind,
   String barcode,
 ) async {
-  final resolvedBarcode = resolveLibraryBarcodeForKind(type.kind, barcode);
+  final resolvedBarcode = resolveLibraryBarcodeForKind(kind, barcode);
   if (resolvedBarcode == null) {
     throw FormatException(
-      'Barcode is not supported for ${type.kind.apiValue}: $barcode',
+      'Barcode is not supported for ${kind.apiValue}: $barcode',
     );
   }
-  final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
+  final decoder = libraryKindCatalogMetadataDecoderForKind(kind);
   return CatalogSearchCandidate.fromApiJson(
     json: await api.lookupBarcode(
       resolvedBarcode,
-      kind: type.kind.apiValue,
+      kind: kind.apiValue,
     ),
     metadataDecoder: decoder,
   );

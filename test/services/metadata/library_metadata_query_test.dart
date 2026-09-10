@@ -10,7 +10,7 @@ void main() {
 
     final results = await searchLibraryMetadata(
       api,
-      comicKindModule,
+      comicKindModule.kind,
       query: 'Batman',
       series: 'Batman',
       issueNumber: '1',
@@ -30,7 +30,7 @@ void main() {
 
     final result = await lookupLibraryBarcode(
       api,
-      comicKindModule,
+      comicKindModule.kind,
       '012-345-678-905',
     );
 

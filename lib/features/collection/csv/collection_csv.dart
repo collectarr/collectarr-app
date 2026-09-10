@@ -12,22 +12,8 @@ class CollectionCsvRow {
     required this.status,
     this.kind,
     this.title,
-    this.condition,
-    this.purchaseDate,
-    this.pricePaidCents,
-    this.currency,
-    this.notes,
-    this.quantity,
-    this.locationId,
-    this.indexNumber,
-    this.rating,
-    this.readStatus,
-    this.startedAt,
-    this.finishedAt,
-    this.tags,
-    this.soldAt,
-    this.sellPriceCents,
-    this.soldTo,
+    this.personal = const CollectionCsvPersonalValues(),
+    this.tracking = const CollectionCsvTrackingValues(),
     this.kindCatalogCells = const [],
     this.kindOwnedCells = const [],
     this.customFieldValues = const {},
@@ -38,28 +24,17 @@ class CollectionCsvRow {
   final String? kind;
   final String? title;
 
-  /// Fields whose meaning is shared by the Collection CSV host itself.
+  /// Values decoded from the shared personal columns at the file boundary.
   ///
-  /// Catalog identity and kind-specific Owned data are intentionally absent
-  /// from this row. They remain opaque positional cells in
-  /// [kindCatalogCells] and [kindOwnedCells] and are interpreted only by the
-  /// owning kind projection.
-  final String? condition;
-  final DateTime? purchaseDate;
-  final int? pricePaidCents;
-  final String? currency;
-  final String? notes;
-  final int? quantity;
-  final String? locationId;
-  final int? indexNumber;
-  final int? rating;
-  final String? readStatus;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
-  final String? tags;
-  final DateTime? soldAt;
-  final int? sellPriceCents;
-  final String? soldTo;
+  /// This is deliberately a transport value object, not a common Owned or
+  /// Tracking domain aggregate. Catalog and kind-owned details remain opaque
+  /// positional cells and are interpreted only by the owning kind profile.
+  final CollectionCsvPersonalValues personal;
+
+  /// Tracking values decoded at the file boundary. The import host forwards
+  /// them to the selected kind's tracking integration and does not turn them
+  /// into a universal tracking domain object here.
+  final CollectionCsvTrackingValues tracking;
 
   /// Positional catalog cells contributed by the selected kind at the CSV
   /// serialization boundary. Collection carries them without interpreting
@@ -79,22 +54,8 @@ class CollectionCsvRow {
     String? status,
     String? kind,
     String? title,
-    String? condition,
-    DateTime? purchaseDate,
-    int? pricePaidCents,
-    String? currency,
-    String? notes,
-    int? quantity,
-    String? locationId,
-    int? indexNumber,
-    int? rating,
-    String? readStatus,
-    DateTime? startedAt,
-    DateTime? finishedAt,
-    String? tags,
-    DateTime? soldAt,
-    int? sellPriceCents,
-    String? soldTo,
+    CollectionCsvPersonalValues? personal,
+    CollectionCsvTrackingValues? tracking,
     List<String>? kindCatalogCells,
     List<String>? kindOwnedCells,
     Map<String, String?>? customFieldValues,
@@ -104,27 +65,82 @@ class CollectionCsvRow {
       status: status ?? this.status,
       kind: kind ?? this.kind,
       title: title ?? this.title,
-      condition: condition ?? this.condition,
-      purchaseDate: purchaseDate ?? this.purchaseDate,
-      pricePaidCents: pricePaidCents ?? this.pricePaidCents,
-      currency: currency ?? this.currency,
-      notes: notes ?? this.notes,
-      quantity: quantity ?? this.quantity,
-      locationId: locationId ?? this.locationId,
-      indexNumber: indexNumber ?? this.indexNumber,
-      rating: rating ?? this.rating,
-      readStatus: readStatus ?? this.readStatus,
-      startedAt: startedAt ?? this.startedAt,
-      finishedAt: finishedAt ?? this.finishedAt,
-      tags: tags ?? this.tags,
-      soldAt: soldAt ?? this.soldAt,
-      sellPriceCents: sellPriceCents ?? this.sellPriceCents,
-      soldTo: soldTo ?? this.soldTo,
+      personal: personal ?? this.personal,
+      tracking: tracking ?? this.tracking,
       kindCatalogCells: kindCatalogCells ?? this.kindCatalogCells,
       kindOwnedCells: kindOwnedCells ?? this.kindOwnedCells,
       customFieldValues: customFieldValues ?? this.customFieldValues,
     );
   }
+}
+
+/// Shared personal CSV columns represented as a serialization-boundary value.
+///
+/// The object is intentionally not reusable as a domain model. Import code
+/// may carry these values until it dispatches to the selected kind's typed
+/// mutation/codec.
+final class CollectionCsvPersonalValues {
+  const CollectionCsvPersonalValues({
+    this.condition,
+    this.purchaseDate,
+    this.pricePaidCents,
+    this.currency,
+    this.notes,
+    this.quantity,
+    this.locationId,
+    this.indexNumber,
+    this.tags,
+    this.soldAt,
+    this.sellPriceCents,
+    this.soldTo,
+  });
+
+  final String? condition;
+  final DateTime? purchaseDate;
+  final int? pricePaidCents;
+  final String? currency;
+  final String? notes;
+  final int? quantity;
+  final String? locationId;
+  final int? indexNumber;
+  final String? tags;
+  final DateTime? soldAt;
+  final int? sellPriceCents;
+  final String? soldTo;
+
+  bool get isEmpty =>
+      condition == null &&
+      purchaseDate == null &&
+      pricePaidCents == null &&
+      currency == null &&
+      notes == null &&
+      quantity == null &&
+      locationId == null &&
+      indexNumber == null &&
+      tags == null &&
+      soldAt == null &&
+      sellPriceCents == null &&
+      soldTo == null;
+}
+
+final class CollectionCsvTrackingValues {
+  const CollectionCsvTrackingValues({
+    this.rating,
+    this.status,
+    this.startedAt,
+    this.finishedAt,
+  });
+
+  final int? rating;
+  final String? status;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+
+  bool get isEmpty =>
+      rating == null &&
+      status == null &&
+      startedAt == null &&
+      finishedAt == null;
 }
 
 class CollectionCsv {
@@ -593,22 +609,26 @@ class CollectionCsv {
       status: _normalizedStatus(_value(index, values, 'status')),
       kind: _optionalCell(catalogCells[1]),
       title: _optionalCell(catalogCells[2]),
-      condition: _optionalValue(index, values, 'condition'),
-      purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
-      pricePaidCents: _moneyCents(_value(index, values, 'price_paid_cents')),
-      currency: _optionalValue(index, values, 'currency'),
-      notes: _optionalValue(index, values, 'notes'),
-      quantity: int.tryParse(_value(index, values, 'quantity')),
-      locationId: _optionalValue(index, values, 'location_id'),
-      indexNumber: int.tryParse(_value(index, values, 'index_number')),
-      rating: int.tryParse(_value(index, values, 'rating')),
-      readStatus: _optionalValue(index, values, 'read_status'),
-      startedAt: _parseDate(_value(index, values, 'started_at')),
-      finishedAt: _parseDate(_value(index, values, 'finished_at')),
-      tags: _optionalValue(index, values, 'tags'),
-      soldAt: _parseDate(_value(index, values, 'sold_at')),
-      sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),
-      soldTo: _optionalValue(index, values, 'sold_to'),
+      personal: CollectionCsvPersonalValues(
+        condition: _optionalValue(index, values, 'condition'),
+        purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
+        pricePaidCents: _moneyCents(_value(index, values, 'price_paid_cents')),
+        currency: _optionalValue(index, values, 'currency'),
+        notes: _optionalValue(index, values, 'notes'),
+        quantity: int.tryParse(_value(index, values, 'quantity')),
+        locationId: _optionalValue(index, values, 'location_id'),
+        indexNumber: int.tryParse(_value(index, values, 'index_number')),
+        tags: _optionalValue(index, values, 'tags'),
+        soldAt: _parseDate(_value(index, values, 'sold_at')),
+        sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),
+        soldTo: _optionalValue(index, values, 'sold_to'),
+      ),
+      tracking: CollectionCsvTrackingValues(
+        rating: int.tryParse(_value(index, values, 'rating')),
+        status: _optionalValue(index, values, 'read_status'),
+        startedAt: _parseDate(_value(index, values, 'started_at')),
+        finishedAt: _parseDate(_value(index, values, 'finished_at')),
+      ),
       kindCatalogCells: catalogCells,
       kindOwnedCells: ownedCells,
       customFieldValues: cfValues,
@@ -680,7 +700,7 @@ class CollectionCsv {
         (row.kind?.trim().isNotEmpty ?? false) ||
         row.status.trim().isNotEmpty ||
         (row.title?.trim().isNotEmpty ?? false) ||
-        (row.locationId?.trim().isNotEmpty ?? false) ||
+        (row.personal.locationId?.trim().isNotEmpty ?? false) ||
         row.kindCatalogCells.any((cell) => cell.trim().isNotEmpty) ||
         row.kindOwnedCells.any((cell) => cell.trim().isNotEmpty);
   }

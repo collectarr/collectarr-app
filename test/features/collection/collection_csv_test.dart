@@ -1,11 +1,9 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -87,13 +85,13 @@ void main() {
       '071486024576',
     ]);
     expect(rows.single.isOwned, isTrue);
-    expect(rows.single.condition, 'Near Mint');
+    expect(rows.single.personal.condition, 'Near Mint');
     expect(rows.single.kindOwnedCells.first, '9.8');
-    expect(rows.single.pricePaidCents, 1299);
-    expect(rows.single.notes, 'Signed copy');
-    expect(rows.single.quantity, 2);
-    expect(rows.single.locationId, 'Office › Shelf A › Short Box 6');
-    expect(rows.single.indexNumber, 1310);
+    expect(rows.single.personal.pricePaidCents, 1299);
+    expect(rows.single.personal.notes, 'Signed copy');
+    expect(rows.single.personal.quantity, 2);
+    expect(rows.single.personal.locationId, 'Office › Shelf A › Short Box 6');
+    expect(rows.single.personal.indexNumber, 1310);
     expect(rows.single.kindOwnedCells, [
       '9.8',
       '399',
@@ -106,9 +104,9 @@ void main() {
       'true',
       'First appearance',
     ]);
-    expect(rows.single.rating, 5);
-    expect(rows.single.readStatus, 'Completed');
-    expect(rows.single.tags, 'spider,key');
+    expect(rows.single.tracking.rating, 5);
+    expect(rows.single.tracking.status, 'Completed');
+    expect(rows.single.personal.tags, 'spider,key');
   });
 
   test('collection csv round-trips typed custom field values', () {
@@ -206,10 +204,10 @@ void main() {
 
     final rows = CollectionCsv().parse(CollectionCsv().exportShelf([source]));
 
-    expect(rows.single.rating, 8);
-    expect(rows.single.readStatus, 'In progress');
-    expect(rows.single.startedAt, DateTime.utc(2026, 1, 3));
-    expect(rows.single.finishedAt, isNull);
+    expect(rows.single.tracking.rating, 8);
+    expect(rows.single.tracking.status, 'In progress');
+    expect(rows.single.tracking.startedAt, DateTime.utc(2026, 1, 3));
+    expect(rows.single.tracking.finishedAt, isNull);
   });
 
   test('collection csv exports clz-friendly shelf rows', () {
@@ -348,12 +346,12 @@ void main() {
     expect(rows.single.kindCatalogCells[8], 'Marvel Comics');
     expect(rows.single.kindCatalogCells[9], '2005-07-01');
     expect(rows.single.kindOwnedCells.first, '7.5');
-    expect(rows.single.condition, 'Very Fine');
-    expect(rows.single.pricePaidCents, 900);
-    expect(rows.single.locationId, 'loc-box-6');
-    expect(rows.single.readStatus, 'Read');
+    expect(rows.single.personal.condition, 'Very Fine');
+    expect(rows.single.personal.pricePaidCents, 900);
+    expect(rows.single.personal.locationId, 'loc-box-6');
+    expect(rows.single.tracking.status, 'Read');
     expect(rows.single.kindOwnedCells[8], 'true');
-    expect(rows.single.notes, 'CLZ import');
+    expect(rows.single.personal.notes, 'CLZ import');
   });
 
   test('collection csv receives Comic-only CLZ aliases from the kind', () {
@@ -403,7 +401,7 @@ void main() {
     );
 
     expect(rows.single.itemId, 'comic-1');
-    expect(rows.single.locationId, 'loc-short-box-6');
+    expect(rows.single.personal.locationId, 'loc-short-box-6');
   });
 
   test('collection csv parses decimal and thousands money separators', () {
@@ -433,9 +431,9 @@ void main() {
       ]),
     );
 
-    expect(rows[0].pricePaidCents, 123456);
+    expect(rows[0].personal.pricePaidCents, 123456);
     expect(rows[0].kindOwnedCells[1], '250000');
-    expect(rows[1].pricePaidCents, 123456);
+    expect(rows[1].personal.pricePaidCents, 123456);
     expect(rows[1].kindOwnedCells[1], '250000');
   });
 
@@ -485,7 +483,7 @@ void main() {
 
     expect(rows, hasLength(1));
     expect(rows.single.itemId, 'comic-1');
-    expect(rows.single.notes, 'Line one\nLine two with "quote"');
+    expect(rows.single.personal.notes, 'Line one\nLine two with "quote"');
   });
 
   test('collection csv parses non-iso date formats', () {
@@ -503,7 +501,7 @@ void main() {
       ]),
     );
 
-    expect(rows[0].purchaseDate, DateTime.utc(2026, 5, 12));
+    expect(rows[0].personal.purchaseDate, DateTime.utc(2026, 5, 12));
     expect(rows[0].kindCatalogCells, hasLength(11));
     expect(rows[1].kindCatalogCells, hasLength(11));
   });

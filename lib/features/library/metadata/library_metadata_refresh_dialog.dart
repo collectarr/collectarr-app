@@ -278,7 +278,7 @@ class _LibraryMetadataRefreshDialogState
       try {
         final results = await searchAndCacheLibraryMetadata(
           api: api,
-          type: widget.type,
+          kind: widget.type.kind,
           catalog: catalog,
           input: _inputForEntry(entry),
         );

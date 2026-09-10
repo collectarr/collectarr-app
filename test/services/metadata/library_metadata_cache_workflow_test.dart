@@ -16,7 +16,7 @@ void main() {
 
     final items = await searchAndCacheLibraryMetadata(
       api: api,
-      type: comicKindModule,
+      kind: comicKindModule.kind,
       catalog: CatalogTransportRepository(db),
       input: const MetadataSearchQuery(
         query: 'Batman',
@@ -42,7 +42,7 @@ void main() {
 
     final results = await lookupAndCacheLibraryBarcodes(
       api: api,
-      type: comicKindModule,
+      kind: comicKindModule.kind,
       catalog: CatalogTransportRepository(db),
       codes: const ['012345678905', '000000000000'],
       onResult: seen.add,

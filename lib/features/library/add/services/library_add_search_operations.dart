@@ -62,7 +62,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
 }) async {
   final items = await searchAndCacheLibraryMetadata(
     api: api,
-    type: type,
+    kind: type.kind,
     catalog: catalog,
     input: input,
   ).timeout(timeout);
@@ -91,7 +91,7 @@ Future<List<LibraryAddCatalogItem>> fetchLibraryAddSuggestions({
 }) async {
   final items = await searchAndCacheLibraryMetadata(
     api: api,
-    type: type,
+    kind: type.kind,
     catalog: catalog,
     input: input,
   ).timeout(timeout);
@@ -115,7 +115,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
 }) async {
   final results = await lookupAndCacheLibraryBarcodes(
     api: api,
-    type: type,
+    kind: type.kind,
     catalog: catalog,
     codes: [identifierCode],
   ).timeout(timeout);
