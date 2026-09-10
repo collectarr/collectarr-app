@@ -163,7 +163,10 @@ class LibraryEditDraft {
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
     final conditionController = create(ownedItem?.condition ?? '');
     final gradeController = create(
-      type.edit.readOwnedCollectionValue(ownedItem) ?? '',
+      type.edit.readOwnedCollectionValue(
+            ownedItem == null ? null : ownedItemSummaryFromOwnedItem(ownedItem),
+          ) ??
+          '',
     );
     final purchaseDateController = create(
       ownedItem?.purchaseDate == null
@@ -558,6 +561,7 @@ class LibraryEditDraft {
       purchaseStore: emptyToNull(personal.purchaseStoreController.text),
       collectionStatus: personal.collectionStatus,
       tags: emptyToNull(personal.tagsController.text),
+      collectionValue: emptyToNull(personal.gradeController.text),
     );
   }
 

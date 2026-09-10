@@ -144,7 +144,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as MusicOwnedDetailsDraft,
       condition: common.condition,
-      grade: draft.grade,
+      grade: common.collectionValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

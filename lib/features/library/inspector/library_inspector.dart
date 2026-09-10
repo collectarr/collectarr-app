@@ -189,9 +189,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         (widget.ownedItem == null
             ? const <OwnedItem>[]
             : <OwnedItem>[widget.ownedItem!]);
-    final ownedSummaryCopies = ownedCopies
-        .map(ownedItemSummaryFromOwnedItem)
-        .toList(growable: false);
+    final ownedSummaryCopies =
+        ownedCopies.map(ownedItemSummaryFromOwnedItem).toList(growable: false);
     final ownedSummaryResolution = resolveActiveOwnedSummary(
       ownedSummaryCopies,
       fallback: widget.ownedItem == null
@@ -425,6 +424,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       conditionGradeSection = Builder(
         builder: (context) {
           final editCapability = widget.type.edit;
+          final activeOwnedSummary =
+              ownedItemSummaryFromOwnedItem(activeOwnedItem);
           final conditionDefinition =
               editCapability.vocabularies?.definitionForSuffix('condition');
           final gradeDefinition =
@@ -451,8 +452,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     conditionListName: conditionDefinition?.key,
                     gradeListName: gradeDefinition?.key,
                     selectedCondition: activeOwnedItem.condition,
-                    selectedGrade: widget.type.edit
-                        .readOwnedCollectionValue(activeOwnedItem),
+                    selectedGrade: editCapability
+                        .readOwnedCollectionValue(activeOwnedSummary),
                   ),
                 ),
               )
@@ -461,7 +462,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             enabled: true,
             condition: activeOwnedItem.condition,
             secondaryValue:
-                widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
+                editCapability.readOwnedCollectionValue(activeOwnedSummary),
             conditions: options?.conditions ??
                 mergePickListValues(
                   builtInValues: builtInConditions,
@@ -471,7 +472,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                 mergePickListValues(
                   builtInValues: builtInGrades,
                   selectedValues: [
-                    widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
+                    editCapability.readOwnedCollectionValue(activeOwnedSummary),
                   ],
                 ),
             accent: widget.accent,
@@ -480,7 +481,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               activeOwnedItem,
               condition: value,
               collectionValue:
-                  widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
+                  editCapability.readOwnedCollectionValue(activeOwnedSummary),
             ),
             onSecondaryChanged: (value) => _updateConditionValue(
               context,
@@ -789,7 +790,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   final List<OwnedItem> copies;
   final List<CatalogEditionDto> editions;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(OwnedItem?) collectionValueReader;
+  final String? Function(OwnedItemSummary?) collectionValueReader;
   final String? selectedOwnedItemId;
   final Color accent;
   final VoidCallback onAddCopy;
@@ -828,8 +829,9 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                                 editions,
                                 index,
                                 digitalFlagResolver: digitalFlagResolver,
-                                collectionValue:
-                                    collectionValueReader(copies[index]),
+                                collectionValue: collectionValueReader(
+                                  ownedItemSummaryFromOwnedItem(copies[index]),
+                                ),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

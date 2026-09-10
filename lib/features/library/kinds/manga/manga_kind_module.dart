@@ -229,7 +229,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as MangaOwnedDetailsDraft,
       condition: common.condition,
-      grade: draft.grade,
+      grade: common.collectionValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

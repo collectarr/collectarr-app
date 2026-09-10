@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
@@ -32,7 +32,7 @@ enum ReportColumn {
 
   String extractFrom(
     LibraryProjectionView item, {
-    String? Function(OwnedItem?)? collectionValueReader,
+    String? Function(OwnedItemSummary?)? collectionValueReader,
   }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
@@ -42,7 +42,7 @@ enum ReportColumn {
       ReportColumn.issue => adapter?.itemNumber ?? '',
       ReportColumn.condition => item.source.condition ?? '',
       ReportColumn.grade =>
-        collectionValueReader?.call(item.source.ownedItem) ?? '',
+        collectionValueReader?.call(item.source.ownedSummary) ?? '',
       ReportColumn.publisher =>
         (item.source.catalogItem?.toSyncPayload()['publisher'] ??
                     (item.source.catalogItem?.toSyncPayload()['publishing']
@@ -88,7 +88,7 @@ Future<void> printCollectionReport({
   required BuildContext context,
   required String title,
   required List<LibraryProjectionView> items,
-  String? Function(OwnedItem?)? collectionValueReader,
+  String? Function(OwnedItemSummary?)? collectionValueReader,
 }) async {
   final columns = await showDialog<List<ReportColumn>>(
     context: context,
@@ -112,7 +112,7 @@ pw.Document _buildDocument(
   String title,
   List<LibraryProjectionView> items,
   List<ReportColumn> columns, {
-  String? Function(OwnedItem?)? collectionValueReader,
+  String? Function(OwnedItemSummary?)? collectionValueReader,
 }) {
   final doc = pw.Document(
     title: title,

@@ -238,7 +238,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as BookOwnedDetailsDraft,
       condition: common.condition,
-      grade: draft.grade,
+      grade: common.collectionValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

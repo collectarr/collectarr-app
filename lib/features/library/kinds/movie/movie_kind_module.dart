@@ -232,7 +232,9 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as MovieOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.isDigital == true ? null : draft.grade,
+      grade: common.isDigital == true
+          ? null
+          : common.collectionValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

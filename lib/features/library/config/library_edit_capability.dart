@@ -34,7 +34,7 @@ typedef LibraryOwnedConditionValueUpdatePayloadBuilder
         String ownedItemId, String? condition, String? collectionValue);
 
 typedef LibraryOwnedCollectionValueReader = String? Function(
-  OwnedItem? ownedItem,
+  OwnedItemSummary? ownedItem,
 );
 
 typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
@@ -118,7 +118,7 @@ class LibraryEditCapability {
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasCollectionValuePickList => collectionValueOptions.isNotEmpty;
 
-  String? readOwnedCollectionValue(OwnedItem? ownedItem) =>
+  String? readOwnedCollectionValue(OwnedItemSummary? ownedItem) =>
       ownedCollectionValueReader(ownedItem);
 
   bool? resolveOwnedDigitalFlag(

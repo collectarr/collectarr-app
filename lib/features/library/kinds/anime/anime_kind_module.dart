@@ -187,7 +187,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as AnimeOwnedDetailsDraft,
       condition: common.condition,
-      grade: draft.grade,
+      grade: common.collectionValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

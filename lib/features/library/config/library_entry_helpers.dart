@@ -407,7 +407,7 @@ String? _ownedCopyEditionLabel(
 }
 
 ({CatalogEditionDto? edition, CatalogVariantDto? variant})
-_resolveOwnedCopyRelease(
+    _resolveOwnedCopyRelease(
   OwnedItemSummary item,
   List<CatalogEditionDto> editions,
 ) {

@@ -123,7 +123,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as GameOwnedDetailsDraft,
       condition: common.condition,
-      grade: draft.grade,
+      grade: common.collectionValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

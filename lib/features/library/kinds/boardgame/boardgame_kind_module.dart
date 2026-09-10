@@ -155,7 +155,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as BoardgameOwnedDetailsDraft,
       condition: common.condition,
-      grade: draft.grade,
+      grade: common.collectionValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

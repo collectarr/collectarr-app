@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -491,7 +492,7 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
 
   final Color accent;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(OwnedItem?) collectionValueReader;
+  final String? Function(OwnedItemSummary?) collectionValueReader;
   final List<_ResolvedVideoRelease> releases;
   final String? selectedReleaseId;
   final String? selectedOwnedItemId;
@@ -744,7 +745,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
 
   final _ResolvedVideoRelease release;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(OwnedItem?) collectionValueReader;
+  final String? Function(OwnedItemSummary?) collectionValueReader;
   final String? selectedOwnedItemId;
   final Color accent;
   final ValueChanged<String?> onSelectOwnedItem;
@@ -808,8 +809,11 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
                           [release.edition],
                           index,
                           digitalFlagResolver: digitalFlagResolver,
-                          collectionValue:
-                              collectionValueReader(release.ownedCopies[index]),
+                          collectionValue: collectionValueReader(
+                            ownedItemSummaryFromOwnedItem(
+                              release.ownedCopies[index],
+                            ),
+                          ),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
