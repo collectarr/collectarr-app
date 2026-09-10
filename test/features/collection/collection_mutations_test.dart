@@ -72,8 +72,8 @@ void main() {
         .where((row) => row.entityType == 'owned_item')
         .toList();
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
-    expect(owned.editionId, 'edition-1');
-    expect(owned.variantId, 'variant-1');
+    expect(owned.targetRef?.parentId, 'edition-1');
+    expect(owned.targetRef?.id, 'variant-1');
     expect(queued, hasLength(1));
     expect(queued.single.entityType, 'owned_item');
     expect(queued.single.action, 'upsert');

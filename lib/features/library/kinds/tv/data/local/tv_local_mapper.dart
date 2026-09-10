@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
@@ -309,10 +308,7 @@ final class TvLocalMapper {
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      anchorType: Value(item.anchorType),
-      editionId: Value(item.editionId),
-      variantId: Value(item.variantId),
-      bundleReleaseId: Value(item.bundleReleaseId),
+      targetRefJson: Value(_encodeTargetRef(item.targetRef)),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
@@ -354,13 +350,7 @@ final class TvLocalMapper {
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      targetRef: tvOwnedTargetRefFromLegacy(
-        catalogRef,
-        anchorType: row.anchorType,
-        editionId: row.editionId,
-        variantId: row.variantId,
-        bundleReleaseId: row.bundleReleaseId,
-      ),
+      targetRef: _decodeTargetRef(row.targetRefJson),
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
@@ -405,6 +395,16 @@ final class TvLocalMapper {
       TvEpisode item => item.toJson(),
       _ => throw StateError('Unsupported TV JSON value: ${value.runtimeType}'),
     };
+  }
+
+  static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
+      targetRef == null ? null : jsonEncode(targetRef.toJson());
+
+  static CatalogEntityRef? _decodeTargetRef(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final decoded = _decodeJson(raw);
+    if (decoded is! Map) return null;
+    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
   }
 
   static dynamic _decodeJson(String raw) {

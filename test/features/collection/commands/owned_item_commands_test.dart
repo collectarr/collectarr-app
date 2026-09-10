@@ -131,9 +131,9 @@ void main() {
     final item = stored!.$2 as ComicOwnedItem;
 
     expect(item.itemId, 'comic-cmd-1');
-    expect(item.anchorType, 'variant');
-    expect(item.editionId, 'edition-1');
-    expect(item.variantId, 'variant-1');
+    expect(item.targetRef?.entityType.apiValue, 'release');
+    expect(item.targetRef?.parentId, 'edition-1');
+    expect(item.targetRef?.id, 'variant-1');
     expect(item.condition, 'Near Mint');
     expect(item.grade, '9.8');
     expect(item.pricePaidCents, 1500);

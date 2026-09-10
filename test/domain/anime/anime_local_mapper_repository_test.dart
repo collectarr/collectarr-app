@@ -95,16 +95,16 @@ void main() {
     await db.into(db.animeOwnedItemsRows).insert(
           AnimeLocalMapper.toOwnedItemRow(item),
         );
-    final restored = AnimeLocalMapper.fromOwnedItemRow(
-      await db.select(db.animeOwnedItemsRows).getSingle(),
-    );
+    final row = await db.select(db.animeOwnedItemsRows).getSingle();
+    final restored = AnimeLocalMapper.fromOwnedItemRow(row);
 
+    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.anchorType, 'edition');
-    expect(restored.editionId, 'release-1');
+    expect(restored.targetRef?.entityType.apiValue, 'edition');
+    expect(restored.targetRef?.id, 'release-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

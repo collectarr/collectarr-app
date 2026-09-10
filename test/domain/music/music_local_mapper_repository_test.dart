@@ -119,16 +119,16 @@ void main() {
     await db.into(db.musicOwnedItemsRows).insert(
           MusicLocalMapper.toOwnedItemRow(item),
         );
-    final restored = MusicLocalMapper.fromOwnedItemRow(
-      await db.select(db.musicOwnedItemsRows).getSingle(),
-    );
+    final row = await db.select(db.musicOwnedItemsRows).getSingle();
+    final restored = MusicLocalMapper.fromOwnedItemRow(row);
 
+    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.anchorType, 'edition');
-    expect(restored.editionId, 'release-1');
+    expect(restored.targetRef?.entityType.apiValue, 'edition');
+    expect(restored.targetRef?.id, 'release-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

@@ -188,18 +188,18 @@ void main() {
     await db.into(db.movieOwnedItemsRows).insert(
           MovieLocalMapper.toOwnedItemRow(item),
         );
-    final restored = MovieLocalMapper.fromOwnedItemRow(
-      await db.select(db.movieOwnedItemsRows).getSingle(),
-    );
+    final row = await db.select(db.movieOwnedItemsRows).getSingle();
+    final restored = MovieLocalMapper.fromOwnedItemRow(row);
 
+    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.catalogRef.kind.apiValue, 'movie');
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.anchorType, 'variant');
-    expect(restored.editionId, 'release-1');
-    expect(restored.variantId, 'variant-1');
+    expect(restored.targetRef?.entityType.apiValue, 'release');
+    expect(restored.targetRef?.parentId, 'release-1');
+    expect(restored.targetRef?.id, 'variant-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

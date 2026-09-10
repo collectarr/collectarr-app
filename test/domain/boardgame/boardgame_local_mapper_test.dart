@@ -172,16 +172,16 @@ void main() {
     await db.into(db.boardGameOwnedItemsRows).insert(
           BoardGameLocalMapper.toOwnedItemRow(item),
         );
-    final restored = BoardGameLocalMapper.fromOwnedItemRow(
-      await db.select(db.boardGameOwnedItemsRows).getSingle(),
-    );
+    final row = await db.select(db.boardGameOwnedItemsRows).getSingle();
+    final restored = BoardGameLocalMapper.fromOwnedItemRow(row);
 
+    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
     expect(restored.isDigital, false);
-    expect(restored.anchorType, 'edition');
-    expect(restored.editionId, 'edition-1');
+    expect(restored.targetRef?.entityType.apiValue, 'edition');
+    expect(restored.targetRef?.id, 'edition-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

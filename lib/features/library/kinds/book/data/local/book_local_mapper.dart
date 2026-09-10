@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
@@ -147,10 +146,7 @@ final class BookLocalMapper {
       itemId: item.itemId,
       createdAt: Value(item.createdAt),
       isDigital: Value(item.isDigital),
-      anchorType: Value(item.anchorType),
-      editionId: Value(item.editionId),
-      variantId: Value(item.variantId),
-      bundleReleaseId: Value(item.bundleReleaseId),
+      targetRefJson: Value(_encodeTargetRef(item.targetRef)),
       condition: Value(item.condition),
       grade: Value(item.grade),
       purchaseDate: Value(item.purchaseDate),
@@ -188,13 +184,7 @@ final class BookLocalMapper {
       catalogRef: catalogRef,
       createdAt: row.createdAt,
       isDigital: row.isDigital,
-      targetRef: bookOwnedTargetRefFromLegacy(
-        catalogRef,
-        anchorType: row.anchorType,
-        editionId: row.editionId,
-        variantId: row.variantId,
-        bundleReleaseId: row.bundleReleaseId,
-      ),
+      targetRef: _decodeTargetRef(row.targetRefJson),
       condition: row.condition,
       grade: row.grade,
       purchaseDate: row.purchaseDate,
@@ -248,6 +238,16 @@ final class BookLocalMapper {
           if (variant.isPrimary) 'is_primary': true,
         },
     ]);
+  }
+
+  static String? _encodeTargetRef(CatalogEntityRef? targetRef) =>
+      targetRef == null ? null : jsonEncode(targetRef.toJson());
+
+  static CatalogEntityRef? _decodeTargetRef(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final decoded = _decodeJson(raw);
+    if (decoded is! Map) return null;
+    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
   }
 
   static dynamic _decodeJson(String raw) {

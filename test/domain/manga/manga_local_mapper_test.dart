@@ -126,15 +126,15 @@ void main() {
     await db.into(db.mangaOwnedItemsRows).insert(
           MangaLocalMapper.toOwnedItemRow(item),
         );
-    final restored = MangaLocalMapper.fromOwnedItemRow(
-      await db.select(db.mangaOwnedItemsRows).getSingle(),
-    );
+    final row = await db.select(db.mangaOwnedItemsRows).getSingle();
+    final restored = MangaLocalMapper.fromOwnedItemRow(row);
 
+    expect(row.targetRefJson, isNotNull);
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
     expect(restored.createdAt?.toUtc(), item.createdAt);
-    expect(restored.anchorType, 'edition');
-    expect(restored.editionId, 'volume-1');
+    expect(restored.targetRef?.entityType.apiValue, 'edition');
+    expect(restored.targetRef?.id, 'volume-1');
     expect(restored.condition, item.condition);
     expect(restored.grade, item.grade);
     expect(restored.purchaseDate?.toUtc(), item.purchaseDate);

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
@@ -71,27 +70,6 @@ final class ComicOwnedItem {
   final ComicReadingState reading;
 
   String get itemId => catalogRef.rootId ?? catalogRef.id;
-  String? get anchorType => targetRef == null
-      ? null
-      : switch (targetRef!.entityType.apiValue) {
-          'edition' => 'edition',
-          'release' => 'variant',
-          'bundle_release' => 'bundle_release',
-          _
-              when targetRef!.rootId != null &&
-                  targetRef!.rootId != targetRef!.id =>
-            'item',
-          _ => null,
-        };
-  String? get editionId => switch (targetRef?.entityType.apiValue) {
-        'edition' => targetRef?.id,
-        'release' => targetRef?.parentId,
-        _ => null,
-      };
-  String? get variantId =>
-      targetRef?.entityType.apiValue == 'release' ? targetRef?.id : null;
-  String? get bundleReleaseId =>
-      targetRef?.entityType.apiValue == 'bundle_release' ? targetRef?.id : null;
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
@@ -100,7 +78,7 @@ final class ComicOwnedItem {
         'catalog_ref': catalogRef.toJson(),
         'created_at': createdAt?.toUtc().toIso8601String(),
         'is_digital': isDigital,
-        ...comicOwnedTargetLegacyFields(targetRef),
+        'target_ref': targetRef?.toJson(),
         'condition': condition,
         'grade': grade,
         'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -144,13 +122,7 @@ final class ComicOwnedItem {
       catalogRef: catalogRef,
       createdAt: _date(json['created_at']),
       isDigital: json['is_digital'] as bool?,
-      targetRef: comicOwnedTargetRefFromLegacy(
-        catalogRef,
-        anchorType: json['anchor_type'] as String?,
-        editionId: json['edition_id'] as String?,
-        variantId: json['variant_id'] as String?,
-        bundleReleaseId: json['bundle_release_id'] as String?,
-      ),
+      targetRef: _targetRef(json['target_ref']),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: _date(json['purchase_date']),
@@ -352,77 +324,7 @@ bool _sameInstant(DateTime? first, DateTime? second) {
   return first?.toUtc() == second?.toUtc();
 }
 
-CatalogEntityRef? comicOwnedTargetRefFromLegacy(
-  CatalogEntityRef catalogRef, {
-  String? anchorType,
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
-}) {
-  final rootId = catalogRef.rootId ?? catalogRef.id;
-  final type = anchorType?.trim().toLowerCase();
-  if (type == 'bundle_release' || bundleReleaseId != null) {
-    final id = bundleReleaseId;
-    return id == null
-        ? null
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('bundle_release'),
-            id: id,
-            rootId: rootId,
-          );
-  }
-  if (type == 'variant' || variantId != null) {
-    final id = variantId;
-    return id == null
-        ? null
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('release'),
-            id: id,
-            rootId: rootId,
-            parentId: editionId,
-          );
-  }
-  if (type == 'edition' || editionId != null) {
-    final id = editionId;
-    return id == null
-        ? null
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('edition'),
-            id: id,
-            rootId: rootId,
-          );
-  }
-  if (type == 'item') {
-    return CatalogEntityRef(
-      kind: catalogRef.kind,
-      entityType: const CatalogEntityTypeId('work'),
-      id: rootId,
-    );
-  }
-  return catalogRef.entityType.apiValue == 'work' && catalogRef.id == rootId
-      ? null
-      : catalogRef;
-}
-
-Map<String, dynamic> comicOwnedTargetLegacyFields(CatalogEntityRef? targetRef) {
-  if (targetRef == null) return const {};
-  return switch (targetRef.entityType.apiValue) {
-    'edition' => {'anchor_type': 'edition', 'edition_id': targetRef.id},
-    'release' => {
-        'anchor_type': 'variant',
-        'edition_id': targetRef.parentId,
-        'variant_id': targetRef.id,
-      },
-    'bundle_release' => {
-        'anchor_type': 'bundle_release',
-        'bundle_release_id': targetRef.id,
-      },
-    _ when targetRef.rootId != null && targetRef.rootId != targetRef.id => {
-        'anchor_type': 'item'
-      },
-    _ => const {},
-  };
+CatalogEntityRef? _targetRef(Object? raw) {
+  if (raw is! Map) return null;
+  return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
 }

@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -175,12 +174,8 @@ void main() {
     // The owned row is keyed by its root catalog item; the selected edition
     // remains the structural target reference on the aggregate.
     expect(ownedRows.single.itemId, 'comic-release-1');
-    expect(
-      ownedRows.single.anchorType,
-      PersonalItemAnchorType.edition.apiValue,
-    );
-    expect(ownedRows.single.editionId, 'edition-1');
-    expect(ownedRows.single.variantId, isNull);
+    expect(ownedRows.single.targetRef?.entityType.apiValue, 'edition');
+    expect(ownedRows.single.targetRef?.id, 'edition-1');
   });
 
   test(

@@ -10162,29 +10162,11 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -10353,10 +10335,7 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -10414,25 +10393,11 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -10589,14 +10554,8 @@ class $AnimeOwnedItemsRowsTable extends AnimeOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -10666,10 +10625,7 @@ class AnimeOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -10702,10 +10658,7 @@ class AnimeOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -10744,17 +10697,8 @@ class AnimeOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -10844,18 +10788,9 @@ class AnimeOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -10936,10 +10871,7 @@ class AnimeOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -10977,10 +10909,7 @@ class AnimeOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -11016,10 +10945,7 @@ class AnimeOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -11052,12 +10978,8 @@ class AnimeOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -11101,13 +11023,9 @@ class AnimeOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -11167,10 +11085,7 @@ class AnimeOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -11208,10 +11123,7 @@ class AnimeOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -11248,10 +11160,7 @@ class AnimeOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -11286,10 +11195,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -11323,10 +11229,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -11361,10 +11264,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -11401,10 +11301,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -11439,10 +11336,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -11479,10 +11373,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -11516,10 +11407,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -11566,17 +11454,8 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -11672,10 +11551,7 @@ class AnimeOwnedItemsRowsCompanion extends UpdateCompanion<AnimeOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -16154,29 +16030,11 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -16368,10 +16226,7 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -16432,25 +16287,11 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -16625,14 +16466,8 @@ class $BoardGameOwnedItemsRowsTable extends BoardGameOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -16707,10 +16542,7 @@ class BoardGameOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -16745,10 +16577,7 @@ class BoardGameOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -16789,17 +16618,8 @@ class BoardGameOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -16891,18 +16711,9 @@ class BoardGameOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -16986,10 +16797,7 @@ class BoardGameOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -17033,10 +16841,7 @@ class BoardGameOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -17075,10 +16880,7 @@ class BoardGameOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -17113,12 +16915,8 @@ class BoardGameOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -17175,13 +16973,9 @@ class BoardGameOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -17255,10 +17049,7 @@ class BoardGameOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -17298,10 +17089,7 @@ class BoardGameOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -17340,10 +17128,7 @@ class BoardGameOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -17381,10 +17166,7 @@ class BoardGameOwnedItemsRowsCompanion
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -17420,10 +17202,7 @@ class BoardGameOwnedItemsRowsCompanion
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -17460,10 +17239,7 @@ class BoardGameOwnedItemsRowsCompanion
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -17502,10 +17278,7 @@ class BoardGameOwnedItemsRowsCompanion
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -17542,10 +17315,7 @@ class BoardGameOwnedItemsRowsCompanion
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -17587,10 +17357,7 @@ class BoardGameOwnedItemsRowsCompanion
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -17626,10 +17393,7 @@ class BoardGameOwnedItemsRowsCompanion
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -17679,17 +17443,8 @@ class BoardGameOwnedItemsRowsCompanion
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -17793,10 +17548,7 @@ class BoardGameOwnedItemsRowsCompanion
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -20464,29 +20216,11 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -20634,10 +20368,7 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -20691,25 +20422,11 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -20848,14 +20565,8 @@ class $BookOwnedItemsRowsTable extends BookOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -20917,10 +20628,7 @@ class BookOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -20949,10 +20657,7 @@ class BookOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -20987,17 +20692,8 @@ class BookOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -21075,18 +20771,9 @@ class BookOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -21156,10 +20843,7 @@ class BookOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -21194,10 +20878,7 @@ class BookOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -21229,10 +20910,7 @@ class BookOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -21261,12 +20939,8 @@ class BookOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -21308,13 +20982,9 @@ class BookOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -21370,10 +21040,7 @@ class BookOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -21407,10 +21074,7 @@ class BookOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -21443,10 +21107,7 @@ class BookOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -21477,10 +21138,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -21510,10 +21168,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -21544,10 +21199,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -21580,10 +21232,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -21614,10 +21263,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -21651,10 +21297,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -21684,10 +21327,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -21730,17 +21370,8 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -21825,10 +21456,7 @@ class BookOwnedItemsRowsCompanion extends UpdateCompanion<BookOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -24571,29 +24199,11 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -24807,10 +24417,7 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -24875,25 +24482,11 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -25092,14 +24685,8 @@ class $ComicOwnedItemsRowsTable extends ComicOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -25183,10 +24770,7 @@ class ComicOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -25226,10 +24810,7 @@ class ComicOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -25275,17 +24856,8 @@ class ComicOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -25396,18 +24968,9 @@ class ComicOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -25510,10 +25073,7 @@ class ComicOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -25560,10 +25120,7 @@ class ComicOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -25606,10 +25163,7 @@ class ComicOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -25649,12 +25203,8 @@ class ComicOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -25713,13 +25263,9 @@ class ComicOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -25797,10 +25343,7 @@ class ComicOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -25845,10 +25388,7 @@ class ComicOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -25892,10 +25432,7 @@ class ComicOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -25937,10 +25474,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -25981,10 +25515,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -26026,10 +25557,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -26073,10 +25601,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -26118,10 +25643,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -26166,10 +25688,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -26210,10 +25729,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -26267,17 +25783,8 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -26394,10 +25901,7 @@ class ComicOwnedItemsRowsCompanion extends UpdateCompanion<ComicOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -28471,29 +27975,11 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -28663,10 +28149,7 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -28723,25 +28206,11 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -28896,14 +28365,8 @@ class $GameOwnedItemsRowsTable extends GameOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -28971,10 +28434,7 @@ class GameOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -29006,10 +28466,7 @@ class GameOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -29047,17 +28504,8 @@ class GameOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -29146,18 +28594,9 @@ class GameOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -29237,10 +28676,7 @@ class GameOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -29277,10 +28713,7 @@ class GameOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -29315,10 +28748,7 @@ class GameOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -29350,12 +28780,8 @@ class GameOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -29402,13 +28828,9 @@ class GameOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -29470,10 +28892,7 @@ class GameOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -29510,10 +28929,7 @@ class GameOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -29549,10 +28965,7 @@ class GameOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -29586,10 +28999,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -29622,10 +29032,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -29659,10 +29066,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -29698,10 +29102,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -29735,10 +29136,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -29774,10 +29172,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -29810,10 +29205,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -29859,17 +29251,8 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -29962,10 +29345,7 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -30802,29 +30182,11 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -31062,10 +30424,7 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -31132,25 +30491,11 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -31363,14 +30708,8 @@ class $MangaOwnedItemsRowsTable extends MangaOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -31459,10 +30798,7 @@ class MangaOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -31504,10 +30840,7 @@ class MangaOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -31555,17 +30888,8 @@ class MangaOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -31676,18 +31000,9 @@ class MangaOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -31790,10 +31105,7 @@ class MangaOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -31843,10 +31155,7 @@ class MangaOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -31891,10 +31200,7 @@ class MangaOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -31936,12 +31242,8 @@ class MangaOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -32004,13 +31306,9 @@ class MangaOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -32098,10 +31396,7 @@ class MangaOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -32148,10 +31443,7 @@ class MangaOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -32197,10 +31489,7 @@ class MangaOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -32244,10 +31533,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -32290,10 +31576,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -32337,10 +31620,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -32386,10 +31666,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -32433,10 +31710,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -32485,10 +31759,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -32531,10 +31802,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -32590,17 +31858,8 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -32725,10 +31984,7 @@ class MangaOwnedItemsRowsCompanion extends UpdateCompanion<MangaOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -34630,29 +33886,11 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -34821,10 +34059,7 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -34882,25 +34117,11 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -35057,14 +34278,8 @@ class $MovieOwnedItemsRowsTable extends MovieOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -35134,10 +34349,7 @@ class MovieOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -35170,10 +34382,7 @@ class MovieOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -35212,17 +34421,8 @@ class MovieOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -35312,18 +34512,9 @@ class MovieOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -35404,10 +34595,7 @@ class MovieOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -35445,10 +34633,7 @@ class MovieOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -35484,10 +34669,7 @@ class MovieOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -35520,12 +34702,8 @@ class MovieOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -35569,13 +34747,9 @@ class MovieOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -35635,10 +34809,7 @@ class MovieOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -35676,10 +34847,7 @@ class MovieOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -35716,10 +34884,7 @@ class MovieOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -35754,10 +34919,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -35791,10 +34953,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -35829,10 +34988,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -35869,10 +35025,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -35907,10 +35060,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -35947,10 +35097,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -35984,10 +35131,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -36034,17 +35178,8 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -36140,10 +35275,7 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -38333,29 +37465,11 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -38513,10 +37627,7 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -38572,25 +37683,11 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -38741,14 +37838,8 @@ class $MusicOwnedItemsRowsTable extends MusicOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -38814,10 +37905,7 @@ class MusicOwnedItemsRow extends DataClass
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -38848,10 +37936,7 @@ class MusicOwnedItemsRow extends DataClass
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -38888,17 +37973,8 @@ class MusicOwnedItemsRow extends DataClass
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -38982,18 +38058,9 @@ class MusicOwnedItemsRow extends DataClass
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -39069,10 +38136,7 @@ class MusicOwnedItemsRow extends DataClass
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -39108,10 +38172,7 @@ class MusicOwnedItemsRow extends DataClass
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -39145,10 +38206,7 @@ class MusicOwnedItemsRow extends DataClass
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -39179,12 +38237,8 @@ class MusicOwnedItemsRow extends DataClass
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -39229,13 +38283,9 @@ class MusicOwnedItemsRow extends DataClass
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -39296,10 +38346,7 @@ class MusicOwnedItemsRow extends DataClass
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -39335,10 +38382,7 @@ class MusicOwnedItemsRow extends DataClass
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -39373,10 +38417,7 @@ class MusicOwnedItemsRow extends DataClass
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -39409,10 +38450,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -39444,10 +38482,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -39480,10 +38515,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -39518,10 +38550,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -39554,10 +38583,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -39592,10 +38618,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -39627,10 +38650,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -39675,17 +38695,8 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -39775,10 +38786,7 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -44134,29 +43142,11 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_digital" IN (0, 1))'));
-  static const VerificationMeta _anchorTypeMeta =
-      const VerificationMeta('anchorType');
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
   @override
-  late final GeneratedColumn<String> anchorType = GeneratedColumn<String>(
-      'anchor_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _editionIdMeta =
-      const VerificationMeta('editionId');
-  @override
-  late final GeneratedColumn<String> editionId = GeneratedColumn<String>(
-      'edition_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _variantIdMeta =
-      const VerificationMeta('variantId');
-  @override
-  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
-      'variant_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _bundleReleaseIdMeta =
-      const VerificationMeta('bundleReleaseId');
-  @override
-  late final GeneratedColumn<String> bundleReleaseId = GeneratedColumn<String>(
-      'bundle_release_id', aliasedName, true,
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _conditionMeta =
       const VerificationMeta('condition');
@@ -44325,10 +43315,7 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -44386,25 +43373,11 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
       context.handle(_isDigitalMeta,
           isDigital.isAcceptableOrUnknown(data['is_digital']!, _isDigitalMeta));
     }
-    if (data.containsKey('anchor_type')) {
+    if (data.containsKey('target_ref_json')) {
       context.handle(
-          _anchorTypeMeta,
-          anchorType.isAcceptableOrUnknown(
-              data['anchor_type']!, _anchorTypeMeta));
-    }
-    if (data.containsKey('edition_id')) {
-      context.handle(_editionIdMeta,
-          editionId.isAcceptableOrUnknown(data['edition_id']!, _editionIdMeta));
-    }
-    if (data.containsKey('variant_id')) {
-      context.handle(_variantIdMeta,
-          variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta));
-    }
-    if (data.containsKey('bundle_release_id')) {
-      context.handle(
-          _bundleReleaseIdMeta,
-          bundleReleaseId.isAcceptableOrUnknown(
-              data['bundle_release_id']!, _bundleReleaseIdMeta));
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
     }
     if (data.containsKey('condition')) {
       context.handle(_conditionMeta,
@@ -44561,14 +43534,8 @@ class $TvOwnedItemsRowsTable extends TvOwnedItemsRows
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
       isDigital: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_digital']),
-      anchorType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}anchor_type']),
-      editionId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}edition_id']),
-      variantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}variant_id']),
-      bundleReleaseId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bundle_release_id']),
+      targetRefJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
       condition: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}condition']),
       grade: attachedDatabase.typeMapping
@@ -44637,10 +43604,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
   final String itemId;
   final DateTime? createdAt;
   final bool? isDigital;
-  final String? anchorType;
-  final String? editionId;
-  final String? variantId;
-  final String? bundleReleaseId;
+  final String? targetRefJson;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -44673,10 +43637,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       required this.itemId,
       this.createdAt,
       this.isDigital,
-      this.anchorType,
-      this.editionId,
-      this.variantId,
-      this.bundleReleaseId,
+      this.targetRefJson,
       this.condition,
       this.grade,
       this.purchaseDate,
@@ -44715,17 +43676,8 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
     if (!nullToAbsent || isDigital != null) {
       map['is_digital'] = Variable<bool>(isDigital);
     }
-    if (!nullToAbsent || anchorType != null) {
-      map['anchor_type'] = Variable<String>(anchorType);
-    }
-    if (!nullToAbsent || editionId != null) {
-      map['edition_id'] = Variable<String>(editionId);
-    }
-    if (!nullToAbsent || variantId != null) {
-      map['variant_id'] = Variable<String>(variantId);
-    }
-    if (!nullToAbsent || bundleReleaseId != null) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId);
+    if (!nullToAbsent || targetRefJson != null) {
+      map['target_ref_json'] = Variable<String>(targetRefJson);
     }
     if (!nullToAbsent || condition != null) {
       map['condition'] = Variable<String>(condition);
@@ -44815,18 +43767,9 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       isDigital: isDigital == null && nullToAbsent
           ? const Value.absent()
           : Value(isDigital),
-      anchorType: anchorType == null && nullToAbsent
+      targetRefJson: targetRefJson == null && nullToAbsent
           ? const Value.absent()
-          : Value(anchorType),
-      editionId: editionId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(editionId),
-      variantId: variantId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(variantId),
-      bundleReleaseId: bundleReleaseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bundleReleaseId),
+          : Value(targetRefJson),
       condition: condition == null && nullToAbsent
           ? const Value.absent()
           : Value(condition),
@@ -44907,10 +43850,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       itemId: serializer.fromJson<String>(json['itemId']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       isDigital: serializer.fromJson<bool?>(json['isDigital']),
-      anchorType: serializer.fromJson<String?>(json['anchorType']),
-      editionId: serializer.fromJson<String?>(json['editionId']),
-      variantId: serializer.fromJson<String?>(json['variantId']),
-      bundleReleaseId: serializer.fromJson<String?>(json['bundleReleaseId']),
+      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
       condition: serializer.fromJson<String?>(json['condition']),
       grade: serializer.fromJson<String?>(json['grade']),
       purchaseDate: serializer.fromJson<DateTime?>(json['purchaseDate']),
@@ -44948,10 +43888,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       'itemId': serializer.toJson<String>(itemId),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'isDigital': serializer.toJson<bool?>(isDigital),
-      'anchorType': serializer.toJson<String?>(anchorType),
-      'editionId': serializer.toJson<String?>(editionId),
-      'variantId': serializer.toJson<String?>(variantId),
-      'bundleReleaseId': serializer.toJson<String?>(bundleReleaseId),
+      'targetRefJson': serializer.toJson<String?>(targetRefJson),
       'condition': serializer.toJson<String?>(condition),
       'grade': serializer.toJson<String?>(grade),
       'purchaseDate': serializer.toJson<DateTime?>(purchaseDate),
@@ -44987,10 +43924,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
           String? itemId,
           Value<DateTime?> createdAt = const Value.absent(),
           Value<bool?> isDigital = const Value.absent(),
-          Value<String?> anchorType = const Value.absent(),
-          Value<String?> editionId = const Value.absent(),
-          Value<String?> variantId = const Value.absent(),
-          Value<String?> bundleReleaseId = const Value.absent(),
+          Value<String?> targetRefJson = const Value.absent(),
           Value<String?> condition = const Value.absent(),
           Value<String?> grade = const Value.absent(),
           Value<DateTime?> purchaseDate = const Value.absent(),
@@ -45023,12 +43957,8 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
         itemId: itemId ?? this.itemId,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
         isDigital: isDigital.present ? isDigital.value : this.isDigital,
-        anchorType: anchorType.present ? anchorType.value : this.anchorType,
-        editionId: editionId.present ? editionId.value : this.editionId,
-        variantId: variantId.present ? variantId.value : this.variantId,
-        bundleReleaseId: bundleReleaseId.present
-            ? bundleReleaseId.value
-            : this.bundleReleaseId,
+        targetRefJson:
+            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
         condition: condition.present ? condition.value : this.condition,
         grade: grade.present ? grade.value : this.grade,
         purchaseDate:
@@ -45072,13 +44002,9 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDigital: data.isDigital.present ? data.isDigital.value : this.isDigital,
-      anchorType:
-          data.anchorType.present ? data.anchorType.value : this.anchorType,
-      editionId: data.editionId.present ? data.editionId.value : this.editionId,
-      variantId: data.variantId.present ? data.variantId.value : this.variantId,
-      bundleReleaseId: data.bundleReleaseId.present
-          ? data.bundleReleaseId.value
-          : this.bundleReleaseId,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
       condition: data.condition.present ? data.condition.value : this.condition,
       grade: data.grade.present ? data.grade.value : this.grade,
       purchaseDate: data.purchaseDate.present
@@ -45138,10 +44064,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -45179,10 +44102,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
         itemId,
         createdAt,
         isDigital,
-        anchorType,
-        editionId,
-        variantId,
-        bundleReleaseId,
+        targetRefJson,
         condition,
         grade,
         purchaseDate,
@@ -45219,10 +44139,7 @@ class TvOwnedItemsRow extends DataClass implements Insertable<TvOwnedItemsRow> {
           other.itemId == this.itemId &&
           other.createdAt == this.createdAt &&
           other.isDigital == this.isDigital &&
-          other.anchorType == this.anchorType &&
-          other.editionId == this.editionId &&
-          other.variantId == this.variantId &&
-          other.bundleReleaseId == this.bundleReleaseId &&
+          other.targetRefJson == this.targetRefJson &&
           other.condition == this.condition &&
           other.grade == this.grade &&
           other.purchaseDate == this.purchaseDate &&
@@ -45257,10 +44174,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
   final Value<String> itemId;
   final Value<DateTime?> createdAt;
   final Value<bool?> isDigital;
-  final Value<String?> anchorType;
-  final Value<String?> editionId;
-  final Value<String?> variantId;
-  final Value<String?> bundleReleaseId;
+  final Value<String?> targetRefJson;
   final Value<String?> condition;
   final Value<String?> grade;
   final Value<DateTime?> purchaseDate;
@@ -45294,10 +44208,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     this.itemId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -45332,10 +44243,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     required String itemId,
     this.createdAt = const Value.absent(),
     this.isDigital = const Value.absent(),
-    this.anchorType = const Value.absent(),
-    this.editionId = const Value.absent(),
-    this.variantId = const Value.absent(),
-    this.bundleReleaseId = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
     this.condition = const Value.absent(),
     this.grade = const Value.absent(),
     this.purchaseDate = const Value.absent(),
@@ -45372,10 +44280,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     Expression<String>? itemId,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDigital,
-    Expression<String>? anchorType,
-    Expression<String>? editionId,
-    Expression<String>? variantId,
-    Expression<String>? bundleReleaseId,
+    Expression<String>? targetRefJson,
     Expression<String>? condition,
     Expression<String>? grade,
     Expression<DateTime>? purchaseDate,
@@ -45410,10 +44315,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
       if (itemId != null) 'item_id': itemId,
       if (createdAt != null) 'created_at': createdAt,
       if (isDigital != null) 'is_digital': isDigital,
-      if (anchorType != null) 'anchor_type': anchorType,
-      if (editionId != null) 'edition_id': editionId,
-      if (variantId != null) 'variant_id': variantId,
-      if (bundleReleaseId != null) 'bundle_release_id': bundleReleaseId,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (condition != null) 'condition': condition,
       if (grade != null) 'grade': grade,
       if (purchaseDate != null) 'purchase_date': purchaseDate,
@@ -45450,10 +44352,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
       Value<String>? itemId,
       Value<DateTime?>? createdAt,
       Value<bool?>? isDigital,
-      Value<String?>? anchorType,
-      Value<String?>? editionId,
-      Value<String?>? variantId,
-      Value<String?>? bundleReleaseId,
+      Value<String?>? targetRefJson,
       Value<String?>? condition,
       Value<String?>? grade,
       Value<DateTime?>? purchaseDate,
@@ -45487,10 +44386,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
       itemId: itemId ?? this.itemId,
       createdAt: createdAt ?? this.createdAt,
       isDigital: isDigital ?? this.isDigital,
-      anchorType: anchorType ?? this.anchorType,
-      editionId: editionId ?? this.editionId,
-      variantId: variantId ?? this.variantId,
-      bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
       condition: condition ?? this.condition,
       grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -45537,17 +44433,8 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
     if (isDigital.present) {
       map['is_digital'] = Variable<bool>(isDigital.value);
     }
-    if (anchorType.present) {
-      map['anchor_type'] = Variable<String>(anchorType.value);
-    }
-    if (editionId.present) {
-      map['edition_id'] = Variable<String>(editionId.value);
-    }
-    if (variantId.present) {
-      map['variant_id'] = Variable<String>(variantId.value);
-    }
-    if (bundleReleaseId.present) {
-      map['bundle_release_id'] = Variable<String>(bundleReleaseId.value);
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
     }
     if (condition.present) {
       map['condition'] = Variable<String>(condition.value);
@@ -45643,10 +44530,7 @@ class TvOwnedItemsRowsCompanion extends UpdateCompanion<TvOwnedItemsRow> {
           ..write('itemId: $itemId, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDigital: $isDigital, ')
-          ..write('anchorType: $anchorType, ')
-          ..write('editionId: $editionId, ')
-          ..write('variantId: $variantId, ')
-          ..write('bundleReleaseId: $bundleReleaseId, ')
+          ..write('targetRefJson: $targetRefJson, ')
           ..write('condition: $condition, ')
           ..write('grade: $grade, ')
           ..write('purchaseDate: $purchaseDate, ')
@@ -53493,10 +52377,7 @@ typedef $$AnimeOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -53532,10 +52413,7 @@ typedef $$AnimeOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -53587,18 +52465,8 @@ class $$AnimeOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -53708,17 +52576,8 @@ class $$AnimeOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -53832,17 +52691,8 @@ class $$AnimeOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -53960,10 +52810,7 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -53998,10 +52845,7 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -54036,10 +52880,7 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -54074,10 +52915,7 @@ class $$AnimeOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -56130,10 +54968,7 @@ typedef $$BoardGameOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -56171,10 +55006,7 @@ typedef $$BoardGameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -56228,18 +55060,8 @@ class $$BoardGameOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -56360,17 +55182,8 @@ class $$BoardGameOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -56497,17 +55310,8 @@ class $$BoardGameOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -56632,10 +55436,7 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -56672,10 +55473,7 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -56712,10 +55510,7 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -56752,10 +55547,7 @@ class $$BoardGameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -57949,10 +56741,7 @@ typedef $$BookOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -57984,10 +56773,7 @@ typedef $$BookOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -58035,18 +56821,8 @@ class $$BookOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -58145,17 +56921,8 @@ class $$BookOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -58258,17 +57025,8 @@ class $$BookOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -58373,10 +57131,7 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -58407,10 +57162,7 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -58441,10 +57193,7 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -58475,10 +57224,7 @@ class $$BookOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -59707,10 +58453,7 @@ typedef $$ComicOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -59753,10 +58496,7 @@ typedef $$ComicOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -59815,18 +58555,8 @@ class $$ComicOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -59960,17 +58690,8 @@ class $$ComicOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -60109,17 +58830,8 @@ class $$ComicOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -60258,10 +58970,7 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -60303,10 +59012,7 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -60348,10 +59054,7 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -60393,10 +59096,7 @@ class $$ComicOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -61437,10 +60137,7 @@ typedef $$GameOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -61475,10 +60172,7 @@ typedef $$GameOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -61529,18 +60223,8 @@ class $$GameOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -61647,17 +60331,8 @@ class $$GameOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -61770,17 +60445,8 @@ class $$GameOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -61894,10 +60560,7 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -61931,10 +60594,7 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -61968,10 +60628,7 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -62005,10 +60662,7 @@ class $$GameOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -62405,10 +61059,7 @@ typedef $$MangaOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -62453,10 +61104,7 @@ typedef $$MangaOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -62517,18 +61165,8 @@ class $$MangaOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -62673,17 +61311,8 @@ class $$MangaOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -62833,17 +61462,8 @@ class $$MangaOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -62988,10 +61608,7 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -63035,10 +61652,7 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -63082,10 +61696,7 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -63129,10 +61740,7 @@ class $$MangaOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -64056,10 +62664,7 @@ typedef $$MovieOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -64095,10 +62700,7 @@ typedef $$MovieOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -64150,18 +62752,8 @@ class $$MovieOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -64271,17 +62863,8 @@ class $$MovieOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -64395,17 +62978,8 @@ class $$MovieOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -64523,10 +63097,7 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -64561,10 +63132,7 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -64599,10 +63167,7 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -64637,10 +63202,7 @@ class $$MovieOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -65655,10 +64217,7 @@ typedef $$MusicOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -65692,10 +64251,7 @@ typedef $$MusicOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -65745,18 +64301,8 @@ class $$MusicOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -65861,17 +64407,8 @@ class $$MusicOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -65981,17 +64518,8 @@ class $$MusicOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -66103,10 +64631,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -66139,10 +64664,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -66175,10 +64697,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -66211,10 +64730,7 @@ class $$MusicOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -68195,10 +66711,7 @@ typedef $$TvOwnedItemsRowsTableCreateCompanionBuilder
   required String itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -68234,10 +66747,7 @@ typedef $$TvOwnedItemsRowsTableUpdateCompanionBuilder
   Value<String> itemId,
   Value<DateTime?> createdAt,
   Value<bool?> isDigital,
-  Value<String?> anchorType,
-  Value<String?> editionId,
-  Value<String?> variantId,
-  Value<String?> bundleReleaseId,
+  Value<String?> targetRefJson,
   Value<String?> condition,
   Value<String?> grade,
   Value<DateTime?> purchaseDate,
@@ -68289,18 +66799,8 @@ class $$TvOwnedItemsRowsTableFilterComposer
   ColumnFilters<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get condition => $composableBuilder(
       column: $table.condition, builder: (column) => ColumnFilters(column));
@@ -68410,17 +66910,8 @@ class $$TvOwnedItemsRowsTableOrderingComposer
   ColumnOrderings<bool> get isDigital => $composableBuilder(
       column: $table.isDigital, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get editionId => $composableBuilder(
-      column: $table.editionId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get variantId => $composableBuilder(
-      column: $table.variantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId,
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get condition => $composableBuilder(
@@ -68534,17 +67025,8 @@ class $$TvOwnedItemsRowsTableAnnotationComposer
   GeneratedColumn<bool> get isDigital =>
       $composableBuilder(column: $table.isDigital, builder: (column) => column);
 
-  GeneratedColumn<String> get anchorType => $composableBuilder(
-      column: $table.anchorType, builder: (column) => column);
-
-  GeneratedColumn<String> get editionId =>
-      $composableBuilder(column: $table.editionId, builder: (column) => column);
-
-  GeneratedColumn<String> get variantId =>
-      $composableBuilder(column: $table.variantId, builder: (column) => column);
-
-  GeneratedColumn<String> get bundleReleaseId => $composableBuilder(
-      column: $table.bundleReleaseId, builder: (column) => column);
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
 
   GeneratedColumn<String> get condition =>
       $composableBuilder(column: $table.condition, builder: (column) => column);
@@ -68659,10 +67141,7 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
             Value<String> itemId = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -68697,10 +67176,7 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,
@@ -68735,10 +67211,7 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
             required String itemId,
             Value<DateTime?> createdAt = const Value.absent(),
             Value<bool?> isDigital = const Value.absent(),
-            Value<String?> anchorType = const Value.absent(),
-            Value<String?> editionId = const Value.absent(),
-            Value<String?> variantId = const Value.absent(),
-            Value<String?> bundleReleaseId = const Value.absent(),
+            Value<String?> targetRefJson = const Value.absent(),
             Value<String?> condition = const Value.absent(),
             Value<String?> grade = const Value.absent(),
             Value<DateTime?> purchaseDate = const Value.absent(),
@@ -68773,10 +67246,7 @@ class $$TvOwnedItemsRowsTableTableManager extends RootTableManager<
             itemId: itemId,
             createdAt: createdAt,
             isDigital: isDigital,
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            targetRefJson: targetRefJson,
             condition: condition,
             grade: grade,
             purchaseDate: purchaseDate,

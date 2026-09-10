@@ -20,6 +20,12 @@ void main() {
         entityType: const CatalogEntityTypeId('work'),
         id: 'comic-1',
       ),
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('edition'),
+        id: 'edition-1',
+        rootId: 'comic-1',
+      ),
       condition: 'Fine',
       grade: '8.0',
       quantity: 2,
@@ -39,7 +45,9 @@ void main() {
 
     final restored = await repository.findById(item.id);
     expect(restored, item);
-    expect(await db.select(db.comicOwnedItemsRows).get(), hasLength(1));
+    final ownedRows = await db.select(db.comicOwnedItemsRows).get();
+    expect(ownedRows, hasLength(1));
+    expect(ownedRows.single.targetRefJson, isNotNull);
     expect(await db.select(db.comicReadingRows).get(), hasLength(1));
 
     await repository.markDeleted(item, DateTime.utc(2026, 9, 6));
