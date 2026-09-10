@@ -1,24 +1,24 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   group('ShelfEntry Canonical Source Tests', () {
     test('ShelfEntry delegates personal collection fields cleanly', () {
       final now = DateTime.now();
-      final owned = OwnedItem(
+      final owned = testOwnedItem(
         id: 'owned_1',
         catalogRef: const CatalogEntityRef(
           id: 'cat_1',
           kind: CatalogMediaKind.comic,
           entityType: const CatalogEntityTypeId('work'),
         ),
-        details: const TestOwnedDetails(),
         condition: 'Near Mint',
-        collectionValue: '9.8',
+        grade: '9.8',
         pricePaidCents: 1500,
         marketValueCents: 4500,
         currency: 'USD',
@@ -34,7 +34,7 @@ void main() {
 
       final entry = ShelfEntry(
         itemId: 'cat_1',
-        ownedSummary: ownedItemSummaryFromOwnedItem(owned),
+        ownedSummary: testOwnedItemSummary(owned),
         locationPath: 'Box A / Row 1',
       );
 

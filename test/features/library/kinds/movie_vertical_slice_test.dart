@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
@@ -91,14 +91,13 @@ void main() {
           ),
           kindMetadata: movieMeta,
         ).asShelfCatalogItem,
-        ownedSummary: testOwnedSummary(OwnedItem(
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'movie_1',
             kind: CatalogMediaKind.movie,
             entityType: const CatalogEntityTypeId('work'),
           ),
-          details: const TestOwnedDetails(),
           condition: 'Mint',
           updatedAt: DateTime.now(),
         )),

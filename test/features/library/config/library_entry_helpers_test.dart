@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -43,14 +43,13 @@ void main() {
 
     final resolved = resolveActiveTrackingEntry(
       [trackedOnly, copyTracked],
-      ownedItemSummaryFromOwnedItem(OwnedItem(
+      testOwnedItemSummary(testOwnedItem(
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
           entityType: const CatalogEntityTypeId('work'),
           id: 'book-1',
         ),
-        details: const TestOwnedDetails(),
         updatedAt: DateTime.utc(2026, 5, 25, 11),
       )),
     );

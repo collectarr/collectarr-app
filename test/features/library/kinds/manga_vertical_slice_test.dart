@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_cont
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
@@ -30,7 +30,7 @@ void main() {
   group('Manga Kind Vertical Slice Tests (C1)', () {
     test('MangaMetadata serializes and deserializes full domain fields', () {
       const metadata = MangaMetadata(
-        nativeTitle: '葬送のフリーレン',
+        nativeTitle: 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
         romajiTitle: 'Sousou no Frieren',
         englishTitle: 'Frieren: Beyond Journey\'s End',
         alternateTitles: ['Frieren the Slayer'],
@@ -57,7 +57,7 @@ void main() {
       final json = metadata.toJson();
       final restored = MangaMetadata.fromJson(json);
 
-      expect(restored.nativeTitle, '葬送のフリーレン');
+      expect(restored.nativeTitle, 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³');
       expect(restored.romajiTitle, 'Sousou no Frieren');
       expect(restored.englishTitle, 'Frieren: Beyond Journey\'s End');
       expect(restored.authors, contains('Kanehito Yamada'));
@@ -103,7 +103,7 @@ void main() {
 
     test('MangaWorkspaceProjector projects metadata and ownedDetails', () {
       const mangaMeta = MangaMetadata(
-        nativeTitle: '葬送のフリーレン',
+        nativeTitle: 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
         romajiTitle: 'Sousou no Frieren',
         demographic: MangaDemographic.shonen,
         totalVolumes: 13,
@@ -112,7 +112,7 @@ void main() {
         localizedPublisher: 'VIZ Media',
       );
 
-      final owned = OwnedItem(
+      final owned = testOwnedItem(
         id: 'owned_1',
         catalogRef: const CatalogEntityRef(
           id: 'manga_1',
@@ -121,11 +121,7 @@ void main() {
         ),
         condition: 'Near Mint',
         updatedAt: DateTime.now(),
-        details: const MangaOwnedDetails(
-          obiStripPresent: true,
-          printing: '1st Print',
-          localizedEdition: 'VIZ Signature',
-        ),
+        obiStripPresent: true,
       );
       final shelfEntry = ShelfEntry(
         itemId: 'manga_1',
@@ -149,7 +145,7 @@ void main() {
         node: node,
       );
 
-      expect(dto.metadata?.nativeTitle, '葬送のフリーレン');
+      expect(dto.metadata?.nativeTitle, 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³');
       expect(dto.metadata?.demographic, MangaDemographic.shonen);
       expect(dto.metadata?.totalVolumes, 13);
       expect(dto.ownedDetails?.obiStripPresent, isTrue);
@@ -164,7 +160,7 @@ void main() {
 
       expect(
         MangaKindSchema.nativeTitle.getValue(ctx),
-        '葬送のフリーレン',
+        'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
       );
       expect(
         MangaKindSchema.demographic.getValue(ctx),
@@ -246,7 +242,7 @@ void main() {
         'id': 'manga_frieren',
         'kind': 'manga',
         'title': 'Frieren: Beyond Journey\'s End',
-        'native_title': '葬送のフリーレン',
+        'native_title': 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
         'romaji_title': 'Sousou no Frieren',
         'english_title': 'Frieren: Beyond Journey\'s End',
         'authors': ['Kanehito Yamada'],
@@ -277,7 +273,7 @@ void main() {
       expect(catalog.id, 'manga_frieren');
       expect(catalog.mediaKind, CatalogMediaKind.manga);
       expect(catalog.title, 'Frieren: Beyond Journey\'s End');
-      expect(catalog.nativeTitle, '葬送のフリーレン');
+      expect(catalog.nativeTitle, 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³');
       expect(catalog.demographic, MangaDemographic.shonen);
       expect(catalog.readingDirection, MangaReadingDirection.rightToLeft);
       expect(catalog.displayCoverUrl, 'https://example.com/frieren_thumb.jpg');

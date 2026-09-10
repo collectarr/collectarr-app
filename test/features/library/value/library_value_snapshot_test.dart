@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -13,14 +13,13 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   test('combines provider, manual, purchase, sold, and insurance values', () {
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
         entityType: const CatalogEntityTypeId('owned_copy'),
         id: 'comic-1',
       ),
-      details: const TestOwnedDetails(),
       updatedAt: DateTime.utc(2026, 7, 5),
       pricePaidCents: 1200,
       sellPriceCents: 3200,

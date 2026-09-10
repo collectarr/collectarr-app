@@ -29,7 +29,9 @@ String _extractSyncPayloadBody(String content) {
 
 void main() {
   test('ref-based models no longer accept itemId in constructors', () {
-    final ownedItem = _read('lib/core/models/owned_item.dart');
+    final ownedItem = _read(
+      'lib/features/library/kinds/comic/domain/comic_owned_item.dart',
+    );
     final wishlistItem = _read('lib/core/models/wishlist_item.dart');
     final trackingEntry = _read('lib/core/models/tracking_entry.dart');
 

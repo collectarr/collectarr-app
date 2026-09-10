@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -41,15 +41,13 @@ void main() {
       DateTime? releaseDate,
     }) {
       final owned = isOwned
-          ? OwnedItem(
+          ? testOwnedItem(
               id: 'owned-$id',
               updatedAt: DateTime.utc(2026, 1, 1),
               pricePaidCents: pricePaidCents,
               sellPriceCents: sellPriceCents,
               currency: 'USD',
-              details: coverPriceCents != null
-                  ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
-                  : const ComicOwnedDetails(),
+              coverPriceCents: coverPriceCents,
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
                 entityType: const CatalogEntityTypeId('owned_copy'),

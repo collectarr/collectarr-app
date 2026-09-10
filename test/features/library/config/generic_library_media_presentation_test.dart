@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
@@ -16,7 +16,7 @@ LibraryProjectionView _makeItem(
   String id, {
   String? title,
   String? locationPath,
-  OwnedItem? ownedItem,
+  TestOwnedItem? ownedItem,
   WishlistItem? wishlistItem,
 }) {
   final cat = testCatalogItem(

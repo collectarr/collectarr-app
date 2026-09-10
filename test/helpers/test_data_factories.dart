@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
+
+export 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -281,7 +283,7 @@ LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
 }
 
 /// Builds an [OwnedItem] with sensible defaults for testing.
-OwnedItem testOwnedItem({
+TestOwnedItem testOwnedItem({
   String id = 'owned-1',
   String itemId = 'test-item-1',
   String kind = 'comic',
@@ -306,6 +308,7 @@ OwnedItem testOwnedItem({
   String? gradingCompany,
   String? graderNotes,
   String? signedBy,
+  bool obiStripPresent = false,
   String? labelType,
   String? customLabel,
   String? pageQuality,
@@ -374,7 +377,8 @@ OwnedItem testOwnedItem({
           signedBy: signedBy,
           gradingCompany: gradingCompany,
           graderNotes: graderNotes,
-          printing: '1st print',
+          obiStripPresent: obiStripPresent,
+          printing: '1st Print',
           localizedEdition: 'English edition',
         ),
     CatalogMediaKind.movie: () => MovieOwnedDetails(
@@ -431,7 +435,7 @@ OwnedItem testOwnedItem({
   }
   final details = detailBuilder();
 
-  return OwnedItem(
+  return TestOwnedItem(
     id: id,
     catalogRef: resolvedCatalogRef,
     createdAt: createdAt,
@@ -469,39 +473,64 @@ OwnedItem testOwnedItem({
   );
 }
 
-/// Converts a common test fixture at the serialization boundary into the
-/// concrete kind-owned aggregate required by its typed repository.
-OwnedItemSummary testOwnedSummary(OwnedItem item) =>
-    ownedItemSummaryFromOwnedItem(item);
+OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {
+  return OwnedItemSummary(
+    ref: item.ref,
+    title: item.itemId,
+    catalogRef: item.catalogRef,
+    targetRef: item.targetRef,
+    isDigital: item.isDigital,
+    collectionValue: item.collectionValue,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+    deletedAt: item.deletedAt,
+    purchaseDate: item.purchaseDate,
+    purchaseStore: item.purchaseStore,
+    pricePaidCents: item.pricePaidCents,
+    currency: item.currency,
+    soldAt: item.soldAt,
+    soldTo: item.soldTo,
+    sellPriceCents: item.sellPriceCents,
+    marketValueCents: item.marketValueCents,
+    quantity: item.quantity,
+    ownerLabel: item.ownerLabel,
+    locationLabel: item.locationId,
+    notes: item.personalNotes,
+    hasNotes: item.personalNotes?.trim().isNotEmpty == true,
+  );
+}
 
-ComicOwnedItem testComicOwnedItemFrom(OwnedItem item) =>
+OwnedItemSummary testOwnedSummary(TestOwnedItem item) =>
+    testOwnedItemSummary(item);
+
+ComicOwnedItem testComicOwnedItemFrom(TestOwnedItem item) =>
     ComicOwnedItem.fromJson(item.toJson());
 
-BookOwnedItem testBookOwnedItemFrom(OwnedItem item) =>
+BookOwnedItem testBookOwnedItemFrom(TestOwnedItem item) =>
     BookOwnedItem.fromJson(item.toJson());
 
-MovieOwnedItem testMovieOwnedItemFrom(OwnedItem item) =>
+MovieOwnedItem testMovieOwnedItemFrom(TestOwnedItem item) =>
     MovieOwnedItem.fromJson(item.toJson());
 
-AnimeOwnedItem testAnimeOwnedItemFrom(OwnedItem item) =>
+AnimeOwnedItem testAnimeOwnedItemFrom(TestOwnedItem item) =>
     AnimeOwnedItem.fromJson(item.toJson());
 
-BoardGameOwnedItem testBoardGameOwnedItemFrom(OwnedItem item) =>
+BoardGameOwnedItem testBoardGameOwnedItemFrom(TestOwnedItem item) =>
     BoardGameOwnedItem.fromJson(item.toJson());
 
-GameOwnedItem testGameOwnedItemFrom(OwnedItem item) =>
+GameOwnedItem testGameOwnedItemFrom(TestOwnedItem item) =>
     GameOwnedItem.fromJson(item.toJson());
 
-MangaOwnedItem testMangaOwnedItemFrom(OwnedItem item) =>
+MangaOwnedItem testMangaOwnedItemFrom(TestOwnedItem item) =>
     MangaOwnedItem.fromJson(item.toJson());
 
-MusicOwnedItem testMusicOwnedItemFrom(OwnedItem item) =>
+MusicOwnedItem testMusicOwnedItemFrom(TestOwnedItem item) =>
     MusicOwnedItem.fromJson(item.toJson());
 
-TvOwnedItem testTvOwnedItemFrom(OwnedItem item) =>
+TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
     TvOwnedItem.fromJson(item.toJson());
 
-Object testTypedOwnedItemFrom(OwnedItem item) {
+Object testTypedOwnedItemFrom(TestOwnedItem item) {
   return switch (item.catalogRef.mediaKind) {
     CatalogMediaKind.anime => testAnimeOwnedItemFrom(item),
     CatalogMediaKind.boardgame => testBoardGameOwnedItemFrom(item),
@@ -529,7 +558,7 @@ ShelfEntry testShelfEntry({
   String kind = 'comic',
   String title = 'Test Item',
   CatalogItemDto? catalogItem,
-  OwnedItem? ownedItem,
+  TestOwnedItem? ownedItem,
   String? locationPath,
 }) {
   final resolvedCatalogItem = catalogItem ??
@@ -564,8 +593,7 @@ ShelfEntry testShelfEntry({
     catalogItem: LibraryAddCatalogItem.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
-    ownedSummary:
-        ownedItem == null ? null : ownedItemSummaryFromOwnedItem(ownedItem),
+    ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
     typedOwnedItem: typedOwnedItem,
     locationPath: locationPath,
   );
@@ -578,7 +606,7 @@ LibraryProjectionView testProjectionItem({
   String title = 'Test Item',
   String? barcode,
   CatalogItemDto? catalogItem,
-  OwnedItem? ownedItem,
+  TestOwnedItem? ownedItem,
   String? locationPath,
 }) {
   final resolvedId = id ?? itemId;

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
@@ -153,17 +153,16 @@ void main() {
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
       ).asShelfCatalogItem,
-      ownedSummary: testOwnedSummary(OwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
           entityType: const CatalogEntityTypeId('owned_copy'),
           id: 'book-1',
         ),
-        details: const TestOwnedDetails(),
         updatedAt: DateTime(2026, 1, 1),
         condition: 'Fine',
-        collectionValue: '9.0',
+        grade: '9.0',
         personalNotes: 'Personal note',
       )),
     );

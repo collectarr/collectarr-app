@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -68,42 +68,13 @@ void main() {
   });
 
   test('projection keeps tracking outside Comic copy state', () {
-    final source = OwnedItem<ComicOwnedDetails>(
-      id: item.id.value,
-      catalogRef: item.catalogRef,
-      createdAt: item.createdAt,
-      isDigital: item.isDigital,
-      targetRef: item.targetRef,
-      condition: item.condition,
-      collectionValue: item.grade,
-      purchaseDate: item.purchaseDate,
-      pricePaidCents: item.pricePaidCents,
-      currency: item.currency,
-      personalNotes: item.personalNotes,
-      quantity: item.quantity,
-      indexNumber: item.indexNumber,
-      tags: item.tags,
-      updatedAt: item.updatedAt,
-      ownerLabel: item.ownerLabel,
-      locationId: item.locationId,
-      purchaseStore: item.purchaseStore,
-      collectionStatus: item.collectionStatus,
-      marketValueCents: item.marketValueCents,
-      details: item.details,
-    );
+    final payload = Map<String, dynamic>.from(item.toJson())..remove('reading');
+    final restored = ComicOwnedItem.fromJson(payload);
 
-    final typed = ComicOwnedItem.fromJson(
-      Map<String, dynamic>.from(source.toJson()),
-    );
-    expect(typed.id, item.id);
-    expect(typed.details, item.details);
-    expect(typed.reading, const ComicReadingState());
-
-    final roundTripped = OwnedItem.fromJson(
-      Map<String, Object?>.from(typed.toJson()),
-      decodeDetails: ComicOwnedDetails.fromJson,
-    );
-    expect(roundTripped.toJson(), source.toJson());
+    expect(restored.id, item.id);
+    expect(restored.details, item.details);
+    expect(restored.reading, const ComicReadingState());
+    expect(restored.toJson()['catalog_ref'], item.toJson()['catalog_ref']);
   });
 
   test('typed Comic owned item rejects another kind', () {

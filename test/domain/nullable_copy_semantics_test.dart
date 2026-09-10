@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -10,9 +12,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Nullable copy semantics', () {
-    test('OwnedItem exposes typed kind-owned details', () {
-      final item = OwnedItem<ComicOwnedDetails>(
-        id: 'item-typed',
+    test('ComicOwnedItem exposes typed kind-owned details', () {
+      final item = ComicOwnedItem(
+        id: const ComicOwnedItemId('item-typed'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-typed',
@@ -28,10 +30,10 @@ void main() {
     });
 
     test(
-        'OwnedItem.copyWith allows preserving, updating, and clearing nullable fields',
+        'ComicOwnedItem.copyWith allows preserving, updating, and clearing nullable fields',
         () {
-      final item = OwnedItem(
-        id: 'item-1',
+      final item = ComicOwnedItem(
+        id: const ComicOwnedItemId('item-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-1',
@@ -39,7 +41,7 @@ void main() {
         ),
         details: const ComicOwnedDetails(),
         condition: 'Near Mint',
-        collectionValue: '9.8',
+        grade: '9.8',
         purchaseDate: DateTime.utc(2025, 1, 1),
         pricePaidCents: 5000,
         currency: 'USD',
@@ -57,7 +59,7 @@ void main() {
       // 1. Omitted -> preserve
       final preserved = item.copyWith();
       expect(preserved.condition, 'Near Mint');
-      expect(preserved.collectionValue, '9.8');
+      expect(preserved.grade, '9.8');
       expect(preserved.locationId, 'loc-1');
       expect(preserved.marketValueCents, 10000);
       expect(preserved.soldTo, 'Buyer 1');
@@ -65,13 +67,13 @@ void main() {
       // 2. Set -> replace
       final replaced = item.copyWith(
         condition: 'Very Fine',
-        collectionValue: '8.0',
+        grade: '8.0',
         locationId: 'loc-2',
         marketValueCents: 12000,
         soldTo: 'Buyer 2',
       );
       expect(replaced.condition, 'Very Fine');
-      expect(replaced.collectionValue, '8.0');
+      expect(replaced.grade, '8.0');
       expect(replaced.locationId, 'loc-2');
       expect(replaced.marketValueCents, 12000);
       expect(replaced.soldTo, 'Buyer 2');
@@ -79,7 +81,7 @@ void main() {
       // 3. Clear -> null
       final cleared = item.copyWith(
         condition: null,
-        collectionValue: null,
+        grade: null,
         locationId: null,
         marketValueCents: null,
         soldTo: null,
@@ -89,7 +91,7 @@ void main() {
         personalNotes: null,
       );
       expect(cleared.condition, isNull);
-      expect(cleared.collectionValue, isNull);
+      expect(cleared.grade, isNull);
       expect(cleared.locationId, isNull);
       expect(cleared.marketValueCents, isNull);
       expect(cleared.soldTo, isNull);

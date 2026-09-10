@@ -4,12 +4,13 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
@@ -226,15 +227,11 @@ void main() {
     expect(owned.toSyncPayload()['catalog_ref'], ref.toJson());
     expect(customValue.toSyncPayload()['catalog_ref'], ref.toJson());
     expect(
-      OwnedItem<JsonEncodable>.fromJson({
+      BookOwnedItem.fromJson({
         'id': 'owned-1',
         'catalog_ref': ref.toJson(),
         'updated_at': '2026-07-02T00:00:00.000Z',
-      },
-              decodeDetails: (json) =>
-                  ownedDetailsCodecForTest(ref.mediaKind).fromJson(json))
-          .catalogRef
-          .id,
+      }).catalogRef.id,
       'edition-1',
     );
   });

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
@@ -98,7 +98,7 @@ void main() {
         variant: 'Direct',
       );
 
-      final owned = OwnedItem(
+      final owned = testOwnedItem(
         id: 'owned_1',
         catalogRef: const CatalogEntityRef(
           id: 'comic_1',
@@ -106,16 +106,14 @@ void main() {
           entityType: const CatalogEntityTypeId('work'),
         ),
         condition: '9.8',
-        collectionValue: '9.8',
-        details: const ComicOwnedDetails(
-          keyComic: true,
-          keyReason: '1st Spider-Man',
-          keyCategory: '1st Appearance',
-          keySeverity: 'Major',
-          rawOrSlabbed: 'Slabbed',
-          gradingCompany: 'CGC',
-          signedBy: 'Stan Lee',
-        ),
+        grade: '9.8',
+        keyComic: true,
+        keyReason: '1st Spider-Man',
+        keyCategory: '1st Appearance',
+        keySeverity: 'Major',
+        rawOrSlabbed: 'Slabbed',
+        gradingCompany: 'CGC',
+        signedBy: 'Stan Lee',
         updatedAt: DateTime.now(),
       );
       final shelfEntry = ShelfEntry(

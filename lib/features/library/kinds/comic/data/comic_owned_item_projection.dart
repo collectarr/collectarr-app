@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart' show OwnedItemId;
+import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -130,14 +130,13 @@ ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
       ),
     ).asShelfCatalogItem,
     ownedSummary: owned
-        ? testOwnedSummary(OwnedItem(
+        ? testOwnedSummary(testOwnedItem(
             id: 'owned-$id',
             catalogRef: CatalogEntityRef(
               id: id,
               kind: CatalogMediaKind.manga,
               entityType: const CatalogEntityTypeId('work'),
             ),
-            details: const TestOwnedDetails(),
             updatedAt: DateTime.utc(2026, 1, 1),
           ))
         : null,

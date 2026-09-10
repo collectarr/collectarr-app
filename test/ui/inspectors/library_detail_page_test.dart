@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -84,7 +84,7 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            ownedSummary: ownedItemSummaryFromOwnedItem(owned),
+            ownedSummary: testOwnedItemSummary(owned),
             accent: Colors.orange,
             onAddOwned: () {},
             onRemoveOwned: () {},
@@ -175,10 +175,10 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            ownedSummary: ownedItemSummaryFromOwnedItem(owned),
+            ownedSummary: testOwnedItemSummary(owned),
             ownedCopies: [
-              ownedItemSummaryFromOwnedItem(owned),
-              ownedItemSummaryFromOwnedItem(
+              testOwnedItemSummary(owned),
+              testOwnedItemSummary(
                 testOwnedItem(
                   id: 'owned-2',
                   itemId: 'book-1',

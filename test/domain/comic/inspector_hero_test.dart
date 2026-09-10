@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -35,7 +35,7 @@ LibraryProjectionItem _itemFixture() {
   return LibraryProjectionItem.fromShelf(source, comicKindModule);
 }
 
-Widget _heroHost(OwnedItem ownedItem) {
+Widget _heroHost(TestOwnedItem ownedItem) {
   final db = LocalDatabase(NativeDatabase.memory());
   return ProviderScope(
     overrides: [

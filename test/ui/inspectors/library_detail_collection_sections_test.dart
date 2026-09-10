@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
@@ -48,9 +48,9 @@ void main() {
         home: Scaffold(
           body: LibraryDetailPersonalSection(
             item: movieItem,
-            ownedSummary: ownedItemSummaryFromOwnedItem(owned1),
+            ownedSummary: testOwnedItemSummary(owned1),
             ownedCopies: [
-              ownedItemSummaryFromOwnedItem(testOwnedItem(
+              testOwnedItemSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'movie-1',
                 purchaseDate: DateTime.utc(2026, 5, 11),
@@ -62,7 +62,7 @@ void main() {
                 currency: 'USD',
                 updatedAt: DateTime.utc(2026, 5, 22),
               )),
-              ownedItemSummaryFromOwnedItem(testOwnedItem(
+              testOwnedItemSummary(testOwnedItem(
                 id: 'owned-2',
                 itemId: 'movie-1',
                 pricePaidCents: 999,
