@@ -35,6 +35,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit/release/game_rel
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -48,14 +49,43 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 const _gamePlatformFilterId = LibraryAddFilterId('game.platform');
 const _gameYearFilterId = LibraryAddFilterId('game.year');
 
+TransferableField _gameTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(GameOwnedItem item) read,
+  required GameOwnedItem Function(GameOwnedItem item, String? value) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<GameOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value is GameOwnedItem
+        ? value
+        : GameOwnedItem.fromJson(
+            Map<String, dynamic>.from((value as OwnedItem).toJson())),
+    encode: (value) => OwnedItem.fromJson(
+      Map<String, Object?>.from(value.toJson()),
+      decodeDetails: (json) =>
+          GameOwnedDetails.fromJson(Map<String, dynamic>.from(json)),
+    ),
+    read: read,
+    write: write,
+  );
+}
+
 final _gameTransferableFields = <TransferableField>[
-  TransferableField(
+  _gameTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.collectionValue,
-    write: (item, value) => item.copyWith(collectionValue: value),
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
   ),
 ];
 

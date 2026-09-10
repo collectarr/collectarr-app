@@ -65,52 +65,75 @@ const _animeAddChrome = LibraryAddChromeConfig(
   defaultVideoKindFilters: {LibraryAddVideoSearchScope.anime},
 );
 
+TransferableField _animeTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(AnimeOwnedItem item) read,
+  required AnimeOwnedItem Function(AnimeOwnedItem item, String? value) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<AnimeOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value is AnimeOwnedItem
+        ? value
+        : AnimeOwnedItem.fromJson(
+            Map<String, dynamic>.from((value as OwnedItem).toJson())),
+    encode: (value) => OwnedItem.fromJson(
+      Map<String, Object?>.from(value.toJson()),
+      decodeDetails: (json) =>
+          AnimeOwnedDetails.fromJson(Map<String, dynamic>.from(json)),
+    ),
+    read: read,
+    write: write,
+  );
+}
+
 final _animeTransferableFields = <TransferableField>[
-  TransferableField(
+  _animeTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.collectionValue,
-    write: (item, value) => item.copyWith(collectionValue: value),
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
   ),
-  TransferableField(
+  _animeTransferField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as AnimeOwnedDetails?)?.features,
+    read: (item) => item.details.features,
     write: (item, value) {
-      final details =
-          item.details as AnimeOwnedDetails? ?? const AnimeOwnedDetails();
-      return item.copyWith(details: details.copyWith(features: value));
+      return item.copyWith(details: item.details.copyWith(features: value));
     },
   ),
-  TransferableField(
+  _animeTransferField(
     key: 'boxSetName',
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as AnimeOwnedDetails?)?.boxSetName,
+    read: (item) => item.details.boxSetName,
     write: (item, value) {
-      final details =
-          item.details as AnimeOwnedDetails? ?? const AnimeOwnedDetails();
-      return item.copyWith(details: details.copyWith(boxSetName: value));
+      return item.copyWith(details: item.details.copyWith(boxSetName: value));
     },
   ),
-  TransferableField(
+  _animeTransferField(
     key: 'packaging',
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as AnimeOwnedDetails?)?.packaging,
+    read: (item) => item.details.packaging,
     write: (item, value) {
-      final details =
-          item.details as AnimeOwnedDetails? ?? const AnimeOwnedDetails();
-      return item.copyWith(details: details.copyWith(packaging: value));
+      return item.copyWith(details: item.details.copyWith(packaging: value));
     },
   ),
 ];

@@ -55,57 +55,78 @@ const _bookIsbnFilterId = LibraryAddFilterId('book.isbn');
 const _bookPublisherFilterId = LibraryAddFilterId('book.publisher');
 const _bookYearFilterId = LibraryAddFilterId('book.year');
 
+TransferableField _bookTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(BookOwnedItem item) read,
+  required BookOwnedItem Function(BookOwnedItem item, String? value) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<BookOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value is BookOwnedItem
+        ? value
+        : BookOwnedItem.fromJson(Map<String, dynamic>.from(
+            (value as OwnedItem).toJson(),
+          )),
+    encode: (value) => OwnedItem.fromJson(
+      Map<String, Object?>.from(value.toJson()),
+      decodeDetails: (json) =>
+          BookOwnedDetails.fromJson(Map<String, dynamic>.from(json)),
+    ),
+    read: read,
+    write: write,
+  );
+}
+
 final _bookTransferableFields = <TransferableField>[
-  TransferableField(
+  _bookTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.collectionValue,
-    write: (item, value) => item.copyWith(collectionValue: value),
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
   ),
-  TransferableField(
+  _bookTransferField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => (item.details as BookOwnedDetails?)?.signedBy,
+    read: (item) => item.details.signedBy,
     write: (item, value) {
-      final details =
-          item.details as BookOwnedDetails? ?? const BookOwnedDetails();
-      return item.copyWith(details: details.copyWith(signedBy: value));
+      return item.copyWith(details: item.details.copyWith(signedBy: value));
     },
   ),
-  TransferableField(
+  _bookTransferField(
     key: 'dustJacketPresent',
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
-    read: (item) =>
-        ((item.details as BookOwnedDetails?)?.dustJacketPresent == true)
-            ? 'true'
-            : null,
+    read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
-      final details =
-          item.details as BookOwnedDetails? ?? const BookOwnedDetails();
       return item.copyWith(
-        details: details.copyWith(dustJacketPresent: value == 'true'),
+        details: item.details.copyWith(dustJacketPresent: value == 'true'),
       );
     },
   ),
-  TransferableField(
+  _bookTransferField(
     key: 'dustJacketCondition',
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as BookOwnedDetails?)?.dustJacketCondition,
+    read: (item) => item.details.dustJacketCondition,
     write: (item, value) {
-      final details =
-          item.details as BookOwnedDetails? ?? const BookOwnedDetails();
       return item.copyWith(
-        details: details.copyWith(dustJacketCondition: value),
+        details: item.details.copyWith(dustJacketCondition: value),
       );
     },
   ),

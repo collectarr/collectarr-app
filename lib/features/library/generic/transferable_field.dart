@@ -37,6 +37,35 @@ class TransferableField {
   final String? Function(OwnedItem item) read;
   final OwnedItem Function(OwnedItem item, String? value) write;
 
+  /// Builds a kind-owned field while keeping the generic transfer host at a
+  /// serialization boundary. The callback receives the concrete aggregate;
+  /// the host only sees the common v1 transport value.
+  static TransferableField typed<T>({
+    required String key,
+    required String label,
+    required IconData icon,
+    required TransferableFieldType type,
+    required T Function(Object value) decode,
+    required OwnedItem Function(T value) encode,
+    required String? Function(T value) read,
+    required T Function(T value, String? nextValue) write,
+    LibraryEditScope scope = LibraryEditScope.all,
+    String? customFieldId,
+  }) {
+    return TransferableField(
+      key: key,
+      label: label,
+      icon: icon,
+      type: type,
+      scope: scope,
+      customFieldId: customFieldId,
+      read: (item) => read(decode(item)),
+      write: (item, value) {
+        return encode(write(decode(item), value));
+      },
+    );
+  }
+
   bool get isCustomField => customFieldId != null;
 
   bool matchesScope(LibraryEditScope requestedScope) {

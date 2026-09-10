@@ -70,52 +70,75 @@ const _movieAddChrome = LibraryAddChromeConfig(
   defaultVideoKindFilters: {LibraryAddVideoSearchScope.movie},
 );
 
+TransferableField _movieTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(MovieOwnedItem item) read,
+  required MovieOwnedItem Function(MovieOwnedItem item, String? value) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<MovieOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value is MovieOwnedItem
+        ? value
+        : MovieOwnedItem.fromJson(
+            Map<String, dynamic>.from((value as OwnedItem).toJson())),
+    encode: (value) => OwnedItem.fromJson(
+      Map<String, Object?>.from(value.toJson()),
+      decodeDetails: (json) =>
+          MovieOwnedDetails.fromJson(Map<String, dynamic>.from(json)),
+    ),
+    read: read,
+    write: write,
+  );
+}
+
 final _movieTransferableFields = <TransferableField>[
-  TransferableField(
+  _movieTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.collectionValue,
-    write: (item, value) => item.copyWith(collectionValue: value),
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
   ),
-  TransferableField(
+  _movieTransferField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as MovieOwnedDetails?)?.features,
+    read: (item) => item.details.features,
     write: (item, value) {
-      final details =
-          item.details as MovieOwnedDetails? ?? const MovieOwnedDetails();
-      return item.copyWith(details: details.copyWith(features: value));
+      return item.copyWith(details: item.details.copyWith(features: value));
     },
   ),
-  TransferableField(
+  _movieTransferField(
     key: 'boxSetName',
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as MovieOwnedDetails?)?.boxSetName,
+    read: (item) => item.details.boxSetName,
     write: (item, value) {
-      final details =
-          item.details as MovieOwnedDetails? ?? const MovieOwnedDetails();
-      return item.copyWith(details: details.copyWith(boxSetName: value));
+      return item.copyWith(details: item.details.copyWith(boxSetName: value));
     },
   ),
-  TransferableField(
+  _movieTransferField(
     key: 'packaging',
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as MovieOwnedDetails?)?.packaging,
+    read: (item) => item.details.packaging,
     write: (item, value) {
-      final details =
-          item.details as MovieOwnedDetails? ?? const MovieOwnedDetails();
-      return item.copyWith(details: details.copyWith(packaging: value));
+      return item.copyWith(details: item.details.copyWith(packaging: value));
     },
   ),
 ];

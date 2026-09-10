@@ -66,84 +66,99 @@ String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   return null;
 }
 
+TransferableField _mangaTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(MangaOwnedItem item) read,
+  required MangaOwnedItem Function(MangaOwnedItem item, String? value) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<MangaOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value is MangaOwnedItem
+        ? value
+        : MangaOwnedItem.fromJson(
+            Map<String, dynamic>.from((value as OwnedItem).toJson())),
+    encode: (value) => OwnedItem.fromJson(
+      Map<String, Object?>.from(value.toJson()),
+      decodeDetails: (json) =>
+          MangaOwnedDetails.fromJson(Map<String, dynamic>.from(json)),
+    ),
+    read: read,
+    write: write,
+  );
+}
+
 final _mangaTransferableFields = <TransferableField>[
-  TransferableField(
+  _mangaTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.collectionValue,
-    write: (item, value) => item.copyWith(collectionValue: value),
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
   ),
-  TransferableField(
+  _mangaTransferField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => (item.details as MangaOwnedDetails?)?.signedBy,
+    read: (item) => item.details.signedBy,
     write: (item, value) {
-      final details =
-          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
-      return item.copyWith(details: details.copyWith(signedBy: value));
+      return item.copyWith(details: item.details.copyWith(signedBy: value));
     },
   ),
-  TransferableField(
+  _mangaTransferField(
     key: 'gradingCompany',
     label: 'Grading company',
     icon: Icons.verified_outlined,
     type: TransferableFieldType.text,
-    read: (item) => (item.details as MangaOwnedDetails?)?.gradingCompany,
+    read: (item) => item.details.gradingCompany,
     write: (item, value) {
-      final details =
-          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
-      return item.copyWith(details: details.copyWith(gradingCompany: value));
+      return item.copyWith(
+        details: item.details.copyWith(gradingCompany: value),
+      );
     },
   ),
-  TransferableField(
+  _mangaTransferField(
     key: 'graderNotes',
     label: 'Grader notes',
     icon: Icons.note_outlined,
     type: TransferableFieldType.text,
-    read: (item) => (item.details as MangaOwnedDetails?)?.graderNotes,
+    read: (item) => item.details.graderNotes,
     write: (item, value) {
-      final details =
-          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
-      return item.copyWith(details: details.copyWith(graderNotes: value));
+      return item.copyWith(details: item.details.copyWith(graderNotes: value));
     },
   ),
-  TransferableField(
+  _mangaTransferField(
     key: 'dustJacketPresent',
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
-    read: (item) =>
-        ((item.details as MangaOwnedDetails?)?.dustJacketPresent == true)
-            ? 'true'
-            : null,
+    read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
-      final details =
-          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
       return item.copyWith(
-        details: details.copyWith(dustJacketPresent: value == 'true'),
+        details: item.details.copyWith(dustJacketPresent: value == 'true'),
       );
     },
   ),
-  TransferableField(
+  _mangaTransferField(
     key: 'obiStripPresent',
     label: 'Obi strip',
     icon: Icons.bookmark_border,
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
-    read: (item) =>
-        ((item.details as MangaOwnedDetails?)?.obiStripPresent == true)
-            ? 'true'
-            : null,
+    read: (item) => item.details.obiStripPresent ? 'true' : null,
     write: (item, value) {
-      final details =
-          item.details as MangaOwnedDetails? ?? const MangaOwnedDetails();
       return item.copyWith(
-        details: details.copyWith(obiStripPresent: value == 'true'),
+        details: item.details.copyWith(obiStripPresent: value == 'true'),
       );
     },
   ),

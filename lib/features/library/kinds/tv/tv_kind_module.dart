@@ -69,49 +69,75 @@ const _tvAddChrome = LibraryAddChromeConfig(
   defaultVideoKindFilters: {LibraryAddVideoSearchScope.tv},
 );
 
+TransferableField _tvTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(TvOwnedItem item) read,
+  required TvOwnedItem Function(TvOwnedItem item, String? value) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<TvOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value is TvOwnedItem
+        ? value
+        : TvOwnedItem.fromJson(
+            Map<String, dynamic>.from((value as OwnedItem).toJson())),
+    encode: (value) => OwnedItem.fromJson(
+      Map<String, Object?>.from(value.toJson()),
+      decodeDetails: (json) =>
+          TvOwnedDetails.fromJson(Map<String, dynamic>.from(json)),
+    ),
+    read: read,
+    write: write,
+  );
+}
+
 final _tvTransferableFields = <TransferableField>[
-  TransferableField(
+  _tvTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.collectionValue,
-    write: (item, value) => item.copyWith(collectionValue: value),
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
   ),
-  TransferableField(
+  _tvTransferField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as TvOwnedDetails?)?.features,
+    read: (item) => item.details.features,
     write: (item, value) {
-      final details = item.details as TvOwnedDetails? ?? const TvOwnedDetails();
-      return item.copyWith(details: details.copyWith(features: value));
+      return item.copyWith(details: item.details.copyWith(features: value));
     },
   ),
-  TransferableField(
+  _tvTransferField(
     key: 'boxSetName',
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as TvOwnedDetails?)?.boxSetName,
+    read: (item) => item.details.boxSetName,
     write: (item, value) {
-      final details = item.details as TvOwnedDetails? ?? const TvOwnedDetails();
-      return item.copyWith(details: details.copyWith(boxSetName: value));
+      return item.copyWith(details: item.details.copyWith(boxSetName: value));
     },
   ),
-  TransferableField(
+  _tvTransferField(
     key: 'packaging',
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => (item.details as TvOwnedDetails?)?.packaging,
+    read: (item) => item.details.packaging,
     write: (item, value) {
-      final details = item.details as TvOwnedDetails? ?? const TvOwnedDetails();
-      return item.copyWith(details: details.copyWith(packaging: value));
+      return item.copyWith(details: item.details.copyWith(packaging: value));
     },
   ),
 ];

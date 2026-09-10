@@ -40,50 +40,73 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 const _boardGameDesignerFilterId = LibraryAddFilterId('boardgame.designer');
 const _boardGamePublisherFilterId = LibraryAddFilterId('boardgame.publisher');
 const _boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
 
+TransferableField _boardGameTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(BoardGameOwnedItem item) read,
+  required BoardGameOwnedItem Function(
+    BoardGameOwnedItem item,
+    String? value,
+  ) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<BoardGameOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value is BoardGameOwnedItem
+        ? value
+        : BoardGameOwnedItem.fromJson(
+            Map<String, dynamic>.from((value as OwnedItem).toJson())),
+    encode: (value) => OwnedItem.fromJson(
+      Map<String, Object?>.from(value.toJson()),
+      decodeDetails: (json) =>
+          BoardgameOwnedDetails.fromJson(Map<String, dynamic>.from(json)),
+    ),
+    read: read,
+    write: write,
+  );
+}
+
 final _boardgameTransferableFields = <TransferableField>[
-  TransferableField(
+  _boardGameTransferField(
     key: 'grade',
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.collectionValue,
-    write: (item, value) => item.copyWith(collectionValue: value),
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
   ),
-  TransferableField(
+  _boardGameTransferField(
     key: 'isSleeved',
     label: 'Sleeved',
     icon: Icons.shield_outlined,
     type: TransferableFieldType.boolean,
-    read: (item) =>
-        ((item.details as BoardgameOwnedDetails?)?.isSleeved == true)
-            ? 'true'
-            : null,
+    read: (item) => item.details.isSleeved ? 'true' : null,
     write: (item, value) {
-      final details = item.details as BoardgameOwnedDetails? ??
-          const BoardgameOwnedDetails();
       return item.copyWith(
-          details: details.copyWith(isSleeved: value == 'true'));
+          details: item.details.copyWith(isSleeved: value == 'true'));
     },
   ),
-  TransferableField(
+  _boardGameTransferField(
     key: 'hasCustomInsert',
     label: 'Custom insert',
     icon: Icons.grid_view_outlined,
     type: TransferableFieldType.boolean,
-    read: (item) =>
-        ((item.details as BoardgameOwnedDetails?)?.hasCustomInsert == true)
-            ? 'true'
-            : null,
+    read: (item) => item.details.hasCustomInsert ? 'true' : null,
     write: (item, value) {
-      final details = item.details as BoardgameOwnedDetails? ??
-          const BoardgameOwnedDetails();
       return item.copyWith(
-        details: details.copyWith(hasCustomInsert: value == 'true'),
+        details: item.details.copyWith(hasCustomInsert: value == 'true'),
       );
     },
   ),
