@@ -8,6 +8,8 @@
 /// Safe to call multiple times – uses deterministic IDs (idempotent via upsert).
 library;
 
+import 'dart:convert';
+
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -585,7 +587,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       .where((row) => row.ref.id.value.startsWith('seed-'))
       .toList(growable: false);
   final seededTrackingRows = trackingRows
-      .where((row) => row.itemId.startsWith('seed-'))
+      .where((row) => (jsonDecode(row.catalogRefJson) as Map)['id']
+          .toString()
+          .startsWith('seed-'))
       .toList(growable: false);
 
   require(
@@ -629,7 +633,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
             false)
         .length;
     final trackingCount = seededTrackingRows
-        .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
+        .where((row) => (jsonDecode(row.catalogRefJson) as Map)['id']
+            .toString()
+            .startsWith('seed-${entry.key.apiValue}-'))
         .length;
     require(
       catalogCount == entry.value,

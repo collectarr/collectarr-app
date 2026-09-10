@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -106,8 +105,9 @@ void main() {
     await db.into(db.trackingEntriesCache).insert(
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-1',
-            itemId: 'movie-1',
-            kind: const Value('movie'),
+            kind: 'movie',
+            catalogRefJson:
+                '{"kind":"movie","entity_type":"work","id":"movie-1"}',
             sourceType: const Value('digital'),
             status: const Value('Plan to watch'),
             rating: const Value(7),

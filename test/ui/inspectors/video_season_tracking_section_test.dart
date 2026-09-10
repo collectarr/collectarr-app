@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -89,7 +92,14 @@ void main() {
     final units = await db.select(db.trackingUnitsCache).get();
     final videoUnits = await db.select(db.tvTrackingUnitRows).get();
     expect(units, hasLength(1));
-    expect(units.single.itemId, itemId);
+    expect(
+      CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(
+          jsonDecode(units.single.targetRefJson) as Map,
+        ),
+      ).id,
+      itemId,
+    );
     expect(videoUnits, hasLength(1));
     expect(videoUnits.single.seasonNumber, 1);
     expect(videoUnits.single.episodeNumber, 1);
@@ -98,7 +108,14 @@ void main() {
     final entries = await db.select(db.trackingEntriesCache).get();
     final tvTrackingEntries = await db.select(db.tvTrackingRows).get();
     expect(entries, hasLength(1));
-    expect(entries.single.itemId, itemId);
+    expect(
+      CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(
+          jsonDecode(entries.single.catalogRefJson) as Map,
+        ),
+      ).id,
+      itemId,
+    );
     expect(entries.single.progressCurrent, 1);
     expect(tvTrackingEntries, hasLength(1));
     expect(tvTrackingEntries.single.seasonNumber, 1);

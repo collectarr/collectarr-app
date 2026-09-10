@@ -461,24 +461,17 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
-  @override
-  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
-      'item_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _kindMeta = const VerificationMeta('kind');
   @override
   late final GeneratedColumn<String> kind = GeneratedColumn<String>(
       'kind', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('unknown'));
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _catalogRefJsonMeta =
       const VerificationMeta('catalogRefJson');
   @override
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
-      'catalog_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _ownedItemIdMeta =
       const VerificationMeta('ownedItemId');
   @override
@@ -551,7 +544,6 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
   @override
   List<GeneratedColumn> get $columns => [
         id,
-        itemId,
         kind,
         catalogRefJson,
         ownedItemId,
@@ -583,21 +575,19 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('item_id')) {
-      context.handle(_itemIdMeta,
-          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
-    } else if (isInserting) {
-      context.missing(_itemIdMeta);
-    }
     if (data.containsKey('kind')) {
       context.handle(
           _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
     }
     if (data.containsKey('catalog_ref_json')) {
       context.handle(
           _catalogRefJsonMeta,
           catalogRefJson.isAcceptableOrUnknown(
               data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
     }
     if (data.containsKey('owned_item_id')) {
       context.handle(
@@ -665,7 +655,7 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {kind, id};
   @override
   TrackingEntriesCacheData map(Map<String, dynamic> data,
       {String? tablePrefix}) {
@@ -673,12 +663,10 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
     return TrackingEntriesCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      itemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
       kind: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json']),
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
       ownedItemId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
       sourceType: attachedDatabase.typeMapping
@@ -715,9 +703,8 @@ class $TrackingEntriesCacheTable extends TrackingEntriesCache
 class TrackingEntriesCacheData extends DataClass
     implements Insertable<TrackingEntriesCacheData> {
   final String id;
-  final String itemId;
   final String kind;
-  final String? catalogRefJson;
+  final String catalogRefJson;
   final String? ownedItemId;
   final String? sourceType;
   final String? status;
@@ -732,9 +719,8 @@ class TrackingEntriesCacheData extends DataClass
   final DateTime? deletedAt;
   const TrackingEntriesCacheData(
       {required this.id,
-      required this.itemId,
       required this.kind,
-      this.catalogRefJson,
+      required this.catalogRefJson,
       this.ownedItemId,
       this.sourceType,
       this.status,
@@ -751,11 +737,8 @@ class TrackingEntriesCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['item_id'] = Variable<String>(itemId);
     map['kind'] = Variable<String>(kind);
-    if (!nullToAbsent || catalogRefJson != null) {
-      map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    }
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
     if (!nullToAbsent || ownedItemId != null) {
       map['owned_item_id'] = Variable<String>(ownedItemId);
     }
@@ -796,11 +779,8 @@ class TrackingEntriesCacheData extends DataClass
   TrackingEntriesCacheCompanion toCompanion(bool nullToAbsent) {
     return TrackingEntriesCacheCompanion(
       id: Value(id),
-      itemId: Value(itemId),
       kind: Value(kind),
-      catalogRefJson: catalogRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(catalogRefJson),
+      catalogRefJson: Value(catalogRefJson),
       ownedItemId: ownedItemId == null && nullToAbsent
           ? const Value.absent()
           : Value(ownedItemId),
@@ -840,9 +820,8 @@ class TrackingEntriesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TrackingEntriesCacheData(
       id: serializer.fromJson<String>(json['id']),
-      itemId: serializer.fromJson<String>(json['itemId']),
       kind: serializer.fromJson<String>(json['kind']),
-      catalogRefJson: serializer.fromJson<String?>(json['catalogRefJson']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
       ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
@@ -862,9 +841,8 @@ class TrackingEntriesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'itemId': serializer.toJson<String>(itemId),
       'kind': serializer.toJson<String>(kind),
-      'catalogRefJson': serializer.toJson<String?>(catalogRefJson),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
       'ownedItemId': serializer.toJson<String?>(ownedItemId),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
@@ -882,9 +860,8 @@ class TrackingEntriesCacheData extends DataClass
 
   TrackingEntriesCacheData copyWith(
           {String? id,
-          String? itemId,
           String? kind,
-          Value<String?> catalogRefJson = const Value.absent(),
+          String? catalogRefJson,
           Value<String?> ownedItemId = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
@@ -899,10 +876,8 @@ class TrackingEntriesCacheData extends DataClass
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       TrackingEntriesCacheData(
         id: id ?? this.id,
-        itemId: itemId ?? this.itemId,
         kind: kind ?? this.kind,
-        catalogRefJson:
-            catalogRefJson.present ? catalogRefJson.value : this.catalogRefJson,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
         ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
@@ -924,7 +899,6 @@ class TrackingEntriesCacheData extends DataClass
       TrackingEntriesCacheCompanion data) {
     return TrackingEntriesCacheData(
       id: data.id.present ? data.id.value : this.id,
-      itemId: data.itemId.present ? data.itemId.value : this.itemId,
       kind: data.kind.present ? data.kind.value : this.kind,
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
@@ -957,7 +931,6 @@ class TrackingEntriesCacheData extends DataClass
   String toString() {
     return (StringBuffer('TrackingEntriesCacheData(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
           ..write('catalogRefJson: $catalogRefJson, ')
           ..write('ownedItemId: $ownedItemId, ')
@@ -979,7 +952,6 @@ class TrackingEntriesCacheData extends DataClass
   @override
   int get hashCode => Object.hash(
       id,
-      itemId,
       kind,
       catalogRefJson,
       ownedItemId,
@@ -999,7 +971,6 @@ class TrackingEntriesCacheData extends DataClass
       identical(this, other) ||
       (other is TrackingEntriesCacheData &&
           other.id == this.id &&
-          other.itemId == this.itemId &&
           other.kind == this.kind &&
           other.catalogRefJson == this.catalogRefJson &&
           other.ownedItemId == this.ownedItemId &&
@@ -1019,9 +990,8 @@ class TrackingEntriesCacheData extends DataClass
 class TrackingEntriesCacheCompanion
     extends UpdateCompanion<TrackingEntriesCacheData> {
   final Value<String> id;
-  final Value<String> itemId;
   final Value<String> kind;
-  final Value<String?> catalogRefJson;
+  final Value<String> catalogRefJson;
   final Value<String?> ownedItemId;
   final Value<String?> sourceType;
   final Value<String?> status;
@@ -1037,7 +1007,6 @@ class TrackingEntriesCacheCompanion
   final Value<int> rowid;
   const TrackingEntriesCacheCompanion({
     this.id = const Value.absent(),
-    this.itemId = const Value.absent(),
     this.kind = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
     this.ownedItemId = const Value.absent(),
@@ -1056,9 +1025,8 @@ class TrackingEntriesCacheCompanion
   });
   TrackingEntriesCacheCompanion.insert({
     required String id,
-    required String itemId,
-    this.kind = const Value.absent(),
-    this.catalogRefJson = const Value.absent(),
+    required String kind,
+    required String catalogRefJson,
     this.ownedItemId = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
@@ -1073,11 +1041,11 @@ class TrackingEntriesCacheCompanion
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        itemId = Value(itemId),
+        kind = Value(kind),
+        catalogRefJson = Value(catalogRefJson),
         updatedAt = Value(updatedAt);
   static Insertable<TrackingEntriesCacheData> custom({
     Expression<String>? id,
-    Expression<String>? itemId,
     Expression<String>? kind,
     Expression<String>? catalogRefJson,
     Expression<String>? ownedItemId,
@@ -1096,7 +1064,6 @@ class TrackingEntriesCacheCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (itemId != null) 'item_id': itemId,
       if (kind != null) 'kind': kind,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
       if (ownedItemId != null) 'owned_item_id': ownedItemId,
@@ -1117,9 +1084,8 @@ class TrackingEntriesCacheCompanion
 
   TrackingEntriesCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? itemId,
       Value<String>? kind,
-      Value<String?>? catalogRefJson,
+      Value<String>? catalogRefJson,
       Value<String?>? ownedItemId,
       Value<String?>? sourceType,
       Value<String?>? status,
@@ -1135,7 +1101,6 @@ class TrackingEntriesCacheCompanion
       Value<int>? rowid}) {
     return TrackingEntriesCacheCompanion(
       id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
       kind: kind ?? this.kind,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
       ownedItemId: ownedItemId ?? this.ownedItemId,
@@ -1159,9 +1124,6 @@ class TrackingEntriesCacheCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
-    }
-    if (itemId.present) {
-      map['item_id'] = Variable<String>(itemId.value);
     }
     if (kind.present) {
       map['kind'] = Variable<String>(kind.value);
@@ -1215,7 +1177,6 @@ class TrackingEntriesCacheCompanion
   String toString() {
     return (StringBuffer('TrackingEntriesCacheCompanion(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
           ..write('catalogRefJson: $catalogRefJson, ')
           ..write('ownedItemId: $ownedItemId, ')
@@ -1247,24 +1208,17 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
-  @override
-  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
-      'item_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _kindMeta = const VerificationMeta('kind');
   @override
   late final GeneratedColumn<String> kind = GeneratedColumn<String>(
       'kind', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('unknown'));
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _targetRefJsonMeta =
       const VerificationMeta('targetRefJson');
   @override
   late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      'target_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _trackingEntryIdMeta =
       const VerificationMeta('trackingEntryId');
   @override
@@ -1304,7 +1258,6 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
   @override
   List<GeneratedColumn> get $columns => [
         id,
-        itemId,
         kind,
         targetRefJson,
         trackingEntryId,
@@ -1330,21 +1283,19 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('item_id')) {
-      context.handle(_itemIdMeta,
-          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
-    } else if (isInserting) {
-      context.missing(_itemIdMeta);
-    }
     if (data.containsKey('kind')) {
       context.handle(
           _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
     }
     if (data.containsKey('target_ref_json')) {
       context.handle(
           _targetRefJsonMeta,
           targetRefJson.isAcceptableOrUnknown(
               data['target_ref_json']!, _targetRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_targetRefJsonMeta);
     }
     if (data.containsKey('tracking_entry_id')) {
       context.handle(
@@ -1386,19 +1337,17 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {kind, id};
   @override
   TrackingUnitsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return TrackingUnitsCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      itemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
       kind: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
-      targetRefJson: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}target_ref_json']),
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
       ownedItemId: attachedDatabase.typeMapping
@@ -1423,9 +1372,8 @@ class $TrackingUnitsCacheTable extends TrackingUnitsCache
 class TrackingUnitsCacheData extends DataClass
     implements Insertable<TrackingUnitsCacheData> {
   final String id;
-  final String itemId;
   final String kind;
-  final String? targetRefJson;
+  final String targetRefJson;
   final String? trackingEntryId;
   final String? ownedItemId;
   final String unitType;
@@ -1434,9 +1382,8 @@ class TrackingUnitsCacheData extends DataClass
   final DateTime? deletedAt;
   const TrackingUnitsCacheData(
       {required this.id,
-      required this.itemId,
       required this.kind,
-      this.targetRefJson,
+      required this.targetRefJson,
       this.trackingEntryId,
       this.ownedItemId,
       required this.unitType,
@@ -1447,11 +1394,8 @@ class TrackingUnitsCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['item_id'] = Variable<String>(itemId);
     map['kind'] = Variable<String>(kind);
-    if (!nullToAbsent || targetRefJson != null) {
-      map['target_ref_json'] = Variable<String>(targetRefJson);
-    }
+    map['target_ref_json'] = Variable<String>(targetRefJson);
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
@@ -1470,11 +1414,8 @@ class TrackingUnitsCacheData extends DataClass
   TrackingUnitsCacheCompanion toCompanion(bool nullToAbsent) {
     return TrackingUnitsCacheCompanion(
       id: Value(id),
-      itemId: Value(itemId),
       kind: Value(kind),
-      targetRefJson: targetRefJson == null && nullToAbsent
-          ? const Value.absent()
-          : Value(targetRefJson),
+      targetRefJson: Value(targetRefJson),
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
@@ -1495,9 +1436,8 @@ class TrackingUnitsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TrackingUnitsCacheData(
       id: serializer.fromJson<String>(json['id']),
-      itemId: serializer.fromJson<String>(json['itemId']),
       kind: serializer.fromJson<String>(json['kind']),
-      targetRefJson: serializer.fromJson<String?>(json['targetRefJson']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
       ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
       unitType: serializer.fromJson<String>(json['unitType']),
@@ -1511,9 +1451,8 @@ class TrackingUnitsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'itemId': serializer.toJson<String>(itemId),
       'kind': serializer.toJson<String>(kind),
-      'targetRefJson': serializer.toJson<String?>(targetRefJson),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
       'ownedItemId': serializer.toJson<String?>(ownedItemId),
       'unitType': serializer.toJson<String>(unitType),
@@ -1525,9 +1464,8 @@ class TrackingUnitsCacheData extends DataClass
 
   TrackingUnitsCacheData copyWith(
           {String? id,
-          String? itemId,
           String? kind,
-          Value<String?> targetRefJson = const Value.absent(),
+          String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
           Value<String?> ownedItemId = const Value.absent(),
           String? unitType,
@@ -1536,10 +1474,8 @@ class TrackingUnitsCacheData extends DataClass
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       TrackingUnitsCacheData(
         id: id ?? this.id,
-        itemId: itemId ?? this.itemId,
         kind: kind ?? this.kind,
-        targetRefJson:
-            targetRefJson.present ? targetRefJson.value : this.targetRefJson,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
@@ -1552,7 +1488,6 @@ class TrackingUnitsCacheData extends DataClass
   TrackingUnitsCacheData copyWithCompanion(TrackingUnitsCacheCompanion data) {
     return TrackingUnitsCacheData(
       id: data.id.present ? data.id.value : this.id,
-      itemId: data.itemId.present ? data.itemId.value : this.itemId,
       kind: data.kind.present ? data.kind.value : this.kind,
       targetRefJson: data.targetRefJson.present
           ? data.targetRefJson.value
@@ -1574,7 +1509,6 @@ class TrackingUnitsCacheData extends DataClass
   String toString() {
     return (StringBuffer('TrackingUnitsCacheData(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
@@ -1588,23 +1522,13 @@ class TrackingUnitsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      itemId,
-      kind,
-      targetRefJson,
-      trackingEntryId,
-      ownedItemId,
-      unitType,
-      completedAt,
-      updatedAt,
-      deletedAt);
+  int get hashCode => Object.hash(id, kind, targetRefJson, trackingEntryId,
+      ownedItemId, unitType, completedAt, updatedAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TrackingUnitsCacheData &&
           other.id == this.id &&
-          other.itemId == this.itemId &&
           other.kind == this.kind &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
@@ -1618,9 +1542,8 @@ class TrackingUnitsCacheData extends DataClass
 class TrackingUnitsCacheCompanion
     extends UpdateCompanion<TrackingUnitsCacheData> {
   final Value<String> id;
-  final Value<String> itemId;
   final Value<String> kind;
-  final Value<String?> targetRefJson;
+  final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
   final Value<String?> ownedItemId;
   final Value<String> unitType;
@@ -1630,7 +1553,6 @@ class TrackingUnitsCacheCompanion
   final Value<int> rowid;
   const TrackingUnitsCacheCompanion({
     this.id = const Value.absent(),
-    this.itemId = const Value.absent(),
     this.kind = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
@@ -1643,9 +1565,8 @@ class TrackingUnitsCacheCompanion
   });
   TrackingUnitsCacheCompanion.insert({
     required String id,
-    required String itemId,
-    this.kind = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
+    required String kind,
+    required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
     this.ownedItemId = const Value.absent(),
     required String unitType,
@@ -1654,13 +1575,13 @@ class TrackingUnitsCacheCompanion
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        itemId = Value(itemId),
+        kind = Value(kind),
+        targetRefJson = Value(targetRefJson),
         unitType = Value(unitType),
         completedAt = Value(completedAt),
         updatedAt = Value(updatedAt);
   static Insertable<TrackingUnitsCacheData> custom({
     Expression<String>? id,
-    Expression<String>? itemId,
     Expression<String>? kind,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
@@ -1673,7 +1594,6 @@ class TrackingUnitsCacheCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (itemId != null) 'item_id': itemId,
       if (kind != null) 'kind': kind,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
@@ -1688,9 +1608,8 @@ class TrackingUnitsCacheCompanion
 
   TrackingUnitsCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? itemId,
       Value<String>? kind,
-      Value<String?>? targetRefJson,
+      Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
       Value<String?>? ownedItemId,
       Value<String>? unitType,
@@ -1700,7 +1619,6 @@ class TrackingUnitsCacheCompanion
       Value<int>? rowid}) {
     return TrackingUnitsCacheCompanion(
       id: id ?? this.id,
-      itemId: itemId ?? this.itemId,
       kind: kind ?? this.kind,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
@@ -1718,9 +1636,6 @@ class TrackingUnitsCacheCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
-    }
-    if (itemId.present) {
-      map['item_id'] = Variable<String>(itemId.value);
     }
     if (kind.present) {
       map['kind'] = Variable<String>(kind.value);
@@ -1756,7 +1671,6 @@ class TrackingUnitsCacheCompanion
   String toString() {
     return (StringBuffer('TrackingUnitsCacheCompanion(')
           ..write('id: $id, ')
-          ..write('itemId: $itemId, ')
           ..write('kind: $kind, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
@@ -47550,9 +47464,8 @@ typedef $$WishlistItemsCacheTableProcessedTableManager = ProcessedTableManager<
 typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
     = TrackingEntriesCacheCompanion Function({
   required String id,
-  required String itemId,
-  Value<String> kind,
-  Value<String?> catalogRefJson,
+  required String kind,
+  required String catalogRefJson,
   Value<String?> ownedItemId,
   Value<String?> sourceType,
   Value<String?> status,
@@ -47570,9 +47483,8 @@ typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
 typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
     = TrackingEntriesCacheCompanion Function({
   Value<String> id,
-  Value<String> itemId,
   Value<String> kind,
-  Value<String?> catalogRefJson,
+  Value<String> catalogRefJson,
   Value<String?> ownedItemId,
   Value<String?> sourceType,
   Value<String?> status,
@@ -47599,9 +47511,6 @@ class $$TrackingEntriesCacheTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnFilters(column));
@@ -47661,9 +47570,6 @@ class $$TrackingEntriesCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnOrderings(column));
 
@@ -47722,9 +47628,6 @@ class $$TrackingEntriesCacheTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get itemId =>
-      $composableBuilder(column: $table.itemId, builder: (column) => column);
 
   GeneratedColumn<String> get kind =>
       $composableBuilder(column: $table.kind, builder: (column) => column);
@@ -47800,9 +47703,8 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> itemId = const Value.absent(),
             Value<String> kind = const Value.absent(),
-            Value<String?> catalogRefJson = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -47819,7 +47721,6 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
           }) =>
               TrackingEntriesCacheCompanion(
             id: id,
-            itemId: itemId,
             kind: kind,
             catalogRefJson: catalogRefJson,
             ownedItemId: ownedItemId,
@@ -47838,9 +47739,8 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String itemId,
-            Value<String> kind = const Value.absent(),
-            Value<String?> catalogRefJson = const Value.absent(),
+            required String kind,
+            required String catalogRefJson,
             Value<String?> ownedItemId = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
@@ -47857,7 +47757,6 @@ class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
           }) =>
               TrackingEntriesCacheCompanion.insert(
             id: id,
-            itemId: itemId,
             kind: kind,
             catalogRefJson: catalogRefJson,
             ownedItemId: ownedItemId,
@@ -47901,9 +47800,8 @@ typedef $$TrackingEntriesCacheTableProcessedTableManager
 typedef $$TrackingUnitsCacheTableCreateCompanionBuilder
     = TrackingUnitsCacheCompanion Function({
   required String id,
-  required String itemId,
-  Value<String> kind,
-  Value<String?> targetRefJson,
+  required String kind,
+  required String targetRefJson,
   Value<String?> trackingEntryId,
   Value<String?> ownedItemId,
   required String unitType,
@@ -47915,9 +47813,8 @@ typedef $$TrackingUnitsCacheTableCreateCompanionBuilder
 typedef $$TrackingUnitsCacheTableUpdateCompanionBuilder
     = TrackingUnitsCacheCompanion Function({
   Value<String> id,
-  Value<String> itemId,
   Value<String> kind,
-  Value<String?> targetRefJson,
+  Value<String> targetRefJson,
   Value<String?> trackingEntryId,
   Value<String?> ownedItemId,
   Value<String> unitType,
@@ -47938,9 +47835,6 @@ class $$TrackingUnitsCacheTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnFilters(column));
@@ -47980,9 +47874,6 @@ class $$TrackingUnitsCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get itemId => $composableBuilder(
-      column: $table.itemId, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get kind => $composableBuilder(
       column: $table.kind, builder: (column) => ColumnOrderings(column));
 
@@ -48021,9 +47912,6 @@ class $$TrackingUnitsCacheTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get itemId =>
-      $composableBuilder(column: $table.itemId, builder: (column) => column);
 
   GeneratedColumn<String> get kind =>
       $composableBuilder(column: $table.kind, builder: (column) => column);
@@ -48080,9 +47968,8 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> itemId = const Value.absent(),
             Value<String> kind = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             Value<String> unitType = const Value.absent(),
@@ -48093,7 +47980,6 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
           }) =>
               TrackingUnitsCacheCompanion(
             id: id,
-            itemId: itemId,
             kind: kind,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
@@ -48106,9 +47992,8 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String itemId,
-            Value<String> kind = const Value.absent(),
-            Value<String?> targetRefJson = const Value.absent(),
+            required String kind,
+            required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
             Value<String?> ownedItemId = const Value.absent(),
             required String unitType,
@@ -48119,7 +48004,6 @@ class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
           }) =>
               TrackingUnitsCacheCompanion.insert(
             id: id,
-            itemId: itemId,
             kind: kind,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,

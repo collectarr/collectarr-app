@@ -72,7 +72,7 @@ class TrackingEntriesCacheRepository {
       for (final row in rows)
         TrackingSummary(
           id: row.id,
-          catalogRef: _catalogRefForRow(row, catalogKind: row.kind),
+          catalogRef: _catalogRefForRow(row),
           ownedRef: ownedItemRefFromSerialized(row.ownedItemId),
           sourceType: trackingSourceTypeFromValue(row.sourceType),
           status: mediaTrackingStatusFromValue(row.status) ??
@@ -80,9 +80,6 @@ class TrackingEntriesCacheRepository {
           rating: row.rating,
           startedAt: row.startedAt,
           completedAt: row.finishedAt,
-          progressCurrent: row.progressCurrent,
-          progressTotal: row.progressTotal,
-          timesCompleted: row.timesCompleted,
           notes: row.notes,
           updatedAt: row.updatedAt,
           deletedAt: row.deletedAt,
@@ -98,7 +95,7 @@ class TrackingEntriesCacheRepository {
     if (rows.isEmpty) return const [];
     final coordinates = await _loadCoordinates(rows.map((row) => row.id));
     return rows
-        .map((r) => _fromCache(r, coordinates[r.id], catalogKind: r.kind))
+        .map((r) => _fromCache(r, coordinates[r.id]))
         .toList(growable: false);
   }
 
@@ -111,7 +108,7 @@ class TrackingEntriesCacheRepository {
         .getSingleOrNull();
     if (row == null) return null;
     final coordinates = await _loadCoordinates([row.id]);
-    return _fromCache(row, coordinates[row.id], catalogKind: row.kind);
+    return _fromCache(row, coordinates[row.id]);
   }
 
   Future<List<TrackingEntry>> findActiveByCatalogRefs(
@@ -175,12 +172,11 @@ class TrackingEntriesCacheRepository {
 
   TrackingEntry _fromCache(
     TrackingEntriesCacheData row,
-    Object? coordinates, {
-    String? catalogKind,
-  }) {
+    Object? coordinates,
+  ) {
     final storageRow = TrackingEntryStorageRow(
       id: row.id,
-      catalogRef: _catalogRefForRow(row, catalogKind: catalogKind),
+      catalogRef: _catalogRefForRow(row),
       ownedRef: ownedItemRefFromSerialized(row.ownedItemId),
       sourceType: row.sourceType,
       status: row.status,
@@ -201,9 +197,8 @@ class TrackingEntriesCacheRepository {
   TrackingEntriesCacheCompanion _toCompanion(TrackingEntry item) {
     return TrackingEntriesCacheCompanion.insert(
       id: item.id,
-      itemId: item.itemId,
-      kind: Value(item.catalogRef.kind.apiValue),
-      catalogRefJson: Value(jsonEncode(item.catalogRef.toJson())),
+      kind: item.catalogRef.kind.apiValue,
+      catalogRefJson: jsonEncode(item.catalogRef.toJson()),
       ownedItemId: Value(item.ownedRef?.key),
       sourceType: Value(item.sourceTypeApiValue),
       status: Value(item.statusStorageValue),
@@ -255,28 +250,13 @@ class TrackingEntriesCacheRepository {
     return ref;
   }
 
-  CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row,
-      {String? catalogKind}) {
-    final storedRef = _decodeCatalogRef(row.catalogRefJson);
-    if (storedRef != null) {
-      return storedRef;
+  CatalogEntityRef _catalogRefForRow(TrackingEntriesCacheData row) {
+    final raw = row.catalogRefJson.trim();
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map) {
+      throw FormatException('Tracking entry catalog_ref is invalid: $raw');
     }
-    return CatalogEntityRef(
-      kind: catalogMediaKindFromApiValue(catalogKind),
-      entityType: const CatalogEntityTypeId('work'),
-      id: row.itemId,
-    );
-  }
-
-  CatalogEntityRef? _decodeCatalogRef(String? raw) {
-    if (raw == null || raw.trim().isEmpty) return null;
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map) return null;
-      return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-    } on Object {
-      return null;
-    }
+    return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
   }
 
   TrackingEntryCodec _codecForKind(CatalogMediaKind kind) {

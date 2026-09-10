@@ -224,8 +224,9 @@ void main() {
     await db.into(db.trackingEntriesCache).insert(
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-1',
-            itemId: 'movie-1',
-            kind: const Value('movie'),
+            kind: 'movie',
+            catalogRefJson:
+                '{"kind":"movie","entity_type":"work","id":"movie-1"}',
             sourceType: const Value('digital'),
             status: const Value('Watching'),
             rating: const Value(8),

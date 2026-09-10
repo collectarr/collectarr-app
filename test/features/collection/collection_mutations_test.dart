@@ -250,7 +250,12 @@ void main() {
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     final queued = await db.select(db.syncQueue).get();
 
-    expect(tracking.itemId, 'movie-1');
+    expect(
+      CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(jsonDecode(tracking.catalogRefJson) as Map),
+      ).id,
+      'movie-1',
+    );
     expect(
       tracking.ownedItemId,
       OwnedItemRef.fromKey('movie:${owned.id.value}').key,
@@ -389,7 +394,12 @@ void main() {
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
     final queued = await db.select(db.syncQueue).get();
 
-    expect(tracking.itemId, 'music-1');
+    expect(
+      CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(jsonDecode(tracking.catalogRefJson) as Map),
+      ).id,
+      'music-1',
+    );
     expect(tracking.ownedItemId, isNull);
     expect(tracking.sourceType, 'digital');
     expect(tracking.progressCurrent, 6);
@@ -414,8 +424,9 @@ void main() {
     await db.into(db.trackingEntriesCache).insert(
           TrackingEntriesCacheCompanion.insert(
             id: 'tracking-existing',
-            itemId: 'movie-1',
-            kind: const Value('movie'),
+            kind: 'movie',
+            catalogRefJson:
+                '{"kind":"movie","entity_type":"work","id":"movie-1"}',
             sourceType: const Value('digital'),
             status: const Value('Plan to watch'),
             updatedAt: DateTime.utc(2026, 5, 23),
@@ -1476,7 +1487,14 @@ void main() {
     final queued = await db.select(db.syncQueue).get();
 
     expect(catalog.single.id, 'tmdb-local:movie:603');
-    expect(tracking.single.itemId, 'tmdb-local:movie:603');
+    expect(
+      CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(
+          jsonDecode(tracking.single.catalogRefJson) as Map,
+        ),
+      ).id,
+      'tmdb-local:movie:603',
+    );
     expect(
       CatalogEntityRef.fromJson(
         jsonDecode(wishlist.single.catalogRefJson) as Map<String, dynamic>,
@@ -1532,7 +1550,16 @@ void main() {
 
     expect(promotedCount, 2);
     expect(
-      tracking.where((row) => row.deletedAt == null).single.itemId,
+      CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(
+          jsonDecode(
+            tracking
+                .where((row) => row.deletedAt == null)
+                .single
+                .catalogRefJson,
+          ) as Map,
+        ),
+      ).id,
       'movie-603',
     );
     expect(

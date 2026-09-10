@@ -81,7 +81,11 @@ class TrackingUnitsCacheRepository {
 
   Future<void> markDeleted(TrackingUnit unit, DateTime deletedAt) async {
     await (_db.update(_db.trackingUnitsCache)
-          ..where((tbl) => tbl.id.equals(unit.id)))
+          ..where(
+            (tbl) =>
+                tbl.id.equals(unit.id) &
+                tbl.kind.equals(unit.targetRef.kind.apiValue),
+          ))
         .write(
       TrackingUnitsCacheCompanion(
         deletedAt: Value(deletedAt),
@@ -93,7 +97,6 @@ class TrackingUnitsCacheRepository {
   TrackingUnitsCacheCompanion _toBaseCompanion(TrackingUnit unit) {
     return TrackingUnitsCacheCompanion(
       id: Value(unit.id),
-      itemId: Value(unit.targetRef.rootId ?? unit.targetRef.id),
       kind: Value(unit.targetRef.kind.apiValue),
       targetRefJson: Value(jsonEncode(unit.targetRef.toJson())),
       trackingEntryId: Value(unit.trackingEntryId),
@@ -165,22 +168,12 @@ class TrackingUnitsCacheRepository {
   }
 
   CatalogEntityRef _targetRefForRow(TrackingUnitsCacheData row) {
-    final raw = row.targetRefJson;
-    if (raw != null && raw.trim().isNotEmpty) {
-      try {
-        final decoded = jsonDecode(raw);
-        if (decoded is Map) {
-          return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-        }
-      } on Object {
-        // Read the schema-v1 structural columns below.
-      }
+    final raw = row.targetRefJson.trim();
+    final decoded = jsonDecode(raw);
+    if (decoded is Map) {
+      return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
     }
-    return CatalogEntityRef(
-      kind: catalogMediaKindFromApiValue(row.kind),
-      entityType: const CatalogEntityTypeId('work'),
-      id: row.itemId,
-    );
+    throw FormatException('Tracking unit target_ref is invalid: $raw');
   }
 
   int _compareForDisplay(TrackingUnit a, TrackingUnit b) {

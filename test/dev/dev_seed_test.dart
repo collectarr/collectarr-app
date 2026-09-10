@@ -1,9 +1,10 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
@@ -519,7 +520,9 @@ void main() {
     final trackingRows = await db.select(db.trackingEntriesCache).get();
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows
-          .where((row) => row.itemId.startsWith('seed-${entry.key.apiValue}-'))
+          .where((row) => (jsonDecode(row.catalogRefJson) as Map)['id']
+              .toString()
+              .startsWith('seed-${entry.key.apiValue}-'))
           .toList();
       expect(kindTracking, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} tracking seed count');
@@ -592,17 +595,17 @@ void main() {
     );
 
     final tvOwned = ownedRows
-            .where((row) => row.catalogRef?.id.startsWith('seed-tv-') ?? false)
+        .where((row) => row.catalogRef?.id.startsWith('seed-tv-') ?? false)
         .toList();
     final animeOwned = ownedRows
-            .where(
-              (row) => row.catalogRef?.id.startsWith('seed-anime-') ?? false,
-            )
+        .where(
+          (row) => row.catalogRef?.id.startsWith('seed-anime-') ?? false,
+        )
         .toList();
     final mangaOwned = ownedRows
-            .where(
-              (row) => row.catalogRef?.id.startsWith('seed-manga-') ?? false,
-            )
+        .where(
+          (row) => row.catalogRef?.id.startsWith('seed-manga-') ?? false,
+        )
         .toList();
 
     expect(tvOwned, hasLength(15));

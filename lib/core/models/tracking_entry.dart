@@ -45,10 +45,6 @@ class TrackingEntry extends PersonalTrackingBase {
 
   DateTime? get finishedAt => completedAt;
 
-  /// Stable work identifier used for mixed/global queries. Child targets keep
-  /// their concrete identity in [catalogRef] while sharing the work key.
-  String get itemId => catalogRef.rootId ?? catalogRef.id;
-
   TrackingSourceType? get trackingSource => sourceType;
 
   String? get sourceTypeApiValue => sourceType?.apiValue;

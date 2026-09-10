@@ -81,9 +81,8 @@ class WishlistItemsCache extends Table {
 
 class TrackingEntriesCache extends Table {
   TextColumn get id => text()();
-  TextColumn get itemId => text()();
-  TextColumn get kind => text().withDefault(const Constant('unknown'))();
-  TextColumn get catalogRefJson => text().nullable()();
+  TextColumn get kind => text()();
+  TextColumn get catalogRefJson => text()();
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
@@ -98,14 +97,13 @@ class TrackingEntriesCache extends Table {
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {kind, id};
 }
 
 class TrackingUnitsCache extends Table {
   TextColumn get id => text()();
-  TextColumn get itemId => text()();
-  TextColumn get kind => text().withDefault(const Constant('unknown'))();
-  TextColumn get targetRefJson => text().nullable()();
+  TextColumn get kind => text()();
+  TextColumn get targetRefJson => text()();
   TextColumn get trackingEntryId => text().nullable()();
   TextColumn get ownedItemId => text().nullable()();
   TextColumn get unitType => text()();
@@ -114,7 +112,7 @@ class TrackingUnitsCache extends Table {
   DateTimeColumn get deletedAt => dateTime().nullable()();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {kind, id};
 }
 
 class SyncQueue extends Table {

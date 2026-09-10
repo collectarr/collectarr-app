@@ -231,7 +231,12 @@ void main() {
       expect(success, true);
 
       final tracking = await db.select(db.trackingEntriesCache).getSingle();
-      expect(tracking.itemId, 'comic-track-1');
+      expect(
+        CatalogEntityRef.fromJson(
+          Map<String, Object?>.from(jsonDecode(tracking.catalogRefJson) as Map),
+        ).id,
+        'comic-track-1',
+      );
     });
 
     test('toggleCheckedResult and toggleCheckedProvider update selection', () {

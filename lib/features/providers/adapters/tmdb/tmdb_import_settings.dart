@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Credentials and local account configuration for the TMDb personal import.
+///
+/// This belongs to the provider integration. Settings only hosts the controls
+/// that edit it; it must not own provider protocol or import state.
 class TmdbImportSettings {
   const TmdbImportSettings({
     this.apiKey = '',
@@ -36,7 +40,7 @@ class TmdbImportSettings {
   }
 }
 
-class TmdbImportSettingsStore {
+final class TmdbImportSettingsStore {
   const TmdbImportSettingsStore();
 
   static const _apiKeyKey = 'collectarr.tmdb_import.api_key';
@@ -76,7 +80,7 @@ final tmdbImportSettingsProvider =
   TmdbImportSettingsNotifier.new,
 );
 
-class TmdbImportSettingsNotifier extends Notifier<TmdbImportSettings> {
+final class TmdbImportSettingsNotifier extends Notifier<TmdbImportSettings> {
   @override
   TmdbImportSettings build() {
     unawaited(_loadInitial());
