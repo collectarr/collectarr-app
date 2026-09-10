@@ -27,7 +27,7 @@ class VideoEditController {
     this.initialLanguage = '',
     this.initialReleaseDate = '',
     this.initialReleaseYear = '',
-    this.initialCreators = const <Map<String, dynamic>>[],
+    this.initialCreators = const <VideoCreditInput>[],
     this.initialTrailerLinks = const <TrailerLinkDto>[],
   })  : runtimeController = TextEditingController(text: initialRuntime),
         ageRatingController = TextEditingController(text: initialAgeRating),
@@ -64,7 +64,7 @@ class VideoEditController {
   final String initialLanguage;
   final String initialReleaseDate;
   final String initialReleaseYear;
-  final List<Map<String, dynamic>> initialCreators;
+  final List<VideoCreditInput> initialCreators;
   final List<TrailerLinkDto> initialTrailerLinks;
 
   final TextEditingController runtimeController;

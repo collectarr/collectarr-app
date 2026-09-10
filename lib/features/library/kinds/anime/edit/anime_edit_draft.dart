@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
@@ -242,7 +243,14 @@ LibraryEditKindDraft createAnimeEditDraft({
     initialReleaseYear: anime?.seasonYear?.toString() ??
         anime?.startDate?.year.toString() ??
         '',
-    initialCreators: anime?.creators ?? const <Map<String, dynamic>>[],
+    initialCreators: [
+      for (final creator in anime?.creators ?? const <Map<String, dynamic>>[])
+        VideoCreditInput(
+          name: creator['name']?.toString() ?? '',
+          role: creator['role']?.toString() ?? creator['job']?.toString(),
+          sourceType: creator['source_type']?.toString() ?? 'provider',
+        ),
+    ],
     initialTrailerLinks: anime?.links ?? const <TrailerLinkDto>[],
   );
   videoEdit.initializeVideoEditors();

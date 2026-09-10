@@ -765,7 +765,7 @@ void main() {
           kind: 'comic',
           status: 'owned',
           condition: 'Near Mint',
-          grade: '9.8',
+          kindOwnedCells: ['9.8'],
           pricePaidCents: 1299,
           currency: 'USD',
         ),
@@ -909,7 +909,7 @@ void main() {
             '',
             '75960604716152011',
           ],
-          grade: '7.5',
+          kindOwnedCells: ['7.5'],
         ),
       ],
     );
@@ -991,7 +991,7 @@ void main() {
           status: 'owned',
           title: 'Imported book',
           condition: 'Very Good',
-          grade: '8.5',
+          kindOwnedCells: ['8.5'],
           purchaseDate: DateTime.utc(2026, 8, 1),
           pricePaidCents: 2599,
           currency: 'EUR',
@@ -1251,20 +1251,20 @@ void main() {
           itemId: 'comic-1',
           kind: 'comic',
           status: 'owned',
-          grade: '9.8',
+          kindOwnedCells: ['9.8'],
         ),
         CollectionCsvRow(
           itemId: 'comic-1',
           kind: 'comic',
           status: 'owned',
-          grade: '7.5',
+          kindOwnedCells: ['7.5'],
         ),
       ],
     );
 
     expect(preview.resolvedCount, 1);
     expect(preview.duplicateCount, 1);
-    expect(preview.duplicateRows.single.grade, '7.5');
+    expect(preview.duplicateRows.single.kindOwnedCells.first, '7.5');
     expect(preview.reviewCount, 1);
 
     final imported = await importService.importRows(preview.resolvedRows);
@@ -1341,7 +1341,7 @@ void main() {
           itemId: 'comic-1',
           kind: 'comic',
           status: 'owned',
-          grade: '7.5',
+          kindOwnedCells: ['7.5'],
         ),
       ],
     );
@@ -1378,7 +1378,7 @@ void main() {
           itemId: 'comic-1',
           kind: 'comic',
           status: 'owned',
-          grade: '7.5',
+          kindOwnedCells: ['7.5'],
           locationId: 'loc-box-6',
         ),
       ],

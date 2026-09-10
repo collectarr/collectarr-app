@@ -90,6 +90,7 @@ final class MangaCollectionCsvImportProfile {
       'UPC',
       'ISBN / Barcode',
     ],
+    'grade': ['Grade', 'Grade and Value'],
   };
 
   List<String>? importCatalogCells({
@@ -119,7 +120,10 @@ final class MangaCollectionCsvImportProfile {
   }) {
     final index = _headerIndex(header);
     if (!_isMangaRow(index, header, values)) return null;
-    return List<String>.filled(9, '');
+    return [
+      _value(index, values, 'grade'),
+      ...List<String>.filled(9, ''),
+    ];
   }
 
   bool _isMangaRow(

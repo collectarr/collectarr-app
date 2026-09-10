@@ -546,7 +546,6 @@ class LibraryEditDraft {
     return LibraryAddCommonDraft(
       quantity: parseInt(personal.quantityController.text) ?? 1,
       condition: emptyToNull(personal.conditionController.text),
-      grade: emptyToNull(personal.gradeController.text),
       purchaseDate: parseDate(personal.purchaseDateController.text),
       pricePaidCents: parseMoneyCents(personal.priceController.text),
       currency: emptyToNull(personal.currencyController.text),

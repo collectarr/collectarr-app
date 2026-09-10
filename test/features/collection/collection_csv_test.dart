@@ -88,13 +88,14 @@ void main() {
     ]);
     expect(rows.single.isOwned, isTrue);
     expect(rows.single.condition, 'Near Mint');
-    expect(rows.single.grade, '9.8');
+    expect(rows.single.kindOwnedCells.first, '9.8');
     expect(rows.single.pricePaidCents, 1299);
     expect(rows.single.notes, 'Signed copy');
     expect(rows.single.quantity, 2);
     expect(rows.single.locationId, 'Office › Shelf A › Short Box 6');
     expect(rows.single.indexNumber, 1310);
     expect(rows.single.kindOwnedCells, [
+      '9.8',
       '399',
       'Raw',
       'CGC',
@@ -346,12 +347,12 @@ void main() {
     expect(rows.single.kindCatalogCells[4], 'Direct Edition');
     expect(rows.single.kindCatalogCells[8], 'Marvel Comics');
     expect(rows.single.kindCatalogCells[9], '2005-07-01');
-    expect(rows.single.grade, '7.5');
+    expect(rows.single.kindOwnedCells.first, '7.5');
     expect(rows.single.condition, 'Very Fine');
     expect(rows.single.pricePaidCents, 900);
     expect(rows.single.locationId, 'loc-box-6');
     expect(rows.single.readStatus, 'Read');
-    expect(rows.single.kindOwnedCells[7], 'true');
+    expect(rows.single.kindOwnedCells[8], 'true');
     expect(rows.single.notes, 'CLZ import');
   });
 
@@ -382,10 +383,10 @@ void main() {
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.kind, 'comic');
     expect(rows.single.kindCatalogCells[3], '1');
-    expect(rows.single.kindOwnedCells[1], 'Slabbed');
-    expect(rows.single.kindOwnedCells[2], 'CGC');
-    expect(rows.single.kindOwnedCells[7], 'true');
-    expect(rows.single.kindOwnedCells[8], 'First appearance');
+    expect(rows.single.kindOwnedCells[2], 'Slabbed');
+    expect(rows.single.kindOwnedCells[3], 'CGC');
+    expect(rows.single.kindOwnedCells[8], 'true');
+    expect(rows.single.kindOwnedCells[9], 'First appearance');
   });
 
   test('collection csv parses structured location ids directly', () {
@@ -433,9 +434,9 @@ void main() {
     );
 
     expect(rows[0].pricePaidCents, 123456);
-    expect(rows[0].kindOwnedCells[0], '250000');
+    expect(rows[0].kindOwnedCells[1], '250000');
     expect(rows[1].pricePaidCents, 123456);
-    expect(rows[1].kindOwnedCells[0], '250000');
+    expect(rows[1].kindOwnedCells[1], '250000');
   });
 
   test('collection csv keeps clz rows without collectarr ids for matching', () {

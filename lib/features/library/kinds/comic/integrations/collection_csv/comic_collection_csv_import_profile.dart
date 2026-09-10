@@ -18,6 +18,7 @@ final class ComicCollectionCsvImportRow {
     this.publisher,
     this.releaseDate,
     this.barcode,
+    this.grade,
     this.coverPriceCents,
     this.rawOrSlabbed,
     this.gradingCompany,
@@ -40,6 +41,7 @@ final class ComicCollectionCsvImportRow {
   final String? publisher;
   final DateTime? releaseDate;
   final String? barcode;
+  final String? grade;
   final int? coverPriceCents;
   final String? rawOrSlabbed;
   final String? gradingCompany;
@@ -65,6 +67,7 @@ final class ComicCollectionCsvImportRow {
       ];
 
   List<String> get ownedCells => [
+        grade ?? '',
         coverPriceCents?.toString() ?? '',
         rawOrSlabbed ?? '',
         gradingCompany ?? '',
@@ -184,6 +187,7 @@ final class ComicCollectionCsvImportProfile {
       'Barcode / Catalog no.',
       'Barcode / UPC / ISBN',
     ],
+    'grade': ['Grade', 'Grade and Value'],
     'cover_price_cents': ['Cover Price'],
     'raw_or_slabbed': ['Raw / Slabbed', 'Grade Status'],
     'grading_company': ['Grading Company'],
@@ -224,6 +228,7 @@ final class ComicCollectionCsvImportProfile {
       publisher: _optionalValue(index, values, 'publisher'),
       releaseDate: _parseDate(_value(index, values, 'release_date')),
       barcode: _optionalValue(index, values, 'barcode'),
+      grade: _optionalValue(index, values, 'grade'),
       coverPriceCents: _moneyCents(
         _value(index, values, 'cover_price_cents'),
       ),

@@ -53,20 +53,31 @@ final class ComicCollectionCsvProjection
 
   @override
   JsonEncodable? decodeOwnedDetails(List<String> cells) {
-    if (cells.length != libraryCollectionCsvOwnedCellCount ||
-        !_hasOwnedDetails(cells)) {
+    if (cells.isEmpty || cells.length > libraryCollectionCsvOwnedCellCount + 1) {
       return null;
     }
-    return ComicOwnedDetails(
-      coverPriceCents: int.tryParse(cells[0].trim()),
-      rawOrSlabbed: _optionalCell(cells[1]),
-      gradingCompany: _optionalCell(cells[2]),
-      graderNotes: _optionalCell(cells[3]),
-      signedBy: _optionalCell(cells[4]),
-      labelType: _optionalCell(cells[5]),
-      certificationNumber: _optionalCell(cells[6]),
-      keyComic: _boolCell(cells[7]),
-      keyReason: _optionalCell(cells[8]),
+    final grade = _optionalCell(cells[0]);
+    final detailCells = [
+      ...cells.skip(1),
+      ...List<String>.filled(
+        libraryCollectionCsvOwnedCellCount - cells.length + 1,
+        '',
+      ),
+    ];
+    if (grade == null && !_hasOwnedDetails(detailCells)) return null;
+    return _ComicCollectionCsvOwnedImportPayload(
+      grade: grade,
+      details: ComicOwnedDetails(
+        coverPriceCents: int.tryParse(detailCells[0].trim()),
+        rawOrSlabbed: _optionalCell(detailCells[1]),
+        gradingCompany: _optionalCell(detailCells[2]),
+        graderNotes: _optionalCell(detailCells[3]),
+        signedBy: _optionalCell(detailCells[4]),
+        labelType: _optionalCell(detailCells[5]),
+        certificationNumber: _optionalCell(detailCells[6]),
+        keyComic: _boolCell(detailCells[7]),
+        keyReason: _optionalCell(detailCells[8]),
+      ),
     );
   }
 
@@ -90,6 +101,9 @@ final class ComicCollectionCsvProjection
       comic?.barcode ?? '',
     ];
   }
+
+  @override
+  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.grade;
 
   @override
   List<String> ownedCellsBeforeQuantity(
@@ -182,4 +196,20 @@ final class ComicCollectionCsvProjection
       if (cells[10].trim().isNotEmpty) 'barcode': cells[10],
     }));
   }
+}
+
+final class _ComicCollectionCsvOwnedImportPayload implements JsonEncodable {
+  const _ComicCollectionCsvOwnedImportPayload({
+    required this.grade,
+    required this.details,
+  });
+
+  final String? grade;
+  final ComicOwnedDetails details;
+
+  @override
+  Map<String, dynamic> toJson() => {
+        ...details.toJson(),
+        if (grade != null) 'grade': grade,
+      };
 }

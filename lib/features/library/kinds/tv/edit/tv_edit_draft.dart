@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
@@ -258,7 +259,14 @@ LibraryEditKindDraft createTvEditDraft({
     initialReleaseDate:
         tv?.firstAirDate == null ? '' : formatDate(tv!.firstAirDate!),
     initialReleaseYear: tv?.firstAirDate?.year.toString() ?? '',
-    initialCreators: tv?.creators ?? const <Map<String, dynamic>>[],
+    initialCreators: [
+      for (final creator in tv?.creators ?? const <Map<String, dynamic>>[])
+        VideoCreditInput(
+          name: creator['name']?.toString() ?? '',
+          role: creator['role']?.toString() ?? creator['job']?.toString(),
+          sourceType: creator['source_type']?.toString() ?? 'provider',
+        ),
+    ],
     initialTrailerLinks: tv?.links ?? const <TrailerLinkDto>[],
   );
   final releaseMediaEdit = TvReleaseMediaEditController(

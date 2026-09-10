@@ -5,6 +5,24 @@ export 'package:collectarr_app/features/library/edit/draft/editable_user_externa
 
 enum VideoCreditKind { cast, crew }
 
+/// Structural credit input shared by the video editor host.
+///
+/// Movie, TV, and Anime own the mapping from their provider/domain credit
+/// shapes into this editor value. The editor itself never carries a generic
+/// metadata map that could become a second video domain model.
+@immutable
+class VideoCreditInput {
+  const VideoCreditInput({
+    required this.name,
+    this.role,
+    this.sourceType = 'provider',
+  });
+
+  final String name;
+  final String? role;
+  final String sourceType;
+}
+
 const _videoCastRoleTags = <String>{
   'actor',
   'voice',
@@ -18,8 +36,8 @@ class EditableVideoCredit {
   EditableVideoCredit({
     required this.nameController,
     required this.roleController,
-    Map<String, dynamic>? metadata,
-  }) : metadata = Map<String, dynamic>.from(metadata ?? const {});
+    this.sourceType = 'custom',
+  });
 
   factory EditableVideoCredit.custom({
     String name = '',
@@ -29,37 +47,32 @@ class EditableVideoCredit {
     return EditableVideoCredit(
       nameController: TextEditingController(text: name),
       roleController: TextEditingController(text: role),
-      metadata: {'source_type': sourceType},
+      sourceType: sourceType,
     );
   }
 
-  factory EditableVideoCredit.fromMetadata(Map<String, dynamic> metadata) {
+  factory EditableVideoCredit.fromInput(VideoCreditInput input) {
     return EditableVideoCredit(
-      nameController:
-          TextEditingController(text: metadata['name']?.toString() ?? ''),
+      nameController: TextEditingController(text: input.name),
       roleController: TextEditingController(
-        text: metadata['role']?.toString() ?? metadata['job']?.toString() ?? '',
+        text: input.role ?? '',
       ),
-      metadata: metadata,
+      sourceType: input.sourceType,
     );
   }
 
   final TextEditingController nameController;
   final TextEditingController roleController;
-  final Map<String, dynamic> metadata;
+  final String sourceType;
 
-  Map<String, dynamic> toMap() {
-    final result = <String, dynamic>{
-      ...metadata,
-      'name': nameController.text.trim(),
-      'role': roleController.text.trim(),
-      'source_type': metadata['source_type']?.toString() ?? 'custom',
-    };
-    result.removeWhere(
-      (key, value) =>
-          value == null || (value is String && value.trim().isEmpty),
+  VideoCreditInput toInput() {
+    return VideoCreditInput(
+      name: nameController.text.trim(),
+      role: roleController.text.trim().isEmpty
+          ? null
+          : roleController.text.trim(),
+      sourceType: sourceType,
     );
-    return result;
   }
 
   void dispose() {
@@ -121,16 +134,16 @@ bool isVideoCastRole(String? role) {
 }
 
 List<EditableVideoCredit> splitVideoCredits(
-  List<Map<String, dynamic>> creators, {
+  List<VideoCreditInput> creators, {
   required VideoCreditKind kind,
 }) {
   final credits = <EditableVideoCredit>[];
   for (final creator in creators) {
-    final role = creator['role']?.toString();
+    final role = creator.role;
     final isCast = isVideoCastRole(role);
     if ((kind == VideoCreditKind.cast && isCast) ||
         (kind == VideoCreditKind.crew && !isCast)) {
-      credits.add(EditableVideoCredit.fromMetadata(creator));
+      credits.add(EditableVideoCredit.fromInput(creator));
     }
   }
   return credits;

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -12,7 +13,9 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// at this serialization boundary.
 final class MovieCollectionCsvProjection
     with LibraryCollectionCsvProjectionPresentation
-    implements LibraryCollectionCsvProjection {
+    implements
+        LibraryCollectionCsvProjection,
+        LibraryCollectionCsvOwnedDetailsDecoder {
   const MovieCollectionCsvProjection();
 
   @override
@@ -45,6 +48,15 @@ final class MovieCollectionCsvProjection
   @override
   Map<String, List<String>> get columnAliases =>
       MovieCollectionCsvImportProfile.columnAliases;
+
+  @override
+  JsonEncodable? decodeOwnedDetails(List<String> cells) {
+    if (cells.isEmpty ||
+        cells.first.trim().isEmpty) {
+      return null;
+    }
+    return _MovieCollectionCsvOwnedImportPayload(cells.first.trim());
+  }
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
@@ -93,6 +105,9 @@ final class MovieCollectionCsvProjection
   }
 
   @override
+  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.grade;
+
+  @override
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,
@@ -120,4 +135,13 @@ final class MovieCollectionCsvProjection
         '${utc.month.toString().padLeft(2, '0')}-'
         '${utc.day.toString().padLeft(2, '0')}';
   }
+}
+
+final class _MovieCollectionCsvOwnedImportPayload implements JsonEncodable {
+  const _MovieCollectionCsvOwnedImportPayload(this.grade);
+
+  final String grade;
+
+  @override
+  Map<String, dynamic> toJson() => {'grade': grade};
 }

@@ -459,7 +459,6 @@ final class CollectionImportService {
     payload['catalog_ref'] = catalogRef.toJson();
     payload['updated_at'] = now.toUtc().toIso8601String();
     if (row.condition != null) payload['condition'] = row.condition;
-    if (row.grade != null) payload['grade'] = row.grade;
     if (row.purchaseDate != null) {
       payload['purchase_date'] = row.purchaseDate!.toUtc().toIso8601String();
     }
@@ -498,9 +497,6 @@ final class CollectionImportService {
     CollectionCsvRow row, {
     required CatalogMediaKind kind,
   }) {
-    if (row.kindOwnedCells.length != libraryCollectionCsvOwnedCellCount) {
-      return null;
-    }
     final projection = libraryCollectionCsvProjectionForKind(
       kind,
     );

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
@@ -235,7 +236,14 @@ LibraryEditKindDraft createMovieEditDraft({
     initialReleaseDate:
         movie?.releaseDate == null ? '' : formatDate(movie!.releaseDate!),
     initialReleaseYear: movie?.releaseDate?.year.toString() ?? '',
-    initialCreators: movie?.creators ?? const <Map<String, dynamic>>[],
+    initialCreators: [
+      for (final creator in movie?.creators ?? const <Map<String, dynamic>>[])
+        VideoCreditInput(
+          name: creator['name']?.toString() ?? '',
+          role: creator['role']?.toString() ?? creator['job']?.toString(),
+          sourceType: creator['source_type']?.toString() ?? 'provider',
+        ),
+    ],
     initialTrailerLinks: movie?.links ?? const <TrailerLinkDto>[],
   );
   videoEdit.initializeVideoEditors();

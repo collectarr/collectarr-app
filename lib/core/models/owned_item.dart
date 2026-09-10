@@ -45,9 +45,9 @@ class OwnedItem<TDetails extends JsonEncodable> {
 
   /// Canonical in-memory target for this owned copy.
   ///
-  /// The v1 wire fields are intentionally not stored as a second domain
-  /// representation. They are reconstructed only at the serialization
-  /// boundary below.
+  /// The target is serialized as one structural reference. The old
+  /// anchor_type/edition_id/variant_id/bundle_release_id compatibility
+  /// envelope is intentionally not emitted or read by the v1 model.
   final CatalogEntityRef? targetRef;
   final String? condition;
   final String? grade;
@@ -91,7 +91,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       'catalog_ref': catalogRef.toJson(),
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if (isDigital != null) 'is_digital': isDigital,
-      ..._v1TargetPayload(targetRef),
+      'target_ref': targetRef?.toJson(),
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -120,7 +120,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       'catalog_ref': catalogRef.toJson(),
       'created_at': createdAt?.toUtc().toIso8601String(),
       'is_digital': isDigital,
-      ..._v1TargetPayload(targetRef),
+      'target_ref': targetRef?.toJson(),
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -161,7 +161,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
           ? null
           : DateTime.parse(json['created_at'] as String),
       isDigital: json['is_digital'] as bool?,
-      targetRef: _targetRefFromV1Payload(catalogRef, payload: json),
+      targetRef: _targetRefFromJson(json['target_ref']),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: json['purchase_date'] == null
@@ -320,98 +320,7 @@ OwnedItemSummary ownedItemSummaryFromOwnedItem(OwnedItem item) {
   );
 }
 
-CatalogEntityRef? _targetRefFromV1Payload(
-  CatalogEntityRef catalogRef, {
-  required Map<String, Object?> payload,
-}) {
-  final anchorType = payload['anchor_type'] as String?;
-  final editionId = payload['edition_id'] as String?;
-  final variantId = payload['variant_id'] as String?;
-  final bundleReleaseId = payload['bundle_release_id'] as String?;
-  final normalizedType = anchorType?.trim().toLowerCase();
-  final rootId = catalogRef.rootId ?? catalogRef.id;
-  if (normalizedType == 'item') {
-    return catalogRef.copyWith(
-      id: rootId,
-      entityType: const CatalogEntityTypeId('work'),
-      rootId: null,
-    );
-  }
-  if (bundleReleaseId != null || normalizedType == 'bundle_release') {
-    return bundleReleaseId == null
-        ? null
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('bundle_release'),
-            id: bundleReleaseId,
-            rootId: rootId,
-          );
-  }
-  if (variantId != null || normalizedType == 'variant') {
-    return variantId == null
-        ? editionId == null
-            ? null
-            : CatalogEntityRef(
-                kind: catalogRef.kind,
-                entityType: const CatalogEntityTypeId('edition'),
-                id: editionId,
-                rootId: rootId,
-              )
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('release'),
-            id: variantId,
-            rootId: rootId,
-            parentId: editionId,
-          );
-  }
-  if (editionId != null || normalizedType == 'edition') {
-    return editionId == null
-        ? null
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('edition'),
-            id: editionId,
-            rootId: rootId,
-          );
-  }
-  return null;
-}
-
-Map<String, Object?> _v1TargetPayload(CatalogEntityRef? targetRef) {
-  if (targetRef == null) return const <String, Object?>{};
-  return {
-    'anchor_type': _v1AnchorTypeFromTarget(targetRef),
-    'edition_id': _v1EditionIdFromTarget(targetRef),
-    'variant_id': _v1VariantIdFromTarget(targetRef),
-    'bundle_release_id': _v1BundleReleaseIdFromTarget(targetRef),
-  };
-}
-
-String? _v1AnchorTypeFromTarget(CatalogEntityRef? targetRef) {
-  if (targetRef == null) return null;
-  return switch (targetRef.entityType.apiValue) {
-    'edition' => 'edition',
-    'release' => 'variant',
-    'bundle_release' => 'bundle_release',
-    _ => 'item',
-  };
-}
-
-String? _v1EditionIdFromTarget(CatalogEntityRef? targetRef) {
-  return switch (targetRef?.entityType.apiValue) {
-    'edition' => targetRef?.id,
-    'release' => targetRef?.parentId,
-    _ => null,
-  };
-}
-
-String? _v1VariantIdFromTarget(CatalogEntityRef? targetRef) {
-  return targetRef?.entityType.apiValue == 'release' ? targetRef?.id : null;
-}
-
-String? _v1BundleReleaseIdFromTarget(CatalogEntityRef? targetRef) {
-  return targetRef?.entityType.apiValue == 'bundle_release'
-      ? targetRef?.id
-      : null;
+CatalogEntityRef? _targetRefFromJson(Object? value) {
+  if (value is! Map) return null;
+  return CatalogEntityRef.fromJson(Map<String, dynamic>.from(value));
 }

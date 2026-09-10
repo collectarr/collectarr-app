@@ -18,6 +18,7 @@ final class MovieCollectionCsvImportRow {
     this.studio,
     this.releaseDate,
     this.barcode,
+    this.grade,
   });
 
   final String itemId;
@@ -31,6 +32,7 @@ final class MovieCollectionCsvImportRow {
   final String? studio;
   final DateTime? releaseDate;
   final String? barcode;
+  final String? grade;
 
   List<String> get catalogCells => [
         itemId,
@@ -46,7 +48,7 @@ final class MovieCollectionCsvImportRow {
         barcode ?? '',
       ];
 
-  List<String> get ownedCells => List<String>.filled(9, '');
+  List<String> get ownedCells => [grade ?? '', ...List<String>.filled(9, '')];
 
   static String _formatDate(DateTime? value) {
     if (value == null) return '';
@@ -135,6 +137,7 @@ final class MovieCollectionCsvImportProfile {
       'UPC',
       'Barcode / UPC',
     ],
+    'grade': ['Grade', 'Grade and Value'],
   };
 
   MovieCollectionCsvImportRow? parseRow({
@@ -157,6 +160,7 @@ final class MovieCollectionCsvImportProfile {
       studio: _optionalValue(index, values, 'publisher'),
       releaseDate: _parseDate(_value(index, values, 'release_date')),
       barcode: _optionalValue(index, values, 'barcode'),
+      grade: _optionalValue(index, values, 'grade'),
     );
   }
 

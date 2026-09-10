@@ -13,7 +13,6 @@ class CollectionCsvRow {
     this.kind,
     this.title,
     this.condition,
-    this.grade,
     this.purchaseDate,
     this.pricePaidCents,
     this.currency,
@@ -46,7 +45,6 @@ class CollectionCsvRow {
   /// [kindCatalogCells] and [kindOwnedCells] and are interpreted only by the
   /// owning kind projection.
   final String? condition;
-  final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
@@ -82,7 +80,6 @@ class CollectionCsvRow {
     String? kind,
     String? title,
     String? condition,
-    String? grade,
     DateTime? purchaseDate,
     int? pricePaidCents,
     String? currency,
@@ -108,7 +105,6 @@ class CollectionCsvRow {
       kind: kind ?? this.kind,
       title: title ?? this.title,
       condition: condition ?? this.condition,
-      grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
@@ -311,6 +307,11 @@ class CollectionCsv {
     return cells;
   }
 
+  String _ownedGrade(ShelfEntry entry) {
+    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    return projection?.ownedGrade(entry) ?? '';
+  }
+
   List<String> _kindOwnedCellsAfterIndex(
     ShelfEntry entry, {
     required bool clzFriendly,
@@ -361,7 +362,7 @@ class CollectionCsv {
       ..._catalogFields(entry),
       _status(entry),
       entry.condition ?? '',
-      entry.grade ?? '',
+      _ownedGrade(entry),
       _formatDate(entry.purchaseDate),
       entry.pricePaidCents?.toString() ?? '',
       entry.currency ?? entry.wishlistItem?.currency ?? '',
@@ -398,7 +399,7 @@ class CollectionCsv {
       ..._catalogFields(entry),
       _clzStatus(entry),
       entry.condition ?? '',
-      entry.grade ?? '',
+      _ownedGrade(entry),
       _formatDate(entry.purchaseDate),
       _formatMoney(entry.pricePaidCents),
       entry.currency ?? entry.wishlistItem?.currency ?? '',
@@ -582,10 +583,9 @@ class CollectionCsv {
         '$libraryCollectionCsvCatalogCellCount.',
       );
     }
-    if (ownedCells.length != libraryCollectionCsvOwnedCellCount) {
+    if (ownedCells.isEmpty) {
       throw StateError(
-        'Collection CSV import owned projection returned ${ownedCells.length} '
-        'cells; expected $libraryCollectionCsvOwnedCellCount.',
+        'Collection CSV import owned projection returned no cells.',
       );
     }
     return CollectionCsvRow(
@@ -594,7 +594,6 @@ class CollectionCsv {
       kind: _optionalCell(catalogCells[1]),
       title: _optionalCell(catalogCells[2]),
       condition: _optionalValue(index, values, 'condition'),
-      grade: _optionalValue(index, values, 'grade'),
       purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
       pricePaidCents: _moneyCents(_value(index, values, 'price_paid_cents')),
       currency: _optionalValue(index, values, 'currency'),

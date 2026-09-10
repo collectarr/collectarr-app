@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
@@ -8,7 +9,9 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// Manga's semantic contribution to the generic collection CSV host.
 final class MangaCollectionCsvProjection
     with LibraryCollectionCsvProjectionPresentation
-    implements LibraryCollectionCsvProjection {
+    implements
+        LibraryCollectionCsvProjection,
+        LibraryCollectionCsvOwnedDetailsDecoder {
   const MangaCollectionCsvProjection();
 
   @override
@@ -43,6 +46,15 @@ final class MangaCollectionCsvProjection
   @override
   Map<String, List<String>> get columnAliases =>
       MangaCollectionCsvImportProfile.columnAliases;
+
+  @override
+  JsonEncodable? decodeOwnedDetails(List<String> cells) {
+    if (cells.isEmpty ||
+        cells.first.trim().isEmpty) {
+      return null;
+    }
+    return _MangaCollectionCsvOwnedImportPayload(cells.first.trim());
+  }
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
@@ -96,6 +108,9 @@ final class MangaCollectionCsvProjection
   }
 
   @override
+  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.grade;
+
+  @override
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,
@@ -123,4 +138,13 @@ final class MangaCollectionCsvProjection
         '${utc.month.toString().padLeft(2, '0')}-'
         '${utc.day.toString().padLeft(2, '0')}';
   }
+}
+
+final class _MangaCollectionCsvOwnedImportPayload implements JsonEncodable {
+  const _MangaCollectionCsvOwnedImportPayload(this.grade);
+
+  final String grade;
+
+  @override
+  Map<String, dynamic> toJson() => {'grade': grade};
 }

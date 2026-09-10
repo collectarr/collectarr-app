@@ -49,6 +49,12 @@ abstract interface class LibraryCollectionCsvProjection {
 
   List<String> catalogCells(ShelfEntry entry);
 
+  /// Serializes the owning kind's grade/value column at the CSV boundary.
+  ///
+  /// The collection row intentionally has no canonical grade field. A kind
+  /// decides whether and how its Owned aggregate contributes this column.
+  String? ownedGrade(ShelfEntry entry);
+
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,
