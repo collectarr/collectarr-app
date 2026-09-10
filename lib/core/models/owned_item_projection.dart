@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import 'catalog_entity_ref.dart';
-import 'catalog_media_kind.dart';
 import 'money.dart';
 
 /// Stable cross-kind identity for an owned copy.
@@ -88,6 +87,7 @@ final class OwnedItemSummary {
     required this.title,
     this.catalogRef,
     this.targetRef,
+    this.isDigital,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
@@ -112,6 +112,7 @@ final class OwnedItemSummary {
   final String title;
   final CatalogEntityRef? catalogRef;
   final CatalogEntityRef? targetRef;
+  final bool? isDigital;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
@@ -154,6 +155,7 @@ final class OwnedItemSummary {
       targetRef: targetRef == _summaryUnset
           ? this.targetRef
           : targetRef as CatalogEntityRef?,
+      isDigital: isDigital,
       createdAt: createdAt,
       updatedAt: updatedAt,
       deletedAt: deletedAt,

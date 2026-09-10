@@ -355,6 +355,7 @@ class LibraryEditDraft {
   }
 
   bool get isDigitalFormat {
+    final existingOwnedItem = ownedItem;
     final physicalFormatLabel = item.physicalFormatLabel;
     final physicalFormat = item.physicalFormat;
     final format = physicalFormatLabel ??
@@ -362,7 +363,9 @@ class LibraryEditDraft {
         (item.titleExtension ?? item.editionTitle)?.trim() ??
         '';
     return type.edit.resolveOwnedDigitalFlag(
-          ownedItem,
+          existingOwnedItem == null
+              ? null
+              : ownedItemSummaryFromOwnedItem(existingOwnedItem),
           item.editions,
           fallbackFormat: physicalFormat,
           fallbackLabel: format,

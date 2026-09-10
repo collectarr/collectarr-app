@@ -306,6 +306,7 @@ OwnedItemSummary ownedItemSummaryFromOwnedItem(OwnedItem item) {
     title: item.catalogRef.id,
     catalogRef: item.catalogRef,
     targetRef: item.targetRef,
+    isDigital: item.isDigital,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
     deletedAt: item.deletedAt,

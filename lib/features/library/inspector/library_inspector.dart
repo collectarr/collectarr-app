@@ -189,20 +189,29 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         (widget.ownedItem == null
             ? const <OwnedItem>[]
             : <OwnedItem>[widget.ownedItem!]);
-    final ownedResolution = resolveActiveOwnedItem(
-      ownedCopies,
-      fallback: widget.ownedItem,
+    final ownedSummaryCopies = ownedCopies
+        .map(ownedItemSummaryFromOwnedItem)
+        .toList(growable: false);
+    final ownedSummaryResolution = resolveActiveOwnedSummary(
+      ownedSummaryCopies,
+      fallback: widget.ownedItem == null
+          ? null
+          : ownedItemSummaryFromOwnedItem(widget.ownedItem!),
       selectedOwnedItemId: _selectedOwnedItemId,
       selectNewest: _selectNewestOwnedItem,
     );
-    final activeOwnedItem = ownedResolution.ownedItem;
-    if (ownedResolution.shouldScheduleSelection(
-      _selectedOwnedItemId,
-      _selectNewestOwnedItem,
-    )) {
+    final activeOwnedItem = _ownedItemForSummary(
+      ownedSummaryResolution.ownedItem,
+      ownedCopies,
+      fallback: widget.ownedItem,
+    );
+    if (ownedSummaryResolution.nextSelectedOwnedItemId != null &&
+        (ownedSummaryResolution.nextSelectedOwnedItemId !=
+                _selectedOwnedItemId ||
+            (ownedSummaryResolution.clearNewest && _selectNewestOwnedItem))) {
       _scheduleOwnedCopySelection(
-        ownedResolution.nextSelectedOwnedItemId!,
-        clearNewest: ownedResolution.clearNewest,
+        ownedSummaryResolution.nextSelectedOwnedItemId!,
+        clearNewest: ownedSummaryResolution.clearNewest,
       );
     }
     final trackingEntries = switch (selected.source.catalogRef) {
@@ -213,7 +222,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     };
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
-      activeOwnedItem,
+      activeOwnedItem == null
+          ? null
+          : ownedItemSummaryFromOwnedItem(activeOwnedItem),
     );
     final onToggleOwned = selected.source.isOwned
         ? activeOwnedItem == null
@@ -404,7 +415,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         (editCapability.conditions.isNotEmpty ||
             editCapability.collectionValueOptions.isNotEmpty) &&
         widget.type.edit.resolveOwnedDigitalFlag(
-              activeOwnedItem,
+              ownedItemSummaryFromOwnedItem(activeOwnedItem),
               selected.source.catalogItem?.editions ?? const [],
               fallbackLabel: selected.dto is WorkspaceDtoAdapter
                   ? (selected.dto as WorkspaceDtoAdapter).variant
@@ -580,7 +591,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               (editCapability.conditions.isNotEmpty ||
                   editCapability.collectionValueOptions.isNotEmpty) &&
               widget.type.edit.resolveOwnedDigitalFlag(
-                    activeOwnedItem,
+                    ownedItemSummaryFromOwnedItem(activeOwnedItem),
                     selected.source.catalogItem?.editions ?? const [],
                     fallbackLabel: selected.dto is WorkspaceDtoAdapter
                         ? (selected.dto as WorkspaceDtoAdapter).variant
@@ -634,6 +645,18 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         body: SingleChildScrollView(child: child),
       ),
     );
+  }
+
+  OwnedItem? _ownedItemForSummary(
+    OwnedItemSummary? summary,
+    List<OwnedItem> candidates, {
+    required OwnedItem? fallback,
+  }) {
+    if (summary == null) return fallback;
+    for (final item in candidates) {
+      if (item.ref == summary.ref) return item;
+    }
+    return fallback;
   }
 
   void _scheduleOwnedCopySelection(
@@ -801,7 +824,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                             value: copies[index].id,
                             child: Text(
                               buildOwnedCopyLabel(
-                                copies[index],
+                                ownedItemSummaryFromOwnedItem(copies[index]),
                                 editions,
                                 index,
                                 digitalFlagResolver: digitalFlagResolver,

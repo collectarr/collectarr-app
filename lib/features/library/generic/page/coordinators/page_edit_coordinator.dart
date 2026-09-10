@@ -99,7 +99,7 @@ class LibraryPageEditCoordinator {
       _s.ref.read(
               trackingEntriesByCatalogRefProvider)[catalogItem.catalogRef] ??
           const <TrackingEntry>[],
-      owned,
+      owned == null ? null : ownedItemSummaryFromOwnedItem(owned),
     );
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
     final viewState = _s._viewState ?? _s._viewProfile.defaults();

@@ -122,7 +122,7 @@ class LibraryEditCapability {
       ownedCollectionValueReader(ownedItem);
 
   bool? resolveOwnedDigitalFlag(
-    OwnedItem? ownedItem,
+    OwnedItemSummary? ownedItem,
     List<CatalogEditionDto> editions, {
     String? fallbackFormat,
     String? fallbackLabel,

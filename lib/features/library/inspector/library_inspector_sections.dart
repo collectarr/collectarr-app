@@ -61,6 +61,7 @@ class InspectorPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final existingOwnedItem = ownedItem;
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final catalogEditions = item.source.catalogItem?.editions ?? const [];
@@ -78,13 +79,17 @@ class InspectorPersonalSection extends StatelessWidget {
         ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
         ownedItem?.currency ?? adapter?.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
-      ownedItem,
+      existingOwnedItem == null
+          ? null
+          : ownedItemSummaryFromOwnedItem(existingOwnedItem),
       catalogEditions,
       digitalFlagResolver: type.edit.resolveOwnedDigitalFlag,
       fallbackLabel: adapter?.variant,
     );
     final ownedIsDigital = type.edit.resolveOwnedDigitalFlag(
-      ownedItem,
+      existingOwnedItem == null
+          ? null
+          : ownedItemSummaryFromOwnedItem(existingOwnedItem),
       catalogEditions,
       fallbackLabel: adapter?.variant,
     );

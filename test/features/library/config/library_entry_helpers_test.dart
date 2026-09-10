@@ -43,7 +43,7 @@ void main() {
 
     final resolved = resolveActiveTrackingEntry(
       [trackedOnly, copyTracked],
-      OwnedItem(
+      ownedItemSummaryFromOwnedItem(OwnedItem(
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
@@ -52,7 +52,7 @@ void main() {
         ),
         details: const TestOwnedDetails(),
         updatedAt: DateTime.utc(2026, 5, 25, 11),
-      ),
+      )),
     );
 
     expect(resolved?.id, 'tracking-copy');

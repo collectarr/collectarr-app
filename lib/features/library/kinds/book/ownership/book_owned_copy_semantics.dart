@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
 
 bool? resolveBookOwnedDigitalFlag(
-  OwnedItem? ownedItem,
+  OwnedItemSummary? ownedItem,
   List<CatalogEditionDto> editions, {
   String? fallbackFormat,
   String? fallbackLabel,

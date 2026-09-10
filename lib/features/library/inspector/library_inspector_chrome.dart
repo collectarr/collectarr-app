@@ -26,7 +26,11 @@ class InspectorBackdrop extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final ownedRef = resolveLibraryOwnedItemRef(item, ownedItem);
+    final suppliedOwnedItem = ownedItem;
+    final ownedSummary = suppliedOwnedItem == null
+        ? null
+        : ownedItemSummaryFromOwnedItem(suppliedOwnedItem);
+    final ownedRef = resolveLibraryOwnedItemRef(item, ownedSummary);
     return Stack(
       fit: StackFit.expand,
       children: [

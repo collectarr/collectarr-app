@@ -63,6 +63,7 @@ final class BoardGameOwnedItemProjection {
       ),
       catalogRef: item.catalogRef,
       targetRef: item.targetRef,
+      isDigital: item.isDigital,
       title: item.itemId,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,

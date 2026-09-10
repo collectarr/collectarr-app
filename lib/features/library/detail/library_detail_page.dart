@@ -142,7 +142,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     };
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
-      suppliedOwnedItem,
+      activeOwnedSummary,
     );
     final isOwned = ownedCopies.isNotEmpty ||
         activeOwnedSummary != null ||

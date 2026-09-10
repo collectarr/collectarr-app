@@ -802,7 +802,9 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
                       value: release.ownedCopies[index].id,
                       child: Text(
                         buildOwnedCopyLabel(
-                          release.ownedCopies[index],
+                          ownedItemSummaryFromOwnedItem(
+                            release.ownedCopies[index],
+                          ),
                           [release.edition],
                           index,
                           digitalFlagResolver: digitalFlagResolver,
