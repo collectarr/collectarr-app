@@ -49,8 +49,8 @@ final _boardgameTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.collectionValue,
+    write: (item, value) => item.copyWith(collectionValue: value),
   ),
   TransferableField(
     key: 'isSleeved',
@@ -221,7 +221,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
     presentation: boardGamesLibraryEditPresentation,
     conditions: BoardGameVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     createDraft: createBoardGameEditDraft,
@@ -270,7 +270,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         BoardgameOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.grade),
+      grade: Patch.set(updated.collectionValue),
       personalNotes: Patch.set(updated.personalNotes),
       locationId: Patch.set(updated.locationId),
       tags: Patch.set(updated.tags),

@@ -108,12 +108,12 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Grade',
     anyLabel: 'Any grade',
     missingValueLabel: 'Missing grade',
-    value: (item) => item.source.ownedItem?.grade,
+    value: (item) => item.source.ownedItem?.collectionValue,
     matches: (item, value) => value == LibraryFilterDefinition.missingValue
         ? item.source.isOwned &&
-            (item.source.ownedItem?.grade == null ||
-                item.source.ownedItem!.grade!.trim().isEmpty)
-        : item.source.ownedItem?.grade?.trim() == value,
+            (item.source.ownedItem?.collectionValue == null ||
+                item.source.ownedItem!.collectionValue!.trim().isEmpty)
+        : item.source.ownedItem?.collectionValue?.trim() == value,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'condition',
@@ -220,8 +220,8 @@ bool? comicQuickViewMatcher(
 ) {
   return switch (view) {
     LibraryQuickView.missingGrade => item.source.isOwned &&
-        (item.source.ownedItem?.grade == null ||
-            item.source.ownedItem!.grade!.trim().isEmpty),
+        (item.source.ownedItem?.collectionValue == null ||
+            item.source.ownedItem!.collectionValue!.trim().isEmpty),
     _ => null,
   };
 }

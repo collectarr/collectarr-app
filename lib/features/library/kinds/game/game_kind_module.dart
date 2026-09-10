@@ -52,8 +52,8 @@ final _gameTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.collectionValue,
+    write: (item, value) => item.copyWith(collectionValue: value),
   ),
 ];
 
@@ -176,7 +176,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
     conditions: GameVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     presentation: gameLibraryEditPresentation,
@@ -226,7 +226,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         GameOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.grade),
+      grade: Patch.set(updated.collectionValue),
       personalNotes: Patch.set(updated.personalNotes),
       locationId: Patch.set(updated.locationId),
       tags: Patch.set(updated.tags),

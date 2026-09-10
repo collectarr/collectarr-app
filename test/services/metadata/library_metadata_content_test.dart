@@ -163,7 +163,7 @@ void main() {
         details: const TestOwnedDetails(),
         updatedAt: DateTime(2026, 1, 1),
         condition: 'Fine',
-        grade: '9.0',
+        collectionValue: '9.0',
         personalNotes: 'Personal note',
       ),
     );
@@ -192,8 +192,6 @@ void main() {
         'Product Details',
         'Contributors',
         'Images',
-        'Identifiers',
-        'Personal Details',
       ]),
     );
   });

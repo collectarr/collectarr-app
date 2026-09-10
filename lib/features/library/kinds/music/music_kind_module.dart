@@ -54,8 +54,8 @@ final _musicTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.collectionValue,
+    write: (item, value) => item.copyWith(collectionValue: value),
   ),
 ];
 
@@ -212,7 +212,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,
     conditions: MusicVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     createDraft: createMusicEditDraft,
@@ -261,7 +261,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         MusicOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.grade),
+      grade: Patch.set(updated.collectionValue),
       personalNotes: Patch.set(updated.personalNotes),
       locationId: Patch.set(updated.locationId),
       tags: Patch.set(updated.tags),

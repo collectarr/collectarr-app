@@ -114,7 +114,7 @@ void main() {
             entityType: const CatalogEntityTypeId('work'),
           ),
           condition: '9.8',
-          grade: '9.8',
+          collectionValue: '9.8',
           details: const ComicOwnedDetails(
             keyComic: true,
             keyReason: '1st Spider-Man',

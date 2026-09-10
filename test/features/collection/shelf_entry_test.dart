@@ -18,7 +18,7 @@ void main() {
         ),
         details: const TestOwnedDetails(),
         condition: 'Near Mint',
-        grade: '9.8',
+        collectionValue: '9.8',
         pricePaidCents: 1500,
         marketValueCents: 4500,
         currency: 'USD',
@@ -41,7 +41,7 @@ void main() {
       expect(entry.isOwned, isTrue);
       expect(entry.isWishlisted, isFalse);
       expect(entry.condition, 'Near Mint');
-      expect(entry.ownedItem?.grade, '9.8');
+      expect(entry.ownedItem?.collectionValue, '9.8');
       expect(entry.pricePaidCents, 1500);
       expect(entry.marketValueCents, 4500);
       expect(entry.currency, 'USD');

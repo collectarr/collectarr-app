@@ -49,8 +49,7 @@ final class MangaCollectionCsvProjection
 
   @override
   JsonEncodable? decodeOwnedDetails(List<String> cells) {
-    if (cells.isEmpty ||
-        cells.first.trim().isEmpty) {
+    if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
     return _MangaCollectionCsvOwnedImportPayload(cells.first.trim());
@@ -108,7 +107,7 @@ final class MangaCollectionCsvProjection
   }
 
   @override
-  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.grade;
+  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.collectionValue;
 
   @override
   List<String> ownedCellsBeforeQuantity(

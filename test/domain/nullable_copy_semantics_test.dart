@@ -39,7 +39,7 @@ void main() {
         ),
         details: const ComicOwnedDetails(),
         condition: 'Near Mint',
-        grade: '9.8',
+        collectionValue: '9.8',
         purchaseDate: DateTime.utc(2025, 1, 1),
         pricePaidCents: 5000,
         currency: 'USD',
@@ -57,7 +57,7 @@ void main() {
       // 1. Omitted -> preserve
       final preserved = item.copyWith();
       expect(preserved.condition, 'Near Mint');
-      expect(preserved.grade, '9.8');
+      expect(preserved.collectionValue, '9.8');
       expect(preserved.locationId, 'loc-1');
       expect(preserved.marketValueCents, 10000);
       expect(preserved.soldTo, 'Buyer 1');
@@ -65,13 +65,13 @@ void main() {
       // 2. Set -> replace
       final replaced = item.copyWith(
         condition: 'Very Fine',
-        grade: '8.0',
+        collectionValue: '8.0',
         locationId: 'loc-2',
         marketValueCents: 12000,
         soldTo: 'Buyer 2',
       );
       expect(replaced.condition, 'Very Fine');
-      expect(replaced.grade, '8.0');
+      expect(replaced.collectionValue, '8.0');
       expect(replaced.locationId, 'loc-2');
       expect(replaced.marketValueCents, 12000);
       expect(replaced.soldTo, 'Buyer 2');
@@ -79,7 +79,7 @@ void main() {
       // 3. Clear -> null
       final cleared = item.copyWith(
         condition: null,
-        grade: null,
+        collectionValue: null,
         locationId: null,
         marketValueCents: null,
         soldTo: null,
@@ -89,7 +89,7 @@ void main() {
         personalNotes: null,
       );
       expect(cleared.condition, isNull);
-      expect(cleared.grade, isNull);
+      expect(cleared.collectionValue, isNull);
       expect(cleared.locationId, isNull);
       expect(cleared.marketValueCents, isNull);
       expect(cleared.soldTo, isNull);

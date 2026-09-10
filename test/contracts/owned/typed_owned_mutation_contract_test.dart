@@ -42,7 +42,6 @@ void main() {
           ),
           common: const LibraryAddCommonDraft(
             condition: 'Good',
-            grade: '8.0',
           ),
           details: testKindModule(kind)
               .add

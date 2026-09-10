@@ -23,7 +23,7 @@ final class BoardGameOwnedItemProjection {
       isDigital: item.isDigital,
       targetRef: item.targetRef,
       condition: item.condition,
-      grade: item.grade,
+      grade: item.collectionValue,
       purchaseDate: item.purchaseDate,
       pricePaidCents: item.pricePaidCents,
       currency: item.currency,

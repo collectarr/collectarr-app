@@ -53,8 +53,7 @@ final class MusicCollectionCsvProjection
 
   @override
   JsonEncodable? decodeOwnedDetails(List<String> cells) {
-    if (cells.isEmpty ||
-        cells.first.trim().isEmpty) {
+    if (cells.isEmpty || cells.first.trim().isEmpty) {
       return null;
     }
     return _MusicCollectionCsvOwnedImportPayload(cells.first.trim());
@@ -112,7 +111,7 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.grade;
+  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.collectionValue;
 
   @override
   List<String> ownedCellsBeforeQuantity(

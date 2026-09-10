@@ -59,8 +59,8 @@ final _bookTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.collectionValue,
+    write: (item, value) => item.copyWith(collectionValue: value),
   ),
   TransferableField(
     key: 'signedBy',
@@ -320,7 +320,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
       releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
     ),
     conditions: BookVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     createDraft: createBookEditDraft,
@@ -369,7 +369,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         BookOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.grade),
+      grade: Patch.set(updated.collectionValue),
       personalNotes: Patch.set(updated.personalNotes),
       locationId: Patch.set(updated.locationId),
       tags: Patch.set(updated.tags),

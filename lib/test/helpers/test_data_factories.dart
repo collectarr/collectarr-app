@@ -407,7 +407,7 @@ OwnedItem testOwnedItem({
               )),
     details: details,
     condition: condition,
-    grade: grade,
+    collectionValue: grade,
     purchaseDate: purchaseDate,
     pricePaidCents: pricePaidCents,
     currency: currency,

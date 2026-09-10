@@ -74,8 +74,8 @@ final _movieTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.collectionValue,
+    write: (item, value) => item.copyWith(collectionValue: value),
   ),
   TransferableField(
     key: 'features',
@@ -232,7 +232,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
       catalogRef: item.catalogRef,
       details: details as MovieOwnedDetailsDraft,
       condition: common.condition,
-      grade: draft.grade,
+      grade: common.isDigital == true ? null : draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,
@@ -298,7 +298,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
     presentation: movieLibraryEditPresentation,
     conditions: MovieVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     createDraft: createMovieEditDraft,
@@ -347,7 +347,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         MovieOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.grade),
+      grade: Patch.set(updated.collectionValue),
       personalNotes: Patch.set(updated.personalNotes),
       locationId: Patch.set(updated.locationId),
       tags: Patch.set(updated.tags),

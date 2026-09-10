@@ -291,10 +291,10 @@ class BookLibraryMediaPresentationBuilder
     final personalFacts = <LibraryDetailField>[
       if (source.condition?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Condition', value: source.condition!.trim()),
-      if (source.ownedItem?.grade?.trim().isNotEmpty == true)
+      if (source.ownedItem?.collectionValue?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Grade',
-          value: source.ownedItem!.grade!.trim(),
+          value: source.ownedItem!.collectionValue!.trim(),
         ),
       if (source.ownedItem?.collectionStatus?.trim().isNotEmpty == true)
         LibraryDetailField(

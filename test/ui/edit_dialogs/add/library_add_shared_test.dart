@@ -23,8 +23,6 @@ void main() {
           body: LibraryCoverScanPrefillBanner(
             result: LibraryCoverScanResult(
               query: 'Batman',
-              issueNumber: '1',
-              publisher: 'DC',
               year: 2011,
               confidenceLabel: 'high',
             ),
@@ -35,7 +33,7 @@ void main() {
 
     expect(find.byIcon(Icons.photo_camera_outlined), findsOneWidget);
     expect(find.textContaining('Batman'), findsOneWidget);
-    expect(find.textContaining('#1'), findsOneWidget);
+    expect(find.textContaining('2011'), findsOneWidget);
     expect(find.textContaining('high confidence'), findsOneWidget);
   });
 }

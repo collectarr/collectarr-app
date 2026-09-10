@@ -76,7 +76,7 @@ void main() {
       isDigital: item.isDigital,
       targetRef: item.targetRef,
       condition: item.condition,
-      grade: item.grade,
+      collectionValue: item.grade,
       purchaseDate: item.purchaseDate,
       pricePaidCents: item.pricePaidCents,
       currency: item.currency,

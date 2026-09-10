@@ -271,7 +271,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     presentation: comicsLibraryEditPresentation,
     conditions: ComicVocabularies.condition.builtIns,
     collectionValueOptions: ComicVocabularies.grade.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     editChrome: const LibraryEditChromeConfig(
@@ -326,7 +326,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         ComicOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.grade),
+      grade: Patch.set(updated.collectionValue),
       personalNotes: Patch.set(updated.personalNotes),
       locationId: Patch.set(updated.locationId),
       tags: Patch.set(updated.tags),

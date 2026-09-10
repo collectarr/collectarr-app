@@ -21,7 +21,7 @@ void main() {
         ),
         details: const TestOwnedDetails(),
         condition: 'Mint',
-        grade: '9.8',
+        collectionValue: '9.8',
         personalNotes: 'First print run',
         pricePaidCents: 450,
         updatedAt: DateTime(2026, 1, 1),

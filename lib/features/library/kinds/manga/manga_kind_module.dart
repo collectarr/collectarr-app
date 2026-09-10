@@ -70,8 +70,8 @@ final _mangaTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.collectionValue,
+    write: (item, value) => item.copyWith(collectionValue: value),
   ),
   TransferableField(
     key: 'signedBy',
@@ -312,7 +312,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
     presentation: mangaLibraryEditPresentation,
     conditions: MangaVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
     vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
@@ -368,7 +368,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) =>
         MangaOwnedItemUpdatePayload.partial(
       condition: Patch.set(updated.condition),
-      grade: Patch.set(updated.grade),
+      grade: Patch.set(updated.collectionValue),
       personalNotes: Patch.set(updated.personalNotes),
       locationId: Patch.set(updated.locationId),
       tags: Patch.set(updated.tags),

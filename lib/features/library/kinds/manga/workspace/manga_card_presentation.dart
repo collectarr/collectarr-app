@@ -30,22 +30,22 @@ LibraryCardPresentation buildMangaCardPresentation(
     );
   }
 
-  if (item.source.ownedItem?.grade?.trim().isNotEmpty == true) {
+  if (item.source.ownedItem?.collectionValue?.trim().isNotEmpty == true) {
     badges.add(
       LibraryCardBadge(
         icon: Icons.workspace_premium,
-        label: 'Grade ${item.source.ownedItem!.grade!.trim()}',
+        label: 'Grade ${item.source.ownedItem!.collectionValue!.trim()}',
       ),
     );
   }
 
   Widget Function(Widget child)? overlay;
   if (mangaDetails?.gradingCompany != null &&
-      item.source.ownedItem?.grade != null) {
+      item.source.ownedItem?.collectionValue != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: 'slabbed',
           companyName: mangaDetails?.gradingCompany,
-          scoreLabel: item.source.ownedItem?.grade,
+          scoreLabel: item.source.ownedItem?.collectionValue,
           labelType: null,
           child: child,
         );

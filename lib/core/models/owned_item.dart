@@ -17,7 +17,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     this.targetRef,
     required this.details,
     this.condition,
-    this.grade,
+    this.collectionValue,
     this.purchaseDate,
     this.pricePaidCents,
     this.currency,
@@ -50,7 +50,10 @@ class OwnedItem<TDetails extends JsonEncodable> {
   /// envelope is intentionally not emitted or read by the v1 model.
   final CatalogEntityRef? targetRef;
   final String? condition;
-  final String? grade;
+
+  /// Structural collection value exposed only while a legacy/common transport
+  /// aggregate is being removed. Concrete kinds own the semantic field.
+  final String? collectionValue;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
@@ -93,7 +96,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       if (isDigital != null) 'is_digital': isDigital,
       'target_ref': targetRef?.toJson(),
       'condition': condition,
-      'grade': grade,
+      'grade': collectionValue,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
       'price_paid_cents': pricePaidCents,
       'currency': currency,
@@ -122,7 +125,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       'is_digital': isDigital,
       'target_ref': targetRef?.toJson(),
       'condition': condition,
-      'grade': grade,
+      'grade': collectionValue,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
       'price_paid_cents': pricePaidCents,
       'currency': currency,
@@ -163,7 +166,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       isDigital: json['is_digital'] as bool?,
       targetRef: _targetRefFromJson(json['target_ref']),
       condition: json['condition'] as String?,
-      grade: json['grade'] as String?,
+      collectionValue: json['grade'] as String?,
       purchaseDate: json['purchase_date'] == null
           ? null
           : DateTime.parse(json['purchase_date'] as String),
@@ -199,7 +202,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     Object? targetRef = _ownedItemUnset,
     TDetails? details,
     Object? condition = _ownedItemUnset,
-    Object? grade = _ownedItemUnset,
+    Object? collectionValue = _ownedItemUnset,
     Object? purchaseDate = _ownedItemUnset,
     Object? pricePaidCents = _ownedItemUnset,
     Object? currency = _ownedItemUnset,
@@ -237,7 +240,9 @@ class OwnedItem<TDetails extends JsonEncodable> {
       condition: identical(condition, _ownedItemUnset)
           ? this.condition
           : condition as String?,
-      grade: identical(grade, _ownedItemUnset) ? this.grade : grade as String?,
+      collectionValue: identical(collectionValue, _ownedItemUnset)
+          ? this.collectionValue
+          : collectionValue as String?,
       purchaseDate: identical(purchaseDate, _ownedItemUnset)
           ? this.purchaseDate
           : purchaseDate as DateTime?,

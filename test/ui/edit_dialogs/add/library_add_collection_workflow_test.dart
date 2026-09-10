@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_it
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -49,12 +50,14 @@ void main() {
       target: LibraryAddTarget.owned,
       defaults: LibraryAddDefaults(
         condition: 'Very Fine',
-        grade: '9.2',
         purchaseDate: DateTime.utc(2024, 5, 1),
         locationId: 'loc-1',
         readStatus: 'read',
         tags: 'favorite,dc',
       ),
+      kindDraftsByItemId: const {
+        'comic-1': ComicAddDraft(grade: '9.2'),
+      },
     );
 
     final catalogRows = await CatalogSnapshotRepository(fixture.db).findAll();
@@ -93,7 +96,6 @@ void main() {
       target: LibraryAddTarget.wishlist,
       defaults: const LibraryAddDefaults(
         condition: 'Near Mint',
-        grade: 'Ungraded',
         locationId: 'loc-ignored',
       ),
     );
@@ -138,7 +140,6 @@ void main() {
       target: LibraryAddTarget.owned,
       defaults: LibraryAddDefaults(
         condition: 'Mint',
-        grade: '10.0',
         locationId: 'loc-digital',
         readStatus: 'watched',
       ),

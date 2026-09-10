@@ -53,7 +53,8 @@ final class ComicCollectionCsvProjection
 
   @override
   JsonEncodable? decodeOwnedDetails(List<String> cells) {
-    if (cells.isEmpty || cells.length > libraryCollectionCsvOwnedCellCount + 1) {
+    if (cells.isEmpty ||
+        cells.length > libraryCollectionCsvOwnedCellCount + 1) {
       return null;
     }
     final grade = _optionalCell(cells[0]);
@@ -103,7 +104,7 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.grade;
+  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.collectionValue;
 
   @override
   List<String> ownedCellsBeforeQuantity(
