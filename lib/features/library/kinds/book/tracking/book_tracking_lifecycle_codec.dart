@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
 
@@ -101,7 +101,7 @@ final class BookTrackingLifecycleCodec
   @override
   Future<TrackingLifecycle?> findFromStorage(
     LocalDatabase db,
-    TrackingEntryRef ref,
+    TrackingLifecycleRef ref,
   ) async {
     if (ref.kind != kind) return null;
     final row = await (db.select(db.bookTrackingRows)
@@ -130,7 +130,8 @@ final class BookTrackingLifecycleCodec
   }
 
   @override
-  Future<void> upsertToStorage(LocalDatabase db, TrackingLifecycle entry) async {
+  Future<void> upsertToStorage(
+      LocalDatabase db, TrackingLifecycle entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.bookTrackingRows).insertOnConflictUpdate(
           BookTrackingRowsCompanion.insert(

@@ -76,7 +76,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       const <TrailerLinkDto>[];
 
   final ownedItem = TvOwnedItemProjection.tryFromTyped(request.typedOwnedItem);
-  final trackingEntry = request.trackingEntry;
+  final trackingLifecycle = request.trackingLifecycle;
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.title),
@@ -85,11 +85,11 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     LibraryDetailField(label: 'Releases', value: rawEditions.length.toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
-    if (trackingEntry != null &&
-        tvTrackingCoordinatesFor(trackingEntry).episodeRatings.isNotEmpty)
+    if (trackingLifecycle != null &&
+        tvTrackingCoordinatesFor(trackingLifecycle).episodeRatings.isNotEmpty)
       LibraryDetailField(
           label: 'Rated episodes',
-          value: tvTrackingCoordinatesFor(trackingEntry)
+          value: tvTrackingCoordinatesFor(trackingLifecycle)
               .episodeRatings
               .length
               .toString()),

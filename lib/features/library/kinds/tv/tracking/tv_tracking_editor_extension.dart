@@ -7,7 +7,7 @@ import 'tv_tracking_lifecycle.dart';
 Widget buildTvTrackingEditorExtension(
   BuildContext context, {
   required TrackingLifecycle entry,
-  required ValueChanged<TrackingEntryEditMutation> onChanged,
+  required ValueChanged<TrackingLifecycleEditMutation> onChanged,
   required Color accent,
 }) {
   return _TvTrackingEditorExtension(
@@ -25,7 +25,7 @@ class _TvTrackingEditorExtension extends StatefulWidget {
   });
 
   final TrackingLifecycle entry;
-  final ValueChanged<TrackingEntryEditMutation> onChanged;
+  final ValueChanged<TrackingLifecycleEditMutation> onChanged;
   final Color accent;
 
   @override
@@ -109,7 +109,7 @@ class _TvTrackingEditorExtensionState
     final season = int.tryParse(_seasonController.text.trim());
     final episode = int.tryParse(_episodeController.text.trim());
     widget.onChanged(
-      (entry) => tvTrackingEntryFor(entry).copyWithCoordinates(
+      (entry) => tvTrackingLifecycleFor(entry).copyWithCoordinates(
         seasonNumber: season,
         episodeNumber: episode,
       ),

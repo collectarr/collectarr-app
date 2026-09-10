@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_code
 
 import 'contract_test_helpers.dart';
 
-void defineTrackingEntryContract({
+void defineTrackingLifecycleContract({
   required String name,
   required TrackingLifecycle Function() create,
   required TrackingLifecycleCodec codec,

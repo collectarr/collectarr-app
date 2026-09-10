@@ -72,7 +72,7 @@ void main() {
                     ),
                   ],
                   trackingSummaries: [
-                    TrackingSummary.fromEntry(TrackingLifecycle(
+                    TrackingSummary.fromLifecycle(TrackingLifecycle(
                       id: 'tracking-1',
                       catalogRef: testCatalogRef('book-1', kind: 'book'),
                       ownedRef: OwnedItemRef.fromKey('book:owned-1'),

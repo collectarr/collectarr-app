@@ -231,7 +231,7 @@ void main() {
       );
       expect(success, true);
 
-      final tracking = await readSingleTrackingEntry(db);
+      final tracking = await readSingleTrackingLifecycle(db);
       expect(tracking.catalogRef.id, 'comic-track-1');
     });
 

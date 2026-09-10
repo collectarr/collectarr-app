@@ -45,7 +45,7 @@ class InspectorPersonalSection extends StatelessWidget {
     required this.item,
     this.ownedItem,
     this.typedOwnedItem,
-    this.trackingEntry,
+    this.trackingLifecycle,
     required this.accent,
     this.valueSnapshot,
     this.onFilterByValue,
@@ -55,7 +55,7 @@ class InspectorPersonalSection extends StatelessWidget {
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
-  final TrackingLifecycle? trackingEntry;
+  final TrackingLifecycle? trackingLifecycle;
   final Color accent;
   final LibraryValueSnapshot? valueSnapshot;
   final ValueChanged<String>? onFilterByValue;
@@ -85,7 +85,7 @@ class InspectorPersonalSection extends StatelessWidget {
       digitalFlagResolver: type.edit.resolveOwnedDigitalFlag,
       fallbackLabel: adapter?.variant,
     );
-    final tracking = trackingEntry;
+    final tracking = trackingLifecycle;
     final trackingRating = tracking?.rating;
     final trackingStatus = tracking?.statusStorageValue;
     final trackingStartedAt = tracking?.startedAt;

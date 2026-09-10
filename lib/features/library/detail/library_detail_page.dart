@@ -133,7 +133,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
             const <TrackingLifecycle>[],
       _ => const <TrackingLifecycle>[],
     };
-    final activeTrackingEntry = resolveActiveTrackingEntry(
+    final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
       trackingEntries,
       activeOwnedSummary,
     );
@@ -210,7 +210,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   item: widget.item,
                   accent: widget.accent,
                   ownedSummary: activeOwnedSummary,
-                  trackingEntry: activeTrackingEntry,
+                  trackingLifecycle: activeTrackingLifecycle,
                   ownedCopies: ownedCopies,
                   onFilterByValue: widget.onFilterByValue,
                 ),

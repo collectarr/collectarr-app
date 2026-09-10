@@ -210,7 +210,7 @@ void main() {
         );
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
-    final tracking = await readSingleTrackingEntry(db);
+    final tracking = await readSingleTrackingLifecycle(db);
     final catalog = await CatalogSnapshotRepository(db).findByRef(
       const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
@@ -247,7 +247,7 @@ void main() {
         );
 
     final owned = await _typedOwnedForCatalog<MovieOwnedItem>(db, 'movie-1');
-    final tracking = await readSingleTrackingEntry(db);
+    final tracking = await readSingleTrackingLifecycle(db);
     final queued = await db.select(db.syncQueue).get();
 
     expect(
@@ -302,7 +302,7 @@ void main() {
       db,
       'movie-digital-1',
     );
-    final tracking = await readSingleTrackingEntry(db);
+    final tracking = await readSingleTrackingLifecycle(db);
 
     expect(owned.isDigital, isTrue);
     expect(tracking.sourceTypeApiValue, TrackingSourceType.digital.apiValue);
@@ -333,7 +333,7 @@ void main() {
               ),
               syncTracking: false,
             );
-    await container.read(trackingMutationsProvider).syncOwnedTrackingEntry(
+    await container.read(trackingMutationsProvider).syncOwnedTrackingLifecycle(
           owned,
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
@@ -348,7 +348,7 @@ void main() {
           finishedAt: DateTime.utc(2026, 5, 21),
         );
 
-    final tracking = await readSingleTrackingEntry(db);
+    final tracking = await readSingleTrackingLifecycle(db);
     final queued = await db.select(db.syncQueue).get();
     final trackingRef = tracking.catalogRef;
 
@@ -377,7 +377,7 @@ void main() {
           id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
     ]);
 
-    await container.read(trackingMutationsProvider).upsertTrackingEntry(
+    await container.read(trackingMutationsProvider).upsertTrackingLifecycle(
           TrackingTarget.catalog(testCatalogRef('music-1', kind: 'music')),
           sourceType: TrackingSourceType.digital,
           status: MediaTrackingStatus.inProgress,
@@ -387,7 +387,7 @@ void main() {
           notes: 'Streaming copy',
         );
 
-    final tracking = await readSingleTrackingEntry(db);
+    final tracking = await readSingleTrackingLifecycle(db);
     final queued = await db.select(db.syncQueue).get();
 
     expect(
@@ -426,7 +426,7 @@ void main() {
       ),
     );
 
-    await container.read(trackingMutationsProvider).upsertTrackingEntry(
+    await container.read(trackingMutationsProvider).upsertTrackingLifecycle(
           TrackingTarget.catalog(testCatalogRef('movie-1', kind: 'movie')),
           sourceType: TrackingSourceType.digital,
           status: MediaTrackingStatus.inProgress,
@@ -452,13 +452,13 @@ void main() {
       testCatalogItem(id: 'book-1', kind: 'book', title: 'Project Hail Mary'),
     ]);
 
-    await container.read(trackingMutationsProvider).upsertTrackingEntry(
+    await container.read(trackingMutationsProvider).upsertTrackingLifecycle(
           TrackingTarget.catalog(testCatalogRef('book-1', kind: 'book')),
           sourceType: trackingSourceTypeFromValue('kindle'),
           status: mediaTrackingStatusFromValue('Reading'),
         );
 
-    final tracking = await readSingleTrackingEntry(db);
+    final tracking = await readSingleTrackingLifecycle(db);
     expect(tracking.sourceTypeApiValue, TrackingSourceType.digital.apiValue);
   });
 
@@ -768,7 +768,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionImportServiceProvider).importRows(
+        await container.read(collectionImportOrchestratorProvider).importRows(
       [
         CollectionImportRow(
           itemId: 'comic-1',
@@ -829,7 +829,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionImportServiceProvider).importRows(
+    await container.read(collectionImportOrchestratorProvider).importRows(
       const [
         CollectionImportRow(
           itemId: 'comic-import-1',
@@ -851,12 +851,13 @@ void main() {
     );
     addTearDown(container.dispose);
     final wishlistMutations = container.read(wishlistMutationsProvider);
-    final importService = container.read(collectionImportServiceProvider);
+    final importOrchestrator =
+        container.read(collectionImportOrchestratorProvider);
 
     await wishlistMutations.addToWishlist(
       testCatalogRef('comic-1', kind: 'comic'),
     );
-    await importService.importRows([
+    await importOrchestrator.importRows([
       const CollectionImportRow(
         itemId: 'comic-1',
         mediaKind: CatalogMediaKind.comic,
@@ -901,7 +902,7 @@ void main() {
     ]);
 
     final imported =
-        await container.read(collectionImportServiceProvider).importRows(
+        await container.read(collectionImportOrchestratorProvider).importRows(
       const [
         CollectionImportRow(
           itemId: '',
@@ -949,7 +950,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionImportServiceProvider).importRows(
+        await container.read(collectionImportOrchestratorProvider).importRows(
       const [
         CollectionImportRow(
           itemId: 'movie-1',
@@ -1001,7 +1002,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionImportServiceProvider).importRows(
+        await container.read(collectionImportOrchestratorProvider).importRows(
       [
         CollectionImportRow(
           itemId: 'book-owned-fields',
@@ -1085,7 +1086,7 @@ void main() {
       ]),
     );
 
-    await container.read(collectionImportServiceProvider).importRows(rows);
+    await container.read(collectionImportOrchestratorProvider).importRows(rows);
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(
       db,
@@ -1126,7 +1127,7 @@ void main() {
     ]);
 
     final imported =
-        await container.read(collectionImportServiceProvider).importRows(
+        await container.read(collectionImportOrchestratorProvider).importRows(
       const [
         CollectionImportRow(
           itemId: '',
@@ -1165,7 +1166,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionImportServiceProvider).importRows(
+    await container.read(collectionImportOrchestratorProvider).importRows(
       const [
         CollectionImportRow(
           itemId: 'comic-without-projection',
@@ -1211,8 +1212,9 @@ void main() {
       ),
     ]);
 
-    final preview =
-        await container.read(collectionImportServiceProvider).previewImportRows(
+    final preview = await container
+        .read(collectionImportOrchestratorProvider)
+        .previewImportRows(
       const [
         CollectionImportRow(
           itemId: '',
@@ -1270,8 +1272,9 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final importService = container.read(collectionImportServiceProvider);
-    final preview = await importService.previewImportRows(
+    final importOrchestrator =
+        container.read(collectionImportOrchestratorProvider);
+    final preview = await importOrchestrator.previewImportRows(
       const [
         CollectionImportRow(
           itemId: 'comic-1',
@@ -1293,7 +1296,7 @@ void main() {
     expect(preview.duplicateRows.single.kindOwnedCells.first, '7.5');
     expect(preview.reviewCount, 1);
 
-    final imported = await importService.importRows(preview.resolvedRows);
+    final imported = await importOrchestrator.importRows(preview.resolvedRows);
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(
       db,
       'comic-1',
@@ -1312,7 +1315,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionImportServiceProvider).importRows(
+        await container.read(collectionImportOrchestratorProvider).importRows(
       [
         CollectionImportRow(
           itemId: 'comic-tracking-import',
@@ -1332,7 +1335,7 @@ void main() {
       db,
       'comic-tracking-import',
     );
-    final tracking = await readSingleTrackingEntry(db);
+    final tracking = await readSingleTrackingLifecycle(db);
     expect(imported, 1);
     expect(
       tracking.ownedRef?.key,
@@ -1352,7 +1355,8 @@ void main() {
     );
     addTearDown(container.dispose);
     final coordinator = container.read(collectionCommandCoordinatorProvider);
-    final importService = container.read(collectionImportServiceProvider);
+    final importOrchestrator =
+        container.read(collectionImportOrchestratorProvider);
 
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
@@ -1363,7 +1367,7 @@ void main() {
       ),
     );
 
-    final preview = await importService.previewImportRows(
+    final preview = await importOrchestrator.previewImportRows(
       const [
         CollectionImportRow(
           itemId: 'comic-1',
@@ -1388,7 +1392,8 @@ void main() {
     );
     addTearDown(container.dispose);
     final coordinator = container.read(collectionCommandCoordinatorProvider);
-    final importService = container.read(collectionImportServiceProvider);
+    final importOrchestrator =
+        container.read(collectionImportOrchestratorProvider);
 
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
@@ -1400,7 +1405,7 @@ void main() {
     );
     final original = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
 
-    final imported = await importService.importRows(
+    final imported = await importOrchestrator.importRows(
       const [
         CollectionImportRow(
           itemId: 'comic-1',
@@ -1429,7 +1434,7 @@ void main() {
     addTearDown(container.dispose);
 
     final imported =
-        await container.read(collectionImportServiceProvider).importRows(
+        await container.read(collectionImportOrchestratorProvider).importRows(
       const [
         CollectionImportRow(
           itemId: 'comic-1',
@@ -1463,7 +1468,9 @@ void main() {
       releaseYear: 1999,
     );
 
-    await container.read(trackingMutationsProvider).addLocalOnlyTrackingEntry(
+    await container
+        .read(trackingMutationsProvider)
+        .addLocalOnlyTrackingLifecycle(
           snapshot.catalogRef,
           sourceType: TrackingSourceType.streaming,
           status: MediaTrackingStatus.completed,
@@ -1510,7 +1517,7 @@ void main() {
       title: 'The Matrix',
       releaseYear: 1999,
     );
-    await trackingMutations.addLocalOnlyTrackingEntry(
+    await trackingMutations.addLocalOnlyTrackingLifecycle(
       localSnapshot.catalogRef,
       sourceType: TrackingSourceType.streaming,
       status: MediaTrackingStatus.completed,

@@ -39,7 +39,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     required this.ownedItem,
     this.typedOwnedItem,
     this.wishlistItem,
-    this.trackingEntry,
+    this.trackingLifecycle,
     required this.accent,
     this.availableBundleReleases = const [],
     this.physicalFormats = const [],
@@ -63,7 +63,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         ownedItem = draft.ownedItem,
         typedOwnedItem = draft.typedOwnedItem,
         wishlistItem = draft.wishlistItem,
-        trackingEntry = draft.trackingEntry,
+        trackingLifecycle = draft.trackingLifecycle,
         accent = draft.accent,
         availableBundleReleases = draft.availableBundleReleases,
         physicalFormats = draft.physicalFormats,
@@ -78,7 +78,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
   final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
-  final TrackingLifecycle? trackingEntry;
+  final TrackingLifecycle? trackingLifecycle;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
@@ -148,7 +148,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           ownedItem: widget.ownedItem,
           typedOwnedItem: widget.typedOwnedItem,
           wishlistItem: widget.wishlistItem,
-          trackingEntry: widget.trackingEntry,
+          trackingLifecycle: widget.trackingLifecycle,
           accent: widget.accent,
           availableBundleReleases: widget.availableBundleReleases,
           physicalFormats: widget.physicalFormats,

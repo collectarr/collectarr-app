@@ -124,7 +124,7 @@ void main() {
             body: InspectorTrackingDetailsEditor(
               itemId: 'movie-1',
               mediaType: 'movie',
-              trackingEntry: TrackingLifecycle(
+              trackingLifecycle: TrackingLifecycle(
                 id: 'tracking-1',
                 catalogRef: testCatalogRef('movie-1', kind: 'movie'),
                 sourceType: 'digital',
@@ -162,7 +162,7 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
     await pumpUntilSettled(tester);
 
-    final updated = await readSingleTrackingEntry(db);
+    final updated = await readSingleTrackingLifecycle(db);
     expect(updated.sourceTypeApiValue, 'digital');
     expect(updated.rating, 7);
     expect(updated.catalogRef.id, 'variant-hd');

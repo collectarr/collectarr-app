@@ -33,11 +33,11 @@ void main() {
       'lib/features/library/kinds/comic/domain/comic_owned_item.dart',
     );
     final wishlistItem = _read('lib/core/models/wishlist_item.dart');
-    final trackingEntry = _read('lib/core/models/tracking_lifecycle.dart');
+    final trackingLifecycle = _read('lib/core/models/tracking_lifecycle.dart');
 
     expect(ownedItem, isNot(contains('String? itemId,')));
     expect(wishlistItem, isNot(contains('String? itemId,')));
-    expect(trackingEntry, isNot(contains('String? itemId,')));
+    expect(trackingLifecycle, isNot(contains('String? itemId,')));
   });
 
   test('sync payloads use catalog_ref instead of item_id', () {

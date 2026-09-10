@@ -190,7 +190,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     // boundary; episodic fields are interpreted only by owning kind codecs.
     'lib/core/models/tracking_lifecycle.dart',
     'lib/features/collection/csv/collection_csv_codec.dart',
-    'lib/features/collection/mutations/collection_import_service.dart',
+    'lib/features/collection/mutations/collection_import_orchestrator.dart',
     'lib/features/collection/mutations/owned_item_mutations.dart',
     'lib/features/collection/mutations/tracking_mutations.dart',
     'lib/features/collection/mutations/wishlist_mutations.dart',

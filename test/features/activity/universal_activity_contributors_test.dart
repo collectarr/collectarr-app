@@ -63,7 +63,9 @@ void main() {
           (contributor) => contributor.contribute(
             UniversalActivityContext(
               ownedItems: [owned],
-              trackingEntries: [TrackingActivitySummary.fromEntry(tracking)],
+              trackingEntries: [
+                TrackingActivitySummary.fromLifecycle(tracking)
+              ],
               wishlistItems: [wishlist],
               loans: [loan],
             ),

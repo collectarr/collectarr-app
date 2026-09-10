@@ -118,7 +118,7 @@ class SyncApplyService {
         typedOwned.add(_typedOwnedItemFromEntity(entity));
       }
       if (type == 'tracking_entry') {
-        tracking.add(_trackingEntryFromEntity(entity));
+        tracking.add(_trackingLifecycleFromEntity(entity));
       }
       if (type == 'wishlist_item') {
         wishlist.add(_wishlistItemFromEntity(entity));
@@ -301,7 +301,7 @@ class SyncApplyService {
     });
   }
 
-  TrackingLifecycle _trackingEntryFromEntity(Map<String, dynamic> entity) {
+  TrackingLifecycle _trackingLifecycleFromEntity(Map<String, dynamic> entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -315,7 +315,9 @@ class SyncApplyService {
         : CatalogMediaKind.unknown;
     final codec = kind.isUnknown
         ? null
-        : collectarrTrackingLifecycleCodecs.cast<TrackingLifecycleCodec?>().firstWhere(
+        : collectarrTrackingLifecycleCodecs
+            .cast<TrackingLifecycleCodec?>()
+            .firstWhere(
               (candidate) => candidate?.kind == kind,
               orElse: () => null,
             );

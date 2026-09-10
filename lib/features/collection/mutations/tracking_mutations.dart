@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_target.dart';
@@ -29,7 +29,7 @@ String _defaultIdGenerator() => const Uuid().v4();
 /// Collection owns persistence and mutation mechanics. A kind may enrich the
 /// common lifecycle entry before it is stored, without making the
 /// collection API depend on that kind's semantic fields.
-typedef TrackingEntryCustomizer = TrackingLifecycle Function(
+typedef TrackingLifecycleCustomizer = TrackingLifecycle Function(
   TrackingLifecycle entry,
 );
 
@@ -52,7 +52,7 @@ final class TrackingMutations {
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
 
-  Future<void> updateTrackingEntry(
+  Future<void> updateTrackingLifecycle(
     TrackingLifecycle entry, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -64,13 +64,13 @@ final class TrackingMutations {
       action: () async {
         await trackingEntries.upsert(updated);
         await syncQueue
-            .enqueue(_syncChangeForTrackingEntry(updated, 'upsert', now));
+            .enqueue(_syncChangeForTrackingLifecycle(updated, 'upsert', now));
       },
       eventsToEmit: const [TrackingChanged()],
     );
   }
 
-  Future<void> upsertTrackingEntry(
+  Future<void> upsertTrackingLifecycle(
     TrackingTarget target, {
     CatalogEntityRef? targetRef,
     TrackingSourceType? sourceType,
@@ -82,7 +82,7 @@ final class TrackingMutations {
     int? progressTotal,
     int? timesCompleted,
     String? notes,
-    TrackingEntryCustomizer? customizeEntry,
+    TrackingLifecycleCustomizer? customizeLifecycle,
     bool allowEmpty = false,
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
@@ -161,16 +161,16 @@ final class TrackingMutations {
               notes: notes,
               updatedAt: now,
             );
-        final entry = customizeEntry?.call(baseEntry) ?? baseEntry;
+        final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
         await trackingEntries.upsert(entry);
         await syncQueue
-            .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
+            .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
       },
       eventsToEmit: const [TrackingChanged()],
     );
   }
 
-  Future<void> deleteTrackingEntry(
+  Future<void> deleteTrackingLifecycle(
     TrackingLifecycle entry, {
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
@@ -182,7 +182,7 @@ final class TrackingMutations {
       action: () async {
         await trackingEntries.markDeleted(entry, now);
         await syncQueue.enqueue(
-          _syncChangeForTrackingEntry(
+          _syncChangeForTrackingLifecycle(
             entry.copyWith(updatedAt: now, deletedAt: now),
             'delete',
             now,
@@ -193,24 +193,24 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> removeTrackingEntry(TrackingLifecycle entry,
+  Future<void> removeTrackingLifecycle(TrackingLifecycle entry,
           {bool notify = true}) =>
-      deleteTrackingEntry(entry, notify: notify);
+      deleteTrackingLifecycle(entry, notify: notify);
 
   /// Deletes a tracking row selected from a structural Shelf summary.
   ///
   /// Mixed/global UI carries the structural kind/id ref only. The repository
   /// resolves the v1 row at the mutation boundary.
   Future<void> removeTrackingByRef(
-    TrackingEntryRef ref, {
+    TrackingLifecycleRef ref, {
     bool notify = true,
   }) async {
     final entry = await trackingEntries.findByRef(ref);
     if (entry == null || entry.isDeleted) return;
-    await removeTrackingEntry(entry, notify: notify);
+    await removeTrackingLifecycle(entry, notify: notify);
   }
 
-  Future<void> syncOwnedTrackingEntry(
+  Future<void> syncOwnedTrackingLifecycle(
     OwnedItemRef ownedRef, {
     CatalogEntityRef? catalogRef,
     bool? isDigital,
@@ -224,7 +224,7 @@ final class TrackingMutations {
     int? timesCompleted,
     String? notes,
     TrackingSourceType? sourceType,
-    TrackingEntryCustomizer? customizeEntry,
+    TrackingLifecycleCustomizer? customizeLifecycle,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
@@ -291,16 +291,16 @@ final class TrackingMutations {
                       : TrackingSourceType.physical),
               updatedAt: now,
             );
-        final entry = customizeEntry?.call(baseEntry) ?? baseEntry;
+        final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
         await trackingEntries.upsert(entry);
         await syncQueue
-            .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
+            .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
       },
       eventsToEmit: const [TrackingChanged()],
     );
   }
 
-  Future<void> addLocalOnlyTrackingEntry(
+  Future<void> addLocalOnlyTrackingLifecycle(
     CatalogEntityRef catalogRef, {
     CatalogEntityRef? targetRef,
     TrackingSourceType? sourceType,
@@ -311,7 +311,7 @@ final class TrackingMutations {
     int? progressCurrent,
     int? progressTotal,
     int? timesCompleted,
-    TrackingEntryCustomizer? customizeEntry,
+    TrackingLifecycleCustomizer? customizeLifecycle,
     bool allowEmpty = false,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -337,11 +337,11 @@ final class TrackingMutations {
           timesCompleted: timesCompleted,
           updatedAt: now,
         );
-        final entry = customizeEntry?.call(baseEntry) ?? baseEntry;
+        final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
         await trackingEntries.upsert(entry);
         if (!isLocalItem) {
           await syncQueue
-              .enqueue(_syncChangeForTrackingEntry(entry, 'upsert', now));
+              .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
         }
       },
       eventsToEmit: const [TrackingChanged()],
@@ -361,7 +361,7 @@ final class TrackingMutations {
     );
   }
 
-  SyncChange _syncChangeForTrackingEntry(
+  SyncChange _syncChangeForTrackingLifecycle(
       TrackingLifecycle entry, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_entry:${entry.id}:$action:${now.millisecondsSinceEpoch}',

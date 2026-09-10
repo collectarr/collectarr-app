@@ -54,7 +54,7 @@ class PickListRegistry {
       id: 'borrower',
       listName: 'borrower',
       label: 'Borrower',
-      scope: PickListScope.trackingEntry,
+      scope: PickListScope.trackingLifecycle,
       valueMode: PickListValueMode.single,
     ),
   ];

@@ -167,7 +167,7 @@ void main() {
   });
 
   test('remove tracking emits TrackingChanged only', () async {
-    await trackingMutations.upsertTrackingEntry(
+    await trackingMutations.upsertTrackingLifecycle(
       TrackingTarget.catalog(testCatalogRef('book-300', kind: 'book')),
       sourceType: TrackingSourceType.digital,
       status: MediaTrackingStatus.inProgress,
@@ -179,12 +179,12 @@ void main() {
     ).findActiveByCatalogRoots([
       testCatalogRef('book-300', kind: 'book'),
     ]);
-    final trackingEntry = entries.single;
+    final trackingLifecycle = entries.single;
 
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);
 
-    await trackingMutations.removeTrackingEntry(trackingEntry);
+    await trackingMutations.removeTrackingLifecycle(trackingLifecycle);
 
     await Future<void>.delayed(Duration.zero);
     expect(events, const [TrackingChanged()]);

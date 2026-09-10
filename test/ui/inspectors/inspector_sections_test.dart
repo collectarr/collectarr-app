@@ -177,7 +177,7 @@ void main() {
                 grade: '9.4',
                 updatedAt: DateTime.utc(2026, 5, 22),
               )),
-              trackingEntry: TrackingLifecycle(
+              trackingLifecycle: TrackingLifecycle(
                 id: 'track-1',
                 catalogRef: testCatalogRef('book-1', kind: 'book'),
                 rating: 8,

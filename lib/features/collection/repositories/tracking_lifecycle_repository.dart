@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 
@@ -59,7 +59,7 @@ class TrackingLifecycleRepository {
   Future<List<TrackingSummary>> listActiveSummaries() async {
     final entries = await listActive();
     return [
-      for (final entry in entries) TrackingSummary.fromEntry(entry),
+      for (final entry in entries) TrackingSummary.fromLifecycle(entry),
     ];
   }
 
@@ -82,7 +82,7 @@ class TrackingLifecycleRepository {
     return entries;
   }
 
-  Future<TrackingLifecycle?> findByRef(TrackingEntryRef ref) {
+  Future<TrackingLifecycle?> findByRef(TrackingLifecycleRef ref) {
     return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
 

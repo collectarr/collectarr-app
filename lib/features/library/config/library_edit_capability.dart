@@ -21,7 +21,7 @@ export 'package:collectarr_app/features/library/config/library_owned_copy_semant
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 });
 

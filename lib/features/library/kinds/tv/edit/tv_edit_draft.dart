@@ -236,9 +236,9 @@ class TvEditDraft extends LibraryEditKindDraft
           ? null
           : Map<String, int>.unmodifiable(this.episodeRatings);
       result = result.copyWith(
-        trackingEntryMutation: (entry) {
+        trackingLifecycleMutation: (entry) {
           final coordinates = tvTrackingCoordinatesFor(entry);
-          return tvTrackingEntryFor(entry).copyWithCoordinates(
+          return tvTrackingLifecycleFor(entry).copyWithCoordinates(
             seasonNumber: seasonNumber ?? coordinates.seasonNumber,
             episodeNumber: episodeNumber ?? coordinates.episodeNumber,
             episodeRatings: episodeRatings ?? coordinates.episodeRatings,
@@ -268,7 +268,7 @@ class TvEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createTvEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = TvOwnedItemProjection.tryFromTyped(typedOwnedItem);

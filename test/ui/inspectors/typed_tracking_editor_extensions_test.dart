@@ -22,7 +22,7 @@ void main() {
       ),
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    TrackingEntryEditMutation? mutation;
+    TrackingLifecycleEditMutation? mutation;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -46,7 +46,7 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), '4');
 
     expect(mutation, isNotNull);
-    final updated = tvTrackingEntryFor(mutation!(entry));
+    final updated = tvTrackingLifecycleFor(mutation!(entry));
     expect(updated.coordinates.seasonNumber, 3);
     expect(updated.coordinates.episodeNumber, 4);
   });
@@ -59,7 +59,7 @@ void main() {
       catalogRef: testCatalogRef('anime-1', kind: 'anime'),
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    TrackingEntryEditMutation? mutation;
+    TrackingLifecycleEditMutation? mutation;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -84,7 +84,7 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), '7');
 
     expect(mutation, isNotNull);
-    final updated = animeTrackingEntryFor(mutation!(entry));
+    final updated = animeTrackingLifecycleFor(mutation!(entry));
     expect(updated.coordinates.seasonNumber, 0);
     expect(updated.coordinates.episodeNumber, 7.0);
   });

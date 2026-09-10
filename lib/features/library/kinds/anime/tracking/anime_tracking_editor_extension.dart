@@ -7,7 +7,7 @@ import 'anime_tracking_lifecycle.dart';
 Widget buildAnimeTrackingEditorExtension(
   BuildContext context, {
   required TrackingLifecycle entry,
-  required ValueChanged<TrackingEntryEditMutation> onChanged,
+  required ValueChanged<TrackingLifecycleEditMutation> onChanged,
   required Color accent,
 }) {
   return _AnimeTrackingEditorExtension(
@@ -25,7 +25,7 @@ class _AnimeTrackingEditorExtension extends StatefulWidget {
   });
 
   final TrackingLifecycle entry;
-  final ValueChanged<TrackingEntryEditMutation> onChanged;
+  final ValueChanged<TrackingLifecycleEditMutation> onChanged;
   final Color accent;
 
   @override
@@ -109,7 +109,7 @@ class _AnimeTrackingEditorExtensionState
     final season = int.tryParse(_seasonController.text.trim());
     final episode = int.tryParse(_episodeController.text.trim());
     widget.onChanged(
-      (entry) => animeTrackingEntryFor(entry).copyWithCoordinates(
+      (entry) => animeTrackingLifecycleFor(entry).copyWithCoordinates(
         seasonNumber: season,
         episodeNumber: episode,
       ),

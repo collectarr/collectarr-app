@@ -301,7 +301,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createMangaEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = MangaOwnedItemProjection.tryFromTyped(typedOwnedItem);

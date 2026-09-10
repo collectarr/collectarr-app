@@ -58,27 +58,32 @@ void main() {
     create: () => musicKindModule.trackingProfile,
   );
 
-  _defineTrackingEntryContract('comic', CatalogMediaKind.comic, codecsByKind);
-  _defineTrackingEntryContract('manga', CatalogMediaKind.manga, codecsByKind);
-  _defineTrackingEntryContract('book', CatalogMediaKind.book, codecsByKind);
-  _defineTrackingEntryContract('game', CatalogMediaKind.game, codecsByKind);
-  _defineTrackingEntryContract(
+  _defineTrackingLifecycleContract(
+      'comic', CatalogMediaKind.comic, codecsByKind);
+  _defineTrackingLifecycleContract(
+      'manga', CatalogMediaKind.manga, codecsByKind);
+  _defineTrackingLifecycleContract('book', CatalogMediaKind.book, codecsByKind);
+  _defineTrackingLifecycleContract('game', CatalogMediaKind.game, codecsByKind);
+  _defineTrackingLifecycleContract(
     'boardgame',
     CatalogMediaKind.boardgame,
     codecsByKind,
   );
-  _defineTrackingEntryContract('movie', CatalogMediaKind.movie, codecsByKind);
-  _defineTrackingEntryContract('tv', CatalogMediaKind.tv, codecsByKind);
-  _defineTrackingEntryContract('anime', CatalogMediaKind.anime, codecsByKind);
-  _defineTrackingEntryContract('music', CatalogMediaKind.music, codecsByKind);
+  _defineTrackingLifecycleContract(
+      'movie', CatalogMediaKind.movie, codecsByKind);
+  _defineTrackingLifecycleContract('tv', CatalogMediaKind.tv, codecsByKind);
+  _defineTrackingLifecycleContract(
+      'anime', CatalogMediaKind.anime, codecsByKind);
+  _defineTrackingLifecycleContract(
+      'music', CatalogMediaKind.music, codecsByKind);
 }
 
-void _defineTrackingEntryContract(
+void _defineTrackingLifecycleContract(
   String name,
   CatalogMediaKind kind,
   Map<CatalogMediaKind, TrackingLifecycleCodec> codecsByKind,
 ) {
-  defineTrackingEntryContract(
+  defineTrackingLifecycleContract(
     name: name,
     codec: codecsByKind[kind]!,
     create: () => codecsByKind[kind]!.create(

@@ -116,7 +116,7 @@ void main() {
       type: boardGameKindModule,
       item: item,
       ownedItem: null,
-      trackingEntry: null,
+      trackingLifecycle: null,
       accent: Colors.amber,
     );
 

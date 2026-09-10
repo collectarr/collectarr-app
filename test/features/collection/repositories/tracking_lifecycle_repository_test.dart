@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
@@ -69,7 +69,7 @@ void main() {
     );
 
     final entry = await repository.findByRef(
-      const TrackingEntryRef(
+      const TrackingLifecycleRef(
         kind: CatalogMediaKind.tv,
         id: 'tv-tracking-1',
       ),
@@ -114,7 +114,7 @@ void main() {
     );
 
     final entry = await repository.findByRef(
-      const TrackingEntryRef(
+      const TrackingLifecycleRef(
         kind: CatalogMediaKind.movie,
         id: 'movie-tracking-1',
       ),

@@ -24,14 +24,14 @@ import 'package:uuid/uuid.dart';
 typedef IdGenerator = String Function();
 String _defaultIdGenerator() => const Uuid().v4();
 
-final class CollectionImportService {
-  const CollectionImportService({
+final class CollectionImportOrchestrator {
+  const CollectionImportOrchestrator({
     required this.ownedItems,
     required this.wishlist,
     required this.catalogCache,
     required this.catalogSummaries,
     required this.catalogLookup,
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     required this.syncQueue,
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
@@ -42,7 +42,7 @@ final class CollectionImportService {
   final CatalogTransportRepository catalogCache;
   final CatalogDisplaySummaryRepository catalogSummaries;
   final CatalogLookupRepository catalogLookup;
-  final TrackingLifecycleRepository trackingEntries;
+  final TrackingLifecycleRepository trackingLifecycles;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
@@ -97,16 +97,16 @@ final class CollectionImportService {
           ))
         if (item.catalogRef != null) item.catalogRef!: item,
     };
-    final existingTracking = {
+    final existingLifecycles = {
       for (final entry
-          in await trackingEntries.findActiveByCatalogRefs(rowRefs))
+          in await this.trackingLifecycles.findActiveByCatalogRefs(rowRefs))
         entry.catalogRef: entry,
     };
 
     final activeWishlistRefs = existingWishlist.keys.toSet();
     final ownedItemRefs = <OwnedItemRef>[];
-    final typedOwnedItems = <(CatalogMediaKind kind, Object item)>[];
-    final trackingEntriesList = <TrackingLifecycle>[];
+    final ownedWrites = <Future<void> Function()>[];
+    final trackingLifecycles = <TrackingLifecycle>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
@@ -154,7 +154,9 @@ final class CollectionImportService {
         );
         final mediaKind = typedImport.kind;
         final typedOwnedItem = typedImport.item;
-        typedOwnedItems.add((mediaKind, typedOwnedItem));
+        ownedWrites.add(
+          () => ownedItems.upsertTyped(mediaKind, typedOwnedItem),
+        );
         final ownedRef = collectarrTypedOwnedItemRef(typedOwnedItem);
         ownedItemRefs.add(ownedRef);
         syncChanges.add(
@@ -167,7 +169,7 @@ final class CollectionImportService {
           ),
         );
 
-        final trackingEntry = row.tracking.isEmpty
+        final trackingLifecycle = row.tracking.isEmpty
             ? null
             : libraryCollectionCsvProjectionForKind(mediaKind)
                 ?.trackingLifecycleFromImport(
@@ -179,17 +181,17 @@ final class CollectionImportService {
                 status: row.tracking.status,
                 startedAt: row.tracking.startedAt,
                 finishedAt: row.tracking.finishedAt,
-                existing: existingTracking[typedImport.catalogRef],
+                existing: existingLifecycles[typedImport.catalogRef],
               );
-        if (trackingEntry != null) {
-          trackingEntriesList.add(trackingEntry);
+        if (trackingLifecycle != null) {
+          trackingLifecycles.add(trackingLifecycle);
           syncChanges.add(
             SyncChange(
-              id: 'tracking_entry:${trackingEntry.id}:upsert:${now.millisecondsSinceEpoch}',
+              id: 'tracking_entry:${trackingLifecycle.id}:upsert:${now.millisecondsSinceEpoch}',
               entityType: 'tracking_entry',
-              entityId: trackingEntry.id,
+              entityId: trackingLifecycle.id,
               action: 'upsert',
-              payload: trackingEntries.toSyncPayload(trackingEntry),
+              payload: this.trackingLifecycles.toSyncPayload(trackingLifecycle),
               clientChangedAt: now,
             ),
           );
@@ -248,14 +250,11 @@ final class CollectionImportService {
         if (importedCatalogSnapshots.isNotEmpty) {
           await catalogCache.upsertImportSnapshots(importedCatalogSnapshots);
         }
-        for (final typedOwned in typedOwnedItems) {
-          await ownedItems.upsertTyped(
-            typedOwned.$1,
-            typedOwned.$2,
-          );
+        for (final write in ownedWrites) {
+          await write();
         }
-        if (trackingEntriesList.isNotEmpty) {
-          await trackingEntries.upsertAll(trackingEntriesList);
+        if (trackingLifecycles.isNotEmpty) {
+          await this.trackingLifecycles.upsertAll(trackingLifecycles);
         }
         if (wishlistUpserts.isNotEmpty) {
           await wishlist.upsertAll(wishlistUpserts);
@@ -269,7 +268,7 @@ final class CollectionImportService {
       },
       eventsToEmit: [
         for (final item in ownedItemRefs) OwnedItemAdded(item),
-        for (final _ in trackingEntriesList) const TrackingChanged(),
+        for (final _ in trackingLifecycles) const TrackingChanged(),
         for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
         for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
         for (final snapshot in importedCatalogSnapshots)

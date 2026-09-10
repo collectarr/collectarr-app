@@ -36,7 +36,7 @@ void main() {
   }
 
   test('TV typed entry owns episode coordinates across lifecycle copies', () {
-    final entry = TvTrackingLifecycle.fromEntry(
+    final entry = TvTrackingLifecycle.fromLifecycle(
       baseEntry('tv'),
       coordinates: TvTrackingCoordinates(
         seasonNumber: 2,
@@ -55,7 +55,7 @@ void main() {
   });
 
   test('Anime typed entry preserves fractional episode coordinates', () {
-    final entry = AnimeTrackingLifecycle.fromEntry(
+    final entry = AnimeTrackingLifecycle.fromLifecycle(
       baseEntry('anime'),
       coordinates: AnimeTrackingCoordinates(
         seasonNumber: 1,

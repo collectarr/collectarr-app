@@ -20,7 +20,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     this.typedOwnedItem,
     this.ownedSummary,
     this.ownedCopies = const [],
-    this.trackingEntry,
+    this.trackingLifecycle,
     required this.accent,
     this.onFilterByValue,
   });
@@ -30,7 +30,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   final Object? typedOwnedItem;
   final OwnedItemSummary? ownedSummary;
   final List<OwnedItemSummary> ownedCopies;
-  final TrackingLifecycle? trackingEntry;
+  final TrackingLifecycle? trackingLifecycle;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -78,10 +78,10 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final totalCurrentValue = totalMarketValueCents == null
         ? ''
         : formatMoney(totalMarketValueCents, totalsCurrency);
-    final tracking = trackingEntry;
+    final tracking = trackingLifecycle;
     final trackingStatus = tracking?.statusStorageValue;
     final trackingRating = tracking?.rating;
-    final trackingProgress = _detailTrackingProgressLabel(trackingEntry);
+    final trackingProgress = _detailTrackingProgressLabel(trackingLifecycle);
     return LibraryDetailSection(
       title: 'Local collection',
       accentColor: accent,
@@ -206,9 +206,9 @@ String? _detailProfitLossLabel(OwnedItemSummary? ownedItem) {
   return formatMoney(sold - paid, ownedItem?.currency);
 }
 
-String? _detailTrackingProgressLabel(TrackingLifecycle? trackingEntry) {
-  final current = trackingEntry?.progressCurrent;
-  final total = trackingEntry?.progressTotal;
+String? _detailTrackingProgressLabel(TrackingLifecycle? trackingLifecycle) {
+  final current = trackingLifecycle?.progressCurrent;
+  final total = trackingLifecycle?.progressTotal;
   if (current == null && total == null) {
     return null;
   }

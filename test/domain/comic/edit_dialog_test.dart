@@ -143,7 +143,7 @@ void main() {
       purchaseStore: 'Old Shop',
       updatedAt: DateTime.utc(2026, 5, 30),
     );
-    final trackingEntry = TrackingLifecycle(
+    final trackingLifecycle = TrackingLifecycle(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
@@ -172,7 +172,7 @@ void main() {
       type: type,
       item: LibraryAddCatalogItem.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
-      trackingEntry: trackingEntry,
+      trackingLifecycle: trackingLifecycle,
       accent: Colors.red,
       customFieldDefinitions: [customField],
       customFieldValues: [customValue],

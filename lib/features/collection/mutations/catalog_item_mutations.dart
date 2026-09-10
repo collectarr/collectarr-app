@@ -104,7 +104,7 @@ final class CatalogItemMutations {
           );
           await trackingEntries.upsert(updated);
           await syncQueue.enqueue(
-            _syncChangeForTrackingEntry(updated, 'upsert', now),
+            _syncChangeForTrackingLifecycle(updated, 'upsert', now),
           );
           count++;
         }
@@ -155,7 +155,7 @@ final class CatalogItemMutations {
     );
   }
 
-  SyncChange _syncChangeForTrackingEntry(
+  SyncChange _syncChangeForTrackingLifecycle(
     TrackingLifecycle entry,
     String action,
     DateTime now,

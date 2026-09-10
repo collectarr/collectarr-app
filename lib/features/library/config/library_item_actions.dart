@@ -133,7 +133,7 @@ class LibraryEditDialogRequest {
     required this.accent,
     this.scope,
     this.wishlistItem,
-    this.trackingEntry,
+    this.trackingLifecycle,
     this.availableBundleReleases = const [],
     this.physicalFormats = const [],
     this.customFieldDefinitions = const [],
@@ -157,7 +157,7 @@ class LibraryEditDialogRequest {
   LibraryEditScope get resolvedScope => scope ?? LibraryEditScope.all;
 
   final WishlistItem? wishlistItem;
-  final TrackingLifecycle? trackingEntry;
+  final TrackingLifecycle? trackingLifecycle;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -175,7 +175,7 @@ class LibraryEditDialogRequest {
     Color? accent,
     LibraryEditScope? scope,
     WishlistItem? wishlistItem,
-    TrackingLifecycle? trackingEntry,
+    TrackingLifecycle? trackingLifecycle,
     List<BundleReleaseSummary>? availableBundleReleases,
     List<PhysicalMediaFormat>? physicalFormats,
     List<CustomFieldDefinition>? customFieldDefinitions,
@@ -193,7 +193,7 @@ class LibraryEditDialogRequest {
       accent: accent ?? this.accent,
       scope: scope ?? this.scope,
       wishlistItem: wishlistItem ?? this.wishlistItem,
-      trackingEntry: trackingEntry ?? this.trackingEntry,
+      trackingLifecycle: trackingLifecycle ?? this.trackingLifecycle,
       availableBundleReleases:
           availableBundleReleases ?? this.availableBundleReleases,
       physicalFormats: physicalFormats ?? this.physicalFormats,
@@ -281,7 +281,7 @@ class LibraryInspectorRequest {
     this.typedOwnedItem,
     this.onEdit,
     this.ownedCopies = const [],
-    required this.trackingEntry,
+    required this.trackingLifecycle,
     required this.accent,
     this.detailsLayout = LibraryDetailsLayout.hidden,
     this.onFilterByValue,
@@ -297,7 +297,7 @@ class LibraryInspectorRequest {
   final Object? typedOwnedItem;
   final VoidCallback? onEdit;
   final List<OwnedItemSummary> ownedCopies;
-  final TrackingLifecycle? trackingEntry;
+  final TrackingLifecycle? trackingLifecycle;
   final Color accent;
   final LibraryDetailsLayout detailsLayout;
   final ValueChanged<String>? onFilterByValue;

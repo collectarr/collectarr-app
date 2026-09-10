@@ -240,7 +240,7 @@ void main() {
       final value = CustomFieldValue(
         id: 'val-1',
         targetId: 'target-99',
-        targetScope: CustomFieldTargetScope.trackingEntry,
+        targetScope: CustomFieldTargetScope.trackingLifecycle,
         fieldDefinitionId: 'def-1',
         value: 'Shelf A',
         updatedAt: DateTime.utc(2026, 1, 1),
@@ -248,11 +248,12 @@ void main() {
       await repo.upsertValueForTarget(value);
       final values = await repo.listValuesForTarget(
         targetId: 'target-99',
-        targetScope: CustomFieldTargetScope.trackingEntry,
+        targetScope: CustomFieldTargetScope.trackingLifecycle,
       );
       expect(values, hasLength(1));
       expect(values.single.targetId, 'target-99');
-      expect(values.single.targetScope, CustomFieldTargetScope.trackingEntry);
+      expect(
+          values.single.targetScope, CustomFieldTargetScope.trackingLifecycle);
     });
 
     test('deleteValuesForTarget removes all values for target', () async {

@@ -47,7 +47,7 @@ class MediaTracking {
       };
 }
 
-extension TrackingEntryMediaTracking on TrackingLifecycle {
+extension TrackingLifecycleMediaTracking on TrackingLifecycle {
   MediaTracking get mediaTracking {
     return MediaTracking(
       status: status ?? MediaTrackingStatus.none,

@@ -169,7 +169,7 @@ class ComicEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createComicEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = ComicOwnedItemProjection.tryFromTyped(typedOwnedItem);

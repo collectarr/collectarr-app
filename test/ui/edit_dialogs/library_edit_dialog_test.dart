@@ -100,7 +100,7 @@ void main() {
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 15),
     );
-    final trackingEntry = TrackingLifecycle(
+    final trackingLifecycle = TrackingLifecycle(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
       ownedRef: OwnedItemRef.fromKey('movie:owned-1'),
@@ -127,7 +127,7 @@ void main() {
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
-                      trackingEntry: trackingEntry,
+                      trackingLifecycle: trackingLifecycle,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -842,7 +842,7 @@ void main() {
       collectionStatus: 'for_sale',
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    final trackingEntry = TrackingLifecycle(
+    final trackingLifecycle = TrackingLifecycle(
       id: 'tracking-book-preserve-1',
       catalogRef: testCatalogRef('book-preserve-1', kind: 'book'),
       sourceType: 'physical',
@@ -869,7 +869,7 @@ void main() {
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
-                      trackingEntry: trackingEntry,
+                      trackingLifecycle: trackingLifecycle,
                       accent: Colors.orange,
                     ),
                   );
@@ -1037,7 +1037,7 @@ void main() {
         ),
       ],
     ));
-    final trackingEntry = TrackingLifecycle(
+    final trackingLifecycle = TrackingLifecycle(
       id: 'tracking-digital-1',
       catalogRef: testCatalogRef('movie-tracked-1', kind: 'movie'),
       sourceType: 'digital',
@@ -1062,7 +1062,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
-                      trackingEntry: trackingEntry,
+                      trackingLifecycle: trackingLifecycle,
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),

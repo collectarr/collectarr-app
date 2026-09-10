@@ -19,7 +19,7 @@ final class AnimeTrackingCoordinates {
   bool get hasEpisodeCoordinates =>
       seasonNumber != null || episodeNumber != null;
 
-  factory AnimeTrackingCoordinates.fromEntry(TrackingLifecycle entry) {
+  factory AnimeTrackingCoordinates.fromLifecycle(TrackingLifecycle entry) {
     return entry is AnimeTrackingLifecycle
         ? entry.coordinates
         : AnimeTrackingCoordinates();
@@ -48,14 +48,14 @@ final class AnimeTrackingLifecycle extends TrackingLifecycle {
 
   final AnimeTrackingCoordinates coordinates;
 
-  factory AnimeTrackingLifecycle.fromEntry(
+  factory AnimeTrackingLifecycle.fromLifecycle(
     TrackingLifecycle entry, {
     AnimeTrackingCoordinates? coordinates,
   }) {
     return AnimeTrackingLifecycle(
       id: entry.id,
       catalogRef: entry.catalogRef,
-      coordinates: coordinates ?? AnimeTrackingCoordinates.fromEntry(entry),
+      coordinates: coordinates ?? AnimeTrackingCoordinates.fromLifecycle(entry),
       ownedRef: entry.ownedRef,
       sourceType: entry.sourceType,
       status: entry.status,
@@ -104,7 +104,8 @@ final class AnimeTrackingLifecycle extends TrackingLifecycle {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return AnimeTrackingLifecycle.fromEntry(copied, coordinates: coordinates);
+    return AnimeTrackingLifecycle.fromLifecycle(copied,
+        coordinates: coordinates);
   }
 
   AnimeTrackingLifecycle copyWithCoordinates({
@@ -142,7 +143,7 @@ final class AnimeTrackingLifecycle extends TrackingLifecycle {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return AnimeTrackingLifecycle.fromEntry(
+    return AnimeTrackingLifecycle.fromLifecycle(
       copied,
       coordinates: AnimeTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingLifecycleUnset)
@@ -160,11 +161,11 @@ final class AnimeTrackingLifecycle extends TrackingLifecycle {
 AnimeTrackingCoordinates animeTrackingCoordinatesFor(TrackingLifecycle entry) {
   return entry is AnimeTrackingLifecycle
       ? entry.coordinates
-      : AnimeTrackingCoordinates.fromEntry(entry);
+      : AnimeTrackingCoordinates.fromLifecycle(entry);
 }
 
-AnimeTrackingLifecycle animeTrackingEntryFor(TrackingLifecycle entry) {
+AnimeTrackingLifecycle animeTrackingLifecycleFor(TrackingLifecycle entry) {
   return entry is AnimeTrackingLifecycle
       ? entry
-      : AnimeTrackingLifecycle.fromEntry(entry);
+      : AnimeTrackingLifecycle.fromLifecycle(entry);
 }

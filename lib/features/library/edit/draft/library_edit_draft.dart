@@ -41,7 +41,7 @@ class LibraryEditDraft {
     required this.ownedItem,
     required this.typedOwnedItem,
     required this.wishlistItem,
-    required this.trackingEntry,
+    required this.trackingLifecycle,
     required this.accent,
     required this.availableBundleReleases,
     required this.physicalFormats,
@@ -63,7 +63,7 @@ class LibraryEditDraft {
   final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
-  final TrackingLifecycle? trackingEntry;
+  final TrackingLifecycle? trackingLifecycle;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
@@ -95,7 +95,7 @@ class LibraryEditDraft {
       ownedItem: request.ownedItem,
       typedOwnedItem: request.typedOwnedItem,
       wishlistItem: request.wishlistItem,
-      trackingEntry: request.trackingEntry,
+      trackingLifecycle: request.trackingLifecycle,
       accent: request.accent,
       availableBundleReleases: request.availableBundleReleases,
       physicalFormats: request.physicalFormats,
@@ -111,7 +111,7 @@ class LibraryEditDraft {
     OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     WishlistItem? wishlistItem,
-    TrackingLifecycle? trackingEntry,
+    TrackingLifecycle? trackingLifecycle,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
@@ -125,7 +125,7 @@ class LibraryEditDraft {
       ownedItem: ownedItem,
       typedOwnedItem: typedOwnedItem,
       wishlistItem: wishlistItem,
-      trackingEntry: trackingEntry,
+      trackingLifecycle: trackingLifecycle,
       accent: accent,
       availableBundleReleases: availableBundleReleases,
       physicalFormats: physicalFormats,
@@ -141,7 +141,7 @@ class LibraryEditDraft {
     required OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     required WishlistItem? wishlistItem,
-    required TrackingLifecycle? trackingEntry,
+    required TrackingLifecycle? trackingLifecycle,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
@@ -192,22 +192,22 @@ class LibraryEditDraft {
     );
     final wishlistCurrencyController = create(wishlistItem?.currency ?? '');
     final wishlistNotesController = create(wishlistItem?.notes ?? '');
-    final trackingRating = trackingEntry?.rating;
-    final trackingStatus = trackingEntry?.statusStorageValue;
+    final trackingRating = trackingLifecycle?.rating;
+    final trackingStatus = trackingLifecycle?.statusStorageValue;
     final ratingController = create(
       trackingRating?.toString() ?? '',
     );
     final trackingController = create(trackingStatus ?? '');
     final progressCurrentController = create(
-      trackingEntry?.progressCurrent?.toString() ?? '',
+      trackingLifecycle?.progressCurrent?.toString() ?? '',
     );
     final progressTotalController = create(
-      trackingEntry?.progressTotal?.toString() ?? '',
+      trackingLifecycle?.progressTotal?.toString() ?? '',
     );
     final timesCompletedController = create(
-      trackingEntry?.timesCompleted?.toString() ?? '',
+      trackingLifecycle?.timesCompleted?.toString() ?? '',
     );
-    final trackingNotesController = create(trackingEntry?.notes ?? '');
+    final trackingNotesController = create(trackingLifecycle?.notes ?? '');
     final tagsController = create();
     final sellPriceController = create(
       ownedItem?.sellPriceCents == null
@@ -227,10 +227,10 @@ class LibraryEditDraft {
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: catalogRefEditionId(ownedItem?.targetRef) ??
-          catalogRefEditionId(trackingEntry?.catalogRef),
+          catalogRefEditionId(trackingLifecycle?.catalogRef),
       editionTitle: editionTitle,
       variantId: catalogRefVariantId(ownedItem?.targetRef) ??
-          catalogRefVariantId(trackingEntry?.catalogRef),
+          catalogRefVariantId(trackingLifecycle?.catalogRef),
     );
     final metadata = CommonMetadataDraft(
       titleController: titleController,
@@ -286,13 +286,13 @@ class LibraryEditDraft {
       timesCompletedController: timesCompletedController,
       trackingNotesController: trackingNotesController,
       selectedTrackingEditionId:
-          catalogRefEditionId(trackingEntry?.catalogRef) ??
+          catalogRefEditionId(trackingLifecycle?.catalogRef) ??
               editionSelection.edition?.id,
       selectedTrackingVariantId:
-          catalogRefVariantId(trackingEntry?.catalogRef) ??
+          catalogRefVariantId(trackingLifecycle?.catalogRef) ??
               editionSelection.variant?.id,
-      startedAt: trackingEntry?.startedAt,
-      finishedAt: trackingEntry?.finishedAt,
+      startedAt: trackingLifecycle?.startedAt,
+      finishedAt: trackingLifecycle?.finishedAt,
     );
 
     final kindDetails = type.edit.createDraft(
@@ -301,7 +301,7 @@ class LibraryEditDraft {
       // typed Library boundary. The generic request value is never decoded by
       // a kind schema.
       typedOwnedItem: typedOwnedItem,
-      trackingEntry: trackingEntry,
+      trackingLifecycle: trackingLifecycle,
       textControllers: textControllers,
     );
     kindDetails.initializePersonalState(personal);
@@ -313,7 +313,7 @@ class LibraryEditDraft {
       ownedItem: ownedItem,
       typedOwnedItem: typedOwnedItem,
       wishlistItem: wishlistItem,
-      trackingEntry: trackingEntry,
+      trackingLifecycle: trackingLifecycle,
       accent: accent,
       availableBundleReleases: List<BundleReleaseSummary>.unmodifiable(
         availableBundleReleases,
@@ -352,8 +352,8 @@ class LibraryEditDraft {
   // ---------------------------------------------------------------------------
 
   bool get isOwned => ownedItem != null;
-  bool get hasTrackingContext => isOwned || trackingEntry != null;
-  bool get isTrackingOnly => !isOwned && trackingEntry != null;
+  bool get hasTrackingContext => isOwned || trackingLifecycle != null;
+  bool get isTrackingOnly => !isOwned && trackingLifecycle != null;
   bool get hasWishlistContext => wishlistItem != null;
   bool get isVideoKind => item.mediaKind.isVideoLibraryKind;
 
@@ -398,10 +398,10 @@ class LibraryEditDraft {
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: catalogRefEditionId(ownedItem?.targetRef) ??
-          catalogRefEditionId(trackingEntry?.catalogRef),
+          catalogRefEditionId(trackingLifecycle?.catalogRef),
       editionTitle: (item.titleExtension ?? item.editionTitle)?.trim(),
       variantId: catalogRefVariantId(ownedItem?.targetRef) ??
-          catalogRefVariantId(trackingEntry?.catalogRef),
+          catalogRefVariantId(trackingLifecycle?.catalogRef),
     );
     return (
       selectedLocationId: personal.selectedLocationId,

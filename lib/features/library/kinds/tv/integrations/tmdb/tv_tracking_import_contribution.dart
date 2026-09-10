@@ -30,7 +30,7 @@ final class TvTrackingImportContribution
     bool allowEmpty = false,
     MutationOrigin origin = MutationOrigin.user,
   }) {
-    return trackingMutations.addLocalOnlyTrackingEntry(
+    return trackingMutations.addLocalOnlyTrackingLifecycle(
       seasonItem.catalogRef,
       sourceType: sourceType,
       status: status,
@@ -40,7 +40,8 @@ final class TvTrackingImportContribution
       progressCurrent: progressCurrent,
       progressTotal: progressTotal,
       timesCompleted: timesCompleted,
-      customizeEntry: (entry) => tvTrackingEntryFor(entry).copyWithCoordinates(
+      customizeLifecycle: (entry) =>
+          tvTrackingLifecycleFor(entry).copyWithCoordinates(
         seasonNumber: seasonNumber,
       ),
       allowEmpty: allowEmpty,

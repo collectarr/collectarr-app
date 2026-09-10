@@ -248,7 +248,7 @@ class BookEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createBookEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = BookOwnedItemProjection.tryFromTyped(typedOwnedItem);

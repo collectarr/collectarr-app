@@ -143,7 +143,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             const <TrackingLifecycle>[],
       _ => const <TrackingLifecycle>[],
     };
-    final activeTrackingEntry = resolveActiveTrackingEntry(
+    final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
       trackingEntries,
       activeOwnedItem == null ? null : activeOwnedItem,
     );
@@ -226,7 +226,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       selected,
       activeOwnedItem,
       ownedCopies,
-      activeTrackingEntry,
+      activeTrackingLifecycle,
       LibraryInspectorRequest(
         type: widget.type,
         item: selected,
@@ -236,7 +236,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ? null
             : () => widget.onEdit!(activeOwnedItem),
         ownedCopies: ownedCopies,
-        trackingEntry: activeTrackingEntry,
+        trackingLifecycle: activeTrackingLifecycle,
         accent: widget.accent,
         detailsLayout: widget.detailsLayout,
         onFilterByValue: widget.onFilterByValue,
@@ -264,7 +264,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView selected,
     OwnedItemSummary? activeOwnedItem,
     List<OwnedItemSummary> ownedCopies,
-    TrackingLifecycle? activeTrackingEntry,
+    TrackingLifecycle? activeTrackingLifecycle,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
     required String? activeBundleReleaseId,
@@ -345,7 +345,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           item: selected,
           ownedItem: activeOwnedItem,
           typedOwnedItem: inspectorRequest.typedOwnedItem,
-          trackingEntry: activeTrackingEntry,
+          trackingLifecycle: activeTrackingLifecycle,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
@@ -363,7 +363,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               item: selected,
               accent: widget.accent,
               ownedItem: activeOwnedItem,
-              trackingEntry: activeTrackingEntry,
+              trackingLifecycle: activeTrackingLifecycle,
             )
           : null),
       ...?(!usesCustomInspectorPanel

@@ -10,15 +10,15 @@ List<Widget> buildLibraryDetailEditorSections({
   required LibraryProjectionView item,
   required Color accent,
   OwnedItemSummary? ownedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
 }) {
   final catalogItem = item.source.catalogItem;
   return [
-    if (trackingEntry != null)
+    if (trackingLifecycle != null)
       InspectorTrackingDetailsEditor(
         itemId: item.node.titleItemId,
         mediaType: catalogItem?.mediaKind.apiValue ?? '',
-        trackingEntry: trackingEntry,
+        trackingLifecycle: trackingLifecycle,
         profile: type.trackingProfile,
         trackingEditor: type.inspector.trackingEditor,
         editions: catalogItem == null
@@ -36,14 +36,14 @@ List<Widget> buildLibraryInspectorEditorSections({
   required LibraryProjectionView item,
   required Color accent,
   OwnedItemSummary? ownedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
 }) {
   return buildLibraryDetailEditorSections(
     type: type,
     item: item,
     accent: accent,
     ownedItem: ownedItem,
-    trackingEntry: trackingEntry,
+    trackingLifecycle: trackingLifecycle,
   );
 }
 

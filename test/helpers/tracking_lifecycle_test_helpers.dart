@@ -18,14 +18,15 @@ Future<List<TrackingLifecycle>> readAllTrackingEntries(LocalDatabase db) {
   return trackingLifecycleTestRepository(db).listAll();
 }
 
-Future<TrackingLifecycle> readSingleTrackingEntry(LocalDatabase db) async {
+Future<TrackingLifecycle> readSingleTrackingLifecycle(LocalDatabase db) async {
   final entries = await readTrackingEntries(db);
   if (entries.length != 1) {
-    throw StateError('Expected one active tracking entry, got ${entries.length}.');
+    throw StateError(
+        'Expected one active tracking entry, got ${entries.length}.');
   }
   return entries.single;
 }
 
-Future<void> writeTrackingEntry(LocalDatabase db, TrackingLifecycle entry) {
+Future<void> writeTrackingLifecycle(LocalDatabase db, TrackingLifecycle entry) {
   return trackingLifecycleTestRepository(db).upsert(entry);
 }

@@ -206,11 +206,11 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'LibraryRouteContributor',
         ),
-        trackingEntryCodec: _discoverContributor(
+        trackingLifecycleCodec: _discoverContributor(
           entity,
           'tracking',
-          '${folder}_tracking_entry_codec.dart',
-          'TrackingEntryCodec',
+          '${folder}_tracking_lifecycle_codec.dart',
+          'TrackingLifecycleCodec',
         ),
         trackingUnitCodec: _discoverContributor(
           entity,
@@ -259,7 +259,6 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
   descriptors.sort((left, right) => left.folder.compareTo(right.folder));
   return descriptors;
 }
-
 
 _KindLocalTables? _discoverLocalTables(Directory kindDirectory) {
   final folder = kindDirectory.path.split(Platform.pathSeparator).last;
@@ -615,7 +614,7 @@ import 'package:go_router/go_router.dart';
     "import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';",
   );
   buffer.writeln(
-    "import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';",
+    "import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';",
   );
   buffer.writeln(
     "import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';",
@@ -720,9 +719,9 @@ import 'package:go_router/go_router.dart';
   _renderCodecList(
     buffer,
     descriptors: descriptors,
-    name: 'collectarrTrackingEntryCodecs',
-    type: 'TrackingEntryCodec',
-    field: (descriptor) => descriptor.trackingEntryCodec,
+    name: 'collectarrTrackingLifecycleCodecs',
+    type: 'TrackingLifecycleCodec',
+    field: (descriptor) => descriptor.trackingLifecycleCodec,
   );
   _renderCodecList(
     buffer,
@@ -1379,7 +1378,7 @@ final class _KindDescriptor {
     this.exportPreviewContributor,
     this.catalogLookup,
     this.routeContributor,
-    this.trackingEntryCodec,
+    this.trackingLifecycleCodec,
     this.trackingUnitCodec,
     this.watchSessionCodec,
     this.customEpisodeCodec,
@@ -1405,7 +1404,7 @@ final class _KindDescriptor {
   final _Contributor? exportPreviewContributor;
   final _Contributor? catalogLookup;
   final _Contributor? routeContributor;
-  final _Contributor? trackingEntryCodec;
+  final _Contributor? trackingLifecycleCodec;
   final _Contributor? trackingUnitCodec;
   final _Contributor? watchSessionCodec;
   final _Contributor? customEpisodeCodec;
@@ -1429,7 +1428,7 @@ final class _KindDescriptor {
       exportPreviewContributor,
       catalogLookup,
       routeContributor,
-      trackingEntryCodec,
+      trackingLifecycleCodec,
       trackingUnitCodec,
       watchSessionCodec,
       customEpisodeCodec,

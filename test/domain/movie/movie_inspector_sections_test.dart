@@ -40,7 +40,7 @@ void main() {
       type: movieKindModule,
       item: item,
       ownedItem: null,
-      trackingEntry: null,
+      trackingLifecycle: null,
       accent: Colors.green,
     );
 

@@ -95,9 +95,9 @@ class LibraryPageEditCoordinator {
         }
       }
     }
-    final activeTrackingEntry = resolveActiveTrackingEntry(
-      _s.ref.read(
-              trackingPersistenceEntriesByCatalogRefProvider)[catalogItem.catalogRef] ??
+    final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
+      _s.ref.read(trackingPersistenceEntriesByCatalogRefProvider)[
+              catalogItem.catalogRef] ??
           const <TrackingLifecycle>[],
       owned,
     );
@@ -144,7 +144,7 @@ class LibraryPageEditCoordinator {
           _s.widget.type.hierarchy
               .editScopeForBrowserMode(_s._activeBrowserMode),
       wishlistItem: wishlist,
-      trackingEntry: activeTrackingEntry,
+      trackingLifecycle: activeTrackingLifecycle,
       accent: _s.widget.accent,
       physicalFormats: physicalMediaFormatsForKind(
         catalog,
@@ -208,7 +208,7 @@ class LibraryPageEditCoordinator {
         result,
         owned: owned,
         wishlist: wishlist,
-        activeTrackingEntry: activeTrackingEntry,
+        activeTrackingLifecycle: activeTrackingLifecycle,
         catalogItem: catalogItem,
         customFieldRepo: customFieldRepo,
         itemImageRepo: itemImageRepo,
@@ -243,7 +243,7 @@ class LibraryPageEditCoordinator {
     LibraryEditSelection result, {
     required OwnedItemSummary? owned,
     required WishlistItem? wishlist,
-    required TrackingLifecycle? activeTrackingEntry,
+    required TrackingLifecycle? activeTrackingLifecycle,
     required LibraryAddCatalogItem catalogItem,
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
@@ -271,8 +271,8 @@ class LibraryPageEditCoordinator {
         syncTracking: false,
       );
       final tracking = result.tracking;
-      if (tracking == null || activeTrackingEntry == null) {
-        await trackingMutations.syncOwnedTrackingEntry(
+      if (tracking == null || activeTrackingLifecycle == null) {
+        await trackingMutations.syncOwnedTrackingLifecycle(
           owned.ref,
           catalogRef: owned.catalogRef,
           isDigital: owned.isDigital,
@@ -285,10 +285,10 @@ class LibraryPageEditCoordinator {
           progressTotal: tracking?.progressTotal,
           timesCompleted: tracking?.timesCompleted,
           notes: tracking?.notes,
-          customizeEntry: result.trackingEntryMutation,
+          customizeLifecycle: result.trackingLifecycleMutation,
         );
       } else {
-        final baseTracking = activeTrackingEntry.copyWith(
+        final baseTracking = activeTrackingLifecycle.copyWith(
           catalogRef: tracking.targetRef ?? catalogItem.catalogRef,
           status: mediaTrackingStatusFromValue(tracking.readStatus),
           rating: tracking.rating,
@@ -300,8 +300,9 @@ class LibraryPageEditCoordinator {
           notes: tracking.notes,
         );
         final updatedTracking =
-            result.trackingEntryMutation?.call(baseTracking) ?? baseTracking;
-        await trackingMutations.updateTrackingEntry(updatedTracking);
+            result.trackingLifecycleMutation?.call(baseTracking) ??
+                baseTracking;
+        await trackingMutations.updateTrackingLifecycle(updatedTracking);
       }
       // Save custom field values
       final now = DateTime.now();
@@ -352,24 +353,24 @@ class LibraryPageEditCoordinator {
       );
     }
     if (owned == null &&
-        activeTrackingEntry != null &&
+        activeTrackingLifecycle != null &&
         result.tracking != null) {
-      await trackingMutations.upsertTrackingEntry(
+      await trackingMutations.upsertTrackingLifecycle(
         TrackingTarget.catalog(catalogItem.catalogRef),
         targetRef: result.tracking!.targetRef ?? catalogItem.catalogRef,
-        sourceType: activeTrackingEntry.sourceType,
+        sourceType: activeTrackingLifecycle.sourceType,
         status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
         rating: result.tracking!.rating,
         startedAt: result.tracking!.startedAt,
         finishedAt: result.tracking!.finishedAt,
         progressCurrent: result.tracking!.progressCurrent ??
-            activeTrackingEntry.progressCurrent,
-        progressTotal:
-            result.tracking!.progressTotal ?? activeTrackingEntry.progressTotal,
+            activeTrackingLifecycle.progressCurrent,
+        progressTotal: result.tracking!.progressTotal ??
+            activeTrackingLifecycle.progressTotal,
         timesCompleted: result.tracking!.timesCompleted ??
-            activeTrackingEntry.timesCompleted,
-        notes: result.tracking!.notes ?? activeTrackingEntry.notes,
-        customizeEntry: result.trackingEntryMutation,
+            activeTrackingLifecycle.timesCompleted,
+        notes: result.tracking!.notes ?? activeTrackingLifecycle.notes,
+        customizeLifecycle: result.trackingLifecycleMutation,
         notify: false,
       );
     }

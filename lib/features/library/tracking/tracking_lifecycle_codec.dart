@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 
 /// The serialized, kind-neutral portion of a tracking-entry row.
 ///
@@ -69,7 +69,7 @@ abstract interface class TrackingLifecycleCodec {
 
   Future<TrackingLifecycle?> findFromStorage(
     LocalDatabase db,
-    TrackingEntryRef ref,
+    TrackingLifecycleRef ref,
   );
 
   Future<void> upsertToStorage(LocalDatabase db, TrackingLifecycle entry);
@@ -162,7 +162,7 @@ mixin TrackingLifecycleStorageSupport {
 
   Future<TrackingLifecycle?> findFromStorage(
     LocalDatabase db,
-    TrackingEntryRef ref,
+    TrackingLifecycleRef ref,
   ) async {
     if (ref.kind != kind) return null;
     for (final record in await readStorageRecords(

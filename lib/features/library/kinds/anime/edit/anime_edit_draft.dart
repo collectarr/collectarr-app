@@ -217,9 +217,9 @@ class AnimeEditDraft extends LibraryEditKindDraft
           ? null
           : Map<String, int>.unmodifiable(this.episodeRatings);
       result = result.copyWith(
-        trackingEntryMutation: (entry) {
+        trackingLifecycleMutation: (entry) {
           final coordinates = animeTrackingCoordinatesFor(entry);
-          return animeTrackingEntryFor(entry).copyWithCoordinates(
+          return animeTrackingLifecycleFor(entry).copyWithCoordinates(
             seasonNumber: seasonNumber ?? coordinates.seasonNumber,
             episodeNumber: episodeNumber ?? coordinates.episodeNumber,
             episodeRatings: episodeRatings ?? coordinates.episodeRatings,
@@ -249,7 +249,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createAnimeEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = AnimeOwnedItemProjection.tryFromTyped(typedOwnedItem);

@@ -661,7 +661,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           );
         }
         if (match.entry.collection.isRated) {
-          await trackingMutations.upsertTrackingEntry(
+          await trackingMutations.upsertTrackingLifecycle(
             TrackingTarget.catalog(item.catalogRef),
             sourceType: TrackingSourceType.streaming,
             status: MediaTrackingStatus.completed,
@@ -746,7 +746,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
                 CatalogImportSnapshot.fromItem(localItem),
                 origin: origin,
               );
-              await trackingMutations.addLocalOnlyTrackingEntry(
+              await trackingMutations.addLocalOnlyTrackingLifecycle(
                 localItem.catalogRef,
                 sourceType: TrackingSourceType.streaming,
                 status: MediaTrackingStatus.completed,
@@ -1061,7 +1061,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       );
       return;
     }
-    await trackingMutations.upsertTrackingEntry(
+    await trackingMutations.upsertTrackingLifecycle(
       TrackingTarget.catalog(catalogRef),
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,
@@ -1098,7 +1098,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       snapshot,
       origin: origin,
     );
-    await trackingMutations.addLocalOnlyTrackingEntry(
+    await trackingMutations.addLocalOnlyTrackingLifecycle(
       catalogRef,
       sourceType: TrackingSourceType.streaming,
       status: trackingStatus,

@@ -16,21 +16,21 @@ class TvEpisodeRatingSection extends ConsumerWidget {
     super.key,
     required this.itemId,
     required this.accent,
-    required this.trackingEntry,
+    required this.trackingLifecycle,
     required this.onEpisodeRatingsChanged,
   });
 
   final String itemId;
   final Color accent;
-  final TrackingLifecycle? trackingEntry;
+  final TrackingLifecycle? trackingLifecycle;
   final ValueChanged<Map<String, int>> onEpisodeRatingsChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final ratings = trackingEntry == null
+    final ratings = trackingLifecycle == null
         ? const <String, int>{}
-        : tvTrackingCoordinatesFor(trackingEntry!).episodeRatings;
+        : tvTrackingCoordinatesFor(trackingLifecycle!).episodeRatings;
 
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
@@ -122,13 +122,13 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final trackingEntries =
-        ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[CatalogEntityRef(
-              kind: CatalogMediaKind.tv,
-              entityType: const CatalogEntityTypeId('work'),
-              id: itemId,
-            )] ??
-            const <TrackingLifecycle>[];
+    final trackingEntries = ref.watch(
+            trackingPersistenceEntriesByCatalogRefProvider)[CatalogEntityRef(
+          kind: CatalogMediaKind.tv,
+          entityType: const CatalogEntityTypeId('work'),
+          id: itemId,
+        )] ??
+        const <TrackingLifecycle>[];
     final ratings = trackingEntries.isEmpty
         ? const <String, int>{}
         : tvTrackingCoordinatesFor(trackingEntries.first).episodeRatings;

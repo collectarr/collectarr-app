@@ -18,7 +18,7 @@ final class TvTrackingCoordinates {
   bool get hasEpisodeCoordinates =>
       seasonNumber != null || episodeNumber != null;
 
-  factory TvTrackingCoordinates.fromEntry(TrackingLifecycle entry) {
+  factory TvTrackingCoordinates.fromLifecycle(TrackingLifecycle entry) {
     return entry is TvTrackingLifecycle
         ? entry.coordinates
         : TvTrackingCoordinates();
@@ -50,14 +50,14 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
 
   final TvTrackingCoordinates coordinates;
 
-  factory TvTrackingLifecycle.fromEntry(
+  factory TvTrackingLifecycle.fromLifecycle(
     TrackingLifecycle entry, {
     TvTrackingCoordinates? coordinates,
   }) {
     return TvTrackingLifecycle(
       id: entry.id,
       catalogRef: entry.catalogRef,
-      coordinates: coordinates ?? TvTrackingCoordinates.fromEntry(entry),
+      coordinates: coordinates ?? TvTrackingCoordinates.fromLifecycle(entry),
       ownedRef: entry.ownedRef,
       sourceType: entry.sourceType,
       status: entry.status,
@@ -106,7 +106,7 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return TvTrackingLifecycle.fromEntry(copied, coordinates: coordinates);
+    return TvTrackingLifecycle.fromLifecycle(copied, coordinates: coordinates);
   }
 
   TvTrackingLifecycle copyWithCoordinates({
@@ -144,7 +144,7 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return TvTrackingLifecycle.fromEntry(
+    return TvTrackingLifecycle.fromLifecycle(
       copied,
       coordinates: TvTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingLifecycleUnset)
@@ -162,9 +162,11 @@ final class TvTrackingLifecycle extends TrackingLifecycle {
 TvTrackingCoordinates tvTrackingCoordinatesFor(TrackingLifecycle entry) {
   return entry is TvTrackingLifecycle
       ? entry.coordinates
-      : TvTrackingCoordinates.fromEntry(entry);
+      : TvTrackingCoordinates.fromLifecycle(entry);
 }
 
-TvTrackingLifecycle tvTrackingEntryFor(TrackingLifecycle entry) {
-  return entry is TvTrackingLifecycle ? entry : TvTrackingLifecycle.fromEntry(entry);
+TvTrackingLifecycle tvTrackingLifecycleFor(TrackingLifecycle entry) {
+  return entry is TvTrackingLifecycle
+      ? entry
+      : TvTrackingLifecycle.fromLifecycle(entry);
 }

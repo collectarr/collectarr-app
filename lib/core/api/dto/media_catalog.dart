@@ -9,7 +9,7 @@ enum MetadataFieldScope {
   media('media'),
   track('track'),
   ownedCopy('owned_copy'),
-  trackingEntry('tracking_entry');
+  trackingLifecycle('tracking_entry');
 
   const MetadataFieldScope(this.apiValue);
 

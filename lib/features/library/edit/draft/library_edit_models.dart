@@ -14,7 +14,7 @@ enum LibraryEditSubmitAction {
   saveAndNext,
 }
 
-typedef LibraryTrackingEntryMutation = TrackingLifecycle Function(
+typedef LibraryTrackingLifecycleMutation = TrackingLifecycle Function(
   TrackingLifecycle entry,
 );
 
@@ -25,7 +25,7 @@ class LibraryEditSelection {
     this.scope = LibraryEditScope.media,
     this.wishlist,
     this.tracking,
-    this.trackingEntryMutation,
+    this.trackingLifecycleMutation,
     this.ownedUpdatePayload,
     this.customFieldEdits = const {},
     this.itemImageEdits = const [],
@@ -37,7 +37,7 @@ class LibraryEditSelection {
   final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
-  final LibraryTrackingEntryMutation? trackingEntryMutation;
+  final LibraryTrackingLifecycleMutation? trackingLifecycleMutation;
   final OwnedItemUpdatePayload<Object?>? ownedUpdatePayload;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
@@ -49,7 +49,7 @@ class LibraryEditSelection {
     LibraryEditScope? scope,
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
-    LibraryTrackingEntryMutation? trackingEntryMutation,
+    LibraryTrackingLifecycleMutation? trackingLifecycleMutation,
     OwnedItemUpdatePayload<Object?>? ownedUpdatePayload,
     Map<String, String?>? customFieldEdits,
     List<ItemImageEdit>? itemImageEdits,
@@ -61,8 +61,8 @@ class LibraryEditSelection {
       scope: scope ?? this.scope,
       wishlist: wishlist ?? this.wishlist,
       tracking: tracking ?? this.tracking,
-      trackingEntryMutation:
-          trackingEntryMutation ?? this.trackingEntryMutation,
+      trackingLifecycleMutation:
+          trackingLifecycleMutation ?? this.trackingLifecycleMutation,
       ownedUpdatePayload: ownedUpdatePayload ?? this.ownedUpdatePayload,
       customFieldEdits: customFieldEdits ?? this.customFieldEdits,
       itemImageEdits: itemImageEdits ?? this.itemImageEdits,

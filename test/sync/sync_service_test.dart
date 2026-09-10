@@ -48,7 +48,7 @@ void main() {
       ),
     );
     final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
-    final trackingRow = await readSingleTrackingEntry(db);
+    final trackingRow = await readSingleTrackingLifecycle(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final locations = await LocationRepository(db).getAll();
     final customEpisode = await CustomEpisodesRepository(

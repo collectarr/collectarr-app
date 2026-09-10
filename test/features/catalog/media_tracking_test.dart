@@ -25,7 +25,7 @@ void main() {
   });
 
   test('tracking entry exposes reusable media tracking view', () {
-    final trackingEntry = TrackingLifecycle(
+    final trackingLifecycle = TrackingLifecycle(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
@@ -37,7 +37,7 @@ void main() {
       updatedAt: DateTime.utc(2026, 5, 13),
     );
 
-    final tracking = trackingEntry.mediaTracking;
+    final tracking = trackingLifecycle.mediaTracking;
 
     expect(tracking.status, MediaTrackingStatus.completed);
     expect(tracking.statusLabel, 'Completed');

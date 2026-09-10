@@ -148,7 +148,7 @@ final class TvTrackingLifecycleCodec
         'Expected TV tracking entry',
       );
     }
-    final typed = tvTrackingEntryFor(entry);
+    final typed = tvTrackingLifecycleFor(entry);
     await db.into(db.tvTrackingRows).insertOnConflictUpdate(
           TvTrackingRowsCompanion.insert(
             id: entry.id,
@@ -183,7 +183,7 @@ final class TvTrackingLifecycleCodec
         'Expected TV tracking entry',
       );
     }
-    final typed = tvTrackingEntryFor(entry);
+    final typed = tvTrackingLifecycleFor(entry);
     return entry.toSyncPayload()
       ..addAll({
         'season_number': typed.coordinates.seasonNumber,

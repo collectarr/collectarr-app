@@ -435,7 +435,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
     super.key,
     required this.itemId,
     required this.mediaType,
-    required this.trackingEntry,
+    required this.trackingLifecycle,
     required this.profile,
     required this.accent,
     this.trackingEditor,
@@ -444,7 +444,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
 
   final String itemId;
   final String mediaType;
-  final TrackingLifecycle trackingEntry;
+  final TrackingLifecycle trackingLifecycle;
   final MediaTrackingProfile profile;
   final Color accent;
   final LibraryTrackingEditorCapability? trackingEditor;
@@ -463,7 +463,7 @@ class _InspectorTrackingDetailsEditorState
   late final TextEditingController _progressTotalController;
   late final TextEditingController _timesCompletedController;
   late final TextEditingController _trackingNotesController;
-  TrackingEntryEditMutation? _trackingEditorMutation;
+  TrackingLifecycleEditMutation? _trackingEditorMutation;
   DateTime? _startedAt;
   DateTime? _finishedAt;
   String? _selectedEditionId;
@@ -478,16 +478,17 @@ class _InspectorTrackingDetailsEditorState
     _progressTotalController = TextEditingController();
     _timesCompletedController = TextEditingController();
     _trackingNotesController = TextEditingController();
-    _syncFromEntry(widget.trackingEntry);
+    _syncFromEntry(widget.trackingLifecycle);
   }
 
   @override
   void didUpdateWidget(covariant InspectorTrackingDetailsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.trackingEntry.id != widget.trackingEntry.id ||
-        oldWidget.trackingEntry.updatedAt != widget.trackingEntry.updatedAt) {
+    if (oldWidget.trackingLifecycle.id != widget.trackingLifecycle.id ||
+        oldWidget.trackingLifecycle.updatedAt !=
+            widget.trackingLifecycle.updatedAt) {
       _trackingEditorMutation = null;
-      _syncFromEntry(widget.trackingEntry);
+      _syncFromEntry(widget.trackingLifecycle);
     }
   }
 
@@ -587,7 +588,7 @@ class _InspectorTrackingDetailsEditorState
             padding: const EdgeInsets.only(top: 6),
             child: widget.trackingEditor!.build(
               context,
-              entry: widget.trackingEntry,
+              entry: widget.trackingLifecycle,
               onChanged: (mutation) => setState(
                 () => _trackingEditorMutation = mutation,
               ),
@@ -832,17 +833,17 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
-    final target = widget.trackingEntry.ownedRef != null
-        ? TrackingTarget.owned(widget.trackingEntry.ownedRef!)
-        : TrackingTarget.catalog(widget.trackingEntry.catalogRef);
-    await ref.read(trackingMutationsProvider).upsertTrackingEntry(
+    final target = widget.trackingLifecycle.ownedRef != null
+        ? TrackingTarget.owned(widget.trackingLifecycle.ownedRef!)
+        : TrackingTarget.catalog(widget.trackingLifecycle.catalogRef);
+    await ref.read(trackingMutationsProvider).upsertTrackingLifecycle(
           target,
           targetRef: catalogRefForLibrarySelection(
-            widget.trackingEntry.catalogRef,
+            widget.trackingLifecycle.catalogRef,
             editionId: _selectedEditionId,
             variantId: _selectedVariantId,
           ),
-          sourceType: widget.trackingEntry.sourceType,
+          sourceType: widget.trackingLifecycle.sourceType,
           status: mediaTrackingStatusFromValue(
               _emptyToNull(_statusController.text)),
           rating: _parseInt(_ratingController.text),
@@ -852,7 +853,7 @@ class _InspectorTrackingDetailsEditorState
           progressTotal: _parseInt(_progressTotalController.text),
           timesCompleted: _parseInt(_timesCompletedController.text),
           notes: _emptyToNull(_trackingNotesController.text),
-          customizeEntry: _trackingEditorMutation,
+          customizeLifecycle: _trackingEditorMutation,
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -885,7 +886,7 @@ class _InspectorTrackingDetailsEditorState
     if (confirmed != true || !mounted) return;
     await ref
         .read(trackingMutationsProvider)
-        .removeTrackingEntry(widget.trackingEntry);
+        .removeTrackingLifecycle(widget.trackingLifecycle);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tracking removed')),

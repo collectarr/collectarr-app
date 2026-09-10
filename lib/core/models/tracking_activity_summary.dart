@@ -20,9 +20,9 @@ final class TrackingActivitySummary {
     this.deletedAt,
   });
 
-  factory TrackingActivitySummary.fromEntry(TrackingLifecycle entry) {
+  factory TrackingActivitySummary.fromLifecycle(TrackingLifecycle entry) {
     return TrackingActivitySummary.fromSummary(
-      TrackingSummary.fromEntry(entry),
+      TrackingSummary.fromLifecycle(entry),
     );
   }
 

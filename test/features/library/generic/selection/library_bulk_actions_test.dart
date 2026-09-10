@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -178,7 +178,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       testCatalogRef('movie-2', kind: 'movie'),
     );
-    await trackingMutations.upsertTrackingEntry(
+    await trackingMutations.upsertTrackingLifecycle(
       TrackingTarget.catalog(testCatalogRef('movie-3', kind: 'movie')),
       sourceType: TrackingSourceType.streaming,
       status: MediaTrackingStatus.completed,
@@ -232,7 +232,7 @@ void main() {
         .findById(MovieOwnedItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final deletedTracking = await trackingLifecycleTestRepository(db).findByRef(
-      TrackingEntryRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
+      TrackingLifecycleRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
     );
 
     expect(deletedOwned?.deletedAt, isNotNull);

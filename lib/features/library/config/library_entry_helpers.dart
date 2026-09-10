@@ -202,7 +202,7 @@ String? libraryTargetScopeForCatalogRef(CatalogEntityRef? ref) {
   };
 }
 
-TrackingLifecycle? resolveActiveTrackingEntry(
+TrackingLifecycle? resolveActiveTrackingLifecycle(
   List<TrackingLifecycle> entries,
   OwnedItemSummary? activeOwnedItem,
 ) {

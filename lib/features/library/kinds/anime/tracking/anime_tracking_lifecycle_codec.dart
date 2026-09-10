@@ -150,7 +150,7 @@ final class AnimeTrackingLifecycleCodec
         'Expected Anime tracking entry',
       );
     }
-    final typed = animeTrackingEntryFor(entry);
+    final typed = animeTrackingLifecycleFor(entry);
     await db.into(db.animeTrackingRows).insertOnConflictUpdate(
           AnimeTrackingRowsCompanion.insert(
             id: entry.id,
@@ -193,7 +193,7 @@ final class AnimeTrackingLifecycleCodec
         'Expected Anime tracking entry',
       );
     }
-    final typed = animeTrackingEntryFor(entry);
+    final typed = animeTrackingLifecycleFor(entry);
     return entry.toSyncPayload()
       ..addAll({
         'season_number': typed.coordinates.seasonNumber,

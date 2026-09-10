@@ -18,7 +18,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryProjectionView item,
   required Color accent,
   OwnedItemSummary? ownedSummary,
-  required TrackingLifecycle? trackingEntry,
+  required TrackingLifecycle? trackingLifecycle,
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -38,7 +38,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ),
       ],
     ),
-    if (ownedSummary != null || trackingEntry != null)
+    if (ownedSummary != null || trackingLifecycle != null)
       LibraryDetailSectionSpec(
         slot: LibraryDetailSectionSlot.personal,
         title: 'Personal status',
@@ -49,7 +49,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             typedOwnedItem: item.source.typedOwnedItem,
             ownedSummary: ownedSummary,
             ownedCopies: ownedCopies,
-            trackingEntry: trackingEntry,
+            trackingLifecycle: trackingLifecycle,
             accent: accent,
             onFilterByValue: onFilterByValue,
           ),
@@ -57,7 +57,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             type: type,
             item: item,
             accent: accent,
-            trackingEntry: trackingEntry,
+            trackingLifecycle: trackingLifecycle,
           ),
         ],
       ),

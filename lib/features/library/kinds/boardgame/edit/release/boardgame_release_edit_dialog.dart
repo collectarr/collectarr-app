@@ -52,7 +52,7 @@ class _BoardGameReleaseSchemaEditDialogState
     _release = _resolveRelease(
       boardGame,
       catalogRefEditionId(widget.request.ownedItem?.targetRef) ??
-          catalogRefEditionId(widget.request.trackingEntry?.catalogRef),
+          catalogRefEditionId(widget.request.trackingLifecycle?.catalogRef),
     );
     _releaseDraft = BoardGameEditionEditDraft.fromRelease(_release);
     _editDraft = LibraryEditDraft.fromRequest(widget.request);

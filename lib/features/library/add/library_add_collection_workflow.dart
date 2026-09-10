@@ -116,7 +116,7 @@ Future<void> addLibraryItemsToTarget({
         final ownedItem = await ownedMutations.addOwnedItem(addCmd);
         final tracking = addCmd.tracking;
         if (tracking != null) {
-          await trackingMutations.syncOwnedTrackingEntry(
+          await trackingMutations.syncOwnedTrackingLifecycle(
             ownedItem,
             targetRef: reference.catalogRef,
             status: tracking.status,
@@ -133,7 +133,7 @@ Future<void> addLibraryItemsToTarget({
         );
         break;
       case LibraryAddTarget.track:
-        await trackingMutations.addLocalOnlyTrackingEntry(
+        await trackingMutations.addLocalOnlyTrackingLifecycle(
           item.catalogRef,
           targetRef: reference.catalogRef,
           status: baseTracking.readStatus == null

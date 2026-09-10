@@ -49,7 +49,7 @@ Widget _heroHost(TestOwnedItem ownedItem) {
             item: _itemFixture(),
             ownedItem: testOwnedSummary(ownedItem),
             typedOwnedItem: testComicOwnedItemFrom(ownedItem),
-            trackingEntry: null,
+            trackingLifecycle: null,
             accent: Colors.red,
           ),
         ),

@@ -205,7 +205,7 @@ class CustomFieldRepository {
       'episode' => CustomFieldTargetScope.episode,
       'track' => CustomFieldTargetScope.track,
       'owned_copy' || 'copy' => CustomFieldTargetScope.ownedCopy,
-      'tracking_entry' => CustomFieldTargetScope.trackingEntry,
+      'tracking_entry' => CustomFieldTargetScope.trackingLifecycle,
       _ => null,
     };
   }

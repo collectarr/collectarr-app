@@ -242,7 +242,7 @@ class MovieEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createMovieEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingLifecycle? trackingEntry,
+  TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
   final owned = MovieOwnedItemProjection.tryFromTyped(typedOwnedItem);

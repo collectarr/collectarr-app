@@ -32,7 +32,7 @@ void main() {
       item: LibraryAddCatalogItem.fromItem(item),
       ownedItem: null,
       wishlistItem: null,
-      trackingEntry: null,
+      trackingLifecycle: null,
       accent: Colors.blue,
     );
 
@@ -81,7 +81,7 @@ void main() {
       item: LibraryAddCatalogItem.fromItem(item),
       ownedItem: null,
       wishlistItem: null,
-      trackingEntry: null,
+      trackingLifecycle: null,
       accent: Colors.blue,
     );
 
