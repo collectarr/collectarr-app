@@ -17,7 +17,6 @@ import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.da
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -2071,7 +2070,9 @@ void main() {
 
     final rows = await CatalogSnapshotRepository(db).findAll();
     expect(rows, isNotEmpty);
-    final cached = await CatalogSnapshotRepository(db).findById(rows.single.id);
+    final cached = await CatalogSnapshotRepository(db).findByRef(
+      rows.single.catalogRef,
+    );
     final music = music_details.MusicCatalogDetailsDto.fromJson(
       Map<String, dynamic>.from(cached!.payload['music'] as Map),
     );

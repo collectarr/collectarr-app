@@ -22,16 +22,6 @@ final class CatalogSnapshotRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, CatalogKindTransportCodec> _codecs;
 
-  Future<Map<String, CatalogItemDto>> findByIds(Iterable<String> ids) async {
-    final wanted = ids.toSet();
-    if (wanted.isEmpty) return const {};
-    final result = <String, CatalogItemDto>{};
-    for (final item in await _allItems()) {
-      if (wanted.contains(item.id)) result[item.id] = item;
-    }
-    return result;
-  }
-
   Future<Map<CatalogEntityRef, CatalogItemDto>> findByRefs(
     Iterable<CatalogEntityRef> refs,
   ) async {
@@ -46,17 +36,15 @@ final class CatalogSnapshotRepository {
     return result;
   }
 
+  Future<CatalogItemDto?> findByRef(CatalogEntityRef ref) async {
+    return (await findByRefs([ref]))[ref];
+  }
+
   Future<List<CatalogItemDto>> findAll({CatalogMediaKind? kind}) async {
     return [
       for (final item in await _allItems())
         if (kind == null || item.mediaKind == kind) item,
     ];
-  }
-
-  Future<CatalogItemDto?> findById(String id) async {
-    final normalized = id.trim();
-    if (normalized.isEmpty) return null;
-    return (await findByIds([normalized]))[normalized];
   }
 
   Future<List<CatalogItemDto>> _allItems() async {

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
@@ -82,11 +81,13 @@ void main() {
     expect(affected, 2);
     expect(harness.selectedBucket, 'New publisher');
     expect(harness.rebuildCount, 1);
-    final cached = await CatalogSnapshotRepository(db).findByIds(
-      [firstCatalog.id, secondCatalog.id],
+    final cached = await CatalogSnapshotRepository(db).findByRefs(
+      [firstCatalog.catalogRef, secondCatalog.catalogRef],
     );
-    expect(cached[firstCatalog.id]?.payload['publisher'], 'New publisher');
-    expect(cached[secondCatalog.id]?.payload['publisher'], 'New publisher');
+    expect(
+        cached[firstCatalog.catalogRef]?.payload['publisher'], 'New publisher');
+    expect(cached[secondCatalog.catalogRef]?.payload['publisher'],
+        'New publisher');
   });
 
   testWidgets('deletes catalog bucket values and clears selected bucket',
@@ -122,7 +123,9 @@ void main() {
     expect(affected, 1);
     expect(harness.selectedBucket, isNull);
     expect(harness.rebuildCount, 1);
-    final cached = await CatalogSnapshotRepository(db).findById(catalog.id);
+    final cached = await CatalogSnapshotRepository(db).findByRef(
+      catalog.catalogRef,
+    );
     expect(cached?.payload['publisher'], isNull);
   });
 

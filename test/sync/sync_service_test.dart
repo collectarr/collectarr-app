@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
@@ -64,7 +64,13 @@ void main() {
     expect(trackingRow.status, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
-    final catalogItem = await CatalogSnapshotRepository(db).findById('comic-1');
+    final catalogItem = await CatalogSnapshotRepository(db).findByRef(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-1',
+      ),
+    );
     expect(catalogItem?.title, 'Absolute Batman');
     expect(catalogItem?.coverImageUrl, 'https://cdn.example/absolute.jpg');
     expect(catalogItem?.thumbnailImageUrl,

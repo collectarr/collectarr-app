@@ -101,7 +101,7 @@ final class MusicCollectionCsvProjection
     final release = metadata?.releases.firstOrNull;
     return [
       entry.itemId,
-      catalog?.kind ?? '',
+      catalog?.mediaKind.apiValue ?? '',
       metadata?.title ?? catalog?.title ?? '',
       release?.catalogNumber ?? '',
       metadata?.variant ?? release?.format ?? '',

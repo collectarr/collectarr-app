@@ -1092,7 +1092,7 @@ class SearchResultTile extends StatelessWidget {
                             children: [
                               const LibraryAddResultBadge('core'),
                               const SizedBox(width: 4),
-                              LibraryAddResultBadge(item.kind),
+                              LibraryAddResultBadge(item.mediaKind.apiValue),
                             ],
                           ),
                         ),

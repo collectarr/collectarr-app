@@ -211,7 +211,13 @@ void main() {
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
     final tracking = await db.select(db.trackingEntriesCache).getSingle();
-    final catalog = await CatalogSnapshotRepository(db).findById('comic-1');
+    final catalog = await CatalogSnapshotRepository(db).findByRef(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-1',
+      ),
+    );
 
     expect(owned.condition, 'Near Mint');
     expect(tracking.rating, 8);
@@ -963,7 +969,13 @@ void main() {
       ],
     );
 
-    final catalog = await CatalogSnapshotRepository(db).findById('movie-1');
+    final catalog = await CatalogSnapshotRepository(db).findByRef(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'movie-1',
+      ),
+    );
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 1);
     expect(catalog?.kind, 'movie');
@@ -1161,8 +1173,12 @@ void main() {
     );
 
     expect(
-        await CatalogSnapshotRepository(db).findById(
-          'comic-without-projection',
+        await CatalogSnapshotRepository(db).findByRef(
+          const CatalogEntityRef(
+            kind: CatalogMediaKind.comic,
+            entityType: CatalogEntityTypeId('work'),
+            id: 'comic-without-projection',
+          ),
         ),
         isNull);
     expect(

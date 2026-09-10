@@ -967,7 +967,7 @@ class LibraryAddSessionController
     try {
       final LibraryAddCatalogItem hydrated = await api!
           .getTypedMetadataItem(
-        kind: catalogMediaKindFromApiValue(selected.kind),
+        kind: selected.mediaKind,
         id: itemId,
       )
           .then<LibraryAddCatalogItem>((dto) {
@@ -1012,7 +1012,7 @@ class LibraryAddSessionController
       };
       final mergedItem = LibraryAddCatalogItem.fromJson({
         'id': hydratedItem.id,
-        'kind': hydratedItem.kind,
+        'kind': hydratedItem.mediaKind.apiValue,
         ...mergedPayload,
       });
 

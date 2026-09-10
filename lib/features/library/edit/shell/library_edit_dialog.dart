@@ -515,7 +515,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                         final bundle = widget.availableBundleReleases.first;
                         _draft.personal.selectedWishlistCatalogRef =
                             CatalogEntityRef(
-                          kind: catalogMediaKindFromApiValue(_draft.item.kind),
+                          kind: _draft.item.mediaKind,
                           entityType:
                               const CatalogEntityTypeId('bundle_release'),
                           id: bundle.id,

@@ -537,7 +537,7 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
   final runtime = defaultLibraryKindRegistry
-      .tryGet(catalogMediaKindFromValue(item.source.catalogItem?.kind));
+      .tryGet(item.source.catalogItem?.mediaKind ?? CatalogMediaKind.unknown);
   if (runtime == null) return null;
   return runtime.presentation.builder.buildMetadataPresentation(
     singularLabel: runtime.identity.singularLabel,

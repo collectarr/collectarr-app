@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -724,8 +722,12 @@ void main() {
 
       // Verify item exists in local database and catalog cache with deterministic provisional identity
       final expectedProvisionalId = candidate.localCatalogId;
-      final cachedItem = await CatalogSnapshotRepository(db).findById(
-        expectedProvisionalId,
+      final cachedItem = await CatalogSnapshotRepository(db).findByRef(
+        CatalogEntityRef(
+          kind: candidate.kind,
+          entityType: const CatalogEntityTypeId('work'),
+          id: expectedProvisionalId,
+        ),
       );
       expect(cachedItem, isNotNull);
       expect(cachedItem!.id, expectedProvisionalId);

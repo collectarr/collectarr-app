@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/main.dart';
 import 'package:drift/native.dart';
@@ -88,7 +87,13 @@ void main() {
         }),
       ]);
 
-      final item = await CatalogSnapshotRepository(db).findById('smoke-1');
+      final item = await CatalogSnapshotRepository(db).findByRef(
+        const CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'smoke-1',
+        ),
+      );
       expect(item, isNotNull);
       expect(item!.title, 'Smoke Test Issue');
     });

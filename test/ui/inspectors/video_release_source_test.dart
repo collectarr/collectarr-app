@@ -1,16 +1,15 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/release/video_release_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('prefers catalog editions from core over local anchor synthesis', () {
-    final catalogItem = testCatalogItemFromJson({
+    final catalogItem = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
       'id': 'movie-1',
       'kind': 'movie',
       'title': 'Blade Runner',
@@ -28,7 +27,7 @@ void main() {
           ],
         },
       ],
-    });
+    }));
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -48,12 +47,12 @@ void main() {
   });
 
   test('keeps local release synthesis when video item has no editions', () {
-    final catalogItem = testCatalogItemFromJson({
+    final catalogItem = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
       'id': 'tmdb-local:movie:2',
       'kind': 'movie',
       'title': 'Dune',
       'physical_format_label': '4K UHD',
-    });
+    }));
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -73,12 +72,12 @@ void main() {
 
   test('treats tv items as video library kinds for local release synthesis',
       () {
-    final catalogItem = testCatalogItemFromJson({
+    final catalogItem = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
       'id': 'tmdb-local:tv:2',
       'kind': 'tv',
       'title': 'Severance',
       'physical_format_label': 'Blu-ray',
-    });
+    }));
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -99,11 +98,11 @@ void main() {
 
   test('does not synthesize title snapshot fallback for refreshed core items',
       () {
-    final catalogItem = testCatalogItemFromJson({
+    final catalogItem = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
       'id': 'movie-3',
       'kind': 'movie',
       'title': 'Arrival',
-    });
+    }));
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
 
@@ -111,13 +110,13 @@ void main() {
   });
 
   test('keeps title snapshot fallback for local synthetic video items', () {
-    final catalogItem = testCatalogItemFromJson({
+    final catalogItem = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
       'id': 'tmdb-local:movie:4',
       'kind': 'movie',
       'title': 'Heat',
       'physical_format_label': 'Blu-ray',
       'release_date': DateTime.utc(1995, 12, 15).toIso8601String(),
-    });
+    }));
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
 

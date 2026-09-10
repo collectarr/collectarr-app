@@ -98,7 +98,7 @@ final class ComicCollectionCsvProjection
         : ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());
     return [
       entry.itemId,
-      catalog?.kind ?? '',
+      catalog?.mediaKind.apiValue ?? '',
       comic?.title ?? catalog?.title ?? '',
       comic?.issueNumber ?? '',
       comic?.variantDescription ?? comic?.variant ?? '',

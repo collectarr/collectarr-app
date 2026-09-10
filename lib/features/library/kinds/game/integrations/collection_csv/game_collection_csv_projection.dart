@@ -96,7 +96,7 @@ final class GameCollectionCsvProjection
           });
     return [
       entry.itemId,
-      catalog?.kind ?? '',
+      catalog?.mediaKind.apiValue ?? '',
       metadata?.title ?? catalog?.title ?? '',
       metadata?.edition ?? '',
       metadata?.platform ?? metadata?.edition ?? '',

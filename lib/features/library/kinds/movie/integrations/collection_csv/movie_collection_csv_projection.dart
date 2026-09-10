@@ -98,7 +98,7 @@ final class MovieCollectionCsvProjection
           });
     return [
       entry.itemId,
-      catalog?.kind ?? '',
+      catalog?.mediaKind.apiValue ?? '',
       metadata?.title ?? catalog?.title ?? '',
       metadata?.itemNumber ?? '',
       metadata?.variant ?? '',

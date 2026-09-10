@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
 /// Opaque catalog transport item used by the Add host.
@@ -25,7 +24,6 @@ final class LibraryAddCatalogItem {
   String get id => _item.id;
   CatalogMediaKind get mediaKind => _item.mediaKind;
   LibraryItemIdentity get identity => _item.identity;
-  String get kind => _item.kind;
   Map<String, dynamic> get payload => _item.payload;
   dynamic get kindMetadata => _item.kindMetadata;
   String get title => _item.title;

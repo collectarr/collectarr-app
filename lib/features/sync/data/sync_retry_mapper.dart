@@ -86,8 +86,17 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'library_item_snapshot':
-        final item =
-            await CatalogSnapshotRepository(db).findById(change.entityId);
+        final payload = change.localPayload ?? change.servicePayload;
+        final rawKind = payload?['kind'];
+        if (rawKind is! String || rawKind.trim().isEmpty) {
+          return null;
+        }
+        final catalogRef = CatalogEntityRef(
+          kind: catalogMediaKindFromApiValue(rawKind),
+          entityType: const CatalogEntityTypeId('work'),
+          id: change.entityId,
+        );
+        final item = await CatalogSnapshotRepository(db).findByRef(catalogRef);
         if (item == null) {
           return null;
         }

@@ -141,7 +141,7 @@ LibraryAddCatalogItem _libraryMetadataItemWithPayload(
 ) {
   return LibraryAddCatalogItem.fromJson({
     'id': item.id,
-    'kind': item.kind,
+    'kind': item.mediaKind.apiValue,
     ...payload,
   });
 }

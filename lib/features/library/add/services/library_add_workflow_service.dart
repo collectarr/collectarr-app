@@ -277,7 +277,7 @@ class LibraryAddWorkflowService {
           await providerOrchestrationService.applyIngestCorrections(
             api: api,
             providerMapper: providerMapper,
-            kind: ingested.kind,
+            kind: ingested.mediaKind.apiValue,
             itemId: ingest.itemId,
             preview: previewItem,
             edited: edited,

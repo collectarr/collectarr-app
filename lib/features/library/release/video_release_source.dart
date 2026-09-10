@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 const _videoReleaseSourceKey = 'release_source';
@@ -29,7 +29,7 @@ class VideoReleaseAnchor {
 }
 
 List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
-  dynamic item, {
+  LibraryAddCatalogItem item, {
   Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
@@ -41,27 +41,27 @@ List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
           .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
           .toList()
       : const <CatalogEditionDto>[];
-  if (!_isVideoKind(item.kind as String)) {
+  if (!item.mediaKind.isVideoLibraryKind) {
     return rawEditions;
   }
   return _resolveVideoCatalogEditions(
     _VideoReleaseSeedInput(
-      itemId: item.id as String,
-      mediaType: item.kind as String,
-      resolvedTitle: item.resolvedDisplayTitle as String,
+      itemId: item.id,
+      mediaType: item.mediaKind.apiValue,
+      resolvedTitle: item.resolvedDisplayTitle,
       editionTitle: payload['edition_title'] as String?,
       distributor: (payload['publisher'] as String?) ??
           ((payload['publishing'] as Map?)?['original_publisher'] as String?),
-      releaseDate: item.releaseDate as DateTime?,
-      releaseYear: (item.releaseYear ?? item.releaseDate?.year) as int?,
+      releaseDate: item.releaseDate,
+      releaseYear: item.releaseYear ?? item.releaseDate?.year,
       physicalFormat: payload['physical_format'] as String?,
       formatLabel: payload['physical_format_label'] as String?,
       variant: payload['variant'] as String?,
       language: payload['language'] as String?,
       country: payload['country'] as String?,
       barcodeValue: payload['barcode'] as String?,
-      coverImageUrl: item.coverImageUrl as String?,
-      thumbnailImageUrl: item.thumbnailImageUrl as String?,
+      coverImageUrl: item.coverImageUrl,
+      thumbnailImageUrl: item.thumbnailImageUrl,
     ),
     rawEditions,
     ownedItems: ownedItems,
@@ -307,10 +307,6 @@ int _sourcePriority(String? value) {
     _videoReleaseSourceTitleSnapshot => 2,
     _ => 3,
   };
-}
-
-bool _isVideoKind(String mediaType) {
-  return catalogMediaKindFromApiValue(mediaType).isVideoLibraryKind;
 }
 
 String? _normalized(String? value) {

@@ -192,7 +192,7 @@ class CollectionCsv {
   List<String> _catalogFields(ShelfEntry entry) {
     final catalog = entry.catalogItem;
     final projection = libraryCollectionCsvProjectionForKind(
-      catalogMediaKindFromValue(catalog?.kind),
+      catalog?.mediaKind ?? CatalogMediaKind.unknown,
     );
     if (projection != null) {
       return _validatedCatalogCells(projection.catalogCells(entry));
@@ -202,7 +202,7 @@ class CollectionCsv {
     // columns are supplied by a kind-owned projection when supported.
     return [
       entry.itemId,
-      catalog?.kind ?? '',
+      catalog?.mediaKind.apiValue ?? '',
       catalog?.title ?? '',
       '',
       '',

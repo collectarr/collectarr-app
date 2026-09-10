@@ -104,7 +104,7 @@ Future<void> addLibraryItemsToTarget({
     );
     switch (target) {
       case LibraryAddTarget.owned:
-        final itemKind = catalogMediaKindFromApiValue(item.kind);
+        final itemKind = item.mediaKind;
         final capability = libraryKindModuleForKind(itemKind).add;
         final addCmd = capability.buildCommand(
           item,

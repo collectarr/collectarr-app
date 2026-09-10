@@ -17,7 +17,7 @@ List<Widget> buildLibraryDetailEditorSections({
     if (trackingEntry != null)
       InspectorTrackingDetailsEditor(
         itemId: item.node.titleItemId,
-        mediaType: catalogItem?.kind ?? '',
+        mediaType: catalogItem?.mediaKind.apiValue ?? '',
         trackingEntry: trackingEntry,
         profile: type.trackingProfile,
         trackingEditor: type.inspector.trackingEditor,
