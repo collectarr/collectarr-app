@@ -90,33 +90,21 @@ class ShelfState {
     Iterable<TrackingSummary>? trackingSummaries,
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
-    Map<String, CatalogDisplaySummary>? catalogSummaries,
-    Map<String, CatalogItemDto>? catalogItems,
-    Map<String, CatalogItemDto>? catalogSnapshotsById,
     Map<CatalogEntityRef, CatalogItemDto>? catalogSnapshotsByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
-    final catalogById = <String, CatalogItemDto>{
-      ...?catalogSnapshotsById,
-      ...?catalogItems,
-    };
     final catalogByRef = <CatalogEntityRef, CatalogItemDto>{
       ...?catalogSnapshotsByRef,
-      for (final item in catalogById.values) item.catalogRef: item,
     };
-    final resolvedCatalogSummaries = catalogSummaries ??
-        {
-          for (final item in catalogById.values)
-            item.id: _catalogSummaryFromSnapshot(item),
-        };
-    final resolvedCatalogSummariesByRef = catalogSummariesByRef ??
-        {
-          for (final summary in resolvedCatalogSummaries.values)
-            summary.ref: summary,
-        };
+    final resolvedCatalogSummariesByRef =
+        <CatalogEntityRef, CatalogDisplaySummary>{
+      ...?catalogSummariesByRef,
+      for (final item in catalogByRef.values)
+        item.catalogRef: _catalogSummaryFromSnapshot(item),
+    };
     final resolvedOwnedSummaries =
         ownedSummaries?.toList(growable: false) ?? const <OwnedItemSummary>[];
     final resolvedTrackingSummaries =
@@ -168,8 +156,7 @@ class ShelfState {
       for (final ref in refs) ...[
         ShelfEntry(
           itemId: ref.id,
-          catalogSummary: resolvedCatalogSummariesByRef[ref] ??
-              resolvedCatalogSummaries[ref.id],
+          catalogSummary: resolvedCatalogSummariesByRef[ref],
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
           // Transport snapshots remain available only to the typed Library
@@ -190,8 +177,7 @@ class ShelfState {
       for (final ref in refs)
         LibraryEntry(
           itemId: ref.id,
-          catalogSummary: resolvedCatalogSummariesByRef[ref] ??
-              resolvedCatalogSummaries[ref.id],
+          catalogSummary: resolvedCatalogSummariesByRef[ref],
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
           wishlistItem: wishlistByCatalogRef[ref],

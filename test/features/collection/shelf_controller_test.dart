@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -55,8 +54,13 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 8),
         ),
       ],
-      catalogItems: {
-        'comic-1': testCatalogItem(
+      catalogSnapshotsByRef: {
+        testCatalogItem(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'Saga',
+          itemNumber: '1',
+        ).catalogRef: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Saga',
@@ -104,7 +108,7 @@ void main() {
           itemId: 'owned-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           updatedAt: DateTime.utc(2026, 5, 11),
@@ -115,7 +119,7 @@ void main() {
           id: 'wish-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           createdAt: DateTime.utc(2026, 5, 9),
@@ -127,15 +131,19 @@ void main() {
           id: 'track-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           status: MediaTrackingStatus.planned,
           updatedAt: DateTime.utc(2026, 5, 8),
         ),
       ],
-      catalogItems: {
-        'book-1': testCatalogItem(
+      catalogSnapshotsByRef: {
+        testCatalogItem(
+          id: 'book-1',
+          kind: 'book',
+          title: 'Catalog keyed by ref',
+        ).catalogRef: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Catalog keyed by ref',
@@ -153,12 +161,12 @@ void main() {
   test('shelf keeps equal catalog ids distinct across kinds', () {
     const bookRef = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId('work'),
       id: 'shared-id',
     );
     const comicRef = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId('work'),
       id: 'shared-id',
     );
     final state = ShelfState.from(

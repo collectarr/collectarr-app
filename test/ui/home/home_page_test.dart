@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -51,7 +50,7 @@ void main() {
         )),
       ],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSnapshotsByRef: {game.catalogRef: game},
     );
 
     await tester.pumpWidget(
@@ -118,7 +117,7 @@ void main() {
         )),
       ],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSnapshotsByRef: {game.catalogRef: game},
     );
 
     await tester.pumpWidget(
@@ -180,7 +179,7 @@ void main() {
     final shelf = ShelfState.from(
       ownedSummaries: const [],
       wishlistItems: const [],
-      catalogItems: {podcast.id: podcast},
+      catalogSnapshotsByRef: {podcast.catalogRef: podcast},
     );
 
     await tester.pumpWidget(
@@ -237,7 +236,7 @@ void main() {
         )),
       ],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSnapshotsByRef: {game.catalogRef: game},
     );
 
     await tester.pumpWidget(
@@ -293,7 +292,7 @@ void main() {
     final shelf = ShelfState.from(
       ownedSummaries: [testOwnedItemSummary(owned)],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSnapshotsByRef: {game.catalogRef: game},
     );
     await LoanRepository(db).create(
       Loan(
