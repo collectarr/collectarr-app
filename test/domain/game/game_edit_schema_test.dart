@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit/release/game_rel
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_release.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -121,7 +122,7 @@ void main() {
         .setValue(draft, true);
 
     expect(
-      draft.toDetailsDraft().toDetails(),
+      (draft.toDetailsDraft() as GameOwnedDetailsDraft).toDetails(),
       const GameOwnedDetails(
         completeness: 'Complete in Box (CIB)',
         hasBox: true,

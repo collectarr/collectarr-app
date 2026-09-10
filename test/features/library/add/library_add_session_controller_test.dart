@@ -29,12 +29,16 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
@@ -359,7 +363,9 @@ void main() {
       );
 
       expect(command.catalogRef.id, 'c1');
-      final details = command.typedPayload.detailsDraft.toDetails();
+      final details =
+          (command.typedPayload.detailsDraft as ComicOwnedDetailsDraft)
+              .toDetails();
       expect(details, isA<ComicOwnedDetails>());
       expect((details as ComicOwnedDetails).gradingCompany, 'CBCS');
       expect(details.signedBy, 'Stan Lee');
@@ -380,7 +386,9 @@ void main() {
       );
 
       expect(command.catalogRef.id, 'v1');
-      final details = command.typedPayload.detailsDraft.toDetails();
+      final details =
+          (command.typedPayload.detailsDraft as MovieOwnedDetailsDraft)
+              .toDetails();
       expect(details, isA<MovieOwnedDetails>());
       expect((details as MovieOwnedDetails).packaging, 'SteelBook');
       expect(details.region, 'Region A');
@@ -401,7 +409,9 @@ void main() {
       );
 
       expect(command.catalogRef.id, 'g1');
-      final details = command.typedPayload.detailsDraft.toDetails();
+      final details =
+          (command.typedPayload.detailsDraft as GameOwnedDetailsDraft)
+              .toDetails();
       expect(details, isA<GameOwnedDetails>());
       expect((details as GameOwnedDetails).completeness, 'CIB');
       expect(details.hasBox, true);
@@ -422,7 +432,9 @@ void main() {
       );
 
       expect(command.catalogRef.id, 'm1');
-      final details = command.typedPayload.detailsDraft.toDetails();
+      final details =
+          (command.typedPayload.detailsDraft as MusicOwnedDetailsDraft)
+              .toDetails();
       expect(details, isA<MusicOwnedDetails>());
       expect((details as MusicOwnedDetails).storageDevice, 'Shelf A');
       expect(details.storageSlot, '12');

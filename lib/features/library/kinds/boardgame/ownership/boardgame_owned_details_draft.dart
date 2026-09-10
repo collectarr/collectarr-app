@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 
-class BoardgameOwnedDetailsDraft extends OwnedDetailsDraft {
+class BoardgameOwnedDetailsDraft implements JsonEncodable {
   const BoardgameOwnedDetailsDraft({
     this.editionLanguage,
     this.editionRegion,
@@ -24,7 +24,6 @@ class BoardgameOwnedDetailsDraft extends OwnedDetailsDraft {
   final bool hasPaintedMiniatures;
   final String? storageNotes;
 
-  @override
   BoardgameOwnedDetails toDetails() => BoardgameOwnedDetails(
         editionLanguage: editionLanguage,
         editionRegion: editionRegion,
@@ -36,4 +35,7 @@ class BoardgameOwnedDetailsDraft extends OwnedDetailsDraft {
         hasPaintedMiniatures: hasPaintedMiniatures,
         storageNotes: storageNotes,
       );
+
+  @override
+  Map<String, dynamic> toJson() => toDetails().toJson();
 }

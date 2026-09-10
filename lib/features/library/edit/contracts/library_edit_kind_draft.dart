@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.
 abstract class LibraryEditKindDraft {
   const LibraryEditKindDraft();
 
-  OwnedDetailsDraft toDetailsDraft();
+  JsonEncodable toDetailsDraft();
 
   /// Builds the complete kind-owned Owned update payload from the edit form.
   ///

@@ -2,8 +2,7 @@ import 'package:collectarr_app/features/library/config/owned_details_codec.dart'
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 
-class TvOwnedDetailsCodec
-    extends OwnedDetailsCodec<TvOwnedDetails, TvOwnedDetailsDraft> {
+class TvOwnedDetailsCodec extends OwnedDetailsPersistenceCodec<TvOwnedDetails> {
   const TvOwnedDetailsCodec();
 
   @override
@@ -20,7 +19,6 @@ class TvOwnedDetailsCodec
   @override
   TvOwnedDetails defaultDetails() => const TvOwnedDetails();
 
-  @override
   TvOwnedDetailsDraft draftFromDetails(TvOwnedDetails details) =>
       TvOwnedDetailsDraft(
         features: details.features,
@@ -32,6 +30,5 @@ class TvOwnedDetailsCodec
         distributor: details.distributor,
       );
 
-  @override
   TvOwnedDetailsDraft defaultDraft() => const TvOwnedDetailsDraft();
 }

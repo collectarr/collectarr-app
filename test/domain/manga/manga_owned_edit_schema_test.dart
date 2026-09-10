@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_owned_edit_schema.dart';
@@ -67,7 +68,10 @@ void main() {
     final draft = _createDraft(details);
     addTearDown(draft.dispose);
 
-    expect(draft.toDetailsDraft().toDetails(), details);
+    expect(
+      (draft.toDetailsDraft() as MangaOwnedDetailsDraft).toDetails(),
+      details,
+    );
 
     final gradingCompany =
         _field('grading_company') as TextEditField<MangaEditDraft>;
@@ -78,7 +82,8 @@ void main() {
     signedBy.setValue(draft, 'Tsukasa Abe');
     obiStrip.setValue(draft, false);
 
-    final updated = draft.toDetailsDraft().toDetails() as MangaOwnedDetails;
+    final updated =
+        (draft.toDetailsDraft() as MangaOwnedDetailsDraft).toDetails();
     expect(updated.gradingCompany, 'BGS');
     expect(updated.signedBy, 'Tsukasa Abe');
     expect(updated.obiStripPresent, isFalse);
@@ -131,11 +136,13 @@ void main() {
     expect(metadata.pageCount, 224);
     expect(metadata.publisher, 'VIZ Media');
     expect(
-      (draft.toDetailsDraft().toDetails() as MangaOwnedDetails).gradingCompany,
+      (draft.toDetailsDraft() as MangaOwnedDetailsDraft)
+          .toDetails()
+          .gradingCompany,
       'BGS',
     );
     final updatedDetails =
-        draft.toDetailsDraft().toDetails() as MangaOwnedDetails;
+        (draft.toDetailsDraft() as MangaOwnedDetailsDraft).toDetails();
     expect(updatedDetails.graderNotes, 'Regraded');
     expect(updatedDetails.grading.labelType, 'Qualified');
     expect(updatedDetails.grading.customLabel, 'Signed copy');

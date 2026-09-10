@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -21,11 +22,8 @@ Widget? buildMangaCustomTabView({
   if (kindDraft is! MangaEditDraft) {
     throw StateError('Expected MangaEditDraft for Manga owned editing');
   }
-  final detailsDraft = kindDraft.toDetailsDraft();
+  final detailsDraft = kindDraft.toDetailsDraft() as MangaOwnedDetailsDraft;
   final details = detailsDraft.toDetails();
-  if (details is! MangaOwnedDetails) {
-    throw StateError('Expected MangaOwnedDetails for Manga owned editing');
-  }
   return EditSchemaRenderer<MangaOwnedDetails, MangaEditDraft>(
     schema: mangaOwnedEditSchema,
     model: details,

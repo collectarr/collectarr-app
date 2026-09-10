@@ -54,7 +54,6 @@ void main() {
           itemId: 'anime-1',
           updatedAt: DateTime.utc(2026, 5, 30),
         ),
-        trackingEntry: null,
         wishlistItem: null,
         locationPath: 'Shelf B / Box 2',
         watchSessions: const [],

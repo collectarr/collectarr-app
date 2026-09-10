@@ -51,7 +51,7 @@ void main() {
     );
   });
 
-  test('OwnedDetailsDraft converts to corresponding JsonEncodable', () {
+  test('kind-owned detail drafts convert to JsonEncodable', () {
     const comicDraft = ComicOwnedDetailsDraft(
       rawOrSlabbed: 'Slabbed',
       gradingCompany: 'CGC',

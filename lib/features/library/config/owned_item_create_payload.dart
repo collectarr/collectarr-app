@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 /// Structural behavior contract for a kind-owned Owned create payload.
 ///
@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/config/owned_details_draft.dart'
 /// field or inspecting the concrete payload.
 abstract interface class OwnedItemCreatePayload {
   CatalogEntityRef get catalogRef;
-  OwnedDetailsDraft get detailsDraft;
+  JsonEncodable get detailsDraft;
   bool? get isDigital;
 
   /// Builds the complete kind-owned aggregate.

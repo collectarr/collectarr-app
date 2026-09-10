@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
 class MusicOwnedDetailsCodec
-    extends OwnedDetailsCodec<MusicOwnedDetails, MusicOwnedDetailsDraft> {
+    extends OwnedDetailsPersistenceCodec<MusicOwnedDetails> {
   const MusicOwnedDetailsCodec();
 
   @override
@@ -20,7 +20,6 @@ class MusicOwnedDetailsCodec
   @override
   MusicOwnedDetails defaultDetails() => const MusicOwnedDetails();
 
-  @override
   MusicOwnedDetailsDraft draftFromDetails(MusicOwnedDetails details) =>
       MusicOwnedDetailsDraft(
         storageDevice: details.storageDevice,
@@ -30,6 +29,5 @@ class MusicOwnedDetailsCodec
         matrixRunouts: details.matrixRunouts,
       );
 
-  @override
   MusicOwnedDetailsDraft defaultDraft() => const MusicOwnedDetailsDraft();
 }

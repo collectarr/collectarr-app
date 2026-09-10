@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
@@ -112,12 +113,9 @@ Widget? buildBoardGameCustomTabView({
       throw StateError(
           'Expected BoardGameEditDraft for BoardGame owned editing');
     }
-    final details = kindDraft.toDetailsDraft().toDetails();
-    if (details is! BoardgameOwnedDetails) {
-      throw StateError(
-        'Expected BoardgameOwnedDetails for BoardGame owned editing',
-      );
-    }
+    final detailsDraft =
+        kindDraft.toDetailsDraft() as BoardgameOwnedDetailsDraft;
+    final details = detailsDraft.toDetails();
     return EditSchemaRenderer<BoardgameOwnedDetails, BoardGameEditDraft>(
       schema: boardGameOwnedEditSchema,
       model: details,

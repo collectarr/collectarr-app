@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 
-class TvOwnedDetailsDraft extends OwnedDetailsDraft {
+class TvOwnedDetailsDraft implements JsonEncodable {
   const TvOwnedDetailsDraft({
     this.features,
     this.hdrFormats = const [],
@@ -20,7 +20,6 @@ class TvOwnedDetailsDraft extends OwnedDetailsDraft {
   final String? packaging;
   final String? distributor;
 
-  @override
   TvOwnedDetails toDetails() => TvOwnedDetails(
         features: features,
         hdrFormats: hdrFormats,
@@ -30,4 +29,7 @@ class TvOwnedDetailsDraft extends OwnedDetailsDraft {
         packaging: packaging,
         distributor: distributor,
       );
+
+  @override
+  Map<String, dynamic> toJson() => toDetails().toJson();
 }

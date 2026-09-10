@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -64,7 +65,7 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
 typedef LibraryAddOwnedPayloadBuilder = OwnedItemCreatePayload Function(
   LibraryAddCatalogItem item,
   LibraryAddCommonDraft common,
-  OwnedDetailsDraft details,
+  JsonEncodable details,
 );
 
 class LibraryAddSearchCapability {
@@ -207,7 +208,7 @@ abstract interface class LibraryAddCapability<
   AddOwnedItemCommand buildCommandFromDetails(
     LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
-    OwnedDetailsDraft details, {
+    JsonEncodable details, {
     CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   });
@@ -294,7 +295,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   OwnedItemCreatePayload _buildOwnedPayload(
     LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
-    OwnedDetailsDraft details,
+    JsonEncodable details,
   ) {
     try {
       final payload = ownedPayloadBuilder?.call(item, common, details);
@@ -342,7 +343,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   AddOwnedItemCommand buildCommandFromDetails(
     LibraryAddCatalogItem item,
     LibraryAddCommonDraft common,
-    OwnedDetailsDraft details, {
+    JsonEncodable details, {
     CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
   }) {

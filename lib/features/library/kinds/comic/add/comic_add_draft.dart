@@ -1,7 +1,7 @@
 export 'comic_add_manual_draft.dart';
 export 'comic_add_schema.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/grading_draft.dart';
 import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
@@ -77,7 +77,7 @@ final class ComicAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  OwnedDetailsDraft toOwnedDetailsDraft() => ComicOwnedDetailsDraft(
+  JsonEncodable toOwnedDetailsDraft() => ComicOwnedDetailsDraft(
         rawOrSlabbed: rawOrSlabbed,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,

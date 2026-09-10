@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -158,7 +159,7 @@ CatalogEntityRef testCatalogRef(
 AddOwnedItemCommand typedAddOwnedItemCommand({
   required CatalogEntityRef catalogRef,
   required LibraryAddCommonDraft common,
-  required OwnedDetailsDraft details,
+  required JsonEncodable details,
   OwnedItemCreatePayload? typedPayload,
   CatalogEntityRef? targetRef,
   OwnedItemTrackingDraft? tracking,

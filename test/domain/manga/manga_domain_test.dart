@@ -47,7 +47,6 @@ void main() {
           rawOrSlabbed: 'Raw',
           updatedAt: DateTime.utc(2026, 5, 30),
         ),
-        trackingEntry: null,
         wishlistItem: null,
         locationPath: 'Shelf A / Box 3',
         watchSessions: const [],

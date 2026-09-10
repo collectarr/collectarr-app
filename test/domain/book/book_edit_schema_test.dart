@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/book/edit/edition/book_edi
 import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/owned/book_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -126,7 +127,8 @@ void main() {
     draft.dustJacketPresent = true;
     draft.dustJacketCondition = 'Very Good';
 
-    final details = draft.toDetailsDraft().toDetails();
+    final details =
+        (draft.toDetailsDraft() as BookOwnedDetailsDraft).toDetails();
     expect(
       details,
       const BookOwnedDetails(

@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 
-class MangaOwnedDetailsDraft extends OwnedDetailsDraft {
+class MangaOwnedDetailsDraft implements JsonEncodable {
   const MangaOwnedDetailsDraft({
     this.rawOrSlabbed,
     this.signedBy,
@@ -39,7 +39,6 @@ class MangaOwnedDetailsDraft extends OwnedDetailsDraft {
   final String? printing;
   final String? localizedEdition;
 
-  @override
   MangaOwnedDetails toDetails() => MangaOwnedDetails(
         grading: MangaGradingDetails(
           rawOrSlabbed: rawOrSlabbed,
@@ -62,4 +61,7 @@ class MangaOwnedDetailsDraft extends OwnedDetailsDraft {
         printing: printing,
         localizedEdition: localizedEdition,
       );
+
+  @override
+  Map<String, dynamic> toJson() => toDetails().toJson();
 }

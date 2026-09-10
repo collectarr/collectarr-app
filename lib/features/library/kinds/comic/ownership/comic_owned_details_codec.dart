@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
 class ComicOwnedDetailsCodec
-    extends OwnedDetailsCodec<ComicOwnedDetails, ComicOwnedDetailsDraft> {
+    extends OwnedDetailsPersistenceCodec<ComicOwnedDetails> {
   const ComicOwnedDetailsCodec();
 
   @override
@@ -20,7 +20,6 @@ class ComicOwnedDetailsCodec
   @override
   ComicOwnedDetails defaultDetails() => const ComicOwnedDetails();
 
-  @override
   ComicOwnedDetailsDraft draftFromDetails(ComicOwnedDetails details) =>
       ComicOwnedDetailsDraft(
         rawOrSlabbed: details.rawOrSlabbed,
@@ -39,6 +38,5 @@ class ComicOwnedDetailsCodec
         lastBagBoardDate: details.lastBagBoardDate,
       );
 
-  @override
   ComicOwnedDetailsDraft defaultDraft() => const ComicOwnedDetailsDraft();
 }

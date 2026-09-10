@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/owned/book_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -21,10 +22,8 @@ Widget? buildBookCustomTabView({
   if (kindDraft is! BookEditDraft) {
     throw StateError('Expected BookEditDraft for Book owned editing');
   }
-  final details = kindDraft.toDetailsDraft().toDetails();
-  if (details is! BookOwnedDetails) {
-    throw StateError('Expected BookOwnedDetails for Book owned editing');
-  }
+  final detailsDraft = kindDraft.toDetailsDraft() as BookOwnedDetailsDraft;
+  final details = detailsDraft.toDetails();
   return EditSchemaRenderer<BookOwnedDetails, BookEditDraft>(
     schema: bookOwnedEditSchema,
     model: details,

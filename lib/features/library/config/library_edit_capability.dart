@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -127,7 +128,7 @@ class LibraryEditCapability {
     );
   }
 
-  OwnedDetailsDraft buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
+  JsonEncodable buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();
 
   UpdateOwnedItemCommand buildIndexUpdateCommand({

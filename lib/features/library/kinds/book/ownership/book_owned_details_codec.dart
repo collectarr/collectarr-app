@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 
 class BookOwnedDetailsCodec
-    extends OwnedDetailsCodec<BookOwnedDetails, BookOwnedDetailsDraft> {
+    extends OwnedDetailsPersistenceCodec<BookOwnedDetails> {
   const BookOwnedDetailsCodec();
 
   @override
@@ -20,7 +20,6 @@ class BookOwnedDetailsCodec
   @override
   BookOwnedDetails defaultDetails() => const BookOwnedDetails();
 
-  @override
   BookOwnedDetailsDraft draftFromDetails(BookOwnedDetails details) =>
       BookOwnedDetailsDraft(
         signedBy: details.signedBy,
@@ -28,6 +27,5 @@ class BookOwnedDetailsCodec
         dustJacketCondition: details.dustJacketCondition,
       );
 
-  @override
   BookOwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
 }

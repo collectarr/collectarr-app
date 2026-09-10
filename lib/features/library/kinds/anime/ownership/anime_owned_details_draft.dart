@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 
-class AnimeOwnedDetailsDraft extends OwnedDetailsDraft {
+class AnimeOwnedDetailsDraft implements JsonEncodable {
   const AnimeOwnedDetailsDraft({
     this.features,
     this.hdrFormats = const [],
@@ -20,7 +20,6 @@ class AnimeOwnedDetailsDraft extends OwnedDetailsDraft {
   final String? packaging;
   final String? distributor;
 
-  @override
   AnimeOwnedDetails toDetails() => AnimeOwnedDetails(
         features: features,
         hdrFormats: hdrFormats,
@@ -30,4 +29,7 @@ class AnimeOwnedDetailsDraft extends OwnedDetailsDraft {
         packaging: packaging,
         distributor: distributor,
       );
+
+  @override
+  Map<String, dynamic> toJson() => toDetails().toJson();
 }

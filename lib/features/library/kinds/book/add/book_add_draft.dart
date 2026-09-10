@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
@@ -25,7 +25,7 @@ final class BookAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.book;
 
   @override
-  OwnedDetailsDraft toOwnedDetailsDraft() => BookOwnedDetailsDraft(
+  JsonEncodable toOwnedDetailsDraft() => BookOwnedDetailsDraft(
         signedBy: signedBy,
         dustJacketPresent: dustJacketPresent,
         dustJacketCondition: dustJacketCondition,

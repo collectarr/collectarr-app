@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/board
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -158,7 +159,7 @@ void main() {
         .setValue(draft, 'Shelf 2');
 
     expect(
-      draft.toDetailsDraft().toDetails(),
+      (draft.toDetailsDraft() as BoardgameOwnedDetailsDraft).toDetails(),
       const BoardgameOwnedDetails(
         editionLanguage: 'German',
         editionRegion: 'EU',

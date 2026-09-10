@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 
-class ComicOwnedDetailsDraft extends OwnedDetailsDraft {
+class ComicOwnedDetailsDraft implements JsonEncodable {
   const ComicOwnedDetailsDraft({
     this.rawOrSlabbed,
     this.gradingCompany,
@@ -34,7 +34,6 @@ class ComicOwnedDetailsDraft extends OwnedDetailsDraft {
   final int? coverPriceCents;
   final DateTime? lastBagBoardDate;
 
-  @override
   ComicOwnedDetails toDetails() => ComicOwnedDetails(
         rawOrSlabbed: rawOrSlabbed,
         gradingCompany: gradingCompany,
@@ -51,4 +50,7 @@ class ComicOwnedDetailsDraft extends OwnedDetailsDraft {
         coverPriceCents: coverPriceCents,
         lastBagBoardDate: lastBagBoardDate,
       );
+
+  @override
+  Map<String, dynamic> toJson() => toDetails().toJson();
 }

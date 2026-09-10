@@ -2,8 +2,8 @@ import 'package:collectarr_app/features/library/config/owned_details_codec.dart'
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 
-class BoardgameOwnedDetailsCodec extends OwnedDetailsCodec<
-    BoardgameOwnedDetails, BoardgameOwnedDetailsDraft> {
+class BoardgameOwnedDetailsCodec
+    extends OwnedDetailsPersistenceCodec<BoardgameOwnedDetails> {
   const BoardgameOwnedDetailsCodec();
 
   @override
@@ -21,7 +21,6 @@ class BoardgameOwnedDetailsCodec extends OwnedDetailsCodec<
   @override
   BoardgameOwnedDetails defaultDetails() => const BoardgameOwnedDetails();
 
-  @override
   BoardgameOwnedDetailsDraft draftFromDetails(BoardgameOwnedDetails details) =>
       BoardgameOwnedDetailsDraft(
         editionLanguage: details.editionLanguage,
@@ -35,7 +34,6 @@ class BoardgameOwnedDetailsCodec extends OwnedDetailsCodec<
         storageNotes: details.storageNotes,
       );
 
-  @override
   BoardgameOwnedDetailsDraft defaultDraft() =>
       const BoardgameOwnedDetailsDraft();
 }

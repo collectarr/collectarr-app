@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:flutter/foundation.dart';
@@ -32,7 +32,7 @@ final class BoardgameAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  OwnedDetailsDraft toOwnedDetailsDraft() => BoardgameOwnedDetailsDraft(
+  JsonEncodable toOwnedDetailsDraft() => BoardgameOwnedDetailsDraft(
         editionLanguage: editionLanguage,
         editionRegion: editionRegion,
         componentCondition: componentCondition,
@@ -44,4 +44,3 @@ final class BoardgameAddDraft extends LibraryAddKindDraft {
         storageNotes: storageNotes,
       );
 }
-

@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 
-class GameOwnedDetailsDraft extends OwnedDetailsDraft {
+class GameOwnedDetailsDraft implements JsonEncodable {
   const GameOwnedDetailsDraft({
     this.completeness,
     this.hasBox,
@@ -18,7 +18,6 @@ class GameOwnedDetailsDraft extends OwnedDetailsDraft {
   final String? coreRegion;
   final bool? valueIsLocked;
 
-  @override
   GameOwnedDetails toDetails() => GameOwnedDetails(
         completeness: completeness,
         hasBox: hasBox,
@@ -27,4 +26,7 @@ class GameOwnedDetailsDraft extends OwnedDetailsDraft {
         coreRegion: coreRegion,
         valueIsLocked: valueIsLocked,
       );
+
+  @override
+  Map<String, dynamic> toJson() => toDetails().toJson();
 }

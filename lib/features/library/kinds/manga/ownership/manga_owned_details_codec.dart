@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
 class MangaOwnedDetailsCodec
-    extends OwnedDetailsCodec<MangaOwnedDetails, MangaOwnedDetailsDraft> {
+    extends OwnedDetailsPersistenceCodec<MangaOwnedDetails> {
   const MangaOwnedDetailsCodec();
 
   @override
@@ -20,7 +20,6 @@ class MangaOwnedDetailsCodec
   @override
   MangaOwnedDetails defaultDetails() => const MangaOwnedDetails();
 
-  @override
   MangaOwnedDetailsDraft draftFromDetails(MangaOwnedDetails details) =>
       MangaOwnedDetailsDraft(
         rawOrSlabbed: details.grading.rawOrSlabbed,
@@ -41,6 +40,5 @@ class MangaOwnedDetailsCodec
         localizedEdition: details.localizedEdition,
       );
 
-  @override
   MangaOwnedDetailsDraft defaultDraft() => const MangaOwnedDetailsDraft();
 }

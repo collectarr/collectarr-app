@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 
 class GameOwnedDetailsCodec
-    extends OwnedDetailsCodec<GameOwnedDetails, GameOwnedDetailsDraft> {
+    extends OwnedDetailsPersistenceCodec<GameOwnedDetails> {
   const GameOwnedDetailsCodec();
 
   @override
@@ -20,7 +20,6 @@ class GameOwnedDetailsCodec
   @override
   GameOwnedDetails defaultDetails() => const GameOwnedDetails();
 
-  @override
   GameOwnedDetailsDraft draftFromDetails(GameOwnedDetails details) =>
       GameOwnedDetailsDraft(
         completeness: details.completeness,
@@ -31,6 +30,5 @@ class GameOwnedDetailsCodec
         valueIsLocked: details.valueIsLocked,
       );
 
-  @override
   GameOwnedDetailsDraft defaultDraft() => const GameOwnedDetailsDraft();
 }

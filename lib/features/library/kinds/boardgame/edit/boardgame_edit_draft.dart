@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -99,7 +99,7 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
   final TextEditingController releaseYearController;
 
   @override
-  OwnedDetailsDraft toDetailsDraft() => BoardgameOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => BoardgameOwnedDetailsDraft(
         editionLanguage: editionLanguage,
         editionRegion: editionRegion,
         componentCondition: componentCondition,

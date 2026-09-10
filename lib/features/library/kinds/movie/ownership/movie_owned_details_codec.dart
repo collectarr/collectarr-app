@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
 class MovieOwnedDetailsCodec
-    extends OwnedDetailsCodec<MovieOwnedDetails, MovieOwnedDetailsDraft> {
+    extends OwnedDetailsPersistenceCodec<MovieOwnedDetails> {
   const MovieOwnedDetailsCodec();
 
   @override
@@ -20,7 +20,6 @@ class MovieOwnedDetailsCodec
   @override
   MovieOwnedDetails defaultDetails() => const MovieOwnedDetails();
 
-  @override
   MovieOwnedDetailsDraft draftFromDetails(MovieOwnedDetails details) =>
       MovieOwnedDetailsDraft(
         features: details.features,
@@ -32,6 +31,5 @@ class MovieOwnedDetailsCodec
         distributor: details.distributor,
       );
 
-  @override
   MovieOwnedDetailsDraft defaultDraft() => const MovieOwnedDetailsDraft();
 }

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owne
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 
 class AnimeOwnedDetailsCodec
-    extends OwnedDetailsCodec<AnimeOwnedDetails, AnimeOwnedDetailsDraft> {
+    extends OwnedDetailsPersistenceCodec<AnimeOwnedDetails> {
   const AnimeOwnedDetailsCodec();
 
   @override
@@ -20,7 +20,6 @@ class AnimeOwnedDetailsCodec
   @override
   AnimeOwnedDetails defaultDetails() => const AnimeOwnedDetails();
 
-  @override
   AnimeOwnedDetailsDraft draftFromDetails(AnimeOwnedDetails details) =>
       AnimeOwnedDetailsDraft(
         features: details.features,
@@ -32,6 +31,5 @@ class AnimeOwnedDetailsCodec
         distributor: details.distributor,
       );
 
-  @override
   AnimeOwnedDetailsDraft defaultDraft() => const AnimeOwnedDetailsDraft();
 }

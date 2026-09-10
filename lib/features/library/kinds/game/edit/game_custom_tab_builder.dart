@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
@@ -25,10 +26,8 @@ Widget? buildGameCustomTabView({
     if (kindDraft is! GameEditDraft) {
       throw StateError('Expected GameEditDraft for Game owned editing');
     }
-    final details = kindDraft.toDetailsDraft().toDetails();
-    if (details is! GameOwnedDetails) {
-      throw StateError('Expected GameOwnedDetails for Game owned editing');
-    }
+    final detailsDraft = kindDraft.toDetailsDraft() as GameOwnedDetailsDraft;
+    final details = detailsDraft.toDetails();
     return EditSchemaRenderer<GameOwnedDetails, GameEditDraft>(
       schema: gameOwnedEditSchema,
       model: details,

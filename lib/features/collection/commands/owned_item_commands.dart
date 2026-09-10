@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/owned_item_create_payload
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:flutter/foundation.dart';
 
-export 'package:collectarr_app/features/library/config/owned_details_draft.dart';
+export 'package:collectarr_app/core/models/json_encodable.dart';
 export 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 

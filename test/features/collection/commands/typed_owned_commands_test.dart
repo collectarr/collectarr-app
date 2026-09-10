@@ -60,7 +60,7 @@ void main() {
 
       final coordinator = container.read(collectionCommandCoordinatorProvider);
 
-      final kindDetailsMap = <CatalogMediaKind, OwnedDetailsDraft>{
+      final kindDetailsMap = <CatalogMediaKind, JsonEncodable>{
         CatalogMediaKind.comic:
             const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
         CatalogMediaKind.manga:
@@ -74,7 +74,7 @@ void main() {
         CatalogMediaKind.book: const BookOwnedDetailsDraft(),
         CatalogMediaKind.boardgame: const BoardgameOwnedDetailsDraft(),
       };
-      final mismatchedDetailsByKind = <CatalogMediaKind, OwnedDetailsDraft>{
+      final mismatchedDetailsByKind = <CatalogMediaKind, JsonEncodable>{
         CatalogMediaKind.comic: const MovieOwnedDetailsDraft(region: 'A'),
         CatalogMediaKind.manga: const MovieOwnedDetailsDraft(region: 'A'),
         CatalogMediaKind.anime:
