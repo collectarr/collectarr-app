@@ -168,7 +168,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
       accent: accent,
       singularLabel: type.identity.singularLabel,
       previewLabels: type.presentation.previewLabels,
-      item: selectedItem?.toTransportItem(),
+      item: selectedItem,
       candidate: selectedCandidate,
       preview: preview,
       isFetchingPreview: isFetchingPreview,

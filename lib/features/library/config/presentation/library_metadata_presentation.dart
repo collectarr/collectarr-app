@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -107,12 +108,12 @@ abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 
   List<CatalogEditionDto> buildReleaseEditions({
-    required CatalogItemDto item,
+    required LibraryAddCatalogItem item,
   }) =>
       const [];
 
   List<TrailerLinkDto> buildLinks({
-    required CatalogItemDto item,
+    required LibraryAddCatalogItem item,
   }) =>
       const [];
 
@@ -122,7 +123,7 @@ abstract class LibraryMediaPresentationBuilder {
       null;
 
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required CatalogItemDto item,
+    required LibraryAddCatalogItem item,
   }) {
     return null;
   }
@@ -132,7 +133,7 @@ abstract class LibraryMediaPresentationBuilder {
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required CatalogItemDto? item,
+    required LibraryAddCatalogItem? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,

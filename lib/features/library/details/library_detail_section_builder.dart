@@ -113,7 +113,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           trailerUrls: item.source.catalogItem == null
               ? const []
               : type.presentation.builder.buildLinks(
-                  item: item.source.catalogItem!.toTransportItem(),
+                  item: item.source.catalogItem!,
                 ),
           accent: accent,
         ),

@@ -152,7 +152,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         );
 
     final initialLinks = widget.type.presentation.builder.buildLinks(
-      item: widget.item.toTransportItem(),
+      item: widget.item,
     );
     _links = [
       for (final link in initialLinks)

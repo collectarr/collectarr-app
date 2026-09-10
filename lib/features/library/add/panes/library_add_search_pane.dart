@@ -933,7 +933,7 @@ class SearchResultTile extends StatelessWidget {
     final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(item);
     final resultDisplay = type.presentation.builder.buildSearchResultDisplay(
-      item: item.toTransportItem(),
+      item: item,
     );
     final publisher = item.publisher;
     final physicalFormatLabel = item.physicalFormatLabel;
