@@ -85,13 +85,13 @@ void main() {
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ).asShelfCatalogItem,
-          ownedItem: testOwnedItem(
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'game-1',
             pricePaidCents: 4000,
             currency: 'USD',
             updatedAt: DateTime.utc(2026, 5, 1),
-          ),
+          )),
         ),
         ShelfEntry(
           itemId: 'game-2',
@@ -103,7 +103,7 @@ void main() {
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
           ).asShelfCatalogItem,
-          ownedItem: testOwnedItem(
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-2',
             itemId: 'game-2',
             pricePaidCents: 2500,
@@ -112,7 +112,7 @@ void main() {
             soldTo: 'Retro Shop',
             currency: 'USD',
             updatedAt: DateTime.utc(2026, 5, 2),
-          ),
+          )),
         ),
       ],
       ownedCount: 2,
@@ -174,11 +174,11 @@ void main() {
               itemNumber: itemNumber,
               series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
             ).asShelfCatalogItem,
-            ownedItem: testOwnedItem(
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-$itemNumber',
               itemId: 'comic-$itemNumber',
               updatedAt: DateTime.utc(2026, 5, 1),
-            ),
+            )),
           ),
       ],
       ownedCount: 3,
@@ -231,11 +231,11 @@ void main() {
                 volumeNumber: '$volume',
               ),
             ).asShelfCatalogItem,
-            ownedItem: testOwnedItem(
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-comic-volume-$volume',
               itemId: 'comic-volume-$volume',
               updatedAt: DateTime.utc(2026, 5, 1),
-            ),
+            )),
           ),
       ],
       ownedCount: 2,
@@ -288,11 +288,11 @@ void main() {
                 seasonNumber: season,
               ),
             ).asShelfCatalogItem,
-            ownedItem: testOwnedItem(
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-movie-season-$season',
               itemId: 'movie-season-$season',
               updatedAt: DateTime.utc(2026, 5, 1),
-            ),
+            )),
           ),
       ],
       ownedCount: 2,

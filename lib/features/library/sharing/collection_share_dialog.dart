@@ -133,7 +133,7 @@ class _CollectionShareDialog extends StatelessWidget {
           adapter?.itemNumber ?? '',
           adapter?.seriesTitle ?? '',
           adapter?.format ?? '',
-          item.source.condition ?? '',
+          '',
         ];
       }),
     ];
@@ -149,13 +149,11 @@ class _CollectionShareDialog extends StatelessWidget {
     final data = items.map((item) {
       final dto = item.dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final condition = item.source.condition;
       return {
         'title': dto.title,
         if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
         if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
         if (adapter?.format != null) 'format': adapter!.format,
-        if (condition != null) 'condition': condition,
       };
     }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
@@ -177,7 +175,7 @@ class _CollectionShareDialog extends StatelessWidget {
           adapter?.itemNumber ?? '',
           adapter?.seriesTitle ?? '',
           adapter?.format ?? '',
-          item.source.condition ?? '',
+          '',
         ];
       }),
     ];
@@ -189,13 +187,11 @@ class _CollectionShareDialog extends StatelessWidget {
     final data = items.map((item) {
       final dto = item.dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final condition = item.source.condition;
       return {
         'title': dto.title,
         if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
         if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
         if (adapter?.format != null) 'format': adapter!.format,
-        if (condition != null) 'condition': condition,
       };
     }).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
@@ -244,7 +240,7 @@ class _CollectionShareDialog extends StatelessWidget {
       rows.writeln('  <td>${_htmlEscape(adapter?.itemNumber ?? '')}</td>');
       rows.writeln('  <td>${_htmlEscape(adapter?.seriesTitle ?? '')}</td>');
       rows.writeln('  <td>${_htmlEscape(adapter?.format ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(item.source.condition ?? '')}</td>');
+      rows.writeln('  <td></td>');
       rows.writeln('</tr>');
     }
     final html = '''<!DOCTYPE html>

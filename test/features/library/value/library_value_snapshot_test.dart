@@ -37,7 +37,7 @@ void main() {
           coverPriceCents: 2500,
         ),
       ).asShelfCatalogItem,
-      ownedItem: ownedItem,
+      ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().projectTitle(

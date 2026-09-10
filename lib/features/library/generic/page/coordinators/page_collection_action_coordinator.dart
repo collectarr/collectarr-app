@@ -128,7 +128,7 @@ class LibraryPageCollectionActionCoordinator {
           await bulkEditFlow(projection);
           return;
         }
-        unawaited(_showEditDialog(item, item.source.ownedItem));
+        unawaited(_showEditDialog(item, null));
       case LibraryItemContextAction.compareMetadataWithServer:
         if (isBatchSelection) {
           return;
@@ -312,7 +312,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   Future<void> singleDuplicateFlow(LibraryProjectionItem item) async {
-    if (item.source.ownedItem == null) return;
+    if (!item.source.isOwned) return;
     await _page.bulkActions().duplicateSelected([item.source]);
     if (_page.mounted) {
       _page.invalidateShelf();

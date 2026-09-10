@@ -47,14 +47,14 @@ void main() {
     final shelf = ShelfEntry(
       itemId: 'comic-2',
       catalogItem: catalogItem.asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-comic-2',
         itemId: 'comic-2',
         kind: 'comic',
         rawOrSlabbed: 'Raw',
         keyComic: false,
         updatedAt: DateTime.utc(2026, 5, 30),
-      ),
+      )),
       wishlistItem: null,
       locationPath: 'Shelf B / Box 2',
       watchSessions: const [],
@@ -103,7 +103,7 @@ void main() {
     final shelf = ShelfEntry(
       itemId: 'comic-key-1',
       catalogItem: catalogItem.asShelfCatalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
       typedOwnedItem: testComicOwnedItemFrom(owned),
     );
 

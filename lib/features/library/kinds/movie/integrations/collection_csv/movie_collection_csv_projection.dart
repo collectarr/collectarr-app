@@ -118,6 +118,24 @@ final class MovieCollectionCsvProjection
   }
 
   @override
+  String? ownedCondition(ShelfEntry entry) {
+    final owned = entry.typedOwnedItem;
+    return owned is MovieOwnedItem ? owned.condition : null;
+  }
+
+  @override
+  int? ownedIndexNumber(ShelfEntry entry) {
+    final owned = entry.typedOwnedItem;
+    return owned is MovieOwnedItem ? owned.indexNumber : null;
+  }
+
+  @override
+  String? ownedTags(ShelfEntry entry) {
+    final owned = entry.typedOwnedItem;
+    return owned is MovieOwnedItem ? owned.tags : null;
+  }
+
+  @override
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,

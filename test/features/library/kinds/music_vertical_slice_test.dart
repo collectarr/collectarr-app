@@ -124,7 +124,7 @@ void main() {
           ),
           kindMetadata: musicMeta,
         ).asShelfCatalogItem,
-        ownedItem: OwnedItem(
+        ownedSummary: testOwnedSummary(OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'music_1',
@@ -134,7 +134,7 @@ void main() {
           details: const TestOwnedDetails(),
           condition: 'Near Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = MusicWorkspaceProjector();

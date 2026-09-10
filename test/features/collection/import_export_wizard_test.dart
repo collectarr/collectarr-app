@@ -33,12 +33,12 @@ void main() {
                     publisher: 'Marvel Comics',
                     releaseDate: DateTime.utc(2005, 7, 1),
                   ).asShelfCatalogItem,
-                  ownedItem: testOwnedItem(
+                  ownedSummary: testOwnedSummary(testOwnedItem(
                     id: 'owned-1',
                     itemId: 'comic-1',
                     quantity: 1,
                     updatedAt: DateTime.utc(2026, 5, 24),
-                  ),
+                  )),
                 ),
               ],
               additionalExports: [

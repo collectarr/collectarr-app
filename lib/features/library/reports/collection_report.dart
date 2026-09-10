@@ -40,7 +40,9 @@ enum ReportColumn {
       ReportColumn.title => dto.title,
       ReportColumn.series => adapter?.seriesTitle ?? '',
       ReportColumn.issue => adapter?.itemNumber ?? '',
-      ReportColumn.condition => item.source.condition ?? '',
+      // Condition is kind-owned and cannot be read from the mixed source.
+      // Kind-specific report contributors may provide it later.
+      ReportColumn.condition => '',
       ReportColumn.grade =>
         collectionValueReader?.call(item.source.ownedSummary) ?? '',
       ReportColumn.publisher =>
@@ -68,7 +70,8 @@ enum ReportColumn {
           '',
       ReportColumn.creator =>
         item.source.catalogItem?.toSyncPayload()['creator']?.toString() ?? '',
-      ReportColumn.tags => item.source.tags ?? '',
+      // Tags are kind-owned and are intentionally not flattened here.
+      ReportColumn.tags => '',
       ReportColumn.location => item.source.locationPath ?? '',
     };
   }

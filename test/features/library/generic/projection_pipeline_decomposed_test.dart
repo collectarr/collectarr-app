@@ -89,7 +89,8 @@ void main() {
         itemId: id,
         catalogItem:
             testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem,
-        ownedItem: owned,
+        ownedSummary: owned == null ? null : testOwnedSummary(owned),
+        typedOwnedItem: owned == null ? null : testComicOwnedItemFrom(owned),
         wishlistItem: wishlist,
       );
 

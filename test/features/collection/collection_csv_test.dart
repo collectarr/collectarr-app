@@ -28,7 +28,7 @@ void main() {
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
         )).asShelfCatalogItem,
-        ownedItem: testOwnedItem(
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -51,7 +51,23 @@ void main() {
           readStatus: 'Read',
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
-        ),
+        )),
+        typedOwnedItem: testComicOwnedItemFrom(testOwnedItem(
+          id: 'owned-1',
+          itemId: 'comic-1',
+          condition: 'Near Mint',
+          grade: '9.8',
+          indexNumber: 1310,
+          coverPriceCents: 399,
+          rawOrSlabbed: 'Raw',
+          gradingCompany: 'CGC',
+          graderNotes: 'Clean press',
+          signedBy: 'Stan Lee',
+          keyComic: true,
+          keyReason: 'First appearance',
+          tags: 'spider,key',
+          updatedAt: DateTime.utc(2026, 5, 12),
+        )),
         trackingSummary: TrackingSummary(
           id: 'tracking-1',
           catalogRef: testCatalogRef('comic-1', kind: 'comic'),
@@ -135,11 +151,11 @@ void main() {
             kind: 'book',
             title: 'Test Book',
           )).asShelfCatalogItem,
-          ownedItem: testOwnedItem(
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'book-1',
             updatedAt: DateTime.utc(2026, 5, 12),
-          ),
+          )),
         ),
       ],
       customFieldDefinitions: defs,
@@ -183,7 +199,7 @@ void main() {
       catalogItem: testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
         rating: 3,
@@ -191,7 +207,7 @@ void main() {
         startedAt: DateTime.utc(2020, 1, 1),
         finishedAt: DateTime.utc(2020, 1, 2),
         updatedAt: DateTime.utc(2026, 1, 1),
-      ),
+      )),
       trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: testCatalogRef('book-1', kind: 'book'),
@@ -225,7 +241,7 @@ void main() {
           barcode: '75960604716152011',
           variant: 'Regular Cover',
         )).asShelfCatalogItem,
-        ownedItem: testOwnedItem(
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Very Fine',
@@ -235,7 +251,7 @@ void main() {
           quantity: 1,
           locationId: 'loc-box-6',
           updatedAt: DateTime.utc(2026, 5, 12),
-        ),
+        )),
         locationPath: 'Office › Shelf A › Box 6',
       ),
     ]);
@@ -265,12 +281,12 @@ void main() {
           physicalFormat: '4k-uhd',
           physicalFormatLabel: '4K UHD',
         )).asShelfCatalogItem,
-        ownedItem: testOwnedItem(
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'movie-1',
           quantity: 1,
           updatedAt: DateTime.utc(2026, 5, 15),
-        ),
+        )),
       ),
     ]);
 
@@ -556,12 +572,12 @@ void main() {
             kind: 'comic',
             title: 'Test',
           )).asShelfCatalogItem,
-          ownedItem: testOwnedItem(
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             quantity: 1,
             updatedAt: DateTime.utc(2026, 1, 1),
-          ),
+          )),
         ),
       ],
       customFieldDefinitions: defs,
@@ -620,12 +636,12 @@ void main() {
             kind: 'comic',
             title: 'Test',
           )).asShelfCatalogItem,
-          ownedItem: testOwnedItem(
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             quantity: 1,
             updatedAt: DateTime.utc(2026, 1, 1),
-          ),
+          )),
         ),
       ],
       customFieldDefinitions: defs,

@@ -41,7 +41,7 @@ void main() {
     );
 
     expect(projection.source.locationPath, 'Office › Shelf 2 › Short Box 1');
-    expect(projection.source.ownedItem?.personalNotes, 'Newsstand copy');
+    expect(projection.source.ownedSummary?.notes, 'Newsstand copy');
   });
 
   test('library projection exposes bundle and release reference labels', () {

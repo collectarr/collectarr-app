@@ -51,7 +51,7 @@ void main() {
         kind: 'book',
         title: 'The Fellowship of the Ring',
       ).asShelfCatalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -125,7 +125,7 @@ void main() {
         kind: 'book',
         title: 'The Two Towers',
       ).asShelfCatalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -238,7 +238,7 @@ void main() {
         kind: 'book',
         title: 'The Hobbit',
       ).asShelfCatalogItem,
-      ownedItem: owned1,
+      ownedSummary: testOwnedSummary(owned1),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(

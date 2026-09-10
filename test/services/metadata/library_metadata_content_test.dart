@@ -153,7 +153,7 @@ void main() {
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
       ).asShelfCatalogItem,
-      ownedItem: OwnedItem(
+      ownedSummary: testOwnedSummary(OwnedItem(
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
@@ -165,7 +165,7 @@ void main() {
         condition: 'Fine',
         collectionValue: '9.0',
         personalNotes: 'Personal note',
-      ),
+      )),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(

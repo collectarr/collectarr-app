@@ -135,7 +135,7 @@ void main() {
           ),
           kindMetadata: gameMeta,
         ).asShelfCatalogItem,
-        ownedItem: OwnedItem(
+        ownedSummary: testOwnedSummary(OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'game_1',
@@ -145,7 +145,7 @@ void main() {
           details: const TestOwnedDetails(),
           condition: 'CIB',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = GameWorkspaceProjector();

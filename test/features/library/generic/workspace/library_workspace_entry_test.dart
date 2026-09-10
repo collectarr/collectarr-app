@@ -62,7 +62,7 @@ void main() {
     final source = ShelfEntry(
       itemId: catalog.itemId,
       catalogItem: catalog.catalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
       trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: const CatalogEntityRef(

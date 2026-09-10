@@ -106,7 +106,7 @@ void main() {
           ),
           kindMetadata: bookMeta,
         ).asShelfCatalogItem,
-        ownedItem: OwnedItem(
+        ownedSummary: testOwnedSummary(OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'book_1',
@@ -116,7 +116,7 @@ void main() {
           details: const TestOwnedDetails(),
           condition: 'Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = BookWorkspaceProjector();

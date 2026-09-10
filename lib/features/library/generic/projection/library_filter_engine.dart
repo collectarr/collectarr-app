@@ -113,21 +113,19 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryCollectionStatusScope scope,
   ) {
-    final isSold = item.source.soldAt != null;
-    final collectionStatus = item.source.collectionStatus?.trim().toLowerCase();
+    final isSold = item.source.ownedSummary?.soldAt != null;
     final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
     final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
-    final isForSale = !isSold && collectionStatus == 'for_sale';
-    final isOnOrder = !isSold && collectionStatus == 'on_order';
-    final isInCollection =
-        item.source.isOwned && !isSold && !isForSale && !isOnOrder;
+    final isInCollection = item.source.isOwned && !isSold;
 
     return switch (scope) {
       LibraryCollectionStatusScope.all => true,
       LibraryCollectionStatusScope.inCollection => isInCollection,
-      LibraryCollectionStatusScope.forSale => isForSale,
+      // For-sale and on-order are kind-owned states. The mixed workspace has
+      // no semantic status field and therefore cannot infer either one.
+      LibraryCollectionStatusScope.forSale => false,
       LibraryCollectionStatusScope.wishList => isWishlistOnly,
-      LibraryCollectionStatusScope.onOrder => isOnOrder,
+      LibraryCollectionStatusScope.onOrder => false,
       LibraryCollectionStatusScope.sold => isSold,
       LibraryCollectionStatusScope.notInCollection => isCatalogOnly,
     };
@@ -139,7 +137,8 @@ class LibraryFilterEngine {
     LibraryQuickView? quickView,
   ) {
     if (quickView == null) return true;
-    final kindResult = type.presentation.quickViewMatcher?.call(item, quickView);
+    final kindResult =
+        type.presentation.quickViewMatcher?.call(item, quickView);
     if (kindResult != null) return kindResult;
     return switch (quickView) {
       LibraryQuickView.owned => item.source.isOwned,

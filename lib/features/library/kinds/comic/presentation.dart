@@ -87,6 +87,9 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
+    value: (item) => ComicOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'publisher',
@@ -131,6 +134,9 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
+    value: (item) => ComicOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'country',

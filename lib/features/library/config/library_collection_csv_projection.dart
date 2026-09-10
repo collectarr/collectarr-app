@@ -77,6 +77,14 @@ abstract interface class LibraryCollectionCsvProjection {
   /// decides whether and how its Owned aggregate contributes this column.
   String? ownedCollectionValue(ShelfEntry entry);
 
+  /// Schema-v1 personal cells whose meaning is owned by the selected kind.
+  /// The Collection host only places these values in the wire row.
+  String? ownedCondition(ShelfEntry entry);
+
+  int? ownedIndexNumber(ShelfEntry entry);
+
+  String? ownedTags(ShelfEntry entry);
+
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,

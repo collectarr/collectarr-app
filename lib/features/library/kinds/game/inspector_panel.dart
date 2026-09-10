@@ -309,8 +309,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Barcode', gameDto!.barcode!),
       if (metadata?.genres.isNotEmpty == true)
         ('Genres', metadata!.genres.join(', ')),
-      if (item.source.tags?.trim().isNotEmpty == true)
-        ('Tags', item.source.tags!),
+      if (owned?.tags?.trim().isNotEmpty == true) ('Tags', owned!.tags!),
     ];
     final personalRows = <(String, String)>[
       if (owned?.condition?.trim().isNotEmpty == true)
@@ -329,8 +328,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Purchase date', formatDate(owned!.purchaseDate!)),
       if (owned?.purchaseStore?.trim().isNotEmpty == true)
         ('Purchase store', owned!.purchaseStore!),
-      if (owned?.createdAt != null)
-        ('Added', formatDate(owned!.createdAt!)),
+      if (owned?.createdAt != null) ('Added', formatDate(owned!.createdAt!)),
       ('Modified', formatDate(item.source.updatedAt)),
     ];
     final creditRows = libraryCreatorsGroupedByRole(metadata?.creators);

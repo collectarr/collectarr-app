@@ -67,12 +67,12 @@ void main() {
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
       )).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'movie-1',
         quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
-      ),
+      )),
     );
 
     expect(projection.catalogCells(entry), [

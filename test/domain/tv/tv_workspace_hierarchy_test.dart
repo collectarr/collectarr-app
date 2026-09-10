@@ -51,7 +51,7 @@ void main() {
         ),
         kindMetadata: metadata,
       ).asShelfCatalogItem,
-      ownedItem: null,
+      ownedSummary: null,
     );
 
     final dto = const TvWorkspaceProjector().projectTitle(

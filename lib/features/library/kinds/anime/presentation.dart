@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_preview_seasons_section.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -186,6 +187,9 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
+    value: (item) => AnimeOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'publisher',
@@ -207,6 +211,9 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
+    value: (item) => AnimeOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'country',

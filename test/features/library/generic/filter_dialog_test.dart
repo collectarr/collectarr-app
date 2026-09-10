@@ -158,6 +158,7 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(fieldValues: {'tag': 'signed'}),
+        filterDefinitions: comicKindModule.presentation.filterDefinitions,
       ),
       isTrue,
     );
@@ -165,6 +166,7 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(fieldValues: {'tag': 'Exclusive'}),
+        filterDefinitions: comicKindModule.presentation.filterDefinitions,
       ),
       isFalse,
     );
@@ -244,7 +246,10 @@ void main() {
       dto: dto2,
     );
 
-    final options = LibraryFilterOptions.fromEntries([item1, item2]);
+    final options = LibraryFilterOptions.fromEntries(
+      [item1, item2],
+      filterDefinitions: comicKindModule.presentation.filterDefinitions,
+    );
 
     expect(options.valuesFor('tag'), ['Signed', 'Sketched', 'Variant']);
   });

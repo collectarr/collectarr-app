@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -470,6 +471,9 @@ OwnedItem testOwnedItem({
 
 /// Converts a common test fixture at the serialization boundary into the
 /// concrete kind-owned aggregate required by its typed repository.
+OwnedItemSummary testOwnedSummary(OwnedItem item) =>
+    ownedItemSummaryFromOwnedItem(item);
+
 ComicOwnedItem testComicOwnedItemFrom(OwnedItem item) =>
     ComicOwnedItem.fromJson(item.toJson());
 
@@ -560,7 +564,8 @@ ShelfEntry testShelfEntry({
     catalogItem: LibraryAddCatalogItem.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
-    ownedItem: ownedItem,
+    ownedSummary:
+        ownedItem == null ? null : ownedItemSummaryFromOwnedItem(ownedItem),
     typedOwnedItem: typedOwnedItem,
     locationPath: locationPath,
   );

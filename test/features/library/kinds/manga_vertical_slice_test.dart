@@ -136,7 +136,7 @@ void main() {
           ),
           kindMetadata: mangaMeta,
         ).asShelfCatalogItem,
-        ownedItem: owned,
+        ownedSummary: testOwnedSummary(owned),
         typedOwnedItem: MangaOwnedItem.fromJson(owned.toJson()),
       );
 

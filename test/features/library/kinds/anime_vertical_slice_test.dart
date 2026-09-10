@@ -91,7 +91,7 @@ void main() {
           ),
           kindMetadata: animeMeta,
         ).asShelfCatalogItem,
-        ownedItem: OwnedItem(
+        ownedSummary: testOwnedSummary(OwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'anime_1',
@@ -101,7 +101,7 @@ void main() {
           details: const TestOwnedDetails(),
           condition: 'Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = AnimeWorkspaceProjector();

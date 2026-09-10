@@ -76,12 +76,12 @@ void main() {
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
       )).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'anime-1',
         quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
-      ),
+      )),
     );
 
     expect(projection.catalogCells(entry), [

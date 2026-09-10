@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -63,6 +64,9 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
+    value: (item) => GameOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'publisher',
@@ -84,6 +88,9 @@ final gamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
+    value: (item) => GameOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'country',

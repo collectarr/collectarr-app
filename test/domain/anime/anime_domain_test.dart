@@ -49,11 +49,11 @@ void main() {
       final shelf = ShelfEntry(
         itemId: 'anime-1',
         catalogItem: catalogItem.asShelfCatalogItem,
-        ownedItem: testOwnedItem(
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-anime-1',
           itemId: 'anime-1',
           updatedAt: DateTime.utc(2026, 5, 30),
-        ),
+        )),
         wishlistItem: null,
         locationPath: 'Shelf B / Box 2',
         watchSessions: const [],

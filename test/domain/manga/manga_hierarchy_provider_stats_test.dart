@@ -129,8 +129,8 @@ ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Nausicaa'),
       ),
     ).asShelfCatalogItem,
-    ownedItem: owned
-        ? OwnedItem(
+    ownedSummary: owned
+        ? testOwnedSummary(OwnedItem(
             id: 'owned-$id',
             catalogRef: CatalogEntityRef(
               id: id,
@@ -139,7 +139,7 @@ ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
             ),
             details: const TestOwnedDetails(),
             updatedAt: DateTime.utc(2026, 1, 1),
-          )
+          ))
         : null,
   );
 }

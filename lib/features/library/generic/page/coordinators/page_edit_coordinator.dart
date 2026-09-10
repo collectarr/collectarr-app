@@ -25,7 +25,7 @@ class LibraryPageEditCoordinator {
         onAddOwned: () => _s._collectionActionCoordinator.runCollectionAction(
           (actions) => actions.addOwned(item),
         ),
-        onRemoveOwned: item.source.ownedItem == null
+        onRemoveOwned: item.source.isOwned != true
             ? null
             : () => _s._collectionActionCoordinator.confirmAndRemoveOwned(item),
         onAddWishlist: () =>
@@ -37,7 +37,7 @@ class LibraryPageEditCoordinator {
                   (actions) => actions.removeWishlist(item),
                 )
             : null,
-        onEdit: (_) => unawaited(showEditDialog(item, item.source.ownedItem)),
+        onEdit: (_) => unawaited(showEditDialog(item, null)),
         onFilterByValue: (value) => _s._rebuild(() {
           _s._linkedMetadataFilter = _s._linkedMetadataFilter?.value == value
               ? null
@@ -76,7 +76,6 @@ class LibraryPageEditCoordinator {
     final freshMetadataItem =
         cached == null ? catalogItem : LibraryAddCatalogItem.fromItem(cached);
     OwnedItem? owned = ownedItemOverride;
-    owned ??= item.source.ownedItem;
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <WishlistItem>[],
@@ -197,7 +196,7 @@ class LibraryPageEditCoordinator {
         unawaited(
           showEditDialog(
             queuedNavigationItem!,
-            queuedNavigationItem!.source.ownedItem,
+            null,
           ),
         );
         return;
@@ -226,7 +225,7 @@ class LibraryPageEditCoordinator {
         unawaited(
           showEditDialog(
             nextItem,
-            nextItem.source.ownedItem,
+            null,
           ),
         );
         return;

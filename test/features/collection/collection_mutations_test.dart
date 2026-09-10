@@ -1051,7 +1051,7 @@ void main() {
               title: 'Imported Comic',
             ),
           ).asShelfCatalogItem,
-          ownedItem: testOwnedItem(
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-comic-details',
             itemId: 'comic-owned-details',
             rawOrSlabbed: 'Slabbed',
@@ -1061,7 +1061,7 @@ void main() {
             keyComic: true,
             keyReason: 'First appearance',
             coverPriceCents: 499,
-          ),
+          )),
         ),
       ]),
     );

@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -325,13 +324,10 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
     super.itemImages = const <ItemImage>[],
     super.fallbackOwnerLabel,
     this.catalogItem,
-    this.ownedItem,
     this.typedOwnedItem,
   });
 
   final LibraryAddCatalogItem? catalogItem;
-
-  final OwnedItem? ownedItem;
 
   /// Concrete kind-owned aggregate available only after the Shelf has
   /// resolved the owning kind. Generic/global callers must use
@@ -340,7 +336,7 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
 
   @override
   CatalogEntityRef? get catalogRef =>
-      super.catalogRef ?? catalogItem?.catalogRef ?? ownedItem?.catalogRef;
+      super.catalogRef ?? catalogItem?.catalogRef;
 
   @override
   CatalogMediaKind get mediaKind =>
@@ -349,25 +345,19 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
       CatalogMediaKind.unknown;
 
   @override
-  OwnedItemRef? get ownedRef => super.ownedRef ?? ownedItem?.ref;
+  OwnedItemRef? get ownedRef => super.ownedRef;
 
   @override
-  bool get isOwned => super.isOwned || ownedItem != null;
+  bool get isOwned => super.isOwned;
 
   @override
-  bool get hasNotes =>
-      super.hasNotes || (ownedItem?.personalNotes?.trim().isNotEmpty ?? false);
+  bool get hasNotes => super.hasNotes;
 
   @override
-  DateTime get updatedAt {
-    final base = super.updatedAt;
-    final owned = ownedItem?.updatedAt;
-    if (owned == null || owned.isBefore(base)) return base;
-    return owned;
-  }
+  DateTime get updatedAt => super.updatedAt;
 
   @override
-  DateTime? get addedAt => super.addedAt ?? ownedItem?.createdAt;
+  DateTime? get addedAt => super.addedAt;
 
   @override
   String get title {
@@ -380,42 +370,22 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
   }
 
   @override
-  String? get ownerLabel =>
-      ownedSummary?.ownerLabel ?? ownedItem?.ownerLabel ?? fallbackOwnerLabel;
+  String? get ownerLabel => super.ownerLabel;
 
   @override
-  int get quantity => ownedSummary?.quantity ?? ownedItem?.quantity ?? 0;
+  int get quantity => super.quantity;
 
   Object? get kindMetadata => catalogItem?.kindMetadata;
 
-  String? get condition => ownedItem?.condition;
-  int? get pricePaidCents =>
-      ownedSummary?.pricePaidCents ?? ownedItem?.pricePaidCents;
-  int? get sellPriceCents =>
-      ownedSummary?.sellPriceCents ?? ownedItem?.sellPriceCents;
-  int? get marketValueCents =>
-      ownedSummary?.marketValueCents ?? ownedItem?.marketValueCents;
-  String? get soldTo => ownedSummary?.soldTo ?? ownedItem?.soldTo;
-  String? get currency => ownedSummary?.currency ?? ownedItem?.currency;
-  String? get purchaseStore =>
-      ownedSummary?.purchaseStore ?? ownedItem?.purchaseStore;
-  DateTime? get purchaseDate =>
-      ownedSummary?.purchaseDate ?? ownedItem?.purchaseDate;
-  DateTime? get soldAt => ownedSummary?.soldAt ?? ownedItem?.soldAt;
-  int? get indexNumber => ownedItem?.indexNumber;
-  String? get personalNotes => ownedSummary?.notes ?? ownedItem?.personalNotes;
-  String? get tags => ownedItem?.tags;
-  String? get collectionStatus => ownedItem?.collectionStatus;
-
-  List<String> get tagList {
-    final raw = tags?.trim();
-    if (raw == null || raw.isEmpty) return const <String>[];
-    return raw
-        .split(',')
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
-  }
+  int? get pricePaidCents => ownedSummary?.pricePaidCents;
+  int? get sellPriceCents => ownedSummary?.sellPriceCents;
+  int? get marketValueCents => ownedSummary?.marketValueCents;
+  String? get soldTo => ownedSummary?.soldTo;
+  String? get currency => ownedSummary?.currency;
+  String? get purchaseStore => ownedSummary?.purchaseStore;
+  DateTime? get purchaseDate => ownedSummary?.purchaseDate;
+  DateTime? get soldAt => ownedSummary?.soldAt;
+  String? get personalNotes => ownedSummary?.notes;
 }
 
 CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {

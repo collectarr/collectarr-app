@@ -682,17 +682,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       this,
       projection,
     )) {
-      final status = item.source.collectionStatus?.trim().toLowerCase();
-      if (item.source.soldAt != null) {
+      if (item.source.ownedSummary?.soldAt != null) {
         soldCount += 1;
-        continue;
-      }
-      if (status == 'for_sale') {
-        forSaleCount += 1;
-        continue;
-      }
-      if (status == 'on_order') {
-        onOrderCount += 1;
         continue;
       }
       if (item.source.isWishlisted && !item.source.isOwned) {
@@ -939,7 +930,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           onAddOwned: () => _collectionActionCoordinator.runCollectionAction(
             (actions) => actions.addOwned(selectedItem),
           ),
-          onRemoveOwned: selectedItem.source.ownedItem == null
+          onRemoveOwned: selectedItem.source.isOwned != true
               ? null
               : () => _collectionActionCoordinator.confirmAndRemoveOwned(
                     selectedItem,
@@ -955,7 +946,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           onEdit: (_) => unawaited(
             _editCoordinator.showEditDialog(
               selectedItem,
-              selectedItem.source.ownedItem,
+              null,
             ),
           ),
           onFilterByValue: _toggleLinkedMetadataFilter,

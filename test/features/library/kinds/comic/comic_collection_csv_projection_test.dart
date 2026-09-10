@@ -72,7 +72,7 @@ void main() {
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
       )).asShelfCatalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
       typedOwnedItem: testComicOwnedItemFrom(owned),
     );
 

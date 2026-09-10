@@ -41,12 +41,12 @@ void main() {
       final shelf = ShelfEntry(
         itemId: 'manga-1',
         catalogItem: catalogItem.asShelfCatalogItem,
-        ownedItem: testOwnedItem(
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-manga-1',
           itemId: 'manga-1',
           rawOrSlabbed: 'Raw',
           updatedAt: DateTime.utc(2026, 5, 30),
-        ),
+        )),
         wishlistItem: null,
         locationPath: 'Shelf A / Box 3',
         watchSessions: const [],

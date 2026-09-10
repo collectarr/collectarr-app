@@ -34,22 +34,19 @@ void main() {
 
       final entry = ShelfEntry(
         itemId: 'cat_1',
-        ownedItem: owned,
+        ownedSummary: ownedItemSummaryFromOwnedItem(owned),
         locationPath: 'Box A / Row 1',
       );
 
       expect(entry.isOwned, isTrue);
       expect(entry.isWishlisted, isFalse);
-      expect(entry.condition, 'Near Mint');
-      expect(entry.ownedItem?.collectionValue, '9.8');
+      expect(entry.ownedSummary?.collectionValue, '9.8');
       expect(entry.pricePaidCents, 1500);
       expect(entry.marketValueCents, 4500);
       expect(entry.currency, 'USD');
       expect(entry.purchaseStore, 'Midtown Comics');
       expect(entry.purchaseDate, now);
       expect(entry.personalNotes, 'First printing signed by author');
-      expect(entry.tags, 'signed, key');
-      expect(entry.tagList, ['signed', 'key']);
       expect(entry.ownerLabel, 'Alice');
       expect(entry.quantity, 2);
       expect(entry.locationPath, 'Box A / Row 1');
@@ -77,11 +74,8 @@ void main() {
 
       expect(entry.isOwned, isFalse);
       expect(entry.isWishlisted, isTrue);
-      expect(entry.condition, isNull);
-      expect(entry.ownedItem, isNull);
+      expect(entry.ownedSummary, isNull);
       expect(entry.pricePaidCents, isNull);
-      expect(entry.tags, isNull);
-      expect(entry.tagList, isEmpty);
       expect(entry.ownerLabel, 'Bob');
       expect(entry.quantity, 0);
       expect(entry.hasNotes, isTrue);

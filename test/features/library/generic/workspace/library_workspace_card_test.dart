@@ -26,14 +26,14 @@ void main() {
         publisher: 'Marvel Comics',
         barcode: '759606083060141',
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         grade: '9.4',
         condition: 'Near Mint',
         pricePaidCents: 399,
         currency: 'USD',
-      ),
+      )),
       wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
       locationPath: 'Box 6',
     );
@@ -72,7 +72,7 @@ void main() {
     expect(tapped, isTrue);
     expect(find.text('#13A'), findsWidgets);
     expect(find.textContaining('Marvel Comics'), findsOneWidget);
-    expect(find.text('Near Mint'), findsOneWidget);
+    expect(find.text('Near Mint'), findsNothing);
     expect(find.text('Wishlist'), findsOneWidget);
   });
 
@@ -85,11 +85,11 @@ void main() {
         title: 'Discovery',
         publisher: 'Virgin',
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-m1',
         itemId: 'music-1',
         personalNotes: 'Japanese pressing',
-      ),
+      )),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -134,7 +134,8 @@ void main() {
         kind: 'movie',
         title: 'Dune',
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(id: 'om1', itemId: 'movie-1'),
+      ownedSummary:
+          testOwnedSummary(testOwnedItem(id: 'om1', itemId: 'movie-1')),
     );
     const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dtoMovie = const MovieWorkspaceProjector().projectTitle(
@@ -154,7 +155,8 @@ void main() {
         kind: 'game',
         title: 'Mario Kart 8 Deluxe',
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(id: 'og1', itemId: 'game-1'),
+      ownedSummary:
+          testOwnedSummary(testOwnedItem(id: 'og1', itemId: 'game-1')),
     );
     const nodeGame = LibraryTitleNodeRef(titleItemId: 'game-1');
     final dtoGame = const GameWorkspaceProjector().projectTitle(

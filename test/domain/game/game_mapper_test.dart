@@ -51,7 +51,7 @@ void main() {
     final shelf = ShelfEntry(
       itemId: 'game-10',
       catalogItem: catalogItem.asShelfCatalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
       typedOwnedItem: GameOwnedItem.fromJson(owned.toJson()),
     );
 

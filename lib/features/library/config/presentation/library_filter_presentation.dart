@@ -42,7 +42,15 @@ class LibraryFilterDefinition<T> {
     if (matcher != null) {
       return matcher(item, selectedValue);
     }
-    return value?.call(item)?.toString().trim() == selectedValue;
+    final candidate = value?.call(item);
+    if (candidate is Iterable) {
+      final normalizedSelection = selectedValue.trim().toLowerCase();
+      return candidate.any(
+        (value) =>
+            value?.toString().trim().toLowerCase() == normalizedSelection,
+      );
+    }
+    return candidate?.toString().trim() == selectedValue;
   }
 }
 

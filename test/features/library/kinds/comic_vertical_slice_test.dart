@@ -127,7 +127,7 @@ void main() {
           ),
           kindMetadata: comicMeta,
         ).asShelfCatalogItem,
-        ownedItem: owned,
+        ownedSummary: testOwnedSummary(owned),
         typedOwnedItem: ComicOwnedItem.fromJson(owned.toJson()),
       );
 

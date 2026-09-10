@@ -116,6 +116,18 @@ final class ComicCollectionCsvProjection
       ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.grade;
 
   @override
+  String? ownedCondition(ShelfEntry entry) =>
+      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.condition;
+
+  @override
+  int? ownedIndexNumber(ShelfEntry entry) =>
+      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.indexNumber;
+
+  @override
+  String? ownedTags(ShelfEntry entry) =>
+      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.tags;
+
+  @override
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,

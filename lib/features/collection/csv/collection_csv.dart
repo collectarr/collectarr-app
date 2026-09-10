@@ -247,6 +247,21 @@ class CollectionCsv {
     return projection?.ownedCollectionValue(entry) ?? '';
   }
 
+  String _ownedCondition(ShelfEntry entry) {
+    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    return projection?.ownedCondition(entry) ?? '';
+  }
+
+  String _ownedIndexNumber(ShelfEntry entry) {
+    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    return projection?.ownedIndexNumber(entry)?.toString() ?? '';
+  }
+
+  String _ownedTags(ShelfEntry entry) {
+    final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
+    return projection?.ownedTags(entry) ?? '';
+  }
+
   List<String> _kindOwnedCellsAfterIndex(
     ShelfEntry entry, {
     required bool clzFriendly,
@@ -296,7 +311,7 @@ class CollectionCsv {
     return [
       ..._catalogFields(entry),
       _status(entry),
-      entry.condition ?? '',
+      _ownedCondition(entry),
       _ownedCollectionValue(entry),
       _formatDate(entry.purchaseDate),
       entry.pricePaidCents?.toString() ?? '',
@@ -304,13 +319,13 @@ class CollectionCsv {
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
       entry.quantity.toString(),
       _locationCell(entry),
-      entry.indexNumber?.toString() ?? '',
+      _ownedIndexNumber(entry),
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: false),
       entry.trackingRating?.toString() ?? '',
       mediaTrackingStatusToStorageValue(entry.trackingStatus) ?? '',
       _formatDate(entry.trackingStartedAt),
       _formatDate(entry.trackingCompletedAt),
-      entry.tags ?? '',
+      _ownedTags(entry),
       _formatDate(entry.soldAt),
       entry.sellPriceCents?.toString() ?? '',
       entry.soldTo ?? '',
@@ -333,7 +348,7 @@ class CollectionCsv {
     return [
       ..._catalogFields(entry),
       _clzStatus(entry),
-      entry.condition ?? '',
+      _ownedCondition(entry),
       _ownedCollectionValue(entry),
       _formatDate(entry.purchaseDate),
       _formatMoney(entry.pricePaidCents),
@@ -341,13 +356,13 @@ class CollectionCsv {
       ..._kindOwnedCellsBeforeQuantity(entry, clzFriendly: true),
       entry.quantity.toString(),
       _locationCell(entry),
-      entry.indexNumber?.toString() ?? '',
+      _ownedIndexNumber(entry),
       ..._kindOwnedCellsAfterIndex(entry, clzFriendly: true),
       entry.trackingRating?.toString() ?? '',
       mediaTrackingStatusToStorageValue(entry.trackingStatus) ?? '',
       _formatDate(entry.trackingStartedAt),
       _formatDate(entry.trackingCompletedAt),
-      entry.tags ?? '',
+      _ownedTags(entry),
       entry.personalNotes ?? entry.wishlistItem?.notes ?? '',
       _formatDate(entry.soldAt),
       _formatMoney(entry.sellPriceCents),

@@ -18,15 +18,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
   LibraryProjectionView item,
 ) {
-  final status = item.source.collectionStatus?.trim().toLowerCase();
-  return switch (status) {
-    'sold' => LibraryCollectionStatusScope.sold,
-    'for_sale' => LibraryCollectionStatusScope.forSale,
-    'on_order' => LibraryCollectionStatusScope.onOrder,
-    _ when item.source.isOwned => LibraryCollectionStatusScope.inCollection,
-    _ when item.source.isWishlisted => LibraryCollectionStatusScope.wishList,
-    _ => LibraryCollectionStatusScope.notInCollection,
-  };
+  if (item.source.ownedSummary?.soldAt != null) {
+    return LibraryCollectionStatusScope.sold;
+  }
+  if (item.source.isOwned) return LibraryCollectionStatusScope.inCollection;
+  if (item.source.isWishlisted) return LibraryCollectionStatusScope.wishList;
+  return LibraryCollectionStatusScope.notInCollection;
 }
 
 class LibraryCoverTile extends ConsumerStatefulWidget {
@@ -271,11 +268,6 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
         const LibraryCoverBadge(
           icon: Icons.manage_search,
           label: 'Missing metadata',
-        ),
-      if (item.source.condition?.trim().isNotEmpty == true)
-        LibraryCoverBadge(
-          icon: Icons.star_rate,
-          label: item.source.condition!.trim(),
         ),
       if (libraryHierarchyContractDiagnosticLabel(item) case final label?)
         LibraryCoverBadge(

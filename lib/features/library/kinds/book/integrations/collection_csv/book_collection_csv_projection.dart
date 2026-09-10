@@ -116,6 +116,24 @@ final class BookCollectionCsvProjection
   }
 
   @override
+  String? ownedCondition(ShelfEntry entry) {
+    final owned = entry.typedOwnedItem;
+    return owned is BookOwnedItem ? owned.condition : null;
+  }
+
+  @override
+  int? ownedIndexNumber(ShelfEntry entry) {
+    final owned = entry.typedOwnedItem;
+    return owned is BookOwnedItem ? owned.indexNumber : null;
+  }
+
+  @override
+  String? ownedTags(ShelfEntry entry) {
+    final owned = entry.typedOwnedItem;
+    return owned is BookOwnedItem ? owned.tags : null;
+  }
+
+  @override
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,

@@ -140,7 +140,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             contractDiagnosticLabel:
                                 libraryHierarchyContractDiagnosticLabel(item),
                             notesLabel: libraryNotesMarkerLabel(
-                                item.source.personalNotes),
+                                item.source.ownedSummary?.notes),
                           ),
                         ),
                       ],
@@ -230,16 +230,6 @@ class LibraryCardFlowTile extends StatelessWidget {
                           children: [
                             _cardScopeBadge(context, item),
                             const Spacer(),
-                            if (item.source.condition != null &&
-                                item.source.condition!.isNotEmpty)
-                              Text(
-                                item.source.condition!,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: resolvedMutedTextColor,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                           ],
                         ),
                       ],

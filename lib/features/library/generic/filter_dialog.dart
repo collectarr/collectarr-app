@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -369,12 +368,6 @@ class LibraryFilterOptions {
       if (source.locationPath?.trim().isNotEmpty == true) {
         addValue('location', source.locationPath);
       }
-      for (final tag in splitPickListValues(source.tags)) {
-        addValue('tag', tag);
-      }
-      if (source.condition?.trim().isNotEmpty == true) {
-        addValue('condition', source.condition);
-      }
       final ownedItemId = source.ownedRef?.id.value;
       if (ownedItemId != null) {
         final values = customFieldValuesByDefinitionByItem[ownedItemId];
@@ -445,30 +438,12 @@ bool libraryFilterMatches(
       !source.isWishlisted) {
     return false;
   }
-  if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&
-      !(source.isOwned && source.collectionStatus == 'for_sale')) {
-    return false;
-  }
-  if (filters.ownershipFilter == LibraryOwnershipFilter.onOrder &&
-      !(source.isOwned && source.collectionStatus == 'on_order')) {
-    return false;
-  }
   final location = filters.fieldValue('location');
   if (location != null && item.source.locationPath?.trim() != location) {
     return false;
   }
-  final tag = filters.fieldValue('tag');
-  if (tag != null && !_entryHasTag(source.tags, tag)) {
-    return false;
-  }
-  final condition = filters.fieldValue('condition');
-  if (condition != null && source.condition?.trim() != condition) {
-    return false;
-  }
   for (final definition in filterDefinitions) {
-    if (definition.id == 'location' ||
-        definition.id == 'tag' ||
-        definition.id == 'condition') {
+    if (definition.id == 'location') {
       continue;
     }
     final selectedValue = filters.fieldValue(definition.id);
@@ -952,19 +927,6 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     }
     return values;
   }
-}
-
-bool _entryHasTag(String? rawTags, String filterTag) {
-  final normalizedFilter = filterTag.trim().toLowerCase();
-  if (normalizedFilter.isEmpty) {
-    return true;
-  }
-  for (final tag in splitPickListValues(rawTags)) {
-    if (tag.trim().toLowerCase() == normalizedFilter) {
-      return true;
-    }
-  }
-  return false;
 }
 
 class _FilterDropdown extends StatelessWidget {

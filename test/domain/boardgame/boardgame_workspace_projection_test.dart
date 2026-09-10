@@ -50,11 +50,11 @@ void main() {
         title: 'Catan',
         editions: [edition],
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'boardgame-1',
         kind: 'boardgame',
-      ),
+      )),
     );
     const projector = BoardGameWorkspaceProjector();
     final releaseDto = projector.projectRelease(

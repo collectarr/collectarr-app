@@ -64,7 +64,7 @@ void main() {
         kind: 'book',
         title: 'The Return of the King',
       ).asShelfCatalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -141,7 +141,7 @@ void main() {
         kind: 'book',
         title: 'The Return of the King',
       ).asShelfCatalogItem,
-      ownedItem: owned,
+      ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(

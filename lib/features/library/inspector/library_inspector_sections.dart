@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -88,19 +87,11 @@ class InspectorPersonalSection extends StatelessWidget {
       digitalFlagResolver: type.edit.resolveOwnedDigitalFlag,
       fallbackLabel: adapter?.variant,
     );
-    final ownedIsDigital = type.edit.resolveOwnedDigitalFlag(
-      existingOwnedItem == null
-          ? null
-          : ownedItemSummaryFromOwnedItem(existingOwnedItem),
-      catalogEditions,
-      fallbackLabel: adapter?.variant,
-    );
     final tracking = trackingEntry;
     final trackingRating = tracking?.rating;
     final trackingStatus = tracking?.statusStorageValue;
     final trackingStartedAt = tracking?.startedAt;
     final trackingFinishedAt = tracking?.finishedAt;
-    final ownedTags = ownedItem?.tags;
     final kindPersonalFields = type.inspector.buildPersonalDetailFields(
       context: context,
       item: item,
@@ -108,16 +99,6 @@ class InspectorPersonalSection extends StatelessWidget {
       typedOwnedItem: typedOwnedItem ?? item.source.typedOwnedItem,
       currency: ownedItem?.currency ?? adapter?.currency,
     );
-    final List<String> tagList =
-        (ownedTags != null && ownedTags.trim().isNotEmpty)
-            ? ownedTags
-                .split(',')
-                .map((t) => t.trim())
-                .where((t) => t.isNotEmpty)
-                .toList()
-            : (item.source.tags != null
-                ? <String>[item.source.tags!]
-                : const <String>[]);
     return LibraryDetailSection(
       title: 'Personal',
       accentColor: accent,
@@ -144,18 +125,13 @@ class InspectorPersonalSection extends StatelessWidget {
               LibraryDetailField(
                   label: 'Finished',
                   value: formatNullableDate(trackingFinishedAt) ?? '-'),
-            if (ownedIsDigital != true)
-              LibraryDetailField(
-                  label: 'Condition',
-                  value: genericLibraryDash(item.source.condition)),
             LibraryDetailField(
                 label: 'Quantity',
                 value:
                     ownedItem == null ? '-' : ownedItem!.quantity.toString()),
-            if (ownedIsDigital != true)
-              LibraryDetailField(
-                  label: 'Location',
-                  value: genericLibraryDash(item.source.locationPath)),
+            LibraryDetailField(
+                label: 'Location',
+                value: genericLibraryDash(item.source.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
             if (snapshot.providerValueCents != null)
               LibraryDetailField(
@@ -199,22 +175,13 @@ class InspectorPersonalSection extends StatelessWidget {
               ),
           ],
         ),
-        if (item.source.personalNotes != null &&
-            item.source.personalNotes!.trim().isNotEmpty) ...[
+        if (item.source.ownedSummary?.notes?.trim().isNotEmpty == true) ...[
           const SizedBox(height: 8),
           Text(
-            item.source.personalNotes!,
+            item.source.ownedSummary!.notes!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                 ),
-          ),
-        ],
-        if (tagList.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            label: 'Tags',
-            values: tagList,
-            onValueTap: onFilterByValue,
           ),
         ],
       ],

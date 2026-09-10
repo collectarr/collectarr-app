@@ -52,7 +52,7 @@ void main() {
         title: 'Saga #1',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(id: 'o1', itemId: 'comic-1'),
+      ownedSummary: testOwnedSummary(testOwnedItem(id: 'o1', itemId: 'comic-1')),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final dto1 = const ComicWorkspaceProjector().projectTitle(

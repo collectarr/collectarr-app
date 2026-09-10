@@ -14,16 +14,6 @@ const genericLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
-    id: 'tag',
-    label: 'Tag',
-    anyLabel: 'Any tag',
-  ),
-  LibraryFilterDefinition<dynamic>(
-    id: 'condition',
-    label: 'Condition',
-    anyLabel: 'Any condition',
-  ),
 ];
 
 const genericLibraryGroupLabels = LibraryPresentationLabels(

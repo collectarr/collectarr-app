@@ -461,6 +461,9 @@ OwnedItemSummary testOwnedItemSummary(OwnedItem item) {
   );
 }
 
+OwnedItemSummary testOwnedSummary(OwnedItem item) =>
+    ownedItemSummaryFromOwnedItem(item);
+
 ComicOwnedItem testComicOwnedItemFrom(OwnedItem item) =>
     ComicOwnedItem.fromJson(item.toJson());
 
@@ -548,7 +551,8 @@ ShelfEntry testShelfEntry({
     catalogItem: LibraryAddCatalogItem.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
-    ownedItem: ownedItem,
+    ownedSummary:
+        ownedItem == null ? null : ownedItemSummaryFromOwnedItem(ownedItem),
     typedOwnedItem: typedOwnedItem,
     wishlistItem: wishlistItem,
     locationPath: locationPath,

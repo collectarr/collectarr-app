@@ -292,8 +292,11 @@ class BookLibraryMediaPresentationBuilder
     final owned = typedOwned is BookOwnedItem ? typedOwned : null;
     final rating = source.trackingSummary?.rating;
     final personalFacts = <LibraryDetailField>[
-      if (source.condition?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Condition', value: source.condition!.trim()),
+      if (owned?.condition?.trim().isNotEmpty == true)
+        LibraryDetailField(
+          label: 'Condition',
+          value: owned!.condition!.trim(),
+        ),
       if (owned?.grade?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Grade',
@@ -301,8 +304,7 @@ class BookLibraryMediaPresentationBuilder
         ),
       if (owned?.collectionStatus?.trim().isNotEmpty == true)
         LibraryDetailField(
-            label: 'Collection Status',
-            value: owned!.collectionStatus!.trim()),
+            label: 'Collection Status', value: owned!.collectionStatus!.trim()),
       if (rating != null)
         LibraryDetailField(label: 'Rating', value: rating.toString()),
       if (source.locationPath?.trim().isNotEmpty == true)
@@ -311,10 +313,16 @@ class BookLibraryMediaPresentationBuilder
       if (source.pricePaidCents != null)
         LibraryDetailField(
             label: 'Price Paid', value: source.pricePaidCents!.toString()),
-      if (source.personalNotes?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Notes', value: source.personalNotes!.trim()),
-      if (source.tags?.trim().isNotEmpty == true)
-        LibraryDetailField(label: 'Tags', value: source.tags!.trim()),
+      if (source.ownedSummary?.notes?.trim().isNotEmpty == true)
+        LibraryDetailField(
+          label: 'Notes',
+          value: source.ownedSummary!.notes!.trim(),
+        ),
+      if (owned?.tags?.trim().isNotEmpty == true)
+        LibraryDetailField(
+          label: 'Tags',
+          value: owned!.tags!.trim(),
+        ),
     ];
     if (personalFacts.isNotEmpty) {
       sectionSpecs.add(

@@ -61,7 +61,7 @@ void main() {
     final source = ShelfEntry(
       itemId: 'music-1',
       catalogItem: cat.asShelfCatalogItem,
-      ownedItem: ownedItem,
+      ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -151,7 +151,7 @@ void main() {
     final source = ShelfEntry(
       itemId: 'music-2',
       catalogItem: cat.asShelfCatalogItem,
-      ownedItem: ownedItem,
+      ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-2');
     final dto = const MusicWorkspaceProjector().projectTitle(

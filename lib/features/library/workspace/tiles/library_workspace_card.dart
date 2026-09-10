@@ -320,7 +320,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 gradeLabel: gradeLabel,
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel: libraryNotesMarkerLabel(
-                                    item.source.personalNotes),
+                                    item.source.ownedSummary?.notes),
                               ),
                             ),
                           ],
@@ -408,12 +408,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: 'Format: ${adapter!.format!}',
                                     accentColor: accentColor,
                                   ),
-                                if (item.source.condition != null)
-                                  _LibraryCompactMetaPill(
-                                    icon: Icons.fact_check_outlined,
-                                    label: item.source.condition!,
-                                    accentColor: accentColor,
-                                  ),
                                 if (_metadataFactValue(
                                         metadataPresentation, 'Runtime')
                                     case final runtime?)
@@ -447,7 +441,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     accentColor: accentColor,
                                   ),
                                 if (_compactNotesLabel(
-                                        item.source.personalNotes)
+                                        item.source.ownedSummary?.notes)
                                     case final noteLabel?)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.sticky_note_2_outlined,
@@ -466,12 +460,13 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: item.source.locationPath!,
                                     accentColor: accentColor,
                                   ),
-                                if (item.source.pricePaidCents != null)
+                                if (item.source.ownedSummary?.pricePaidCents !=
+                                    null)
                                   _LibraryCompactMetaPill(
                                     icon: Icons.attach_money,
                                     label: moneyFormatter(
-                                      item.source.pricePaidCents,
-                                      item.source.currency,
+                                      item.source.ownedSummary!.pricePaidCents,
+                                      item.source.ownedSummary!.currency,
                                     ),
                                     accentColor: accentColor,
                                   ),
@@ -589,7 +584,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
       if (format != null && format.isNotEmpty) format,
     ].whereType<String>().join('  |  ');
     final support = [
-      if (item.source.condition != null) item.source.condition!,
       if (_metadataFactValue(_metadataPresentationForEntry(item), 'Runtime')
           case final runtime?)
         runtime,
@@ -660,7 +654,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 keyLabel: _coverKeyLabel(presentation),
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel: libraryNotesMarkerLabel(
-                                    item.source.personalNotes),
+                                    item.source.ownedSummary?.notes),
                               ),
                             ),
                           ],

@@ -333,7 +333,7 @@ class LibraryBody extends StatelessWidget {
                 onActivateItem: onActivateItem,
                 onToggleSelectionItem: onToggleSelectionItem,
                 onOpenItem: onOpenItem,
-                onEditItem: (item) => onEditItem(item, item.source.ownedItem),
+                onEditItem: (item) => onEditItem(item, null),
                 onBoxSelectionChanged: onBoxSelectionChanged,
                 collapsedGroupBuckets: collapsedGroupBuckets,
                 onGroupBucketCollapsedToggled:
@@ -359,14 +359,14 @@ class LibraryBody extends StatelessWidget {
         final details = LibraryInspector(
           type: type,
           item: selected,
-          ownedItem: selected?.source.ownedItem,
+          ownedItem: null,
           typedOwnedItem: selected?.source.typedOwnedItem,
           detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,
           accent: accent,
           contextLabel: inspectorContextLabel,
           onAddOwned: selected == null ? null : () => onAddOwned(selected),
-          onRemoveOwned: selected?.source.ownedItem == null
+          onRemoveOwned: selected?.source.isOwned != true
               ? null
               : () => onRemoveOwned(selected!),
           onAddWishlist:
@@ -374,9 +374,7 @@ class LibraryBody extends StatelessWidget {
           onRemoveWishlist: selected?.source.isWishlisted != true
               ? null
               : () => onRemoveWishlist(selected!),
-          onEdit: selected == null
-              ? null
-              : (ownedItem) => onEditItem(selected, ownedItem),
+          onEdit: selected == null ? null : (_) => onEditItem(selected, null),
           onDetailsLayoutChanged: onDetailsLayoutChanged,
           onFilterByValue: onFilterByValue,
           searchQuery: searchQuery,

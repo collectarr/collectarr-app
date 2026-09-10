@@ -71,12 +71,12 @@ void main() {
           'edition_title': 'Collector edition',
         },
       )).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'game-1',
         quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
-      ),
+      )),
     );
 
     expect(projection.catalogCells(entry), [

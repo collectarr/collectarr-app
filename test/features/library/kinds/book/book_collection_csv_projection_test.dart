@@ -76,12 +76,12 @@ void main() {
         releaseDate: DateTime.utc(1937, 9, 21),
         barcode: '9780261102217',
       )).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'book-1',
         quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
-      ),
+      )),
     );
 
     expect(projection.catalogCells(entry), [

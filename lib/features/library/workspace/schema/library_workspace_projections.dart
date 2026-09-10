@@ -71,7 +71,7 @@ class WorkspaceCommonProjection {
           (payload['language'] ??
                   (payload['publishing'] as Map?)?['original_language'])
               ?.toString(),
-      currency: source.currency,
+      currency: source.ownedSummary?.currency,
       referenceFormatLabel: primaryVariant?.physicalFormat ??
           edition?.format ??
           (payload['physical_format_label'] ?? payload['physical_format'])
@@ -121,16 +121,16 @@ class PersonalCopyProjection {
       isOwned: releaseState?.isOwned ?? source.isOwned,
       isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
       isTracked: releaseState?.isTracked ?? source.isTracked,
-      condition: source.condition,
+      condition: null,
       locationPath: source.locationPath,
       trackingStatus: mediaTrackingStatusToStorageValue(source.trackingStatus),
       rating: source.trackingRating,
-      pricePaidCents: source.pricePaidCents,
+      pricePaidCents: source.ownedSummary?.pricePaidCents,
       addedAt: source.addedAt,
       updatedAt: source.updatedAt,
-      tags: source.tags,
-      collectionStatus: source.collectionStatus,
-      notes: source.personalNotes,
+      tags: null,
+      collectionStatus: null,
+      notes: source.ownedSummary?.notes,
     );
   }
 

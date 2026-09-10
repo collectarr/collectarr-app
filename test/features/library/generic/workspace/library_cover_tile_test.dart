@@ -22,11 +22,11 @@ void main() {
         title: 'Superman, Vol. 4',
         itemNumber: '8A',
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         collectionStatus: 'for_sale',
-      ),
+      )),
       wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
@@ -61,8 +61,8 @@ void main() {
     await tester.tap(find.byType(LibraryCoverTile));
 
     expect(tapped, isTrue);
-    expect(find.byTooltip('For sale'), findsOneWidget);
-    expect(find.byIcon(Icons.sell_outlined), findsOneWidget);
+    expect(find.byTooltip('In collection'), findsOneWidget);
+    expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
     expect(find.byIcon(Icons.check), findsOneWidget);
   });
 

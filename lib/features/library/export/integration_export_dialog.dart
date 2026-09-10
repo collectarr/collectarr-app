@@ -120,7 +120,6 @@ class _IntegrationExportDialog extends StatelessWidget {
       final dto = projection.dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       final cat = e.catalogItem;
-      final own = e.ownedItem;
       return {
         'id': e.itemId,
         'title': e.title,
@@ -128,7 +127,6 @@ class _IntegrationExportDialog extends StatelessWidget {
         if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
         if (adapter?.variant != null) 'variant': adapter!.variant,
         if (adapter?.format != null) 'format': adapter!.format,
-        if (own?.condition != null) 'condition': own!.condition,
         if (cat?.releaseYear != null) 'year': cat!.releaseYear,
       };
     }).toList();
@@ -154,7 +152,6 @@ class _IntegrationExportDialog extends StatelessWidget {
       );
       final dto = projection.dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final own = entry.ownedItem;
       buffer.writeln('  <item>');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
       if (adapter?.itemNumber != null) {
@@ -166,16 +163,11 @@ class _IntegrationExportDialog extends StatelessWidget {
             '    <series>${_escapeXml(adapter!.seriesTitle!)}</series>');
       }
       if (adapter?.variant != null) {
-        buffer.writeln(
-            '    <variant>${_escapeXml(adapter!.variant!)}</variant>');
+        buffer
+            .writeln('    <variant>${_escapeXml(adapter!.variant!)}</variant>');
       }
       if (adapter?.format != null) {
-        buffer.writeln(
-            '    <format>${_escapeXml(adapter!.format!)}</format>');
-      }
-      if (own?.condition != null) {
-        buffer.writeln(
-            '    <condition>${_escapeXml(own!.condition!)}</condition>');
+        buffer.writeln('    <format>${_escapeXml(adapter!.format!)}</format>');
       }
       buffer.writeln('  </item>');
     }

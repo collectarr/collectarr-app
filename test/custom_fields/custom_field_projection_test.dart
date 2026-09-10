@@ -55,7 +55,7 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ).asShelfCatalogItem,
-            ownedItem: testOwnedItem(
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
               catalogRef: CatalogEntityRef(
@@ -65,7 +65,7 @@ void main() {
               ),
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
-            ),
+            )),
           ),
           ShelfEntry(
             itemId: 'comic-2',
@@ -74,7 +74,7 @@ void main() {
               kind: 'comic',
               title: 'Superman',
             ).asShelfCatalogItem,
-            ownedItem: testOwnedItem(
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-2',
               itemId: 'comic-2',
               catalogRef: CatalogEntityRef(
@@ -84,7 +84,7 @@ void main() {
               ),
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
-            ),
+            )),
           ),
         ],
         ownedCount: 2,
@@ -211,12 +211,12 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ).asShelfCatalogItem,
-            ownedItem: testOwnedItem(
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
-            ),
+            )),
           ),
           ShelfEntry(
             itemId: 'comic-2',

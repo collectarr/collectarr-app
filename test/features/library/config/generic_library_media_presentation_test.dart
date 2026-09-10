@@ -27,7 +27,7 @@ LibraryProjectionView _makeItem(
   final source = ShelfEntry(
     itemId: id,
     catalogItem: cat.asShelfCatalogItem,
-    ownedItem: ownedItem,
+    ownedSummary: ownedItem == null ? null : testOwnedSummary(ownedItem),
     wishlistItem: wishlistItem,
     locationPath: locationPath,
   );

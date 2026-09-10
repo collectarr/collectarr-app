@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -51,6 +52,9 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
+    value: (item) => BookOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'publisher',
@@ -72,6 +76,9 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
+    value: (item) => BookOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'country',

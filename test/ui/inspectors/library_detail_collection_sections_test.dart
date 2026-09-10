@@ -30,7 +30,7 @@ void main() {
         kind: 'movie',
         title: 'Blade Runner 2049',
       ).asShelfCatalogItem,
-      ownedItem: owned1,
+      ownedSummary: testOwnedSummary(owned1),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(

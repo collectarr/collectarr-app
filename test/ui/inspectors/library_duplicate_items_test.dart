@@ -164,13 +164,13 @@ ShelfEntry _entry({
       if (publisher != null) 'publisher': publisher,
       if (releaseYear != null) 'release_year': releaseYear,
     }).asShelfCatalogItem,
-    ownedItem: owned
-        ? testOwnedItem(
+    ownedSummary: owned
+        ? testOwnedSummary(testOwnedItem(
             id: 'owned-$itemId',
             itemId: itemId,
             quantity: 1,
             updatedAt: timestamp,
-          )
+          ))
         : null,
     wishlistItem: wishlisted
         ? WishlistItem(
