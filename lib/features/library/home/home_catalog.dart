@@ -19,8 +19,8 @@ List<CatalogMediaType> orderedLibraryHomeTypes(
         type.kind: type,
   };
   final defaultKinds = [
-    for (final runtime in defaultLibraryKindRegistry.allModules)
-      if (!runtime.kind.isUnknown) runtime.kind.apiValue,
+    for (final kindModule in defaultLibraryKindRegistry.allModules)
+      if (!kindModule.kind.isUnknown) kindModule.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {

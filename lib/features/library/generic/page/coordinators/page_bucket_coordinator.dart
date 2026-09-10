@@ -56,8 +56,8 @@ class LibraryPageBucketCoordinator {
     String currentLabel, {
     String? replacement,
   }) async {
-    final runtime = _page.type;
-    final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+    final kindModule = _page.type;
+    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
     final groupId = fields.decodeGroupId(mode);
     final groupDefinition = fields.findGroupDefinition(groupId);
     if (groupDefinition == null || !groupDefinition.supportsBucketManagement) {

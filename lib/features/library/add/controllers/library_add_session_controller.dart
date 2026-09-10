@@ -63,7 +63,7 @@ class LibraryAddSessionController
     this.proposalFlowService = const LibraryAddProposalFlowService(),
     this.onAuthSessionExpired,
     LibraryAddSessionState? initialState,
-  })  : _runtime = type,
+  })  : _kindModule = type,
         super(
           initialState ??
               LibraryAddSessionState(
@@ -102,7 +102,7 @@ class LibraryAddSessionController
         );
 
   final CatalogMediaKind kind;
-  final LibraryKindModule? _runtime;
+  final LibraryKindModule? _kindModule;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
@@ -136,7 +136,7 @@ class LibraryAddSessionController
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
 
-  LibraryKindModule get type => _runtime ?? libraryKindModuleForKind(kind);
+  LibraryKindModule get type => _kindModule ?? libraryKindModuleForKind(kind);
 
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;

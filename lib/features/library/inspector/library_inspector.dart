@@ -279,8 +279,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required VoidCallback onOpenDetails,
     required LibraryWorkspaceDensityPreset density,
   }) {
-    final runtime = widget.type;
-    final inspectorCapability = runtime.inspector;
+    final kindModule = widget.type;
+    final inspectorCapability = kindModule.inspector;
     final hero = inspectorCapability.heroBuilder?.call(
           context,
           inspectorRequest,

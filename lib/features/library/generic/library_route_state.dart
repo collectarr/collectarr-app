@@ -155,8 +155,8 @@ class LibraryRouteState {
     if (routeKind != null && routeKind != expectedKind) {
       return LibraryRouteState(kind: expectedKind);
     }
-    final runtime = type;
-    final allowedGroupModes = libraryKindWorkspaceForKind(runtime.kind)
+    final kindModule = type;
+    final allowedGroupModes = libraryKindWorkspaceForKind(kindModule.kind)
         .availableGroupIds
         .map((groupId) => groupId.value)
         .toSet();
@@ -164,7 +164,7 @@ class LibraryRouteState {
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
     final allowedSortColumns = fields.sorts.map((d) => d.id.value).toSet();
     final filteredSortRules = sortRules == null
         ? null

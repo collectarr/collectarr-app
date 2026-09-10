@@ -11,10 +11,11 @@ void main() {
   final workspace = comicKindWorkspace;
   LibraryFieldIdRuntime field(String value) =>
       workspace.fields.decodeColumnId(value);
-  LibrarySortIdRuntime sort(String value) => workspace.fields.decodeSortId(value);
+  LibrarySortIdRuntime sort(String value) =>
+      workspace.fields.decodeSortId(value);
 
   final profile = LibraryWorkspaceViewProfile(
-    runtimeResolver: () => runtime,
+    kindModuleResolver: () => runtime,
     defaultCoverSize: 128,
     minCoverSize: 100,
     maxCoverSize: 200,
@@ -157,7 +158,7 @@ void main() {
 
   test('workspace view profile controls initial sort direction', () {
     final newestFirstProfile = LibraryWorkspaceViewProfile(
-      runtimeResolver: () => runtime,
+      kindModuleResolver: () => runtime,
       defaultCoverSize: 128,
       minCoverSize: 100,
       maxCoverSize: 200,

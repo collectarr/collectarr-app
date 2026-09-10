@@ -838,11 +838,11 @@ LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
   final kind = item.source.mediaKind.apiValue;
-  final runtime =
+  final kindModule =
       defaultLibraryKindRegistry.tryGet(catalogMediaKindFromValue(kind));
-  if (runtime == null) return null;
-  return runtime.presentation.builder.buildMetadataPresentation(
-    singularLabel: runtime.identity.singularLabel,
+  if (kindModule == null) return null;
+  return kindModule.presentation.builder.buildMetadataPresentation(
+    singularLabel: kindModule.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

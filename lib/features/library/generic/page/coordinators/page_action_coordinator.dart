@@ -13,7 +13,7 @@ final class LibraryPageActionCoordinator {
     required this.wishlistMutations,
     required this.trackingMutations,
     required this.catalogCache,
-    required this.kindRuntime,
+    required this.kindModule,
   });
 
   final LibraryWorkspaceSessionController session;
@@ -21,12 +21,12 @@ final class LibraryPageActionCoordinator {
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
   final CatalogTransportRepository catalogCache;
-  final LibraryKindModule kindRuntime;
+  final LibraryKindModule kindModule;
 
   void updateSearch(String query) => session.updateSearch(query);
 
   void updateSort(String sortId, {bool? ascending}) => session.updateSort(
-        libraryKindWorkspaceForKind(kindRuntime.kind)
+        libraryKindWorkspaceForKind(kindModule.kind)
             .fields
             .decodeSortId(sortId),
         ascending: ascending,
@@ -35,13 +35,13 @@ final class LibraryPageActionCoordinator {
   void updateGroup(String? groupMode) => session.updateGroup(
         groupMode == null
             ? null
-            : libraryKindWorkspaceForKind(kindRuntime.kind)
+            : libraryKindWorkspaceForKind(kindModule.kind)
                 .fields
                 .decodeGroupId(groupMode),
       );
 
   void toggleColumn(String columnId) => session.toggleColumn(
-        libraryKindWorkspaceForKind(kindRuntime.kind)
+        libraryKindWorkspaceForKind(kindModule.kind)
             .fields
             .decodeColumnId(columnId),
       );

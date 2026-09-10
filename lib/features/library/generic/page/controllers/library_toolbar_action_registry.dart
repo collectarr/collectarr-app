@@ -189,8 +189,8 @@ class LibraryToolbarActionRegistry {
     required ShelfState? shelfState,
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
-    final runtime = actionContext.view.type;
-    final kindToolbarActions = runtime.toolbar?.actions ?? const [];
+    final kindModule = actionContext.view.type;
+    final kindToolbarActions = kindModule.toolbar?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
     final extraUtilityActions = kindToolbarActions
         .map(
@@ -232,7 +232,9 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSortChanged: (String column) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.withSortColumn(
-          libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(column),
+          libraryKindWorkspaceForKind(kindModule.kind)
+              .fields
+              .decodeSortId(column),
           actionContext.view.viewProfile,
         ),
       ),
@@ -286,17 +288,18 @@ class LibraryToolbarActionRegistry {
       onRandomPick: projection == null
           ? null
           : () => actionContext.grouping.onRandomPick(projection),
-      onScanCover: runtime.add.chrome.canScanCover
+      onScanCover: kindModule.add.chrome.canScanCover
           ? actionContext.adminActions.onScanCover
           : null,
-      onDownloadAllCovers: runtime.add.chrome.canScanCover && shelfState != null
-          ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
-          : null,
+      onDownloadAllCovers:
+          kindModule.add.chrome.canScanCover && shelfState != null
+              ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
+              : null,
       onSmartLists: shelfState == null
           ? null
           : () => actionContext.grouping.onSmartLists(shelfState),
       onFolders: actionContext.grouping.onShowUserFoldersFlow,
-      onReadingQueue: runtime.toolbarActionAvailability
+      onReadingQueue: kindModule.toolbarActionAvailability
               .allows(LibraryToolbarActionId.readingQueue)
           ? actionContext.grouping.onShowReadingQueueFlow
           : null,
@@ -310,7 +313,7 @@ class LibraryToolbarActionRegistry {
           : () =>
               actionContext.collectionActions.onTransferFieldData(projection),
       onReassignIndex: projection == null ||
-              !runtime.toolbarActionAvailability
+              !kindModule.toolbarActionAvailability
                   .allows(LibraryToolbarActionId.reassignIndex)
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
@@ -322,7 +325,7 @@ class LibraryToolbarActionRegistry {
           ? () => actionContext.collectionActions.onShareCollection(projection)
           : null,
       onCompareMetadataWithServer: (() {
-        if (projection == null || !runtime.metadata.supportsServerCompare) {
+        if (projection == null || !kindModule.metadata.supportsServerCompare) {
           return null;
         }
         final selected =

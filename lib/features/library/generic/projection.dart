@@ -380,11 +380,13 @@ List<LibraryBucket> libraryBucketsForItems(
   LibraryKindModule type,
   String groupMode,
 ) {
-  final runtime = type;
+  final kindModule = type;
   return const LibraryGroupingEngine().buildBuckets(
     items,
     type,
-    libraryKindWorkspaceForKind(runtime.kind).fields.decodeGroupId(groupMode),
+    libraryKindWorkspaceForKind(kindModule.kind)
+        .fields
+        .decodeGroupId(groupMode),
   );
 }
 
@@ -394,11 +396,13 @@ List<GroupShelfEntry> libraryGroupEntriesForItems(
   String groupMode, {
   LibraryGroupPresentation? presentationOverride,
 }) {
-  final runtime = type;
+  final kindModule = type;
   return const LibraryGroupingEngine().buildGroupEntries(
     items,
     type,
-    libraryKindWorkspaceForKind(runtime.kind).fields.decodeGroupId(groupMode),
+    libraryKindWorkspaceForKind(kindModule.kind)
+        .fields
+        .decodeGroupId(groupMode),
     presentationOverride: presentationOverride,
   );
 }
@@ -422,11 +426,11 @@ String genericBucketForItem(
   LibraryProjectionItem item,
   LibraryKindModule type,
 ) {
-  final runtime = type;
+  final kindModule = type;
   return const LibraryGroupingEngine().getGroupBucketForItem(
     item,
     type,
-    libraryKindWorkspaceForKind(runtime.kind)
+    libraryKindWorkspaceForKind(kindModule.kind)
         .fields
         .decodeGroupId(libraryDefaultGroupMode(type)),
   );

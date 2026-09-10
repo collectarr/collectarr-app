@@ -48,11 +48,11 @@ final class LibraryKindRegistry {
   }
 
   LibraryKindModule require(CatalogMediaKind kind) {
-    final runtime = _byKind[kind];
-    if (runtime == null) {
+    final kindModule = _byKind[kind];
+    if (kindModule == null) {
       throw ArgumentError('No LibraryKindModule registered for kind: $kind');
     }
-    return runtime;
+    return kindModule;
   }
 
   LibraryKindModule? tryGet(CatalogMediaKind kind) => _byKind[kind];

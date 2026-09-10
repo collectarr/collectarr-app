@@ -18,12 +18,12 @@ class LibraryCollectionActions {
 
   Future<void> addOwned(LibraryProjectionItem item) {
     final catalogItem = item.source.catalogItem!;
-    final runtime = libraryKindModuleForKind(catalogItem.mediaKind);
+    final kindModule = libraryKindModuleForKind(catalogItem.mediaKind);
     return coordinator.addOwnedItem(
-      runtime.add.buildCommand(
+      kindModule.add.buildCommand(
         catalogItem,
         const LibraryAddCommonDraft(),
-        runtime.add.createInitialDraft(),
+        kindModule.add.createInitialDraft(),
         targetRef: item.source.ownedSummary?.catalogRef ??
             item.source.wishlistItem?.catalogRef ??
             catalogItem.catalogRef,

@@ -18,7 +18,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
 ) {
   final coverGridHeightFactor = type.uiPolicy.coverAspectRatio;
   return LibraryWorkspaceViewProfile(
-    runtimeResolver: () => type,
+    kindModuleResolver: () => type,
     defaultCoverSize: kPlannedMediaDefaultCoverSize,
     minCoverSize: kPlannedMediaMinCoverSize,
     maxCoverSize: kPlannedMediaMaxCoverSize,

@@ -8,15 +8,15 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     if (projection == null || state._selectedBucket == null) {
       return false;
     }
-    final runtime = state.widget.type;
-    final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+    final kindModule = state.widget.type;
+    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
     final groupDef = fields.findGroupDefinition(
       fields.decodeGroupId(state._activeGroupMode),
     );
     if (groupDef == null || !groupDef.supportsJump) {
       return false;
     }
-    final workspace = libraryKindWorkspaceForKind(runtime.kind);
+    final workspace = libraryKindWorkspaceForKind(kindModule.kind);
     return projection.allItems.any((item) {
       final adapter = item.dto is WorkspaceDtoAdapter
           ? item.dto as WorkspaceDtoAdapter

@@ -117,7 +117,7 @@ abstract final class LibraryPageShellPresenter {
     required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    final runtime = state.widget.type;
+    final kindModule = state.widget.type;
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
@@ -223,13 +223,15 @@ abstract final class LibraryPageShellPresenter {
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) => stateValue.withSortColumn(
-          libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(column),
+          libraryKindWorkspaceForKind(kindModule.kind)
+              .fields
+              .decodeSortId(column),
           state._viewProfile,
         ),
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(
-          libraryKindWorkspaceForKind(runtime.kind)
+          libraryKindWorkspaceForKind(kindModule.kind)
               .fields
               .decodeColumnId(column),
           width,
@@ -238,12 +240,12 @@ abstract final class LibraryPageShellPresenter {
       ),
       onColumnReordered: (column, beforeColumn) => state._updateViewState(
         (stateValue) => stateValue.withReorderedColumn(
-          column: libraryKindWorkspaceForKind(runtime.kind)
+          column: libraryKindWorkspaceForKind(kindModule.kind)
               .fields
               .decodeColumnId(column),
           beforeColumn: beforeColumn == null
               ? null
-              : libraryKindWorkspaceForKind(runtime.kind)
+              : libraryKindWorkspaceForKind(kindModule.kind)
                   .fields
                   .decodeColumnId(beforeColumn),
         ),

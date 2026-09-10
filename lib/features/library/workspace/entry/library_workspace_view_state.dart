@@ -34,7 +34,7 @@ typedef LibrarySortColumnDirectionResolver = bool Function(
 
 class LibraryWorkspaceViewProfile {
   const LibraryWorkspaceViewProfile({
-    required this.runtimeResolver,
+    required this.kindModuleResolver,
     required this.defaultCoverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
@@ -52,7 +52,7 @@ class LibraryWorkspaceViewProfile {
     this.sortAscendingForColumn,
   });
 
-  final LibraryKindModule Function() runtimeResolver;
+  final LibraryKindModule Function() kindModuleResolver;
   final double defaultCoverSize;
   final double minCoverSize;
   final double maxCoverSize;
@@ -76,12 +76,12 @@ class LibraryWorkspaceViewProfile {
     // Use cached snapshot from a previous load/save when available so that the
     // first frame renders with the user's last-known cover size, avoiding a
     // visible pop-in when the async load completes.
-    final runtime = runtimeResolver();
-    final workspace = libraryKindWorkspaceForKind(runtime.kind);
-    final cached = LibraryWorkspacePreferences.cachedSnapshot(runtime);
+    final kindModule = kindModuleResolver();
+    final workspace = libraryKindWorkspaceForKind(kindModule.kind);
+    final cached = LibraryWorkspacePreferences.cachedSnapshot(kindModule);
     if (cached != null) {
       return fromPreferences(cached)
-          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(runtime));
+          .withChrome(LibraryWorkspacePreferences.cachedChromeFor(kindModule));
     }
     final defaults = LibraryWorkspaceViewState(
       browserMode: LibraryWorkspaceBrowserMode.media,
@@ -94,19 +94,19 @@ class LibraryWorkspaceViewProfile {
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
-      densityPreset: runtime.identity.defaultDensityPreset,
+      densityPreset: kindModule.identity.defaultDensityPreset,
       visibleColumnIds: workspace.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
     return defaults
-        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(runtime));
+        .withChrome(LibraryWorkspacePreferences.cachedChromeFor(kindModule));
   }
 
   LibraryWorkspaceViewState fromPreferences(
     LibraryWorkspacePreferenceSnapshot preferences,
   ) {
-    final runtime = runtimeResolver();
-    final workspace = libraryKindWorkspaceForKind(runtime.kind);
+    final kindModule = kindModuleResolver();
+    final workspace = libraryKindWorkspaceForKind(kindModule.kind);
     return LibraryWorkspaceViewState(
       browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
@@ -135,10 +135,10 @@ class LibraryWorkspaceViewProfile {
   }
 
   Future<LibraryWorkspaceViewState> load() async {
-    final runtime = runtimeResolver();
-    final preferences = await LibraryWorkspacePreferences(runtime).read(
+    final kindModule = kindModuleResolver();
+    final preferences = await LibraryWorkspacePreferences(kindModule).read(
       defaultCoverSize: defaultCoverSize,
-      defaultDensityPreset: runtime.identity.defaultDensityPreset,
+      defaultDensityPreset: kindModule.identity.defaultDensityPreset,
     );
     return fromPreferenceSnapshot(preferences);
   }
@@ -152,7 +152,7 @@ class LibraryWorkspaceViewProfile {
   }
 
   Future<void> save(LibraryWorkspaceViewState state) async {
-    await LibraryWorkspacePreferences(runtimeResolver()).write(
+    await LibraryWorkspacePreferences(kindModuleResolver()).write(
       state.toPreferenceSnapshot(),
     );
   }
@@ -165,14 +165,14 @@ class LibraryWorkspaceViewProfile {
     Iterable<LibrarySortRule> rules,
   ) {
     return _decodeSortRules(
-      libraryKindWorkspaceForKind(runtimeResolver().kind),
+      libraryKindWorkspaceForKind(kindModuleResolver().kind),
       rules,
     );
   }
 
   Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
     return _decodeVisibleColumns(
-      libraryKindWorkspaceForKind(runtimeResolver().kind),
+      libraryKindWorkspaceForKind(kindModuleResolver().kind),
       columns,
     );
   }

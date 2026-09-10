@@ -40,10 +40,10 @@ class LibraryBulkActions {
       if (catalogRef == null) {
         continue;
       }
-      final runtime = libraryKindModuleForKind(
+      final kindModule = libraryKindModuleForKind(
         catalogRef.mediaKind,
       );
-      final updateCmd = runtime.edit.buildBulkUpdateCommand(
+      final updateCmd = kindModule.edit.buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
         condition: selection.condition,
         collectionValue: selection.collectionValue,

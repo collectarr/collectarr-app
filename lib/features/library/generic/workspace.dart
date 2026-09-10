@@ -158,8 +158,8 @@ class LibraryWorkspace extends ConsumerWidget {
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
-    final runtime = type;
-    final defaultCoverSize = runtime.viewProfile.defaultCoverSize;
+    final kindModule = type;
+    final defaultCoverSize = kindModule.viewProfile.defaultCoverSize;
     final isMusicLibrary = type.uiPolicy.coverAspectRatio == 1.0;
     final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
@@ -357,8 +357,8 @@ class LibraryWorkspace extends ConsumerWidget {
         final palette = appPalette(context);
         final compact = type.presentation.usesCompactTableLayout;
         final density = viewState.densityPreset;
-        final runtime = type;
-        final workspace = libraryKindWorkspaceForKind(runtime.kind);
+        final kindModule = type;
+        final workspace = libraryKindWorkspaceForKind(kindModule.kind);
         final visibleColumns = workspace.orderedTableColumns(
           viewState.visibleColumnIds,
         );
@@ -495,10 +495,12 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
-    final runtime = type;
-    return libraryKindWorkspaceForKind(runtime.kind).buildTableCell(
+    final kindModule = type;
+    return libraryKindWorkspaceForKind(kindModule.kind).buildTableCell(
       item,
-      libraryKindWorkspaceForKind(runtime.kind).fields.decodeColumnId(column),
+      libraryKindWorkspaceForKind(kindModule.kind)
+          .fields
+          .decodeColumnId(column),
     );
   }
 }

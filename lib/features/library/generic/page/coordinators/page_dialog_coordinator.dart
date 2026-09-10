@@ -163,7 +163,7 @@ class LibraryPageDialogCoordinator {
     if (!context.mounted) {
       return;
     }
-    final runtime = _page.type;
+    final kindModule = _page.type;
     final currentSortRules = _page.viewState?.sortRules
         .map(
           (rule) => LibrarySortRule(
@@ -203,7 +203,7 @@ class LibraryPageDialogCoordinator {
             );
           } else if (result.sortColumn != null) {
             _page.viewState = viewState.copyWith(
-              sortId: libraryKindWorkspaceForKind(runtime.kind)
+              sortId: libraryKindWorkspaceForKind(kindModule.kind)
                   .fields
                   .decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
@@ -220,7 +220,7 @@ class LibraryPageDialogCoordinator {
     if (viewState == null) {
       return;
     }
-    final runtime = _page.type;
+    final kindModule = _page.type;
     final sortRules = await showLibrarySortDialog(
       context: _page.context,
       type: _page.type,
@@ -233,7 +233,9 @@ class LibraryPageDialogCoordinator {
       ],
       defaultAscendingForColumn: (column) =>
           _page.viewProfile.initialSortAscending(
-        libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(column),
+        libraryKindWorkspaceForKind(kindModule.kind)
+            .fields
+            .decodeSortId(column),
       ),
       availableColumns: _page.scopeAvailableSortColumns,
     );

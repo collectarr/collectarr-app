@@ -262,13 +262,13 @@ class LibraryBody extends StatelessWidget {
           selectedBucketLabel: resolvedSelectedBucket,
           ancestorScopeDepth: sidebarAncestorScopeLabels.length,
         );
-        final runtime = type;
+        final kindModule = type;
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(
           preferredLayout: viewState.detailsLayout,
           compact: compact,
           hasSelection: selected != null,
           hideWhenSelectionEmpty:
-              runtime.viewProfile.hideDetailsWhenSelectionEmpty,
+              kindModule.viewProfile.hideDetailsWhenSelectionEmpty,
         );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
@@ -310,8 +310,8 @@ class LibraryBody extends StatelessWidget {
             LibraryCtrlScrollZoom(
               viewMode: viewState.viewMode,
               coverSize: viewState.coverSize,
-              minCoverSize: runtime.viewProfile.minCoverSize,
-              maxCoverSize: runtime.viewProfile.maxCoverSize,
+              minCoverSize: kindModule.viewProfile.minCoverSize,
+              maxCoverSize: kindModule.viewProfile.maxCoverSize,
               onCoverSizeChanged: onCoverSizeChanged,
               child: LibraryWorkspace(
                 type: type,
