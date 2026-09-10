@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
@@ -24,6 +26,9 @@ final class TvCollectionCsvProjection
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
+
+  @override
+  TrackingEntryCodec get trackingEntryCodec => const TvTrackingEntryCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

@@ -6,6 +6,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 
@@ -763,7 +764,7 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
 
 List<TrackingEntry> gameSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        TrackingEntry(
+        GameTrackingEntry(
           id: 'seed-track-game-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-game-${seedOrdinal2(i)}'),
           ownedRef:

@@ -21,6 +21,44 @@ class TrackingEntriesCacheRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, TrackingEntryCodec> _codecs;
 
+  /// Creates the concrete tracking aggregate owned by [catalogRef]'s kind.
+  ///
+  /// The mixed Collection feature may orchestrate lifecycle mutations, but it
+  /// must not instantiate the common tracking compatibility model.
+  TrackingEntry create({
+    required String id,
+    required CatalogEntityRef catalogRef,
+    OwnedItemRef? ownedRef,
+    Object? sourceType,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return _codecForKind(catalogRef.mediaKind).create(
+      id: id,
+      catalogRef: catalogRef,
+      ownedRef: ownedRef,
+      sourceType: sourceType,
+      status: status,
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: notes,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+  }
+
   /// Reads only the structural lifecycle projection required by mixed/global
   /// screens. It deliberately does not load kind-owned coordinate tables or
   /// reconstruct a [TrackingEntry] aggregate.

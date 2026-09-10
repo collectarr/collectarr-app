@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 
@@ -51,6 +50,23 @@ abstract interface class TrackingEntryCodec {
   const TrackingEntryCodec();
 
   CatalogMediaKind get kind;
+
+  TrackingEntry create({
+    required String id,
+    required CatalogEntityRef catalogRef,
+    OwnedItemRef? ownedRef,
+    Object? sourceType,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  });
 
   Future<Map<String, Object?>> loadCoordinates(
     LocalDatabase db,

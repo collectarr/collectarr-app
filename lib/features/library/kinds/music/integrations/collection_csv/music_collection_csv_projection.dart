@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
@@ -24,6 +26,9 @@ final class MusicCollectionCsvProjection
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
+
+  @override
+  TrackingEntryCodec get trackingEntryCodec => const MusicTrackingEntryCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

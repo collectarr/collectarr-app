@@ -7,6 +7,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
@@ -820,7 +821,7 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
 
 List<TrackingEntry> comicSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        TrackingEntry(
+        ComicTrackingEntry(
           id: 'seed-track-comic-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-comic-${seedOrdinal2(i)}'),
           ownedRef:

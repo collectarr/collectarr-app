@@ -2,6 +2,20 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_entry_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -105,5 +119,63 @@ void main() {
     expect(typed.coordinates.seasonNumber, 1);
     expect(typed.coordinates.episodeNumber, 12.5);
     expect(typed.coordinates.episodeRatings, const {'12.5': 10});
+  });
+
+  test('every kind codec creates its concrete tracking aggregate', () {
+    final comic = const ComicTrackingEntryCodec().create(
+      id: 'comic-entry',
+      catalogRef: baseEntry('comic').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final manga = const MangaTrackingEntryCodec().create(
+      id: 'manga-entry',
+      catalogRef: baseEntry('manga').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final book = const BookTrackingEntryCodec().create(
+      id: 'book-entry',
+      catalogRef: baseEntry('book').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final game = const GameTrackingEntryCodec().create(
+      id: 'game-entry',
+      catalogRef: baseEntry('game').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final boardGame = const BoardGameTrackingEntryCodec().create(
+      id: 'boardgame-entry',
+      catalogRef: baseEntry('boardgame').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final movie = const MovieTrackingEntryCodec().create(
+      id: 'movie-entry',
+      catalogRef: baseEntry('movie').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final tv = const TvTrackingEntryCodec().create(
+      id: 'tv-entry',
+      catalogRef: baseEntry('tv').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final anime = const AnimeTrackingEntryCodec().create(
+      id: 'anime-entry',
+      catalogRef: baseEntry('anime').catalogRef,
+      updatedAt: updatedAt,
+    );
+    final music = const MusicTrackingEntryCodec().create(
+      id: 'music-entry',
+      catalogRef: baseEntry('music').catalogRef,
+      updatedAt: updatedAt,
+    );
+
+    expect(comic, isA<ComicTrackingEntry>());
+    expect(manga, isA<MangaTrackingEntry>());
+    expect(book, isA<BookTrackingEntry>());
+    expect(game, isA<GameTrackingEntry>());
+    expect(boardGame, isA<BoardGameTrackingEntry>());
+    expect(movie, isA<MovieTrackingEntry>());
+    expect(tv, isA<TvTrackingEntry>());
+    expect(anime, isA<AnimeTrackingEntry>());
+    expect(music, isA<MusicTrackingEntry>());
   });
 }

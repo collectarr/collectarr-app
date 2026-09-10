@@ -6,6 +6,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 
@@ -1244,7 +1245,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
     ];
 
 List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-01',
         catalogRef: seedCatalogRef('seed-movie-01'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-01'),
@@ -1257,7 +1258,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         notes: 'Rewatched annually.',
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-02',
         catalogRef: seedCatalogRef('seed-movie-02'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-02'),
@@ -1270,7 +1271,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         notes: 'Heath Ledger performance remains unmatched.',
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-03',
         catalogRef: seedCatalogRef('seed-movie-03'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-03'),
@@ -1282,7 +1283,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-04',
         ownedRef: seedOwnedRefFromId('seed-owned-movie-04'),
         catalogRef: seedCatalogRef('seed-movie-04'),
@@ -1294,7 +1295,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         finishedAt: DateTime.utc(2023, 10, 10),
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-07',
         ownedRef: seedOwnedRefFromId('seed-owned-movie-07'),
         catalogRef: seedCatalogRef('seed-movie-07'),
@@ -1307,7 +1308,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         notes: 'Cinematography masterclass by Roger Deakins.',
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-05',
         catalogRef: seedCatalogRef('seed-movie-05'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-05'),
@@ -1319,7 +1320,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 3,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-06',
         catalogRef: seedCatalogRef('seed-movie-06'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-06'),
@@ -1331,7 +1332,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-08',
         catalogRef: seedCatalogRef('seed-movie-08'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-08'),
@@ -1343,7 +1344,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 4,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-09',
         catalogRef: seedCatalogRef('seed-movie-09'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-09'),
@@ -1355,7 +1356,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 3,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-10',
         ownedRef: seedOwnedRefFromId('seed-owned-movie-10'),
         catalogRef: seedCatalogRef('seed-movie-10'),
@@ -1367,7 +1368,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         finishedAt: DateTime.utc(2023, 1, 2),
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-13',
         ownedRef: seedOwnedRefFromId('seed-owned-movie-13'),
         catalogRef: seedCatalogRef('seed-movie-13'),
@@ -1380,7 +1381,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         notes: 'Watched in 70mm IMAX.',
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-11',
         catalogRef: seedCatalogRef('seed-movie-11'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-11'),
@@ -1392,7 +1393,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 3,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-12',
         catalogRef: seedCatalogRef('seed-movie-12'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-12'),
@@ -1404,7 +1405,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-14',
         catalogRef: seedCatalogRef('seed-movie-14'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-14'),
@@ -1416,7 +1417,7 @@ List<TrackingEntry> movieSeedTrackingEntries(DateTime now) => [
         timesCompleted: 2,
         updatedAt: now,
       ),
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'seed-track-movie-15',
         catalogRef: seedCatalogRef('seed-movie-15'),
         ownedRef: seedOwnedRefFromId('seed-owned-movie-15'),

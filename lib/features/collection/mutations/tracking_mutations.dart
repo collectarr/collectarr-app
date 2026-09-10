@@ -145,7 +145,7 @@ final class TrackingMutations {
               notes: notes ?? existing.notes,
               updatedAt: now,
             ) ??
-            TrackingEntry(
+            trackingEntries.create(
               id: entryId,
               catalogRef: catalogRef,
               ownedRef: targetOwnedRef,
@@ -270,7 +270,7 @@ final class TrackingMutations {
                       : TrackingSourceType.physical),
               updatedAt: now,
             ) ??
-            TrackingEntry(
+            trackingEntries.create(
               id: entryId,
               catalogRef: resolvedCatalogRef,
               ownedRef: ownedRef,
@@ -320,7 +320,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: resolvedCatalogRef,
       action: () async {
-        final baseEntry = TrackingEntry(
+        final baseEntry = trackingEntries.create(
           id: entryId,
           catalogRef: resolvedCatalogRef,
           sourceType: sourceType,

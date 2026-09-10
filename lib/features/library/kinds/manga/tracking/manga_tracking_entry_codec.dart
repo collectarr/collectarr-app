@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+
+import 'manga_tracking_entry.dart';
 
 /// Manga-owned lifecycle tracking mapping. Chapter progress uses typed
 /// tracking units, so this entry carries only lifecycle fields.
@@ -12,6 +13,42 @@ final class MangaTrackingEntryCodec implements TrackingEntryCodec {
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
+
+  @override
+  MangaTrackingEntry create({
+    required String id,
+    required CatalogEntityRef catalogRef,
+    OwnedItemRef? ownedRef,
+    Object? sourceType,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  }) {
+    _validateKind(catalogRef);
+    return MangaTrackingEntry(
+      id: id,
+      catalogRef: catalogRef,
+      ownedRef: ownedRef,
+      sourceType: sourceType,
+      status: status,
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: notes,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+  }
 
   @override
   Future<Map<String, Object?>> loadCoordinates(
@@ -43,7 +80,7 @@ final class MangaTrackingEntryCodec implements TrackingEntryCodec {
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return TrackingEntry(
+    return MangaTrackingEntry(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -67,7 +104,7 @@ final class MangaTrackingEntryCodec implements TrackingEntryCodec {
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return TrackingEntry(
+    return MangaTrackingEntry(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,

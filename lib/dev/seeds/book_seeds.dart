@@ -7,6 +7,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
@@ -783,7 +784,7 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
 
 List<TrackingEntry> bookSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        TrackingEntry(
+        BookTrackingEntry(
           id: 'seed-track-book-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-book-${seedOrdinal2(i)}'),
           ownedRef:

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
@@ -19,6 +18,49 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.anime;
+
+  @override
+  AnimeTrackingEntry create({
+    required String id,
+    required CatalogEntityRef catalogRef,
+    OwnedItemRef? ownedRef,
+    Object? sourceType,
+    Object? status,
+    int? rating,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    int? progressCurrent,
+    int? progressTotal,
+    int? timesCompleted,
+    String? notes,
+    required DateTime updatedAt,
+    DateTime? deletedAt,
+  }) {
+    if (catalogRef.mediaKind != kind) {
+      throw ArgumentError.value(
+        catalogRef.mediaKind,
+        'catalogRef.kind',
+        'Expected Anime tracking entry',
+      );
+    }
+    return AnimeTrackingEntry(
+      id: id,
+      catalogRef: catalogRef,
+      coordinates: AnimeTrackingCoordinates(),
+      ownedRef: ownedRef,
+      sourceType: sourceType,
+      status: status,
+      rating: rating,
+      startedAt: startedAt,
+      finishedAt: finishedAt,
+      progressCurrent: progressCurrent,
+      progressTotal: progressTotal,
+      timesCompleted: timesCompleted,
+      notes: notes,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+    );
+  }
 
   @override
   Future<Map<String, Object?>> loadCoordinates(
@@ -70,7 +112,8 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
             id: entry.id,
             mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
             episodeId: Value(
-              entry.catalogRef.entityType == const CatalogEntityTypeId('episode')
+              entry.catalogRef.entityType ==
+                      const CatalogEntityTypeId('episode')
                   ? entry.catalogRef.id
                   : null,
             ),
@@ -133,7 +176,8 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     return AnimeTrackingEntry(
       id: id,
       catalogRef: seasonNumber != null || episodeNumber != null
-          ? catalogRef.copyWith(entityType: const CatalogEntityTypeId('episode'))
+          ? catalogRef.copyWith(
+              entityType: const CatalogEntityTypeId('episode'))
           : catalogRef,
       coordinates: AnimeTrackingCoordinates(
         seasonNumber: seasonNumber,
@@ -166,7 +210,8 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     return AnimeTrackingEntry(
       id: row.id,
       catalogRef: typed.hasEpisodeCoordinates
-          ? row.catalogRef.copyWith(entityType: const CatalogEntityTypeId('episode'))
+          ? row.catalogRef
+              .copyWith(entityType: const CatalogEntityTypeId('episode'))
           : row.catalogRef,
       ownedRef: row.ownedRef,
       sourceType: row.sourceType,

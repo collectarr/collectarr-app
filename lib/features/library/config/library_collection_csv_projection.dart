@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
 ///
@@ -14,6 +15,8 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// model shared by kinds.
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
+
+  TrackingEntryCodec get trackingEntryCodec;
 
   String importDisplayTitle(List<String> catalogCells);
 
@@ -263,6 +266,9 @@ mixin LibraryCollectionCsvProjectionPresentation {
 mixin LibraryCollectionCsvTrackingImport
     implements LibraryCollectionCsvProjection {
   @override
+  TrackingEntryCodec get trackingEntryCodec;
+
+  @override
   TrackingEntry? trackingEntryFromImport({
     required String entryId,
     required CatalogEntityRef catalogRef,
@@ -286,7 +292,7 @@ mixin LibraryCollectionCsvTrackingImport
         updatedAt: now,
       );
     }
-    return TrackingEntry(
+    return trackingEntryCodec.create(
       id: entryId,
       catalogRef: catalogRef,
       ownedRef: ownedRef,

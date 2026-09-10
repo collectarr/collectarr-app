@@ -81,7 +81,7 @@ void _defineTrackingEntryContract(
   defineTrackingEntryContract(
     name: name,
     codec: codecsByKind[kind]!,
-    create: () => TrackingEntry(
+    create: () => codecsByKind[kind]!.create(
       id: '$name-tracking-1',
       catalogRef: CatalogEntityRef(
         id: '$name-work-1',
