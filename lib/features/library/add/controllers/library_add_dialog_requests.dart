@@ -196,7 +196,7 @@ class LibraryAddModeBarRequest {
     required this.isWideLayout,
     required this.mode,
     required this.queryController,
-    required this.barcodeController,
+    required this.identifierController,
     required this.isSearching,
     required this.isSearchingProvider,
     required this.onModeChanged,
@@ -209,7 +209,7 @@ class LibraryAddModeBarRequest {
     required this.canScanCover,
     required this.isScanningCover,
     required this.onScanCover,
-    required this.onLookupBarcode,
+    required this.onLookupIdentifier,
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
@@ -224,7 +224,7 @@ class LibraryAddModeBarRequest {
   final bool isWideLayout;
   final LibraryAddDialogMode mode;
   final TextEditingController queryController;
-  final TextEditingController barcodeController;
+  final TextEditingController identifierController;
   final bool isSearching;
   final bool isSearchingProvider;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
@@ -237,7 +237,7 @@ class LibraryAddModeBarRequest {
   final bool canScanCover;
   final bool isScanningCover;
   final VoidCallback onScanCover;
-  final VoidCallback onLookupBarcode;
+  final VoidCallback onLookupIdentifier;
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;

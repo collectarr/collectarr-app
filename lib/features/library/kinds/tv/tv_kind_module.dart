@@ -390,7 +390,7 @@ MetadataSearchQuery _buildTvCoreSearchInput(
     series: _optionalTvText(context.textValueFor(_tvShowFilterId)),
     publisher: _optionalTvText(context.textValueFor(_tvNetworkFilterId)),
     year: int.tryParse(context.textValueFor(_tvYearFilterId)),
-    barcode: _optionalTvText(context.barcode),
+    barcode: _optionalTvText(context.identifierCode),
     limit: limit,
   );
 }
@@ -401,7 +401,7 @@ String _buildTvProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_tvShowFilterId),
     context.textValueFor(_tvNetworkFilterId),
     context.textValueFor(_tvYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

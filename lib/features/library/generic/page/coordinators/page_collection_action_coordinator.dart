@@ -228,7 +228,7 @@ class LibraryPageCollectionActionCoordinator {
         );
         return;
       }
-      await _showAddDialog(barcode: barcode);
+      await _showAddDialog(identifierCode: barcode);
     }
   }
 

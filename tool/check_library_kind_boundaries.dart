@@ -210,7 +210,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/tracking/watch_session_codec.dart',
     'lib/features/library/tracking/custom_episode_codec.dart',
     'lib/features/library/detail/library_detail_hero.dart',
-    'lib/features/library/detail/story_arc_detail_page.dart',
     'lib/features/library/generic/library_route_state.dart',
     'lib/features/library/hierarchy/domain/library_hierarchy_node.dart',
     'lib/features/library/inspector/metadata_correction_dialog.dart',

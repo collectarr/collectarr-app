@@ -65,8 +65,8 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     required this.type,
     this.accent,
     this.initialQuery,
-    this.initialBarcode,
-    this.autoLookupInitialBarcode = true,
+    this.initialIdentifier,
+    this.autoLookupInitialIdentifier = true,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.manualPaneBuilder,
     this.previewPaneBuilder,
@@ -82,8 +82,8 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   final LibraryKindModule type;
   final Color? accent;
   final String? initialQuery;
-  final String? initialBarcode;
-  final bool autoLookupInitialBarcode;
+  final String? initialIdentifier;
+  final bool autoLookupInitialIdentifier;
   final LibraryCoverScanService coverScanService;
   final LibraryAddManualPaneBuilder? manualPaneBuilder;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
@@ -105,7 +105,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   static const _formOptionsController = LibraryAddFormOptionsController();
 
   late final TextEditingController _queryController;
-  late final TextEditingController _barcodeController;
+  late final TextEditingController _identifierController;
 
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
@@ -140,8 +140,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _resultsPaneWidth = 720;
     }
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
-    _barcodeController =
-        TextEditingController(text: widget.initialBarcode ?? '');
+    _identifierController =
+        TextEditingController(text: widget.initialIdentifier ?? '');
 
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
@@ -175,18 +175,18 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     _loadPickListOptions();
     _loadPrefillDefaults();
 
-    if (widget.initialBarcode != null &&
-        widget.initialBarcode!.isNotEmpty &&
-        widget.autoLookupInitialBarcode) {
-      _controller.setMode(LibraryAddDialogMode.barcode);
-      _controller.updateBarcode(widget.initialBarcode!);
+    if (widget.initialIdentifier != null &&
+        widget.initialIdentifier!.isNotEmpty &&
+        widget.autoLookupInitialIdentifier) {
+      _controller.setMode(LibraryAddDialogMode.identifier);
+      _controller.updateIdentifier(widget.initialIdentifier!);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.lookupBarcode(barcode: widget.initialBarcode!);
+        _controller.lookupIdentifier(identifierCode: widget.initialIdentifier!);
       });
-    } else if (widget.initialBarcode != null &&
-        widget.initialBarcode!.isNotEmpty) {
-      _controller.setMode(LibraryAddDialogMode.barcode);
-      _controller.updateBarcode(widget.initialBarcode!);
+    } else if (widget.initialIdentifier != null &&
+        widget.initialIdentifier!.isNotEmpty) {
+      _controller.setMode(LibraryAddDialogMode.identifier);
+      _controller.updateIdentifier(widget.initialIdentifier!);
     } else if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _controller.updateQuery(widget.initialQuery!);
     }
@@ -201,10 +201,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         selection: TextSelection.collapsed(offset: state.search.query.length),
       );
     }
-    if (_barcodeController.text != state.search.barcode) {
-      _barcodeController.value = TextEditingValue(
-        text: state.search.barcode,
-        selection: TextSelection.collapsed(offset: state.search.barcode.length),
+    if (_identifierController.text != state.search.identifierCode) {
+      _identifierController.value = TextEditingValue(
+        text: state.search.identifierCode,
+        selection:
+            TextSelection.collapsed(offset: state.search.identifierCode.length),
       );
     }
     setState(() {});
@@ -350,7 +351,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void dispose() {
     _manualDraft.dispose();
     _queryController.dispose();
-    _barcodeController.dispose();
+    _identifierController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -446,7 +447,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final addCapability = widget.type.add;
     final searchContext = LibraryAddSearchContext(
       query: state.search.query,
-      barcode: state.search.barcode,
+      identifierCode: state.search.identifierCode,
       advancedFilters: state.search.advancedFilters,
     );
 
@@ -465,7 +466,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         isWideLayout: isWideLayout,
         mode: state.mode,
         queryController: _queryController,
-        barcodeController: _barcodeController,
+        identifierController: _identifierController,
         isSearching: state.search.isSearching,
         isSearchingProvider: state.search.isSearchingProvider,
         onModeChanged: (mode) {
@@ -490,8 +491,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         canScanCover: widget.type.add.chrome.canScanCover,
         isScanningCover: state.search.isScanningCover,
         onScanCover: () => _controller.scanCover(context),
-        onLookupBarcode: () => _controller.lookupBarcode(
-          barcode: _barcodeController.text,
+        onLookupIdentifier: () => _controller.lookupIdentifier(
+          identifierCode: _identifierController.text,
         ),
         onManual: () {
           _manualDraft.titleController.text = _queryController.text;
@@ -545,12 +546,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (widget.initialBarcode != null &&
-              widget.initialBarcode!.trim().isNotEmpty &&
-              state.mode == LibraryAddDialogMode.barcode)
-            LibraryAddBarcodePrefillBanner(
+          if (widget.initialIdentifier != null &&
+              widget.initialIdentifier!.trim().isNotEmpty &&
+              state.mode == LibraryAddDialogMode.identifier)
+            LibraryAddIdentifierPrefillBanner(
               type: widget.type,
-              barcode: widget.initialBarcode!.trim(),
+              identifierCode: widget.initialIdentifier!.trim(),
             ),
           Builder(
             builder: (scopedContext) =>
@@ -563,7 +564,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   isWideLayout: isWideLayout,
                   mode: state.mode,
                   queryController: _queryController,
-                  barcodeController: _barcodeController,
+                  identifierController: _identifierController,
                   isSearching: state.search.isBusy,
                   isSearchingProvider: state.search.isSearchingProvider,
                   onModeChanged: (mode) {
@@ -588,8 +589,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   canScanCover: widget.type.add.chrome.canScanCover,
                   isScanningCover: state.search.isScanningCover,
                   onScanCover: () => _controller.scanCover(scopedContext),
-                  onLookupBarcode: () => _controller.lookupBarcode(
-                    barcode: _barcodeController.text,
+                  onLookupIdentifier: () => _controller.lookupIdentifier(
+                    identifierCode: _identifierController.text,
                   ),
                   onManual: () {
                     _manualDraft.titleController.text = _queryController.text;
@@ -635,7 +636,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ),
       body: switch (state.mode) {
         LibraryAddDialogMode.search ||
-        LibraryAddDialogMode.barcode =>
+        LibraryAddDialogMode.identifier =>
           LayoutBuilder(
             builder: (context, constraints) {
               final searchPaneRequest = LibraryAddSearchPaneRequest(

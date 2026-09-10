@@ -3,12 +3,12 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 final class LibraryAddSearchContext {
   LibraryAddSearchContext({
     this.query = '',
-    this.barcode = '',
+    this.identifierCode = '',
     Map<LibraryAddFilterId, Object?> advancedFilters = const {},
   }) : advancedFilters = Map.unmodifiable(advancedFilters);
 
   final String query;
-  final String barcode;
+  final String identifierCode;
   final Map<LibraryAddFilterId, Object?> advancedFilters;
 
   Object? valueFor(LibraryAddFilterId id) => advancedFilters[id];
@@ -19,7 +19,7 @@ final class LibraryAddSearchContext {
   }
 
   bool get hasAnyInput {
-    if (query.trim().isNotEmpty || barcode.trim().isNotEmpty) {
+    if (query.trim().isNotEmpty || identifierCode.trim().isNotEmpty) {
       return true;
     }
     return advancedFilters.values.any(_hasValue);

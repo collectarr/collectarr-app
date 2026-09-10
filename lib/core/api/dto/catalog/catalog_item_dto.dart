@@ -193,6 +193,7 @@ final class CatalogItemDto {
   String? get barcode =>
       (payload['barcode'] ?? (payload['publishing'] as Map?)?['barcode'])
           as String?;
+  String? get identifierCode => barcode;
   String? get physicalFormat => (payload['physical_format'] ??
       (payload['publishing'] as Map?)?['physical_format']) as String?;
   String? get physicalFormatLabel => (payload['physical_format_label'] ??

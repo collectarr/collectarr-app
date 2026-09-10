@@ -450,6 +450,9 @@ class AdminProviderPreview {
   final String? physicalFormatLabel;
   final DateTime? releaseDate;
   final String? barcode;
+
+  /// Neutral identifier projection for structural Add/presentation hosts.
+  String? get identifierCode => barcode;
   final String? isbn;
   final String? variantName;
   final String? coverImageUrl;

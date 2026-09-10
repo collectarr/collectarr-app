@@ -937,7 +937,7 @@ class SearchResultTile extends StatelessWidget {
     );
     final publisher = item.publisher;
     final physicalFormatLabel = item.physicalFormatLabel;
-    final barcode = item.barcode;
+    final identifierCode = item.identifierCode;
     final itemNumber = item.itemNumber;
     final subtitle = resultDisplay?.secondaryLine ??
         [
@@ -945,7 +945,7 @@ class SearchResultTile extends StatelessWidget {
           if ((item.releaseYear ?? item.releaseDate?.year) != null)
             (item.releaseYear ?? item.releaseDate?.year).toString(),
           if (physicalFormatLabel != null) physicalFormatLabel,
-          if (barcode != null) barcode,
+          if (identifierCode != null) identifierCode,
         ].whereType<String>().join(' | ');
     final detailLine = resultDisplay?.detailLine;
     final ownedTone = Theme.of(context).colorScheme.tertiary;

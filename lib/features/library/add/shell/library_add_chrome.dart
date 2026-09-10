@@ -154,7 +154,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     final labels = widget.labels;
     final palette = appPalette(context);
     final isBusy = request.isSearching || request.isSearchingProvider;
-    final isBarcode = request.mode == LibraryAddDialogMode.barcode;
+    final isBarcode = request.mode == LibraryAddDialogMode.identifier;
     final isSearch = request.mode == LibraryAddDialogMode.search;
     final searchButtonLabel = labels.searchButtonLabel ??
         'Search ${request.type.identity.pluralLabel}';
@@ -180,11 +180,12 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                           : 'library-add-query-field',
                     ),
                     controller: isBarcode
-                        ? request.barcodeController
+                        ? request.identifierController
                         : request.queryController,
                     onChanged: isSearch ? request.onQueryChanged : null,
-                    onSubmitted: (_) =>
-                        isBarcode ? request.onLookupBarcode() : _handleSearch(),
+                    onSubmitted: (_) => isBarcode
+                        ? request.onLookupIdentifier()
+                        : _handleSearch(),
                     decoration: InputDecoration(
                       labelText: isBarcode
                           ? 'Barcode / UPC / ISBN'
@@ -219,7 +220,9 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                 FilledButton.icon(
                   onPressed: isBusy
                       ? null
-                      : (isBarcode ? request.onLookupBarcode : _handleSearch),
+                      : (isBarcode
+                          ? request.onLookupIdentifier
+                          : _handleSearch),
                   style: libraryAddFilledButtonStyle(request.accent),
                   icon: Icon(isBarcode ? Icons.qr_code_2 : Icons.search,
                       size: 18),
@@ -240,7 +243,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         icon: Icon(Icons.search, size: 18),
                       ),
                       ButtonSegment<LibraryAddDialogMode>(
-                        value: LibraryAddDialogMode.barcode,
+                        value: LibraryAddDialogMode.identifier,
                         label: Text('Barcode'),
                         icon: Icon(Icons.qr_code_2, size: 18),
                       ),

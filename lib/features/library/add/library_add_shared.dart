@@ -30,7 +30,7 @@ class LibraryQueuedProviderIngest {
   }
 }
 
-enum LibraryAddDialogMode { search, barcode, manual }
+enum LibraryAddDialogMode { search, identifier, manual }
 
 class LibraryCoverScanPrefillBanner extends StatelessWidget {
   const LibraryCoverScanPrefillBanner({super.key, required this.result});

@@ -177,7 +177,7 @@ class LibraryAddSessionController
   LibraryAddSearchContext _searchContext({String? query}) {
     return LibraryAddSearchContext(
       query: query ?? state.search.query,
-      barcode: state.search.barcode,
+      identifierCode: state.search.identifierCode,
       advancedFilters: state.search.advancedFilters,
     );
   }
@@ -223,9 +223,9 @@ class LibraryAddSessionController
     }
   }
 
-  void updateBarcode(String barcode) {
+  void updateIdentifier(String identifierCode) {
     state = state.copyWith(
-      search: state.search.copyWith(barcode: barcode),
+      search: state.search.copyWith(identifierCode: identifierCode),
     );
   }
 
@@ -714,10 +714,10 @@ class LibraryAddSessionController
     );
   }
 
-  Future<void> lookupBarcode({String? barcode}) async {
-    var code = barcode?.trim().isNotEmpty == true
-        ? barcode!.trim()
-        : state.search.barcode.trim();
+  Future<void> lookupIdentifier({String? identifierCode}) async {
+    var code = identifierCode?.trim().isNotEmpty == true
+        ? identifierCode!.trim()
+        : state.search.identifierCode.trim();
     if (code.isEmpty) {
       state = state.copyWith(
         search: state.search.copyWith(
@@ -730,9 +730,9 @@ class LibraryAddSessionController
     final resolvedBarcode = resolveLibraryBarcodeForKind(type.kind, code);
     if (resolvedBarcode == null) {
       state = state.copyWith(
-        mode: LibraryAddDialogMode.barcode,
+        mode: LibraryAddDialogMode.identifier,
         search: state.search.copyWith(
-          barcode: code,
+          identifierCode: code,
           error:
               'This code is not supported for ${type.identity.pluralLabel.toLowerCase()}.',
         ),
@@ -743,9 +743,9 @@ class LibraryAddSessionController
 
     final searchGeneration = state.search.coreSearchGeneration + 1;
     state = state.copyWith(
-      mode: LibraryAddDialogMode.barcode,
+      mode: LibraryAddDialogMode.identifier,
       search: state.search.copyWith(
-        barcode: code,
+        identifierCode: code,
         isSearching: true,
         clearError: true,
         coreSearchGeneration: searchGeneration,
@@ -770,11 +770,11 @@ class LibraryAddSessionController
     }
 
     try {
-      final lookupResult = await runLibraryAddBarcodeLookup(
+      final lookupResult = await runLibraryAddIdentifierLookup(
         api: api!,
         type: type,
         catalog: catalog!,
-        barcode: code,
+        identifierCode: code,
         timeout: _coreSearchTimeout,
         providerSearchAvailable:
             type.metadata.supportedProvidersForKind(type.kind).isNotEmpty,

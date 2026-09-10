@@ -1102,7 +1102,7 @@ final class AnimeRegistration implements LibraryKindRegistration {
       type: animeKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1188,7 +1188,7 @@ final class BoardgameRegistration implements LibraryKindRegistration {
       type: boardGameKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1274,7 +1274,7 @@ final class BookRegistration implements LibraryKindRegistration {
       type: bookKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1360,7 +1360,7 @@ final class ComicRegistration implements LibraryKindRegistration {
       type: comicKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1446,7 +1446,7 @@ final class GameRegistration implements LibraryKindRegistration {
       type: gameKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1532,7 +1532,7 @@ final class MangaRegistration implements LibraryKindRegistration {
       type: mangaKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1618,7 +1618,7 @@ final class MovieRegistration implements LibraryKindRegistration {
       type: movieKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1704,7 +1704,7 @@ final class MusicRegistration implements LibraryKindRegistration {
       type: musicKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 
@@ -1790,7 +1790,7 @@ final class TvRegistration implements LibraryKindRegistration {
       type: tvKindModule,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     );
   }
 

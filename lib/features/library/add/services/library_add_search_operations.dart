@@ -105,11 +105,11 @@ Future<List<LibraryAddCatalogItem>> fetchLibraryAddSuggestions({
   );
 }
 
-Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
+Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
-  required String barcode,
+  required String identifierCode,
   required Duration timeout,
   required bool providerSearchAvailable,
 }) async {
@@ -117,7 +117,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
     api: api,
     type: type,
     catalog: catalog,
-    barcodes: [barcode],
+    barcodes: [identifierCode],
   ).timeout(timeout);
   final foundItems = <LibraryAddCatalogItem>[
     for (final result in results)

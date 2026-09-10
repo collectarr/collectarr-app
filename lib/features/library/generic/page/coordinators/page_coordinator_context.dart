@@ -33,7 +33,7 @@ typedef LibraryPageCompareMetadataWithServer = Future<void> Function(
 });
 
 typedef LibraryPageAddDialogLauncher = Future<void> Function({
-  String? barcode,
+  String? identifierCode,
 });
 
 typedef LibraryPageSelectedProjectionItemResolver = LibraryProjectionItem?

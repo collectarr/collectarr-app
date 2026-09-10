@@ -900,7 +900,7 @@ void _renderRegistrationClass(
   buffer.writeln('      type: ${descriptor.moduleName},');
   buffer.writeln('      accent: request.accent,');
   buffer.writeln('      initialQuery: request.initialQuery,');
-  buffer.writeln('      initialBarcode: request.initialBarcode,');
+  buffer.writeln('      initialIdentifier: request.initialIdentifier,');
   buffer.writeln('    );');
   buffer.writeln('  }');
   buffer.writeln();

@@ -31,7 +31,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),

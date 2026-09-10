@@ -273,7 +273,7 @@ MetadataSearchQuery _buildGameCoreSearchInput(
       ]),
     ),
     year: int.tryParse(context.textValueFor(_gameYearFilterId)),
-    barcode: _optionalGameText(context.barcode),
+    barcode: _optionalGameText(context.identifierCode),
     limit: limit,
   );
 }
@@ -283,7 +283,7 @@ String _buildGameProviderQuery(LibraryAddSearchContext context) {
     context.query,
     context.textValueFor(_gamePlatformFilterId),
     context.textValueFor(_gameYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

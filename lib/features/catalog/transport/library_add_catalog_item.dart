@@ -46,7 +46,7 @@ final class LibraryAddCatalogItem {
   String? get itemNumber => _item.itemNumber;
   String? get variant => _item.variant;
   String? get publisher => _item.publisher;
-  String? get barcode => _item.barcode;
+  String? get identifierCode => _item.barcode;
   String? get physicalFormat => _item.physicalFormat;
   String? get physicalFormatLabel => _item.physicalFormatLabel;
   String? get editionTitle => _item.editionTitle;

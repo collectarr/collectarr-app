@@ -221,8 +221,8 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: gameKindModule,
-              initialBarcode: '759606083060',
-              autoLookupInitialBarcode: false,
+              initialIdentifier: '759606083060',
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -281,7 +281,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -334,7 +334,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: providerSearchType,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -377,7 +377,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -461,7 +461,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
               coverScanService: const LocalLibraryCoverScanService(
                 sourcePrompt: _FakeCoverScanSourcePrompt(action: null),
                 imagePicker: _FakeCoverImagePicker(file: null),
@@ -517,7 +517,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -574,7 +574,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -649,7 +649,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -800,7 +800,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -1046,7 +1046,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1088,7 +1088,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1169,7 +1169,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1480,7 +1480,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1528,7 +1528,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1594,7 +1594,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1665,7 +1665,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1713,7 +1713,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1766,7 +1766,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1830,7 +1830,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1903,7 +1903,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1956,7 +1956,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1998,7 +1998,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -2047,7 +2047,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -2103,7 +2103,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),

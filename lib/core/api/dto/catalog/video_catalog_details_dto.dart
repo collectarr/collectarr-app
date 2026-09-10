@@ -58,4 +58,3 @@ class VideoCatalogDetailsDto {
         if (audienceRating != null) 'audience_rating': audienceRating,
       };
 }
-

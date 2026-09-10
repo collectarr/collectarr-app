@@ -1217,7 +1217,10 @@ List<(String, String?)> _metadataRowsForItem(
         previewLabels.labelFor('variant', fallback: 'Variant'),
         item.variant,
       ),
-    (previewLabels.labelFor('barcode', fallback: 'Barcode'), item.barcode),
+    (
+      previewLabels.labelFor('barcode', fallback: 'Barcode'),
+      item.identifierCode,
+    ),
   ];
 }
 
@@ -1304,8 +1307,11 @@ List<(String, String?)> _metadataRowsForFullPreview(
         previewLabels.labelFor('item_number', fallback: 'Number'),
         preview.itemNumber
       ),
-    if (preview.barcode != null)
-      (previewLabels.labelFor('barcode', fallback: 'Barcode'), preview.barcode),
+    if (preview.identifierCode != null)
+      (
+        previewLabels.labelFor('barcode', fallback: 'Barcode'),
+        preview.identifierCode,
+      ),
     if (preview.isbn != null) ('ISBN', preview.isbn),
     if (preview.country != null) ('Country', preview.country),
     if (preview.language != null) ('Language', preview.language),
@@ -1535,9 +1541,7 @@ class _EditionCard extends StatelessWidget {
     final coverUrl = edition.variants.isNotEmpty
         ? edition.variants.first.coverImageUrl
         : null;
-    final barcode = edition.isbn ??
-        edition.upc ??
-        (edition.variants.isNotEmpty ? edition.variants.first.barcode : null);
+    final identifierCode = edition.identifierCode;
     final formatId = edition.physicalFormat;
     return GestureDetector(
       onTap: onTap,
@@ -1595,9 +1599,9 @@ class _EditionCard extends StatelessWidget {
               ),
             ),
             // Barcode
-            if (barcode != null)
+            if (identifierCode != null)
               Text(
-                barcode,
+                identifierCode,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -1690,7 +1694,7 @@ class _VariantGrid extends StatelessWidget {
                 key: ValueKey('library-add-variant-card-${variant.id}'),
                 label: variant.name,
                 coverUrl: variant.coverImageUrl,
-                barcode: variant.barcode,
+                identifierCode: variant.identifierCode,
                 formatId: variant.physicalFormat,
                 selected: variant.id == selectedVariantId,
                 accent: accent,
@@ -1711,7 +1715,7 @@ class _VariantChip extends StatelessWidget {
     required this.accent,
     required this.onTap,
     this.coverUrl,
-    this.barcode,
+    this.identifierCode,
     this.formatId,
   });
 
@@ -1720,7 +1724,7 @@ class _VariantChip extends StatelessWidget {
   final Color accent;
   final VoidCallback onTap;
   final String? coverUrl;
-  final String? barcode;
+  final String? identifierCode;
   final String? formatId;
 
   @override

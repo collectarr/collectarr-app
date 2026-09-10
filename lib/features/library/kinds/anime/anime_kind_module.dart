@@ -377,7 +377,7 @@ MetadataSearchQuery _buildAnimeCoreSearchInput(
     series: _optionalAnimeText(context.textValueFor(_animeSeriesFilterId)),
     publisher: _optionalAnimeText(context.textValueFor(_animeStudioFilterId)),
     year: int.tryParse(context.textValueFor(_animeYearFilterId)),
-    barcode: _optionalAnimeText(context.barcode),
+    barcode: _optionalAnimeText(context.identifierCode),
     limit: limit,
   );
 }
@@ -388,7 +388,7 @@ String _buildAnimeProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_animeSeriesFilterId),
     context.textValueFor(_animeStudioFilterId),
     context.textValueFor(_animeYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

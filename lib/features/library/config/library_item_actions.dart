@@ -100,13 +100,13 @@ class LibraryAddDialogRequest {
     required this.type,
     this.accent,
     this.initialQuery,
-    this.initialBarcode,
+    this.initialIdentifier,
   });
 
   final LibraryKindModule type;
   final Color? accent;
   final String? initialQuery;
-  final String? initialBarcode;
+  final String? initialIdentifier;
 }
 
 class LibraryAddDialogResult {

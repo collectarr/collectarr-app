@@ -314,7 +314,7 @@ MetadataSearchQuery _buildMusicCoreSearchInput(
     series: _optionalMusicText(context.textValueFor(_musicArtistFilterId)),
     publisher: _optionalMusicText(context.textValueFor(_musicLabelFilterId)),
     year: int.tryParse(context.textValueFor(_musicYearFilterId)),
-    barcode: _optionalMusicText(context.barcode),
+    barcode: _optionalMusicText(context.identifierCode),
     limit: limit,
   );
 }
@@ -325,7 +325,7 @@ String _buildMusicProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_musicArtistFilterId),
     context.textValueFor(_musicLabelFilterId),
     context.textValueFor(_musicYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

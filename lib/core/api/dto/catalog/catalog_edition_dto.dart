@@ -38,6 +38,10 @@ class CatalogEditionDto {
 
   /// Best available display label for the transport-level format value.
   String? get displayFormat => physicalFormatLabel ?? physicalFormat;
+  String? get identifierCode =>
+      isbn ??
+      upc ??
+      (variants.isNotEmpty ? variants.first.identifierCode : null);
 
   factory CatalogEditionDto.fromJson(Map<String, dynamic> json) {
     return CatalogEditionDto(

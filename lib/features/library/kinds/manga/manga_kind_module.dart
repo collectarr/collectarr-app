@@ -452,7 +452,7 @@ MetadataSearchQuery _buildMangaCoreSearchInput(
     publisher:
         _optionalMangaText(context.textValueFor(_mangaPublisherFilterId)),
     year: int.tryParse(context.textValueFor(_mangaYearFilterId)),
-    barcode: _optionalMangaText(context.barcode),
+    barcode: _optionalMangaText(context.identifierCode),
     limit: limit,
   );
 }
@@ -464,7 +464,7 @@ String _buildMangaProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_mangaVolumeFilterId),
     context.textValueFor(_mangaPublisherFilterId),
     context.textValueFor(_mangaYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

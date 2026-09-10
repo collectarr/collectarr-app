@@ -388,7 +388,7 @@ MetadataSearchQuery _buildMovieCoreSearchInput(
       ]),
     ),
     year: int.tryParse(context.textValueFor(_movieYearFilterId)),
-    barcode: _optionalMovieText(context.barcode),
+    barcode: _optionalMovieText(context.identifierCode),
     limit: limit,
   );
 }
@@ -398,7 +398,7 @@ String _buildMovieProviderQuery(LibraryAddSearchContext context) {
     context.query,
     context.textValueFor(_movieCollectionFilterId),
     context.textValueFor(_movieYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

@@ -154,6 +154,7 @@ class AdminMetadataItem {
   final String? titleExtension;
   final String? publisher;
   final String? barcode;
+  String? get identifierCode => barcode;
   final CatalogSeriesDetailsDto? series;
   final CatalogPublishingDetailsDto? publishing;
   final DateTime? coverDate;
@@ -389,6 +390,8 @@ class AdminVariant {
   final bool isPrimary;
   final String? variantType;
   final String? barcode;
+
+  String? get identifierCode => barcode;
   final int? coverPriceCents;
   final String? currency;
   final String? coverImageUrl;

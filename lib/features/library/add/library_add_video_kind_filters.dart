@@ -37,7 +37,8 @@ Iterable<LibraryAddVideoSearchScope> libraryAddVideoKindOverridesForChrome(
 }
 
 bool libraryAddVideoHasSearchInput(LibraryAddSearchContext context) {
-  if (context.query.trim().isNotEmpty || context.barcode.trim().isNotEmpty) {
+  if (context.query.trim().isNotEmpty ||
+      context.identifierCode.trim().isNotEmpty) {
     return true;
   }
   return context.advancedFilters.entries.any((entry) {

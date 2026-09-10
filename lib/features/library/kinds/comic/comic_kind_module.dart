@@ -519,7 +519,7 @@ MetadataSearchQuery _buildComicCoreSearchInput(
     issueNumber: _optionalFilterText(context, _comicIssueFilterId),
     publisher: _optionalFilterText(context, _comicPublisherFilterId),
     year: int.tryParse(context.textValueFor(_comicYearFilterId)),
-    barcode: _optionalText(context.barcode),
+    barcode: _optionalText(context.identifierCode),
     limit: limit,
   );
 }
@@ -531,7 +531,7 @@ String _buildComicProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_comicIssueFilterId),
     context.textValueFor(_comicPublisherFilterId),
     context.textValueFor(_comicYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

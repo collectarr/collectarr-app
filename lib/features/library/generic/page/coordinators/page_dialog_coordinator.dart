@@ -47,14 +47,14 @@ class LibraryPageDialogCoordinator {
   // Add / reveal
   // ---------------------------------------------------------------------------
 
-  Future<void> showAddDialogFlow({String? barcode}) async {
+  Future<void> showAddDialogFlow({String? identifierCode}) async {
     final context = _page.context;
     final added = await showLibraryAddDialog(
       context: context,
       type: _page.type,
       accent: _page.accent,
       initialQuery: _page.searchQuery,
-      initialBarcode: barcode,
+      initialIdentifier: identifierCode,
     );
     if (added != null && _page.mounted && context.mounted) {
       _page.invalidateShelf();

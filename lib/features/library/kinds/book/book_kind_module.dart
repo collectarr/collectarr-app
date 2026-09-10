@@ -451,7 +451,7 @@ MetadataSearchQuery _buildBookCoreSearchInput(
       context.textValueFor(_bookPublisherFilterId),
     ),
     year: int.tryParse(context.textValueFor(_bookYearFilterId)),
-    barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.barcode),
+    barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.identifierCode),
     limit: limit,
   );
 }
@@ -463,7 +463,7 @@ String _buildBookProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_bookIsbnFilterId),
     context.textValueFor(_bookPublisherFilterId),
     context.textValueFor(_bookYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

@@ -330,7 +330,7 @@ MetadataSearchQuery _buildBoardGameCoreSearchInput(
     publisher: _optionalBoardGameText(
         context.textValueFor(_boardGamePublisherFilterId)),
     year: int.tryParse(context.textValueFor(_boardGameYearFilterId)),
-    barcode: _optionalBoardGameText(context.barcode),
+    barcode: _optionalBoardGameText(context.identifierCode),
     limit: limit,
   );
 }
@@ -341,7 +341,7 @@ String _buildBoardGameProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_boardGameDesignerFilterId),
     context.textValueFor(_boardGamePublisherFilterId),
     context.textValueFor(_boardGameYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 

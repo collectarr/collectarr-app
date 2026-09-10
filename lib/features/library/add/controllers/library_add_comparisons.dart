@@ -166,7 +166,7 @@ LibraryAddCatalogItem metadataItemFromIngestResult(AdminMetadataItem item) {
     'physical_format': primaryEdition?.physicalFormat,
     'physical_format_label': primaryEdition?.physicalFormatLabel,
     'release_date': releaseDate?.toUtc().toIso8601String(),
-    'barcode': primaryVariant?.barcode ?? item.barcode,
+    'barcode': primaryVariant?.identifierCode ?? item.identifierCode,
     'variant': primaryVariant?.name,
     if (item.series != null) 'series_title': item.series!.seriesTitle,
   });
