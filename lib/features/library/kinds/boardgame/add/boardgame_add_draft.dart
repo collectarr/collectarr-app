@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class BoardgameAddDraft extends LibraryAddKindDraft {
   const BoardgameAddDraft({
+    this.grade = 'Ungraded',
     this.editionLanguage,
     this.editionRegion,
     this.componentCondition,
@@ -18,6 +19,7 @@ final class BoardgameAddDraft extends LibraryAddKindDraft {
     this.storageNotes,
   });
 
+  final String? grade;
   final String? editionLanguage;
   final String? editionRegion;
   final String? componentCondition;

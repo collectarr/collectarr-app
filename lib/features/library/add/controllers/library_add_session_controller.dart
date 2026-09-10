@@ -98,8 +98,6 @@ class LibraryAddSessionController
                 defaultCondition: (type ?? libraryKindModuleForKind(kind))
                     .edit
                     .defaultCondition,
-                defaultGrade:
-                    (type ?? libraryKindModuleForKind(kind)).edit.defaultGrade,
               ),
         );
 
@@ -1255,10 +1253,6 @@ class LibraryAddSessionController
     state = state.copyWith(defaultCondition: condition);
   }
 
-  void setDefaultGrade(String grade) {
-    state = state.copyWith(defaultGrade: grade);
-  }
-
   void setDefaultPurchaseDate(DateTime? date) {
     state = state.copyWith(
       defaultPurchaseDate: date,
@@ -1398,7 +1392,6 @@ class LibraryAddSessionController
             referenceType: state.selection.referenceType,
             defaults: LibraryAddDefaults(
               condition: state.defaultCondition,
-              grade: state.defaultGrade,
               purchaseDate: state.defaultPurchaseDate,
               locationId: state.defaultLocationId,
               readStatus: state.defaultReadStatus,
@@ -1474,7 +1467,6 @@ class LibraryAddSessionController
             referenceType: state.selection.referenceType,
             defaults: LibraryAddDefaults(
               condition: state.defaultCondition,
-              grade: state.defaultGrade,
               purchaseDate: state.defaultPurchaseDate,
               locationId: state.defaultLocationId,
               readStatus: state.defaultReadStatus,
@@ -1576,7 +1568,6 @@ class LibraryAddSessionController
       manualDraft: libraryKindModuleForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
       defaultCondition: type.edit.defaultCondition,
-      defaultGrade: type.edit.defaultGrade,
     );
   }
 

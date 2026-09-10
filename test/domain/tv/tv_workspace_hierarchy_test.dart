@@ -99,14 +99,14 @@ void main() {
     expect(nodes, hasLength(1));
     expect(nodes.single.id, 'season-1');
     expect(nodes.single.level, LibraryHierarchyLevel.container);
-    expect(nodes.single.metadata['kind'], 'tv_season');
+    expect(nodes.single.extras['kind'], 'tv_season');
     expect(nodes.single.secondaryLabel, '1 episodes');
     expect(nodes.single.children, hasLength(1));
     expect(nodes.single.children.single.id, 'episode-1');
     expect(nodes.single.children.single.label, 'Pilot');
     expect(nodes.single.children.single.secondaryLabel, '52 min · 2020');
-    expect(nodes.single.children.single.metadata['kind'], 'tv_episode');
-    expect(nodes.single.children.single.metadata['episodeNumber'], 1.0);
+    expect(nodes.single.children.single.extras['kind'], 'tv_episode');
+    expect(nodes.single.children.single.extras['episodeNumber'], 1.0);
   });
 
   test('does not create hierarchy nodes from unrelated empty input', () {

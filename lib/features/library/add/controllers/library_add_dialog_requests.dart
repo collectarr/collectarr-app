@@ -74,7 +74,6 @@ class LibraryAddManualPaneRequest {
     required this.linksController,
     required this.isAdding,
     required this.defaultCondition,
-    required this.defaultGrade,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
     required this.defaultTags,
@@ -110,7 +109,6 @@ class LibraryAddManualPaneRequest {
   final TextEditingController linksController;
   final bool isAdding;
   final String defaultCondition;
-  final String defaultGrade;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
   final String? defaultTags;
@@ -320,7 +318,6 @@ class LibraryAddBottomBarRequest {
   const LibraryAddBottomBarRequest({
     required this.type,
     required this.conditions,
-    required this.grades,
     required this.defaultTags,
     required this.accent,
     required this.selectedItem,
@@ -333,12 +330,10 @@ class LibraryAddBottomBarRequest {
     required this.isQueueingIngest,
     required this.isAdmin,
     required this.defaultCondition,
-    required this.defaultGrade,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
     required this.onAddTargetChanged,
     required this.onDefaultConditionChanged,
-    required this.onDefaultGradeChanged,
     required this.onEditDefaultTagsPressed,
     required this.onDefaultLocationPressed,
     required this.onDefaultPurchaseDateChanged,
@@ -349,7 +344,6 @@ class LibraryAddBottomBarRequest {
 
   final LibraryKindModule type;
   final List<String> conditions;
-  final List<String> grades;
   final String? defaultTags;
   final Color accent;
   final LibraryAddCatalogItem? selectedItem;
@@ -362,12 +356,10 @@ class LibraryAddBottomBarRequest {
   final bool isQueueingIngest;
   final bool isAdmin;
   final String defaultCondition;
-  final String defaultGrade;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
   final ValueChanged<LibraryAddTarget> onAddTargetChanged;
   final ValueChanged<String> onDefaultConditionChanged;
-  final ValueChanged<String> onDefaultGradeChanged;
   final VoidCallback onEditDefaultTagsPressed;
   final VoidCallback onDefaultLocationPressed;
   final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;

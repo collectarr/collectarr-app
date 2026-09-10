@@ -67,7 +67,6 @@ class LibraryBulkActions {
   Future<void> moveSelectedToOwned(
     List<ShelfEntry> entries, {
     String? defaultCondition,
-    String? defaultGrade,
     String? defaultLocationId,
     String? defaultReadStatus,
     String? defaultTags,
@@ -94,7 +93,6 @@ class LibraryBulkActions {
           CatalogMediaKind.unknown;
       final common = LibraryAddCommonDraft(
         condition: defaultCondition,
-        grade: defaultGrade,
         locationId: defaultLocationId,
         tags: defaultTags,
       );

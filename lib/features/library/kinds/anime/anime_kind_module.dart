@@ -171,11 +171,12 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
     manualDraftBuilder: AnimeAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, details) => AnimeOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, draft, details) =>
+        AnimeOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as AnimeOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.grade,
+      grade: draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

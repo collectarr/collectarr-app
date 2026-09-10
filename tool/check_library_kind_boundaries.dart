@@ -309,7 +309,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   void visitPropertyAccess(PropertyAccess node) {
     if (_isStrictGenericContext(relativePath)) {
       final propertyName = node.propertyName.name;
-      if (_forbiddenContextualMemberNames.contains(propertyName)) {
+      final isFlutterThemePlatform = propertyName == 'platform' &&
+          node.target?.toSource().startsWith('Theme.of(') == true;
+      if (_forbiddenContextualMemberNames.contains(propertyName) &&
+          !isFlutterThemePlatform) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
           '$relativePath:$line: Forbidden contextual semantic member access "$propertyName" in generic library code',

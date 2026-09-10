@@ -1284,7 +1284,6 @@ List<(String, String?)> _metadataRowsForFullPreview(
       .toList();
   final videoRuntime = (video?['runtime_minutes'] as num?)?.toInt();
   final publishingPages = publishing?.pageCount?.toString();
-  final publishingImprint = publishing?.imprint?.trim();
   final publishingSeriesGroup = publishing?.seriesGroup?.trim();
   return [
     if (series?.seriesTitle != null)
@@ -1297,8 +1296,6 @@ List<(String, String?)> _metadataRowsForFullPreview(
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
         preview.publisher
       ),
-    if (publishingImprint != null && publishingImprint.isNotEmpty)
-      ('Imprint', publishingImprint),
     if (releaseDateStr != null) ('Released', releaseDateStr),
     if (series?.volumeStartYear != null)
       ('Year', series!.volumeStartYear.toString()),
@@ -1348,16 +1345,12 @@ List<_PreviewDiscoverySectionData> _discoverySections({
       const <String>[];
   final characters =
       preview?.characters ?? candidate?.characterPreview ?? const <String>[];
-  final storyArcs =
-      preview?.storyArcs ?? candidate?.storyArcPreview ?? const <String>[];
   final genres = preview?.genres ?? const <String>[];
 
   return [
     if (creators.isNotEmpty) _PreviewDiscoverySectionData('Creators', creators),
     if (characters.isNotEmpty)
       _PreviewDiscoverySectionData('Characters', characters),
-    if (storyArcs.isNotEmpty)
-      _PreviewDiscoverySectionData('Story Arcs', storyArcs),
     if (genres.isNotEmpty) _PreviewDiscoverySectionData('Genres', genres),
   ];
 }

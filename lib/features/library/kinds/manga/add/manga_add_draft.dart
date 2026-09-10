@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/grading_draft.dart';
+import 'manga_grading_draft.dart';
 import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class MangaAddDraft extends LibraryAddKindDraft {
   const MangaAddDraft({
+    this.grade = 'Ungraded',
     this.grading = const GradingDraft(),
     this.signature = const SignatureDraft(),
     String? signedBy,
@@ -26,6 +27,7 @@ final class MangaAddDraft extends LibraryAddKindDraft {
         _gradingCompany = gradingCompany,
         _graderNotes = graderNotes;
 
+  final String? grade;
   final GradingDraft grading;
   final SignatureDraft signature;
 

@@ -29,7 +29,7 @@ final class BookHierarchyMapper {
       imageUrl: release.thumbnailImageUrl ?? release.coverImageUrl,
       totalCount: variants.isEmpty ? null : variants.length,
       children: variants,
-      metadata: {
+      extras: {
         'kind': 'book_release',
         'releaseId': release.id,
         'number': number,
@@ -69,7 +69,7 @@ final class BookHierarchyMapper {
       secondaryLabel: variant.physicalFormatLabel ?? variant.physicalFormat,
       level: LibraryHierarchyLevel.leaf,
       imageUrl: variant.thumbnailImageUrl ?? variant.coverImageUrl,
-      metadata: {
+      extras: {
         'kind': 'book_variant',
         'releaseId': release.id,
         'variantId': variant.id,

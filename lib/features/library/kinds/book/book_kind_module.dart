@@ -222,11 +222,12 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
     manualDraftBuilder: BookAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, details) => BookOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, draft, details) =>
+        BookOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as BookOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.grade,
+      grade: draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

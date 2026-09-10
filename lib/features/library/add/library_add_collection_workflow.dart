@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_it
 class LibraryAddDefaults {
   const LibraryAddDefaults({
     this.condition,
-    this.grade,
     this.purchaseDate,
     this.locationId,
     this.readStatus,
@@ -22,7 +21,6 @@ class LibraryAddDefaults {
   });
 
   final String? condition;
-  final String? grade;
   final DateTime? purchaseDate;
   final String? locationId;
   final String? readStatus;
@@ -31,7 +29,6 @@ class LibraryAddDefaults {
   LibraryAddCommonDraft toCommonDraft() {
     return LibraryAddCommonDraft(
       condition: condition,
-      grade: grade,
       purchaseDate: purchaseDate,
       locationId: locationId,
       tags: tags,
@@ -94,7 +91,6 @@ Future<void> addLibraryItemsToTarget({
 
     final itemCommon = LibraryAddCommonDraft(
       condition: isDigitalOwnedItem ? null : baseCommon.condition,
-      grade: isDigitalOwnedItem ? null : baseCommon.grade,
       purchaseDate: baseCommon.purchaseDate,
       pricePaidCents: baseCommon.pricePaidCents,
       currency: baseCommon.currency,

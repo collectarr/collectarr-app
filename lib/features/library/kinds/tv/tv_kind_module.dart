@@ -175,11 +175,12 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
     manualDraftBuilder: TvAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, details) => TvOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, draft, details) =>
+        TvOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as TvOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.grade,
+      grade: draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

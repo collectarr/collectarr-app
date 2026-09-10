@@ -8,12 +8,14 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class BookAddDraft extends LibraryAddKindDraft {
   const BookAddDraft({
+    this.grade = 'Ungraded',
     this.signature = const SignatureDraft(),
     String? signedBy,
     this.dustJacketPresent = false,
     this.dustJacketCondition,
   }) : _signedBy = signedBy;
 
+  final String? grade;
   final SignatureDraft signature;
   final String? _signedBy;
   final bool dustJacketPresent;

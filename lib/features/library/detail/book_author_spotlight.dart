@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class BookAuthorSpotlight extends StatelessWidget {
     this.centered = false,
   });
 
-  final List<Map<String, dynamic>> creators;
+  final List<LibraryMetadataCredit> creators;
   final Color accent;
   final bool centered;
 
@@ -204,10 +205,15 @@ class _AuthorSpotlightData {
   final String? imageUrl;
 
   static _AuthorSpotlightData? fromCreators(
-      List<Map<String, dynamic>> creators) {
+      List<LibraryMetadataCredit> creators) {
     final normalized = creators
-        .map((creator) => _NormalizedCreator.fromMap(creator))
-        .whereType<_NormalizedCreator>()
+        .map(
+          (creator) => _NormalizedCreator(
+            name: creator.name,
+            role: creator.role,
+            imageUrl: creator.imageUrl,
+          ),
+        )
         .toList(growable: false);
     if (normalized.isEmpty) {
       return null;
@@ -276,18 +282,4 @@ class _NormalizedCreator {
   final String name;
   final String? role;
   final String? imageUrl;
-
-  static _NormalizedCreator? fromMap(Map<String, dynamic> data) {
-    final name = data['name']?.toString().trim();
-    if (name == null || name.isEmpty) {
-      return null;
-    }
-    final role = data['role']?.toString().trim();
-    final imageUrl = data['image_url']?.toString().trim();
-    return _NormalizedCreator(
-      name: name,
-      role: role == null || role.isEmpty ? null : role,
-      imageUrl: imageUrl == null || imageUrl.isEmpty ? null : imageUrl,
-    );
-  }
 }

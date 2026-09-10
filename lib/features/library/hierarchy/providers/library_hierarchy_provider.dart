@@ -94,7 +94,7 @@ LibraryHierarchyNode _mapRawNode(Map<String, dynamic> raw, int fallbackIndex) {
     imageUrl: posterUrl,
     totalCount: itemCount,
     children: children,
-    metadata: raw,
+    extras: raw,
   );
 }
 

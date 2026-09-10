@@ -1,12 +1,9 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class LibraryVideoTitleMetadataSection extends StatelessWidget {
@@ -26,23 +23,21 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final metadataPresentation = _metadataPresentationForEntry(type, item);
-    final creatorCredits = [
+    final creatorCredits = <LibraryMetadataCredit>[
       for (final section in metadataPresentation.sections.values)
         if (section.renderer == LibraryMetadataSectionRenderer.credits)
-          ...libraryMetadataCreditValues(section),
+          ...libraryMetadataCredits(section),
     ];
     final creatorNames = <String>[
       for (final credit in creatorCredits)
-        if (credit['name']?.toString().trim().isNotEmpty == true)
-          credit['name'].toString().trim(),
+        if (credit.name.trim().isNotEmpty) credit.name.trim(),
     ];
     final creatorsByRole = <String, List<String>>{};
     for (final credit in creatorCredits) {
-      final name = credit['name']?.toString().trim();
-      if (name == null || name.isEmpty) continue;
-      final role = credit['role']?.toString().trim();
+      final name = credit.name.trim();
+      if (name.isEmpty) continue;
+      final role = credit.role?.trim();
       final key = (role != null && role.isNotEmpty) ? role : 'Creator';
       creatorsByRole.putIfAbsent(key, () => <String>[]).add(name);
     }
@@ -108,7 +103,6 @@ class LibraryVideoTitleMetadataSection extends StatelessWidget {
               onValueTap: onFilterByValue,
             ),
         ],
-        _buildEditionFormatBadges(item),
       ],
     );
   }
@@ -139,35 +133,4 @@ String? _metadataFactValue(
     }
   }
   return null;
-}
-
-Widget _buildEditionFormatBadges(LibraryProjectionView item) {
-  final catalogItem = item.source.catalogItem;
-  final editionsPayload = catalogItem?.payload['editions'] as List?;
-  final editions = editionsPayload != null
-      ? editionsPayload
-          .whereType<Map<Object?, Object?>>()
-          .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
-          .toList()
-      : const <CatalogEditionDto>[];
-  if (editions.isEmpty) {
-    return const SizedBox.shrink();
-  }
-  final seen = <String>{};
-  final badges = <Widget>[];
-  for (final edition in editions) {
-    final id = edition.physicalFormat;
-    if (id == null || !seen.add(id)) continue;
-    badges.add(
-      FormatBadge.fromFormat(
-        id: id,
-        label: edition.physicalFormatLabel ?? id,
-      ),
-    );
-  }
-  if (badges.isEmpty) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.only(top: 8),
-    child: Wrap(spacing: 4, runSpacing: 4, children: badges),
-  );
 }

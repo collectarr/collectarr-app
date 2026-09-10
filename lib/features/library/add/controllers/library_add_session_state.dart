@@ -28,7 +28,6 @@ final class LibraryAddSessionState {
     required this.manualDraft,
     required this.submitState,
     required this.defaultCondition,
-    required this.defaultGrade,
     this.defaultPurchaseDate,
     this.defaultLocationId,
     this.defaultReadStatus,
@@ -47,7 +46,6 @@ final class LibraryAddSessionState {
   final LibraryAddKindDraft manualDraft;
   final AsyncValue<void> submitState;
   final String defaultCondition;
-  final String defaultGrade;
   final DateTime? defaultPurchaseDate;
   final String? defaultLocationId;
   final String? defaultReadStatus;
@@ -128,7 +126,6 @@ final class LibraryAddSessionState {
     LibraryAddKindDraft? manualDraft,
     AsyncValue<void>? submitState,
     String? defaultCondition,
-    String? defaultGrade,
     DateTime? defaultPurchaseDate,
     bool clearDefaultPurchaseDate = false,
     String? defaultLocationId,
@@ -152,7 +149,6 @@ final class LibraryAddSessionState {
       manualDraft: manualDraft ?? this.manualDraft,
       submitState: submitState ?? this.submitState,
       defaultCondition: defaultCondition ?? this.defaultCondition,
-      defaultGrade: defaultGrade ?? this.defaultGrade,
       defaultPurchaseDate: clearDefaultPurchaseDate
           ? null
           : (defaultPurchaseDate ?? this.defaultPurchaseDate),

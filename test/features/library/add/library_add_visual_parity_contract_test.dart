@@ -47,7 +47,6 @@ void main() {
         linksController: manualDraft.linksController,
         isAdding: false,
         defaultCondition: runtime.edit.defaultCondition,
-        defaultGrade: runtime.edit.defaultGrade,
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,

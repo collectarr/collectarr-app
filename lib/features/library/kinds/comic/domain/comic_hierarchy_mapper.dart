@@ -43,7 +43,7 @@ final class ComicHierarchyMapper {
       imageUrl: release.coverImageUrl,
       totalCount: variants.isEmpty ? null : variants.length,
       children: variants,
-      metadata: {
+      extras: {
         'kind': 'comic_release',
         'releaseId': release.id,
         'number': number,
@@ -71,7 +71,7 @@ final class ComicHierarchyMapper {
       secondaryLabel: format,
       level: LibraryHierarchyLevel.leaf,
       imageUrl: variant.thumbnailImageUrl ?? variant.coverImageUrl,
-      metadata: {
+      extras: {
         'kind': 'comic_variant',
         'releaseId': release.id,
         'variantId': variant.id,

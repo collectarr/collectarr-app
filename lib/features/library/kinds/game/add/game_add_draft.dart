@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class GameAddDraft extends LibraryAddKindDraft {
   const GameAddDraft({
+    this.grade = 'Ungraded',
     this.completeness,
     this.hasBox,
     this.hasManual,
@@ -15,6 +16,7 @@ final class GameAddDraft extends LibraryAddKindDraft {
     this.valueIsLocked,
   });
 
+  final String? grade;
   final String? completeness;
   final bool? hasBox;
   final bool? hasManual;

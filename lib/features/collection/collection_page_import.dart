@@ -979,7 +979,7 @@ LibraryCollectionCsvProjection? _importProjection(CollectionCsvRow row) {
 
 LibraryKindModule _runtimeForImportRow(CollectionCsvRow row) {
   final kind = catalogMediaKindFromValue(row.kind);
-  if (kind == CatalogMediaKind.unknown) {
+  if (kind.isUnknown) {
     throw ArgumentError.value(row.kind, 'row.kind', 'Unsupported kind');
   }
   return libraryKindModuleForKind(kind);

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
@@ -107,12 +108,19 @@ class LibraryDetailHero extends StatelessWidget {
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
     ];
-    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
-    final creatorsList =
-        (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-            const [];
-    final authorName =
-        creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
+    final metadataPresentation =
+        type.presentation.builder.buildMetadataPresentation(
+      singularLabel: type.identity.singularLabel,
+      item: item,
+      includeIdentityFacts: true,
+      tapFor: (_) => null,
+    );
+    final creatorsList = [
+      for (final section in metadataPresentation.sections.values)
+        if (section.renderer == LibraryMetadataSectionRenderer.credits)
+          ...libraryMetadataCredits(section),
+    ];
+    final authorName = creatorsList.isEmpty ? null : creatorsList.first.name;
     final seriesTitle = adapter?.seriesTitle;
 
     return Container(
@@ -198,7 +206,7 @@ class LibraryDetailHero extends StatelessWidget {
                   ? creatorsList
                   : [
                       if (authorName != null)
-                        {'name': authorName, 'role': 'Author'}
+                        LibraryMetadataCredit(name: authorName, role: 'Author'),
                     ],
               accent: accent,
             ),

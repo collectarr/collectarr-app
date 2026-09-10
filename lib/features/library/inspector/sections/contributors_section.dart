@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -14,24 +15,31 @@ class InspectorContributorsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final payload =
-        request.item.source.catalogItem?.toSyncPayload() ?? const {};
-    final creators =
-        (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-            const <Map<String, dynamic>>[];
+    final presentation =
+        request.type.presentation.builder.buildMetadataPresentation(
+      singularLabel: request.type.identity.singularLabel,
+      item: request.item,
+      includeIdentityFacts: true,
+      tapFor: (_) => null,
+    );
+    final creators = [
+      for (final section in presentation.sections.values)
+        if (section.renderer == LibraryMetadataSectionRenderer.credits)
+          ...libraryMetadataCredits(section),
+    ];
     if (creators.isEmpty) {
       return const SizedBox.shrink();
     }
     final byRole = <String, List<_ContributorChipData>>{};
     for (final credit in creators) {
-      final name = credit['name']?.toString().trim();
-      if (name == null || name.isEmpty) continue;
-      final role = credit['role']?.toString().trim();
+      final name = credit.name.trim();
+      if (name.isEmpty) continue;
+      final role = credit.role?.trim();
       final key = (role == null || role.isEmpty) ? 'Cast & crew' : role;
       byRole.putIfAbsent(key, () => <_ContributorChipData>[]).add(
             _ContributorChipData(
               name: name,
-              imageUrl: credit['image_url']?.toString().trim(),
+              imageUrl: credit.imageUrl,
             ),
           );
     }

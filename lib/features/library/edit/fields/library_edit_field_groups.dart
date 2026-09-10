@@ -107,7 +107,7 @@ class LibraryReleaseIdentityFields extends StatelessWidget {
     required this.physicalFormatOptions,
     required this.onPhysicalFormatChanged,
     this.onPhysicalFormatManage,
-    this.physicalFormatLabel = 'Physical format',
+    this.formatLabel = 'Physical format',
     this.editionTitleLabel = 'Edition title',
     this.variantLabel = 'Variant',
     this.barcodeLabel = 'Barcode',
@@ -126,7 +126,7 @@ class LibraryReleaseIdentityFields extends StatelessWidget {
   final List<String> physicalFormatOptions;
   final ValueChanged<String?> onPhysicalFormatChanged;
   final VoidCallback? onPhysicalFormatManage;
-  final String physicalFormatLabel;
+  final String formatLabel;
   final String editionTitleLabel;
   final String variantLabel;
   final String barcodeLabel;
@@ -162,7 +162,7 @@ class LibraryReleaseIdentityFields extends StatelessWidget {
         const SizedBox(height: 10),
         if (showPhysicalFormat) ...[
           LibraryVocabularyField(
-            label: physicalFormatLabel,
+            label: formatLabel,
             controller: physicalFormatController,
             options: physicalFormatOptions,
             onChanged: onPhysicalFormatChanged,

@@ -17,7 +17,6 @@ class LibraryAddUnifiedSearchGroup {
   const LibraryAddUnifiedSearchGroup({
     required this.key,
     required this.title,
-    this.publisher,
     this.year,
     this.coverUrl,
     this.coreItems = const [],
@@ -28,7 +27,6 @@ class LibraryAddUnifiedSearchGroup {
 
   final String key;
   final String title;
-  final String? publisher;
   final int? year;
   final String? coverUrl;
   final List<LibraryAddCatalogItem> coreItems;
@@ -57,7 +55,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
 }) {
   final orderedKeys = <String>[];
   final titles = <String, String>{};
-  final publishers = <String, String?>{};
   final years = <String, int?>{};
   final coverUrls = <String, String?>{};
   final coreItems = <String, List<LibraryAddCatalogItem>>{};
@@ -87,7 +84,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     ensureKey(key, groupTitle);
 
     sourceSets[key]!.add(candidate.provider);
-    publishers[key] ??= candidate.publisher;
     years[key] ??= candidate.series?.volumeStartYear;
     coverUrls[key] ??= candidate.imageUrl;
 
@@ -118,7 +114,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       ensureKey(key, groupTitle);
       coreItems[key]!.add(item);
       sourceSets[key]!.add('core');
-      publishers[key] ??= item.publisher;
       years[key] ??= item.releaseYear ?? item.releaseDate?.year;
       coverUrls[key] ??= item.displayCoverUrl;
     }
@@ -143,7 +138,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
         LibraryAddUnifiedSearchGroup(
           key: key,
           title: titles[key]!,
-          publisher: publishers[key],
           year: years[key],
           coverUrl: coverUrls[key],
           coreItems: coreItems[key]!,
@@ -249,8 +243,8 @@ class LibraryAddUnifiedGroupNodeState
           matchSummary: widget.coreMatchSummary,
           selected: group.coreItems.first.id == widget.selectedResultId,
           checked: widget.checkedResultIds.contains(group.coreItems.first.id),
-          isOwned:
-              widget.ownedCatalogRefs.contains(group.coreItems.first.catalogRef),
+          isOwned: widget.ownedCatalogRefs
+              .contains(group.coreItems.first.catalogRef),
           onSelect: () => widget.onSelectResult(group.coreItems.first.id),
           onToggleCheck: () =>
               widget.onToggleResultCheck(group.coreItems.first.id),
@@ -301,8 +295,6 @@ class LibraryAddUnifiedGroupNodeState
     final subtitleParts = <String>[
       for (final src in group.sources)
         src == 'core' ? 'Core' : widget.providerLabel(src),
-      if (group.publisher != null && group.publisher!.trim().isNotEmpty)
-        group.publisher!,
       if (group.year != null) group.year.toString(),
       '${group.childCount} ${group.childCount == 1 ? 'item' : 'items'}',
     ];
@@ -423,10 +415,9 @@ class LibraryAddUnifiedGroupNodeState
               accent: widget.accent,
               selected: group.coreItems[i].id == widget.selectedResultId,
               checked: widget.checkedResultIds.contains(group.coreItems[i].id),
-              isOwned:
-                  widget.ownedCatalogRefs.contains(
-                    group.coreItems[i].catalogRef,
-                  ),
+              isOwned: widget.ownedCatalogRefs.contains(
+                group.coreItems[i].catalogRef,
+              ),
               onSelect: () => widget.onSelectResult(group.coreItems[i].id),
               onToggleCheck: () =>
                   widget.onToggleResultCheck(group.coreItems[i].id),

@@ -45,7 +45,7 @@ class LibraryHierarchyNode {
     this.children = const <LibraryHierarchyNode>[],
     this.actions = const <LibraryHierarchyAction>[],
     this.presentation = const LibraryHierarchyPresentation(),
-    this.metadata = const <String, dynamic>{},
+    this.extras = const <String, Object?>{},
   });
 
   final String id;
@@ -58,5 +58,11 @@ class LibraryHierarchyNode {
   final List<LibraryHierarchyNode> children;
   final List<LibraryHierarchyAction> actions;
   final LibraryHierarchyPresentation presentation;
-  final Map<String, dynamic> metadata;
+
+  /// Opaque renderer extras supplied by the owning hierarchy contributor.
+  ///
+  /// The generic hierarchy host never interprets these values.  A kind may
+  /// keep transport-only values here while its typed hierarchy UI owns their
+  /// meaning.
+  final Map<String, Object?> extras;
 }

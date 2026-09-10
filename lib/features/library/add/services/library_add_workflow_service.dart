@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/add/controllers/library_add_comparisons.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -20,6 +19,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
@@ -272,7 +272,7 @@ class LibraryAddWorkflowService {
         );
 
         final edited = result.item;
-        final ingested = metadataItemFromIngestResult(ingest.item);
+        final ingested = libraryAddCatalogItemFromIngestResult(ingest.item);
         if (mounted) {
           await providerOrchestrationService.applyIngestCorrections(
             api: api,

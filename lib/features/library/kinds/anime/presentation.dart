@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/workspace_presentation_su
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/add/library_add_video_preview_sections.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_preview_seasons_section.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -140,7 +140,7 @@ class AnimeLibraryMediaPresentationBuilder
     required String providerItemId,
   }) {
     return [
-      VideoAddPreviewSeasonsSection(
+      AnimeAddPreviewSeasonsSection(
         kind: kind,
         provider: provider,
         providerItemId: providerItemId,

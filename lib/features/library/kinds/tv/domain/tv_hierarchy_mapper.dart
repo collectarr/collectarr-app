@@ -37,7 +37,7 @@ final class TvHierarchyMapper {
       imageUrl: season.coverImageUrl,
       totalCount: episodeCount,
       children: children,
-      metadata: {
+      extras: {
         'kind': 'tv_season',
         'seriesId': season.seriesId,
         'seasonNumber': seasonNumber,
@@ -69,7 +69,7 @@ final class TvHierarchyMapper {
       secondaryLabel: details.isEmpty ? null : details.join(' · '),
       level: LibraryHierarchyLevel.leaf,
       imageUrl: episode.coverImageUrl,
-      metadata: {
+      extras: {
         'kind': 'tv_episode',
         'seasonId': seasonId,
         'episodeNumber': episodeNumber,

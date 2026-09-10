@@ -104,6 +104,44 @@ List<Map<String, dynamic>> libraryMetadataCreditValues(
       .toList(growable: false);
 }
 
+/// Structural credit projection used by generic presentation hosts.
+///
+/// Kinds still decide which source fields become credits.  Generic widgets
+/// only render the already-projected name, role, and optional image.
+@immutable
+class LibraryMetadataCredit {
+  const LibraryMetadataCredit({
+    required this.name,
+    this.role,
+    this.imageUrl,
+  });
+
+  final String name;
+  final String? role;
+  final String? imageUrl;
+}
+
+List<LibraryMetadataCredit> libraryMetadataCredits(
+  LibraryMetadataSection section,
+) {
+  return [
+    for (final value in section.values)
+      if (value is Map<Object?, Object?>)
+        if (value['name']?.toString().trim() case final name?
+            when name.isNotEmpty)
+          LibraryMetadataCredit(
+            name: name,
+            role: _normalizedMetadataText(value['role']),
+            imageUrl: _normalizedMetadataText(value['image_url']),
+          ),
+  ];
+}
+
+String? _normalizedMetadataText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 

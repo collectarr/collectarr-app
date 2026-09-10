@@ -16,28 +16,19 @@ class LibraryAddFormOptionsController {
     required LocalDatabase database,
     required LibraryKindModule type,
     required String selectedCondition,
-    required String selectedGrade,
     String? selectedTags,
   }) async {
     final conditionDefinition =
         type.edit.vocabularies?.definitionForSuffix('condition');
-    final gradeDefinition =
-        type.edit.vocabularies?.definitionForSuffix('grade');
     final builtInConditions = conditionDefinition == null
         ? type.edit.conditions
         : [for (final value in conditionDefinition.builtIns) value.toString()];
-    final builtInGrades = gradeDefinition == null
-        ? type.edit.grades
-        : [for (final value in gradeDefinition.builtIns) value.toString()];
-    final conditionGradeOptions = await loadConditionGradePickListOptions(
+    final conditionOptions = await loadConditionGradePickListOptions(
       database,
       mediaKind: type.kind.apiValue,
       builtInConditions: builtInConditions,
-      builtInGrades: builtInGrades,
       conditionListName: conditionDefinition?.key,
-      gradeListName: gradeDefinition?.key,
       selectedCondition: selectedCondition,
-      selectedGrade: selectedGrade,
     );
     final tags = await loadTagPickListOptions(
       database,
@@ -45,8 +36,7 @@ class LibraryAddFormOptionsController {
       selectedTags: splitPickListValues(selectedTags),
     );
     return LibraryAddFormPickListOptions(
-      conditions: conditionGradeOptions.conditions,
-      grades: conditionGradeOptions.grades,
+      conditions: conditionOptions.conditions,
       tags: tags,
     );
   }
@@ -55,11 +45,9 @@ class LibraryAddFormOptionsController {
 class LibraryAddFormPickListOptions {
   const LibraryAddFormPickListOptions({
     required this.conditions,
-    required this.grades,
     required this.tags,
   });
 
   final List<String> conditions;
-  final List<String> grades;
   final List<String> tags;
 }

@@ -120,34 +120,6 @@ Widget buildLibraryAddKindBottomBar(
                           },
                   ),
                 ),
-                SizedBox(
-                  width: 130,
-                  child: DropdownButtonFormField<String>(
-                    initialValue: request.defaultGrade,
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Grade',
-                      isDense: true,
-                    ),
-                    items: [
-                      for (final value in {
-                        request.defaultGrade,
-                        ...request.grades,
-                      })
-                        DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ),
-                    ],
-                    onChanged: request.isAdding
-                        ? null
-                        : (value) {
-                            if (value != null) {
-                              request.onDefaultGradeChanged(value);
-                            }
-                          },
-                  ),
-                ),
                 OutlinedButton.icon(
                   onPressed: request.isAdding
                       ? null

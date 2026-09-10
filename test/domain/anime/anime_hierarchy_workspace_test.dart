@@ -31,7 +31,7 @@ void main() {
     expect(nodes.single.id, 'anime-1:episodes');
     expect(nodes.single.level, LibraryHierarchyLevel.container);
     expect(nodes.single.children.single.label, 'Asteroid Blues');
-    expect(nodes.single.children.single.metadata['kind'], 'anime_episode');
+    expect(nodes.single.children.single.extras['kind'], 'anime_episode');
   });
 
   test('workspace mapper exposes a typed AnimeMedia graph', () {

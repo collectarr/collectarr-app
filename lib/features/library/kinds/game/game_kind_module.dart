@@ -101,11 +101,12 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, details) => GameOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, draft, details) =>
+        GameOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as GameOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.grade,
+      grade: draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

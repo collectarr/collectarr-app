@@ -1108,9 +1108,6 @@ class _LibraryCoverCropOverlay extends StatelessWidget {
 class LibraryCoverScanResult {
   const LibraryCoverScanResult({
     this.query,
-    this.series,
-    this.issueNumber,
-    this.publisher,
     this.year,
     this.confidenceLabel,
     this.reviewSummary,
@@ -1118,27 +1115,17 @@ class LibraryCoverScanResult {
   });
 
   final String? query;
-  final String? series;
-  final String? issueNumber;
-  final String? publisher;
   final int? year;
   final String? confidenceLabel;
   final String? reviewSummary;
   final List<String> warnings;
 
   bool get hasAnyHint {
-    return (query?.trim().isNotEmpty ?? false) ||
-        (series?.trim().isNotEmpty ?? false) ||
-        (issueNumber?.trim().isNotEmpty ?? false) ||
-        (publisher?.trim().isNotEmpty ?? false) ||
-        year != null;
+    return (query?.trim().isNotEmpty ?? false) || year != null;
   }
 
   bool get showAdvancedFields {
-    return (series?.trim().isNotEmpty ?? false) ||
-        (issueNumber?.trim().isNotEmpty ?? false) ||
-        (publisher?.trim().isNotEmpty ?? false) ||
-        year != null;
+    return year != null;
   }
 }
 
@@ -1170,9 +1157,6 @@ LibraryCoverScanResult _analysisDerivedResult(
 
   return LibraryCoverScanResult(
     query: merged.query,
-    series: merged.series,
-    issueNumber: merged.issueNumber,
-    publisher: merged.publisher,
     year: merged.year,
     confidenceLabel: primaryHasReviewText ? 'medium' : 'low',
     reviewSummary: _reviewSummary(image),
@@ -1217,24 +1201,14 @@ String? _normalizedAnalysisText(String? raw) {
 class _CoverHintDraft {
   const _CoverHintDraft({
     this.query,
-    this.series,
-    this.issueNumber,
-    this.publisher,
     this.year,
   });
 
   final String? query;
-  final String? series;
-  final String? issueNumber;
-  final String? publisher;
   final int? year;
 
   bool get hasAnyHint {
-    return (query?.isNotEmpty ?? false) ||
-        (series?.isNotEmpty ?? false) ||
-        (issueNumber?.isNotEmpty ?? false) ||
-        (publisher?.isNotEmpty ?? false) ||
-        year != null;
+    return (query?.isNotEmpty ?? false) || year != null;
   }
 }
 
@@ -1246,72 +1220,27 @@ _CoverHintDraft _draftFromText(String cleaned) {
     remainder = remainder.replaceFirst(yearMatch.group(0)!, ' ');
   }
 
-  final issueMatches = RegExp(r'(?:(?<=\s)|^)#?(\d{1,4}[A-Za-z]?)\b')
-      .allMatches(remainder)
-      .toList(growable: false);
-  final issueNumber = issueMatches.isEmpty ? null : issueMatches.last.group(1);
-  if (issueMatches.isNotEmpty) {
-    remainder = remainder.replaceFirst(issueMatches.last.group(0)!, ' ');
-  }
-
-  final publisher = _extractPublisher(remainder);
-  if (publisher != null) {
-    remainder = remainder.replaceFirst(
-      RegExp(r'\b' + RegExp.escape(publisher) + r'\b', caseSensitive: false),
-      ' ',
-    );
-  }
-
   final query = remainder.replaceAll(RegExp(r'\s+'), ' ').trim();
   final resolvedQuery = query.isEmpty ? cleaned : query;
   return _CoverHintDraft(
     query: resolvedQuery,
-    series: resolvedQuery,
-    issueNumber: issueNumber,
-    publisher: publisher,
     year: year,
   );
 }
 
 _CoverHintDraft _mergeDrafts(List<_CoverHintDraft> drafts) {
   var query = '';
-  var series = '';
-  String? issueNumber;
-  String? publisher;
   int? year;
   for (final draft in drafts) {
     if (query.isEmpty && draft.query?.trim().isNotEmpty == true) {
       query = draft.query!.trim();
     }
-    if (series.isEmpty && draft.series?.trim().isNotEmpty == true) {
-      series = draft.series!.trim();
-    }
-    issueNumber ??= draft.issueNumber?.trim().isEmpty == true
-        ? null
-        : draft.issueNumber?.trim();
-    publisher ??= draft.publisher?.trim().isEmpty == true
-        ? null
-        : draft.publisher?.trim();
     year ??= draft.year;
   }
   return _CoverHintDraft(
     query: query.isEmpty ? null : query,
-    series: series.isEmpty ? null : series,
-    issueNumber: issueNumber,
-    publisher: publisher,
     year: year,
   );
-}
-
-String? _extractPublisher(String value) {
-  const publishers = <String>['DC', 'Marvel', 'Image', 'Dark Horse', 'Boom'];
-  for (final publisher in publishers) {
-    if (RegExp(r'\b' + RegExp.escape(publisher) + r'\b', caseSensitive: false)
-        .hasMatch(value)) {
-      return publisher;
-    }
-  }
-  return null;
 }
 
 bool _looksLikeGenericCameraName(String value) {

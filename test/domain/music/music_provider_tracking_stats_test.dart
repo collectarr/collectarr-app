@@ -132,7 +132,7 @@ void main() {
     expect(nodes.single.children, hasLength(2));
     expect(nodes.single.children.first.level, LibraryHierarchyLevel.leaf);
     expect(nodes.single.children.first.secondaryLabel, '1:01');
-    expect(nodes.single.children.first.metadata['kind'], 'music_track');
+    expect(nodes.single.children.first.extras['kind'], 'music_track');
   });
 
   test('Music tracking uses release/media/track scope and round-trips', () {

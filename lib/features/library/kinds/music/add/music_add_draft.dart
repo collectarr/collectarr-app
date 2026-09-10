@@ -7,10 +7,12 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class MusicAddDraft extends LibraryAddKindDraft {
   const MusicAddDraft({
+    this.grade = 'Ungraded',
     this.storageDevice,
     this.storageSlot,
   });
 
+  final String? grade;
   final String? storageDevice;
   final String? storageSlot;
 

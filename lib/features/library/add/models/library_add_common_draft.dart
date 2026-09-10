@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 class LibraryAddCommonDraft {
   const LibraryAddCommonDraft({
     this.condition,
-    this.grade,
     this.purchaseDate,
     this.pricePaidCents,
     this.currency,
@@ -18,7 +17,6 @@ class LibraryAddCommonDraft {
   });
 
   final String? condition;
-  final String? grade;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
   final String? currency;
@@ -32,7 +30,6 @@ class LibraryAddCommonDraft {
 
   LibraryAddCommonDraft copyWith({
     String? condition,
-    String? grade,
     DateTime? purchaseDate,
     int? pricePaidCents,
     String? currency,
@@ -46,7 +43,6 @@ class LibraryAddCommonDraft {
   }) {
     return LibraryAddCommonDraft(
       condition: condition ?? this.condition,
-      grade: grade ?? this.grade,
       purchaseDate: purchaseDate ?? this.purchaseDate,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,

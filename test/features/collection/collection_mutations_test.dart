@@ -62,8 +62,8 @@ void main() {
             ),
             common: const LibraryAddCommonDraft(
               condition: 'Near Mint',
-              grade: '9.8',
             ),
+            grade: '9.8',
             details: const ComicOwnedDetailsDraft(),
           ),
         );
@@ -512,12 +512,12 @@ void main() {
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: LibraryAddCommonDraft(
               condition: 'Near Mint',
-              grade: '9.8',
               purchaseDate: DateTime.utc(2026, 5, 10),
               pricePaidCents: 1299,
               currency: 'USD',
               personalNotes: 'Signed copy',
             ),
+            grade: '9.8',
             details: const ComicOwnedDetailsDraft(),
           ),
         );
@@ -1329,7 +1329,8 @@ void main() {
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-        common: const LibraryAddCommonDraft(grade: '4.0'),
+        common: const LibraryAddCommonDraft(),
+        grade: '4.0',
         details: const ComicOwnedDetailsDraft(),
       ),
     );
@@ -1364,7 +1365,8 @@ void main() {
     await coordinator.addOwnedItem(
       typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-        common: const LibraryAddCommonDraft(condition: 'Good', grade: '4.0'),
+        common: const LibraryAddCommonDraft(condition: 'Good'),
+        grade: '4.0',
         details: const ComicOwnedDetailsDraft(),
       ),
     );

@@ -45,8 +45,8 @@ void main() {
     expect(nodes[0].id, 'edition-1');
     expect(nodes[0].level, LibraryHierarchyLevel.container);
     expect(nodes[0].secondaryLabel, 'hardcover · 2024 · 412 pages');
-    expect(nodes[0].metadata['kind'], 'book_release');
-    expect(nodes[0].metadata['releaseStatus'], isNull);
+    expect(nodes[0].extras['kind'], 'book_release');
+    expect(nodes[0].extras['releaseStatus'], isNull);
     expect(nodes[0].children, hasLength(1));
     expect(nodes[0].children.single.id, 'edition-1::variant-1');
     expect(nodes[0].children.single.label, 'First cover');
@@ -54,7 +54,7 @@ void main() {
       nodes[0].children.single.secondaryLabel,
       'Illustrated hardcover',
     );
-    expect(nodes[0].children.single.metadata['kind'], 'book_variant');
+    expect(nodes[0].children.single.extras['kind'], 'book_variant');
     expect(nodes[1].level, LibraryHierarchyLevel.leaf);
   });
 
@@ -64,6 +64,6 @@ void main() {
     ]);
 
     expect(nodes.single.id, 'release-1');
-    expect(nodes.single.metadata['releaseId'], isEmpty);
+    expect(nodes.single.extras['releaseId'], isEmpty);
   });
 }

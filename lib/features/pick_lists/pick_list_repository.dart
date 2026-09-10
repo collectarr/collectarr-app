@@ -458,7 +458,7 @@ class PickListRepository {
   Future<void> _enqueueChange(
     String entityId,
     String action,
-    Map<String, dynamic> payload,
+    Map<String, dynamic> data,
   ) async {
     await _syncQueue.enqueue(
       SyncChange(
@@ -466,7 +466,7 @@ class PickListRepository {
         entityType: _entityType,
         entityId: entityId,
         action: action,
-        payload: payload,
+        payload: data,
         clientChangedAt: DateTime.now().toUtc(),
       ),
     );

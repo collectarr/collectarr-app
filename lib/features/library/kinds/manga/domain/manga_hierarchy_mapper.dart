@@ -79,14 +79,14 @@ final class MangaHierarchyMapper {
                     : '${chapter.pageCount} pages',
                 level: LibraryHierarchyLevel.leaf,
                 totalCount: chapter.pageCount,
-                metadata: {
+                extras: {
                   'number': chapter.chapterNumber,
                   if (chapter.releaseDate != null)
                     'releaseDate': chapter.releaseDate,
                 },
               ),
           ],
-          metadata: {'number': volume.volumeNumber},
+          extras: {'number': volume.volumeNumber},
         ),
     ];
   }

@@ -23,7 +23,7 @@ final class AnimeHierarchyMapper {
         imageUrl: media.coverImageUrl,
         totalCount: children.length,
         children: children,
-        metadata: {
+        extras: {
           'kind': 'anime_episodes',
           'seriesId': media.id.value,
         },
@@ -51,7 +51,7 @@ final class AnimeHierarchyMapper {
       secondaryLabel: details.isEmpty ? null : details.join(' · '),
       level: LibraryHierarchyLevel.leaf,
       imageUrl: episode.coverImageUrl,
-      metadata: {
+      extras: {
         'kind': 'anime_episode',
         'seriesId': episode.seriesId.value,
         'episodeNumber': episodeNumber,

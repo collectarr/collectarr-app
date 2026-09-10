@@ -42,11 +42,7 @@ class LibraryCoverScanPrefillBanner extends StatelessWidget {
     final details = <String>[
       if (result.query != null && result.query!.trim().isNotEmpty)
         result.query!,
-      if (result.issueNumber != null && result.issueNumber!.trim().isNotEmpty)
-        '#${result.issueNumber}',
       if (result.year != null) result.year!.toString(),
-      if (result.publisher != null && result.publisher!.trim().isNotEmpty)
-        result.publisher!,
     ];
     final confidence = result.confidenceLabel?.trim();
     final reviewSummary = result.reviewSummary?.trim();

@@ -6,7 +6,6 @@ class LibraryAddBottomBar extends StatelessWidget {
     required this.type,
     required this.isWideLayout,
     required this.conditions,
-    required this.grades,
     required this.defaultTags,
     required this.accent,
     required this.selectedItem,
@@ -19,12 +18,10 @@ class LibraryAddBottomBar extends StatelessWidget {
     required this.isQueueingIngest,
     required this.isAdmin,
     required this.defaultCondition,
-    required this.defaultGrade,
     required this.defaultLocationLabel,
     required this.defaultPurchaseDate,
     required this.onAddTargetChanged,
     required this.onDefaultConditionChanged,
-    required this.onDefaultGradeChanged,
     required this.onEditDefaultTagsPressed,
     required this.onDefaultLocationPressed,
     required this.onDefaultPurchaseDateChanged,
@@ -36,7 +33,6 @@ class LibraryAddBottomBar extends StatelessWidget {
   final LibraryKindModule type;
   final bool isWideLayout;
   final List<String> conditions;
-  final List<String> grades;
   final String? defaultTags;
   final Color accent;
   final LibraryAddCatalogItem? selectedItem;
@@ -49,12 +45,10 @@ class LibraryAddBottomBar extends StatelessWidget {
   final bool isQueueingIngest;
   final bool isAdmin;
   final String defaultCondition;
-  final String defaultGrade;
   final String? defaultLocationLabel;
   final DateTime? defaultPurchaseDate;
   final ValueChanged<LibraryAddTarget> onAddTargetChanged;
   final ValueChanged<String> onDefaultConditionChanged;
-  final ValueChanged<String> onDefaultGradeChanged;
   final VoidCallback onEditDefaultTagsPressed;
   final VoidCallback onDefaultLocationPressed;
   final ValueChanged<DateTime?> onDefaultPurchaseDateChanged;
@@ -143,14 +137,11 @@ class LibraryAddBottomBar extends StatelessWidget {
               _AddTargetDefaultsBar(
                 accent: accent,
                 conditions: conditions,
-                grades: grades,
                 condition: defaultCondition,
-                grade: defaultGrade,
                 tags: defaultTags,
                 locationLabel: defaultLocationLabel,
                 purchaseDate: defaultPurchaseDate,
                 onConditionChanged: onDefaultConditionChanged,
-                onGradeChanged: onDefaultGradeChanged,
                 onEditTagsPressed: onEditDefaultTagsPressed,
                 onLocationPressed: onDefaultLocationPressed,
                 onPurchaseDateChanged: onDefaultPurchaseDateChanged,
@@ -256,14 +247,11 @@ class _AddTargetDefaultsBar extends StatelessWidget {
   const _AddTargetDefaultsBar({
     required this.accent,
     required this.conditions,
-    required this.grades,
     required this.condition,
-    required this.grade,
     required this.tags,
     required this.locationLabel,
     required this.purchaseDate,
     required this.onConditionChanged,
-    required this.onGradeChanged,
     required this.onEditTagsPressed,
     required this.onLocationPressed,
     required this.onPurchaseDateChanged,
@@ -271,14 +259,11 @@ class _AddTargetDefaultsBar extends StatelessWidget {
 
   final Color accent;
   final List<String> conditions;
-  final List<String> grades;
   final String condition;
-  final String grade;
   final String? tags;
   final String? locationLabel;
   final DateTime? purchaseDate;
   final ValueChanged<String> onConditionChanged;
-  final ValueChanged<String> onGradeChanged;
   final VoidCallback onEditTagsPressed;
   final VoidCallback onLocationPressed;
   final ValueChanged<DateTime?> onPurchaseDateChanged;
@@ -304,17 +289,6 @@ class _AddTargetDefaultsBar extends StatelessWidget {
             if (v != null) onConditionChanged(v);
           },
         ),
-        if (grades.isNotEmpty)
-          CompactDropdown(
-            width: 104,
-            value: grade,
-            items: grades,
-            label: 'Grade',
-            accent: accent,
-            onChanged: (v) {
-              if (v != null) onGradeChanged(v);
-            },
-          ),
         InkWell(
           onTap: onEditTagsPressed,
           borderRadius: BorderRadius.circular(3),

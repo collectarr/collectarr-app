@@ -29,7 +29,7 @@ final class MusicHierarchyMapper {
           for (var index = 0; index < release.tracks.length; index++)
             _trackNode(release, release.tracks[index], index + 1),
         ],
-        metadata: {
+        extras: {
           'kind': 'music_tracks',
           'releaseId': release.id.value,
         },
@@ -66,7 +66,7 @@ final class MusicHierarchyMapper {
         for (var index = 0; index < tracks.length; index++)
           _trackNode(release, tracks[index], index + 1),
       ],
-      metadata: {
+      extras: {
         'kind': 'music_media',
         'releaseId': release.id.value,
         'mediaId': media.id.value,
@@ -99,7 +99,7 @@ final class MusicHierarchyMapper {
       secondaryLabel: details.isEmpty ? null : details.join(' Â· '),
       level: LibraryHierarchyLevel.leaf,
       imageUrl: release.coverImageUrl,
-      metadata: {
+      extras: {
         'kind': 'music_track',
         'releaseId': release.id.value,
         'mediaId': track.mediaId.value,

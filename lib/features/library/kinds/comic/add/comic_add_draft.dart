@@ -3,7 +3,7 @@ export 'comic_add_schema.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/grading_draft.dart';
+import 'comic_grading_draft.dart';
 import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_key_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class ComicAddDraft extends LibraryAddKindDraft {
   const ComicAddDraft({
+    this.grade = 'Ungraded',
     this.grading = const GradingDraft(),
     this.signature = const SignatureDraft(),
     this.key = const ComicKeyDraft(),
@@ -41,6 +42,7 @@ final class ComicAddDraft extends LibraryAddKindDraft {
         _keyCategory = keyCategory,
         _keySeverity = keySeverity;
 
+  final String? grade;
   final GradingDraft grading;
   final SignatureDraft signature;
   final ComicKeyDraft key;

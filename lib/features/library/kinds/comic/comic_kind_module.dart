@@ -37,6 +37,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_cover_scan_hints.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_search.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
@@ -181,11 +182,12 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     previewPaneBuilder: buildComicAddPreviewPane,
     searchPaneBuilder: buildComicAddSearchPane,
     bottomBarBuilder: buildComicAddBottomBar,
-    ownedPayloadBuilder: (item, common, details) => ComicOwnedItemCreatePayload(
+    ownedPayloadBuilder: (item, common, draft, details) =>
+        ComicOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as ComicOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.grade,
+      grade: draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,
@@ -255,7 +257,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
           ),
         ],
       ),
-      coverScanQueryBuilder: (result) => result.query ?? result.series,
+      coverScanQueryBuilder: (result) => result.query,
       coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
       providerSearchBuilder: searchComicProvider,
     ),
@@ -538,14 +540,15 @@ String _buildComicProviderQuery(LibraryAddSearchContext context) {
 Map<LibraryAddFilterId, Object?> _comicCoverScanFilterValues(
   LibraryCoverScanResult result,
 ) {
+  final hints = parseComicCoverScanHints(result);
   return {
-    if (result.series?.trim().isNotEmpty == true)
-      _comicSeriesFilterId: result.series!.trim(),
-    if (result.issueNumber?.trim().isNotEmpty == true)
-      _comicIssueFilterId: result.issueNumber!.trim(),
-    if (result.publisher?.trim().isNotEmpty == true)
-      _comicPublisherFilterId: result.publisher!.trim(),
-    if (result.year != null) _comicYearFilterId: result.year.toString(),
+    if (hints.series?.trim().isNotEmpty == true)
+      _comicSeriesFilterId: hints.series!.trim(),
+    if (hints.issueNumber?.trim().isNotEmpty == true)
+      _comicIssueFilterId: hints.issueNumber!.trim(),
+    if (hints.publisher?.trim().isNotEmpty == true)
+      _comicPublisherFilterId: hints.publisher!.trim(),
+    if (hints.year != null) _comicYearFilterId: hints.year.toString(),
   };
 }
 

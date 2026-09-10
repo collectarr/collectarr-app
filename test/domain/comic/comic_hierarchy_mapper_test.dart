@@ -33,7 +33,7 @@ void main() {
     expect(nodes.single.label, 'Saga #1');
     expect(nodes.single.children.single.level, LibraryHierarchyLevel.leaf);
     expect(nodes.single.children.single.secondaryLabel, 'Single issue');
-    expect(nodes.single.metadata['kind'], 'comic_release');
+    expect(nodes.single.extras['kind'], 'comic_release');
   });
 
   test('Comic hierarchy returns an empty list when Core has no releases', () {

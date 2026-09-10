@@ -82,7 +82,7 @@ Future<PickListConditionGradeOptions> loadConditionGradePickListOptions(
   LocalDatabase db, {
   required String mediaKind,
   required List<String> builtInConditions,
-  required List<String> builtInGrades,
+  List<String> builtInGrades = const [],
   String? conditionListName,
   String? gradeListName,
   String? selectedCondition,

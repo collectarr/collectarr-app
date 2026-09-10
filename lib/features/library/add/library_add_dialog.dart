@@ -109,7 +109,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
-  List<String> _gradeOptions = const [];
   List<String> _tagOptions = const [];
 
   double? _dialogWidth;
@@ -170,7 +169,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     final editCap = widget.type.edit;
     _conditionOptions = editCap.conditions;
-    _gradeOptions = editCap.grades;
     _loadAvailableLocations();
     _loadPickListOptions();
     _loadPrefillDefaults();
@@ -252,13 +250,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       database: ref.read(localDatabaseProvider),
       type: widget.type,
       selectedCondition: state.defaultCondition,
-      selectedGrade: state.defaultGrade,
       selectedTags: state.defaultTags,
     );
     if (!mounted) return;
     setState(() {
       _conditionOptions = options.conditions;
-      _gradeOptions = options.grades;
       _tagOptions = options.tags;
     });
   }
@@ -383,7 +379,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       linksController: _manualDraft.linksController,
       isAdding: state.isAdding || state.submitState.isLoading,
       defaultCondition: state.defaultCondition,
-      defaultGrade: state.defaultGrade,
       defaultLocationLabel:
           locationPathForId(_availableLocations, state.defaultLocationId),
       defaultPurchaseDate: state.defaultPurchaseDate,
@@ -819,7 +814,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         final bottomBarRequest = LibraryAddBottomBarRequest(
           type: widget.type,
           conditions: _conditionOptions,
-          grades: _gradeOptions,
           defaultTags: state.defaultTags,
           accent: accent,
           selectedItem: selectedItem,
@@ -840,13 +834,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           isQueueingIngest: state.preview.isQueueingIngest,
           isAdmin: ref.watch(authControllerProvider).isAdmin,
           defaultCondition: state.defaultCondition,
-          defaultGrade: state.defaultGrade,
           defaultLocationLabel:
               locationPathForId(_availableLocations, state.defaultLocationId),
           defaultPurchaseDate: state.defaultPurchaseDate,
           onAddTargetChanged: _controller.setTarget,
           onDefaultConditionChanged: _controller.setDefaultCondition,
-          onDefaultGradeChanged: _controller.setDefaultGrade,
           onEditDefaultTagsPressed: _showDefaultTagsEditor,
           onDefaultLocationPressed: _pickDefaultLocation,
           onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
@@ -876,7 +868,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               type: widget.type,
               isWideLayout: isWideLayout,
               conditions: _conditionOptions,
-              grades: _gradeOptions,
               defaultTags: state.defaultTags,
               accent: accent,
               selectedItem: selectedItem,
@@ -900,13 +891,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               isQueueingIngest: state.preview.isQueueingIngest,
               isAdmin: ref.watch(authControllerProvider).isAdmin,
               defaultCondition: state.defaultCondition,
-              defaultGrade: state.defaultGrade,
               defaultLocationLabel: locationPathForId(
                   _availableLocations, state.defaultLocationId),
               defaultPurchaseDate: state.defaultPurchaseDate,
               onAddTargetChanged: _controller.setTarget,
               onDefaultConditionChanged: _controller.setDefaultCondition,
-              onDefaultGradeChanged: _controller.setDefaultGrade,
               onEditDefaultTagsPressed: _showDefaultTagsEditor,
               onDefaultLocationPressed: _pickDefaultLocation,
               onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,

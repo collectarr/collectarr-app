@@ -276,7 +276,6 @@ class LibraryPageCollectionActionCoordinator {
     await _page.bulkActions().moveSelectedToOwned(
           entries,
           defaultCondition: _page.type.edit.defaultCondition,
-          defaultGrade: _page.type.edit.defaultGrade,
           defaultLocationId: prefill.locationId,
           defaultTags: prefill.tags,
         );

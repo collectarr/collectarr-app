@@ -5,8 +5,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VideoAddPreviewSeasonsSection extends ConsumerWidget {
-  const VideoAddPreviewSeasonsSection({
+class AnimeAddPreviewSeasonsSection extends ConsumerWidget {
+  const AnimeAddPreviewSeasonsSection({
     super.key,
     required this.kind,
     required this.provider,
@@ -65,7 +65,7 @@ class VideoAddPreviewSeasonsSection extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             for (final season in seasons)
-              _VideoAddPreviewSeasonNode(season: season, accent: accent),
+              _AnimeAddPreviewSeasonNode(season: season, accent: accent),
           ],
         );
       },
@@ -73,8 +73,8 @@ class VideoAddPreviewSeasonsSection extends ConsumerWidget {
   }
 }
 
-class _VideoAddPreviewSeasonNode extends StatefulWidget {
-  const _VideoAddPreviewSeasonNode({
+class _AnimeAddPreviewSeasonNode extends StatefulWidget {
+  const _AnimeAddPreviewSeasonNode({
     required this.season,
     required this.accent,
   });
@@ -83,12 +83,12 @@ class _VideoAddPreviewSeasonNode extends StatefulWidget {
   final Color accent;
 
   @override
-  State<_VideoAddPreviewSeasonNode> createState() =>
-      _VideoAddPreviewSeasonNodeState();
+  State<_AnimeAddPreviewSeasonNode> createState() =>
+      _AnimeAddPreviewSeasonNodeState();
 }
 
-class _VideoAddPreviewSeasonNodeState
-    extends State<_VideoAddPreviewSeasonNode> {
+class _AnimeAddPreviewSeasonNodeState
+    extends State<_AnimeAddPreviewSeasonNode> {
   bool _expanded = false;
 
   @override
@@ -207,19 +207,19 @@ class _VideoAddPreviewSeasonNodeState
 }
 
 String? _airDate(LibraryHierarchyNode node) =>
-    (node.metadata['air_date'] ?? node.metadata['airDate'])?.toString();
+    (node.extras['air_date'] ?? node.extras['airDate'])?.toString();
 
 String _episodeNumber(LibraryHierarchyNode node) =>
-    (node.metadata['episode_number'] ??
-            node.metadata['episodeNumber'] ??
-            node.metadata['number'] ??
+    (node.extras['episode_number'] ??
+            node.extras['episodeNumber'] ??
+            node.extras['number'] ??
             node.id)
         .toString();
 
 int? _runtimeMinutes(LibraryHierarchyNode node) {
-  final value = node.metadata['runtime_minutes'] ??
-      node.metadata['runtimeMinutes'] ??
-      node.metadata['runtime'];
+  final value = node.extras['runtime_minutes'] ??
+      node.extras['runtimeMinutes'] ??
+      node.extras['runtime'];
   return switch (value) {
     int value => value,
     num value => value.toInt(),

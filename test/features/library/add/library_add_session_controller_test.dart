@@ -329,7 +329,6 @@ void main() {
     test('defaults configuration updates state', () {
       final now = DateTime.now();
       controller.setDefaultCondition('Fine');
-      controller.setDefaultGrade('9.8');
       controller.setDefaultPurchaseDate(now);
       controller.setDefaultLocationId('loc-1');
       controller.setDefaultReadStatus('read');
@@ -337,7 +336,6 @@ void main() {
       controller.setPhysicalFormatId('cgc_slab');
 
       expect(controller.state.defaultCondition, 'Fine');
-      expect(controller.state.defaultGrade, '9.8');
       expect(controller.state.defaultPurchaseDate, now);
       expect(controller.state.defaultLocationId, 'loc-1');
       expect(controller.state.defaultReadStatus, 'read');

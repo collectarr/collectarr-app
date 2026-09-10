@@ -113,11 +113,11 @@ void main() {
       ),
       common: const LibraryAddCommonDraft(
         condition: 'Near Mint',
-        grade: '9.8',
         pricePaidCents: 1500,
         currency: 'USD',
         quantity: 1,
       ),
+      grade: '9.8',
       details: const ComicOwnedDetailsDraft(
         rawOrSlabbed: 'Slabbed',
         gradingCompany: 'CGC',
@@ -166,9 +166,9 @@ void main() {
         ),
         common: const LibraryAddCommonDraft(
           condition: 'Very Fine',
-          grade: '8.0',
           pricePaidCents: 1000,
         ),
+        grade: '8.0',
         details: const ComicOwnedDetailsDraft(
           rawOrSlabbed: 'Raw',
         ),

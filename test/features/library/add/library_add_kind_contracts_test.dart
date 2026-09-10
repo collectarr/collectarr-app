@@ -152,12 +152,23 @@ void main() {
         );
         const common = LibraryAddCommonDraft(
           condition: 'Near Mint',
-          grade: '9.8',
           personalNotes: 'Collection note',
           purchaseStore: 'Typed Store',
           collectionStatus: 'Complete',
           quantity: 2,
         );
+        final typedDraft = switch (kind) {
+          CatalogMediaKind.anime => AnimeAddDraft(grade: '9.8'),
+          CatalogMediaKind.boardgame => BoardgameAddDraft(grade: '9.8'),
+          CatalogMediaKind.book => BookAddDraft(grade: '9.8'),
+          CatalogMediaKind.comic => ComicAddDraft(grade: '9.8'),
+          CatalogMediaKind.game => GameAddDraft(grade: '9.8'),
+          CatalogMediaKind.manga => MangaAddDraft(grade: '9.8'),
+          CatalogMediaKind.movie => MovieAddDraft(grade: '9.8'),
+          CatalogMediaKind.music => MusicAddDraft(grade: '9.8'),
+          CatalogMediaKind.tv => TvAddDraft(grade: '9.8'),
+          CatalogMediaKind.unknown => initialDraft,
+        };
 
         final metadataItem = testCatalogItemWithKindMetadata(item);
         final selectedTarget = CatalogEntityRef(
@@ -169,7 +180,7 @@ void main() {
         final command = addCap.buildCommand(
           LibraryAddCatalogItem.fromItem(metadataItem),
           common,
-          initialDraft,
+          typedDraft,
           targetRef: catalogRefForLibrarySelection(
             metadataItem.catalogRef,
             editionId: selectedTarget.entityType.apiValue == 'edition'
@@ -272,7 +283,6 @@ void main() {
         linksController: TextEditingController(),
         isAdding: false,
         defaultCondition: 'Near Mint',
-        defaultGrade: '9.4',
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,

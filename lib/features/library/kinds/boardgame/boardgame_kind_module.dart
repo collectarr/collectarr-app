@@ -139,12 +139,12 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
     manualDraftBuilder: BoardgameAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, details) =>
+    ownedPayloadBuilder: (item, common, draft, details) =>
         BoardgameOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as BoardgameOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.grade,
+      grade: draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

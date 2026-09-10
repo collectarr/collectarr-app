@@ -12,8 +12,18 @@ import 'package:collectarr_app/features/library/config/catalog_reference_helpers
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
@@ -198,6 +208,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
   required CatalogEntityRef catalogRef,
   required LibraryAddCommonDraft common,
   required JsonEncodable details,
+  String? grade,
   OwnedItemCreatePayload? typedPayload,
   CatalogEntityRef? targetRef,
   OwnedItemTrackingDraft? tracking,
@@ -222,7 +233,6 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     ),
     LibraryAddCommonDraft(
       condition: common.condition,
-      grade: common.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,
@@ -235,6 +245,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       isDigital: common.isDigital,
     ),
     details,
+    draft: _addDraftWithGrade(catalogRef.mediaKind, grade),
     targetRef: targetRef ?? catalogRefForLibrarySelection(catalogRef),
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
@@ -244,6 +255,22 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       notes: tracking?.notes,
     ),
   );
+}
+
+LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
+  if (grade == null) return null;
+  return switch (kind) {
+    CatalogMediaKind.anime => AnimeAddDraft(grade: grade),
+    CatalogMediaKind.boardgame => BoardgameAddDraft(grade: grade),
+    CatalogMediaKind.book => BookAddDraft(grade: grade),
+    CatalogMediaKind.comic => ComicAddDraft(grade: grade),
+    CatalogMediaKind.game => GameAddDraft(grade: grade),
+    CatalogMediaKind.manga => MangaAddDraft(grade: grade),
+    CatalogMediaKind.movie => MovieAddDraft(grade: grade),
+    CatalogMediaKind.music => MusicAddDraft(grade: grade),
+    CatalogMediaKind.tv => TvAddDraft(grade: grade),
+    CatalogMediaKind.unknown => null,
+  };
 }
 
 /// Builds an [OwnedItem] with sensible defaults for testing.

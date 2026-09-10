@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 final class AnimeAddDraft extends LibraryAddKindDraft {
   const AnimeAddDraft({
+    this.grade = 'Ungraded',
     this.release = const AnimeReleaseAddDraft(),
     String? features,
     List<String>? hdrFormats,
@@ -24,6 +25,7 @@ final class AnimeAddDraft extends LibraryAddKindDraft {
         _packaging = packaging,
         _distributor = distributor;
 
+  final String? grade;
   final AnimeReleaseAddDraft release;
 
   final String? _features;
