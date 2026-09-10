@@ -126,7 +126,7 @@ final class TvCollectionCsvImportProfile {
     if (!_isTvRow(index, header, values)) return null;
     return [
       _value(index, values, 'grade'),
-      ...List<String>.filled(9, ''),
+      ...List<String>.filled(8, ''),
     ];
   }
 

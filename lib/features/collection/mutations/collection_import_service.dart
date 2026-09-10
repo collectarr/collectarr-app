@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -168,13 +167,20 @@ final class CollectionImportService {
           ),
         );
 
-        final trackingEntry = _trackingEntryFromCsvRow(
-          row,
-          ownedRef: ownedRef,
-          catalogRef: typedImport.catalogRef,
-          now: now,
-          existing: existingTracking[typedImport.catalogRef],
-        );
+        final trackingEntry = row.tracking.isEmpty
+            ? null
+            : libraryCollectionCsvProjectionForKind(mediaKind)
+                ?.trackingEntryFromImport(
+                entryId: idGenerator(),
+                catalogRef: typedImport.catalogRef,
+                ownedRef: ownedRef,
+                now: now,
+                rating: row.tracking.rating,
+                status: row.tracking.status,
+                startedAt: row.tracking.startedAt,
+                finishedAt: row.tracking.finishedAt,
+                existing: existingTracking[typedImport.catalogRef],
+              );
         if (trackingEntry != null) {
           trackingEntriesList.add(trackingEntry);
           syncChanges.add(
@@ -447,109 +453,41 @@ final class CollectionImportService {
           entityType: const CatalogEntityTypeId('work'),
           id: row.itemId,
         );
-    final payload = existingTyped == null
-        ? <String, dynamic>{
-            'id': idGenerator(),
-            'catalog_ref': catalogRef.toJson(),
-            'created_at': now.toUtc().toIso8601String(),
-            'quantity': row.personal.quantity ?? 1,
-          }
-        : collectarrTypedOwnedItemJson(existingTyped.$2);
-
-    payload['catalog_ref'] = catalogRef.toJson();
-    payload['updated_at'] = now.toUtc().toIso8601String();
     final personal = row.personal;
-    if (personal.condition != null) {
-      payload['condition'] = personal.condition;
-    }
-    if (personal.purchaseDate != null) {
-      payload['purchase_date'] =
-          personal.purchaseDate!.toUtc().toIso8601String();
-    }
-    if (personal.pricePaidCents != null) {
-      payload['price_paid_cents'] = personal.pricePaidCents;
-    }
-    if (personal.currency != null) payload['currency'] = personal.currency;
-    if (personal.notes != null) payload['personal_notes'] = personal.notes;
-    if (personal.quantity != null) payload['quantity'] = personal.quantity;
-    if (personal.locationId != null) {
-      payload['location_id'] = personal.locationId;
-    }
-    if (personal.indexNumber != null) {
-      payload['index_number'] = personal.indexNumber;
-    }
-    if (personal.tags != null) payload['tags'] = personal.tags;
-    if (personal.soldAt != null) {
-      payload['sold_at'] = personal.soldAt!.toUtc().toIso8601String();
-    }
-    if (personal.sellPriceCents != null) {
-      payload['sell_price_cents'] = personal.sellPriceCents;
-    }
-    if (personal.soldTo != null) payload['sold_to'] = personal.soldTo;
-
-    final importedDetails = _ownedDetailsFromCsvRow(
-      row,
-      kind: kind,
-    );
-    if (importedDetails != null) payload.addAll(importedDetails);
-
-    final item = collectarrTypedOwnedItemFromSyncPayload(kind, payload);
-    return (
-      kind: kind,
-      item: item,
-      catalogRef: catalogRef,
-    );
-  }
-
-  Map<String, dynamic>? _ownedDetailsFromCsvRow(
-    CollectionCsvRow row, {
-    required CatalogMediaKind kind,
-  }) {
-    final projection = libraryCollectionCsvProjectionForKind(
-      kind,
-    );
-    if (projection case final LibraryCollectionCsvOwnedDetailsDecoder decoder) {
-      return decoder.decodeOwnedDetails(row.kindOwnedCells)?.toJson();
-    }
-    return null;
-  }
-
-  TrackingEntry? _trackingEntryFromCsvRow(
-    CollectionCsvRow row, {
-    required OwnedItemRef ownedRef,
-    required CatalogEntityRef catalogRef,
-    required DateTime now,
-    TrackingEntry? existing,
-  }) {
-    final tracking = row.tracking;
-    final hasTrackingValues = !tracking.isEmpty;
-    if (!hasTrackingValues) {
-      return null;
-    }
-
-    final status = mediaTrackingStatusFromValue(tracking.status);
-    if (existing != null) {
-      return existing.copyWith(
+    final projection = libraryCollectionCsvProjectionForKind(kind);
+    if (projection != null) {
+      final item = projection.ownedItemFromImport(
+        LibraryCollectionCsvOwnedImport(
+          id: existingTyped == null
+              ? idGenerator()
+              : existingSummary!.ref.id.value,
+          catalogRef: catalogRef,
+          now: now,
+          existingPayload: existingTyped == null
+              ? null
+              : collectarrTypedOwnedItemJson(existingTyped.$2),
+          condition: personal.condition,
+          purchaseDate: personal.purchaseDate,
+          pricePaidCents: personal.pricePaidCents,
+          currency: personal.currency,
+          personalNotes: personal.notes,
+          quantity: personal.quantity ?? 1,
+          locationId: personal.locationId,
+          indexNumber: personal.indexNumber,
+          tags: personal.tags,
+          soldAt: personal.soldAt,
+          sellPriceCents: personal.sellPriceCents,
+          soldTo: personal.soldTo,
+          kindOwnedCells: row.kindOwnedCells,
+        ),
+      );
+      return (
+        kind: kind,
+        item: item,
         catalogRef: catalogRef,
-        ownedRef: ownedRef,
-        status: status ?? existing.status,
-        rating: tracking.rating ?? existing.rating,
-        startedAt: tracking.startedAt ?? existing.startedAt,
-        finishedAt: tracking.finishedAt ?? existing.finishedAt,
-        updatedAt: now,
       );
     }
-
-    return TrackingEntry(
-      id: idGenerator(),
-      catalogRef: catalogRef,
-      ownedRef: ownedRef,
-      status: status ?? MediaTrackingStatus.planned,
-      rating: tracking.rating,
-      startedAt: tracking.startedAt,
-      finishedAt: tracking.finishedAt,
-      updatedAt: now,
-    );
+    throw StateError('No CSV projection registered for ${kind.apiValue}.');
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
@@ -11,7 +12,10 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// Anime owns the meaning of its series, edition/format, studio and UPC
 /// values. Episode and season hierarchy stays in Anime's typed graph.
 final class AnimeCollectionCsvProjection
-    with LibraryCollectionCsvProjectionPresentation
+    with
+        LibraryCollectionCsvProjectionPresentation,
+        LibraryCollectionCsvOwnedImportSupport,
+        LibraryCollectionCsvTrackingImport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -57,6 +61,10 @@ final class AnimeCollectionCsvProjection
     }
     return _AnimeCollectionCsvOwnedImportPayload(cells.first.trim());
   }
+
+  @override
+  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
+      AnimeOwnedItem.fromJson(payload);
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {

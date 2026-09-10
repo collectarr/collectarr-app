@@ -3,12 +3,16 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 /// Manga's semantic contribution to the generic collection CSV host.
 final class MangaCollectionCsvProjection
-    with LibraryCollectionCsvProjectionPresentation
+    with
+        LibraryCollectionCsvProjectionPresentation,
+        LibraryCollectionCsvOwnedImportSupport,
+        LibraryCollectionCsvTrackingImport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -54,6 +58,10 @@ final class MangaCollectionCsvProjection
     }
     return _MangaCollectionCsvOwnedImportPayload(cells.first.trim());
   }
+
+  @override
+  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
+      MangaOwnedItem.fromJson(payload);
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {

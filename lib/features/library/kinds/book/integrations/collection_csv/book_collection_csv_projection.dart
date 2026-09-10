@@ -3,12 +3,16 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 /// Book's semantic contribution to the generic collection CSV host.
 final class BookCollectionCsvProjection
-    with LibraryCollectionCsvProjectionPresentation
+    with
+        LibraryCollectionCsvProjectionPresentation,
+        LibraryCollectionCsvOwnedImportSupport,
+        LibraryCollectionCsvTrackingImport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -54,6 +58,10 @@ final class BookCollectionCsvProjection
     }
     return _BookCollectionCsvOwnedImportPayload(cells.first.trim());
   }
+
+  @override
+  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
+      BookOwnedItem.fromJson(payload);
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {

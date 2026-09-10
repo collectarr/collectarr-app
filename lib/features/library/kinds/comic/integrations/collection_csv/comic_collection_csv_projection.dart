@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -15,7 +16,10 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// that format. The returned lists are serialization cells, not Comic domain
 /// objects, so the type-erased boundary exists only at export.
 final class ComicCollectionCsvProjection
-    with LibraryCollectionCsvProjectionPresentation
+    with
+        LibraryCollectionCsvProjectionPresentation,
+        LibraryCollectionCsvOwnedImportSupport,
+        LibraryCollectionCsvTrackingImport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -81,6 +85,10 @@ final class ComicCollectionCsvProjection
       ),
     );
   }
+
+  @override
+  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
+      ComicOwnedItem.fromJson(payload);
 
   @override
   List<String> catalogCells(ShelfEntry entry) {

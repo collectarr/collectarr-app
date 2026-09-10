@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
@@ -12,7 +13,10 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// remain owned by Music and are intentionally not flattened into the
 /// generic collection row.
 final class MusicCollectionCsvProjection
-    with LibraryCollectionCsvProjectionPresentation
+    with
+        LibraryCollectionCsvProjectionPresentation,
+        LibraryCollectionCsvOwnedImportSupport,
+        LibraryCollectionCsvTrackingImport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -58,6 +62,10 @@ final class MusicCollectionCsvProjection
     }
     return _MusicCollectionCsvOwnedImportPayload(cells.first.trim());
   }
+
+  @override
+  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
+      MusicOwnedItem.fromJson(payload);
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {

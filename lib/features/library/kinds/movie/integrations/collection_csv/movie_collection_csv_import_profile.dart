@@ -48,7 +48,7 @@ final class MovieCollectionCsvImportRow {
         barcode ?? '',
       ];
 
-  List<String> get ownedCells => [grade ?? '', ...List<String>.filled(9, '')];
+  List<String> get ownedCells => [grade ?? '', ...List<String>.filled(8, '')];
 
   static String _formatDate(DateTime? value) {
     if (value == null) return '';

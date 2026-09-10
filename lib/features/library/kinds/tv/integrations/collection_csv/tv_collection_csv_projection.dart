@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
@@ -12,7 +13,10 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// episodes remain typed TV hierarchy and are not flattened into generic
 /// collection-owned fields.
 final class TvCollectionCsvProjection
-    with LibraryCollectionCsvProjectionPresentation
+    with
+        LibraryCollectionCsvProjectionPresentation,
+        LibraryCollectionCsvOwnedImportSupport,
+        LibraryCollectionCsvTrackingImport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -58,6 +62,10 @@ final class TvCollectionCsvProjection
     }
     return _TvCollectionCsvOwnedImportPayload(cells.first.trim());
   }
+
+  @override
+  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
+      TvOwnedItem.fromJson(payload);
 
   @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
