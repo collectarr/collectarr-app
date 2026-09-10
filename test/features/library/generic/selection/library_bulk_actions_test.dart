@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -24,6 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../helpers/test_data_factories.dart';
+import '../../../../helpers/tracking_entry_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -184,8 +186,8 @@ void main() {
 
     final ownedRow = (await MovieOwnedRepository(db).listActive()).single;
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
-    final trackingRow = (await db.select(db.trackingEntriesCache).get())
-        .firstWhere((row) => row.itemId == 'movie-3');
+    final trackingRow = (await readTrackingEntries(db))
+        .firstWhere((row) => row.catalogRef.id == 'movie-3');
     final actions = buildActions();
 
     await actions.removeSelected([
@@ -209,19 +211,16 @@ void main() {
         itemId: 'movie-3',
         trackingSummary: TrackingSummary(
           id: trackingRow.id,
-          catalogRef: testCatalogRef(trackingRow.itemId, kind: 'movie'),
-          ownedRef: trackingRow.ownedItemId == null
-              ? null
-              : OwnedItemRef.fromKey('movie:${trackingRow.ownedItemId}'),
-          sourceType: trackingSourceTypeFromValue(trackingRow.sourceType),
-          status: mediaTrackingStatusFromValue(trackingRow.status) ??
-              MediaTrackingStatus.none,
+          catalogRef: trackingRow.catalogRef,
+          ownedRef: trackingRow.ownedRef,
+          sourceType:
+              trackingSourceTypeFromValue(trackingRow.sourceTypeApiValue),
+          status:
+              mediaTrackingStatusFromValue(trackingRow.statusStorageValue) ??
+                  MediaTrackingStatus.none,
           rating: trackingRow.rating,
           startedAt: trackingRow.startedAt,
           completedAt: trackingRow.finishedAt,
-          progressCurrent: trackingRow.progressCurrent,
-          progressTotal: trackingRow.progressTotal,
-          timesCompleted: trackingRow.timesCompleted,
           notes: trackingRow.notes,
           updatedAt: trackingRow.updatedAt,
           deletedAt: trackingRow.deletedAt,
@@ -232,12 +231,14 @@ void main() {
     final deletedOwned = await MovieOwnedRepository(db)
         .findById(MovieOwnedItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
-    final trackingRows = await db.select(db.trackingEntriesCache).get();
+    final deletedTracking = await trackingEntryTestRepository(db).findByRef(
+      TrackingEntryRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
+    );
 
     expect(deletedOwned?.deletedAt, isNotNull);
     expect(wishlistRows.single.deletedAt, isNotNull);
     expect(
-      trackingRows.firstWhere((r) => r.itemId == 'movie-3').deletedAt,
+      deletedTracking?.deletedAt,
       isNotNull,
     );
   });

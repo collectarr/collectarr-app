@@ -1,14 +1,12 @@
 /// Development seed data for the local database.
 ///
 /// Populates the typed local catalog projections and all kind-owned copies,
-/// TrackingEntriesCache, PickListValues, SerialAuthority, and
+/// kind-owned tracking entries, PickListValues, SerialAuthority, and
 /// CustomFieldDefinitions/Values with rich entries for every library kind.
 ///
 /// Usage: call `seedLocalDatabase(db)` from main.dart or a debug menu.
 /// Safe to call multiple times – uses deterministic IDs (idempotent via upsert).
 library;
-
-import 'dart:convert';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -30,8 +28,8 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
@@ -564,7 +562,10 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     LocalDatabase db) async {
   final catalogRows = await CatalogSnapshotRepository(db).findAll();
   final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
-  final trackingRows = await db.select(db.trackingEntriesCache).get();
+  final trackingRows = await TrackingEntryRepository(
+    db,
+    codecs: collectarrTrackingEntryCodecs,
+  ).listActive();
   final imageRows = await db.select(db.itemImagesCache).get();
   final typedGraphCounts = await devSeedTypedGraphCounts(db);
   final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
@@ -587,9 +588,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
       .where((row) => row.ref.id.value.startsWith('seed-'))
       .toList(growable: false);
   final seededTrackingRows = trackingRows
-      .where((row) => (jsonDecode(row.catalogRefJson) as Map)['id']
-          .toString()
-          .startsWith('seed-'))
+      .where((row) => row.catalogRef.id.startsWith('seed-'))
       .toList(growable: false);
 
   require(
@@ -633,9 +632,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
             false)
         .length;
     final trackingCount = seededTrackingRows
-        .where((row) => (jsonDecode(row.catalogRefJson) as Map)['id']
-            .toString()
-            .startsWith('seed-${entry.key.apiValue}-'))
+        .where((row) => row.catalogRef.id.startsWith(
+              'seed-${entry.key.apiValue}-',
+            ))
         .length;
     require(
       catalogCount == entry.value,
@@ -689,13 +688,15 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     );
   }
   for (final row in seededTrackingRows) {
-    final ownedRef = ownedItemRefFromSerialized(row.ownedItemId);
+    final ownedRef = row.ownedRef;
     require(
       ownedRef != null && ownedById.containsKey(ownedRef.id.value),
       'tracking ${row.id} references missing owned item',
     );
     require(
-      row.status != null && row.rating != null && row.startedAt != null,
+      row.statusStorageValue != null &&
+          row.rating != null &&
+          row.startedAt != null,
       'tracking ${row.id} is missing typed status/rating/start data',
     );
   }
@@ -899,11 +900,11 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   final catalogRepo = CatalogTransportRepository(db);
   final ownedRepo = OwnedItemsRepository(db);
-  final trackingRepo = TrackingEntriesCacheRepository(
+  final trackingRepo = TrackingEntryRepository(
     db,
     codecs: collectarrTrackingEntryCodecs,
   );
-  final trackingUnitsRepo = TrackingUnitsCacheRepository(
+  final trackingUnitsRepo = TrackingUnitRepository(
     db,
     codecs: collectarrTrackingUnitCodecs,
   );

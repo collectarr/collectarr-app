@@ -6,11 +6,11 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dar
 
 /// Orchestrates tracking-unit lifecycle across kind-owned persistence codecs.
 ///
-/// There is deliberately no universal TrackingUnitsCache table. This class
+/// There is deliberately no universal tracking-unit table. This class
 /// owns only mixed-feature query/mutation mechanics; each registered kind owns
 /// its table, row mapper, coordinates, and concrete unit reconstruction.
-class TrackingUnitsCacheRepository {
-  TrackingUnitsCacheRepository(
+class TrackingUnitRepository {
+  TrackingUnitRepository(
     this._db, {
     required Iterable<TrackingUnitCodec> codecs,
   }) : _codecs = {

@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 
@@ -19,7 +19,7 @@ final class TvTrackingUnitMutations {
     required this.mutationRunner,
   });
 
-  final TrackingUnitsCacheRepository trackingUnits;
+  final TrackingUnitRepository trackingUnits;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
 

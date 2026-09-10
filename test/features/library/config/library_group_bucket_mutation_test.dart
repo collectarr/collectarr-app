@@ -193,11 +193,13 @@ void main() {
   });
 
   test('builds an owned condition update and clears empty replacements', () {
-    final item = testOwnedItem(
-      id: 'owned-music-1',
-      itemId: 'music-1',
-      kind: 'music',
-      condition: 'Very Good',
+    final item = testMusicOwnedItemFrom(
+      testOwnedItem(
+        id: 'owned-music-1',
+        itemId: 'music-1',
+        kind: 'music',
+        condition: 'Very Good',
+      ),
     );
     final mutator = musicOwnedConditionBucketValueMutator();
 

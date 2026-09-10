@@ -237,6 +237,13 @@ final class AnimeLocalMapper {
     _require(id, 'AnimeTracking');
     return AnimeTrackingRowsCompanion.insert(
       id: id,
+      catalogRefJson: jsonEncode(
+        CatalogEntityRef(
+          kind: CatalogMediaKind.anime,
+          entityType: const CatalogEntityTypeId('media'),
+          id: tracking.mediaId.value,
+        ).toJson(),
+      ),
       mediaId: tracking.mediaId.value,
       episodeId: Value(tracking.episodeId?.value),
       status: Value(tracking.status),

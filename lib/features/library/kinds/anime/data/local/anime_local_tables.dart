@@ -101,6 +101,9 @@ class AnimeOwnedItemsRows extends Table {
 
 class AnimeTrackingRows extends Table {
   TextColumn get id => text()();
+  TextColumn get entryType => text().withDefault(const Constant('native'))();
+  TextColumn get catalogRefJson => text()();
+  TextColumn get ownedItemId => text().nullable()();
   TextColumn get mediaId => text()();
   TextColumn get episodeId => text().nullable()();
   TextColumn get status => text().withDefault(const Constant(''))();

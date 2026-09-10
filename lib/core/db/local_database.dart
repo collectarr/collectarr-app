@@ -7,7 +7,6 @@ part 'local_database.g.dart';
 
 @DriftDatabase(tables: [
   WishlistItemsCache,
-  TrackingEntriesCache,
   SyncQueue,
   UserMetadataOverridesCache,
   UserExternalLinksCache,

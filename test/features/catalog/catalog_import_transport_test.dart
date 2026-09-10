@@ -12,7 +12,7 @@ void main() {
       releaseDate: DateTime.utc(2018, 1, 6),
     );
 
-    expect(snapshot.catalogRef.kind, CatalogMediaKind.anime.apiValue);
+    expect(snapshot.catalogRef.kind, CatalogMediaKind.anime);
     expect(snapshot.catalogRef.id, 'anilist-local:42');
     expect(snapshot.title, 'A Place Further Than the Universe');
     expect(snapshot.kind, CatalogMediaKind.anime);

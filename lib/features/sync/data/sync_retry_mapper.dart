@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -74,7 +74,7 @@ class SyncRetryMapper {
         final trackingCatalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
         );
-        final item = await TrackingEntriesCacheRepository(
+        final item = await TrackingEntryRepository(
           db,
           codecs: collectarrTrackingEntryCodecs,
         ).findByRef(
@@ -91,7 +91,7 @@ class SyncRetryMapper {
           entityType: change.entityType,
           entityId: item.id,
           action: item.isDeleted ? 'delete' : 'upsert',
-          payload: TrackingEntriesCacheRepository(
+          payload: TrackingEntryRepository(
             db,
             codecs: collectarrTrackingEntryCodecs,
           ).toSyncPayload(item),

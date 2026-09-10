@@ -23,6 +23,6 @@ void main() {
     );
 
     expect(dto.title, 'Cowboy Bebop');
-    expect(source.catalogItem?.kind, 'tv');
+    expect(source.catalogItem?.mediaKind.apiValue, 'tv');
   });
 }

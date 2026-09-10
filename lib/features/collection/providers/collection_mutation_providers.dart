@@ -26,8 +26,8 @@ import 'package:collectarr_app/features/collection/mutations/watch_session_mutat
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -58,17 +58,17 @@ final catalogCacheRepositoryProvider =
   return CatalogTransportRepository(ref.watch(localDatabaseProvider));
 });
 
-final trackingEntriesCacheRepositoryProvider =
-    Provider<TrackingEntriesCacheRepository>((ref) {
-  return TrackingEntriesCacheRepository(
+final trackingEntryRepositoryProvider =
+    Provider<TrackingEntryRepository>((ref) {
+  return TrackingEntryRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingEntryCodecs,
   );
 });
 
 final trackingUnitsCacheRepositoryProvider =
-    Provider<TrackingUnitsCacheRepository>((ref) {
-  return TrackingUnitsCacheRepository(
+    Provider<TrackingUnitRepository>((ref) {
+  return TrackingUnitRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingUnitCodecs,
   );
@@ -107,7 +107,7 @@ final providerLocalStateBridgeProvider =
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntryRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
   );
 });
@@ -167,7 +167,7 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntryRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
     userId: auth.userId,
@@ -179,7 +179,7 @@ final catalogItemMutationsProvider = Provider<CatalogItemMutations>((ref) {
   return CatalogItemMutations(
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntryRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -189,7 +189,7 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
   return WishlistMutations(
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntryRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
@@ -198,7 +198,7 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
 
 final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
   return TrackingMutations(
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntryRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
@@ -244,7 +244,7 @@ final collectionImportServiceProvider =
     catalogLookup: CatalogLookupRepository(
       ref.watch(localDatabaseProvider),
     ),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    trackingEntries: ref.watch(trackingEntryRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -266,7 +266,7 @@ Future<void> _applyProviderEntry(
 ) async {
   final bridge = ref.read(providerLocalStateBridgeProvider);
   final trackingEntries =
-      await ref.read(trackingEntriesCacheRepositoryProvider).listActive();
+      await ref.read(trackingEntryRepositoryProvider).listActive();
   TrackingEntry? localTracking;
   for (final entry in trackingEntries) {
     if (bridge.matches(entry.catalogRef, localRef)) {

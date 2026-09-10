@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_dense_c
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
 import '../../helpers/test_data_factories.dart';
+import '../../helpers/tracking_entry_test_helpers.dart';
 
 void main() {
   testWidgets('detail page shows copy selector when multiple copies exist', (
@@ -221,18 +221,17 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    await db.into(db.trackingEntriesCache).insert(
-          TrackingEntriesCacheCompanion.insert(
-            id: 'tracking-1',
-            kind: 'movie',
-            catalogRefJson:
-                '{"kind":"movie","entity_type":"work","id":"movie-1"}',
-            sourceType: const Value('digital'),
-            status: const Value('Watching'),
-            rating: const Value(8),
-            updatedAt: DateTime.utc(2026, 5, 23),
-          ),
-        );
+    final trackingRepository = trackingEntryTestRepository(db);
+    await trackingRepository.upsert(
+      trackingRepository.create(
+        id: 'tracking-1',
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        sourceType: 'digital',
+        status: 'Watching',
+        rating: 8,
+        updatedAt: DateTime.utc(2026, 5, 23),
+      ),
+    );
 
     final source = ShelfEntry(
       itemId: 'movie-1',

@@ -43,7 +43,7 @@ void main() {
 
     expect(item, isA<LibraryAddCatalogItem>());
     expect(item.id, startsWith('preview-comic-'));
-    expect(item.kind, 'comic');
+    expect(item.mediaKind.apiValue, 'comic');
     expect(item.title, 'Example');
   });
 

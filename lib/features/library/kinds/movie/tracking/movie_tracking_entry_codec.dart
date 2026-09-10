@@ -1,18 +1,90 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:drift/drift.dart';
 
 import 'movie_tracking_entry.dart';
 
 /// Movie-owned lifecycle tracking mapping. Movies have no TV/Anime episode
 /// coordinate payload.
-final class MovieTrackingEntryCodec implements TrackingEntryCodec {
+final class MovieTrackingEntryCodec
+    with TrackingEntryStorageSupport
+    implements TrackingEntryCodec {
   const MovieTrackingEntryCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;
+
+  @override
+  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+    LocalDatabase db, {
+    required bool activeOnly,
+  }) async {
+    final query = db.select(db.movieTrackingRows);
+    if (activeOnly) query.where((row) => row.deletedAt.isNull());
+    final rows = await query.get();
+    return [
+      for (final row in rows)
+        TrackingEntryStorageRecord(
+          trackingEntryStorageRowFromColumns(
+            id: row.id,
+            catalogRefJson: row.catalogRefJson,
+            ownedItemId: row.ownedItemId,
+            sourceType: row.sourceType,
+            status: row.status,
+            rating: row.rating,
+            startedAt: row.startedAt,
+            finishedAt: row.finishedAt,
+            progressCurrent: row.progressCurrent,
+            progressTotal: row.progressTotal,
+            timesCompleted: row.timesCompleted,
+            notes: row.notes,
+            updatedAt: row.updatedAt,
+            deletedAt: row.deletedAt,
+          ),
+          null,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingEntry entry) async {
+    _validateKind(entry.catalogRef);
+    await db.into(db.movieTrackingRows).insertOnConflictUpdate(
+          MovieTrackingRowsCompanion.insert(
+            id: entry.id,
+            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
+            ownedItemId: Value(entry.ownedRef?.key),
+            sourceType: Value(entry.sourceTypeApiValue),
+            status: Value(entry.statusStorageValue),
+            rating: Value(entry.rating),
+            startedAt: Value(entry.startedAt),
+            finishedAt: Value(entry.finishedAt),
+            progressCurrent: Value(entry.progressCurrent),
+            progressTotal: Value(entry.progressTotal),
+            timesCompleted: Value(entry.timesCompleted),
+            notes: Value(entry.notes),
+            updatedAt: entry.updatedAt,
+            deletedAt: Value(entry.deletedAt),
+          ),
+        );
+  }
+
+  @override
+  Future<void> deleteStorageRecord(
+      LocalDatabase db, TrackingEntry entry, DateTime deletedAt) async {
+    _validateKind(entry.catalogRef);
+    await (db.update(db.movieTrackingRows)
+          ..where((row) => row.id.equals(entry.id)))
+        .write(MovieTrackingRowsCompanion(
+      deletedAt: Value(deletedAt),
+      updatedAt: Value(deletedAt),
+    ));
+  }
 
   @override
   MovieTrackingEntry create({
@@ -56,14 +128,6 @@ final class MovieTrackingEntryCodec implements TrackingEntryCodec {
     Iterable<String>? ids,
   ) async =>
       const {};
-
-  @override
-  Future<void> clearCoordinates(LocalDatabase db, String id) async {}
-
-  @override
-  Future<void> writeCoordinates(LocalDatabase db, TrackingEntry entry) async {
-    _validateKind(entry.catalogRef);
-  }
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingEntry entry) {

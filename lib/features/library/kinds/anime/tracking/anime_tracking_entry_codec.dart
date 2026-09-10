@@ -13,11 +13,64 @@ import 'anime_tracking_entry.dart';
 ///
 /// The universal tracking index stores only lifecycle and structural reference
 /// data. Anime episode coordinates live in [AnimeTrackingRows].
-final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
+final class AnimeTrackingEntryCodec
+    with TrackingEntryStorageSupport
+    implements TrackingEntryCodec {
   const AnimeTrackingEntryCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.anime;
+
+  @override
+  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+    LocalDatabase db, {
+    required bool activeOnly,
+  }) async {
+    final query = db.select(db.animeTrackingRows);
+    query.where((row) => row.entryType.equals('entry'));
+    if (activeOnly) query.where((row) => row.deletedAt.isNull());
+    final rows = await query.get();
+    final coordinates = await loadCoordinates(db, rows.map((row) => row.id));
+    return [
+      for (final row in rows)
+        TrackingEntryStorageRecord(
+          trackingEntryStorageRowFromColumns(
+            id: row.id,
+            catalogRefJson: row.catalogRefJson,
+            ownedItemId: row.ownedItemId,
+            sourceType: row.sourceType,
+            status: row.status,
+            rating: row.rating,
+            startedAt: row.startedAt,
+            finishedAt: row.finishedAt,
+            progressCurrent: row.progressCurrent,
+            progressTotal: row.progressTotal,
+            timesCompleted: row.timesCompleted,
+            notes: row.notes,
+            updatedAt: row.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0),
+            deletedAt: row.deletedAt,
+          ),
+          coordinates[row.id],
+        ),
+    ];
+  }
+
+  @override
+  Future<void> deleteStorageRecord(
+    LocalDatabase db,
+    TrackingEntry entry,
+    DateTime deletedAt,
+  ) async {
+    if (entry.catalogRef.mediaKind != kind) return;
+    await (db.update(db.animeTrackingRows)
+          ..where((row) => row.id.equals(entry.id)))
+        .write(
+      AnimeTrackingRowsCompanion(
+        deletedAt: Value(deletedAt),
+        updatedAt: Value(deletedAt),
+      ),
+    );
+  }
 
   @override
   AnimeTrackingEntry create({
@@ -70,6 +123,7 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     final values = ids?.toSet().toList(growable: false);
     if (values != null && values.isEmpty) return const {};
     final query = db.select(db.animeTrackingRows);
+    query.where((row) => row.entryType.equals('entry'));
     if (values != null) {
       query.where((row) => row.id.isIn(values));
     }
@@ -85,20 +139,10 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
   }
 
   @override
-  Future<void> clearCoordinates(LocalDatabase db, String id) async {
-    await (db.update(db.animeTrackingRows)..where((row) => row.id.equals(id)))
-        .write(
-      const AnimeTrackingRowsCompanion(
-        episodeId: Value(null),
-        seasonNumber: Value(null),
-        episodeNumber: Value(null),
-        episodeRatingsJson: Value('{}'),
-      ),
-    );
-  }
-
-  @override
-  Future<void> writeCoordinates(LocalDatabase db, TrackingEntry entry) async {
+  Future<void> writeStorageRecord(
+    LocalDatabase db,
+    TrackingEntry entry,
+  ) async {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
         entry.catalogRef.mediaKind,
@@ -110,6 +154,9 @@ final class AnimeTrackingEntryCodec implements TrackingEntryCodec {
     await db.into(db.animeTrackingRows).insertOnConflictUpdate(
           AnimeTrackingRowsCompanion.insert(
             id: entry.id,
+            entryType: const Value('entry'),
+            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
+            ownedItemId: Value(entry.ownedRef?.key),
             mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
             episodeId: Value(
               entry.catalogRef.entityType ==

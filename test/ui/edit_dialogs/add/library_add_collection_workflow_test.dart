@@ -20,6 +20,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../helpers/tracking_entry_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -62,8 +63,7 @@ void main() {
 
     final catalogRows = await CatalogSnapshotRepository(fixture.db).findAll();
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
-    final trackingRows =
-        await fixture.db.select(fixture.db.trackingEntriesCache).get();
+    final trackingRows = await readTrackingEntries(fixture.db);
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(catalogRows.single.id, 'comic-1');
@@ -73,8 +73,8 @@ void main() {
     expect(ownedRows.single.purchaseDate?.toUtc(), DateTime.utc(2024, 5, 1));
     expect(ownedRows.single.locationId, 'loc-1');
     expect(ownedRows.single.tags, 'favorite,dc');
-    expect(trackingRows.single.itemId, 'comic-1');
-    expect(trackingRows.single.status, 'Completed');
+    expect(trackingRows.single.catalogRef.id, 'comic-1');
+    expect(trackingRows.single.statusStorageValue, 'Completed');
     expect(syncRows.map((row) => row.entityType), contains('owned_item'));
     expect(syncRows.map((row) => row.entityType), contains('tracking_entry'));
     expect(
@@ -261,13 +261,12 @@ void main() {
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final trackingRows =
-        await fixture.db.select(fixture.db.trackingEntriesCache).get();
+    final trackingRows = await readTrackingEntries(fixture.db);
 
     expect(ownedRows, isEmpty);
     expect(wishlistRows, isEmpty);
-    expect(trackingRows.single.itemId, 'comic-track-1');
-    expect(trackingRows.single.status, 'In progress');
+    expect(trackingRows.single.catalogRef.id, 'comic-track-1');
+    expect(trackingRows.single.statusStorageValue, 'In progress');
   });
 
   test('adds tracking-only entry when target is track without status',
@@ -288,13 +287,12 @@ void main() {
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final trackingRows =
-        await fixture.db.select(fixture.db.trackingEntriesCache).get();
+    final trackingRows = await readTrackingEntries(fixture.db);
 
     expect(ownedRows, isEmpty);
     expect(wishlistRows, isEmpty);
-    expect(trackingRows.single.itemId, 'comic-track-empty-1');
-    expect(trackingRows.single.status, isNull);
+    expect(trackingRows.single.catalogRef.id, 'comic-track-empty-1');
+    expect(trackingRows.single.statusStorageValue, isNull);
   });
 }
 

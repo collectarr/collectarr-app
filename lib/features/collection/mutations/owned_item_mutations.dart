@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/catalog/catalog_display_summary_reposito
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:uuid/uuid.dart';
@@ -34,7 +34,7 @@ final class OwnedItemMutations {
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
   final CatalogDisplaySummaryRepository catalogSummaries;
-  final TrackingEntriesCacheRepository trackingEntries;
+  final TrackingEntryRepository trackingEntries;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final String? userId;

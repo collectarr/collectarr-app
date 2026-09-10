@@ -14,8 +14,8 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
@@ -50,11 +50,11 @@ void main() {
     final ownedRepo = OwnedItemsRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
     final catalogRepo = CatalogTransportRepository(db);
-    final trackingRepo = TrackingEntriesCacheRepository(
+    final trackingRepo = TrackingEntryRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,
     );
-    final trackingUnitsRepo = TrackingUnitsCacheRepository(
+    final trackingUnitsRepo = TrackingUnitRepository(
       db,
       codecs: collectarrTrackingUnitCodecs,
     );
@@ -173,7 +173,7 @@ void main() {
       status: MediaTrackingStatus.inProgress,
     );
 
-    final entries = await TrackingEntriesCacheRepository(
+    final entries = await TrackingEntryRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,
     ).findActiveByCatalogRoots([

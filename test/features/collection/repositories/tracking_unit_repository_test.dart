@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
@@ -20,7 +20,7 @@ void main() {
   test('stores coordinates in the matching kind table', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitsCacheRepository(
+    final repository = TrackingUnitRepository(
       db,
       codecs: collectarrTrackingUnitCodecs,
     );
@@ -62,7 +62,7 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitsCacheRepository(
+    final repository = TrackingUnitRepository(
       db,
       codecs: collectarrTrackingUnitCodecs,
     );
@@ -221,7 +221,7 @@ void main() {
   test('rejects tracking units without a registered kind codec', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingUnitsCacheRepository(
+    final repository = TrackingUnitRepository(
       db,
       codecs: collectarrTrackingUnitCodecs,
     );

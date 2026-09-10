@@ -13,11 +13,62 @@ import 'tv_tracking_entry.dart';
 ///
 /// The universal tracking index stores only lifecycle and structural reference
 /// data. TV episode coordinates live in [TvTrackingRows].
-final class TvTrackingEntryCodec implements TrackingEntryCodec {
+final class TvTrackingEntryCodec
+    with TrackingEntryStorageSupport
+    implements TrackingEntryCodec {
   const TvTrackingEntryCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
+
+  @override
+  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+    LocalDatabase db, {
+    required bool activeOnly,
+  }) async {
+    final query = db.select(db.tvTrackingRows);
+    if (activeOnly) query.where((row) => row.deletedAt.isNull());
+    final rows = await query.get();
+    final coordinates = await loadCoordinates(db, rows.map((row) => row.id));
+    return [
+      for (final row in rows)
+        TrackingEntryStorageRecord(
+          trackingEntryStorageRowFromColumns(
+            id: row.id,
+            catalogRefJson: row.catalogRefJson,
+            ownedItemId: row.ownedItemId,
+            sourceType: row.sourceType,
+            status: row.status,
+            rating: row.rating,
+            startedAt: row.startedAt,
+            finishedAt: row.finishedAt,
+            progressCurrent: row.progressCurrent,
+            progressTotal: row.progressTotal,
+            timesCompleted: row.timesCompleted,
+            notes: row.notes,
+            updatedAt: row.updatedAt,
+            deletedAt: row.deletedAt,
+          ),
+          coordinates[row.id],
+        ),
+    ];
+  }
+
+  @override
+  Future<void> deleteStorageRecord(
+    LocalDatabase db,
+    TrackingEntry entry,
+    DateTime deletedAt,
+  ) async {
+    await (db.update(db.tvTrackingRows)
+          ..where((row) => row.id.equals(entry.id)))
+        .write(
+      TvTrackingRowsCompanion(
+        deletedAt: Value(deletedAt),
+        updatedAt: Value(deletedAt),
+      ),
+    );
+  }
 
   @override
   TvTrackingEntry create({
@@ -85,19 +136,11 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
   }
 
   @override
-  Future<void> clearCoordinates(LocalDatabase db, String id) async {
-    await (db.update(db.tvTrackingRows)..where((row) => row.id.equals(id)))
-        .write(
-      const TvTrackingRowsCompanion(
-        seasonNumber: Value(null),
-        episodeNumber: Value(null),
-        episodeRatingsJson: Value('{}'),
-      ),
-    );
-  }
-
   @override
-  Future<void> writeCoordinates(LocalDatabase db, TrackingEntry entry) async {
+  Future<void> writeStorageRecord(
+    LocalDatabase db,
+    TrackingEntry entry,
+  ) async {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
         entry.catalogRef.mediaKind,
@@ -109,6 +152,19 @@ final class TvTrackingEntryCodec implements TrackingEntryCodec {
     await db.into(db.tvTrackingRows).insertOnConflictUpdate(
           TvTrackingRowsCompanion.insert(
             id: entry.id,
+            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
+            ownedItemId: Value(entry.ownedRef?.key),
+            sourceType: Value(entry.sourceTypeApiValue),
+            status: Value(entry.statusStorageValue),
+            rating: Value(entry.rating),
+            startedAt: Value(entry.startedAt),
+            finishedAt: Value(entry.finishedAt),
+            progressCurrent: Value(entry.progressCurrent),
+            progressTotal: Value(entry.progressTotal),
+            timesCompleted: Value(entry.timesCompleted),
+            notes: Value(entry.notes),
+            updatedAt: entry.updatedAt,
+            deletedAt: Value(entry.deletedAt),
             seasonNumber: Value(typed.coordinates.seasonNumber),
             episodeNumber: Value(typed.coordinates.episodeNumber),
             episodeRatingsJson: Value(

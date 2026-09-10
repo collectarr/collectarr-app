@@ -28,12 +28,12 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 
-import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../helpers/tracking_entry_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -210,7 +210,7 @@ void main() {
         );
 
     final owned = await _typedOwnedForCatalog<ComicOwnedItem>(db, 'comic-1');
-    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final tracking = await readSingleTrackingEntry(db);
     final catalog = await CatalogSnapshotRepository(db).findByRef(
       const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
@@ -247,21 +247,19 @@ void main() {
         );
 
     final owned = await _typedOwnedForCatalog<MovieOwnedItem>(db, 'movie-1');
-    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final tracking = await readSingleTrackingEntry(db);
     final queued = await db.select(db.syncQueue).get();
 
     expect(
-      CatalogEntityRef.fromJson(
-        Map<String, Object?>.from(jsonDecode(tracking.catalogRefJson) as Map),
-      ).id,
+      tracking.catalogRef.id,
       'movie-1',
     );
     expect(
-      tracking.ownedItemId,
+      tracking.ownedRef?.key,
       OwnedItemRef.fromKey('movie:${owned.id.value}').key,
     );
-    expect(tracking.sourceType, 'physical');
-    expect(tracking.status, 'Completed');
+    expect(tracking.sourceTypeApiValue, 'physical');
+    expect(tracking.statusStorageValue, 'Completed');
     expect(tracking.rating, 8);
     expect(
       queued.where((row) => row.entityType == 'tracking_entry'),
@@ -304,10 +302,10 @@ void main() {
       db,
       'movie-digital-1',
     );
-    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final tracking = await readSingleTrackingEntry(db);
 
     expect(owned.isDigital, isTrue);
-    expect(tracking.sourceType, TrackingSourceType.digital.apiValue);
+    expect(tracking.sourceTypeApiValue, TrackingSourceType.digital.apiValue);
   });
 
   test('collection mutations can sync owned tracking entries directly',
@@ -350,17 +348,15 @@ void main() {
           finishedAt: DateTime.utc(2026, 5, 21),
         );
 
-    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final tracking = await readSingleTrackingEntry(db);
     final queued = await db.select(db.syncQueue).get();
-    final trackingRef = CatalogEntityRef.fromJson(
-      jsonDecode(tracking.catalogRefJson!) as Map<String, dynamic>,
-    );
+    final trackingRef = tracking.catalogRef;
 
-    expect(tracking.ownedItemId, owned.key);
+    expect(tracking.ownedRef?.key, owned.key);
     expect(trackingRef.entityType, const CatalogEntityTypeId('release'));
     expect(trackingRef.id, 'variant-4k');
     expect(trackingRef.rootId, 'movie-2');
-    expect(tracking.status, 'Completed');
+    expect(tracking.statusStorageValue, 'Completed');
     expect(tracking.rating, 10);
     expect(
       queued.where((row) => row.entityType == 'tracking_entry'),
@@ -391,17 +387,15 @@ void main() {
           notes: 'Streaming copy',
         );
 
-    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final tracking = await readSingleTrackingEntry(db);
     final queued = await db.select(db.syncQueue).get();
 
     expect(
-      CatalogEntityRef.fromJson(
-        Map<String, Object?>.from(jsonDecode(tracking.catalogRefJson) as Map),
-      ).id,
+      tracking.catalogRef.id,
       'music-1',
     );
-    expect(tracking.ownedItemId, isNull);
-    expect(tracking.sourceType, 'digital');
+    expect(tracking.ownedRef, isNull);
+    expect(tracking.sourceTypeApiValue, 'digital');
     expect(tracking.progressCurrent, 6);
     expect(
       queued.where((row) => row.entityType == 'tracking_entry'),
@@ -421,17 +415,16 @@ void main() {
       testCatalogItem(id: 'movie-1', kind: 'movie', title: 'Dune'),
     ]);
 
-    await db.into(db.trackingEntriesCache).insert(
-          TrackingEntriesCacheCompanion.insert(
-            id: 'tracking-existing',
-            kind: 'movie',
-            catalogRefJson:
-                '{"kind":"movie","entity_type":"work","id":"movie-1"}',
-            sourceType: const Value('digital'),
-            status: const Value('Plan to watch'),
-            updatedAt: DateTime.utc(2026, 5, 23),
-          ),
-        );
+    final trackingRepository = trackingEntryTestRepository(db);
+    await trackingRepository.upsert(
+      trackingRepository.create(
+        id: 'tracking-existing',
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        sourceType: 'digital',
+        status: 'Plan to watch',
+        updatedAt: DateTime.utc(2026, 5, 23),
+      ),
+    );
 
     await container.read(trackingMutationsProvider).upsertTrackingEntry(
           TrackingTarget.catalog(testCatalogRef('movie-1', kind: 'movie')),
@@ -440,10 +433,10 @@ void main() {
           rating: 9,
         );
 
-    final tracking = await db.select(db.trackingEntriesCache).get();
+    final tracking = await readTrackingEntries(db);
     expect(tracking, hasLength(1));
     expect(tracking.single.id, 'tracking-existing');
-    expect(tracking.single.status, 'In progress');
+    expect(tracking.single.statusStorageValue, 'In progress');
     expect(tracking.single.rating, 9);
   });
 
@@ -465,8 +458,8 @@ void main() {
           status: mediaTrackingStatusFromValue('Reading'),
         );
 
-    final tracking = await db.select(db.trackingEntriesCache).getSingle();
-    expect(tracking.sourceType, TrackingSourceType.digital.apiValue);
+    final tracking = await readSingleTrackingEntry(db);
+    expect(tracking.sourceTypeApiValue, TrackingSourceType.digital.apiValue);
   });
 
   test('collection mutations enqueue catalog snapshots from cache', () async {
@@ -1339,13 +1332,13 @@ void main() {
       db,
       'comic-tracking-import',
     );
-    final tracking = await db.select(db.trackingEntriesCache).getSingle();
+    final tracking = await readSingleTrackingEntry(db);
     expect(imported, 1);
     expect(
-      tracking.ownedItemId,
+      tracking.ownedRef?.key,
       OwnedItemRef.fromKey('comic:${owned.id.value}').key,
     );
-    expect(tracking.status, 'Completed');
+    expect(tracking.statusStorageValue, 'Completed');
     expect(tracking.rating, 8);
     expect(tracking.startedAt?.toUtc(), DateTime.utc(2026, 6, 1));
     expect(tracking.finishedAt?.toUtc(), DateTime.utc(2026, 6, 2));
@@ -1482,17 +1475,13 @@ void main() {
         );
 
     final catalog = await CatalogSnapshotRepository(db).findAll();
-    final tracking = await db.select(db.trackingEntriesCache).get();
+    final tracking = await readTrackingEntries(db);
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
 
     expect(catalog.single.id, 'tmdb-local:movie:603');
     expect(
-      CatalogEntityRef.fromJson(
-        Map<String, Object?>.from(
-          jsonDecode(tracking.single.catalogRefJson) as Map,
-        ),
-      ).id,
+      tracking.single.catalogRef.id,
       'tmdb-local:movie:603',
     );
     expect(
@@ -1544,22 +1533,13 @@ void main() {
           )),
         );
 
-    final tracking = await db.select(db.trackingEntriesCache).get();
+    final tracking = await readAllTrackingEntries(db);
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
 
     expect(promotedCount, 2);
     expect(
-      CatalogEntityRef.fromJson(
-        Map<String, Object?>.from(
-          jsonDecode(
-            tracking
-                .where((row) => row.deletedAt == null)
-                .single
-                .catalogRefJson,
-          ) as Map,
-        ),
-      ).id,
+      tracking.where((row) => row.deletedAt == null).single.catalogRef.id,
       'movie-603',
     );
     expect(

@@ -12,11 +12,12 @@ import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repos
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import '../helpers/tracking_entry_test_helpers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -33,7 +34,7 @@ void main() {
       queue: SyncQueueRepository(db),
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingEntries: TrackingEntriesCacheRepository(
+      trackingEntries: TrackingEntryRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
       ),
@@ -47,7 +48,7 @@ void main() {
       ),
     );
     final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
-    final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
+    final trackingRow = await readSingleTrackingEntry(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
     final locations = await LocationRepository(db).getAll();
     final customEpisode = await CustomEpisodesRepository(
@@ -61,7 +62,7 @@ void main() {
     final owned = row?.$2 as ComicOwnedItem?;
     expect(owned?.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(typedOwnedRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
-    expect(trackingRow.status, 'Completed');
+    expect(trackingRow.statusStorageValue, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
     final catalogItem = await CatalogSnapshotRepository(db).findByRef(
@@ -104,7 +105,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingEntries: TrackingEntriesCacheRepository(
+      trackingEntries: TrackingEntryRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
       ),
@@ -162,7 +163,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingEntries: TrackingEntriesCacheRepository(
+      trackingEntries: TrackingEntryRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
       ),

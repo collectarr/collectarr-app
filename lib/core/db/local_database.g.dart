@@ -450,753 +450,6 @@ class WishlistItemsCacheCompanion
   }
 }
 
-class $TrackingEntriesCacheTable extends TrackingEntriesCache
-    with TableInfo<$TrackingEntriesCacheTable, TrackingEntriesCacheData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TrackingEntriesCacheTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
-  @override
-  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
-      'kind', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _catalogRefJsonMeta =
-      const VerificationMeta('catalogRefJson');
-  @override
-  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
-      'catalog_ref_json', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
-  @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _sourceTypeMeta =
-      const VerificationMeta('sourceType');
-  @override
-  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
-      'source_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-      'status', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
-  @override
-  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
-      'rating', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _startedAtMeta =
-      const VerificationMeta('startedAt');
-  @override
-  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
-      'started_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _finishedAtMeta =
-      const VerificationMeta('finishedAt');
-  @override
-  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
-      'finished_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _progressCurrentMeta =
-      const VerificationMeta('progressCurrent');
-  @override
-  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
-      'progress_current', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _progressTotalMeta =
-      const VerificationMeta('progressTotal');
-  @override
-  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
-      'progress_total', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _timesCompletedMeta =
-      const VerificationMeta('timesCompleted');
-  @override
-  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
-      'times_completed', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-      'notes', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _deletedAtMeta =
-      const VerificationMeta('deletedAt');
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-      'deleted_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        kind,
-        catalogRefJson,
-        ownedItemId,
-        sourceType,
-        status,
-        rating,
-        startedAt,
-        finishedAt,
-        progressCurrent,
-        progressTotal,
-        timesCompleted,
-        notes,
-        updatedAt,
-        deletedAt
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tracking_entries_cache';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<TrackingEntriesCacheData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('kind')) {
-      context.handle(
-          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
-    } else if (isInserting) {
-      context.missing(_kindMeta);
-    }
-    if (data.containsKey('catalog_ref_json')) {
-      context.handle(
-          _catalogRefJsonMeta,
-          catalogRefJson.isAcceptableOrUnknown(
-              data['catalog_ref_json']!, _catalogRefJsonMeta));
-    } else if (isInserting) {
-      context.missing(_catalogRefJsonMeta);
-    }
-    if (data.containsKey('owned_item_id')) {
-      context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
-    }
-    if (data.containsKey('source_type')) {
-      context.handle(
-          _sourceTypeMeta,
-          sourceType.isAcceptableOrUnknown(
-              data['source_type']!, _sourceTypeMeta));
-    }
-    if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
-    }
-    if (data.containsKey('rating')) {
-      context.handle(_ratingMeta,
-          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
-    }
-    if (data.containsKey('started_at')) {
-      context.handle(_startedAtMeta,
-          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
-    }
-    if (data.containsKey('finished_at')) {
-      context.handle(
-          _finishedAtMeta,
-          finishedAt.isAcceptableOrUnknown(
-              data['finished_at']!, _finishedAtMeta));
-    }
-    if (data.containsKey('progress_current')) {
-      context.handle(
-          _progressCurrentMeta,
-          progressCurrent.isAcceptableOrUnknown(
-              data['progress_current']!, _progressCurrentMeta));
-    }
-    if (data.containsKey('progress_total')) {
-      context.handle(
-          _progressTotalMeta,
-          progressTotal.isAcceptableOrUnknown(
-              data['progress_total']!, _progressTotalMeta));
-    }
-    if (data.containsKey('times_completed')) {
-      context.handle(
-          _timesCompletedMeta,
-          timesCompleted.isAcceptableOrUnknown(
-              data['times_completed']!, _timesCompletedMeta));
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(_deletedAtMeta,
-          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {kind, id};
-  @override
-  TrackingEntriesCacheData map(Map<String, dynamic> data,
-      {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TrackingEntriesCacheData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      kind: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
-      catalogRefJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
-      sourceType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status']),
-      rating: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
-      startedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
-      finishedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
-      progressCurrent: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
-      progressTotal: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
-      timesCompleted: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
-      notes: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
-      deletedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
-    );
-  }
-
-  @override
-  $TrackingEntriesCacheTable createAlias(String alias) {
-    return $TrackingEntriesCacheTable(attachedDatabase, alias);
-  }
-}
-
-class TrackingEntriesCacheData extends DataClass
-    implements Insertable<TrackingEntriesCacheData> {
-  final String id;
-  final String kind;
-  final String catalogRefJson;
-  final String? ownedItemId;
-  final String? sourceType;
-  final String? status;
-  final int? rating;
-  final DateTime? startedAt;
-  final DateTime? finishedAt;
-  final int? progressCurrent;
-  final int? progressTotal;
-  final int? timesCompleted;
-  final String? notes;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-  const TrackingEntriesCacheData(
-      {required this.id,
-      required this.kind,
-      required this.catalogRefJson,
-      this.ownedItemId,
-      this.sourceType,
-      this.status,
-      this.rating,
-      this.startedAt,
-      this.finishedAt,
-      this.progressCurrent,
-      this.progressTotal,
-      this.timesCompleted,
-      this.notes,
-      required this.updatedAt,
-      this.deletedAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['kind'] = Variable<String>(kind);
-    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
-    }
-    if (!nullToAbsent || sourceType != null) {
-      map['source_type'] = Variable<String>(sourceType);
-    }
-    if (!nullToAbsent || status != null) {
-      map['status'] = Variable<String>(status);
-    }
-    if (!nullToAbsent || rating != null) {
-      map['rating'] = Variable<int>(rating);
-    }
-    if (!nullToAbsent || startedAt != null) {
-      map['started_at'] = Variable<DateTime>(startedAt);
-    }
-    if (!nullToAbsent || finishedAt != null) {
-      map['finished_at'] = Variable<DateTime>(finishedAt);
-    }
-    if (!nullToAbsent || progressCurrent != null) {
-      map['progress_current'] = Variable<int>(progressCurrent);
-    }
-    if (!nullToAbsent || progressTotal != null) {
-      map['progress_total'] = Variable<int>(progressTotal);
-    }
-    if (!nullToAbsent || timesCompleted != null) {
-      map['times_completed'] = Variable<int>(timesCompleted);
-    }
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    return map;
-  }
-
-  TrackingEntriesCacheCompanion toCompanion(bool nullToAbsent) {
-    return TrackingEntriesCacheCompanion(
-      id: Value(id),
-      kind: Value(kind),
-      catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownedItemId),
-      sourceType: sourceType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(sourceType),
-      status:
-          status == null && nullToAbsent ? const Value.absent() : Value(status),
-      rating:
-          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
-      startedAt: startedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(startedAt),
-      finishedAt: finishedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(finishedAt),
-      progressCurrent: progressCurrent == null && nullToAbsent
-          ? const Value.absent()
-          : Value(progressCurrent),
-      progressTotal: progressTotal == null && nullToAbsent
-          ? const Value.absent()
-          : Value(progressTotal),
-      timesCompleted: timesCompleted == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timesCompleted),
-      notes:
-          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-    );
-  }
-
-  factory TrackingEntriesCacheData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TrackingEntriesCacheData(
-      id: serializer.fromJson<String>(json['id']),
-      kind: serializer.fromJson<String>(json['kind']),
-      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
-      sourceType: serializer.fromJson<String?>(json['sourceType']),
-      status: serializer.fromJson<String?>(json['status']),
-      rating: serializer.fromJson<int?>(json['rating']),
-      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
-      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
-      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
-      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
-      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
-      notes: serializer.fromJson<String?>(json['notes']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'kind': serializer.toJson<String>(kind),
-      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
-      'sourceType': serializer.toJson<String?>(sourceType),
-      'status': serializer.toJson<String?>(status),
-      'rating': serializer.toJson<int?>(rating),
-      'startedAt': serializer.toJson<DateTime?>(startedAt),
-      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
-      'progressCurrent': serializer.toJson<int?>(progressCurrent),
-      'progressTotal': serializer.toJson<int?>(progressTotal),
-      'timesCompleted': serializer.toJson<int?>(timesCompleted),
-      'notes': serializer.toJson<String?>(notes),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-    };
-  }
-
-  TrackingEntriesCacheData copyWith(
-          {String? id,
-          String? kind,
-          String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
-          Value<String?> sourceType = const Value.absent(),
-          Value<String?> status = const Value.absent(),
-          Value<int?> rating = const Value.absent(),
-          Value<DateTime?> startedAt = const Value.absent(),
-          Value<DateTime?> finishedAt = const Value.absent(),
-          Value<int?> progressCurrent = const Value.absent(),
-          Value<int?> progressTotal = const Value.absent(),
-          Value<int?> timesCompleted = const Value.absent(),
-          Value<String?> notes = const Value.absent(),
-          DateTime? updatedAt,
-          Value<DateTime?> deletedAt = const Value.absent()}) =>
-      TrackingEntriesCacheData(
-        id: id ?? this.id,
-        kind: kind ?? this.kind,
-        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
-        sourceType: sourceType.present ? sourceType.value : this.sourceType,
-        status: status.present ? status.value : this.status,
-        rating: rating.present ? rating.value : this.rating,
-        startedAt: startedAt.present ? startedAt.value : this.startedAt,
-        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
-        progressCurrent: progressCurrent.present
-            ? progressCurrent.value
-            : this.progressCurrent,
-        progressTotal:
-            progressTotal.present ? progressTotal.value : this.progressTotal,
-        timesCompleted:
-            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
-        notes: notes.present ? notes.value : this.notes,
-        updatedAt: updatedAt ?? this.updatedAt,
-        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-      );
-  TrackingEntriesCacheData copyWithCompanion(
-      TrackingEntriesCacheCompanion data) {
-    return TrackingEntriesCacheData(
-      id: data.id.present ? data.id.value : this.id,
-      kind: data.kind.present ? data.kind.value : this.kind,
-      catalogRefJson: data.catalogRefJson.present
-          ? data.catalogRefJson.value
-          : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      sourceType:
-          data.sourceType.present ? data.sourceType.value : this.sourceType,
-      status: data.status.present ? data.status.value : this.status,
-      rating: data.rating.present ? data.rating.value : this.rating,
-      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
-      finishedAt:
-          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
-      progressCurrent: data.progressCurrent.present
-          ? data.progressCurrent.value
-          : this.progressCurrent,
-      progressTotal: data.progressTotal.present
-          ? data.progressTotal.value
-          : this.progressTotal,
-      timesCompleted: data.timesCompleted.present
-          ? data.timesCompleted.value
-          : this.timesCompleted,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TrackingEntriesCacheData(')
-          ..write('id: $id, ')
-          ..write('kind: $kind, ')
-          ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('sourceType: $sourceType, ')
-          ..write('status: $status, ')
-          ..write('rating: $rating, ')
-          ..write('startedAt: $startedAt, ')
-          ..write('finishedAt: $finishedAt, ')
-          ..write('progressCurrent: $progressCurrent, ')
-          ..write('progressTotal: $progressTotal, ')
-          ..write('timesCompleted: $timesCompleted, ')
-          ..write('notes: $notes, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      id,
-      kind,
-      catalogRefJson,
-      ownedItemId,
-      sourceType,
-      status,
-      rating,
-      startedAt,
-      finishedAt,
-      progressCurrent,
-      progressTotal,
-      timesCompleted,
-      notes,
-      updatedAt,
-      deletedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TrackingEntriesCacheData &&
-          other.id == this.id &&
-          other.kind == this.kind &&
-          other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
-          other.sourceType == this.sourceType &&
-          other.status == this.status &&
-          other.rating == this.rating &&
-          other.startedAt == this.startedAt &&
-          other.finishedAt == this.finishedAt &&
-          other.progressCurrent == this.progressCurrent &&
-          other.progressTotal == this.progressTotal &&
-          other.timesCompleted == this.timesCompleted &&
-          other.notes == this.notes &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt);
-}
-
-class TrackingEntriesCacheCompanion
-    extends UpdateCompanion<TrackingEntriesCacheData> {
-  final Value<String> id;
-  final Value<String> kind;
-  final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
-  final Value<String?> sourceType;
-  final Value<String?> status;
-  final Value<int?> rating;
-  final Value<DateTime?> startedAt;
-  final Value<DateTime?> finishedAt;
-  final Value<int?> progressCurrent;
-  final Value<int?> progressTotal;
-  final Value<int?> timesCompleted;
-  final Value<String?> notes;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<int> rowid;
-  const TrackingEntriesCacheCompanion({
-    this.id = const Value.absent(),
-    this.kind = const Value.absent(),
-    this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.sourceType = const Value.absent(),
-    this.status = const Value.absent(),
-    this.rating = const Value.absent(),
-    this.startedAt = const Value.absent(),
-    this.finishedAt = const Value.absent(),
-    this.progressCurrent = const Value.absent(),
-    this.progressTotal = const Value.absent(),
-    this.timesCompleted = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TrackingEntriesCacheCompanion.insert({
-    required String id,
-    required String kind,
-    required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
-    this.sourceType = const Value.absent(),
-    this.status = const Value.absent(),
-    this.rating = const Value.absent(),
-    this.startedAt = const Value.absent(),
-    this.finishedAt = const Value.absent(),
-    this.progressCurrent = const Value.absent(),
-    this.progressTotal = const Value.absent(),
-    this.timesCompleted = const Value.absent(),
-    this.notes = const Value.absent(),
-    required DateTime updatedAt,
-    this.deletedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        kind = Value(kind),
-        catalogRefJson = Value(catalogRefJson),
-        updatedAt = Value(updatedAt);
-  static Insertable<TrackingEntriesCacheData> custom({
-    Expression<String>? id,
-    Expression<String>? kind,
-    Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
-    Expression<String>? sourceType,
-    Expression<String>? status,
-    Expression<int>? rating,
-    Expression<DateTime>? startedAt,
-    Expression<DateTime>? finishedAt,
-    Expression<int>? progressCurrent,
-    Expression<int>? progressTotal,
-    Expression<int>? timesCompleted,
-    Expression<String>? notes,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (kind != null) 'kind': kind,
-      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (sourceType != null) 'source_type': sourceType,
-      if (status != null) 'status': status,
-      if (rating != null) 'rating': rating,
-      if (startedAt != null) 'started_at': startedAt,
-      if (finishedAt != null) 'finished_at': finishedAt,
-      if (progressCurrent != null) 'progress_current': progressCurrent,
-      if (progressTotal != null) 'progress_total': progressTotal,
-      if (timesCompleted != null) 'times_completed': timesCompleted,
-      if (notes != null) 'notes': notes,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TrackingEntriesCacheCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? kind,
-      Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
-      Value<String?>? sourceType,
-      Value<String?>? status,
-      Value<int?>? rating,
-      Value<DateTime?>? startedAt,
-      Value<DateTime?>? finishedAt,
-      Value<int?>? progressCurrent,
-      Value<int?>? progressTotal,
-      Value<int?>? timesCompleted,
-      Value<String?>? notes,
-      Value<DateTime>? updatedAt,
-      Value<DateTime?>? deletedAt,
-      Value<int>? rowid}) {
-    return TrackingEntriesCacheCompanion(
-      id: id ?? this.id,
-      kind: kind ?? this.kind,
-      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      sourceType: sourceType ?? this.sourceType,
-      status: status ?? this.status,
-      rating: rating ?? this.rating,
-      startedAt: startedAt ?? this.startedAt,
-      finishedAt: finishedAt ?? this.finishedAt,
-      progressCurrent: progressCurrent ?? this.progressCurrent,
-      progressTotal: progressTotal ?? this.progressTotal,
-      timesCompleted: timesCompleted ?? this.timesCompleted,
-      notes: notes ?? this.notes,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (kind.present) {
-      map['kind'] = Variable<String>(kind.value);
-    }
-    if (catalogRefJson.present) {
-      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
-    }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (sourceType.present) {
-      map['source_type'] = Variable<String>(sourceType.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (rating.present) {
-      map['rating'] = Variable<int>(rating.value);
-    }
-    if (startedAt.present) {
-      map['started_at'] = Variable<DateTime>(startedAt.value);
-    }
-    if (finishedAt.present) {
-      map['finished_at'] = Variable<DateTime>(finishedAt.value);
-    }
-    if (progressCurrent.present) {
-      map['progress_current'] = Variable<int>(progressCurrent.value);
-    }
-    if (progressTotal.present) {
-      map['progress_total'] = Variable<int>(progressTotal.value);
-    }
-    if (timesCompleted.present) {
-      map['times_completed'] = Variable<int>(timesCompleted.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TrackingEntriesCacheCompanion(')
-          ..write('id: $id, ')
-          ..write('kind: $kind, ')
-          ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('sourceType: $sourceType, ')
-          ..write('status: $status, ')
-          ..write('rating: $rating, ')
-          ..write('startedAt: $startedAt, ')
-          ..write('finishedAt: $finishedAt, ')
-          ..write('progressCurrent: $progressCurrent, ')
-          ..write('progressTotal: $progressTotal, ')
-          ..write('timesCompleted: $timesCompleted, ')
-          ..write('notes: $notes, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $SyncQueueTable extends SyncQueue
     with TableInfo<$SyncQueueTable, SyncQueueData> {
   @override
@@ -11022,6 +10275,26 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _entryTypeMeta =
+      const VerificationMeta('entryType');
+  @override
+  late final GeneratedColumn<String> entryType = GeneratedColumn<String>(
+      'entry_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('native'));
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _mediaIdMeta =
       const VerificationMeta('mediaId');
   @override
@@ -11124,6 +10397,9 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        entryType,
+        catalogRefJson,
+        ownedItemId,
         mediaId,
         episodeId,
         status,
@@ -11155,6 +10431,24 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('entry_type')) {
+      context.handle(_entryTypeMeta,
+          entryType.isAcceptableOrUnknown(data['entry_type']!, _entryTypeMeta));
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
     }
     if (data.containsKey('media_id')) {
       context.handle(_mediaIdMeta,
@@ -11249,6 +10543,12 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
     return AnimeTrackingRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      entryType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entry_type'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
       mediaId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
       episodeId: attachedDatabase.typeMapping
@@ -11293,6 +10593,9 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
 class AnimeTrackingRow extends DataClass
     implements Insertable<AnimeTrackingRow> {
   final String id;
+  final String entryType;
+  final String catalogRefJson;
+  final String? ownedItemId;
   final String mediaId;
   final String? episodeId;
   final String status;
@@ -11311,6 +10614,9 @@ class AnimeTrackingRow extends DataClass
   final DateTime? deletedAt;
   const AnimeTrackingRow(
       {required this.id,
+      required this.entryType,
+      required this.catalogRefJson,
+      this.ownedItemId,
       required this.mediaId,
       this.episodeId,
       required this.status,
@@ -11331,6 +10637,11 @@ class AnimeTrackingRow extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['entry_type'] = Variable<String>(entryType);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
     map['media_id'] = Variable<String>(mediaId);
     if (!nullToAbsent || episodeId != null) {
       map['episode_id'] = Variable<String>(episodeId);
@@ -11377,6 +10688,11 @@ class AnimeTrackingRow extends DataClass
   AnimeTrackingRowsCompanion toCompanion(bool nullToAbsent) {
     return AnimeTrackingRowsCompanion(
       id: Value(id),
+      entryType: Value(entryType),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
       mediaId: Value(mediaId),
       episodeId: episodeId == null && nullToAbsent
           ? const Value.absent()
@@ -11423,6 +10739,9 @@ class AnimeTrackingRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AnimeTrackingRow(
       id: serializer.fromJson<String>(json['id']),
+      entryType: serializer.fromJson<String>(json['entryType']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
       mediaId: serializer.fromJson<String>(json['mediaId']),
       episodeId: serializer.fromJson<String?>(json['episodeId']),
       status: serializer.fromJson<String>(json['status']),
@@ -11447,6 +10766,9 @@ class AnimeTrackingRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'entryType': serializer.toJson<String>(entryType),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
       'mediaId': serializer.toJson<String>(mediaId),
       'episodeId': serializer.toJson<String?>(episodeId),
       'status': serializer.toJson<String>(status),
@@ -11468,6 +10790,9 @@ class AnimeTrackingRow extends DataClass
 
   AnimeTrackingRow copyWith(
           {String? id,
+          String? entryType,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
           String? mediaId,
           Value<String?> episodeId = const Value.absent(),
           String? status,
@@ -11486,6 +10811,9 @@ class AnimeTrackingRow extends DataClass
           Value<DateTime?> deletedAt = const Value.absent()}) =>
       AnimeTrackingRow(
         id: id ?? this.id,
+        entryType: entryType ?? this.entryType,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
         mediaId: mediaId ?? this.mediaId,
         episodeId: episodeId.present ? episodeId.value : this.episodeId,
         status: status ?? this.status,
@@ -11511,6 +10839,12 @@ class AnimeTrackingRow extends DataClass
   AnimeTrackingRow copyWithCompanion(AnimeTrackingRowsCompanion data) {
     return AnimeTrackingRow(
       id: data.id.present ? data.id.value : this.id,
+      entryType: data.entryType.present ? data.entryType.value : this.entryType,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
       mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
       episodeId: data.episodeId.present ? data.episodeId.value : this.episodeId,
       status: data.status.present ? data.status.value : this.status,
@@ -11548,6 +10882,9 @@ class AnimeTrackingRow extends DataClass
   String toString() {
     return (StringBuffer('AnimeTrackingRow(')
           ..write('id: $id, ')
+          ..write('entryType: $entryType, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
           ..write('mediaId: $mediaId, ')
           ..write('episodeId: $episodeId, ')
           ..write('status: $status, ')
@@ -11571,6 +10908,9 @@ class AnimeTrackingRow extends DataClass
   @override
   int get hashCode => Object.hash(
       id,
+      entryType,
+      catalogRefJson,
+      ownedItemId,
       mediaId,
       episodeId,
       status,
@@ -11592,6 +10932,9 @@ class AnimeTrackingRow extends DataClass
       identical(this, other) ||
       (other is AnimeTrackingRow &&
           other.id == this.id &&
+          other.entryType == this.entryType &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
           other.mediaId == this.mediaId &&
           other.episodeId == this.episodeId &&
           other.status == this.status &&
@@ -11612,6 +10955,9 @@ class AnimeTrackingRow extends DataClass
 
 class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   final Value<String> id;
+  final Value<String> entryType;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
   final Value<String> mediaId;
   final Value<String?> episodeId;
   final Value<String> status;
@@ -11631,6 +10977,9 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   final Value<int> rowid;
   const AnimeTrackingRowsCompanion({
     this.id = const Value.absent(),
+    this.entryType = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
     this.mediaId = const Value.absent(),
     this.episodeId = const Value.absent(),
     this.status = const Value.absent(),
@@ -11651,6 +11000,9 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   });
   AnimeTrackingRowsCompanion.insert({
     required String id,
+    this.entryType = const Value.absent(),
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
     required String mediaId,
     this.episodeId = const Value.absent(),
     this.status = const Value.absent(),
@@ -11669,9 +11021,13 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
         mediaId = Value(mediaId);
   static Insertable<AnimeTrackingRow> custom({
     Expression<String>? id,
+    Expression<String>? entryType,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
     Expression<String>? mediaId,
     Expression<String>? episodeId,
     Expression<String>? status,
@@ -11692,6 +11048,9 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (entryType != null) 'entry_type': entryType,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
       if (mediaId != null) 'media_id': mediaId,
       if (episodeId != null) 'episode_id': episodeId,
       if (status != null) 'status': status,
@@ -11715,6 +11074,9 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
 
   AnimeTrackingRowsCompanion copyWith(
       {Value<String>? id,
+      Value<String>? entryType,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
       Value<String>? mediaId,
       Value<String?>? episodeId,
       Value<String>? status,
@@ -11734,6 +11096,9 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
       Value<int>? rowid}) {
     return AnimeTrackingRowsCompanion(
       id: id ?? this.id,
+      entryType: entryType ?? this.entryType,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
       mediaId: mediaId ?? this.mediaId,
       episodeId: episodeId ?? this.episodeId,
       status: status ?? this.status,
@@ -11759,6 +11124,15 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (entryType.present) {
+      map['entry_type'] = Variable<String>(entryType.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
     }
     if (mediaId.present) {
       map['media_id'] = Variable<String>(mediaId.value);
@@ -11818,6 +11192,9 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   String toString() {
     return (StringBuffer('AnimeTrackingRowsCompanion(')
           ..write('id: $id, ')
+          ..write('entryType: $entryType, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
           ..write('mediaId: $mediaId, ')
           ..write('episodeId: $episodeId, ')
           ..write('status: $status, ')
@@ -17795,6 +17172,713 @@ class BoardGamePlaySessionsRowsCompanion
   }
 }
 
+class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
+    with TableInfo<$BoardGameTrackingRowsTable, BoardGameTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoardGameTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'board_game_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<BoardGameTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BoardGameTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoardGameTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $BoardGameTrackingRowsTable createAlias(String alias) {
+    return $BoardGameTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BoardGameTrackingRow extends DataClass
+    implements Insertable<BoardGameTrackingRow> {
+  final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const BoardGameTrackingRow(
+      {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  BoardGameTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return BoardGameTrackingRowsCompanion(
+      id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory BoardGameTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoardGameTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  BoardGameTrackingRow copyWith(
+          {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      BoardGameTrackingRow(
+        id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  BoardGameTrackingRow copyWithCompanion(BoardGameTrackingRowsCompanion data) {
+    return BoardGameTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameTrackingRow(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoardGameTrackingRow &&
+          other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class BoardGameTrackingRowsCompanion
+    extends UpdateCompanion<BoardGameTrackingRow> {
+  final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const BoardGameTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BoardGameTrackingRowsCompanion.insert({
+    required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
+  static Insertable<BoardGameTrackingRow> custom({
+    Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BoardGameTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return BoardGameTrackingRowsCompanion(
+      id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoardGameTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BookMediaRowsTable extends BookMediaRows
     with TableInfo<$BookMediaRowsTable, BookMediaRow> {
   @override
@@ -21755,6 +21839,710 @@ class BookTrackingUnitRowsCompanion
           ..write('deletedAt: $deletedAt, ')
           ..write('volumeNumber: $volumeNumber, ')
           ..write('chapterNumber: $chapterNumber, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BookTrackingRowsTable extends BookTrackingRows
+    with TableInfo<$BookTrackingRowsTable, BookTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BookTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'book_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<BookTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BookTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BookTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $BookTrackingRowsTable createAlias(String alias) {
+    return $BookTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
+  final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const BookTrackingRow(
+      {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  BookTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return BookTrackingRowsCompanion(
+      id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory BookTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BookTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  BookTrackingRow copyWith(
+          {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      BookTrackingRow(
+        id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  BookTrackingRow copyWithCompanion(BookTrackingRowsCompanion data) {
+    return BookTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookTrackingRow(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BookTrackingRow &&
+          other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
+  final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const BookTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BookTrackingRowsCompanion.insert({
+    required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
+  static Insertable<BookTrackingRow> custom({
+    Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BookTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return BookTrackingRowsCompanion(
+      id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -26781,6 +27569,711 @@ class ComicTrackingUnitRowsCompanion
   }
 }
 
+class $ComicTrackingRowsTable extends ComicTrackingRows
+    with TableInfo<$ComicTrackingRowsTable, ComicTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ComicTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'comic_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<ComicTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ComicTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ComicTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $ComicTrackingRowsTable createAlias(String alias) {
+    return $ComicTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class ComicTrackingRow extends DataClass
+    implements Insertable<ComicTrackingRow> {
+  final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const ComicTrackingRow(
+      {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  ComicTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return ComicTrackingRowsCompanion(
+      id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory ComicTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ComicTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  ComicTrackingRow copyWith(
+          {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      ComicTrackingRow(
+        id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  ComicTrackingRow copyWithCompanion(ComicTrackingRowsCompanion data) {
+    return ComicTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicTrackingRow(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ComicTrackingRow &&
+          other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
+  final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const ComicTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ComicTrackingRowsCompanion.insert({
+    required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
+  static Insertable<ComicTrackingRow> custom({
+    Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ComicTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return ComicTrackingRowsCompanion(
+      id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComicTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $GameMediaRowsTable extends GameMediaRows
     with TableInfo<$GameMediaRowsTable, GameMediaRow> {
   @override
@@ -29694,6 +31187,710 @@ class GameOwnedItemsRowsCompanion extends UpdateCompanion<GameOwnedItemsRow> {
           ..write('priceChartingId: $priceChartingId, ')
           ..write('coreRegion: $coreRegion, ')
           ..write('valueIsLocked: $valueIsLocked, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GameTrackingRowsTable extends GameTrackingRows
+    with TableInfo<$GameTrackingRowsTable, GameTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GameTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'game_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<GameTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GameTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GameTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $GameTrackingRowsTable createAlias(String alias) {
+    return $GameTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
+  final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const GameTrackingRow(
+      {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  GameTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return GameTrackingRowsCompanion(
+      id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory GameTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GameTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  GameTrackingRow copyWith(
+          {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      GameTrackingRow(
+        id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  GameTrackingRow copyWithCompanion(GameTrackingRowsCompanion data) {
+    return GameTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameTrackingRow(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GameTrackingRow &&
+          other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
+  final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const GameTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GameTrackingRowsCompanion.insert({
+    required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
+  static Insertable<GameTrackingRow> custom({
+    Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GameTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return GameTrackingRowsCompanion(
+      id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -32897,6 +35094,711 @@ class MangaTrackingUnitRowsCompanion
   }
 }
 
+class $MangaTrackingRowsTable extends MangaTrackingRows
+    with TableInfo<$MangaTrackingRowsTable, MangaTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MangaTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'manga_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MangaTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MangaTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MangaTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $MangaTrackingRowsTable createAlias(String alias) {
+    return $MangaTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MangaTrackingRow extends DataClass
+    implements Insertable<MangaTrackingRow> {
+  final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const MangaTrackingRow(
+      {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  MangaTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return MangaTrackingRowsCompanion(
+      id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory MangaTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MangaTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  MangaTrackingRow copyWith(
+          {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      MangaTrackingRow(
+        id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  MangaTrackingRow copyWithCompanion(MangaTrackingRowsCompanion data) {
+    return MangaTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaTrackingRow(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MangaTrackingRow &&
+          other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
+  final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const MangaTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MangaTrackingRowsCompanion.insert({
+    required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
+  static Insertable<MangaTrackingRow> custom({
+    Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MangaTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return MangaTrackingRowsCompanion(
+      id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MangaTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MovieMediaRowsTable extends MovieMediaRows
     with TableInfo<$MovieMediaRowsTable, MovieMediaRow> {
   @override
@@ -35926,6 +38828,711 @@ class MovieOwnedItemsRowsCompanion extends UpdateCompanion<MovieOwnedItemsRow> {
           ..write('region: $region, ')
           ..write('packaging: $packaging, ')
           ..write('distributor: $distributor, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MovieTrackingRowsTable extends MovieTrackingRows
+    with TableInfo<$MovieTrackingRowsTable, MovieTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MovieTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'movie_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MovieTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MovieTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MovieTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $MovieTrackingRowsTable createAlias(String alias) {
+    return $MovieTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MovieTrackingRow extends DataClass
+    implements Insertable<MovieTrackingRow> {
+  final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const MovieTrackingRow(
+      {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  MovieTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return MovieTrackingRowsCompanion(
+      id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory MovieTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MovieTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  MovieTrackingRow copyWith(
+          {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      MovieTrackingRow(
+        id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  MovieTrackingRow copyWithCompanion(MovieTrackingRowsCompanion data) {
+    return MovieTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieTrackingRow(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MovieTrackingRow &&
+          other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
+  final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const MovieTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MovieTrackingRowsCompanion.insert({
+    required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
+  static Insertable<MovieTrackingRow> custom({
+    Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MovieTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return MovieTrackingRowsCompanion(
+      id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MovieTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -39435,6 +43042,711 @@ class MusicOwnedItemsRowsCompanion extends UpdateCompanion<MusicOwnedItemsRow> {
           ..write('signedBy: $signedBy, ')
           ..write('lastCleanedDate: $lastCleanedDate, ')
           ..write('matrixRunoutsJson: $matrixRunoutsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MusicTrackingRowsTable extends MusicTrackingRows
+    with TableInfo<$MusicTrackingRowsTable, MusicTrackingRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MusicTrackingRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'music_tracking_rows';
+  @override
+  VerificationContext validateIntegrity(Insertable<MusicTrackingRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MusicTrackingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MusicTrackingRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $MusicTrackingRowsTable createAlias(String alias) {
+    return $MusicTrackingRowsTable(attachedDatabase, alias);
+  }
+}
+
+class MusicTrackingRow extends DataClass
+    implements Insertable<MusicTrackingRow> {
+  final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  const MusicTrackingRow(
+      {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  MusicTrackingRowsCompanion toCompanion(bool nullToAbsent) {
+    return MusicTrackingRowsCompanion(
+      id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory MusicTrackingRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MusicTrackingRow(
+      id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  MusicTrackingRow copyWith(
+          {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent()}) =>
+      MusicTrackingRow(
+        id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  MusicTrackingRow copyWithCompanion(MusicTrackingRowsCompanion data) {
+    return MusicTrackingRow(
+      id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicTrackingRow(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MusicTrackingRow &&
+          other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
+  final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<int> rowid;
+  const MusicTrackingRowsCompanion({
+    this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MusicTrackingRowsCompanion.insert({
+    required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
+  static Insertable<MusicTrackingRow> custom({
+    Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MusicTrackingRowsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<int>? rowid}) {
+    return MusicTrackingRowsCompanion(
+      id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MusicTrackingRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -47230,6 +51542,81 @@ class $TvTrackingRowsTable extends TvTrackingRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _catalogRefJsonMeta =
+      const VerificationMeta('catalogRefJson');
+  @override
+  late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
+      'catalog_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceTypeMeta =
+      const VerificationMeta('sourceType');
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+      'source_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
+  @override
+  late final GeneratedColumn<int> rating = GeneratedColumn<int>(
+      'rating', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _progressCurrentMeta =
+      const VerificationMeta('progressCurrent');
+  @override
+  late final GeneratedColumn<int> progressCurrent = GeneratedColumn<int>(
+      'progress_current', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _progressTotalMeta =
+      const VerificationMeta('progressTotal');
+  @override
+  late final GeneratedColumn<int> progressTotal = GeneratedColumn<int>(
+      'progress_total', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _timesCompletedMeta =
+      const VerificationMeta('timesCompleted');
+  @override
+  late final GeneratedColumn<int> timesCompleted = GeneratedColumn<int>(
+      'times_completed', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+      'notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _seasonNumberMeta =
       const VerificationMeta('seasonNumber');
   @override
@@ -47251,8 +51638,25 @@ class $TvTrackingRowsTable extends TvTrackingRows
           requiredDuringInsert: false,
           defaultValue: const Constant('{}'));
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, seasonNumber, episodeNumber, episodeRatingsJson];
+  List<GeneratedColumn> get $columns => [
+        id,
+        catalogRefJson,
+        ownedItemId,
+        sourceType,
+        status,
+        rating,
+        startedAt,
+        finishedAt,
+        progressCurrent,
+        progressTotal,
+        timesCompleted,
+        notes,
+        updatedAt,
+        deletedAt,
+        seasonNumber,
+        episodeNumber,
+        episodeRatingsJson
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -47267,6 +51671,76 @@ class $TvTrackingRowsTable extends TvTrackingRows
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('catalog_ref_json')) {
+      context.handle(
+          _catalogRefJsonMeta,
+          catalogRefJson.isAcceptableOrUnknown(
+              data['catalog_ref_json']!, _catalogRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_catalogRefJsonMeta);
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+          _sourceTypeMeta,
+          sourceType.isAcceptableOrUnknown(
+              data['source_type']!, _sourceTypeMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('rating')) {
+      context.handle(_ratingMeta,
+          rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('progress_current')) {
+      context.handle(
+          _progressCurrentMeta,
+          progressCurrent.isAcceptableOrUnknown(
+              data['progress_current']!, _progressCurrentMeta));
+    }
+    if (data.containsKey('progress_total')) {
+      context.handle(
+          _progressTotalMeta,
+          progressTotal.isAcceptableOrUnknown(
+              data['progress_total']!, _progressTotalMeta));
+    }
+    if (data.containsKey('times_completed')) {
+      context.handle(
+          _timesCompletedMeta,
+          timesCompleted.isAcceptableOrUnknown(
+              data['times_completed']!, _timesCompletedMeta));
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+          _notesMeta, notes.isAcceptableOrUnknown(data['notes']!, _notesMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
     }
     if (data.containsKey('season_number')) {
       context.handle(
@@ -47297,6 +51771,32 @@ class $TvTrackingRowsTable extends TvTrackingRows
     return TvTrackingRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      catalogRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      sourceType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      rating: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rating']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      progressCurrent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_current']),
+      progressTotal: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}progress_total']),
+      timesCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}times_completed']),
+      notes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}notes']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
       seasonNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
       episodeNumber: attachedDatabase.typeMapping
@@ -47314,11 +51814,37 @@ class $TvTrackingRowsTable extends TvTrackingRows
 
 class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   final String id;
+  final String catalogRefJson;
+  final String? ownedItemId;
+  final String? sourceType;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? finishedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
+  final String? notes;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final int? seasonNumber;
   final int? episodeNumber;
   final String episodeRatingsJson;
   const TvTrackingRow(
       {required this.id,
+      required this.catalogRefJson,
+      this.ownedItemId,
+      this.sourceType,
+      this.status,
+      this.rating,
+      this.startedAt,
+      this.finishedAt,
+      this.progressCurrent,
+      this.progressTotal,
+      this.timesCompleted,
+      this.notes,
+      required this.updatedAt,
+      this.deletedAt,
       this.seasonNumber,
       this.episodeNumber,
       required this.episodeRatingsJson});
@@ -47326,6 +51852,41 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['catalog_ref_json'] = Variable<String>(catalogRefJson);
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    if (!nullToAbsent || sourceType != null) {
+      map['source_type'] = Variable<String>(sourceType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || rating != null) {
+      map['rating'] = Variable<int>(rating);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    if (!nullToAbsent || progressCurrent != null) {
+      map['progress_current'] = Variable<int>(progressCurrent);
+    }
+    if (!nullToAbsent || progressTotal != null) {
+      map['progress_total'] = Variable<int>(progressTotal);
+    }
+    if (!nullToAbsent || timesCompleted != null) {
+      map['times_completed'] = Variable<int>(timesCompleted);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     if (!nullToAbsent || seasonNumber != null) {
       map['season_number'] = Variable<int>(seasonNumber);
     }
@@ -47339,6 +51900,38 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   TvTrackingRowsCompanion toCompanion(bool nullToAbsent) {
     return TvTrackingRowsCompanion(
       id: Value(id),
+      catalogRefJson: Value(catalogRefJson),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      sourceType: sourceType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceType),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      rating:
+          rating == null && nullToAbsent ? const Value.absent() : Value(rating),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      progressCurrent: progressCurrent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressCurrent),
+      progressTotal: progressTotal == null && nullToAbsent
+          ? const Value.absent()
+          : Value(progressTotal),
+      timesCompleted: timesCompleted == null && nullToAbsent
+          ? const Value.absent()
+          : Value(timesCompleted),
+      notes:
+          notes == null && nullToAbsent ? const Value.absent() : Value(notes),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       seasonNumber: seasonNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(seasonNumber),
@@ -47354,6 +51947,19 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TvTrackingRow(
       id: serializer.fromJson<String>(json['id']),
+      catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      sourceType: serializer.fromJson<String?>(json['sourceType']),
+      status: serializer.fromJson<String?>(json['status']),
+      rating: serializer.fromJson<int?>(json['rating']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      progressCurrent: serializer.fromJson<int?>(json['progressCurrent']),
+      progressTotal: serializer.fromJson<int?>(json['progressTotal']),
+      timesCompleted: serializer.fromJson<int?>(json['timesCompleted']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
       episodeRatingsJson:
@@ -47365,6 +51971,19 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'catalogRefJson': serializer.toJson<String>(catalogRefJson),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'sourceType': serializer.toJson<String?>(sourceType),
+      'status': serializer.toJson<String?>(status),
+      'rating': serializer.toJson<int?>(rating),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'progressCurrent': serializer.toJson<int?>(progressCurrent),
+      'progressTotal': serializer.toJson<int?>(progressTotal),
+      'timesCompleted': serializer.toJson<int?>(timesCompleted),
+      'notes': serializer.toJson<String?>(notes),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
       'episodeRatingsJson': serializer.toJson<String>(episodeRatingsJson),
@@ -47373,11 +51992,41 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
 
   TvTrackingRow copyWith(
           {String? id,
+          String? catalogRefJson,
+          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> sourceType = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<int?> rating = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<DateTime?> finishedAt = const Value.absent(),
+          Value<int?> progressCurrent = const Value.absent(),
+          Value<int?> progressTotal = const Value.absent(),
+          Value<int?> timesCompleted = const Value.absent(),
+          Value<String?> notes = const Value.absent(),
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent(),
           String? episodeRatingsJson}) =>
       TvTrackingRow(
         id: id ?? this.id,
+        catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        sourceType: sourceType.present ? sourceType.value : this.sourceType,
+        status: status.present ? status.value : this.status,
+        rating: rating.present ? rating.value : this.rating,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        progressCurrent: progressCurrent.present
+            ? progressCurrent.value
+            : this.progressCurrent,
+        progressTotal:
+            progressTotal.present ? progressTotal.value : this.progressTotal,
+        timesCompleted:
+            timesCompleted.present ? timesCompleted.value : this.timesCompleted,
+        notes: notes.present ? notes.value : this.notes,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
         seasonNumber:
             seasonNumber.present ? seasonNumber.value : this.seasonNumber,
         episodeNumber:
@@ -47387,6 +52036,30 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   TvTrackingRow copyWithCompanion(TvTrackingRowsCompanion data) {
     return TvTrackingRow(
       id: data.id.present ? data.id.value : this.id,
+      catalogRefJson: data.catalogRefJson.present
+          ? data.catalogRefJson.value
+          : this.catalogRefJson,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      sourceType:
+          data.sourceType.present ? data.sourceType.value : this.sourceType,
+      status: data.status.present ? data.status.value : this.status,
+      rating: data.rating.present ? data.rating.value : this.rating,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      progressCurrent: data.progressCurrent.present
+          ? data.progressCurrent.value
+          : this.progressCurrent,
+      progressTotal: data.progressTotal.present
+          ? data.progressTotal.value
+          : this.progressTotal,
+      timesCompleted: data.timesCompleted.present
+          ? data.timesCompleted.value
+          : this.timesCompleted,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       seasonNumber: data.seasonNumber.present
           ? data.seasonNumber.value
           : this.seasonNumber,
@@ -47403,6 +52076,19 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   String toString() {
     return (StringBuffer('TvTrackingRow(')
           ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
           ..write('episodeRatingsJson: $episodeRatingsJson')
@@ -47411,13 +52097,42 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, seasonNumber, episodeNumber, episodeRatingsJson);
+  int get hashCode => Object.hash(
+      id,
+      catalogRefJson,
+      ownedItemId,
+      sourceType,
+      status,
+      rating,
+      startedAt,
+      finishedAt,
+      progressCurrent,
+      progressTotal,
+      timesCompleted,
+      notes,
+      updatedAt,
+      deletedAt,
+      seasonNumber,
+      episodeNumber,
+      episodeRatingsJson);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TvTrackingRow &&
           other.id == this.id &&
+          other.catalogRefJson == this.catalogRefJson &&
+          other.ownedItemId == this.ownedItemId &&
+          other.sourceType == this.sourceType &&
+          other.status == this.status &&
+          other.rating == this.rating &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.progressCurrent == this.progressCurrent &&
+          other.progressTotal == this.progressTotal &&
+          other.timesCompleted == this.timesCompleted &&
+          other.notes == this.notes &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber &&
           other.episodeRatingsJson == this.episodeRatingsJson);
@@ -47425,12 +52140,38 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
 
 class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   final Value<String> id;
+  final Value<String> catalogRefJson;
+  final Value<String?> ownedItemId;
+  final Value<String?> sourceType;
+  final Value<String?> status;
+  final Value<int?> rating;
+  final Value<DateTime?> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<int?> progressCurrent;
+  final Value<int?> progressTotal;
+  final Value<int?> timesCompleted;
+  final Value<String?> notes;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
   final Value<String> episodeRatingsJson;
   final Value<int> rowid;
   const TvTrackingRowsCompanion({
     this.id = const Value.absent(),
+    this.catalogRefJson = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.episodeRatingsJson = const Value.absent(),
@@ -47438,13 +52179,41 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   });
   TvTrackingRowsCompanion.insert({
     required String id,
+    required String catalogRefJson,
+    this.ownedItemId = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.rating = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.progressCurrent = const Value.absent(),
+    this.progressTotal = const Value.absent(),
+    this.timesCompleted = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.episodeRatingsJson = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : id = Value(id);
+  })  : id = Value(id),
+        catalogRefJson = Value(catalogRefJson),
+        updatedAt = Value(updatedAt);
   static Insertable<TvTrackingRow> custom({
     Expression<String>? id,
+    Expression<String>? catalogRefJson,
+    Expression<String>? ownedItemId,
+    Expression<String>? sourceType,
+    Expression<String>? status,
+    Expression<int>? rating,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<int>? progressCurrent,
+    Expression<int>? progressTotal,
+    Expression<int>? timesCompleted,
+    Expression<String>? notes,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
     Expression<String>? episodeRatingsJson,
@@ -47452,6 +52221,19 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (sourceType != null) 'source_type': sourceType,
+      if (status != null) 'status': status,
+      if (rating != null) 'rating': rating,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (progressCurrent != null) 'progress_current': progressCurrent,
+      if (progressTotal != null) 'progress_total': progressTotal,
+      if (timesCompleted != null) 'times_completed': timesCompleted,
+      if (notes != null) 'notes': notes,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
       if (episodeRatingsJson != null)
@@ -47462,12 +52244,38 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
 
   TvTrackingRowsCompanion copyWith(
       {Value<String>? id,
+      Value<String>? catalogRefJson,
+      Value<String?>? ownedItemId,
+      Value<String?>? sourceType,
+      Value<String?>? status,
+      Value<int?>? rating,
+      Value<DateTime?>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<int?>? progressCurrent,
+      Value<int?>? progressTotal,
+      Value<int?>? timesCompleted,
+      Value<String?>? notes,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
       Value<String>? episodeRatingsJson,
       Value<int>? rowid}) {
     return TvTrackingRowsCompanion(
       id: id ?? this.id,
+      catalogRefJson: catalogRefJson ?? this.catalogRefJson,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      sourceType: sourceType ?? this.sourceType,
+      status: status ?? this.status,
+      rating: rating ?? this.rating,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      progressCurrent: progressCurrent ?? this.progressCurrent,
+      progressTotal: progressTotal ?? this.progressTotal,
+      timesCompleted: timesCompleted ?? this.timesCompleted,
+      notes: notes ?? this.notes,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
       episodeRatingsJson: episodeRatingsJson ?? this.episodeRatingsJson,
@@ -47480,6 +52288,45 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (catalogRefJson.present) {
+      map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (rating.present) {
+      map['rating'] = Variable<int>(rating.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (progressCurrent.present) {
+      map['progress_current'] = Variable<int>(progressCurrent.value);
+    }
+    if (progressTotal.present) {
+      map['progress_total'] = Variable<int>(progressTotal.value);
+    }
+    if (timesCompleted.present) {
+      map['times_completed'] = Variable<int>(timesCompleted.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (seasonNumber.present) {
       map['season_number'] = Variable<int>(seasonNumber.value);
@@ -47500,6 +52347,19 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   String toString() {
     return (StringBuffer('TvTrackingRowsCompanion(')
           ..write('id: $id, ')
+          ..write('catalogRefJson: $catalogRefJson, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('status: $status, ')
+          ..write('rating: $rating, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('progressCurrent: $progressCurrent, ')
+          ..write('progressTotal: $progressTotal, ')
+          ..write('timesCompleted: $timesCompleted, ')
+          ..write('notes: $notes, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
           ..write('episodeRatingsJson: $episodeRatingsJson, ')
@@ -48060,8 +52920,6 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
   late final $WishlistItemsCacheTable wishlistItemsCache =
       $WishlistItemsCacheTable(this);
-  late final $TrackingEntriesCacheTable trackingEntriesCache =
-      $TrackingEntriesCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   late final $UserMetadataOverridesCacheTable userMetadataOverridesCache =
       $UserMetadataOverridesCacheTable(this);
@@ -48114,6 +52972,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $BoardGameOwnedItemsRowsTable(this);
   late final $BoardGamePlaySessionsRowsTable boardGamePlaySessionsRows =
       $BoardGamePlaySessionsRowsTable(this);
+  late final $BoardGameTrackingRowsTable boardGameTrackingRows =
+      $BoardGameTrackingRowsTable(this);
   late final $BookMediaRowsTable bookMediaRows = $BookMediaRowsTable(this);
   late final $BookReleaseRowsTable bookReleaseRows =
       $BookReleaseRowsTable(this);
@@ -48121,6 +52981,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $BookOwnedItemsRowsTable(this);
   late final $BookTrackingUnitRowsTable bookTrackingUnitRows =
       $BookTrackingUnitRowsTable(this);
+  late final $BookTrackingRowsTable bookTrackingRows =
+      $BookTrackingRowsTable(this);
   late final $ComicMediaRowsTable comicMediaRows = $ComicMediaRowsTable(this);
   late final $ComicReleaseRowsTable comicReleaseRows =
       $ComicReleaseRowsTable(this);
@@ -48130,27 +52992,37 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $ComicReadingRowsTable(this);
   late final $ComicTrackingUnitRowsTable comicTrackingUnitRows =
       $ComicTrackingUnitRowsTable(this);
+  late final $ComicTrackingRowsTable comicTrackingRows =
+      $ComicTrackingRowsTable(this);
   late final $GameMediaRowsTable gameMediaRows = $GameMediaRowsTable(this);
   late final $GameReleaseRowsTable gameReleaseRows =
       $GameReleaseRowsTable(this);
   late final $GameOwnedItemsRowsTable gameOwnedItemsRows =
       $GameOwnedItemsRowsTable(this);
+  late final $GameTrackingRowsTable gameTrackingRows =
+      $GameTrackingRowsTable(this);
   late final $MangaMediaRowsTable mangaMediaRows = $MangaMediaRowsTable(this);
   late final $MangaOwnedItemsRowsTable mangaOwnedItemsRows =
       $MangaOwnedItemsRowsTable(this);
   late final $MangaTrackingUnitRowsTable mangaTrackingUnitRows =
       $MangaTrackingUnitRowsTable(this);
+  late final $MangaTrackingRowsTable mangaTrackingRows =
+      $MangaTrackingRowsTable(this);
   late final $MovieMediaRowsTable movieMediaRows = $MovieMediaRowsTable(this);
   late final $MovieReleaseRowsTable movieReleaseRows =
       $MovieReleaseRowsTable(this);
   late final $MovieOwnedItemsRowsTable movieOwnedItemsRows =
       $MovieOwnedItemsRowsTable(this);
+  late final $MovieTrackingRowsTable movieTrackingRows =
+      $MovieTrackingRowsTable(this);
   late final $MusicReleaseRowsTable musicReleaseRows =
       $MusicReleaseRowsTable(this);
   late final $MusicMediaRowsTable musicMediaRows = $MusicMediaRowsTable(this);
   late final $MusicTrackRowsTable musicTrackRows = $MusicTrackRowsTable(this);
   late final $MusicOwnedItemsRowsTable musicOwnedItemsRows =
       $MusicOwnedItemsRowsTable(this);
+  late final $MusicTrackingRowsTable musicTrackingRows =
+      $MusicTrackingRowsTable(this);
   late final $TvSeriesRowsTable tvSeriesRows = $TvSeriesRowsTable(this);
   late final $TvSeasonRowsTable tvSeasonRows = $TvSeasonRowsTable(this);
   late final $TvEpisodeRowsTable tvEpisodeRows = $TvEpisodeRowsTable(this);
@@ -48176,7 +53048,6 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         wishlistItemsCache,
-        trackingEntriesCache,
         syncQueue,
         userMetadataOverridesCache,
         userExternalLinksCache,
@@ -48205,28 +53076,35 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
         boardGameEditionRows,
         boardGameOwnedItemsRows,
         boardGamePlaySessionsRows,
+        boardGameTrackingRows,
         bookMediaRows,
         bookReleaseRows,
         bookOwnedItemsRows,
         bookTrackingUnitRows,
+        bookTrackingRows,
         comicMediaRows,
         comicReleaseRows,
         comicOwnedItemsRows,
         comicReadingRows,
         comicTrackingUnitRows,
+        comicTrackingRows,
         gameMediaRows,
         gameReleaseRows,
         gameOwnedItemsRows,
+        gameTrackingRows,
         mangaMediaRows,
         mangaOwnedItemsRows,
         mangaTrackingUnitRows,
+        mangaTrackingRows,
         movieMediaRows,
         movieReleaseRows,
         movieOwnedItemsRows,
+        movieTrackingRows,
         musicReleaseRows,
         musicMediaRows,
         musicTrackRows,
         musicOwnedItemsRows,
+        musicTrackingRows,
         tvSeriesRows,
         tvSeasonRows,
         tvEpisodeRows,
@@ -48468,342 +53346,6 @@ typedef $$WishlistItemsCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     WishlistItemsCacheData,
     PrefetchHooks Function()>;
-typedef $$TrackingEntriesCacheTableCreateCompanionBuilder
-    = TrackingEntriesCacheCompanion Function({
-  required String id,
-  required String kind,
-  required String catalogRefJson,
-  Value<String?> ownedItemId,
-  Value<String?> sourceType,
-  Value<String?> status,
-  Value<int?> rating,
-  Value<DateTime?> startedAt,
-  Value<DateTime?> finishedAt,
-  Value<int?> progressCurrent,
-  Value<int?> progressTotal,
-  Value<int?> timesCompleted,
-  Value<String?> notes,
-  required DateTime updatedAt,
-  Value<DateTime?> deletedAt,
-  Value<int> rowid,
-});
-typedef $$TrackingEntriesCacheTableUpdateCompanionBuilder
-    = TrackingEntriesCacheCompanion Function({
-  Value<String> id,
-  Value<String> kind,
-  Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
-  Value<String?> sourceType,
-  Value<String?> status,
-  Value<int?> rating,
-  Value<DateTime?> startedAt,
-  Value<DateTime?> finishedAt,
-  Value<int?> progressCurrent,
-  Value<int?> progressTotal,
-  Value<int?> timesCompleted,
-  Value<String?> notes,
-  Value<DateTime> updatedAt,
-  Value<DateTime?> deletedAt,
-  Value<int> rowid,
-});
-
-class $$TrackingEntriesCacheTableFilterComposer
-    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
-  $$TrackingEntriesCacheTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get kind => $composableBuilder(
-      column: $table.kind, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get catalogRefJson => $composableBuilder(
-      column: $table.catalogRefJson,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get sourceType => $composableBuilder(
-      column: $table.sourceType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get rating => $composableBuilder(
-      column: $table.rating, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get startedAt => $composableBuilder(
-      column: $table.startedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
-      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get progressCurrent => $composableBuilder(
-      column: $table.progressCurrent,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get progressTotal => $composableBuilder(
-      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get timesCompleted => $composableBuilder(
-      column: $table.timesCompleted,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get notes => $composableBuilder(
-      column: $table.notes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
-}
-
-class $$TrackingEntriesCacheTableOrderingComposer
-    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
-  $$TrackingEntriesCacheTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get kind => $composableBuilder(
-      column: $table.kind, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
-      column: $table.catalogRefJson,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get sourceType => $composableBuilder(
-      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get rating => $composableBuilder(
-      column: $table.rating, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
-      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
-      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get progressCurrent => $composableBuilder(
-      column: $table.progressCurrent,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get progressTotal => $composableBuilder(
-      column: $table.progressTotal,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get timesCompleted => $composableBuilder(
-      column: $table.timesCompleted,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-      column: $table.notes, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
-}
-
-class $$TrackingEntriesCacheTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $TrackingEntriesCacheTable> {
-  $$TrackingEntriesCacheTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get kind =>
-      $composableBuilder(column: $table.kind, builder: (column) => column);
-
-  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
-      column: $table.catalogRefJson, builder: (column) => column);
-
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get sourceType => $composableBuilder(
-      column: $table.sourceType, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<int> get rating =>
-      $composableBuilder(column: $table.rating, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get startedAt =>
-      $composableBuilder(column: $table.startedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
-      column: $table.finishedAt, builder: (column) => column);
-
-  GeneratedColumn<int> get progressCurrent => $composableBuilder(
-      column: $table.progressCurrent, builder: (column) => column);
-
-  GeneratedColumn<int> get progressTotal => $composableBuilder(
-      column: $table.progressTotal, builder: (column) => column);
-
-  GeneratedColumn<int> get timesCompleted => $composableBuilder(
-      column: $table.timesCompleted, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-}
-
-class $$TrackingEntriesCacheTableTableManager extends RootTableManager<
-    _$LocalDatabase,
-    $TrackingEntriesCacheTable,
-    TrackingEntriesCacheData,
-    $$TrackingEntriesCacheTableFilterComposer,
-    $$TrackingEntriesCacheTableOrderingComposer,
-    $$TrackingEntriesCacheTableAnnotationComposer,
-    $$TrackingEntriesCacheTableCreateCompanionBuilder,
-    $$TrackingEntriesCacheTableUpdateCompanionBuilder,
-    (
-      TrackingEntriesCacheData,
-      BaseReferences<_$LocalDatabase, $TrackingEntriesCacheTable,
-          TrackingEntriesCacheData>
-    ),
-    TrackingEntriesCacheData,
-    PrefetchHooks Function()> {
-  $$TrackingEntriesCacheTableTableManager(
-      _$LocalDatabase db, $TrackingEntriesCacheTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TrackingEntriesCacheTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TrackingEntriesCacheTableOrderingComposer(
-                  $db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TrackingEntriesCacheTableAnnotationComposer(
-                  $db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String> kind = const Value.absent(),
-            Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String?> sourceType = const Value.absent(),
-            Value<String?> status = const Value.absent(),
-            Value<int?> rating = const Value.absent(),
-            Value<DateTime?> startedAt = const Value.absent(),
-            Value<DateTime?> finishedAt = const Value.absent(),
-            Value<int?> progressCurrent = const Value.absent(),
-            Value<int?> progressTotal = const Value.absent(),
-            Value<int?> timesCompleted = const Value.absent(),
-            Value<String?> notes = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
-            Value<DateTime?> deletedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TrackingEntriesCacheCompanion(
-            id: id,
-            kind: kind,
-            catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
-            sourceType: sourceType,
-            status: status,
-            rating: rating,
-            startedAt: startedAt,
-            finishedAt: finishedAt,
-            progressCurrent: progressCurrent,
-            progressTotal: progressTotal,
-            timesCompleted: timesCompleted,
-            notes: notes,
-            updatedAt: updatedAt,
-            deletedAt: deletedAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String id,
-            required String kind,
-            required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String?> sourceType = const Value.absent(),
-            Value<String?> status = const Value.absent(),
-            Value<int?> rating = const Value.absent(),
-            Value<DateTime?> startedAt = const Value.absent(),
-            Value<DateTime?> finishedAt = const Value.absent(),
-            Value<int?> progressCurrent = const Value.absent(),
-            Value<int?> progressTotal = const Value.absent(),
-            Value<int?> timesCompleted = const Value.absent(),
-            Value<String?> notes = const Value.absent(),
-            required DateTime updatedAt,
-            Value<DateTime?> deletedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TrackingEntriesCacheCompanion.insert(
-            id: id,
-            kind: kind,
-            catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
-            sourceType: sourceType,
-            status: status,
-            rating: rating,
-            startedAt: startedAt,
-            finishedAt: finishedAt,
-            progressCurrent: progressCurrent,
-            progressTotal: progressTotal,
-            timesCompleted: timesCompleted,
-            notes: notes,
-            updatedAt: updatedAt,
-            deletedAt: deletedAt,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$TrackingEntriesCacheTableProcessedTableManager
-    = ProcessedTableManager<
-        _$LocalDatabase,
-        $TrackingEntriesCacheTable,
-        TrackingEntriesCacheData,
-        $$TrackingEntriesCacheTableFilterComposer,
-        $$TrackingEntriesCacheTableOrderingComposer,
-        $$TrackingEntriesCacheTableAnnotationComposer,
-        $$TrackingEntriesCacheTableCreateCompanionBuilder,
-        $$TrackingEntriesCacheTableUpdateCompanionBuilder,
-        (
-          TrackingEntriesCacheData,
-          BaseReferences<_$LocalDatabase, $TrackingEntriesCacheTable,
-              TrackingEntriesCacheData>
-        ),
-        TrackingEntriesCacheData,
-        PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
   required String entityType,
@@ -53622,6 +58164,9 @@ typedef $$AnimeOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$AnimeTrackingRowsTableCreateCompanionBuilder
     = AnimeTrackingRowsCompanion Function({
   required String id,
+  Value<String> entryType,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
   required String mediaId,
   Value<String?> episodeId,
   Value<String> status,
@@ -53643,6 +58188,9 @@ typedef $$AnimeTrackingRowsTableCreateCompanionBuilder
 typedef $$AnimeTrackingRowsTableUpdateCompanionBuilder
     = AnimeTrackingRowsCompanion Function({
   Value<String> id,
+  Value<String> entryType,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
   Value<String> mediaId,
   Value<String?> episodeId,
   Value<String> status,
@@ -53673,6 +58221,16 @@ class $$AnimeTrackingRowsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entryType => $composableBuilder(
+      column: $table.entryType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get mediaId => $composableBuilder(
       column: $table.mediaId, builder: (column) => ColumnFilters(column));
@@ -53737,6 +58295,16 @@ class $$AnimeTrackingRowsTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entryType => $composableBuilder(
+      column: $table.entryType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get mediaId => $composableBuilder(
       column: $table.mediaId, builder: (column) => ColumnOrderings(column));
@@ -53804,6 +58372,15 @@ class $$AnimeTrackingRowsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get entryType =>
+      $composableBuilder(column: $table.entryType, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
 
   GeneratedColumn<String> get mediaId =>
       $composableBuilder(column: $table.mediaId, builder: (column) => column);
@@ -53883,6 +58460,9 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> entryType = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
             Value<String> mediaId = const Value.absent(),
             Value<String?> episodeId = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -53903,6 +58483,9 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
           }) =>
               AnimeTrackingRowsCompanion(
             id: id,
+            entryType: entryType,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
             mediaId: mediaId,
             episodeId: episodeId,
             status: status,
@@ -53923,6 +58506,9 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String> entryType = const Value.absent(),
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
             required String mediaId,
             Value<String?> episodeId = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -53943,6 +58529,9 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
           }) =>
               AnimeTrackingRowsCompanion.insert(
             id: id,
+            entryType: entryType,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
             mediaId: mediaId,
             episodeId: episodeId,
             status: status,
@@ -56604,6 +61193,328 @@ typedef $$BoardGamePlaySessionsRowsTableProcessedTableManager
         ),
         BoardGamePlaySessionsRow,
         PrefetchHooks Function()>;
+typedef $$BoardGameTrackingRowsTableCreateCompanionBuilder
+    = BoardGameTrackingRowsCompanion Function({
+  required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$BoardGameTrackingRowsTableUpdateCompanionBuilder
+    = BoardGameTrackingRowsCompanion Function({
+  Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$BoardGameTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BoardGameTrackingRowsTable> {
+  $$BoardGameTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$BoardGameTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BoardGameTrackingRowsTable> {
+  $$BoardGameTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$BoardGameTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BoardGameTrackingRowsTable> {
+  $$BoardGameTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BoardGameTrackingRowsTable,
+    BoardGameTrackingRow,
+    $$BoardGameTrackingRowsTableFilterComposer,
+    $$BoardGameTrackingRowsTableOrderingComposer,
+    $$BoardGameTrackingRowsTableAnnotationComposer,
+    $$BoardGameTrackingRowsTableCreateCompanionBuilder,
+    $$BoardGameTrackingRowsTableUpdateCompanionBuilder,
+    (
+      BoardGameTrackingRow,
+      BaseReferences<_$LocalDatabase, $BoardGameTrackingRowsTable,
+          BoardGameTrackingRow>
+    ),
+    BoardGameTrackingRow,
+    PrefetchHooks Function()> {
+  $$BoardGameTrackingRowsTableTableManager(
+      _$LocalDatabase db, $BoardGameTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoardGameTrackingRowsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoardGameTrackingRowsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoardGameTrackingRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameTrackingRowsCompanion(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BoardGameTrackingRowsCompanion.insert(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BoardGameTrackingRowsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $BoardGameTrackingRowsTable,
+        BoardGameTrackingRow,
+        $$BoardGameTrackingRowsTableFilterComposer,
+        $$BoardGameTrackingRowsTableOrderingComposer,
+        $$BoardGameTrackingRowsTableAnnotationComposer,
+        $$BoardGameTrackingRowsTableCreateCompanionBuilder,
+        $$BoardGameTrackingRowsTableUpdateCompanionBuilder,
+        (
+          BoardGameTrackingRow,
+          BaseReferences<_$LocalDatabase, $BoardGameTrackingRowsTable,
+              BoardGameTrackingRow>
+        ),
+        BoardGameTrackingRow,
+        PrefetchHooks Function()>;
 typedef $$BookMediaRowsTableCreateCompanionBuilder = BookMediaRowsCompanion
     Function({
   required String id,
@@ -58291,6 +63202,322 @@ typedef $$BookTrackingUnitRowsTableProcessedTableManager
         ),
         BookTrackingUnitRow,
         PrefetchHooks Function()>;
+typedef $$BookTrackingRowsTableCreateCompanionBuilder
+    = BookTrackingRowsCompanion Function({
+  required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$BookTrackingRowsTableUpdateCompanionBuilder
+    = BookTrackingRowsCompanion Function({
+  Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$BookTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $BookTrackingRowsTable> {
+  $$BookTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$BookTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $BookTrackingRowsTable> {
+  $$BookTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$BookTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $BookTrackingRowsTable> {
+  $$BookTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$BookTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $BookTrackingRowsTable,
+    BookTrackingRow,
+    $$BookTrackingRowsTableFilterComposer,
+    $$BookTrackingRowsTableOrderingComposer,
+    $$BookTrackingRowsTableAnnotationComposer,
+    $$BookTrackingRowsTableCreateCompanionBuilder,
+    $$BookTrackingRowsTableUpdateCompanionBuilder,
+    (
+      BookTrackingRow,
+      BaseReferences<_$LocalDatabase, $BookTrackingRowsTable, BookTrackingRow>
+    ),
+    BookTrackingRow,
+    PrefetchHooks Function()> {
+  $$BookTrackingRowsTableTableManager(
+      _$LocalDatabase db, $BookTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BookTrackingRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BookTrackingRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BookTrackingRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookTrackingRowsCompanion(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              BookTrackingRowsCompanion.insert(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BookTrackingRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $BookTrackingRowsTable,
+    BookTrackingRow,
+    $$BookTrackingRowsTableFilterComposer,
+    $$BookTrackingRowsTableOrderingComposer,
+    $$BookTrackingRowsTableAnnotationComposer,
+    $$BookTrackingRowsTableCreateCompanionBuilder,
+    $$BookTrackingRowsTableUpdateCompanionBuilder,
+    (
+      BookTrackingRow,
+      BaseReferences<_$LocalDatabase, $BookTrackingRowsTable, BookTrackingRow>
+    ),
+    BookTrackingRow,
+    PrefetchHooks Function()>;
 typedef $$ComicMediaRowsTableCreateCompanionBuilder = ComicMediaRowsCompanion
     Function({
   required String id,
@@ -60440,6 +65667,323 @@ typedef $$ComicTrackingUnitRowsTableProcessedTableManager
         ),
         ComicTrackingUnitRow,
         PrefetchHooks Function()>;
+typedef $$ComicTrackingRowsTableCreateCompanionBuilder
+    = ComicTrackingRowsCompanion Function({
+  required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$ComicTrackingRowsTableUpdateCompanionBuilder
+    = ComicTrackingRowsCompanion Function({
+  Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$ComicTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $ComicTrackingRowsTable> {
+  $$ComicTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ComicTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $ComicTrackingRowsTable> {
+  $$ComicTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ComicTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $ComicTrackingRowsTable> {
+  $$ComicTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$ComicTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $ComicTrackingRowsTable,
+    ComicTrackingRow,
+    $$ComicTrackingRowsTableFilterComposer,
+    $$ComicTrackingRowsTableOrderingComposer,
+    $$ComicTrackingRowsTableAnnotationComposer,
+    $$ComicTrackingRowsTableCreateCompanionBuilder,
+    $$ComicTrackingRowsTableUpdateCompanionBuilder,
+    (
+      ComicTrackingRow,
+      BaseReferences<_$LocalDatabase, $ComicTrackingRowsTable, ComicTrackingRow>
+    ),
+    ComicTrackingRow,
+    PrefetchHooks Function()> {
+  $$ComicTrackingRowsTableTableManager(
+      _$LocalDatabase db, $ComicTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ComicTrackingRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ComicTrackingRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ComicTrackingRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicTrackingRowsCompanion(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ComicTrackingRowsCompanion.insert(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ComicTrackingRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $ComicTrackingRowsTable,
+    ComicTrackingRow,
+    $$ComicTrackingRowsTableFilterComposer,
+    $$ComicTrackingRowsTableOrderingComposer,
+    $$ComicTrackingRowsTableAnnotationComposer,
+    $$ComicTrackingRowsTableCreateCompanionBuilder,
+    $$ComicTrackingRowsTableUpdateCompanionBuilder,
+    (
+      ComicTrackingRow,
+      BaseReferences<_$LocalDatabase, $ComicTrackingRowsTable, ComicTrackingRow>
+    ),
+    ComicTrackingRow,
+    PrefetchHooks Function()>;
 typedef $$GameMediaRowsTableCreateCompanionBuilder = GameMediaRowsCompanion
     Function({
   required String id,
@@ -61688,6 +67232,322 @@ typedef $$GameOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
           GameOwnedItemsRow>
     ),
     GameOwnedItemsRow,
+    PrefetchHooks Function()>;
+typedef $$GameTrackingRowsTableCreateCompanionBuilder
+    = GameTrackingRowsCompanion Function({
+  required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$GameTrackingRowsTableUpdateCompanionBuilder
+    = GameTrackingRowsCompanion Function({
+  Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$GameTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $GameTrackingRowsTable> {
+  $$GameTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$GameTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $GameTrackingRowsTable> {
+  $$GameTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$GameTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $GameTrackingRowsTable> {
+  $$GameTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$GameTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $GameTrackingRowsTable,
+    GameTrackingRow,
+    $$GameTrackingRowsTableFilterComposer,
+    $$GameTrackingRowsTableOrderingComposer,
+    $$GameTrackingRowsTableAnnotationComposer,
+    $$GameTrackingRowsTableCreateCompanionBuilder,
+    $$GameTrackingRowsTableUpdateCompanionBuilder,
+    (
+      GameTrackingRow,
+      BaseReferences<_$LocalDatabase, $GameTrackingRowsTable, GameTrackingRow>
+    ),
+    GameTrackingRow,
+    PrefetchHooks Function()> {
+  $$GameTrackingRowsTableTableManager(
+      _$LocalDatabase db, $GameTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GameTrackingRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GameTrackingRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GameTrackingRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GameTrackingRowsCompanion(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GameTrackingRowsCompanion.insert(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$GameTrackingRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $GameTrackingRowsTable,
+    GameTrackingRow,
+    $$GameTrackingRowsTableFilterComposer,
+    $$GameTrackingRowsTableOrderingComposer,
+    $$GameTrackingRowsTableAnnotationComposer,
+    $$GameTrackingRowsTableCreateCompanionBuilder,
+    $$GameTrackingRowsTableUpdateCompanionBuilder,
+    (
+      GameTrackingRow,
+      BaseReferences<_$LocalDatabase, $GameTrackingRowsTable, GameTrackingRow>
+    ),
+    GameTrackingRow,
     PrefetchHooks Function()>;
 typedef $$MangaMediaRowsTableCreateCompanionBuilder = MangaMediaRowsCompanion
     Function({
@@ -63037,6 +68897,323 @@ typedef $$MangaTrackingUnitRowsTableProcessedTableManager
         ),
         MangaTrackingUnitRow,
         PrefetchHooks Function()>;
+typedef $$MangaTrackingRowsTableCreateCompanionBuilder
+    = MangaTrackingRowsCompanion Function({
+  required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$MangaTrackingRowsTableUpdateCompanionBuilder
+    = MangaTrackingRowsCompanion Function({
+  Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$MangaTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MangaTrackingRowsTable> {
+  $$MangaTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$MangaTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MangaTrackingRowsTable> {
+  $$MangaTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MangaTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MangaTrackingRowsTable> {
+  $$MangaTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$MangaTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MangaTrackingRowsTable,
+    MangaTrackingRow,
+    $$MangaTrackingRowsTableFilterComposer,
+    $$MangaTrackingRowsTableOrderingComposer,
+    $$MangaTrackingRowsTableAnnotationComposer,
+    $$MangaTrackingRowsTableCreateCompanionBuilder,
+    $$MangaTrackingRowsTableUpdateCompanionBuilder,
+    (
+      MangaTrackingRow,
+      BaseReferences<_$LocalDatabase, $MangaTrackingRowsTable, MangaTrackingRow>
+    ),
+    MangaTrackingRow,
+    PrefetchHooks Function()> {
+  $$MangaTrackingRowsTableTableManager(
+      _$LocalDatabase db, $MangaTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MangaTrackingRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MangaTrackingRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MangaTrackingRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaTrackingRowsCompanion(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MangaTrackingRowsCompanion.insert(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MangaTrackingRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MangaTrackingRowsTable,
+    MangaTrackingRow,
+    $$MangaTrackingRowsTableFilterComposer,
+    $$MangaTrackingRowsTableOrderingComposer,
+    $$MangaTrackingRowsTableAnnotationComposer,
+    $$MangaTrackingRowsTableCreateCompanionBuilder,
+    $$MangaTrackingRowsTableUpdateCompanionBuilder,
+    (
+      MangaTrackingRow,
+      BaseReferences<_$LocalDatabase, $MangaTrackingRowsTable, MangaTrackingRow>
+    ),
+    MangaTrackingRow,
+    PrefetchHooks Function()>;
 typedef $$MovieMediaRowsTableCreateCompanionBuilder = MovieMediaRowsCompanion
     Function({
   required String id,
@@ -64337,6 +70514,323 @@ typedef $$MovieOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
           MovieOwnedItemsRow>
     ),
     MovieOwnedItemsRow,
+    PrefetchHooks Function()>;
+typedef $$MovieTrackingRowsTableCreateCompanionBuilder
+    = MovieTrackingRowsCompanion Function({
+  required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$MovieTrackingRowsTableUpdateCompanionBuilder
+    = MovieTrackingRowsCompanion Function({
+  Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$MovieTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MovieTrackingRowsTable> {
+  $$MovieTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$MovieTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MovieTrackingRowsTable> {
+  $$MovieTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MovieTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MovieTrackingRowsTable> {
+  $$MovieTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$MovieTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MovieTrackingRowsTable,
+    MovieTrackingRow,
+    $$MovieTrackingRowsTableFilterComposer,
+    $$MovieTrackingRowsTableOrderingComposer,
+    $$MovieTrackingRowsTableAnnotationComposer,
+    $$MovieTrackingRowsTableCreateCompanionBuilder,
+    $$MovieTrackingRowsTableUpdateCompanionBuilder,
+    (
+      MovieTrackingRow,
+      BaseReferences<_$LocalDatabase, $MovieTrackingRowsTable, MovieTrackingRow>
+    ),
+    MovieTrackingRow,
+    PrefetchHooks Function()> {
+  $$MovieTrackingRowsTableTableManager(
+      _$LocalDatabase db, $MovieTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MovieTrackingRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MovieTrackingRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MovieTrackingRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieTrackingRowsCompanion(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MovieTrackingRowsCompanion.insert(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MovieTrackingRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MovieTrackingRowsTable,
+    MovieTrackingRow,
+    $$MovieTrackingRowsTableFilterComposer,
+    $$MovieTrackingRowsTableOrderingComposer,
+    $$MovieTrackingRowsTableAnnotationComposer,
+    $$MovieTrackingRowsTableCreateCompanionBuilder,
+    $$MovieTrackingRowsTableUpdateCompanionBuilder,
+    (
+      MovieTrackingRow,
+      BaseReferences<_$LocalDatabase, $MovieTrackingRowsTable, MovieTrackingRow>
+    ),
+    MovieTrackingRow,
     PrefetchHooks Function()>;
 typedef $$MusicReleaseRowsTableCreateCompanionBuilder
     = MusicReleaseRowsCompanion Function({
@@ -65863,6 +72357,323 @@ typedef $$MusicOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
           MusicOwnedItemsRow>
     ),
     MusicOwnedItemsRow,
+    PrefetchHooks Function()>;
+typedef $$MusicTrackingRowsTableCreateCompanionBuilder
+    = MusicTrackingRowsCompanion Function({
+  required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$MusicTrackingRowsTableUpdateCompanionBuilder
+    = MusicTrackingRowsCompanion Function({
+  Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$MusicTrackingRowsTableFilterComposer
+    extends Composer<_$LocalDatabase, $MusicTrackingRowsTable> {
+  $$MusicTrackingRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$MusicTrackingRowsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $MusicTrackingRowsTable> {
+  $$MusicTrackingRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$MusicTrackingRowsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $MusicTrackingRowsTable> {
+  $$MusicTrackingRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$MusicTrackingRowsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $MusicTrackingRowsTable,
+    MusicTrackingRow,
+    $$MusicTrackingRowsTableFilterComposer,
+    $$MusicTrackingRowsTableOrderingComposer,
+    $$MusicTrackingRowsTableAnnotationComposer,
+    $$MusicTrackingRowsTableCreateCompanionBuilder,
+    $$MusicTrackingRowsTableUpdateCompanionBuilder,
+    (
+      MusicTrackingRow,
+      BaseReferences<_$LocalDatabase, $MusicTrackingRowsTable, MusicTrackingRow>
+    ),
+    MusicTrackingRow,
+    PrefetchHooks Function()> {
+  $$MusicTrackingRowsTableTableManager(
+      _$LocalDatabase db, $MusicTrackingRowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MusicTrackingRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MusicTrackingRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MusicTrackingRowsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicTrackingRowsCompanion(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              MusicTrackingRowsCompanion.insert(
+            id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$MusicTrackingRowsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $MusicTrackingRowsTable,
+    MusicTrackingRow,
+    $$MusicTrackingRowsTableFilterComposer,
+    $$MusicTrackingRowsTableOrderingComposer,
+    $$MusicTrackingRowsTableAnnotationComposer,
+    $$MusicTrackingRowsTableCreateCompanionBuilder,
+    $$MusicTrackingRowsTableUpdateCompanionBuilder,
+    (
+      MusicTrackingRow,
+      BaseReferences<_$LocalDatabase, $MusicTrackingRowsTable, MusicTrackingRow>
+    ),
+    MusicTrackingRow,
     PrefetchHooks Function()>;
 typedef $$TvSeriesRowsTableCreateCompanionBuilder = TvSeriesRowsCompanion
     Function({
@@ -69314,6 +76125,19 @@ typedef $$TvCustomEpisodeRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$TvTrackingRowsTableCreateCompanionBuilder = TvTrackingRowsCompanion
     Function({
   required String id,
+  required String catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<String> episodeRatingsJson,
@@ -69322,6 +76146,19 @@ typedef $$TvTrackingRowsTableCreateCompanionBuilder = TvTrackingRowsCompanion
 typedef $$TvTrackingRowsTableUpdateCompanionBuilder = TvTrackingRowsCompanion
     Function({
   Value<String> id,
+  Value<String> catalogRefJson,
+  Value<String?> ownedItemId,
+  Value<String?> sourceType,
+  Value<String?> status,
+  Value<int?> rating,
+  Value<DateTime?> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<int?> progressCurrent,
+  Value<int?> progressTotal,
+  Value<int?> timesCompleted,
+  Value<String?> notes,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<String> episodeRatingsJson,
@@ -69339,6 +76176,48 @@ class $$TvTrackingRowsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
@@ -69362,6 +76241,49 @@ class $$TvTrackingRowsTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get rating => $composableBuilder(
+      column: $table.rating, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+      column: $table.notes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber,
@@ -69387,6 +76309,45 @@ class $$TvTrackingRowsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogRefJson => $composableBuilder(
+      column: $table.catalogRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+      column: $table.sourceType, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get rating =>
+      $composableBuilder(column: $table.rating, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get progressCurrent => $composableBuilder(
+      column: $table.progressCurrent, builder: (column) => column);
+
+  GeneratedColumn<int> get progressTotal => $composableBuilder(
+      column: $table.progressTotal, builder: (column) => column);
+
+  GeneratedColumn<int> get timesCompleted => $composableBuilder(
+      column: $table.timesCompleted, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumn<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber, builder: (column) => column);
@@ -69426,6 +76387,19 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
               $$TvTrackingRowsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> catalogRefJson = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<String> episodeRatingsJson = const Value.absent(),
@@ -69433,6 +76407,19 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
           }) =>
               TvTrackingRowsCompanion(
             id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             episodeRatingsJson: episodeRatingsJson,
@@ -69440,6 +76427,19 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            required String catalogRefJson,
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> sourceType = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<int?> rating = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<int?> progressCurrent = const Value.absent(),
+            Value<int?> progressTotal = const Value.absent(),
+            Value<int?> timesCompleted = const Value.absent(),
+            Value<String?> notes = const Value.absent(),
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<String> episodeRatingsJson = const Value.absent(),
@@ -69447,6 +76447,19 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
           }) =>
               TvTrackingRowsCompanion.insert(
             id: id,
+            catalogRefJson: catalogRefJson,
+            ownedItemId: ownedItemId,
+            sourceType: sourceType,
+            status: status,
+            rating: rating,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            progressCurrent: progressCurrent,
+            progressTotal: progressTotal,
+            timesCompleted: timesCompleted,
+            notes: notes,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             episodeRatingsJson: episodeRatingsJson,
@@ -69737,8 +76750,6 @@ class $LocalDatabaseManager {
   $LocalDatabaseManager(this._db);
   $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
-  $$TrackingEntriesCacheTableTableManager get trackingEntriesCache =>
-      $$TrackingEntriesCacheTableTableManager(_db, _db.trackingEntriesCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
   $$UserMetadataOverridesCacheTableTableManager
@@ -69805,6 +76816,8 @@ class $LocalDatabaseManager {
   $$BoardGamePlaySessionsRowsTableTableManager get boardGamePlaySessionsRows =>
       $$BoardGamePlaySessionsRowsTableTableManager(
           _db, _db.boardGamePlaySessionsRows);
+  $$BoardGameTrackingRowsTableTableManager get boardGameTrackingRows =>
+      $$BoardGameTrackingRowsTableTableManager(_db, _db.boardGameTrackingRows);
   $$BookMediaRowsTableTableManager get bookMediaRows =>
       $$BookMediaRowsTableTableManager(_db, _db.bookMediaRows);
   $$BookReleaseRowsTableTableManager get bookReleaseRows =>
@@ -69813,6 +76826,8 @@ class $LocalDatabaseManager {
       $$BookOwnedItemsRowsTableTableManager(_db, _db.bookOwnedItemsRows);
   $$BookTrackingUnitRowsTableTableManager get bookTrackingUnitRows =>
       $$BookTrackingUnitRowsTableTableManager(_db, _db.bookTrackingUnitRows);
+  $$BookTrackingRowsTableTableManager get bookTrackingRows =>
+      $$BookTrackingRowsTableTableManager(_db, _db.bookTrackingRows);
   $$ComicMediaRowsTableTableManager get comicMediaRows =>
       $$ComicMediaRowsTableTableManager(_db, _db.comicMediaRows);
   $$ComicReleaseRowsTableTableManager get comicReleaseRows =>
@@ -69823,24 +76838,32 @@ class $LocalDatabaseManager {
       $$ComicReadingRowsTableTableManager(_db, _db.comicReadingRows);
   $$ComicTrackingUnitRowsTableTableManager get comicTrackingUnitRows =>
       $$ComicTrackingUnitRowsTableTableManager(_db, _db.comicTrackingUnitRows);
+  $$ComicTrackingRowsTableTableManager get comicTrackingRows =>
+      $$ComicTrackingRowsTableTableManager(_db, _db.comicTrackingRows);
   $$GameMediaRowsTableTableManager get gameMediaRows =>
       $$GameMediaRowsTableTableManager(_db, _db.gameMediaRows);
   $$GameReleaseRowsTableTableManager get gameReleaseRows =>
       $$GameReleaseRowsTableTableManager(_db, _db.gameReleaseRows);
   $$GameOwnedItemsRowsTableTableManager get gameOwnedItemsRows =>
       $$GameOwnedItemsRowsTableTableManager(_db, _db.gameOwnedItemsRows);
+  $$GameTrackingRowsTableTableManager get gameTrackingRows =>
+      $$GameTrackingRowsTableTableManager(_db, _db.gameTrackingRows);
   $$MangaMediaRowsTableTableManager get mangaMediaRows =>
       $$MangaMediaRowsTableTableManager(_db, _db.mangaMediaRows);
   $$MangaOwnedItemsRowsTableTableManager get mangaOwnedItemsRows =>
       $$MangaOwnedItemsRowsTableTableManager(_db, _db.mangaOwnedItemsRows);
   $$MangaTrackingUnitRowsTableTableManager get mangaTrackingUnitRows =>
       $$MangaTrackingUnitRowsTableTableManager(_db, _db.mangaTrackingUnitRows);
+  $$MangaTrackingRowsTableTableManager get mangaTrackingRows =>
+      $$MangaTrackingRowsTableTableManager(_db, _db.mangaTrackingRows);
   $$MovieMediaRowsTableTableManager get movieMediaRows =>
       $$MovieMediaRowsTableTableManager(_db, _db.movieMediaRows);
   $$MovieReleaseRowsTableTableManager get movieReleaseRows =>
       $$MovieReleaseRowsTableTableManager(_db, _db.movieReleaseRows);
   $$MovieOwnedItemsRowsTableTableManager get movieOwnedItemsRows =>
       $$MovieOwnedItemsRowsTableTableManager(_db, _db.movieOwnedItemsRows);
+  $$MovieTrackingRowsTableTableManager get movieTrackingRows =>
+      $$MovieTrackingRowsTableTableManager(_db, _db.movieTrackingRows);
   $$MusicReleaseRowsTableTableManager get musicReleaseRows =>
       $$MusicReleaseRowsTableTableManager(_db, _db.musicReleaseRows);
   $$MusicMediaRowsTableTableManager get musicMediaRows =>
@@ -69849,6 +76872,8 @@ class $LocalDatabaseManager {
       $$MusicTrackRowsTableTableManager(_db, _db.musicTrackRows);
   $$MusicOwnedItemsRowsTableTableManager get musicOwnedItemsRows =>
       $$MusicOwnedItemsRowsTableTableManager(_db, _db.musicOwnedItemsRows);
+  $$MusicTrackingRowsTableTableManager get musicTrackingRows =>
+      $$MusicTrackingRowsTableTableManager(_db, _db.musicTrackingRows);
   $$TvSeriesRowsTableTableManager get tvSeriesRows =>
       $$TvSeriesRowsTableTableManager(_db, _db.tvSeriesRows);
   $$TvSeasonRowsTableTableManager get tvSeasonRows =>

@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/test_constants.dart';
 import '../../helpers/secure_storage_mock.dart';
 import '../../helpers/test_data_factories.dart';
+import '../../helpers/tracking_entry_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -102,19 +103,18 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.trackingEntriesCache).insert(
-          TrackingEntriesCacheCompanion.insert(
-            id: 'tracking-1',
-            kind: 'movie',
-            catalogRefJson:
-                '{"kind":"movie","entity_type":"work","id":"movie-1"}',
-            sourceType: const Value('digital'),
-            status: const Value('Plan to watch'),
-            rating: const Value(7),
-            startedAt: Value(DateTime.utc(2026, 5, 20)),
-            updatedAt: DateTime.utc(2026, 5, 23),
-          ),
-        );
+    final trackingRepository = trackingEntryTestRepository(db);
+    await trackingRepository.upsert(
+      trackingRepository.create(
+        id: 'tracking-1',
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        sourceType: 'digital',
+        status: 'Plan to watch',
+        rating: 7,
+        startedAt: DateTime.utc(2026, 5, 20),
+        updatedAt: DateTime.utc(2026, 5, 23),
+      ),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -162,10 +162,10 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
     await pumpUntilSettled(tester);
 
-    final updated = await db.select(db.trackingEntriesCache).getSingle();
-    expect(updated.sourceType, 'digital');
+    final updated = await readSingleTrackingEntry(db);
+    expect(updated.sourceTypeApiValue, 'digital');
     expect(updated.rating, 7);
-    expect(updated.catalogRefJson, isNotNull);
+    expect(updated.catalogRef.id, 'variant-hd');
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
   });
 

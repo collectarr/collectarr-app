@@ -1,18 +1,90 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:drift/drift.dart';
 
 import 'music_tracking_entry.dart';
 
 /// Music-owned lifecycle tracking mapping. Track/disc state remains in the
 /// Music vertical and is not inferred by the sync host.
-final class MusicTrackingEntryCodec implements TrackingEntryCodec {
+final class MusicTrackingEntryCodec
+    with TrackingEntryStorageSupport
+    implements TrackingEntryCodec {
   const MusicTrackingEntryCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
+
+  @override
+  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+    LocalDatabase db, {
+    required bool activeOnly,
+  }) async {
+    final query = db.select(db.musicTrackingRows);
+    if (activeOnly) query.where((row) => row.deletedAt.isNull());
+    final rows = await query.get();
+    return [
+      for (final row in rows)
+        TrackingEntryStorageRecord(
+          trackingEntryStorageRowFromColumns(
+            id: row.id,
+            catalogRefJson: row.catalogRefJson,
+            ownedItemId: row.ownedItemId,
+            sourceType: row.sourceType,
+            status: row.status,
+            rating: row.rating,
+            startedAt: row.startedAt,
+            finishedAt: row.finishedAt,
+            progressCurrent: row.progressCurrent,
+            progressTotal: row.progressTotal,
+            timesCompleted: row.timesCompleted,
+            notes: row.notes,
+            updatedAt: row.updatedAt,
+            deletedAt: row.deletedAt,
+          ),
+          null,
+        ),
+    ];
+  }
+
+  @override
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingEntry entry) async {
+    _validateKind(entry.catalogRef);
+    await db.into(db.musicTrackingRows).insertOnConflictUpdate(
+          MusicTrackingRowsCompanion.insert(
+            id: entry.id,
+            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
+            ownedItemId: Value(entry.ownedRef?.key),
+            sourceType: Value(entry.sourceTypeApiValue),
+            status: Value(entry.statusStorageValue),
+            rating: Value(entry.rating),
+            startedAt: Value(entry.startedAt),
+            finishedAt: Value(entry.finishedAt),
+            progressCurrent: Value(entry.progressCurrent),
+            progressTotal: Value(entry.progressTotal),
+            timesCompleted: Value(entry.timesCompleted),
+            notes: Value(entry.notes),
+            updatedAt: entry.updatedAt,
+            deletedAt: Value(entry.deletedAt),
+          ),
+        );
+  }
+
+  @override
+  Future<void> deleteStorageRecord(
+      LocalDatabase db, TrackingEntry entry, DateTime deletedAt) async {
+    _validateKind(entry.catalogRef);
+    await (db.update(db.musicTrackingRows)
+          ..where((row) => row.id.equals(entry.id)))
+        .write(MusicTrackingRowsCompanion(
+      deletedAt: Value(deletedAt),
+      updatedAt: Value(deletedAt),
+    ));
+  }
 
   @override
   MusicTrackingEntry create({
@@ -56,14 +128,6 @@ final class MusicTrackingEntryCodec implements TrackingEntryCodec {
     Iterable<String>? ids,
   ) async =>
       const {};
-
-  @override
-  Future<void> clearCoordinates(LocalDatabase db, String id) async {}
-
-  @override
-  Future<void> writeCoordinates(LocalDatabase db, TrackingEntry entry) async {
-    _validateKind(entry.catalogRef);
-  }
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingEntry entry) {

@@ -2,9 +2,9 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 /// Structural identity for a tracking entry at a mixed-feature boundary.
 ///
-/// Tracking entries are persisted in a universal v1 index for now, so an id
-/// alone is not a safe cross-kind lookup key. The kind is kept in memory and
-/// serialized only by the sync/database boundary.
+/// Tracking entries are persisted in kind-owned v1 tables, so an id alone is
+/// not a safe cross-kind lookup key. The kind is kept in memory and serialized
+/// only by the sync/database boundary.
 final class TrackingEntryRef {
   const TrackingEntryRef({
     required this.kind,

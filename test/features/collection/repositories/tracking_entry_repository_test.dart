@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry_codec.dart';
@@ -45,7 +45,7 @@ void main() {
   test('round-trips TV tracking coordinates through the TV codec', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingEntriesCacheRepository(
+    final repository = TrackingEntryRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,
     );
@@ -96,7 +96,7 @@ void main() {
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = TrackingEntriesCacheRepository(
+    final repository = TrackingEntryRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,
     );

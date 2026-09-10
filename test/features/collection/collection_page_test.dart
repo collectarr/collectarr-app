@@ -84,9 +84,7 @@ void main() {
     expect(find.text('2'), findsWidgets);
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('USD 12.99'), findsWidgets);
-    expect(find.text('Read status'), findsOneWidget);
     expect(find.text('Locations'), findsOneWidget);
-    expect(find.text('Not tracked: 2'), findsOneWidget);
     expect(find.text('Box 6: 1'), findsOneWidget);
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);

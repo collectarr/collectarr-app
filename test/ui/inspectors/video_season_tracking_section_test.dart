@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import '../../helpers/tracking_entry_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -103,15 +104,11 @@ void main() {
     expect(videoUnits.single.episodeNumber, 1);
     expect(videoUnits.single.deletedAt, isNull);
 
-    final entries = await db.select(db.trackingEntriesCache).get();
+    final entries = await readTrackingEntries(db);
     final tvTrackingEntries = await db.select(db.tvTrackingRows).get();
     expect(entries, hasLength(1));
     expect(
-      CatalogEntityRef.fromJson(
-        Map<String, Object?>.from(
-          jsonDecode(entries.single.catalogRefJson) as Map,
-        ),
-      ).id,
+      entries.single.catalogRef.id,
       itemId,
     );
     expect(entries.single.progressCurrent, 1);

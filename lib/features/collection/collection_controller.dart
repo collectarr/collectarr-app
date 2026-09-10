@@ -9,8 +9,8 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
@@ -49,7 +49,7 @@ final collectionSummariesProvider =
 /// Full persistence aggregates are exposed only to typed edit/sync flows.
 final trackingPersistenceEntriesProvider =
     FutureProvider<List<TrackingEntry>>((ref) async {
-  final cache = TrackingEntriesCacheRepository(
+  final cache = TrackingEntryRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingEntryCodecs,
   );
@@ -82,7 +82,7 @@ final trackingPersistenceEntriesByCatalogRefProvider =
 /// Collection/Shelf/Activity must not carry the full tracking aggregate.
 final trackingSummariesProvider =
     FutureProvider<List<TrackingSummary>>((ref) async {
-  final cache = TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
+  final cache = TrackingEntryRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
 });
 
@@ -108,7 +108,7 @@ final trackingSummariesByCatalogRefProvider =
 });
 
 final trackingUnitsProvider = FutureProvider<List<TrackingUnit>>((ref) async {
-  final cache = TrackingUnitsCacheRepository(
+  final cache = TrackingUnitRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingUnitCodecs,
   );

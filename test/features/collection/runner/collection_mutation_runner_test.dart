@@ -168,7 +168,7 @@ void main() {
         await CatalogTransportRepository(db).upsertAll([
           testCatalogItemFromJson({
             'id': localRef.id,
-            'kind': localRef.kind,
+            'kind': localRef.kind.apiValue,
             'title': 'Movie',
           }),
         ]);

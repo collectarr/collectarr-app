@@ -23,6 +23,7 @@ void main() {
       'lib/features/pick_lists/pick_list_definition_contributor.dart',
       'lib/features/pick_lists/vocabulary_repository.dart',
       'lib/features/library/generic/projection.dart',
+      'lib/features/library/metadata/metadata_correction_schema.dart',
       'lib/features/library/kinds/registry/library_kind_module.dart',
     };
     const declarativeTokens = [

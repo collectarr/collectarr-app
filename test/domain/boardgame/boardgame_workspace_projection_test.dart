@@ -29,7 +29,7 @@ void main() {
     );
 
     expect(dto.title, 'Catan');
-    expect(source.catalogItem?.kind, 'boardgame');
+    expect(source.catalogItem?.mediaKind.apiValue, 'boardgame');
   });
 
   test('boardgame workspace projector applies release and copy projections',

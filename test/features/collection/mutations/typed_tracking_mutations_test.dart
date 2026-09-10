@@ -21,8 +21,8 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
@@ -38,7 +38,7 @@ void main() {
   late TrackingMutations trackingMutations;
   late CatalogTransportRepository catalogCache;
   late OwnedItemsRepository ownedItems;
-  late TrackingEntriesCacheRepository trackingEntries;
+  late TrackingEntryRepository trackingEntries;
   late MutationOrigin? observedOrigin;
 
   setUp(() {
@@ -46,7 +46,7 @@ void main() {
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = CatalogTransportRepository(db);
     ownedItems = OwnedItemsRepository(db);
-    trackingEntries = TrackingEntriesCacheRepository(
+    trackingEntries = TrackingEntryRepository(
       db,
       codecs: collectarrTrackingEntryCodecs,
     );
@@ -58,7 +58,7 @@ void main() {
 
     trackingMutations = TrackingMutations(
       trackingEntries: trackingEntries,
-      trackingUnits: TrackingUnitsCacheRepository(
+      trackingUnits: TrackingUnitRepository(
         db,
         codecs: collectarrTrackingUnitCodecs,
       ),

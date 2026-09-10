@@ -11,8 +11,8 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -44,8 +44,8 @@ final class TrackingMutations {
     this.idGenerator = _defaultIdGenerator,
   });
 
-  final TrackingEntriesCacheRepository trackingEntries;
-  final TrackingUnitsCacheRepository trackingUnits;
+  final TrackingEntryRepository trackingEntries;
+  final TrackingUnitRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
   final OwnedItemsRepository? ownedItems;
   final SyncQueueRepository syncQueue;

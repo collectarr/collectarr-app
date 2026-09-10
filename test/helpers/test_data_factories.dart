@@ -276,18 +276,18 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
 
 LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
   if (grade == null) return null;
-  return switch (kind) {
-    CatalogMediaKind.anime => AnimeAddDraft(grade: grade),
-    CatalogMediaKind.boardgame => BoardgameAddDraft(grade: grade),
-    CatalogMediaKind.book => BookAddDraft(grade: grade),
-    CatalogMediaKind.comic => ComicAddDraft(grade: grade),
-    CatalogMediaKind.game => GameAddDraft(grade: grade),
-    CatalogMediaKind.manga => MangaAddDraft(grade: grade),
-    CatalogMediaKind.movie => MovieAddDraft(grade: grade),
-    CatalogMediaKind.music => MusicAddDraft(grade: grade),
-    CatalogMediaKind.tv => TvAddDraft(grade: grade),
-    CatalogMediaKind.unknown => null,
+  final factories = <CatalogMediaKind, LibraryAddKindDraft Function()>{
+    CatalogMediaKind.anime: () => AnimeAddDraft(grade: grade),
+    CatalogMediaKind.boardgame: () => BoardgameAddDraft(grade: grade),
+    CatalogMediaKind.book: () => BookAddDraft(grade: grade),
+    CatalogMediaKind.comic: () => ComicAddDraft(grade: grade),
+    CatalogMediaKind.game: () => GameAddDraft(grade: grade),
+    CatalogMediaKind.manga: () => MangaAddDraft(grade: grade),
+    CatalogMediaKind.movie: () => MovieAddDraft(grade: grade),
+    CatalogMediaKind.music: () => MusicAddDraft(grade: grade),
+    CatalogMediaKind.tv: () => TvAddDraft(grade: grade),
   };
+  return factories[kind]?.call();
 }
 
 /// Builds an [OwnedItem] with sensible defaults for testing.
@@ -539,22 +539,26 @@ TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
     TvOwnedItem.fromJson(item.toJson());
 
 Object testTypedOwnedItemFrom(TestOwnedItem item) {
-  return switch (item.catalogRef.mediaKind) {
-    CatalogMediaKind.anime => testAnimeOwnedItemFrom(item),
-    CatalogMediaKind.boardgame => testBoardGameOwnedItemFrom(item),
-    CatalogMediaKind.book => testBookOwnedItemFrom(item),
-    CatalogMediaKind.comic => testComicOwnedItemFrom(item),
-    CatalogMediaKind.game => testGameOwnedItemFrom(item),
-    CatalogMediaKind.manga => testMangaOwnedItemFrom(item),
-    CatalogMediaKind.movie => testMovieOwnedItemFrom(item),
-    CatalogMediaKind.music => testMusicOwnedItemFrom(item),
-    CatalogMediaKind.tv => testTvOwnedItemFrom(item),
-    CatalogMediaKind.unknown => throw ArgumentError.value(
-        item.catalogRef.mediaKind,
-        'item',
-        'Test Owned fixture requires an active kind',
-      ),
+  final factories = <CatalogMediaKind, Object Function()>{
+    CatalogMediaKind.anime: () => testAnimeOwnedItemFrom(item),
+    CatalogMediaKind.boardgame: () => testBoardGameOwnedItemFrom(item),
+    CatalogMediaKind.book: () => testBookOwnedItemFrom(item),
+    CatalogMediaKind.comic: () => testComicOwnedItemFrom(item),
+    CatalogMediaKind.game: () => testGameOwnedItemFrom(item),
+    CatalogMediaKind.manga: () => testMangaOwnedItemFrom(item),
+    CatalogMediaKind.movie: () => testMovieOwnedItemFrom(item),
+    CatalogMediaKind.music: () => testMusicOwnedItemFrom(item),
+    CatalogMediaKind.tv: () => testTvOwnedItemFrom(item),
   };
+  final factory = factories[item.catalogRef.mediaKind];
+  if (factory == null) {
+    throw ArgumentError.value(
+      item.catalogRef.mediaKind,
+      'item',
+      'Test Owned fixture requires an active kind',
+    );
+  }
+  return factory();
 }
 
 /// Builds a [ShelfEntry] with sensible defaults for testing.
@@ -575,27 +579,21 @@ ShelfEntry testShelfEntry({
         kind: kind,
         title: title,
       );
-  final typedOwnedItem = switch (catalogMediaKindFromApiValue(kind)) {
-    CatalogMediaKind.comic when ownedItem != null =>
-      testComicOwnedItemFrom(ownedItem),
-    CatalogMediaKind.book when ownedItem != null =>
-      testBookOwnedItemFrom(ownedItem),
-    CatalogMediaKind.movie when ownedItem != null =>
-      testMovieOwnedItemFrom(ownedItem),
-    CatalogMediaKind.anime when ownedItem != null =>
-      testAnimeOwnedItemFrom(ownedItem),
-    CatalogMediaKind.boardgame when ownedItem != null =>
-      testBoardGameOwnedItemFrom(ownedItem),
-    CatalogMediaKind.game when ownedItem != null =>
-      testGameOwnedItemFrom(ownedItem),
-    CatalogMediaKind.manga when ownedItem != null =>
-      testMangaOwnedItemFrom(ownedItem),
-    CatalogMediaKind.music when ownedItem != null =>
-      testMusicOwnedItemFrom(ownedItem),
-    CatalogMediaKind.tv when ownedItem != null =>
-      testTvOwnedItemFrom(ownedItem),
-    _ => null,
-  };
+  final typedOwnedItem = ownedItem == null
+      ? null
+      : <CatalogMediaKind, Object Function()>{
+          CatalogMediaKind.comic: () => testComicOwnedItemFrom(ownedItem),
+          CatalogMediaKind.book: () => testBookOwnedItemFrom(ownedItem),
+          CatalogMediaKind.movie: () => testMovieOwnedItemFrom(ownedItem),
+          CatalogMediaKind.anime: () => testAnimeOwnedItemFrom(ownedItem),
+          CatalogMediaKind.boardgame: () =>
+              testBoardGameOwnedItemFrom(ownedItem),
+          CatalogMediaKind.game: () => testGameOwnedItemFrom(ownedItem),
+          CatalogMediaKind.manga: () => testMangaOwnedItemFrom(ownedItem),
+          CatalogMediaKind.music: () => testMusicOwnedItemFrom(ownedItem),
+          CatalogMediaKind.tv: () => testTvOwnedItemFrom(ownedItem),
+        }[catalogMediaKindFromApiValue(kind)]
+          ?.call();
   return ShelfEntry(
     itemId: itemId,
     catalogItem: LibraryAddCatalogItem.fromItem(

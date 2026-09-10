@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -11,6 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
+import '../helpers/tracking_entry_test_helpers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -517,12 +516,11 @@ void main() {
       reason: 'Manga seed copies must retain complete typed ownership data',
     );
 
-    final trackingRows = await db.select(db.trackingEntriesCache).get();
+    final trackingRows = await readTrackingEntries(db);
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows
-          .where((row) => (jsonDecode(row.catalogRefJson) as Map)['id']
-              .toString()
-              .startsWith('seed-${entry.key.apiValue}-'))
+          .where((row) =>
+              row.catalogRef.id.startsWith('seed-${entry.key.apiValue}-'))
           .toList();
       expect(kindTracking, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} tracking seed count');
@@ -532,7 +530,7 @@ void main() {
         hasLength(expectedSeedTotal));
     expect(
         trackingRows.every((row) =>
-            row.ownedItemId != null && ownedRefs.contains(row.ownedItemId)),
+            row.ownedRef != null && ownedRefs.contains(row.ownedRef!.key)),
         isTrue);
     expect(
       trackingRows.every((row) =>

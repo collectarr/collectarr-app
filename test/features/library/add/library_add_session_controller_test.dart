@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
+import '../../../helpers/tracking_entry_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -13,8 +14,8 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -67,7 +68,7 @@ void main() {
       ownedItems: OwnedItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(
+      trackingEntries: TrackingEntryRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
       ),
@@ -78,11 +79,11 @@ void main() {
     wishlistMutations = WishlistMutations(
       wishlist: WishlistItemsCacheRepository(db),
       catalogCache: catalogCache,
-      trackingEntries: TrackingEntriesCacheRepository(
+      trackingEntries: TrackingEntryRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
       ),
-      trackingUnits: TrackingUnitsCacheRepository(
+      trackingUnits: TrackingUnitRepository(
         db,
         codecs: collectarrTrackingUnitCodecs,
       ),
@@ -91,11 +92,11 @@ void main() {
     );
 
     trackingMutations = TrackingMutations(
-      trackingEntries: TrackingEntriesCacheRepository(
+      trackingEntries: TrackingEntryRepository(
         db,
         codecs: collectarrTrackingEntryCodecs,
       ),
-      trackingUnits: TrackingUnitsCacheRepository(
+      trackingUnits: TrackingUnitRepository(
         db,
         codecs: collectarrTrackingUnitCodecs,
       ),
@@ -230,13 +231,8 @@ void main() {
       );
       expect(success, true);
 
-      final tracking = await db.select(db.trackingEntriesCache).getSingle();
-      expect(
-        CatalogEntityRef.fromJson(
-          Map<String, Object?>.from(jsonDecode(tracking.catalogRefJson) as Map),
-        ).id,
-        'comic-track-1',
-      );
+      final tracking = await readSingleTrackingEntry(db);
+      expect(tracking.catalogRef.id, 'comic-track-1');
     });
 
     test('toggleCheckedResult and toggleCheckedProvider update selection', () {
