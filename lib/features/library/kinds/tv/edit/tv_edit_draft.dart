@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -234,11 +233,11 @@ class TvEditDraft extends LibraryEditKindDraft
 
 LibraryEditKindDraft createTvEditDraft({
   required LibraryAddCatalogItem item,
-  OwnedItem? ownedItem,
+  Object? typedOwnedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final video = TvOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
+  final video = TvOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
   final metadata = item.kindMetadata;
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final videoEdit = VideoEditController(

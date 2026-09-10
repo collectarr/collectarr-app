@@ -497,6 +497,25 @@ MusicOwnedItem testMusicOwnedItemFrom(OwnedItem item) =>
 TvOwnedItem testTvOwnedItemFrom(OwnedItem item) =>
     TvOwnedItem.fromJson(item.toJson());
 
+Object testTypedOwnedItemFrom(OwnedItem item) {
+  return switch (item.catalogRef.mediaKind) {
+    CatalogMediaKind.anime => testAnimeOwnedItemFrom(item),
+    CatalogMediaKind.boardgame => testBoardGameOwnedItemFrom(item),
+    CatalogMediaKind.book => testBookOwnedItemFrom(item),
+    CatalogMediaKind.comic => testComicOwnedItemFrom(item),
+    CatalogMediaKind.game => testGameOwnedItemFrom(item),
+    CatalogMediaKind.manga => testMangaOwnedItemFrom(item),
+    CatalogMediaKind.movie => testMovieOwnedItemFrom(item),
+    CatalogMediaKind.music => testMusicOwnedItemFrom(item),
+    CatalogMediaKind.tv => testTvOwnedItemFrom(item),
+    CatalogMediaKind.unknown => throw ArgumentError.value(
+        item.catalogRef.mediaKind,
+        'item',
+        'Test Owned fixture requires an active kind',
+      ),
+  };
+}
+
 /// Builds a [ShelfEntry] with sensible defaults for testing.
 ///
 /// If [catalogItem] is omitted, a default one is created from [itemId] and

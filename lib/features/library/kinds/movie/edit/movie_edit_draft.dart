@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -208,11 +207,11 @@ class MovieEditDraft extends LibraryEditKindDraft
 
 LibraryEditKindDraft createMovieEditDraft({
   required LibraryAddCatalogItem item,
-  OwnedItem? ownedItem,
+  Object? typedOwnedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final video = MovieOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
+  final video = MovieOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
   final metadata = item.kindMetadata;
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
   final videoEdit = VideoEditController(

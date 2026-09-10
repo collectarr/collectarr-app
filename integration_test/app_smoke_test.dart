@@ -83,7 +83,6 @@ List<Override> _testOverrides() {
         entries: [],
         ownedCount: 0,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
         primaryCurrency: null,

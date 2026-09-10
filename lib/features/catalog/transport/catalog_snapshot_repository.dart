@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 /// Reads complete catalog snapshots at an explicit serialization boundary.
@@ -13,14 +13,14 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 final class CatalogSnapshotRepository {
   CatalogSnapshotRepository(
     this._db, {
-    Iterable<CatalogKindRepositoryCodec> codecs =
-        collectarrKindCatalogRepositoryCodecs,
+    Iterable<CatalogKindTransportCodec> codecs =
+        collectarrKindCatalogTransportCodecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, CatalogKindRepositoryCodec> _codecs;
+  final Map<CatalogMediaKind, CatalogKindTransportCodec> _codecs;
 
   Future<Map<String, CatalogItemDto>> findByIds(Iterable<String> ids) async {
     final wanted = ids.toSet();

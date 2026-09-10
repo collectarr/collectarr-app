@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -121,11 +120,11 @@ class GameEditDraft extends LibraryEditKindDraft {
 
 LibraryEditKindDraft createGameEditDraft({
   required LibraryAddCatalogItem item,
-  OwnedItem? ownedItem,
+  Object? typedOwnedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final game = GameOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
+  final game = GameOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
   final meta = item.kindMetadata is GameCatalogMetadata
       ? item.kindMetadata as GameCatalogMetadata
       : null;

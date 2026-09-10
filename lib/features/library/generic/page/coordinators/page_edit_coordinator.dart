@@ -139,6 +139,7 @@ class LibraryPageEditCoordinator {
       type: _s.widget.type,
       item: freshMetadataItem,
       ownedItem: owned,
+      typedOwnedItem: item.source.typedOwnedItem,
       scope: scope ??
           _s.widget.type.hierarchy
               .editScopeForBrowserMode(_s._activeBrowserMode),

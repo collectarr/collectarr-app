@@ -37,6 +37,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.typedOwnedItem,
     this.wishlistItem,
     this.trackingEntry,
     required this.accent,
@@ -60,6 +61,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         type = draft.type,
         item = draft.item,
         ownedItem = draft.ownedItem,
+        typedOwnedItem = draft.typedOwnedItem,
         wishlistItem = draft.wishlistItem,
         trackingEntry = draft.trackingEntry,
         accent = draft.accent,
@@ -72,6 +74,9 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final LibraryKindModule type;
   final LibraryAddCatalogItem item;
   final OwnedItem? ownedItem;
+
+  /// Concrete kind-owned aggregate passed through the typed edit boundary.
+  final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
@@ -141,6 +146,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           type: widget.type,
           item: widget.item,
           ownedItem: widget.ownedItem,
+          typedOwnedItem: widget.typedOwnedItem,
           wishlistItem: widget.wishlistItem,
           trackingEntry: widget.trackingEntry,
           accent: widget.accent,

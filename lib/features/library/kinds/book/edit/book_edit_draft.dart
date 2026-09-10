@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -214,11 +213,11 @@ class BookEditDraft extends LibraryEditKindDraft {
 
 LibraryEditKindDraft createBookEditDraft({
   required LibraryAddCatalogItem item,
-  OwnedItem? ownedItem,
+  Object? typedOwnedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final book = BookOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
+  final book = BookOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
   final rawMetadata = item.kindMetadata;
   final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata

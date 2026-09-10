@@ -119,7 +119,7 @@ void main() {
 
     test('generated kind registry covers typed catalog and vocabulary inputs',
         () {
-      final catalogKinds = collectarrKindCatalogRepositoryCodecs
+      final catalogKinds = collectarrKindCatalogTransportCodecs
           .map((codec) => codec.kind)
           .toSet();
       expect(catalogKinds, equals(activeKinds.toSet()));

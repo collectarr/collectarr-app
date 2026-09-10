@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -8,6 +7,8 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
@@ -205,8 +206,8 @@ void main() {
 
       final draft = createMangaEditDraft(
         item: LibraryAddCatalogItem.fromItem(metaItem),
-        ownedItem: OwnedItem(
-          id: 'owned_1',
+        typedOwnedItem: MangaOwnedItem(
+          id: const MangaOwnedItemId('owned_1'),
           catalogRef: const CatalogEntityRef(
             id: 'manga_1',
             kind: CatalogMediaKind.manga,

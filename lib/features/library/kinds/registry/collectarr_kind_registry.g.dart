@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
@@ -172,15 +172,15 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_proj
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_catalog_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_catalog_repository_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/serial/comic_serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/serial/manga_serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
@@ -980,16 +980,16 @@ OwnedItemCreatePayload collectarrOwnedCreatePayloadFromTyped(
   throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
 }
 
-const List<CatalogKindRepositoryCodec> collectarrKindCatalogRepositoryCodecs = [
-  AnimeCatalogRepositoryCodec(),
-  BoardGameCatalogRepositoryCodec(),
-  BookCatalogRepositoryCodec(),
-  ComicCatalogRepositoryCodec(),
-  GameCatalogRepositoryCodec(),
-  MangaCatalogRepositoryCodec(),
-  MovieCatalogRepositoryCodec(),
-  MusicCatalogRepositoryCodec(),
-  TvCatalogRepositoryCodec(),
+const List<CatalogKindTransportCodec> collectarrKindCatalogTransportCodecs = [
+  AnimeCatalogTransportCodec(),
+  BoardGameCatalogTransportCodec(),
+  BookCatalogTransportCodec(),
+  ComicCatalogTransportCodec(),
+  GameCatalogTransportCodec(),
+  MangaCatalogTransportCodec(),
+  MovieCatalogTransportCodec(),
+  MusicCatalogTransportCodec(),
+  TvCatalogTransportCodec(),
 ];
 const List<SerialAuthorityContributor>
     collectarrKindSerialAuthorityContributors = [

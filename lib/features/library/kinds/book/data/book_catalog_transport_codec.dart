@@ -2,15 +2,15 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_codec_support.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
 
-final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
-  const MovieCatalogRepositoryCodec();
+final class BookCatalogTransportCodec implements CatalogKindTransportCodec {
+  const BookCatalogTransportCodec();
 
   @override
-  CatalogMediaKind get kind => CatalogMediaKind.movie;
+  CatalogMediaKind get kind => CatalogMediaKind.book;
 
   @override
   Future<int> countCatalogValue(
@@ -44,8 +44,8 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Object? typedMetadataFromDto(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is MovieMedia) return metadata;
-    return metadata is Map ? MovieMedia.fromJson(item.payload) : null;
+    if (metadata is BookMedia) return metadata;
+    return metadata is Map ? BookMedia.fromJson(item.payload) : null;
   }
 
   @override
@@ -57,14 +57,14 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
-    return MovieRepository(db).updateMedia(
-      MovieMedia.fromJson(catalogPayloadFor(item)),
+    return BookRepository(db).updateMedia(
+      BookMedia.fromJson(catalogPayloadFor(item)),
     );
   }
 
   @override
   Future<List<CatalogItemDto>> list(LocalDatabase db) async {
-    final media = await MovieRepository(db).search();
+    final media = await BookRepository(db).search();
     return [
       for (final item in media) _projection(item),
     ];
@@ -72,7 +72,7 @@ final class MovieCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await MovieRepository(db).search();
+    final media = await BookRepository(db).search();
     return [
       for (final item in media)
         CatalogDisplaySummary.work(
@@ -128,11 +128,11 @@ Future<int> _countCatalogProjectionValues(
   return count;
 }
 
-CatalogItemDto _projection(MovieMedia item) {
+CatalogItemDto _projection(BookMedia item) {
   final payload = Map<String, dynamic>.from(item.rawPayload);
   payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'movie';
+  payload['kind'] ??= 'book';
   payload['title'] ??= item.title;
   final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(MovieMedia.fromJson(projection.payload));
+  return projection.withKindMetadata(BookMedia.fromJson(projection.payload));
 }

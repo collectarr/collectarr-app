@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -399,12 +398,11 @@ Map<String, dynamic> _withoutEditedFields(Map<String, dynamic> rawPayload) {
 
 LibraryEditKindDraft createBoardGameEditDraft({
   required LibraryAddCatalogItem item,
-  OwnedItem? ownedItem,
+  Object? typedOwnedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final bg =
-      BoardGameOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
+  final bg = BoardGameOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
   final meta = item.kindMetadata is BoardGameMetadata
       ? item.kindMetadata as BoardGameMetadata
       : null;

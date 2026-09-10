@@ -129,6 +129,7 @@ class LibraryEditDialogRequest {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.typedOwnedItem,
     required this.accent,
     this.scope,
     this.wishlistItem,
@@ -146,6 +147,10 @@ class LibraryEditDialogRequest {
   final LibraryKindModule type;
   final LibraryAddCatalogItem item;
   final OwnedItem? ownedItem;
+
+  /// Concrete kind-owned aggregate, present only after kind dispatch.
+  /// Generic edit infrastructure must not decode or inspect this value.
+  final Object? typedOwnedItem;
   final Color accent;
   final LibraryEditScope? scope;
 
@@ -166,6 +171,7 @@ class LibraryEditDialogRequest {
     LibraryKindModule? type,
     LibraryAddCatalogItem? item,
     OwnedItem? ownedItem,
+    Object? typedOwnedItem,
     Color? accent,
     LibraryEditScope? scope,
     WishlistItem? wishlistItem,
@@ -183,6 +189,7 @@ class LibraryEditDialogRequest {
       type: type ?? this.type,
       item: item ?? this.item,
       ownedItem: ownedItem ?? this.ownedItem,
+      typedOwnedItem: typedOwnedItem ?? this.typedOwnedItem,
       accent: accent ?? this.accent,
       scope: scope ?? this.scope,
       wishlistItem: wishlistItem ?? this.wishlistItem,

@@ -9,7 +9,8 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_own
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -157,8 +158,8 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
   final item = _mangaItem();
   return createMangaEditDraft(
     item: item,
-    ownedItem: OwnedItem(
-      id: 'owned-1',
+    typedOwnedItem: MangaOwnedItem(
+      id: const MangaOwnedItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
         id: 'manga-1',
         kind: CatalogMediaKind.manga,

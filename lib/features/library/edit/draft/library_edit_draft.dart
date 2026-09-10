@@ -39,6 +39,7 @@ class LibraryEditDraft {
     required this.type,
     required this.item,
     required this.ownedItem,
+    required this.typedOwnedItem,
     required this.wishlistItem,
     required this.trackingEntry,
     required this.accent,
@@ -60,6 +61,7 @@ class LibraryEditDraft {
   final LibraryKindModule type;
   final LibraryAddCatalogItem item;
   final OwnedItem? ownedItem;
+  final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
@@ -91,6 +93,7 @@ class LibraryEditDraft {
       type: request.type,
       item: request.item,
       ownedItem: request.ownedItem,
+      typedOwnedItem: request.typedOwnedItem,
       wishlistItem: request.wishlistItem,
       trackingEntry: request.trackingEntry,
       accent: request.accent,
@@ -106,6 +109,7 @@ class LibraryEditDraft {
     required LibraryKindModule type,
     required LibraryAddCatalogItem item,
     OwnedItem? ownedItem,
+    Object? typedOwnedItem,
     WishlistItem? wishlistItem,
     TrackingEntry? trackingEntry,
     required Color accent,
@@ -119,6 +123,7 @@ class LibraryEditDraft {
       type: type,
       item: item,
       ownedItem: ownedItem,
+      typedOwnedItem: typedOwnedItem,
       wishlistItem: wishlistItem,
       trackingEntry: trackingEntry,
       accent: accent,
@@ -134,6 +139,7 @@ class LibraryEditDraft {
     required LibraryKindModule type,
     required LibraryAddCatalogItem item,
     required OwnedItem? ownedItem,
+    Object? typedOwnedItem,
     required WishlistItem? wishlistItem,
     required TrackingEntry? trackingEntry,
     required Color accent,
@@ -295,7 +301,10 @@ class LibraryEditDraft {
 
     final kindDetails = type.edit.createDraft(
       item: item,
-      ownedItem: ownedItem,
+      // Kind edit schemas consume only the concrete aggregate supplied by the
+      // typed Library boundary. The generic request value is never decoded by
+      // a kind schema.
+      typedOwnedItem: typedOwnedItem,
       trackingEntry: trackingEntry,
       textControllers: textControllers,
     );
@@ -305,6 +314,7 @@ class LibraryEditDraft {
       type: type,
       item: item,
       ownedItem: ownedItem,
+      typedOwnedItem: typedOwnedItem,
       wishlistItem: wishlistItem,
       trackingEntry: trackingEntry,
       accent: accent,

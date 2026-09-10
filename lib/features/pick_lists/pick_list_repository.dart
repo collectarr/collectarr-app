@@ -419,7 +419,7 @@ class PickListRepository {
         normalized,
       );
     }
-    for (final codec in collectarrKindCatalogRepositoryCodecs) {
+    for (final codec in collectarrKindCatalogTransportCodecs) {
       if (requestedKind != null && codec.kind != requestedKind) {
         continue;
       }

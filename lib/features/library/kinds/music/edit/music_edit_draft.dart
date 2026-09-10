@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -142,11 +141,11 @@ class MusicEditDraft extends LibraryEditKindDraft {
 
 LibraryEditKindDraft createMusicEditDraft({
   required LibraryAddCatalogItem item,
-  OwnedItem? ownedItem,
+  Object? typedOwnedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final music = MusicOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
+  final music = MusicOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
   final meta = item.kindMetadata is MusicCatalogMetadata
       ? item.kindMetadata as MusicCatalogMetadata
       : null;

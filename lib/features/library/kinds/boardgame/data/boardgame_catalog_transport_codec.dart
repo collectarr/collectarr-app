@@ -2,15 +2,16 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_codec_support.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 
-final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
-  const MusicCatalogRepositoryCodec();
+final class BoardGameCatalogTransportCodec
+    implements CatalogKindTransportCodec {
+  const BoardGameCatalogTransportCodec();
 
   @override
-  CatalogMediaKind get kind => CatalogMediaKind.music;
+  CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
   Future<int> countCatalogValue(
@@ -44,8 +45,8 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
   @override
   Object? typedMetadataFromDto(CatalogItemDto item) {
     final metadata = item.kindMetadata;
-    if (metadata is MusicRelease) return metadata;
-    return metadata is Map ? MusicRelease.fromJson(item.payload) : null;
+    if (metadata is BoardGameMedia) return metadata;
+    return metadata is Map ? BoardGameMedia.fromJson(item.payload) : null;
   }
 
   @override
@@ -57,24 +58,24 @@ final class MusicCatalogRepositoryCodec implements CatalogKindRepositoryCodec {
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
-    return MusicRepository(db).updateRelease(
-      MusicRelease.fromJson(catalogPayloadFor(item)),
+    return BoardGameRepository(db).updateMedia(
+      BoardGameMedia.fromJson(catalogPayloadFor(item)),
     );
   }
 
   @override
   Future<List<CatalogItemDto>> list(LocalDatabase db) async {
-    final releases = await MusicRepository(db).search();
+    final media = await BoardGameRepository(db).search();
     return [
-      for (final item in releases) _projection(item),
+      for (final item in media) _projection(item),
     ];
   }
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final releases = await MusicRepository(db).search();
+    final media = await BoardGameRepository(db).search();
     return [
-      for (final item in releases)
+      for (final item in media)
         CatalogDisplaySummary.work(
           kind: kind,
           id: item.id.value,
@@ -128,11 +129,13 @@ Future<int> _countCatalogProjectionValues(
   return count;
 }
 
-CatalogItemDto _projection(MusicRelease item) {
+CatalogItemDto _projection(BoardGameMedia item) {
   final payload = Map<String, dynamic>.from(item.rawPayload);
   payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'music';
+  payload['kind'] ??= 'boardgame';
   payload['title'] ??= item.title;
   final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(MusicRelease.fromJson(projection.payload));
+  return projection.withKindMetadata(
+    BoardGameMedia.fromJson(projection.payload),
+  );
 }

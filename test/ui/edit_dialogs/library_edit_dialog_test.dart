@@ -126,6 +126,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       trackingEntry: trackingEntry,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -250,6 +251,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -545,6 +547,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.deepOrange,
                     ),
                   );
@@ -865,6 +868,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       trackingEntry: trackingEntry,
                       accent: Colors.orange,
                     ),
@@ -1142,6 +1146,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.blue,
                       availableBundleReleases: const [
                         BundleReleaseSummary(
@@ -1239,6 +1244,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.orange,
                     ),
                   );
@@ -1325,6 +1331,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -1550,6 +1557,7 @@ void main() {
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
+                      typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.cyan,
                       physicalFormats: musicPhysicalMediaFormats,
                     ),

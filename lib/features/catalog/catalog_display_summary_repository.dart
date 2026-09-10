@@ -14,7 +14,7 @@ final class CatalogDisplaySummaryRepository {
     this._db, {
     Iterable<CatalogKindSummaryReader>? readers,
   }) : _readers = [
-          ...(readers ?? collectarrKindCatalogRepositoryCodecs),
+          ...(readers ?? collectarrKindCatalogTransportCodecs),
         ];
 
   final LocalDatabase _db;

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
@@ -18,14 +18,14 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 final class CatalogTransportRepository {
   CatalogTransportRepository(
     this._db, {
-    Iterable<CatalogKindRepositoryCodec> codecs =
-        collectarrKindCatalogRepositoryCodecs,
+    Iterable<CatalogKindTransportCodec> codecs =
+        collectarrKindCatalogTransportCodecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, CatalogKindRepositoryCodec> _codecs;
+  final Map<CatalogMediaKind, CatalogKindTransportCodec> _codecs;
 
   Future<void> upsertImportSnapshots(
     Iterable<CatalogImportSnapshot> snapshots,

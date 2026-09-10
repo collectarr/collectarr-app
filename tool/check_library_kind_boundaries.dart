@@ -159,6 +159,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     // semantic keys are supplied by the kind contributor.
     'lib/features/admin/admin_shared_widgets.dart',
     'lib/features/library/config/library_group_bucket_mutation.dart',
+    // Collection CSV Owned payloads are an explicit schema-v1 serialization
+    // boundary. The generic host assembles neutral transport fields and the
+    // dispatched kind decodes the opaque payload into its concrete aggregate.
+    'lib/features/library/config/library_collection_csv_projection.dart',
     'lib/features/library/config/library_page_utilities.dart',
     'lib/features/library/config/owned_details_codec.dart',
     'lib/features/library/config/presentation/library_metadata_presentation.dart',
@@ -192,6 +196,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/collection/mutations/wishlist_mutations.dart',
     'lib/features/collection/repositories/custom_field_repository.dart',
     'lib/features/collection/repositories/shelf_controller.dart',
+    // The CSV Owned payload is opaque schema-v1 transport data; semantic
+    // decoding happens in the owning kind projection.
+    'lib/features/library/config/library_collection_csv_projection.dart',
     'lib/features/library/add/controllers/library_add_comparisons.dart',
     'lib/features/library/add/library_add_collection_workflow.dart',
     'lib/features/library/add/services/library_add_workflow_service.dart',

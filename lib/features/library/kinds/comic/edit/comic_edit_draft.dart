@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -135,11 +134,11 @@ class ComicEditDraft extends LibraryEditKindDraft {
 
 LibraryEditKindDraft createComicEditDraft({
   required LibraryAddCatalogItem item,
-  OwnedItem? ownedItem,
+  Object? typedOwnedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final comic = ComicOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
+  final comic = ComicOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
   final ownedEdit = ComicOwnedEditDraft.fromDetails(
     comic ?? const ComicOwnedDetails(),
   );

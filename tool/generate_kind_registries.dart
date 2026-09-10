@@ -248,8 +248,8 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
         catalogRepositoryCodec: _discoverContributor(
           entity,
           'data',
-          '${folder}_catalog_repository_codec.dart',
-          'CatalogKindRepositoryCodec',
+          '${folder}_catalog_transport_codec.dart',
+          'CatalogKindTransportCodec',
         ),
         serialAuthorityContributor: _discoverContributor(
           entity,
@@ -529,7 +529,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_repository_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
@@ -771,7 +771,7 @@ import 'package:go_router/go_router.dart';
   _renderFacetMap(buffer, descriptors);
   _renderMetadataDecoderMap(buffer, descriptors);
   _renderOwnedPersistenceMaps(buffer, descriptors);
-  _renderCatalogRepositoryCodecs(buffer, descriptors);
+  _renderCatalogTransportCodecs(buffer, descriptors);
   _renderSerialAuthorityContributors(buffer, descriptors);
   _renderPickListContributors(buffer, descriptors);
   buffer.writeln();
@@ -1313,13 +1313,13 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 }
 
-void _renderCatalogRepositoryCodecs(
+void _renderCatalogTransportCodecs(
   StringBuffer buffer,
   List<_KindDescriptor> descriptors,
 ) {
   buffer.writeln(
-    'const List<CatalogKindRepositoryCodec> '
-    'collectarrKindCatalogRepositoryCodecs = [',
+    'const List<CatalogKindTransportCodec> '
+    'collectarrKindCatalogTransportCodecs = [',
   );
   for (final descriptor in descriptors) {
     final codec = descriptor.catalogRepositoryCodec;

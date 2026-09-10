@@ -317,7 +317,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _currencyController = _draft.personal.currencyController;
     _quantityController = _draft.personal.quantityController;
     final typedOwned =
-        MusicOwnedItemProjection.tryFromOwnedItem(widget.request.ownedItem);
+        MusicOwnedItemProjection.tryFromTyped(widget.request.typedOwnedItem);
     _indexNumberController = TextEditingController(
       text: typedOwned?.indexNumber?.toString() ?? '',
     );
@@ -346,13 +346,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _storageSlotController =
         musicDraft?.storageSlotController ?? TextEditingController();
     _signedByController = TextEditingController(
-      text: musicDraft?.signedBy ??
-          typedOwned?.details.signedBy ??
-          '',
+      text: musicDraft?.signedBy ?? typedOwned?.details.signedBy ?? '',
     );
     _collectionStatusController = TextEditingController(
-      text:
-          _collectionStatusToLabel(typedOwned?.collectionStatus),
+      text: _collectionStatusToLabel(typedOwned?.collectionStatus),
     );
 
     final resolvedFormat = physicalMediaFormatByLabelOrId(
