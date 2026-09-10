@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -156,7 +156,7 @@ void main() {
       ];
 
       for (final kind in kinds) {
-        final runtime = libraryKindModuleForKind(kind);
+        final runtime = testKindModule(kind);
         expect(runtime.kind, kind, reason: 'Runtime for $kind should exist');
         final vocCapability = runtime.edit.vocabularies;
         expect(vocCapability, isNotNull,

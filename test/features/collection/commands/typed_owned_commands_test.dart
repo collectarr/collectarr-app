@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
@@ -19,6 +18,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -155,7 +155,7 @@ void main() {
               id: 'clear-test-${kind.apiValue}',
             ),
             common: const LibraryAddCommonDraft(),
-            details: libraryKindModuleForKind(kind)
+            details: testKindModule(kind)
                 .add
                 .createInitialDraft()
                 .toOwnedDetailsDraft(),
@@ -163,7 +163,7 @@ void main() {
         );
 
         final updated = await coordinator.updateOwnedItem(
-          libraryKindModuleForKind(kind).edit.buildDetailsResetCommand(
+          testKindModule(kind).edit.buildDetailsResetCommand(
                 ownedRef: OwnedItemRef(kind: kind, id: initialRef.id),
               ),
         );
@@ -185,10 +185,8 @@ void main() {
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
             reason: '$kind default details must not be TestOwnedDetails');
 
-        final defaultDraft = libraryKindModuleForKind(kind)
-            .add
-            .createInitialDraft()
-            .toOwnedDetailsDraft();
+        final defaultDraft =
+            testKindModule(kind).add.createInitialDraft().toOwnedDetailsDraft();
         expect(defaultDraft, isNot(isA<TestOwnedDetailsDraft>()),
             reason: '$kind default draft must not be TestOwnedDetailsDraft');
       }
@@ -196,7 +194,7 @@ void main() {
 
     test('unknown kind has no owned details registration', () {
       expect(
-        () => libraryKindModuleForKind(CatalogMediaKind.unknown),
+        () => testKindModule(CatalogMediaKind.unknown),
         throwsArgumentError,
       );
     });

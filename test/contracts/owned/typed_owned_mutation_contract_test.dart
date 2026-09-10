@@ -1,14 +1,13 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 
 void main() {
   test('collection add writes every active kind to its typed owned table',
@@ -45,7 +44,7 @@ void main() {
             condition: 'Good',
             grade: '8.0',
           ),
-          details: libraryKindModuleForKind(kind)
+          details: testKindModule(kind)
               .add
               .createInitialDraft()
               .toOwnedDetailsDraft(),

@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.da
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
@@ -34,22 +34,6 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.da
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-LibraryKindModule _moduleForConcreteKind(CatalogMediaKind kind) {
-  return switch (kind) {
-    CatalogMediaKind.anime => animeKindModule,
-    CatalogMediaKind.boardgame => boardGameKindModule,
-    CatalogMediaKind.book => bookKindModule,
-    CatalogMediaKind.comic => comicKindModule,
-    CatalogMediaKind.game => gameKindModule,
-    CatalogMediaKind.manga => mangaKindModule,
-    CatalogMediaKind.movie => movieKindModule,
-    CatalogMediaKind.music => musicKindModule,
-    CatalogMediaKind.tv => tvKindModule,
-    CatalogMediaKind.unknown =>
-      throw ArgumentError.value(kind, 'kind', 'Unsupported kind'),
-  };
-}
 
 void _expectDuplicatedOwnedFields(Object owned) {
   switch (owned) {
@@ -140,7 +124,7 @@ void main() {
         CatalogMediaKind.music: MusicOwnedDetailsDraft,
       };
       for (final kind in activeKinds) {
-        final runtime = _moduleForConcreteKind(kind);
+        final runtime = testKindModule(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -259,7 +243,7 @@ void main() {
         'no supported kind resolves to unknown or generic fallback in registry',
         () {
       for (final kind in activeKinds) {
-        final runtime = _moduleForConcreteKind(kind);
+        final runtime = testKindModule(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
       }
@@ -267,7 +251,7 @@ void main() {
 
     testWidgets('ComicAddManualPane uses standard visual primitives',
         (tester) async {
-      final comicRuntime = _moduleForConcreteKind(CatalogMediaKind.comic);
+      final comicRuntime = testKindModule(CatalogMediaKind.comic);
       final draft = comicRuntime.add.createManualDraft() as ComicAddManualDraft;
 
       final request = LibraryAddManualPaneRequest(
