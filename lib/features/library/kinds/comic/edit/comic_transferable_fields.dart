@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:flutter/material.dart';
 
 /// Comic-owned transfer semantics stay typed until the generic transfer
@@ -27,28 +25,15 @@ final class ComicTransferableField {
   final ComicOwnedItem Function(ComicOwnedItem item, String? value) write;
 
   TransferableField toTransferableField() {
-    return TransferableField(
+    return TransferableField.typed<ComicOwnedItem>(
       key: key,
       label: label,
       icon: icon,
       type: type,
       scope: scope,
-      read: (item) {
-        final typed = ComicOwnedItem.fromJson(
-          Map<String, dynamic>.from(item.toJson()),
-        );
-        return read(typed);
-      },
-      write: (item, value) {
-        final typed = ComicOwnedItem.fromJson(
-          Map<String, dynamic>.from(item.toJson()),
-        );
-        final updated = write(typed, value);
-        return OwnedItem.fromJson(
-          Map<String, Object?>.from(updated.toJson()),
-          decodeDetails: ComicOwnedDetails.fromJson,
-        );
-      },
+      decode: (value) => value as ComicOwnedItem,
+      read: read,
+      write: write,
     );
   }
 }

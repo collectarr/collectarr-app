@@ -43,6 +43,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_s
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_transferable_fields.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/media/comic_media_edit_dialog.dart';
@@ -92,6 +93,49 @@ const _comicTransferableFieldKeys = <String>[
   'keyComic',
   'coverPriceCents',
 ];
+
+final _comicUniversalTransferableFields =
+    TransferableField.universalForTyped<ComicOwnedItem>(
+  decode: (value) => value as ComicOwnedItem,
+  readCondition: (item) => item.condition,
+  writeCondition: (item, value) => item.copyWith(condition: value),
+  readPersonalNotes: (item) => item.personalNotes,
+  writePersonalNotes: (item, value) => item.copyWith(personalNotes: value),
+  readLocationId: (item) => item.locationId,
+  writeLocationId: (item, value) => item.copyWith(locationId: value),
+  readTags: (item) => item.tags,
+  writeTags: (item, value) => item.copyWith(tags: value),
+  readCurrency: (item) => item.currency,
+  writeCurrency: (item, value) => item.copyWith(currency: value),
+  readSoldTo: (item) => item.soldTo,
+  writeSoldTo: (item, value) => item.copyWith(soldTo: value),
+  readPurchaseStore: (item) => item.purchaseStore,
+  writePurchaseStore: (item, value) => item.copyWith(purchaseStore: value),
+  readPricePaidCents: (item) => item.pricePaidCents?.toString(),
+  writePricePaidCents: (item, value) => item.copyWith(
+    pricePaidCents: value == null ? null : int.tryParse(value),
+  ),
+  readSellPriceCents: (item) => item.sellPriceCents?.toString(),
+  writeSellPriceCents: (item, value) => item.copyWith(
+    sellPriceCents: value == null ? null : int.tryParse(value),
+  ),
+  readQuantity: (item) => item.quantity.toString(),
+  writeQuantity: (item, value) => item.copyWith(
+    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
+  ),
+  readIndexNumber: (item) => item.indexNumber?.toString(),
+  writeIndexNumber: (item, value) => item.copyWith(
+    indexNumber: value == null ? null : int.tryParse(value),
+  ),
+  readPurchaseDate: (item) => item.purchaseDate?.toIso8601String(),
+  writePurchaseDate: (item, value) => item.copyWith(
+    purchaseDate: value == null ? null : DateTime.tryParse(value),
+  ),
+  readSoldAt: (item) => item.soldAt?.toIso8601String(),
+  writeSoldAt: (item, value) => item.copyWith(
+    soldAt: value == null ? null : DateTime.tryParse(value),
+  ),
+);
 
 Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
       metadata.seriesTitle,
@@ -177,7 +221,10 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   relations: comicRelationCapability,
   transfer: LibraryTransferCapability(
     transferableFieldKeys: _comicTransferableFieldKeys,
-    kindFields: comicTransferableFieldDefinitions,
+    kindFields: [
+      ..._comicUniversalTransferableFields,
+      ...comicTransferableFieldDefinitions,
+    ],
   ),
   stats: const ComicStatsCapability(),
   value: const ComicValueCapability(),

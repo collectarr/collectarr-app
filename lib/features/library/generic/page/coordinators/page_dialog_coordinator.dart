@@ -29,6 +29,7 @@ import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -42,6 +43,21 @@ class LibraryPageDialogCoordinator {
   LibraryPageDialogCoordinator(this._page);
 
   final LibraryPageCoordinatorContext _page;
+
+  TransferableOwnedItem? _transferItem(LibraryProjectionItem item) {
+    final source = item.source;
+    final value = source.typedOwnedItem;
+    final ref = source.ownedRef;
+    final catalogRef = source.catalogRef;
+    if (value == null || ref == null || catalogRef == null) {
+      return null;
+    }
+    return TransferableOwnedItem(
+      ref: ref,
+      catalogRef: catalogRef,
+      value: value,
+    );
+  }
 
   // ---------------------------------------------------------------------------
   // Add / reveal
@@ -391,9 +407,9 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final items = <OwnedItem>{
+    final items = <TransferableOwnedItem>{
       for (final item in projection.filteredItems)
-        if (item.source.ownedItem case final owned?) owned,
+        if (_transferItem(item) case final owned?) owned,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
@@ -434,10 +450,10 @@ class LibraryPageDialogCoordinator {
     final customFieldCache = await _page.ref.read(
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
-    final items = <OwnedItem>{
+    final items = <TransferableOwnedItem>{
       for (final item in projection.filteredItems)
         if (_page.selection.itemIds.contains(item.node.id))
-          if (item.source.ownedItem case final owned?) owned,
+          if (_transferItem(item) case final owned?) owned,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 

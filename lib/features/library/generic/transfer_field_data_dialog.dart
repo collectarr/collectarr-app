@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -30,7 +29,7 @@ Future<TransferFieldResult?> showTransferFieldDataDialog({
   required BuildContext context,
   required LocalDatabase db,
   required LibraryKindModule type,
-  required List<OwnedItem> items,
+  required List<TransferableOwnedItem> items,
   required OwnedItemMutations mutations,
   required List<CustomFieldDefinition> customFieldDefinitions,
 }) {
@@ -58,7 +57,7 @@ class _TransferFieldDataDialog extends StatefulWidget {
 
   final LocalDatabase db;
   final LibraryKindModule type;
-  final List<OwnedItem> items;
+  final List<TransferableOwnedItem> items;
   final OwnedItemMutations mutations;
   final List<CustomFieldDefinition> customFieldDefinitions;
 
@@ -93,7 +92,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     if (src == null) return 0;
     int count = 0;
     for (final item in widget.items) {
-      final value = src.readFrom(item);
+      final value = src.readFrom(item.value);
       if (value != null && value.isNotEmpty) count++;
     }
     return count;
@@ -104,7 +103,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     if (tgt == null) return 0;
     int count = 0;
     for (final item in widget.items) {
-      final value = tgt.readFrom(item);
+      final value = tgt.readFrom(item.value);
       if (value != null && value.isNotEmpty) count++;
     }
     return count;
@@ -143,14 +142,14 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       // Read source value (built-in or custom field).
       String? sourceValue;
       if (src.isCustomField) {
-        final values = allCfValues?[item.id] ?? [];
+        final values = allCfValues?[item.ref.id.value] ?? [];
         sourceValue = values
             .where((v) => v.fieldDefinitionId == src.customFieldId)
             .map((v) => v.value)
             .where((v) => v != null && v.isNotEmpty)
             .firstOrNull;
       } else {
-        sourceValue = src.readFrom(item);
+        sourceValue = src.readFrom(item.value);
       }
 
       if (sourceValue == null || sourceValue.isEmpty) {
@@ -161,14 +160,14 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       // Read existing target value.
       String? existingTarget;
       if (tgt.isCustomField) {
-        final values = allCfValues?[item.id] ?? [];
+        final values = allCfValues?[item.ref.id.value] ?? [];
         existingTarget = values
             .where((v) => v.fieldDefinitionId == tgt.customFieldId)
             .map((v) => v.value)
             .where((v) => v != null && v.isNotEmpty)
             .firstOrNull;
       } else {
-        existingTarget = tgt.readFrom(item);
+        existingTarget = tgt.readFrom(item.value);
       }
 
       final hasExistingTarget =
@@ -196,12 +195,12 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
 
       // Write target.
       if (tgt.isCustomField) {
-        final existing = (allCfValues?[item.id] ?? [])
+        final existing = (allCfValues?[item.ref.id.value] ?? [])
             .where((v) => v.fieldDefinitionId == tgt.customFieldId)
             .firstOrNull;
         await cfRepo.upsertValue(CustomFieldValue(
           id: existing?.id ?? const Uuid().v4(),
-          targetId: item.id,
+          targetId: item.ref.id.value,
           targetScope: CustomFieldTargetScope.ownedCopy,
           catalogRef: item.catalogRef,
           fieldDefinitionId: tgt.customFieldId!,
@@ -209,7 +208,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           updatedAt: now,
         ));
       } else {
-        var updated = tgt.writeTo(item, newTargetValue);
+        var updated = tgt.writeTo(item.value, newTargetValue);
         // Clear source if mode is Move.
         if (_mode == TransferMode.move && !src.isCustomField) {
           updated = src.writeTo(updated, null);
@@ -227,13 +226,13 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       // Clear source for custom fields when mode is Move.
       if (_mode == TransferMode.move) {
         if (src.isCustomField) {
-          final existing = (allCfValues?[item.id] ?? [])
+        final existing = (allCfValues?[item.ref.id.value] ?? [])
               .where((v) => v.fieldDefinitionId == src.customFieldId)
               .firstOrNull;
           if (existing != null) {
             await cfRepo.upsertValue(CustomFieldValue(
               id: existing.id,
-              targetId: item.id,
+              targetId: item.ref.id.value,
               targetScope: CustomFieldTargetScope.ownedCopy,
               catalogRef: item.catalogRef,
               fieldDefinitionId: src.customFieldId!,
@@ -242,7 +241,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
             ));
           }
         } else {
-          final updated = src.writeTo(item, null);
+          final updated = src.writeTo(item.value, null);
           await widget.mutations.updateOwnedItem(
             widget.type.edit.buildTransferUpdateCommand(
               ownedRef: item.ref,

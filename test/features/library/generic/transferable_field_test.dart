@@ -1,44 +1,49 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('Universal TransferableField', () {
-    test('reads and writes common OwnedItem fields without kind details', () {
-      final item = OwnedItem(
-        id: 'item-1',
+  group('Typed TransferableField', () {
+    test('reads and writes typed Book fields', () {
+      final item = BookOwnedItem(
+        id: BookOwnedItemId('item-1'),
         catalogRef: const CatalogEntityRef(
           id: 'work-1',
           kind: CatalogMediaKind.comic,
           entityType: const CatalogEntityTypeId('work'),
         ),
-        details: const TestOwnedDetails(),
         condition: 'Mint',
-        collectionValue: '9.8',
+        grade: '9.8',
         personalNotes: 'First print run',
         pricePaidCents: 450,
         updatedAt: DateTime(2026, 1, 1),
       );
 
-      final condField = TransferableField.universalBuiltIn
-          .firstWhere((f) => f.key == 'condition');
+      final fields = libraryKindModuleForKind(CatalogMediaKind.book)
+          .transfer
+          .fieldsWithCustomFields(const [], LibraryEditScope.all);
+      final condField = fields.firstWhere((f) => f.key == 'condition');
       expect(condField.readFrom(item), 'Mint');
 
-      final updated = condField.writeTo(item, 'Near Mint');
+      final updated = condField.writeTo(item, 'Near Mint') as BookOwnedItem;
       expect(updated.condition, 'Near Mint');
 
-      final priceField = TransferableField.universalBuiltIn
-          .firstWhere((f) => f.key == 'pricePaidCents');
+      final priceField = fields.firstWhere((f) => f.key == 'pricePaidCents');
       expect(priceField.readFrom(item), '450');
 
-      final updatedPrice = priceField.writeTo(item, '600');
+      final updatedPrice = priceField.writeTo(item, '600') as BookOwnedItem;
       expect(updatedPrice.pricePaidCents, 600);
     });
 
@@ -79,8 +84,8 @@ void main() {
           ]));
 
       final keyComicField = fields.firstWhere((f) => f.key == 'keyComic');
-      final item = OwnedItem(
-        id: 'c-1',
+      final item = ComicOwnedItem(
+        id: ComicOwnedItemId('c-1'),
         catalogRef: const CatalogEntityRef(
           id: 'c-1',
           kind: CatalogMediaKind.comic,
@@ -91,8 +96,8 @@ void main() {
       );
 
       expect(keyComicField.readFrom(item), 'true');
-      final updated = keyComicField.writeTo(item, 'false');
-      expect((updated.details as ComicOwnedDetails).keyComic, isFalse);
+      final updated = keyComicField.writeTo(item, 'false') as ComicOwnedItem;
+      expect(updated.details.keyComic, isFalse);
     });
 
     test('movie kind provides movie-specific transferable fields', () {
@@ -106,8 +111,8 @@ void main() {
       expect(keys, containsAll(['features', 'boxSetName', 'packaging']));
 
       final packagingField = fields.firstWhere((f) => f.key == 'packaging');
-      final item = OwnedItem(
-        id: 'm-1',
+      final item = MovieOwnedItem(
+        id: MovieOwnedItemId('m-1'),
         catalogRef: const CatalogEntityRef(
           id: 'm-1',
           kind: CatalogMediaKind.movie,
@@ -118,8 +123,8 @@ void main() {
       );
 
       expect(packagingField.readFrom(item), 'Steelbook');
-      final updated = packagingField.writeTo(item, 'Digipak');
-      expect((updated.details as MovieOwnedDetails).packaging, 'Digipak');
+      final updated = packagingField.writeTo(item, 'Digipak') as MovieOwnedItem;
+      expect(updated.details.packaging, 'Digipak');
     });
   });
 }

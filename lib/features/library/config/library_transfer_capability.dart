@@ -43,7 +43,6 @@ class LibraryTransferCapability {
 
   List<TransferableField> allFields() {
     final map = <String, TransferableField>{
-      for (final field in TransferableField.universalBuiltIn) field.key: field,
       for (final field in kindFields) field.key: field,
     };
     return [
