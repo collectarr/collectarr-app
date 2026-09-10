@@ -468,6 +468,7 @@ String buildOwnedCopyLabel(
   List<CatalogEditionDto> editions,
   int index, {
   required LibraryOwnedDigitalFlagResolver digitalFlagResolver,
+  String? collectionValue,
 }) {
   final parts = <String>['Copy ${index + 1}'];
   final editionLabel = _ownedCopyEditionLabel(item, editions);
@@ -485,8 +486,8 @@ String buildOwnedCopyLabel(
   if (item.condition != null && item.condition!.trim().isNotEmpty) {
     parts.add(item.condition!.trim());
   }
-  if (item.grade != null && item.grade!.trim().isNotEmpty) {
-    parts.add(item.grade!.trim());
+  if (collectionValue != null && collectionValue.trim().isNotEmpty) {
+    parts.add(collectionValue.trim());
   }
   if (item.locationId != null && item.locationId!.trim().isNotEmpty) {
     parts.add(item.locationId!.trim());

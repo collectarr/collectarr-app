@@ -380,6 +380,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         copies: ownedCopies,
         editions: selected.source.catalogItem?.editions ?? const [],
         digitalFlagResolver: widget.type.edit.resolveOwnedDigitalFlag,
+        collectionValueReader: widget.type.edit.readOwnedCollectionValue,
         selectedOwnedItemId: activeOwnedItem?.id,
         accent: widget.accent,
         onAddCopy: () => _addOwnedCopy(
@@ -755,6 +756,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
     required this.copies,
     required this.editions,
     required this.digitalFlagResolver,
+    required this.collectionValueReader,
     required this.selectedOwnedItemId,
     required this.accent,
     required this.onAddCopy,
@@ -764,6 +766,7 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   final List<OwnedItem> copies;
   final List<CatalogEditionDto> editions;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
+  final String? Function(OwnedItem?) collectionValueReader;
   final String? selectedOwnedItemId;
   final Color accent;
   final VoidCallback onAddCopy;
@@ -802,6 +805,8 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                                 editions,
                                 index,
                                 digitalFlagResolver: digitalFlagResolver,
+                                collectionValue:
+                                    collectionValueReader(copies[index]),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

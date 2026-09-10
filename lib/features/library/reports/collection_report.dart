@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
@@ -29,7 +30,10 @@ enum ReportColumn {
   final String label;
   final double flex;
 
-  String extractFrom(LibraryProjectionView item) {
+  String extractFrom(
+    LibraryProjectionView item, {
+    String? Function(OwnedItem?)? collectionValueReader,
+  }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     return switch (this) {
@@ -38,7 +42,7 @@ enum ReportColumn {
       ReportColumn.issue => adapter?.itemNumber ?? '',
       ReportColumn.condition => item.source.condition ?? '',
       ReportColumn.grade =>
-        (item.source.ownedItem?.toSyncPayload()['grade'] as String?) ?? '',
+        collectionValueReader?.call(item.source.ownedItem) ?? '',
       ReportColumn.publisher =>
         (item.source.catalogItem?.toSyncPayload()['publisher'] ??
                     (item.source.catalogItem?.toSyncPayload()['publishing']
@@ -84,6 +88,7 @@ Future<void> printCollectionReport({
   required BuildContext context,
   required String title,
   required List<LibraryProjectionView> items,
+  String? Function(OwnedItem?)? collectionValueReader,
 }) async {
   final columns = await showDialog<List<ReportColumn>>(
     context: context,
@@ -91,7 +96,12 @@ Future<void> printCollectionReport({
   );
   if (columns == null || columns.isEmpty) return;
 
-  final doc = _buildDocument(title, items, columns);
+  final doc = _buildDocument(
+    title,
+    items,
+    columns,
+    collectionValueReader: collectionValueReader,
+  );
   await Printing.layoutPdf(
     onLayout: (format) => doc.save(),
     name: '${title.replaceAll(RegExp(r'[^\w\s]'), '')}_report',
@@ -101,8 +111,9 @@ Future<void> printCollectionReport({
 pw.Document _buildDocument(
   String title,
   List<LibraryProjectionView> items,
-  List<ReportColumn> columns,
-) {
+  List<ReportColumn> columns, {
+  String? Function(OwnedItem?)? collectionValueReader,
+}) {
   final doc = pw.Document(
     title: title,
     author: 'Collectarr',
@@ -167,8 +178,14 @@ pw.Document _buildDocument(
                         _cell(idx.toString()),
                         for (final col in columns)
                           col == ReportColumn.barcodeImage
-                              ? _barcodeCell(col.extractFrom(item))
-                              : _cell(col.extractFrom(item)),
+                              ? _barcodeCell(col.extractFrom(
+                                  item,
+                                  collectionValueReader: collectionValueReader,
+                                ))
+                              : _cell(col.extractFrom(
+                                  item,
+                                  collectionValueReader: collectionValueReader,
+                                )),
                       ],
                     );
                   }),

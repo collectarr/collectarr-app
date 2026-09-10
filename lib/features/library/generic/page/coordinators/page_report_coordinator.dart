@@ -14,6 +14,7 @@ class LibraryPageReportCoordinator {
       context: _page.context,
       title: _page.type.identity.title,
       items: items,
+      collectionValueReader: _page.type.edit.readOwnedCollectionValue,
     );
   }
 
@@ -28,6 +29,7 @@ class LibraryPageReportCoordinator {
       context: _page.context,
       title: _page.type.identity.title,
       items: items,
+      collectionValueReader: _page.type.edit.readOwnedCollectionValue,
     );
   }
 

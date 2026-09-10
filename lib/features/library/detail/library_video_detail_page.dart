@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -254,6 +253,8 @@ class _LibraryVideoDetailPageState
                     accent: request.accent,
                     digitalFlagResolver:
                         request.type.edit.resolveOwnedDigitalFlag,
+                    collectionValueReader:
+                        request.type.edit.readOwnedCollectionValue,
                     releases: releases,
                     selectedReleaseId: activeRelease.node.id,
                     selectedOwnedItemId: selectedOwnedCopy?.id,
@@ -283,6 +284,8 @@ class _LibraryVideoDetailPageState
               _VideoReleaseBrowserSection(
                 accent: request.accent,
                 digitalFlagResolver: request.type.edit.resolveOwnedDigitalFlag,
+                collectionValueReader:
+                    request.type.edit.readOwnedCollectionValue,
                 releases: releases,
                 selectedReleaseId: _selectedReleaseNodeId ??
                     (releases.isEmpty ? null : releases.first.node.id),
@@ -473,6 +476,7 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
   const _VideoReleaseBrowserSection({
     required this.accent,
     required this.digitalFlagResolver,
+    required this.collectionValueReader,
     required this.releases,
     required this.selectedReleaseId,
     required this.selectedOwnedItemId,
@@ -487,6 +491,7 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
 
   final Color accent;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
+  final String? Function(OwnedItem?) collectionValueReader;
   final List<_ResolvedVideoRelease> releases;
   final String? selectedReleaseId;
   final String? selectedOwnedItemId;
@@ -557,6 +562,7 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
                 _VideoReleaseActionsPanel(
                   release: selectedRelease,
                   digitalFlagResolver: digitalFlagResolver,
+                  collectionValueReader: collectionValueReader,
                   selectedOwnedItemId: selectedOwnedItemId,
                   accent: accent,
                   onSelectOwnedItem: (value) =>
@@ -725,6 +731,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
   const _VideoReleaseActionsPanel({
     required this.release,
     required this.digitalFlagResolver,
+    required this.collectionValueReader,
     required this.selectedOwnedItemId,
     required this.accent,
     required this.onSelectOwnedItem,
@@ -737,6 +744,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
 
   final _ResolvedVideoRelease release;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
+  final String? Function(OwnedItem?) collectionValueReader;
   final String? selectedOwnedItemId;
   final Color accent;
   final ValueChanged<String?> onSelectOwnedItem;
@@ -798,6 +806,8 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
                           [release.edition],
                           index,
                           digitalFlagResolver: digitalFlagResolver,
+                          collectionValue:
+                              collectionValueReader(release.ownedCopies[index]),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

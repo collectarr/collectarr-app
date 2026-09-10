@@ -16,17 +16,13 @@ const kTransferablePersonalFieldKeys = <String>[
   'locationId',
   'tags',
   'currency',
-  'readStatus',
   'soldTo',
   'purchaseStore',
   'pricePaidCents',
   'sellPriceCents',
   'quantity',
   'indexNumber',
-  'rating',
   'purchaseDate',
-  'startedAt',
-  'finishedAt',
   'soldAt',
 ];
 

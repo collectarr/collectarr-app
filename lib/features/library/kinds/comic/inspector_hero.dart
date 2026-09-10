@@ -101,6 +101,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final subtitleParts = <String>[
       if (comic?.crossover?.trim().isNotEmpty == true) comic!.crossover!.trim(),
       if (comic?.storyArcs.isNotEmpty == true) comic!.storyArcs.first.trim(),
+      if (comic?.publishing?.subtitle?.trim().isNotEmpty == true)
+        comic!.publishing!.subtitle!.trim(),
       if (adapter?.variant?.trim().isNotEmpty == true) adapter!.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');
