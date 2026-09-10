@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_snapsho
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 /// Book's semantic contribution to the generic collection CSV host.
 final class BookCollectionCsvProjection
@@ -66,7 +66,7 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
+  List<String> catalogCells(ShelfEntry entry) {
     final catalog = entry.catalogItem;
     final metadata = catalog == null
         ? null
@@ -92,7 +92,7 @@ final class BookCollectionCsvProjection
 
   @override
   List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   }) {
     return clzFriendly ? const [''] : const [];
@@ -100,7 +100,7 @@ final class BookCollectionCsvProjection
 
   @override
   List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

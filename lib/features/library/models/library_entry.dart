@@ -1,8 +1,6 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -170,8 +168,6 @@ class LibraryWorkspaceSource {
     this.watchSessions = const <WatchSession>[],
     this.itemImages = const <ItemImage>[],
     this.fallbackOwnerLabel,
-    this.catalogItem,
-    this.ownedItem,
   });
 
   final String itemId;
@@ -183,21 +179,16 @@ class LibraryWorkspaceSource {
   final List<WatchSession> watchSessions;
   final List<ItemImage> itemImages;
   final String? fallbackOwnerLabel;
-  final CatalogItemDto? catalogItem;
-  final OwnedItem? ownedItem;
 
   CatalogEntityRef? get catalogRef =>
       catalogSummary?.ref ??
       ownedSummary?.catalogRef ??
-      wishlistItem?.catalogRef ??
-      catalogItem?.catalogRef;
+      wishlistItem?.catalogRef;
   CatalogMediaKind get mediaKind =>
-      catalogSummary?.kind ??
-      catalogItem?.mediaKind ??
-      CatalogMediaKind.unknown;
-  OwnedItemRef? get ownedRef => ownedSummary?.ref ?? ownedItem?.ref;
+      catalogSummary?.kind ?? CatalogMediaKind.unknown;
+  OwnedItemRef? get ownedRef => ownedSummary?.ref;
 
-  bool get isOwned => ownedSummary != null || ownedItem != null;
+  bool get isOwned => ownedSummary != null;
   bool get isTracked => trackingSummary != null;
   bool get isWishlisted => wishlistItem != null;
 
@@ -208,11 +199,8 @@ class LibraryWorkspaceSource {
     return 'Wishlist';
   }
 
-  Object? get kindMetadata => catalogItem?.kindMetadata;
-
   bool get hasNotes =>
-      (ownedSummary?.hasNotes ??
-          ownedItem?.personalNotes?.trim().isNotEmpty == true) ||
+      (ownedSummary?.hasNotes ?? false) ||
       (wishlistItem?.notes?.trim().isNotEmpty ?? false);
 
   DateTime get updatedAt {
@@ -220,23 +208,17 @@ class LibraryWorkspaceSource {
       if (ownedSummary?.updatedAt case final value?) value,
       if (trackingSummary?.updatedAt case final value?) value,
       if (wishlistItem?.updatedAt case final value?) value,
-      if (ownedItem?.updatedAt case final value?) value,
     ];
     if (values.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
     values.sort((a, b) => b.compareTo(a));
     return values.first;
   }
 
-  DateTime? get addedAt =>
-      ownedSummary?.createdAt ??
-      ownedItem?.createdAt ??
-      wishlistItem?.createdAt;
+  DateTime? get addedAt => ownedSummary?.createdAt ?? wishlistItem?.createdAt;
 
   String get title {
     final value = catalogSummary?.title.trim();
     if (value != null && value.isNotEmpty) return value;
-    final legacyTitle = catalogItem?.resolvedDisplayTitle.trim();
-    if (legacyTitle != null && legacyTitle.isNotEmpty) return legacyTitle;
     final length = itemId.length < 8 ? itemId.length : 8;
     return 'Catalog item ${itemId.substring(0, length)}';
   }
@@ -249,39 +231,7 @@ class LibraryWorkspaceSource {
   String? get trackingNotes => trackingSummary?.notes;
   String get trackingStatusLabel => trackingStatus.label;
 
-  String? get ownerLabel =>
-      ownedSummary?.ownerLabel ?? ownedItem?.ownerLabel ?? fallbackOwnerLabel;
+  String? get ownerLabel => ownedSummary?.ownerLabel ?? fallbackOwnerLabel;
 
-  int get quantity => ownedSummary?.quantity ?? ownedItem?.quantity ?? 0;
-
-  // These fields remain available only on the post-dispatch workspace source.
-  String? get condition => ownedItem?.condition;
-  String? get grade => ownedItem?.grade;
-  int? get pricePaidCents =>
-      ownedSummary?.pricePaidCents ?? ownedItem?.pricePaidCents;
-  int? get sellPriceCents =>
-      ownedSummary?.sellPriceCents ?? ownedItem?.sellPriceCents;
-  int? get marketValueCents =>
-      ownedSummary?.marketValueCents ?? ownedItem?.marketValueCents;
-  String? get soldTo => ownedSummary?.soldTo ?? ownedItem?.soldTo;
-  String? get currency => ownedSummary?.currency ?? ownedItem?.currency;
-  String? get purchaseStore =>
-      ownedSummary?.purchaseStore ?? ownedItem?.purchaseStore;
-  DateTime? get purchaseDate =>
-      ownedSummary?.purchaseDate ?? ownedItem?.purchaseDate;
-  DateTime? get soldAt => ownedSummary?.soldAt ?? ownedItem?.soldAt;
-  int? get indexNumber => ownedItem?.indexNumber;
-  String? get personalNotes => ownedSummary?.notes ?? ownedItem?.personalNotes;
-  String? get tags => ownedItem?.tags;
-  String? get collectionStatus => ownedItem?.collectionStatus;
-
-  List<String> get tagList {
-    final raw = tags?.trim();
-    if (raw == null || raw.isEmpty) return const <String>[];
-    return raw
-        .split(',')
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
-  }
+  int get quantity => ownedSummary?.quantity ?? 0;
 }

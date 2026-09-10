@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_snapsho
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 /// Anime's semantic contribution to the generic collection CSV host.
 ///
@@ -69,7 +69,7 @@ final class AnimeCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
+  List<String> catalogCells(ShelfEntry entry) {
     final catalog = entry.catalogItem;
     final metadata = catalog == null
         ? null
@@ -95,7 +95,7 @@ final class AnimeCollectionCsvProjection
 
   @override
   List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   }) {
     return clzFriendly ? const [''] : const [];
@@ -103,7 +103,7 @@ final class AnimeCollectionCsvProjection
 
   @override
   List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

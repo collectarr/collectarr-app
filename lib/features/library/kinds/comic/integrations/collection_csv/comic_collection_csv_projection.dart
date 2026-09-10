@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_ite
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 /// Comic's semantic contribution to the generic collection CSV host.
 ///
@@ -71,7 +71,7 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
+  List<String> catalogCells(ShelfEntry entry) {
     final catalog = entry.catalogItem;
     final comic =
         catalog == null ? null : ComicCoreMapper.fromCatalogItem(catalog);
@@ -92,7 +92,7 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   }) {
     final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
@@ -103,7 +103,7 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   }) {
     final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);

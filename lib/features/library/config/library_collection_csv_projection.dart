@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
 ///
@@ -47,15 +47,15 @@ abstract interface class LibraryCollectionCsvProjection {
 
   Map<String, List<String>> get columnAliases;
 
-  List<String> catalogCells(LibraryWorkspaceSource entry);
+  List<String> catalogCells(ShelfEntry entry);
 
   List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   });
 
   List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    ShelfEntry entry, {
     required bool clzFriendly,
   });
 }
@@ -77,7 +77,7 @@ abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
 /// payload keys while allowing every projection to share the same wire-level
 /// presentation rules.
 mixin LibraryCollectionCsvProjectionPresentation {
-  List<String> catalogCells(LibraryWorkspaceSource entry);
+  List<String> catalogCells(ShelfEntry entry);
 
   String importDisplayTitle(List<String> catalogCells) {
     final title = catalogCells.elementAtOrNull(2) ?? '';

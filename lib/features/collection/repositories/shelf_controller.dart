@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -341,9 +342,91 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
     super.watchSessions = const <WatchSession>[],
     super.itemImages = const <ItemImage>[],
     super.fallbackOwnerLabel,
-    super.catalogItem,
-    super.ownedItem,
+    this.catalogItem,
+    this.ownedItem,
   });
+
+  final CatalogItemDto? catalogItem;
+
+  final OwnedItem? ownedItem;
+
+  @override
+  CatalogEntityRef? get catalogRef =>
+      super.catalogRef ?? catalogItem?.catalogRef ?? ownedItem?.catalogRef;
+
+  @override
+  CatalogMediaKind get mediaKind =>
+      catalogSummary?.kind ??
+      catalogItem?.mediaKind ??
+      CatalogMediaKind.unknown;
+
+  @override
+  OwnedItemRef? get ownedRef => super.ownedRef ?? ownedItem?.ref;
+
+  @override
+  bool get isOwned => super.isOwned || ownedItem != null;
+
+  @override
+  bool get hasNotes =>
+      super.hasNotes || (ownedItem?.personalNotes?.trim().isNotEmpty ?? false);
+
+  @override
+  DateTime get updatedAt {
+    final base = super.updatedAt;
+    final owned = ownedItem?.updatedAt;
+    if (owned == null || owned.isBefore(base)) return base;
+    return owned;
+  }
+
+  @override
+  DateTime? get addedAt => super.addedAt ?? ownedItem?.createdAt;
+
+  @override
+  String get title {
+    final base = super.title;
+    if (!base.startsWith('Catalog item ')) return base;
+    final legacy = catalogItem?.resolvedDisplayTitle.trim();
+    return legacy == null || legacy.isEmpty ? base : legacy;
+  }
+
+  @override
+  String? get ownerLabel =>
+      ownedSummary?.ownerLabel ?? ownedItem?.ownerLabel ?? fallbackOwnerLabel;
+
+  @override
+  int get quantity => ownedSummary?.quantity ?? ownedItem?.quantity ?? 0;
+
+  Object? get kindMetadata => catalogItem?.kindMetadata;
+
+  String? get condition => ownedItem?.condition;
+  String? get grade => ownedItem?.grade;
+  int? get pricePaidCents =>
+      ownedSummary?.pricePaidCents ?? ownedItem?.pricePaidCents;
+  int? get sellPriceCents =>
+      ownedSummary?.sellPriceCents ?? ownedItem?.sellPriceCents;
+  int? get marketValueCents =>
+      ownedSummary?.marketValueCents ?? ownedItem?.marketValueCents;
+  String? get soldTo => ownedSummary?.soldTo ?? ownedItem?.soldTo;
+  String? get currency => ownedSummary?.currency ?? ownedItem?.currency;
+  String? get purchaseStore =>
+      ownedSummary?.purchaseStore ?? ownedItem?.purchaseStore;
+  DateTime? get purchaseDate =>
+      ownedSummary?.purchaseDate ?? ownedItem?.purchaseDate;
+  DateTime? get soldAt => ownedSummary?.soldAt ?? ownedItem?.soldAt;
+  int? get indexNumber => ownedItem?.indexNumber;
+  String? get personalNotes => ownedSummary?.notes ?? ownedItem?.personalNotes;
+  String? get tags => ownedItem?.tags;
+  String? get collectionStatus => ownedItem?.collectionStatus;
+
+  List<String> get tagList {
+    final raw = tags?.trim();
+    if (raw == null || raw.isEmpty) return const <String>[];
+    return raw
+        .split(',')
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .toList(growable: false);
+  }
 }
 
 CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
