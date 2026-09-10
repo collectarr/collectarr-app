@@ -235,7 +235,7 @@ class LibraryAddWorkflowService {
           context,
           LibraryEditDialogRequest(
             type: type,
-            item: previewItem.toTransportItem(),
+            item: previewItem,
             ownedItem: null,
             accent: accent,
             scope: LibraryEditScope.all,
@@ -271,7 +271,7 @@ class LibraryAddWorkflowService {
           candidate: currentCandidate,
         );
 
-        final edited = LibraryAddCatalogItem.fromItem(result.item);
+        final edited = result.item;
         final ingested = metadataItemFromIngestResult(ingest.item);
         if (mounted) {
           await providerOrchestrationService.applyIngestCorrections(

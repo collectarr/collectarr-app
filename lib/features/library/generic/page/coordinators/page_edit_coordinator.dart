@@ -57,10 +57,11 @@ class LibraryPageEditCoordinator {
     if (_s._isEditDialogInFlight) {
       return;
     }
-    final CatalogItemDto? catalogItem = item.source.catalogItem;
-    if (catalogItem == null) {
+    final catalogSource = item.source.catalogItem;
+    if (catalogSource == null) {
       return;
     }
+    final catalogItem = LibraryAddCatalogItem.fromItem(catalogSource);
     _s._isEditDialogInFlight = true;
     final catalog = _s.ref.read(mediaCatalogProvider).maybeWhen(
           data: (value) => value,
@@ -71,7 +72,8 @@ class LibraryPageEditCoordinator {
     final itemImageRepo = ItemImageRepository(db);
     final cached = (await CatalogSnapshotRepository(db)
         .findByRefs([catalogItem.catalogRef]))[catalogItem.catalogRef];
-    final freshMetadataItem = cached ?? catalogItem;
+    final freshMetadataItem =
+        cached == null ? catalogItem : LibraryAddCatalogItem.fromItem(cached);
     OwnedItem? owned = ownedItemOverride;
     owned ??= item.source.ownedItem;
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
@@ -241,7 +243,7 @@ class LibraryPageEditCoordinator {
     required OwnedItem? owned,
     required WishlistItem? wishlist,
     required TrackingEntry? activeTrackingEntry,
-    required CatalogItemDto catalogItem,
+    required LibraryAddCatalogItem catalogItem,
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {
@@ -250,7 +252,7 @@ class LibraryPageEditCoordinator {
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
 
     await _s.ref.read(catalogItemMutationsProvider).updateSnapshot(
-          CatalogImportSnapshot.fromItem(result.item),
+          CatalogImportSnapshot.fromItem(result.item.toTransportItem()),
         );
     final personal = result.personal;
     if (owned != null && personal != null) {

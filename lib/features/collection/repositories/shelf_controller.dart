@@ -321,7 +321,7 @@ class ShelfState {
 /// kind-specific Library projectors. Mixed Shelf state remains represented by
 /// [LibraryEntry]; this source is only created after the workspace selects a
 /// concrete library kind.
-class ShelfEntry extends LibraryWorkspaceSource {
+class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
   const ShelfEntry({
     required super.itemId,
     super.catalogSummary,

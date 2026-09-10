@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import '../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
@@ -193,13 +194,13 @@ void main() {
 
     final request = LibraryEditDialogRequest(
       type: bookKindModule,
-      item: testCatalogItemWithKindMetadata(
+      item: LibraryAddCatalogItem.fromItem(testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Hyperion',
         ),
-      ),
+      )),
       ownedItem: null,
       accent: Colors.blue,
       scope: LibraryEditScope.all,

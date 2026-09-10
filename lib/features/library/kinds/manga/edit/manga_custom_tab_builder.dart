@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draf
 import 'package:collectarr_app/features/library/kinds/manga/edit/owned/manga_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:flutter/material.dart';
 
 Widget? buildMangaCustomTabView({
@@ -14,7 +14,7 @@ Widget? buildMangaCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required CatalogItemDto item,
+  required LibraryAddCatalogItem item,
   required VoidCallback markDirty,
 }) {
   if (tabId != 'owned') return null;

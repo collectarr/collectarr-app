@@ -44,7 +44,9 @@ class _BookReleaseSchemaEditDialogState
       throw StateError('Expected BookCatalogMetadata for Book release editing');
     }
     _metadata = metadata;
-    final book = BookCatalogMapper.mapMetadataItemToBook(widget.request.item);
+    final book = BookCatalogMapper.mapMetadataItemToBook(
+      widget.request.item.toTransportItem(),
+    );
     _release = _resolveRelease(
       book,
       catalogRefEditionId(widget.request.ownedItem?.targetRef),

@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
@@ -123,7 +124,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       trackingEntry: trackingEntry,
                       accent: Colors.red,
@@ -247,7 +248,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -338,7 +339,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -403,7 +404,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -542,7 +543,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       accent: Colors.deepOrange,
                     ),
@@ -690,9 +691,9 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = (selection?.item as CatalogItemDto?)?.payload;
+    final payload = selection?.item.payload;
     expect(payload?['edition_title'], 'Deluxe Edition');
-    expect((selection?.item as CatalogItemDto?)?.titleExtension, isNull);
+    expect(selection?.item.titleExtension, isNull);
     final seriesMap = payload?['series'] as Map?;
     expect(seriesMap?['series_title'], 'Over the Garden Wall');
     expect(payload?['crossover'], 'Adventure Time');
@@ -745,7 +746,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       accent: Colors.orange,
                     ),
@@ -862,7 +863,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       trackingEntry: trackingEntry,
                       accent: Colors.orange,
@@ -891,7 +892,7 @@ void main() {
     expect(selection?.personal?.collectionStatus, 'for_sale');
     expect(selection?.personal?.marketValueCents, 2599);
 
-    final savedItem = selection?.item as CatalogItemDto?;
+    final savedItem = selection?.item.toTransportItem();
     final payload = savedItem?.payload;
     final pubMap = payload?['publishing'] as Map?;
     expect(pubMap?['publication_place'], 'New York');
@@ -958,7 +959,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       accent: Colors.orange,
                     ),
@@ -994,7 +995,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final savedItem = selection!.item as CatalogItemDto;
+    final savedItem = selection!.item.toTransportItem();
     expect(savedItem.trailerUrls, hasLength(1));
     expect(savedItem.trailerUrls.first.kind, 'external');
     expect(savedItem.trailerUrls.first.url,
@@ -1055,7 +1056,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       trackingEntry: trackingEntry,
                       accent: Colors.teal,
@@ -1139,7 +1140,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       accent: Colors.blue,
                       availableBundleReleases: const [
@@ -1236,7 +1237,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       accent: Colors.orange,
                     ),
@@ -1322,7 +1323,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -1406,7 +1407,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       wishlistItem: wishlistItem,
                       accent: Colors.purple,
@@ -1547,7 +1548,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: ownedItem,
                       accent: Colors.cyan,
                       physicalFormats: musicPhysicalMediaFormats,
@@ -1592,7 +1593,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = (selection?.item as CatalogItemDto?)?.payload;
+    final payload = selection?.item.payload;
     final seriesMap = payload?['series'] as Map?;
     final musicMap = payload?['music'] as Map?;
     expect(seriesMap?['series_title'], 'cAd');
@@ -1646,7 +1647,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                     ),
@@ -1675,7 +1676,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final itemPayload = (selection?.item as CatalogItemDto?)?.payload;
+    final itemPayload = selection?.item.payload;
     final gameMap = itemPayload?['game'] as Map?;
     expect(
         gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);
@@ -1717,7 +1718,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       scope: LibraryEditScope.all,
@@ -1781,7 +1782,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: LibraryAddCatalogItem.fromItem(item),
                       ownedItem: null,
                       accent: Colors.brown,
                       scope: LibraryEditScope.all,
@@ -1836,11 +1837,13 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: testCatalogItemWithKindMetadata(
-                        testCatalogItem(
-                          id: 'comic-1',
-                          kind: 'comic',
-                          title: 'Batman: Year One',
+                      item: LibraryAddCatalogItem.fromItem(
+                        testCatalogItemWithKindMetadata(
+                          testCatalogItem(
+                            id: 'comic-1',
+                            kind: 'comic',
+                            title: 'Batman: Year One',
+                          ),
                         ),
                       ),
                       ownedItem: null,

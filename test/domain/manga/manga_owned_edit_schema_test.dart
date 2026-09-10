@@ -10,6 +10,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -170,12 +171,14 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
   ) as MangaEditDraft;
 }
 
-CatalogItemDto _mangaItem() => CatalogItemDto(
-      identity: const LibraryItemIdentity(
-        id: 'manga-1',
-        mediaKind: CatalogMediaKind.manga,
+LibraryAddCatalogItem _mangaItem() => LibraryAddCatalogItem.fromItem(
+      CatalogItemDto(
+        identity: const LibraryItemIdentity(
+          id: 'manga-1',
+          mediaKind: CatalogMediaKind.manga,
+        ),
+        kindMetadata: const MangaMetadata(title: 'Frieren'),
       ),
-      kindMetadata: const MangaMetadata(title: 'Frieren'),
     );
 
 EditFieldSpec<MangaEditDraft> _field(String id) {

@@ -8,6 +8,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -69,7 +70,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         itemImages = draft.itemImages;
 
   final LibraryKindModule type;
-  final CatalogItemDto item;
+  final LibraryAddCatalogItem item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
@@ -151,7 +152,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         );
 
     final initialLinks = widget.type.presentation.builder.buildLinks(
-      item: widget.item,
+      item: widget.item.toTransportItem(),
     );
     _links = [
       for (final link in initialLinks)
@@ -469,11 +470,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _personalTab() {
     if (_draft.hasWishlistContext) {
       final wishlistRef = _draft.personal.selectedWishlistCatalogRef;
-      final wishlistTargetType =
-          wishlistRef?.entityType == const CatalogEntityTypeId('bundle_release') &&
-                  widget.availableBundleReleases.isNotEmpty
-              ? const CatalogEntityTypeId('bundle_release')
-              : const CatalogEntityTypeId('work');
+      final wishlistTargetType = wishlistRef?.entityType ==
+                  const CatalogEntityTypeId('bundle_release') &&
+              widget.availableBundleReleases.isNotEmpty
+          ? const CatalogEntityTypeId('bundle_release')
+          : const CatalogEntityTypeId('work');
       return EditTabShell(
         children: [
           EditSection(
@@ -500,14 +501,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   ],
                   onChanged: (val) {
                     setState(() {
-                      final targetType = val ?? const CatalogEntityTypeId('work');
-                      if (targetType == const CatalogEntityTypeId('bundle_release') &&
+                      final targetType =
+                          val ?? const CatalogEntityTypeId('work');
+                      if (targetType ==
+                              const CatalogEntityTypeId('bundle_release') &&
                           widget.availableBundleReleases.isNotEmpty) {
                         final bundle = widget.availableBundleReleases.first;
                         _draft.personal.selectedWishlistCatalogRef =
                             CatalogEntityRef(
                           kind: catalogMediaKindFromApiValue(_draft.item.kind),
-                          entityType: const CatalogEntityTypeId('bundle_release'),
+                          entityType:
+                              const CatalogEntityTypeId('bundle_release'),
                           id: bundle.id,
                           rootId: _draft.item.id,
                         );

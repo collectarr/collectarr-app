@@ -44,7 +44,9 @@ class _GameReleaseSchemaEditDialogState
       throw StateError('Expected GameCatalogMetadata for Game release editing');
     }
     _metadata = metadata;
-    final game = GameCatalogMapper.mapMetadataItemToGame(widget.request.item);
+    final game = GameCatalogMapper.mapMetadataItemToGame(
+      widget.request.item.toTransportItem(),
+    );
     _release = _resolveRelease(
       game,
       catalogRefEditionId(widget.request.ownedItem?.targetRef) ??

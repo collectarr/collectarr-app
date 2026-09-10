@@ -118,7 +118,12 @@ void main() {
       final owned = OwnedItem(
         id: 'own_1',
         updatedAt: DateTime(2026),
-        editionId: 'ed_1',
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.movie,
+          entityType: const CatalogEntityTypeId('edition'),
+          id: 'ed_1',
+          rootId: 'movie_1',
+        ),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
           entityType: const CatalogEntityTypeId('owned_copy'),
@@ -197,8 +202,12 @@ void main() {
       final owned = OwnedItem(
         id: 'own_1',
         updatedAt: DateTime(2026),
-        editionId: 'ed_1',
-        variantId: 'var_b',
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.movie,
+          entityType: const CatalogEntityTypeId('variant'),
+          id: 'var_b',
+          rootId: 'movie_1',
+        ),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
           entityType: const CatalogEntityTypeId('owned_copy'),
@@ -234,7 +243,12 @@ void main() {
       final owned = OwnedItem(
         id: 'own_1',
         updatedAt: DateTime(2026),
-        bundleReleaseId: 'ed_1',
+        targetRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.movie,
+          entityType: const CatalogEntityTypeId('bundle_release'),
+          id: 'ed_1',
+          rootId: 'movie_1',
+        ),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
           entityType: const CatalogEntityTypeId('owned_copy'),

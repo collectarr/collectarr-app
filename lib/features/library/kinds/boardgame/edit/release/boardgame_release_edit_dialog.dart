@@ -46,8 +46,9 @@ class _BoardGameReleaseSchemaEditDialogState
       );
     }
     _metadata = metadata;
-    final boardGame =
-        BoardGameCatalogMapper.mapMetadataItemToBoardGame(widget.request.item);
+    final boardGame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
+      widget.request.item.toTransportItem(),
+    );
     _release = _resolveRelease(
       boardGame,
       catalogRefEditionId(widget.request.ownedItem?.targetRef) ??

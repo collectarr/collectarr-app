@@ -59,7 +59,7 @@ class LibraryEditDraft {
   final TextControllerGroup _textControllers;
 
   final LibraryKindModule type;
-  final CatalogItemDto item;
+  final LibraryAddCatalogItem item;
   final OwnedItem? ownedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
@@ -105,7 +105,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromItem({
     required LibraryKindModule type,
-    required CatalogItemDto item,
+    required LibraryAddCatalogItem item,
     OwnedItem? ownedItem,
     WishlistItem? wishlistItem,
     TrackingEntry? trackingEntry,
@@ -133,7 +133,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromFields({
     required LibraryKindModule type,
-    required CatalogItemDto item,
+    required LibraryAddCatalogItem item,
     required OwnedItem? ownedItem,
     required WishlistItem? wishlistItem,
     required TrackingEntry? trackingEntry,
@@ -564,7 +564,7 @@ class LibraryEditDraft {
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return type.add.buildCommandFromDetails(
-      LibraryAddCatalogItem.fromItem(item),
+      item,
       buildCommonDraft(),
       buildDetailsDraft(),
       targetRef: catalogRefForLibrarySelection(

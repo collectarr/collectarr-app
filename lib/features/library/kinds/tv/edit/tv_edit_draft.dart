@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
@@ -231,7 +232,7 @@ class TvEditDraft extends LibraryEditKindDraft
 }
 
 LibraryEditKindDraft createTvEditDraft({
-  required CatalogItemDto item,
+  required LibraryAddCatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
@@ -261,7 +262,7 @@ LibraryEditKindDraft createTvEditDraft({
     initialTrailerLinks: tv?.links ?? const <TrailerLinkDto>[],
   );
   final releaseMediaEdit = TvReleaseMediaEditController(
-    item: item,
+    item: item.toTransportItem(),
     initialDiscCount: tv?.releases
         .map((release) => release.discCount ?? 0)
         .fold<int>(0, (max, count) => count > max ? count : max),

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/config/library_owned_copy_semant
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -20,7 +21,7 @@ export 'package:collectarr_app/features/library/config/owned_item_update_payload
 export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
-  required CatalogItemDto item,
+  required LibraryAddCatalogItem item,
   OwnedItem? ownedItem,
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,

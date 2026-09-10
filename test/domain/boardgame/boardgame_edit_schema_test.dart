@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../contracts/media_edit_contract.dart';
@@ -250,13 +251,15 @@ void main() {
   });
 }
 
-CatalogItemDto _item(BoardGameMetadata metadata) {
-  return CatalogItemDto(
-    identity: const LibraryItemIdentity(
-      id: 'boardgame-1',
-      mediaKind: CatalogMediaKind.boardgame,
+LibraryAddCatalogItem _item(BoardGameMetadata metadata) {
+  return LibraryAddCatalogItem.fromItem(
+    CatalogItemDto(
+      identity: const LibraryItemIdentity(
+        id: 'boardgame-1',
+        mediaKind: CatalogMediaKind.boardgame,
+      ),
+      kindMetadata: metadata,
     ),
-    kindMetadata: metadata,
   );
 }
 

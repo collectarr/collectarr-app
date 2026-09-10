@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 class LibraryEditPresentationContext {
@@ -94,7 +94,7 @@ abstract class LibraryEditPresentationBuilder {
     required LibraryEditDraft draft,
     required Color accent,
     required LibraryEditScope scope,
-    required CatalogItemDto item,
+    required LibraryAddCatalogItem item,
     required VoidCallback markDirty,
   }) =>
       null;

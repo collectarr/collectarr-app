@@ -50,12 +50,10 @@ class LibraryAddProposalFlowService {
         context,
         LibraryEditDialogRequest(
           type: type,
-          item: orchestrationService
-              .proposalDraftFromCandidate(
-                type: type,
-                candidate: currentCandidate,
-              )
-              .toTransportItem(),
+          item: orchestrationService.proposalDraftFromCandidate(
+            type: type,
+            candidate: currentCandidate,
+          ),
           ownedItem: null,
           accent: LibraryAccentScope.accentOf(context),
           physicalFormats: currentPhysicalFormats(),
@@ -91,7 +89,7 @@ class LibraryAddProposalFlowService {
       setError(null);
     });
     try {
-      final proposalItem = LibraryAddCatalogItem.fromItem(result.item);
+      final proposalItem = result.item;
       await providerActionService.proposeMetadata(
         api: api,
         type: type,

@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,7 +29,7 @@ void main() {
 
     final draft = LibraryEditDraft.fromFields(
       type: comicKindModule,
-      item: item,
+      item: LibraryAddCatalogItem.fromItem(item),
       ownedItem: null,
       wishlistItem: null,
       trackingEntry: null,
@@ -77,7 +78,7 @@ void main() {
 
     final draft = LibraryEditDraft.fromFields(
       type: comicKindModule,
-      item: item,
+      item: LibraryAddCatalogItem.fromItem(item),
       ownedItem: null,
       wishlistItem: null,
       trackingEntry: null,
