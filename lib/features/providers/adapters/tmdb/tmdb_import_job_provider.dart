@@ -10,8 +10,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_import_contributions.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -24,11 +23,11 @@ import 'package:collectarr_app/features/providers/domain/repositories/provider_l
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/imports/personal_lists/anime_list_import_service.dart';
 import 'package:collectarr_app/features/imports/personal_lists/provider_csv_import_service.dart';
-import 'package:collectarr_app/features/settings/provider_import_history_store.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/domain/imports/provider_import_history_store.dart';
+import 'package:collectarr_app/features/providers/domain/imports/provider_import_history.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_catalog_merger.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
-import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -405,13 +404,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
 
     final runner = ImportRunner(
       matcher: (entry) async {
-        final type = _resolvedTypeForEntry(entry);
+        final kind = _resolvedKindForEntry(entry);
         CatalogSearchCandidate? item;
-        if (type != null) {
+        if (kind != null) {
           final year = entry.startedAt?.year ?? entry.completedAt?.year;
           final candidates = await searchLibraryMetadataCandidates(
             api,
-            type.kind,
+            kind,
             query: entry.title ?? '',
             year: year,
             limit: 10,
@@ -577,10 +576,10 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       collection: collection,
       entries: entries,
       searchCatalog: (entry) async {
-        final type = _resolvedTypeForTmdbEntry(entry);
+        final kind = _resolvedKindForTmdbEntry(entry);
         final items = await searchLibraryMetadata(
           api,
-          type.kind,
+          kind,
           query: entry.title,
           year: entry.releaseYear,
           limit: 10,
@@ -717,7 +716,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
             enrichmentCache,
             apiKey,
           );
-          final type = _resolvedTypeForTmdbEntry(enriched);
+          final kind = _resolvedKindForTmdbEntry(enriched);
           try {
             final truncatedQuery = enriched.query.length > 255
                 ? enriched.query.substring(0, 255)
@@ -727,7 +726,8 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
                 : enriched.title;
             final response = await createAndRecordLibraryMetadataProposal(
               api: api,
-              type: type,
+              kind: kind,
+              defaultProvider: 'tmdb',
               provider: 'tmdb',
               providerItemId: enriched.tmdbId.toString(),
               query: truncatedQuery,
@@ -931,15 +931,13 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     }
   }
 
-  LibraryKindModule _resolvedTypeForTmdbEntry(TmdbImportEntry entry) {
-    final runtime = entry.looksLikeAnime
-        ? libraryKindModuleForKind(CatalogMediaKind.movie)
+  CatalogMediaKind _resolvedKindForTmdbEntry(TmdbImportEntry entry) {
+    return entry.looksLikeAnime
+        ? CatalogMediaKind.anime
         : switch (entry.mediaType) {
-            TmdbMediaType.movie =>
-              libraryKindModuleForKind(CatalogMediaKind.movie),
-            TmdbMediaType.tv => libraryKindModuleForKind(CatalogMediaKind.tv),
+            TmdbMediaType.movie => CatalogMediaKind.movie,
+            TmdbMediaType.tv => CatalogMediaKind.tv,
           };
-    return runtime;
   }
 
   Future<void> _importTvSeasons({
@@ -967,7 +965,14 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
           CatalogImportSnapshot.fromItem(seasonItem),
           origin: origin,
         );
-        await tvTrackingImportContribution.addLocalOnlySeasonEntry(
+        final contribution =
+            tmdbTrackingImportContributionForKind(CatalogMediaKind.tv);
+        if (contribution == null) {
+          throw StateError(
+            'No TMDB tracking contribution is registered for TV.',
+          );
+        }
+        await contribution.addLocalOnlySeasonEntry(
           trackingMutations,
           seasonItem,
           sourceType: TrackingSourceType.streaming,
@@ -1013,11 +1018,11 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
     return value.round().clamp(1, 10);
   }
 
-  LibraryKindModule? _resolvedTypeForEntry(ProviderPersonalEntry entry) {
+  CatalogMediaKind? _resolvedKindForEntry(ProviderPersonalEntry entry) {
     if (entry.kind.isUnknown) {
       return null;
     }
-    return libraryKindModuleForKind(entry.kind);
+    return entry.kind;
   }
 
   CatalogSearchCandidate? _bestImportMatch(

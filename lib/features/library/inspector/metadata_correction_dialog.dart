@@ -33,14 +33,16 @@ Future<void> showMetadataCorrectionDialog({
         draft.title.trim().isEmpty ? source.title : draft.title.trim();
     final response = await createLibraryMetadataProposal(
       api: ref.read(apiClientProvider),
-      type: type,
+      kind: type.kind,
+      defaultProvider: type.metadata.defaultProviderId,
       query: query,
       title: title,
       summary: draft.summary,
     );
     await recordLibraryMetadataProposalResponse(
       response: response,
-      type: type,
+      kind: type.kind,
+      defaultProvider: type.metadata.defaultProviderId,
       query: query,
       title: title,
       source: 'Metadata correction',

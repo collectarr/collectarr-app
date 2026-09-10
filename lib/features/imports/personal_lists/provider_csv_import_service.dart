@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/domain/imports/provider_import_history.dart';
 
 class ProviderCsvImportService {
   const ProviderCsvImportService();

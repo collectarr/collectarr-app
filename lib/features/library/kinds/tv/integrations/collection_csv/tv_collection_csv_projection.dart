@@ -110,7 +110,8 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.collectionValue;
+  String? ownedCollectionValue(ShelfEntry entry) =>
+      entry.ownedItem?.collectionValue;
 
   @override
   List<String> ownedCellsBeforeQuantity(

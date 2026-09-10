@@ -1,21 +1,36 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 
 String resolveLibraryMetadataProposalProvider(
-  LibraryKindModule type, {
+  CatalogMediaKind kind, {
   String? provider,
+  String? defaultProvider,
 }) {
   final requestedProvider = provider?.trim();
   if (requestedProvider == null || requestedProvider.isEmpty) {
-    return type.metadata.defaultSupportedOption(type.kind)?.id ??
-        type.metadata.defaultProviderId;
+    final configured = defaultProvider?.trim();
+    if (configured != null && configured.isNotEmpty) {
+      final supported = collectarrMetadataProviderRegistry.byId(configured);
+      if (supported?.supportsKind(kind) == true) return configured;
+    }
+    final first = collectarrMetadataProviderRegistry.forKind(kind).firstOrNull;
+    if (first == null) {
+      throw ArgumentError.value(
+        kind,
+        'kind',
+        'No metadata provider is registered for ${kind.apiValue}',
+      );
+    }
+    return first.id;
   }
-  if (!type.metadata.supportsProvider(requestedProvider, type.kind)) {
+  final supported = collectarrMetadataProviderRegistry.byId(requestedProvider);
+  if (supported?.supportsKind(kind) != true) {
     throw ArgumentError.value(
       requestedProvider,
       'provider',
-      '${type.identity.pluralLabel} does not support this metadata provider',
+      '${kind.apiValue} does not support this metadata provider',
     );
   }
   return requestedProvider;
@@ -23,7 +38,8 @@ String resolveLibraryMetadataProposalProvider(
 
 Future<Map<String, dynamic>> createLibraryMetadataProposal({
   required ApiClient api,
-  required LibraryKindModule type,
+  required CatalogMediaKind kind,
+  String? defaultProvider,
   String? provider,
   String? providerItemId,
   required String query,
@@ -34,8 +50,9 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
 }) {
   return api.createMetadataProposal(
     provider: resolveLibraryMetadataProposalProvider(
-      type,
+      kind,
       provider: provider,
+      defaultProvider: defaultProvider,
     ),
     providerItemId: providerItemId,
     query: query,
@@ -49,7 +66,8 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
 Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
   MetadataProposalStore store = const MetadataProposalStore(),
   required ApiClient api,
-  required LibraryKindModule type,
+  required CatalogMediaKind kind,
+  String? defaultProvider,
   String? provider,
   String? providerItemId,
   required String query,
@@ -60,8 +78,9 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
   required String source,
 }) async {
   final resolvedProvider = resolveLibraryMetadataProposalProvider(
-    type,
+    kind,
     provider: provider,
+    defaultProvider: defaultProvider,
   );
   final response = await api.createMetadataProposal(
     provider: resolvedProvider,
@@ -85,7 +104,8 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
 Future<void> recordLibraryMetadataProposalResponse({
   MetadataProposalStore store = const MetadataProposalStore(),
   required Map<String, dynamic> response,
-  required LibraryKindModule type,
+  required CatalogMediaKind kind,
+  String? defaultProvider,
   String? provider,
   required String query,
   String? title,
@@ -94,8 +114,9 @@ Future<void> recordLibraryMetadataProposalResponse({
   return store.recordResponse(
     response: response,
     provider: resolveLibraryMetadataProposalProvider(
-      type,
+      kind,
       provider: provider,
+      defaultProvider: defaultProvider,
     ),
     query: query,
     title: title,

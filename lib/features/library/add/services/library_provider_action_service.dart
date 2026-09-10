@@ -36,7 +36,8 @@ class LibraryProviderActionService {
   }) {
     return createAndRecordLibraryMetadataProposal(
       api: api,
-      type: type,
+      kind: type.kind,
+      defaultProvider: type.metadata.defaultProviderId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
       query: proposalItem.title,

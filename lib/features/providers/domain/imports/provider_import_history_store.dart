@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/domain/imports/provider_import_history.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProviderImportHistoryStore {

@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:csv/csv.dart';
@@ -466,17 +467,20 @@ void main() {
   });
 
   test('collection csv parses quoted newlines', () {
-    final values = List<String>.filled(CollectionCsv.header.length, '');
-    values[CollectionCsv.header.indexOf('item_id')] = 'comic-1';
-    values[CollectionCsv.header.indexOf('kind')] = 'comic';
-    values[CollectionCsv.header.indexOf('title')] = 'Title';
-    values[CollectionCsv.header.indexOf('item_number')] = '1';
-    values[CollectionCsv.header.indexOf('status')] = 'owned';
-    values[CollectionCsv.header.indexOf('notes')] =
+    final values = List<String>.filled(
+      CollectionCsvV1Schema.header.length,
+      '',
+    );
+    values[CollectionCsvV1Schema.header.indexOf('item_id')] = 'comic-1';
+    values[CollectionCsvV1Schema.header.indexOf('kind')] = 'comic';
+    values[CollectionCsvV1Schema.header.indexOf('title')] = 'Title';
+    values[CollectionCsvV1Schema.header.indexOf('item_number')] = '1';
+    values[CollectionCsvV1Schema.header.indexOf('status')] = 'owned';
+    values[CollectionCsvV1Schema.header.indexOf('notes')] =
         'Line one\nLine two with "quote"';
     final rows = CollectionCsv().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
-        CollectionCsv.header,
+        CollectionCsvV1Schema.header,
         values,
       ]),
     );

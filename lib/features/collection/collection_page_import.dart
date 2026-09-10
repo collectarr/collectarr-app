@@ -152,7 +152,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     final item = await showDialog<CatalogSearchCandidate>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
-        type: _runtimeForImportRow(row),
+        kind: _kindForImportRow(row),
         row: row,
       ),
     );
@@ -193,7 +193,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
-          _runtimeForImportRow(row).kind,
+          _kindForImportRow(row),
           row,
           limit: 5,
         );
@@ -329,17 +329,17 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
-      final type = _runtimeForImportRow(row);
+      final kind = _kindForImportRow(row);
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
-        type: type,
+        kind: kind,
         query: draft.query,
         title: draft.title.trim().isEmpty ? null : draft.title.trim(),
         summary: draft.summary,
       );
       await recordLibraryMetadataProposalResponse(
         response: response,
-        type: type,
+        kind: kind,
         query: draft.query,
         title: draft.title,
         source: 'CSV import',
@@ -556,11 +556,11 @@ class _UnresolvedImportRow extends StatelessWidget {
 
 class _ResolveImportRowDialog extends ConsumerStatefulWidget {
   const _ResolveImportRowDialog({
-    required this.type,
+    required this.kind,
     required this.row,
   });
 
-  final LibraryKindModule type;
+  final CatalogMediaKind kind;
   final CollectionCsvRow row;
 
   @override
@@ -682,7 +682,7 @@ class _ResolveImportRowDialogState
     try {
       final items = await _searchCoreForRow(
         ref,
-        widget.type.kind,
+        widget.kind,
         widget.row,
         queryOverride: _queryController.text,
       );
@@ -977,12 +977,12 @@ LibraryCollectionCsvProjection? _importProjection(CollectionCsvRow row) {
   );
 }
 
-LibraryKindModule _runtimeForImportRow(CollectionCsvRow row) {
+CatalogMediaKind _kindForImportRow(CollectionCsvRow row) {
   final kind = catalogMediaKindFromValue(row.kind);
   if (kind.isUnknown) {
     throw ArgumentError.value(row.kind, 'row.kind', 'Unsupported kind');
   }
-  return libraryKindModuleForKind(kind);
+  return kind;
 }
 
 String _friendlyImportError(Object error) {

@@ -111,7 +111,8 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  String? ownedGrade(ShelfEntry entry) => entry.ownedItem?.collectionValue;
+  String? ownedCollectionValue(ShelfEntry entry) =>
+      entry.ownedItem?.collectionValue;
 
   @override
   List<String> ownedCellsBeforeQuantity(

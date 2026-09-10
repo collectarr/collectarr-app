@@ -17,6 +17,8 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_m
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
+import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -60,7 +62,13 @@ final class LibraryKindRegistry {
   List<LibraryKindModule> get allModules => List.unmodifiable(_byKind.values);
 }
 
-final defaultLibraryKindRegistry = LibraryKindRegistry(collectarrKindModules);
+final defaultLibraryKindRegistry = (() {
+  registerTmdbTrackingImportContribution(
+    CatalogMediaKind.tv,
+    const TvTrackingImportContribution(),
+  );
+  return LibraryKindRegistry(collectarrKindModules);
+})();
 
 final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
     _collectionCsvProjections = Map.unmodifiable(

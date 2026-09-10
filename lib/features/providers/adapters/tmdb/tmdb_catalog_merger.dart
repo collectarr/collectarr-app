@@ -11,9 +11,11 @@ class TmdbCatalogMerger {
   }
 
   CatalogItemDto localSyntheticCatalogItem(TmdbImportEntry entry) {
-    final kind = entry.mediaType == TmdbMediaType.tv
-        ? CatalogMediaKind.tv
-        : CatalogMediaKind.movie;
+    final kind = entry.looksLikeAnime
+        ? CatalogMediaKind.anime
+        : entry.mediaType == TmdbMediaType.tv
+            ? CatalogMediaKind.tv
+            : CatalogMediaKind.movie;
     final common = CatalogCommonDto(
       title: entry.title,
       displayTitle: entry.title,

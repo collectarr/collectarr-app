@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
@@ -144,88 +145,6 @@ final class CollectionCsvTrackingValues {
 }
 
 class CollectionCsv {
-  static const header = [
-    'item_id',
-    'kind',
-    'title',
-    'item_number',
-    'variant',
-    'edition_title',
-    'physical_format',
-    'physical_format_label',
-    'publisher',
-    'release_date',
-    'barcode',
-    'status',
-    'condition',
-    'grade',
-    'purchase_date',
-    'price_paid_cents',
-    'currency',
-    'notes',
-    'quantity',
-    'location_id',
-    'index_number',
-    'cover_price_cents',
-    'raw_or_slabbed',
-    'grading_company',
-    'grader_notes',
-    'signed_by',
-    'label_type',
-    'certification_number',
-    'key_comic',
-    'key_reason',
-    'rating',
-    'read_status',
-    'started_at',
-    'finished_at',
-    'tags',
-    'sold_at',
-    'sell_price_cents',
-    'sold_to',
-  ];
-
-  static const clzFriendlyHeader = [
-    'Collectarr Item ID',
-    'Media Type',
-    'Series',
-    'Issue',
-    'Variant Description',
-    'Edition Title',
-    'Physical Format',
-    'Physical Format Label',
-    'Publisher',
-    'Release Date',
-    'Barcode',
-    'Collection Status',
-    'Condition',
-    'Grade',
-    'Purchase Date',
-    'Purchase Price',
-    'Currency',
-    'Cover Price',
-    'Quantity',
-    'Location ID',
-    'Index',
-    'Raw / Slabbed',
-    'Grading Company',
-    'Grader Notes',
-    'Signed By',
-    'Label Type',
-    'Certification Number',
-    'Key Comic',
-    'Key Reason',
-    'Rating',
-    'Read It',
-    'Started',
-    'Finished',
-    'Tags',
-    'Notes',
-    'Sold Date',
-    'Sell Price',
-    'Sold To',
-  ];
-
   String exportShelf(
     List<ShelfEntry> entries, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
@@ -235,7 +154,7 @@ class CollectionCsv {
       for (final def in customFieldDefinitions) 'cf_${def.name}',
     ];
     final rows = [
-      [...header, ...cfNames],
+      [...CollectionCsvV1Schema.header, ...cfNames],
       for (final entry in entries)
         _entryToRow(
           entry,
@@ -323,9 +242,9 @@ class CollectionCsv {
     return cells;
   }
 
-  String _ownedGrade(ShelfEntry entry) {
+  String _ownedCollectionValue(ShelfEntry entry) {
     final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
-    return projection?.ownedGrade(entry) ?? '';
+    return projection?.ownedCollectionValue(entry) ?? '';
   }
 
   List<String> _kindOwnedCellsAfterIndex(
@@ -378,7 +297,7 @@ class CollectionCsv {
       ..._catalogFields(entry),
       _status(entry),
       entry.condition ?? '',
-      _ownedGrade(entry),
+      _ownedCollectionValue(entry),
       _formatDate(entry.purchaseDate),
       entry.pricePaidCents?.toString() ?? '',
       entry.currency ?? entry.wishlistItem?.currency ?? '',
@@ -415,7 +334,7 @@ class CollectionCsv {
       ..._catalogFields(entry),
       _clzStatus(entry),
       entry.condition ?? '',
-      _ownedGrade(entry),
+      _ownedCollectionValue(entry),
       _formatDate(entry.purchaseDate),
       _formatMoney(entry.pricePaidCents),
       entry.currency ?? entry.wishlistItem?.currency ?? '',
@@ -523,7 +442,7 @@ class CollectionCsv {
     if (projection?.clzFriendlyHeader case final header?) {
       return header;
     }
-    return clzFriendlyHeader;
+    return CollectionCsvV1Schema.clzFriendlyHeader;
   }
 
   List<String> _clzFriendlyHeader({
@@ -535,44 +454,15 @@ class CollectionCsv {
     required String publisher,
     required String barcode,
   }) {
-    return [
-      'Collectarr Item ID',
-      'Media Type',
-      title,
-      number,
-      variant,
-      editionTitle,
-      physicalFormat,
-      'Physical Format Label',
-      publisher,
-      'Release Date',
-      barcode,
-      'Collection Status',
-      'Condition',
-      'Grade',
-      'Purchase Date',
-      'Purchase Price',
-      'Currency',
-      'Cover Price',
-      'Quantity',
-      'Location ID',
-      'Index',
-      'Raw / Slabbed',
-      'Grading Company',
-      'Grader Notes',
-      'Signed By',
-      'Label Type',
-      'Certification Number',
-      'Key Comic',
-      'Key Reason',
-      'Rating',
-      'Read It',
-      'Tags',
-      'Notes',
-      'Sold Date',
-      'Sell Price',
-      'Sold To',
-    ];
+    final schema = [...CollectionCsvV1Schema.clzFriendlyHeader];
+    schema[2] = title;
+    schema[3] = number;
+    schema[4] = variant;
+    schema[5] = editionTitle;
+    schema[6] = physicalFormat;
+    schema[8] = publisher;
+    schema[10] = barcode;
+    return schema;
   }
 
   CollectionCsvRow _rowFromValues(

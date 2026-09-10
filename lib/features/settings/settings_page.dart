@@ -21,13 +21,13 @@ import 'package:collectarr_app/features/collection/csv/import_export/import_expo
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
-import 'package:collectarr_app/features/settings/import_job_provider.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
-import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
