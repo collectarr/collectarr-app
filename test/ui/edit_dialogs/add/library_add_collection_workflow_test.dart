@@ -63,7 +63,7 @@ void main() {
 
     final catalogRows = await CatalogSnapshotRepository(fixture.db).findAll();
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
-    final trackingRows = await readTrackingEntries(fixture.db);
+    final trackingRows = await readTrackingLifecycles(fixture.db);
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(catalogRows.single.id, 'comic-1');
@@ -261,7 +261,7 @@ void main() {
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final trackingRows = await readTrackingEntries(fixture.db);
+    final trackingRows = await readTrackingLifecycles(fixture.db);
 
     expect(ownedRows, isEmpty);
     expect(wishlistRows, isEmpty);
@@ -287,7 +287,7 @@ void main() {
     final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final trackingRows = await readTrackingEntries(fixture.db);
+    final trackingRows = await readTrackingLifecycles(fixture.db);
 
     expect(ownedRows, isEmpty);
     expect(wishlistRows, isEmpty);

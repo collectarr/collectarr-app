@@ -186,7 +186,7 @@ void main() {
 
     final ownedRow = (await MovieOwnedRepository(db).listActive()).single;
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
-    final trackingRow = (await readTrackingEntries(db))
+    final trackingRow = (await readTrackingLifecycles(db))
         .firstWhere((row) => row.catalogRef.id == 'movie-3');
     final actions = buildActions();
 

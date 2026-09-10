@@ -82,7 +82,7 @@ abstract interface class DevSeedKindContributor {
   DevSeedCatalogBarcodeValidator get validateBarcode;
   DevSeedOwnedFactory get ownedItems;
   DevSeedOwnedQualityValidator get validateOwned;
-  DevSeedTrackingFactory get trackingEntries;
+  DevSeedTrackingFactory get trackingLifecycles;
   DevSeedTrackingUnitFactory? get trackingUnits;
   DevSeedWatchSessionFactory? get watchSessions;
   DevSeedCustomEpisodeFactory? get customEpisodes;
@@ -107,7 +107,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
     required this.validateBarcode,
     required this.ownedItemsTyped,
     required this.validateOwnedTyped,
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     this.trackingUnits,
     this.watchSessions,
     this.customEpisodes,
@@ -131,7 +131,7 @@ final class TypedDevSeedKindContributor<TOwned extends Object>
   final List<TOwned> Function(DateTime now) ownedItemsTyped;
   final List<String> Function(TOwned item) validateOwnedTyped;
   @override
-  final DevSeedTrackingFactory trackingEntries;
+  final DevSeedTrackingFactory trackingLifecycles;
   @override
   final DevSeedTrackingUnitFactory? trackingUnits;
   @override

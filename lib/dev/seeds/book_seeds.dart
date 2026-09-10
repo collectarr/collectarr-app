@@ -32,7 +32,7 @@ final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: bookSeedOwnedItems,
   validateOwnedTyped: validateBookSeedOwned,
-  trackingEntries: bookSeedTrackingEntries,
+  trackingLifecycles: bookSeedTrackingLifecycles,
   trackingUnits: bookSeedTrackingUnits,
 );
 
@@ -782,7 +782,7 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> bookSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> bookSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BookTrackingLifecycle(
           id: 'seed-track-book-${seedOrdinal2(i)}',

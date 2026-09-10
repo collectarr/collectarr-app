@@ -38,7 +38,7 @@ final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: tvSeedOwnedItems,
   validateOwnedTyped: validateTvSeedOwned,
-  trackingEntries: tvSeedTrackingEntries,
+  trackingLifecycles: tvSeedTrackingLifecycles,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
   customEpisodes: tvSeedCustomEpisodes,
@@ -1037,7 +1037,7 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> tvSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> tvSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvTrackingLifecycle(
           id: 'seed-track-tv-${seedOrdinal2(i)}',

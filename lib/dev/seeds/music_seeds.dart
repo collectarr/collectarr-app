@@ -30,7 +30,7 @@ final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: musicSeedOwnedItems,
   validateOwnedTyped: validateMusicSeedOwned,
-  trackingEntries: musicSeedTrackingEntries,
+  trackingLifecycles: musicSeedTrackingLifecycles,
 );
 
 void enrichMusicSeedPayload(
@@ -1402,7 +1402,7 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> musicSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> musicSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MusicTrackingLifecycle(
           id: 'seed-track-music-${seedOrdinal2(i)}',

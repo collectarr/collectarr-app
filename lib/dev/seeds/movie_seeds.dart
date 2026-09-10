@@ -30,7 +30,7 @@ final movieDevSeedContributor = TypedDevSeedKindContributor<MovieOwnedItem>(
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: movieSeedOwnedItems,
   validateOwnedTyped: validateMovieSeedOwned,
-  trackingEntries: movieSeedTrackingEntries,
+  trackingLifecycles: movieSeedTrackingLifecycles,
 );
 
 List<String> validateMovieSeedCatalog(CatalogItemDto item) {
@@ -1244,7 +1244,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
     ];
 
-List<TrackingLifecycle> movieSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-01',
         catalogRef: seedCatalogRef('seed-movie-01'),

@@ -23,7 +23,7 @@ void main() {
     );
     final bridge = ProviderLocalStateBridge(
       catalogSummaries: CatalogDisplaySummaryRepository(db),
-      trackingEntries: tracking,
+      trackingLifecycles: tracking,
       wishlist: WishlistItemsCacheRepository(db),
     );
     final item = testCatalogItem(

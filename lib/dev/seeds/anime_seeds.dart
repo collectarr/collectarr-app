@@ -37,7 +37,7 @@ final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: animeSeedOwnedItems,
   validateOwnedTyped: validateAnimeSeedOwned,
-  trackingEntries: animeSeedTrackingEntries,
+  trackingLifecycles: animeSeedTrackingLifecycles,
   trackingUnits: animeSeedTrackingUnits,
   watchSessions: animeSeedWatchSessions,
   customEpisodes: animeSeedCustomEpisodes,
@@ -886,7 +886,7 @@ List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> animeSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> animeSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeTrackingLifecycle(
           id: 'seed-track-anime-${seedOrdinal2(i)}',

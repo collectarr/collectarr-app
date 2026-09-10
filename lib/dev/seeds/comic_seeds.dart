@@ -36,7 +36,7 @@ final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
   validateBarcode: validateComicSeedBarcode,
   ownedItemsTyped: comicSeedOwnedItems,
   validateOwnedTyped: validateComicSeedOwned,
-  trackingEntries: comicSeedTrackingEntries,
+  trackingLifecycles: comicSeedTrackingLifecycles,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
 );
@@ -819,7 +819,7 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> comicSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> comicSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         ComicTrackingLifecycle(
           id: 'seed-track-comic-${seedOrdinal2(i)}',

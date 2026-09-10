@@ -34,7 +34,7 @@ void main() {
       queue: SyncQueueRepository(db),
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),
@@ -105,7 +105,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),
@@ -163,7 +163,7 @@ void main() {
       queue: queue,
       catalog: CatalogTransportRepository(db),
       ownedPersistence: CollectarrOwnedItemPersistence(db),
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),

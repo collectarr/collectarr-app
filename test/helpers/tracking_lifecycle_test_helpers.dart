@@ -10,16 +10,16 @@ TrackingLifecycleRepository trackingLifecycleTestRepository(LocalDatabase db) {
   );
 }
 
-Future<List<TrackingLifecycle>> readTrackingEntries(LocalDatabase db) {
+Future<List<TrackingLifecycle>> readTrackingLifecycles(LocalDatabase db) {
   return trackingLifecycleTestRepository(db).listActive();
 }
 
-Future<List<TrackingLifecycle>> readAllTrackingEntries(LocalDatabase db) {
+Future<List<TrackingLifecycle>> readAllTrackingLifecycles(LocalDatabase db) {
   return trackingLifecycleTestRepository(db).listAll();
 }
 
 Future<TrackingLifecycle> readSingleTrackingLifecycle(LocalDatabase db) async {
-  final entries = await readTrackingEntries(db);
+  final entries = await readTrackingLifecycles(db);
   if (entries.length != 1) {
     throw StateError(
         'Expected one active tracking entry, got ${entries.length}.');

@@ -104,17 +104,17 @@ void main() {
     expect(videoUnits.single.episodeNumber, 1);
     expect(videoUnits.single.deletedAt, isNull);
 
-    final entries = await readTrackingEntries(db);
-    final tvTrackingEntries = await db.select(db.tvTrackingRows).get();
+    final entries = await readTrackingLifecycles(db);
+    final tvTrackingLifecycles = await db.select(db.tvTrackingRows).get();
     expect(entries, hasLength(1));
     expect(
       entries.single.catalogRef.id,
       itemId,
     );
     expect(entries.single.progressCurrent, 1);
-    expect(tvTrackingEntries, hasLength(1));
-    expect(tvTrackingEntries.single.seasonNumber, 1);
-    expect(tvTrackingEntries.single.episodeNumber, 1);
+    expect(tvTrackingLifecycles, hasLength(1));
+    expect(tvTrackingLifecycles.single.seasonNumber, 1);
+    expect(tvTrackingLifecycles.single.episodeNumber, 1);
   }, skip: true);
 }
 

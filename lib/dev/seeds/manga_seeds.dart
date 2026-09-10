@@ -34,7 +34,7 @@ final mangaDevSeedContributor = TypedDevSeedKindContributor<MangaOwnedItem>(
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: mangaSeedOwnedItems,
   validateOwnedTyped: validateMangaSeedOwned,
-  trackingEntries: mangaSeedTrackingEntries,
+  trackingLifecycles: mangaSeedTrackingLifecycles,
   trackingUnits: mangaSeedTrackingUnits,
 );
 
@@ -727,7 +727,7 @@ List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> mangaSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> mangaSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MangaTrackingLifecycle(
           id: 'seed-track-manga-${seedOrdinal2(i)}',

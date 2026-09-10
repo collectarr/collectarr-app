@@ -68,7 +68,7 @@ void main() {
       ownedItems: OwnedItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),
@@ -79,7 +79,7 @@ void main() {
     wishlistMutations = WishlistMutations(
       wishlist: WishlistItemsCacheRepository(db),
       catalogCache: catalogCache,
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),
@@ -92,7 +92,7 @@ void main() {
     );
 
     trackingMutations = TrackingMutations(
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),

@@ -30,7 +30,7 @@ final gameDevSeedContributor = TypedDevSeedKindContributor<GameOwnedItem>(
   validateBarcode: seedValidateStandardBarcode,
   ownedItemsTyped: gameSeedOwnedItems,
   validateOwnedTyped: validateGameSeedOwned,
-  trackingEntries: gameSeedTrackingEntries,
+  trackingLifecycles: gameSeedTrackingLifecycles,
 );
 
 void enrichGameSeedPayload(
@@ -762,7 +762,7 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingLifecycle> gameSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> gameSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         GameTrackingLifecycle(
           id: 'seed-track-game-${seedOrdinal2(i)}',

@@ -41,7 +41,7 @@ void main() {
       expect(contributor.validateBarcode, isNotNull);
       expect(contributor.ownedItems, isNotNull);
       expect(contributor.validateOwned, isNotNull);
-      expect(contributor.trackingEntries, isNotNull);
+      expect(contributor.trackingLifecycles, isNotNull);
 
       final owned = contributor.ownedItems(DateTime.utc(2024, 1, 1));
       expect(owned, isNotEmpty);
@@ -516,7 +516,7 @@ void main() {
       reason: 'Manga seed copies must retain complete typed ownership data',
     );
 
-    final trackingRows = await readTrackingEntries(db);
+    final trackingRows = await readTrackingLifecycles(db);
     for (final entry in expectedCatalogCounts.entries) {
       final kindTracking = trackingRows
           .where((row) =>

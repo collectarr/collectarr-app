@@ -433,7 +433,7 @@ void main() {
           rating: 9,
         );
 
-    final tracking = await readTrackingEntries(db);
+    final tracking = await readTrackingLifecycles(db);
     expect(tracking, hasLength(1));
     expect(tracking.single.id, 'tracking-existing');
     expect(tracking.single.statusStorageValue, 'In progress');
@@ -1482,7 +1482,7 @@ void main() {
         );
 
     final catalog = await CatalogSnapshotRepository(db).findAll();
-    final tracking = await readTrackingEntries(db);
+    final tracking = await readTrackingLifecycles(db);
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
 
@@ -1540,7 +1540,7 @@ void main() {
           )),
         );
 
-    final tracking = await readAllTrackingEntries(db);
+    final tracking = await readAllTrackingLifecycles(db);
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
 

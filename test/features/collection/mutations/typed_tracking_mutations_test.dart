@@ -38,7 +38,7 @@ void main() {
   late TrackingMutations trackingMutations;
   late CatalogTransportRepository catalogCache;
   late OwnedItemsRepository ownedItems;
-  late TrackingLifecycleRepository trackingEntries;
+  late TrackingLifecycleRepository trackingLifecycles;
   late MutationOrigin? observedOrigin;
 
   setUp(() {
@@ -46,7 +46,7 @@ void main() {
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = CatalogTransportRepository(db);
     ownedItems = OwnedItemsRepository(db);
-    trackingEntries = TrackingLifecycleRepository(
+    trackingLifecycles = TrackingLifecycleRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     );
@@ -57,7 +57,7 @@ void main() {
     );
 
     trackingMutations = TrackingMutations(
-      trackingEntries: trackingEntries,
+      trackingLifecycles: trackingLifecycles,
       trackingUnits: TrackingUnitRepository(
         db,
         codecs: collectarrTrackingUnitCodecs,
@@ -92,7 +92,7 @@ void main() {
         rating: 8,
       );
 
-      final entry = (await trackingEntries.findActiveByCatalogRoots([
+      final entry = (await trackingLifecycles.findActiveByCatalogRoots([
         testCatalogRef('movie-target-1', kind: 'movie'),
       ]))
           .single;
@@ -131,7 +131,7 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry = (await trackingEntries.findActiveByCatalogRoots([
+      final entry = (await trackingLifecycles.findActiveByCatalogRoots([
         testCatalogRef('book-77', kind: 'book'),
       ]))
           .single;
@@ -159,7 +159,7 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry = (await trackingEntries.findActiveByCatalogRoots([
+      final entry = (await trackingLifecycles.findActiveByCatalogRoots([
         testCatalogRef('book-anchor-target', kind: 'book'),
       ]))
           .single;
@@ -193,7 +193,7 @@ void main() {
       );
 
       final entry =
-          (await trackingEntries.findActiveByCatalogRoots([ref])).single;
+          (await trackingLifecycles.findActiveByCatalogRoots([ref])).single;
       expect(entry.catalogRef.entityType, const CatalogEntityTypeId('work'));
       expect(entry.catalogRef.id, ref.id);
     });
@@ -226,7 +226,7 @@ void main() {
         status: MediaTrackingStatus.planned,
       );
 
-      final entry = (await trackingEntries.findActiveByCatalogRoots([
+      final entry = (await trackingLifecycles.findActiveByCatalogRoots([
         testCatalogRef('game-100', kind: 'game'),
       ]))
           .single;
@@ -256,7 +256,7 @@ void main() {
         ),
       );
 
-      final entry = (await trackingEntries.findActiveByCatalogRoots([
+      final entry = (await trackingLifecycles.findActiveByCatalogRoots([
         testCatalogRef('tv-series-1', kind: 'tv'),
       ]))
           .single;
@@ -278,7 +278,7 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry = (await trackingEntries.findActiveByCatalogRoots([
+      final entry = (await trackingLifecycles.findActiveByCatalogRoots([
         testCatalogRef('music-album-99', kind: 'music'),
       ]))
           .single;
@@ -316,11 +316,11 @@ void main() {
         status: MediaTrackingStatus.completed,
       );
 
-      final entry = (await trackingEntries.listActive()).single;
+      final entry = (await trackingLifecycles.listActive()).single;
       expect(entry.catalogRef.kind.apiValue, 'tv');
       expect(tvTrackingCoordinatesFor(entry).seasonNumber, 2);
       expect(
-        trackingEntries.toSyncPayload(entry)['season_number'],
+        trackingLifecycles.toSyncPayload(entry)['season_number'],
         2,
       );
     });
@@ -346,7 +346,7 @@ void main() {
         ),
       ]);
       await ownedItems.upsertTyped(CatalogMediaKind.tv, owned);
-      await trackingEntries.upsert(
+      await trackingLifecycles.upsert(
         TvTrackingLifecycle(
           id: 'tracking-tv-1',
           catalogRef: ref,
@@ -376,7 +376,7 @@ void main() {
       );
 
       final entry =
-          (await trackingEntries.findActiveByCatalogRoots([ref])).single;
+          (await trackingLifecycles.findActiveByCatalogRoots([ref])).single;
       final coordinates = tvTrackingCoordinatesFor(entry);
       expect(coordinates.seasonNumber, 4);
       expect(coordinates.episodeNumber, 9);
@@ -432,7 +432,7 @@ void main() {
       );
 
       final entry =
-          (await trackingEntries.findActiveByCatalogRoots([ref])).single;
+          (await trackingLifecycles.findActiveByCatalogRoots([ref])).single;
       expect(entry.catalogRef.entityType, const CatalogEntityTypeId('work'));
       expect(entry.catalogRef.id, ref.id);
     });
@@ -453,7 +453,7 @@ void main() {
         notes: 'Finished',
         updatedAt: DateTime.utc(2026, 6, 2),
       );
-      await trackingEntries.upsert(existing);
+      await trackingLifecycles.upsert(existing);
 
       await trackingMutations.updateTrackingLifecycle(
         existing.copyWith(
@@ -465,7 +465,7 @@ void main() {
         ),
       );
 
-      final updated = await trackingEntries.findByRef(
+      final updated = await trackingLifecycles.findByRef(
         const TrackingLifecycleRef(
           kind: CatalogMediaKind.book,
           id: 'tracking-clear-1',

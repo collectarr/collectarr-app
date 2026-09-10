@@ -41,7 +41,7 @@ void main() {
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
       catalogCache: catalogCache,
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),
@@ -57,7 +57,7 @@ void main() {
       ownedItems: OwnedItemsRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       wishlist: wishlistRepo,
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),

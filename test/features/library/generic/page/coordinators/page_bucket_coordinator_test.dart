@@ -257,7 +257,7 @@ Future<_CoordinatorHarness> _pumpHarness(
     ownedItems: OwnedItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
     catalogSummaries: CatalogDisplaySummaryRepository(db),
-    trackingEntries: TrackingLifecycleRepository(
+    trackingLifecycles: TrackingLifecycleRepository(
       db,
       codecs: collectarrTrackingLifecycleCodecs,
     ),

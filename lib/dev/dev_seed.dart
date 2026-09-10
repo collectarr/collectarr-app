@@ -935,9 +935,9 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   ];
 
   // --- Tracking Entries ---
-  final trackingEntries = <TrackingLifecycle>[
+  final trackingLifecycles = <TrackingLifecycle>[
     for (final contributor in collectarrDevSeedContributors)
-      ...contributor.trackingEntries(now),
+      ...contributor.trackingLifecycles(now),
   ];
   final trackingUnits = <TrackingUnitSummary>[];
   final watchSessions = <WatchSession>[];
@@ -960,7 +960,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   _validateSeedFixtures(
     catalogItems: allItems,
     ownedItems: ownedItems,
-    trackingEntries: trackingEntries,
+    trackingLifecycles: trackingLifecycles,
   );
   validateSeedCatalogQuality(
     allItems,
@@ -984,7 +984,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
         contributor.kind: contributor.validateOwned,
     },
   );
-  validateSeedTrackingQuality(trackingEntries);
+  validateSeedTrackingQuality(trackingLifecycles);
   _validateSeedTrackingUnits(
     trackingUnits,
     allItems,
@@ -1018,7 +1018,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   // --- Item Images (front/back + extras) ---
   await _seedItemImages(imagesRepo, ownedItems);
 
-  await trackingRepo.upsertAll(trackingEntries);
+  await trackingRepo.upsertAll(trackingLifecycles);
 
   // --- Pick Lists (supplement with extra values) ---
   await seedPickLists(pickListRepo);
@@ -1066,7 +1066,7 @@ void _validateSeedTrackingUnits(
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
   required List<Object> ownedItems,
-  required List<TrackingLifecycle> trackingEntries,
+  required List<TrackingLifecycle> trackingLifecycles,
 }) {
   final catalogById = <String, CatalogItemDto>{};
   for (final item in catalogItems) {
@@ -1156,7 +1156,7 @@ void _validateSeedFixtures({
 
   final trackingCatalogIds = <String>{};
   final trackingIds = <String>{};
-  for (final entry in trackingEntries) {
+  for (final entry in trackingLifecycles) {
     if (!trackingIds.add(entry.id)) {
       throw StateError('Duplicate tracking seed id: ${entry.id}');
     }
