@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
@@ -34,7 +34,7 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
 class _ImportExportWizardDialogState
     extends ConsumerState<ImportExportWizardDialog> {
   final _controller = TextEditingController();
-  final _csv = CollectionCsv();
+  final _csv = CollectionCsvCodec();
   CollectionImportPreview? _preview;
   String? _error;
   bool _isWorking = false;
@@ -181,7 +181,7 @@ class _ExportWizardPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final collectarr = csv.exportShelf(
       entries,
       customFieldDefinitions: customFieldDefinitions,

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -104,7 +104,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   String _toCsv(LibraryKindModule module) {
-    return CollectionCsv().exportShelf(
+    return CollectionCsvCodec().exportShelf(
       shelfState.resolvedWorkspaceEntries,
     );
   }

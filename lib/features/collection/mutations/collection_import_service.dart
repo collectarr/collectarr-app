@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
@@ -48,7 +48,7 @@ final class CollectionImportService {
   final IdGenerator idGenerator;
 
   Future<int> importRows(
-    List<CollectionCsvRow> rows, {
+    List<CollectionImportRow> rows, {
     MutationOrigin origin = MutationOrigin.fileImport,
   }) async {
     if (rows.isEmpty) return 0;
@@ -170,7 +170,7 @@ final class CollectionImportService {
         final trackingEntry = row.tracking.isEmpty
             ? null
             : libraryCollectionCsvProjectionForKind(mediaKind)
-                ?.trackingEntryFromImport(
+                ?.trackingLifecycleFromImport(
                 entryId: idGenerator(),
                 catalogRef: typedImport.catalogRef,
                 ownedRef: ownedRef,
@@ -281,11 +281,11 @@ final class CollectionImportService {
   }
 
   Future<CollectionImportPreview> previewImportRows(
-    List<CollectionCsvRow> rows,
+    List<CollectionImportRow> rows,
   ) async {
-    final candidateRows = <CollectionCsvRow>[];
-    final unresolvedRows = <CollectionCsvRow>[];
-    final skippedRows = <CollectionCsvRow>[];
+    final candidateRows = <CollectionImportRow>[];
+    final unresolvedRows = <CollectionImportRow>[];
+    final skippedRows = <CollectionImportRow>[];
 
     for (final r in rows) {
       var row = r;
@@ -330,8 +330,8 @@ final class CollectionImportService {
     final validRows = candidateRows;
 
     final seenRefs = <CatalogEntityRef>{};
-    final uniqueRows = <CollectionCsvRow>[];
-    final duplicateRows = <CollectionCsvRow>[];
+    final uniqueRows = <CollectionImportRow>[];
+    final duplicateRows = <CollectionImportRow>[];
 
     for (final row in validRows) {
       final ref = _catalogRefForRow(row);
@@ -359,8 +359,8 @@ final class CollectionImportService {
         if (item.catalogRef != null) item.catalogRef!: item,
     };
 
-    final resolvedRows = <CollectionCsvRow>[];
-    final conflictRows = <CollectionCsvRow>[];
+    final resolvedRows = <CollectionImportRow>[];
+    final conflictRows = <CollectionImportRow>[];
 
     for (final row in uniqueRows) {
       final rowRef = _catalogRefForRow(row);
@@ -380,11 +380,8 @@ final class CollectionImportService {
     );
   }
 
-  CatalogEntityRef? _catalogRefForRow(CollectionCsvRow row) {
-    final rawKind = row.kind;
-    if (rawKind == null ||
-        rawKind.trim().isEmpty ||
-        row.itemId.trim().isEmpty) {
+  CatalogEntityRef? _catalogRefForRow(CollectionImportRow row) {
+    if (row.mediaKind.isUnknown || row.itemId.trim().isEmpty) {
       return null;
     }
     return CatalogEntityRef(
@@ -399,7 +396,7 @@ final class CollectionImportService {
   /// Collection only normalizes the structural identity cell needed by the
   /// serialization boundary. It must not reconstruct a rich
   /// when the row did not come from a complete kind-owned catalog projection.
-  CatalogImportSnapshot? _catalogSnapshotFromCsvRow(CollectionCsvRow row) {
+  CatalogImportSnapshot? _catalogSnapshotFromCsvRow(CollectionImportRow row) {
     final projection = libraryCollectionCsvProjectionForKind(
       row.mediaKind,
     );
@@ -410,7 +407,7 @@ final class CollectionImportService {
     return projection.catalogItemFromImportCells(cells);
   }
 
-  List<String>? _catalogImportCells(CollectionCsvRow row) {
+  List<String>? _catalogImportCells(CollectionImportRow row) {
     if (row.itemId.trim().isEmpty ||
         row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
       return null;
@@ -422,7 +419,7 @@ final class CollectionImportService {
   }
 
   ({String? barcode, String? primary}) _importLookupValues(
-    CollectionCsvRow row,
+    CollectionImportRow row,
   ) {
     final projection = libraryCollectionCsvProjectionForKind(
       row.mediaKind,
@@ -438,7 +435,7 @@ final class CollectionImportService {
   }
 
   _TypedOwnedImport _typedOwnedItemFromCsvRow(
-    CollectionCsvRow row,
+    CollectionImportRow row,
     DateTime now, {
     OwnedItemSummary? existingSummary,
     (CatalogMediaKind kind, Object item)? existingTyped,
@@ -507,11 +504,11 @@ class CollectionImportPreview {
     this.unresolvedRows = const [],
   });
 
-  final List<CollectionCsvRow> resolvedRows;
-  final List<CollectionCsvRow> conflictRows;
-  final List<CollectionCsvRow> duplicateRows;
-  final List<CollectionCsvRow> skippedRows;
-  final List<CollectionCsvRow> unresolvedRows;
+  final List<CollectionImportRow> resolvedRows;
+  final List<CollectionImportRow> conflictRows;
+  final List<CollectionImportRow> duplicateRows;
+  final List<CollectionImportRow> skippedRows;
+  final List<CollectionImportRow> unresolvedRows;
 
   int get totalRows =>
       resolvedRows.length +

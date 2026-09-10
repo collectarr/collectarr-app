@@ -7,14 +7,14 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
-class CollectionCsvRow {
-  const CollectionCsvRow({
+class CollectionImportRow {
+  const CollectionImportRow({
     required this.itemId,
     required this.status,
-    this.kind,
+    this.mediaKind = CatalogMediaKind.unknown,
     this.title,
-    this.personal = const CollectionCsvPersonalValues(),
-    this.tracking = const CollectionCsvTrackingValues(),
+    this.personal = const CollectionImportPersonalValues(),
+    this.tracking = const CollectionImportTrackingValues(),
     this.kindCatalogCells = const [],
     this.kindOwnedCells = const [],
     this.customFieldValues = const {},
@@ -22,24 +22,26 @@ class CollectionCsvRow {
 
   final String itemId;
   final String status;
-  final String? kind;
+
+  /// Typed immediately after the CSV wire boundary. The raw API value is
+  /// available only through [kind] for compatibility with the v1 serializer
+  /// and display tests.
+  final CatalogMediaKind mediaKind;
   final String? title;
 
-  /// Typed in-memory kind reconstructed once from the schema-v1 wire value.
-  /// The raw [kind] string remains only for CSV serialization compatibility.
-  CatalogMediaKind get mediaKind => catalogMediaKindFromValue(kind);
+  String? get kind => mediaKind.isUnknown ? null : mediaKind.apiValue;
 
   /// Values decoded from the shared personal columns at the file boundary.
   ///
   /// This is deliberately a transport value object, not a common Owned or
   /// Tracking domain aggregate. Catalog and kind-owned details remain opaque
   /// positional cells and are interpreted only by the owning kind profile.
-  final CollectionCsvPersonalValues personal;
+  final CollectionImportPersonalValues personal;
 
   /// Tracking values decoded at the file boundary. The import host forwards
   /// them to the selected kind's tracking integration and does not turn them
   /// into a universal tracking domain object here.
-  final CollectionCsvTrackingValues tracking;
+  final CollectionImportTrackingValues tracking;
 
   /// Positional catalog cells contributed by the selected kind at the CSV
   /// serialization boundary. Collection carries them without interpreting
@@ -54,21 +56,21 @@ class CollectionCsvRow {
   bool get isOwned => status == 'owned' || status == 'both';
   bool get isWishlisted => status == 'wishlist' || status == 'both';
 
-  CollectionCsvRow copyWith({
+  CollectionImportRow copyWith({
     String? itemId,
     String? status,
-    String? kind,
+    CatalogMediaKind? mediaKind,
     String? title,
-    CollectionCsvPersonalValues? personal,
-    CollectionCsvTrackingValues? tracking,
+    CollectionImportPersonalValues? personal,
+    CollectionImportTrackingValues? tracking,
     List<String>? kindCatalogCells,
     List<String>? kindOwnedCells,
     Map<String, String?>? customFieldValues,
   }) {
-    return CollectionCsvRow(
+    return CollectionImportRow(
       itemId: itemId ?? this.itemId,
       status: status ?? this.status,
-      kind: kind ?? this.kind,
+      mediaKind: mediaKind ?? this.mediaKind,
       title: title ?? this.title,
       personal: personal ?? this.personal,
       tracking: tracking ?? this.tracking,
@@ -84,8 +86,8 @@ class CollectionCsvRow {
 /// The object is intentionally not reusable as a domain model. Import code
 /// may carry these values until it dispatches to the selected kind's typed
 /// mutation/codec.
-final class CollectionCsvPersonalValues {
-  const CollectionCsvPersonalValues({
+final class CollectionImportPersonalValues {
+  const CollectionImportPersonalValues({
     this.condition,
     this.purchaseDate,
     this.pricePaidCents,
@@ -128,8 +130,8 @@ final class CollectionCsvPersonalValues {
       soldTo == null;
 }
 
-final class CollectionCsvTrackingValues {
-  const CollectionCsvTrackingValues({
+final class CollectionImportTrackingValues {
+  const CollectionImportTrackingValues({
     this.rating,
     this.status,
     this.startedAt,
@@ -148,7 +150,7 @@ final class CollectionCsvTrackingValues {
       finishedAt == null;
 }
 
-class CollectionCsv {
+class CollectionCsvCodec {
   String exportShelf(
     List<ShelfEntry> entries, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
@@ -393,7 +395,7 @@ class CollectionCsv {
     ];
   }
 
-  List<CollectionCsvRow> parse(String csv) {
+  List<CollectionImportRow> parse(String csv) {
     final rows = const CsvReader(
       fieldDelimiter: ',',
       dynamicTyping: false,
@@ -438,7 +440,7 @@ class CollectionCsv {
   List<String> _clzFriendlyHeaderForEntries(List<ShelfEntry> entries) {
     final kinds = {
       for (final entry in entries)
-        if (entry.mediaKind != CatalogMediaKind.unknown)
+        if (!entry.mediaKind.isUnknown)
           entry.mediaKind.apiValue,
     };
     if (kinds.length == 1) {
@@ -484,7 +486,7 @@ class CollectionCsv {
     return schema;
   }
 
-  CollectionCsvRow _rowFromValues(
+  CollectionImportRow _rowFromValues(
     Map<String, int> index,
     List<String> values, {
     Map<String, int> cfColumns = const {},
@@ -513,12 +515,12 @@ class CollectionCsv {
         'Collection CSV import owned projection returned no cells.',
       );
     }
-    return CollectionCsvRow(
+    return CollectionImportRow(
       itemId: catalogCells[0],
       status: _normalizedStatus(_value(index, values, 'status')),
-      kind: _optionalCell(catalogCells[1]),
+      mediaKind: catalogMediaKindFromValue(catalogCells[1]),
       title: _optionalCell(catalogCells[2]),
-      personal: CollectionCsvPersonalValues(
+      personal: CollectionImportPersonalValues(
         condition: _optionalValue(index, values, 'condition'),
         purchaseDate: _parseDate(_value(index, values, 'purchase_date')),
         pricePaidCents: _moneyCents(_value(index, values, 'price_paid_cents')),
@@ -532,7 +534,7 @@ class CollectionCsv {
         sellPriceCents: _moneyCents(_value(index, values, 'sell_price_cents')),
         soldTo: _optionalValue(index, values, 'sold_to'),
       ),
-      tracking: CollectionCsvTrackingValues(
+      tracking: CollectionImportTrackingValues(
         rating: int.tryParse(_value(index, values, 'rating')),
         status: _optionalValue(index, values, 'read_status'),
         startedAt: _parseDate(_value(index, values, 'started_at')),
@@ -604,9 +606,9 @@ class CollectionCsv {
     return columns;
   }
 
-  bool _isMeaningfulRow(CollectionCsvRow row) {
+  bool _isMeaningfulRow(CollectionImportRow row) {
     return row.itemId.trim().isNotEmpty ||
-        (row.kind?.trim().isNotEmpty ?? false) ||
+        !row.mediaKind.isUnknown ||
         row.status.trim().isNotEmpty ||
         (row.title?.trim().isNotEmpty ?? false) ||
         (row.personal.locationId?.trim().isNotEmpty ?? false) ||

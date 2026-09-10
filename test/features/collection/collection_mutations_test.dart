@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/collection/commands/owned_item_commands.
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
@@ -770,20 +770,20 @@ void main() {
     final imported =
         await container.read(collectionImportServiceProvider).importRows(
       [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-1',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
           kindOwnedCells: ['9.8'],
-          personal: CollectionCsvPersonalValues(
+          personal: CollectionImportPersonalValues(
             condition: 'Near Mint',
             pricePaidCents: 1299,
             currency: 'USD',
           ),
         ),
-        const CollectionCsvRow(
+        const CollectionImportRow(
           itemId: 'comic-2',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'wishlist',
         ),
       ],
@@ -831,9 +831,9 @@ void main() {
 
     await container.read(collectionImportServiceProvider).importRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-import-1',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
         ),
       ],
@@ -857,9 +857,9 @@ void main() {
       testCatalogRef('comic-1', kind: 'comic'),
     );
     await importService.importRows([
-      const CollectionCsvRow(
+      const CollectionImportRow(
         itemId: 'comic-1',
-        kind: 'comic',
+        mediaKind: CatalogMediaKind.comic,
         status: 'owned',
       ),
     ]);
@@ -903,11 +903,11 @@ void main() {
     final imported =
         await container.read(collectionImportServiceProvider).importRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: '',
           status: 'owned',
           title: 'Different title from CSV',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           kindCatalogCells: [
             '',
             'comic',
@@ -951,9 +951,9 @@ void main() {
     final imported =
         await container.read(collectionImportServiceProvider).importRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'movie-1',
-          kind: 'movie',
+          mediaKind: CatalogMediaKind.movie,
           status: 'owned',
           title: 'Blade Runner',
           kindCatalogCells: [
@@ -1003,13 +1003,13 @@ void main() {
     final imported =
         await container.read(collectionImportServiceProvider).importRows(
       [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'book-owned-fields',
-          kind: 'book',
+          mediaKind: CatalogMediaKind.book,
           status: 'owned',
           title: 'Imported book',
           kindOwnedCells: ['8.5'],
-          personal: CollectionCsvPersonalValues(
+          personal: CollectionImportPersonalValues(
             condition: 'Very Good',
             purchaseDate: DateTime.utc(2026, 8, 1),
             pricePaidCents: 2599,
@@ -1056,7 +1056,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final ownedFixture = testOwnedItem(
       id: 'owned-comic-details',
       itemId: 'comic-owned-details',
@@ -1128,9 +1128,9 @@ void main() {
     final imported =
         await container.read(collectionImportServiceProvider).importRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: '',
-          kind: 'movie',
+          mediaKind: CatalogMediaKind.movie,
           status: 'owned',
           title: 'Dune',
           kindCatalogCells: [
@@ -1167,9 +1167,9 @@ void main() {
 
     await container.read(collectionImportServiceProvider).importRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-without-projection',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           title: 'Only a structural import row',
           status: 'owned',
         ),
@@ -1214,9 +1214,9 @@ void main() {
     final preview =
         await container.read(collectionImportServiceProvider).previewImportRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: '',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
           title: 'The Amazing Spider-Man, Vol. 2',
           kindCatalogCells: [
@@ -1233,7 +1233,7 @@ void main() {
             '75960604716152011',
           ],
         ),
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: '',
           status: 'owned',
           title: 'Unknown Series',
@@ -1251,7 +1251,7 @@ void main() {
             '',
           ],
         ),
-        CollectionCsvRow(itemId: '', status: ''),
+        CollectionImportRow(itemId: '', status: ''),
       ],
     );
 
@@ -1273,15 +1273,15 @@ void main() {
     final importService = container.read(collectionImportServiceProvider);
     final preview = await importService.previewImportRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-1',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
           kindOwnedCells: ['9.8'],
         ),
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-1',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
           kindOwnedCells: ['7.5'],
         ),
@@ -1314,11 +1314,11 @@ void main() {
     final imported =
         await container.read(collectionImportServiceProvider).importRows(
       [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-tracking-import',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
-          tracking: CollectionCsvTrackingValues(
+          tracking: CollectionImportTrackingValues(
             rating: 8,
             status: 'Read',
             startedAt: DateTime.utc(2026, 6, 1),
@@ -1365,9 +1365,9 @@ void main() {
 
     final preview = await importService.previewImportRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-1',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
           kindOwnedCells: ['7.5'],
         ),
@@ -1402,12 +1402,12 @@ void main() {
 
     final imported = await importService.importRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-1',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
           kindOwnedCells: ['7.5'],
-          personal: CollectionCsvPersonalValues(locationId: 'loc-box-6'),
+          personal: CollectionImportPersonalValues(locationId: 'loc-box-6'),
         ),
       ],
     );
@@ -1431,11 +1431,11 @@ void main() {
     final imported =
         await container.read(collectionImportServiceProvider).importRows(
       const [
-        CollectionCsvRow(
+        CollectionImportRow(
           itemId: 'comic-1',
-          kind: 'comic',
+          mediaKind: CatalogMediaKind.comic,
           status: 'owned',
-          personal: CollectionCsvPersonalValues(
+          personal: CollectionImportPersonalValues(
             locationId: 'loc-short-box-6',
           ),
         ),

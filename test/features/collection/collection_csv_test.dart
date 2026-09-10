@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('collection csv exports and parses owned shelf rows', () {
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final exported = csv.exportShelf([
       ShelfEntry(
         itemId: 'comic-1',
@@ -127,7 +127,7 @@ void main() {
   });
 
   test('collection csv round-trips typed custom field values', () {
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final defs = [
       CustomFieldDefinition(
         id: 'cf-1',
@@ -219,7 +219,8 @@ void main() {
       ),
     );
 
-    final rows = CollectionCsv().parse(CollectionCsv().exportShelf([source]));
+    final rows =
+        CollectionCsvCodec().parse(CollectionCsvCodec().exportShelf([source]));
 
     expect(rows.single.tracking.rating, 8);
     expect(rows.single.tracking.status, 'In progress');
@@ -228,7 +229,7 @@ void main() {
   });
 
   test('collection csv exports clz-friendly shelf rows', () {
-    final exported = CollectionCsv().exportClzFriendlyShelf([
+    final exported = CollectionCsvCodec().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'comic-1',
         catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
@@ -265,7 +266,7 @@ void main() {
   });
 
   test('collection csv exports media-aware clz-friendly headers', () {
-    final exported = CollectionCsv().exportClzFriendlyShelf([
+    final exported = CollectionCsvCodec().exportClzFriendlyShelf([
       ShelfEntry(
         itemId: 'movie-1',
         catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
@@ -297,7 +298,7 @@ void main() {
     expect(exported, contains('UPC / Barcode'));
     expect(exported, contains('Physical Format'));
 
-    final rows = CollectionCsv().parse(exported);
+    final rows = CollectionCsvCodec().parse(exported);
     expect(rows.single.kind, 'movie');
     expect(rows.single.title, 'Blade Runner');
     expect(rows.single.kindCatalogCells, [
@@ -316,7 +317,7 @@ void main() {
   });
 
   test('collection csv parses clz-style aliases and money fields', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -372,7 +373,7 @@ void main() {
   });
 
   test('collection csv receives Comic-only CLZ aliases from the kind', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Core ComicID',
@@ -405,7 +406,7 @@ void main() {
   });
 
   test('collection csv parses structured location ids directly', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'item_id',
@@ -422,7 +423,7 @@ void main() {
   });
 
   test('collection csv parses decimal and thousands money separators', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -455,7 +456,7 @@ void main() {
   });
 
   test('collection csv keeps clz rows without collectarr ids for matching', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -494,7 +495,7 @@ void main() {
     values[CollectionCsvV1Schema.header.indexOf('status')] = 'owned';
     values[CollectionCsvV1Schema.header.indexOf('notes')] =
         'Line one\nLine two with "quote"';
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         CollectionCsvV1Schema.header,
         values,
@@ -507,7 +508,7 @@ void main() {
   });
 
   test('collection csv parses non-iso date formats', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec().parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -562,7 +563,7 @@ void main() {
       ],
     };
 
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final exported = csv.exportShelf(
       [
         ShelfEntry(
@@ -591,7 +592,7 @@ void main() {
   });
 
   test('csv parse extracts cf_ columns into customFieldValues', () {
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final rows = csv.parse(
       const CsvEncoder().convert([
         ['item_id', 'status', 'title', 'cf_Location', 'cf_Score'],
@@ -626,7 +627,7 @@ void main() {
       ],
     };
 
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final exported = csv.exportShelf(
       [
         ShelfEntry(

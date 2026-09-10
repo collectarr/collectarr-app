@@ -16,7 +16,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
@@ -1379,7 +1379,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
     final cfValues = await cfRepo.listAllValues();
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec();
     final data = clzFriendly
         ? csv.exportClzFriendlyShelf(
             state.resolvedWorkspaceEntries,

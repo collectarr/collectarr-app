@@ -40,7 +40,7 @@ abstract interface class LibraryCollectionCsvProjection {
   /// Creates the universal lifecycle record at the CSV serialization
   /// boundary. The host supplies only structural refs and decoded lifecycle
   /// values; the owning kind decides whether this import is applicable.
-  TrackingLifecycle? trackingEntryFromImport({
+  TrackingLifecycle? trackingLifecycleFromImport({
     required String entryId,
     required CatalogEntityRef catalogRef,
     required OwnedItemRef ownedRef,
@@ -269,7 +269,7 @@ mixin LibraryCollectionCsvTrackingImport
   TrackingLifecycleCodec get trackingLifecycleCodec;
 
   @override
-  TrackingLifecycle? trackingEntryFromImport({
+  TrackingLifecycle? trackingLifecycleFromImport({
     required String entryId,
     required CatalogEntityRef catalogRef,
     required OwnedItemRef ownedRef,

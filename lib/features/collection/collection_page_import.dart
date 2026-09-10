@@ -11,7 +11,7 @@ class _ImportCsvDialog extends ConsumerStatefulWidget {
 
 class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   final _controller = TextEditingController();
-  final _csv = CollectionCsv();
+  final _csv = CollectionCsvCodec();
   CollectionImportPreview? _preview;
   String? _error;
   bool _isWorking = false;
@@ -148,7 +148,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
   }
 
-  Future<void> _resolveRow(CollectionCsvRow row) async {
+  Future<void> _resolveRow(CollectionImportRow row) async {
     final item = await showDialog<CatalogSearchCandidate>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
@@ -188,7 +188,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
     try {
       final resolvedRows = [...preview.resolvedRows];
-      final unresolvedRows = <CollectionCsvRow>[];
+      final unresolvedRows = <CollectionImportRow>[];
       final resolvedItems = <CatalogSearchCandidate>[];
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
@@ -237,7 +237,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
   }
 
-  void _skipRow(CollectionCsvRow row) {
+  void _skipRow(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -256,7 +256,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  void _updateConflict(CollectionCsvRow row) {
+  void _updateConflict(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -275,7 +275,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  void _wishlistConflict(CollectionCsvRow row) {
+  void _wishlistConflict(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -297,7 +297,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  void _skipConflict(CollectionCsvRow row) {
+  void _skipConflict(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -316,7 +316,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  Future<void> _proposeRow(CollectionCsvRow row) async {
+  Future<void> _proposeRow(CollectionImportRow row) async {
     final draft = await showDialog<_ImportProposalDraft>(
       context: context,
       builder: (context) => _ImportProposalDialog(row: row),
@@ -378,13 +378,13 @@ class _ImportPreviewPanel extends StatelessWidget {
   });
 
   final CollectionImportPreview preview;
-  final ValueChanged<CollectionCsvRow> onResolveRow;
+  final ValueChanged<CollectionImportRow> onResolveRow;
   final VoidCallback? onResolveAll;
-  final ValueChanged<CollectionCsvRow>? onProposeRow;
-  final ValueChanged<CollectionCsvRow> onSkipRow;
-  final ValueChanged<CollectionCsvRow> onUpdateConflict;
-  final ValueChanged<CollectionCsvRow> onWishlistConflict;
-  final ValueChanged<CollectionCsvRow> onSkipConflict;
+  final ValueChanged<CollectionImportRow>? onProposeRow;
+  final ValueChanged<CollectionImportRow> onSkipRow;
+  final ValueChanged<CollectionImportRow> onUpdateConflict;
+  final ValueChanged<CollectionImportRow> onWishlistConflict;
+  final ValueChanged<CollectionImportRow> onSkipConflict;
 
   @override
   Widget build(BuildContext context) {
@@ -512,10 +512,10 @@ class _UnresolvedImportRow extends StatelessWidget {
     required this.onSkip,
   });
 
-  final CollectionCsvRow row;
-  final ValueChanged<CollectionCsvRow> onResolve;
-  final ValueChanged<CollectionCsvRow>? onPropose;
-  final ValueChanged<CollectionCsvRow> onSkip;
+  final CollectionImportRow row;
+  final ValueChanged<CollectionImportRow> onResolve;
+  final ValueChanged<CollectionImportRow>? onPropose;
+  final ValueChanged<CollectionImportRow> onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -561,7 +561,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
   });
 
   final CatalogMediaKind kind;
-  final CollectionCsvRow row;
+  final CollectionImportRow row;
 
   @override
   ConsumerState<_ResolveImportRowDialog> createState() =>
@@ -700,11 +700,11 @@ class _ResolveImportRowDialogState
     }
   }
 
-  String _initialQuery(CollectionCsvRow row) {
+  String _initialQuery(CollectionImportRow row) {
     return _importRowSearchQuery(row);
   }
 
-  String _rowSummary(CollectionCsvRow row) {
+  String _rowSummary(CollectionImportRow row) {
     return _importRowDescription(row);
   }
 }
@@ -712,7 +712,7 @@ class _ResolveImportRowDialogState
 class _ImportProposalDialog extends StatefulWidget {
   const _ImportProposalDialog({required this.row});
 
-  final CollectionCsvRow row;
+  final CollectionImportRow row;
 
   @override
   State<_ImportProposalDialog> createState() => _ImportProposalDialogState();
@@ -922,7 +922,7 @@ String _catalogTitle(CatalogSearchCandidate item) => item.title;
 
 String _catalogSubtitle(CatalogSearchCandidate item) => item.subtitle ?? '';
 
-String _importRowTitle(CollectionCsvRow row) {
+String _importRowTitle(CollectionImportRow row) {
   final projection = _importProjection(row);
   final cells = row.kindCatalogCells;
   if (projection != null &&
@@ -933,7 +933,7 @@ String _importRowTitle(CollectionCsvRow row) {
   return title == null || title.isEmpty ? 'Catalog item ${row.itemId}' : title;
 }
 
-String _importRowDescription(CollectionCsvRow row) {
+String _importRowDescription(CollectionImportRow row) {
   final projection = _importProjection(row);
   final cells = row.kindCatalogCells;
   final subtitle =
@@ -948,7 +948,7 @@ String _importRowDescription(CollectionCsvRow row) {
   ].join(' | ');
 }
 
-String _importRowSearchQuery(CollectionCsvRow row) {
+String _importRowSearchQuery(CollectionImportRow row) {
   final projection = _importProjection(row);
   final cells = row.kindCatalogCells;
   final title =
@@ -962,7 +962,7 @@ String _importRowSearchQuery(CollectionCsvRow row) {
   ].join(' ');
 }
 
-String? _importRowBarcode(CollectionCsvRow row) {
+String? _importRowBarcode(CollectionImportRow row) {
   final projection = _importProjection(row);
   if (projection == null ||
       row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
@@ -971,14 +971,12 @@ String? _importRowBarcode(CollectionCsvRow row) {
   return projection.importBarcode(row.kindCatalogCells);
 }
 
-LibraryCollectionCsvProjection? _importProjection(CollectionCsvRow row) {
-  return libraryCollectionCsvProjectionForKind(
-    catalogMediaKindFromValue(row.kind),
-  );
+LibraryCollectionCsvProjection? _importProjection(CollectionImportRow row) {
+  return libraryCollectionCsvProjectionForKind(row.mediaKind);
 }
 
-CatalogMediaKind _kindForImportRow(CollectionCsvRow row) {
-  final kind = catalogMediaKindFromValue(row.kind);
+CatalogMediaKind _kindForImportRow(CollectionImportRow row) {
+  final kind = row.mediaKind;
   if (kind.isUnknown) {
     throw ArgumentError.value(row.kind, 'row.kind', 'Unsupported kind');
   }
@@ -1002,7 +1000,7 @@ String _friendlyImportError(Object error) {
 Future<List<CatalogSearchCandidate>> _searchCoreForRow(
   WidgetRef ref,
   CatalogMediaKind kind,
-  CollectionCsvRow row, {
+  CollectionImportRow row, {
   String? queryOverride,
   int limit = 20,
 }) async {
@@ -1015,7 +1013,7 @@ Future<List<CatalogSearchCandidate>> _searchCoreForRow(
   );
 }
 
-String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
+String? _searchQueryForRow(CollectionImportRow row, {String? queryOverride}) {
   final override = queryOverride?.trim();
   if (override != null && override.isNotEmpty) {
     return override;
@@ -1028,7 +1026,7 @@ String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
 }
 
 CatalogSearchCandidate? _confidentImportMatch(
-  CollectionCsvRow row,
+  CollectionImportRow row,
   List<CatalogSearchCandidate> results,
 ) {
   if (results.isEmpty) {
