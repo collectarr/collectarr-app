@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
@@ -10,22 +10,24 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
 
-CatalogItemDto _metadata(
+LibraryAddCatalogItem _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
-  return testCatalogItemWithKindMetadata(
-    testCatalogItem(
-      id: '$kind-1',
-      kind: kind,
-      title: 'Test item',
-      payload: payload,
+  return LibraryAddCatalogItem.fromItem(
+    testCatalogItemWithKindMetadata(
+      testCatalogItem(
+        id: '$kind-1',
+        kind: kind,
+        title: 'Test item',
+        payload: payload,
+      ),
     ),
   );
 }
 
-CatalogItemDto _mutateGroup(
-  CatalogItemDto item,
+LibraryAddCatalogItem _mutateGroup(
+  LibraryAddCatalogItem item,
   CatalogMediaKind kind,
   String mode,
   String currentLabel, {

@@ -281,7 +281,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final seriesTitle = adapter?.seriesTitle;
-    final upc = adapter?.barcode;
+    final upc = adapter?.identifierCode;
     final releaseDate = adapter?.releaseDate;
     final ebayQuery = <String>[
       if (upc?.trim().isNotEmpty == true) upc!.trim(),

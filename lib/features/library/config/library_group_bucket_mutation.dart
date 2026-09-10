@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
-typedef LibraryGroupBucketValueMutator = CatalogItemDto? Function(
-  CatalogItemDto item,
+typedef LibraryGroupBucketValueMutator = LibraryAddCatalogItem? Function(
+  LibraryAddCatalogItem item,
   String currentLabel, {
   String? replacement,
 });
@@ -136,11 +136,11 @@ void _setOrRemoveStringValue(
   }
 }
 
-CatalogItemDto _libraryMetadataItemWithPayload(
-  CatalogItemDto item,
+LibraryAddCatalogItem _libraryMetadataItemWithPayload(
+  LibraryAddCatalogItem item,
   Map<String, dynamic> payload,
 ) {
-  return CatalogItemDto.fromJson({
+  return LibraryAddCatalogItem.fromJson({
     'id': item.id,
     'kind': item.kind,
     ...payload,

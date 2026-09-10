@@ -30,15 +30,15 @@ final class AnimeWorkspaceDto extends WorkspaceDtoAdapter {
   String? get studio =>
       _firstString(media.rawPayload['studios']) ??
       metadata?.studios.firstOrNull;
-  @override
   String? get publisher => studio;
   @override
-  String? get barcode => video.primaryRelease?.barcode;
+  String? get identifierCode => video.primaryRelease?.barcode;
+  String? get barcode => identifierCode;
 
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,
-        if (barcode != null) barcode!,
+        if (identifierCode != null) identifierCode!,
         if (animeType != null) animeType!,
         if (airingStatus != null) airingStatus!,
       ];

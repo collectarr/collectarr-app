@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
@@ -417,7 +416,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   onSelected: (value) => onSelectOwnedItem?.call(value),
                 ),
               ],
-              if (adapter?.barcode?.trim().isNotEmpty == true) ...[
+              if (adapter?.identifierCode?.trim().isNotEmpty == true) ...[
                 const SizedBox(width: 4),
                 LibraryDenseButton(
                   label: 'eBay',

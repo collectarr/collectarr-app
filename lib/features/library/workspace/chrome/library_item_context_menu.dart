@@ -157,7 +157,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               'Copy title',
             ),
             if ((item.dto is WorkspaceDtoAdapter &&
-                    (item.dto as WorkspaceDtoAdapter).barcode != null))
+                (item.dto as WorkspaceDtoAdapter).identifierCode != null))
               _item(
                 context,
                 LibraryItemContextAction.copyBarcode,

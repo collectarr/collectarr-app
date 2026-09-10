@@ -23,11 +23,11 @@ final class GameWorkspaceDto extends WorkspaceDtoAdapter {
   String? get edition => metadata?.edition;
   String? get ageRating => metadata?.ageRating;
   String? get developer => metadata?.developers.firstOrNull;
-  @override
   String? get publisher =>
       game.publisher ?? metadata?.publishers.firstOrNull ?? developer;
   @override
-  String? get barcode => game.barcode;
+  String? get identifierCode => game.barcode;
+  String? get barcode => identifierCode;
   String? get region => metadata?.releaseRegion;
   int? get loosePrice => metadata?.valuations?.loose?.amountCents;
   int? get cibPrice => metadata?.valuations?.cib?.amountCents;
@@ -39,7 +39,7 @@ final class GameWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,
-        if (barcode != null) barcode!,
+        if (identifierCode != null) identifierCode!,
         if (platform != null) platform!,
         if (franchise != null) franchise!,
         if (developer != null) developer!,

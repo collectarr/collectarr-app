@@ -24,13 +24,13 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
       metadata?.editions.firstOrNull?.imprint ?? book.publishing.imprint;
   String? get author =>
       metadata?.authors.firstOrNull ?? book.work.creators.firstOrNull?.name;
-  @override
   String? get publisher =>
       book.publisher ?? metadata?.editions.firstOrNull?.publisher;
   String? get isbn =>
       metadata?.editions.firstOrNull?.isbn ?? book.releases.firstOrNull?.isbn;
   @override
-  String? get barcode => isbn;
+  String? get identifierCode => isbn;
+  String? get barcode => identifierCode;
   String? get subtitle => metadata?.subtitle;
   @override
   String? get format => metadata?.editions.firstOrNull?.format;
@@ -51,7 +51,7 @@ final class BookWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,
-        if (isbn != null) isbn!,
+        if (identifierCode != null) identifierCode!,
         if (author != null) author!,
         if (subtitle != null) subtitle!,
         if (translator != null) translator!,

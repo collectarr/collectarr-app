@@ -185,7 +185,7 @@ class LibraryPageCollectionActionCoordinator {
         }
       case LibraryItemContextAction.copyBarcode:
         final dto = item.dto;
-        final code = dto is WorkspaceDtoAdapter ? dto.barcode : null;
+        final code = dto is WorkspaceDtoAdapter ? dto.identifierCode : null;
         if (code != null && code.isNotEmpty) {
           await Clipboard.setData(ClipboardData(text: code));
           if (_page.mounted) {

@@ -133,11 +133,11 @@ String? libraryReferenceFormatLabel({
         catalogRefVariantId(wishlistItem?.catalogRef),
     editions: editions,
   );
-  final variantLabel = resolved.variant?.physicalFormatLabel?.trim();
+  final variantLabel = resolved.variant?.displayFormat?.trim();
   if (variantLabel != null && variantLabel.isNotEmpty) {
     return variantLabel;
   }
-  final editionLabel = resolved.edition?.physicalFormatLabel?.trim();
+  final editionLabel = resolved.edition?.displayFormat?.trim();
   if (editionLabel != null && editionLabel.isNotEmpty) {
     return editionLabel;
   }

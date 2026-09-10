@@ -30,10 +30,10 @@ final class TvWorkspaceDto extends WorkspaceDtoAdapter {
       _text(series.rawPayload['streaming_service']) ??
       metadata?.streamingService;
   String? get network => streamingService;
-  @override
   String? get publisher => streamingService;
   @override
-  String? get barcode => video.primaryRelease?.barcode;
+  String? get identifierCode => video.primaryRelease?.barcode;
+  String? get barcode => identifierCode;
   String? get contentRating =>
       _text(series.rawPayload['content_rating']) ?? metadata?.contentRating;
   int? get seasonCount => series.seasonCount ?? metadata?.seasonCount;
@@ -43,7 +43,7 @@ final class TvWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,
-        if (barcode != null) barcode!,
+        if (identifierCode != null) identifierCode!,
         if (contentRating != null) contentRating!,
         if (tvStatus != null) tvStatus!,
         if (network != null) network!,

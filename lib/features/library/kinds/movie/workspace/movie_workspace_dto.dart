@@ -30,10 +30,10 @@ final class MovieWorkspaceDto extends WorkspaceDtoAdapter {
   String? get producer =>
       metadata?.producers.firstOrNull?.name ?? _contributorWithRole('producer');
   String? get studio => metadata?.studio;
-  @override
   String? get publisher => movie.primaryRelease?.publisher ?? studio;
   @override
-  String? get barcode => movie.primaryRelease?.barcode;
+  String? get identifierCode => movie.primaryRelease?.barcode;
+  String? get barcode => identifierCode;
   int? get runtimeMinutes =>
       media.runtimeMinutes ??
       metadata?.runtimeMinutes ??
@@ -65,7 +65,7 @@ final class MovieWorkspaceDto extends WorkspaceDtoAdapter {
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,
-        if (barcode != null) barcode!,
+        if (identifierCode != null) identifierCode!,
         if (director != null) director!,
         if (writer != null) writer!,
         if (studio != null) studio!,

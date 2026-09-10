@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/page_c
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class LibraryPageBucketCoordinator {
   const LibraryPageBucketCoordinator(this._page);
@@ -65,7 +64,7 @@ class LibraryPageBucketCoordinator {
       return 0;
     }
 
-    final catalogUpdates = <String, CatalogItemDto>{};
+    final catalogUpdates = <String, CatalogImportSnapshot>{};
     final ownedUpdates = <String, UpdateOwnedItemCommand>{};
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=
@@ -76,12 +75,14 @@ class LibraryPageBucketCoordinator {
       final catalogItem = item.source.catalogItem;
       if (catalogItem != null) {
         final updatedCatalog = groupDefinition.bucketValueMutator?.call(
-          catalogItem.toTransportItem(),
+          catalogItem,
           currentLabel,
           replacement: replacement,
         );
         if (updatedCatalog != null) {
-          catalogUpdates[catalogItem.id] = updatedCatalog;
+          catalogUpdates[catalogItem.id] = CatalogImportSnapshot.fromItem(
+            updatedCatalog.toTransportItem(),
+          );
         }
       }
 
@@ -108,7 +109,7 @@ class LibraryPageBucketCoordinator {
     final ownedMutations = _page.ref.read(ownedItemMutationsProvider);
     if (catalogUpdates.isNotEmpty) {
       await catalogMutations.updateSnapshots(
-        catalogUpdates.values.map(CatalogImportSnapshot.fromItem),
+        catalogUpdates.values,
       );
     }
     for (final update in ownedUpdates.values) {

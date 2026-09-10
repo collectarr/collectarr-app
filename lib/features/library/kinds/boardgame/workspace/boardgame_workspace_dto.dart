@@ -17,14 +17,14 @@ final class BoardGameWorkspaceDto extends WorkspaceDtoAdapter {
   final BoardGameCatalogItem boardgame;
   final BoardGameMetadata? metadata;
 
-  @override
   String? get publisher => boardgame.publisher ?? metadata?.publisher;
   @override
-  String? get barcode => boardgame.barcode;
+  String? get identifierCode => boardgame.barcode;
+  String? get barcode => identifierCode;
 
   @override
   Iterable<String> get searchTokens => [
         if (publisher != null) publisher!,
-        if (barcode != null) barcode!,
+        if (identifierCode != null) identifierCode!,
       ];
 }

@@ -55,7 +55,7 @@ class ReleaseAsset {
     required this.downloadUrl,
     required this.size,
     required this.assetType,
-    this.platform,
+    this.runtimePlatform,
     this.architecture,
     this.contentType,
   });
@@ -65,7 +65,7 @@ class ReleaseAsset {
         downloadUrl = '',
         size = 0,
         assetType = ReleaseAssetType.unknown,
-        platform = null,
+        runtimePlatform = null,
         architecture = null,
         contentType = null;
 
@@ -73,7 +73,7 @@ class ReleaseAsset {
   final String downloadUrl;
   final int size;
   final ReleaseAssetType assetType;
-  final AppUpdatePlatform? platform;
+  final AppUpdatePlatform? runtimePlatform;
   final String? architecture;
   final String? contentType;
 
@@ -87,27 +87,27 @@ class ReleaseAsset {
     final contentType = json['content_type'] as String?;
     final assetType = ReleaseAssetType.fromFilename(name);
 
-    AppUpdatePlatform? platform;
+    AppUpdatePlatform? runtimePlatform;
     final lowerName = name.toLowerCase();
     if (lowerName.contains('win') ||
         assetType == ReleaseAssetType.msix ||
         assetType == ReleaseAssetType.exe) {
-      platform = AppUpdatePlatform.windows;
+      runtimePlatform = AppUpdatePlatform.windows;
     } else if (lowerName.contains('mac') ||
         lowerName.contains('darwin') ||
         assetType == ReleaseAssetType.dmg ||
         assetType == ReleaseAssetType.pkg) {
-      platform = AppUpdatePlatform.macOS;
+      runtimePlatform = AppUpdatePlatform.macOS;
     } else if (lowerName.contains('linux') ||
         assetType == ReleaseAssetType.appImage ||
         assetType == ReleaseAssetType.deb ||
         assetType == ReleaseAssetType.rpm) {
-      platform = AppUpdatePlatform.linux;
+      runtimePlatform = AppUpdatePlatform.linux;
     } else if (lowerName.contains('android') ||
         assetType == ReleaseAssetType.apk) {
-      platform = AppUpdatePlatform.android;
+      runtimePlatform = AppUpdatePlatform.android;
     } else if (lowerName.contains('ios') || lowerName.contains('iphone')) {
-      platform = AppUpdatePlatform.iOS;
+      runtimePlatform = AppUpdatePlatform.iOS;
     }
 
     String? architecture;
@@ -126,7 +126,7 @@ class ReleaseAsset {
       downloadUrl: downloadUrl,
       size: size,
       assetType: assetType,
-      platform: platform,
+      runtimePlatform: runtimePlatform,
       architecture: architecture,
       contentType: contentType,
     );
@@ -145,8 +145,8 @@ class ReleaseAssetResolver {
     final platform = targetPlatform ?? AppUpdatePlatform.current();
 
     final platformAssets = assets.where((a) {
-      if (a.platform == null) return false;
-      return a.platform == platform;
+      if (a.runtimePlatform == null) return false;
+      return a.runtimePlatform == platform;
     }).toList();
 
     if (platformAssets.isEmpty) {

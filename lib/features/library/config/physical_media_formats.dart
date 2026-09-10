@@ -163,7 +163,7 @@ bool? resolveDigitalMediaFormatFlag({
 
   final variantFlag = digitalPhysicalMediaFormatFlag(
     matchedVariant?.physicalFormat,
-    label: matchedVariant?.physicalFormatLabel ?? matchedVariant?.name,
+    label: matchedVariant?.displayFormat ?? matchedVariant?.name,
     formats: formats,
   );
   if (variantFlag != null) {
@@ -172,7 +172,7 @@ bool? resolveDigitalMediaFormatFlag({
 
   final editionFlag = digitalPhysicalMediaFormatFlag(
     matchedEdition?.physicalFormat,
-    label: matchedEdition?.physicalFormatLabel ?? matchedEdition?.title,
+    label: matchedEdition?.displayFormat ?? matchedEdition?.title,
     formats: formats,
   );
   if (editionFlag != null) {

@@ -15,7 +15,7 @@ void main() {
       expect(asset.downloadUrl, 'https://example.test/collectarr.msix');
       expect(asset.size, 50000000);
       expect(asset.assetType, ReleaseAssetType.msix);
-      expect(asset.platform, AppUpdatePlatform.windows);
+      expect(asset.runtimePlatform, AppUpdatePlatform.windows);
       expect(asset.architecture, 'x64');
       expect(asset.isNotEmpty, isTrue);
     });
@@ -28,7 +28,7 @@ void main() {
       };
       final asset = ReleaseAsset.fromJson(json);
       expect(asset.assetType, ReleaseAssetType.dmg);
-      expect(asset.platform, AppUpdatePlatform.macOS);
+      expect(asset.runtimePlatform, AppUpdatePlatform.macOS);
       expect(asset.architecture, 'arm64');
     });
 
@@ -40,7 +40,7 @@ void main() {
       };
       final asset = ReleaseAsset.fromJson(json);
       expect(asset.assetType, ReleaseAssetType.appImage);
-      expect(asset.platform, AppUpdatePlatform.linux);
+      expect(asset.runtimePlatform, AppUpdatePlatform.linux);
       expect(asset.architecture, 'x64');
     });
 
@@ -52,7 +52,7 @@ void main() {
       };
       final asset = ReleaseAsset.fromJson(json);
       expect(asset.assetType, ReleaseAssetType.apk);
-      expect(asset.platform, AppUpdatePlatform.android);
+      expect(asset.runtimePlatform, AppUpdatePlatform.android);
       expect(asset.architecture, 'arm64');
     });
   });
@@ -66,7 +66,7 @@ void main() {
         downloadUrl: 'https://example.test/win.zip',
         size: 1000,
         assetType: ReleaseAssetType.zip,
-        platform: AppUpdatePlatform.windows,
+        runtimePlatform: AppUpdatePlatform.windows,
         architecture: 'x64',
       ),
       const ReleaseAsset(
@@ -74,7 +74,7 @@ void main() {
         downloadUrl: 'https://example.test/win.exe',
         size: 2000,
         assetType: ReleaseAssetType.exe,
-        platform: AppUpdatePlatform.windows,
+        runtimePlatform: AppUpdatePlatform.windows,
         architecture: 'x64',
       ),
       const ReleaseAsset(
@@ -82,7 +82,7 @@ void main() {
         downloadUrl: 'https://example.test/win.msix',
         size: 3000,
         assetType: ReleaseAssetType.msix,
-        platform: AppUpdatePlatform.windows,
+        runtimePlatform: AppUpdatePlatform.windows,
         architecture: 'x64',
       ),
       const ReleaseAsset(
@@ -90,28 +90,28 @@ void main() {
         downloadUrl: 'https://example.test/mac.dmg',
         size: 4000,
         assetType: ReleaseAssetType.dmg,
-        platform: AppUpdatePlatform.macOS,
+        runtimePlatform: AppUpdatePlatform.macOS,
       ),
       const ReleaseAsset(
         name: 'collectarr-linux.deb',
         downloadUrl: 'https://example.test/linux.deb',
         size: 5000,
         assetType: ReleaseAssetType.deb,
-        platform: AppUpdatePlatform.linux,
+        runtimePlatform: AppUpdatePlatform.linux,
       ),
       const ReleaseAsset(
         name: 'collectarr-linux.AppImage',
         downloadUrl: 'https://example.test/linux.AppImage',
         size: 6000,
         assetType: ReleaseAssetType.appImage,
-        platform: AppUpdatePlatform.linux,
+        runtimePlatform: AppUpdatePlatform.linux,
       ),
       const ReleaseAsset(
         name: 'collectarr-android.apk',
         downloadUrl: 'https://example.test/android.apk',
         size: 7000,
         assetType: ReleaseAssetType.apk,
-        platform: AppUpdatePlatform.android,
+        runtimePlatform: AppUpdatePlatform.android,
       ),
     ];
 
