@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -16,7 +16,7 @@ class InspectorHero extends StatelessWidget {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
+  final OwnedItemSummary? ownedItem;
   final Color accent;
   final String? contextLabel;
 
@@ -25,8 +25,7 @@ class InspectorHero extends StatelessWidget {
     return LibraryDetailHero(
       type: type,
       item: item,
-      ownedItem:
-          ownedItem == null ? null : ownedItemSummaryFromOwnedItem(ownedItem!),
+      ownedItem: ownedItem,
       accent: accent,
     );
   }

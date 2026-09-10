@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -129,7 +129,7 @@ class InspectorPersonalDetailsEditor extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final OwnedItem ownedItem;
+  final OwnedItemSummary ownedItem;
   final Color accent;
 
   @override
@@ -163,7 +163,7 @@ class _InspectorPersonalDetailsEditorState
   @override
   void didUpdateWidget(covariant InspectorPersonalDetailsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.ownedItem.id != widget.ownedItem.id ||
+    if (oldWidget.ownedItem.ref.id != widget.ownedItem.ref.id ||
         oldWidget.ownedItem.updatedAt != widget.ownedItem.updatedAt) {
       _syncFromItem(widget.ownedItem);
     }
@@ -322,13 +322,13 @@ class _InspectorPersonalDetailsEditorState
     );
   }
 
-  void _syncFromItem(OwnedItem item) {
+  void _syncFromItem(OwnedItemSummary item) {
     _purchaseDate = item.purchaseDate;
     _priceController.text = item.pricePaidCents == null
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     _currencyController.text = item.currency ?? 'USD';
-    _notesController.text = item.personalNotes ?? '';
+    _notesController.text = item.notes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
     _selectedLocationId = item.locationId;
     _locationChanged = false;
@@ -397,7 +397,7 @@ class _InspectorPersonalDetailsEditorState
     final currency = _currencyController.text.trim().toUpperCase();
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           libraryKindModuleForKind(
-            widget.ownedItem.catalogRef.mediaKind,
+            widget.ownedItem.catalogRef?.mediaKind ?? widget.ownedItem.ref.kind,
           ).edit.buildPersonalDetailsUpdateCommand(
                 ownedRef: widget.ownedItem.ref,
                 purchaseDate: _purchaseDate,

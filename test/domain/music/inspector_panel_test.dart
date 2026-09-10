@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
@@ -73,8 +74,8 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: musicKindModule,
       item: item,
-      ownedItem: ownedItem,
-      ownedCopies: [ownedItem],
+      ownedItem: testOwnedSummary(ownedItem),
+      ownedCopies: [testOwnedSummary(ownedItem)],
       trackingEntry: null,
       accent: const Color(0xFFFDAD49),
       detailsLayout: LibraryDetailsLayout.hidden,
@@ -87,7 +88,7 @@ void main() {
       hero: const SizedBox.shrink(),
       primarySections: const [],
       trailingSections: const [],
-      ownedCopies: [ownedItem],
+      ownedCopies: [testOwnedSummary(ownedItem)],
       selectedOwnedItemId: ownedItem.id,
       extraActions: const [],
       onAddCopy: () {},
@@ -163,8 +164,8 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: musicKindModule,
       item: item,
-      ownedItem: ownedItem,
-      ownedCopies: [ownedItem],
+      ownedItem: testOwnedSummary(ownedItem),
+      ownedCopies: [testOwnedSummary(ownedItem)],
       trackingEntry: null,
       accent: const Color(0xFFFDAD49),
       detailsLayout: LibraryDetailsLayout.hidden,
@@ -178,7 +179,7 @@ void main() {
       hero: const SizedBox.shrink(),
       primarySections: const [],
       trailingSections: const [],
-      ownedCopies: [ownedItem],
+      ownedCopies: [testOwnedSummary(ownedItem)],
       selectedOwnedItemId: ownedItem.id,
       extraActions: const [],
       onAddCopy: () {},

@@ -89,14 +89,14 @@ void main() {
                   title: 'The Last Ronin',
                   barcode: '82771402051700111',
                 ),
-                ownedItem: testOwnedItem(
+                ownedItem: testOwnedSummary(testOwnedItem(
                   id: 'owned-comic-hero-1',
                   itemId: 'comic-hero-1',
                   isDigital: false,
                   condition: 'Near Mint',
                   grade: '9.8',
                   updatedAt: DateTime.utc(2026, 5, 23),
-                ),
+                )),
                 trackingEntry: null,
                 accent: Colors.red,
               ),
@@ -136,14 +136,14 @@ void main() {
                         kind: 'comic',
                         title: 'The Last Ronin',
                       ),
-                      ownedItem: testOwnedItem(
+                      ownedItem: testOwnedSummary(testOwnedItem(
                         id: 'owned-comic-hero-narrow-1',
                         itemId: 'comic-hero-narrow-1',
                         isDigital: false,
                         condition: 'Near Mint',
                         grade: '9.8',
                         updatedAt: DateTime.utc(2026, 5, 23),
-                      ),
+                      )),
                       trackingEntry: null,
                       accent: Colors.red,
                     ),
@@ -202,10 +202,10 @@ void main() {
                 title: 'The Last Ronin',
                 ownedItem: ownedItem,
               ),
-              ownedItem: ownedItem,
+              ownedItem: testOwnedSummary(ownedItem),
               typedOwnedItem: testComicOwnedItemFrom(ownedItem),
               ownedCopies: [
-                testOwnedItem(
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-comic-hero-2',
                   itemId: 'comic-hero-2',
                   isDigital: false,
@@ -220,7 +220,7 @@ void main() {
                   keyComic: true,
                   keyReason: 'First print finale',
                   updatedAt: DateTime.utc(2026, 5, 23),
-                ),
+                )),
               ],
               accent: Colors.red,
               onAddOwned: () {},
@@ -267,7 +267,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedItem? editedOwnedItem;
+    OwnedItemSummary? editedOwnedItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -281,25 +281,25 @@ void main() {
                 kind: 'comic',
                 title: 'The Last Ronin',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-comic-1',
                 itemId: 'comic-multi-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
               ownedCopies: [
-                testOwnedItem(
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-comic-1',
                   itemId: 'comic-multi-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
-                ),
-                testOwnedItem(
+                )),
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-comic-2',
                   itemId: 'comic-multi-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
-                ),
+                )),
               ],
               accent: Colors.red,
               onAddOwned: () {},
@@ -438,7 +438,7 @@ void main() {
               title: 'Saga',
               ownedItem: ownedItem,
             ),
-            ownedItem: ownedItem,
+            ownedItem: testOwnedSummary(ownedItem),
             typedOwnedItem: testComicOwnedItemFrom(ownedItem),
             accent: Colors.orange,
           ),
@@ -465,14 +465,14 @@ void main() {
               kind: 'movie',
               title: 'Blade Runner 2049',
             ),
-            ownedItem: testOwnedItem(
+            ownedItem: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'movie-1',
               isDigital: true,
               pricePaidCents: 1299,
               currency: 'USD',
               updatedAt: DateTime.utc(2026, 5, 22),
-            ),
+            )),
             accent: Colors.orange,
           ),
         ),
@@ -558,11 +558,11 @@ void main() {
                 kind: 'book',
                 title: 'The Two Towers',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
-              ),
+              )),
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -665,25 +665,25 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
               ownedCopies: [
-                testOwnedItem(
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
-                ),
-                testOwnedItem(
+                )),
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
-                ),
+                )),
               ],
               accent: Colors.orange,
               onAddOwned: () {},
@@ -725,7 +725,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedItem? editedOwnedItem;
+    OwnedItemSummary? editedOwnedItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -739,25 +739,25 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
               ownedCopies: [
-                testOwnedItem(
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
-                ),
-                testOwnedItem(
+                )),
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
-                ),
+                )),
               ],
               accent: Colors.orange,
               onAddOwned: () {},
@@ -789,7 +789,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(editedOwnedItem?.id, 'owned-2');
+    expect(editedOwnedItem?.ref.id.value, 'owned-2');
   });
 
   testWidgets(
@@ -839,25 +839,25 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
               ownedCopies: [
-                testOwnedItem(
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
-                ),
-                testOwnedItem(
+                )),
+                testOwnedSummary(testOwnedItem(
                   id: 'owned-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
-                ),
+                )),
               ],
               accent: Colors.orange,
               onAddOwned: () {},

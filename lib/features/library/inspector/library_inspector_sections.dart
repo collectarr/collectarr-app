@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -53,7 +53,7 @@ class InspectorPersonalSection extends StatelessWidget {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
+  final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
@@ -80,9 +80,7 @@ class InspectorPersonalSection extends StatelessWidget {
         ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
         ownedItem?.currency ?? adapter?.currency);
     final ownedCopyTypeLabel = libraryOwnedCopyTypeLabel(
-      existingOwnedItem == null
-          ? null
-          : ownedItemSummaryFromOwnedItem(existingOwnedItem),
+      existingOwnedItem == null ? null : existingOwnedItem,
       catalogEditions,
       digitalFlagResolver: type.edit.resolveOwnedDigitalFlag,
       fallbackLabel: adapter?.variant,

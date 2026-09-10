@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -19,7 +19,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
+  final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;

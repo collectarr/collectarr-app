@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
@@ -9,16 +9,11 @@ List<Widget> buildLibraryDetailEditorSections({
   required LibraryKindModule type,
   required LibraryProjectionView item,
   required Color accent,
-  OwnedItem? ownedItem,
+  OwnedItemSummary? ownedItem,
   TrackingEntry? trackingEntry,
 }) {
   final catalogItem = item.source.catalogItem;
   return [
-    if (ownedItem != null)
-      InspectorPersonalDetailsEditor(
-        ownedItem: ownedItem,
-        accent: accent,
-      ),
     if (trackingEntry != null)
       InspectorTrackingDetailsEditor(
         itemId: item.node.titleItemId,
@@ -40,7 +35,7 @@ List<Widget> buildLibraryInspectorEditorSections({
   required LibraryKindModule type,
   required LibraryProjectionView item,
   required Color accent,
-  OwnedItem? ownedItem,
+  OwnedItemSummary? ownedItem,
   TrackingEntry? trackingEntry,
 }) {
   return buildLibraryDetailEditorSections(

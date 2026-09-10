@@ -292,12 +292,12 @@ class LibraryInspectorRequest {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
+  final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate for kind-owned inspector contributions.
   final Object? typedOwnedItem;
   final VoidCallback? onEdit;
-  final List<OwnedItem> ownedCopies;
+  final List<OwnedItemSummary> ownedCopies;
   final TrackingEntry? trackingEntry;
   final Color accent;
   final LibraryDetailsLayout detailsLayout;
@@ -359,7 +359,7 @@ class LibraryInspectorPanelRequest {
   final Widget hero;
   final List<Widget> primarySections;
   final List<Widget> trailingSections;
-  final List<OwnedItem> ownedCopies;
+  final List<OwnedItemSummary> ownedCopies;
   final String? selectedOwnedItemId;
   final List<Widget> extraActions;
   final LibraryItemActions actions;

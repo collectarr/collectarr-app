@@ -104,6 +104,7 @@ final class OwnedItemSummary {
     this.subtitle,
     this.imageUrl,
     this.ownerLabel,
+    this.locationId,
     this.locationLabel,
     this.notes,
     this.hasNotes = false,
@@ -130,6 +131,7 @@ final class OwnedItemSummary {
   final String? subtitle;
   final String? imageUrl;
   final String? ownerLabel;
+  final String? locationId;
   final String? locationLabel;
   final String? notes;
   final bool hasNotes;
@@ -175,6 +177,7 @@ final class OwnedItemSummary {
       imageUrl: imageUrl == _summaryUnset ? this.imageUrl : imageUrl as String?,
       ownerLabel:
           ownerLabel == _summaryUnset ? this.ownerLabel : ownerLabel as String?,
+      locationId: locationId,
       locationLabel: locationLabel == _summaryUnset
           ? this.locationLabel
           : locationLabel as String?,

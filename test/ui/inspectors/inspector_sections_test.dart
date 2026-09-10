@@ -168,7 +168,7 @@ void main() {
             body: InspectorPersonalSection(
               type: bookKindModule,
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 rating: 8,
@@ -176,7 +176,7 @@ void main() {
                 condition: 'Near Mint',
                 grade: '9.4',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
               trackingEntry: TrackingEntry(
                 id: 'track-1',
                 catalogRef: testCatalogRef('book-1', kind: 'book'),
@@ -214,12 +214,12 @@ void main() {
             body: InspectorPersonalSection(
               type: bookKindModule,
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 quantity: 3,
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
               accent: Colors.blue,
             ),
           ),
@@ -250,7 +250,7 @@ void main() {
             body: InspectorPersonalSection(
               type: bookKindModule,
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 pricePaidCents: 1000,
@@ -259,7 +259,7 @@ void main() {
                 sellPriceCents: 1500,
                 soldTo: 'Collector X',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
               accent: Colors.blue,
             ),
           ),
@@ -270,8 +270,8 @@ void main() {
       expect(find.text('Profit / Loss'), findsOneWidget);
     });
 
-    testWidgets('shows tags when present', (tester) async {
-      String? tappedValue;
+    testWidgets('leaves kind-owned tags to the typed contributor',
+        (tester) async {
       final source2 = ShelfEntry(
         itemId: 'book-1',
         catalogItem: testCatalogItem(
@@ -291,26 +291,20 @@ void main() {
             body: InspectorPersonalSection(
               type: bookKindModule,
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 tags: 'sci-fi, classic',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
               accent: Colors.blue,
-              onFilterByValue: (value) => tappedValue = value,
             ),
           ),
         ),
       );
 
-      expect(find.text('sci-fi'), findsOneWidget);
-      expect(find.text('classic'), findsOneWidget);
-
-      await tester.tap(find.text('sci-fi'));
-      await tester.pumpAndSettle();
-
-      expect(tappedValue, 'sci-fi');
+      expect(find.text('sci-fi'), findsNothing);
+      expect(find.text('classic'), findsNothing);
     });
   });
 

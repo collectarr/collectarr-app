@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
@@ -46,7 +47,7 @@ Widget _heroHost(OwnedItem ownedItem) {
           request: LibraryInspectorRequest(
             type: comicKindModule,
             item: _itemFixture(),
-            ownedItem: ownedItem,
+            ownedItem: testOwnedSummary(ownedItem),
             typedOwnedItem: testComicOwnedItemFrom(ownedItem),
             trackingEntry: null,
             accent: Colors.red,

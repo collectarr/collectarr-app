@@ -321,6 +321,7 @@ OwnedItemSummary ownedItemSummaryFromOwnedItem(OwnedItem item) {
     marketValueCents: item.marketValueCents,
     quantity: item.quantity,
     ownerLabel: item.ownerLabel,
+    locationId: item.locationId,
     locationLabel: item.locationId,
     notes: item.personalNotes,
     hasNotes: item.personalNotes?.trim().isNotEmpty == true,

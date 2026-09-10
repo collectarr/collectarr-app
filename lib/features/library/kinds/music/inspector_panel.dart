@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -497,7 +498,9 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final source = inspector.item.source;
-    final owned = inspector.ownedItem;
+    final owned = inspector.typedOwnedItem is MusicOwnedItem
+        ? inspector.typedOwnedItem as MusicOwnedItem
+        : null;
     final personalRows = <(String, String)>[
       ('Index', owned?.indexNumber?.toString() ?? '-'),
       if (owned?.condition?.trim().isNotEmpty == true)

@@ -68,7 +68,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorPersonalDetailsEditor(
-              ownedItem: ownedItem,
+              ownedItem: testOwnedSummary(ownedItem),
               accent: Colors.orange,
             ),
           ),

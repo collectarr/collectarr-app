@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -320,7 +320,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
       ),
       data: (items) {
         final Set<String> ownedIds = {
-          for (final owned in request.ownedCopies) owned.itemId,
+          for (final owned in request.ownedCopies) owned.ref.id.value,
         };
         final missingNumbers = _computeMissingIssues(items, ownedIds);
         final ownedCount = items
@@ -552,14 +552,14 @@ List<LibraryDetailField> _collectorFacts(ComicOwnedItem? ownedItem) {
 
 List<LibraryDetailField> _valueFacts(
   LibraryProjectionView item,
-  OwnedItem? ownedItem,
-  List<OwnedItem> ownedCopies,
+  OwnedItemSummary? ownedItem,
+  List<OwnedItemSummary> ownedCopies,
 ) {
   if (ownedItem == null) {
     return const [];
   }
   final effectiveOwnedCopies =
-      ownedCopies.isNotEmpty ? ownedCopies : <OwnedItem>[ownedItem];
+      ownedCopies.isNotEmpty ? ownedCopies : <OwnedItemSummary>[ownedItem];
   final snapshot = LibraryValueSnapshot.fromItem(
     item,
     purchasePriceCents: item.source.pricePaidCents,
@@ -639,8 +639,8 @@ List<LibraryDetailField> _valueFacts(
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItem> items,
-  int? Function(OwnedItem item) selector,
+  List<OwnedItemSummary> items,
+  int? Function(OwnedItemSummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -656,8 +656,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _inspectorValueCurrency(
-  List<OwnedItem> ownedCopies,
-  OwnedItem? ownedItem,
+  List<OwnedItemSummary> ownedCopies,
+  OwnedItemSummary? ownedItem,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();

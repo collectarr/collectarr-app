@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -47,9 +46,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
-    final ownedSummary = request.ownedItem == null
-        ? null
-        : ownedItemSummaryFromOwnedItem(request.ownedItem!);
+    final ownedSummary = request.ownedItem;
     final ownedRef = resolveLibraryOwnedItemRef(item, ownedSummary);
     final localFront = ownedRef == null
         ? null
