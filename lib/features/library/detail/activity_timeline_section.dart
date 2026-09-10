@@ -88,7 +88,7 @@ class _ActivityTimelineSectionState
 
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedItems,
-      trackingEntries: [
+      trackingLifecycles: [
         for (final summary in trackingSummaries)
           TrackingActivitySummary.fromSummary(summary),
       ],

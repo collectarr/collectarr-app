@@ -48,7 +48,7 @@ class SyncRepository {
       queue: SyncQueueRepository(_db),
       catalog: CatalogTransportRepository(_db),
       ownedPersistence: CollectarrOwnedItemPersistence(_db),
-      trackingEntries: TrackingLifecycleRepository(
+      trackingLifecycles: TrackingLifecycleRepository(
         _db,
         codecs: collectarrTrackingLifecycleCodecs,
       ),

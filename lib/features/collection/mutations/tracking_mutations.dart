@@ -35,7 +35,7 @@ typedef TrackingLifecycleCustomizer = TrackingLifecycle Function(
 
 final class TrackingMutations {
   const TrackingMutations({
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     required this.trackingUnits,
     required this.watchSessions,
     required this.syncQueue,
@@ -44,7 +44,7 @@ final class TrackingMutations {
     this.idGenerator = _defaultIdGenerator,
   });
 
-  final TrackingLifecycleRepository trackingEntries;
+  final TrackingLifecycleRepository trackingLifecycles;
   final TrackingUnitRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
   final OwnedItemsRepository? ownedItems;
@@ -62,7 +62,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: updated.catalogRef,
       action: () async {
-        await trackingEntries.upsert(updated);
+        await trackingLifecycles.upsert(updated);
         await syncQueue
             .enqueue(_syncChangeForTrackingLifecycle(updated, 'upsert', now));
       },
@@ -123,7 +123,7 @@ final class TrackingMutations {
     }
 
     final existingEntries =
-        await trackingEntries.findActiveByCatalogRoots([catalogRef]);
+        await trackingLifecycles.findActiveByCatalogRoots([catalogRef]);
     final existing = existingEntries.isEmpty ? null : existingEntries.first;
     final entryId = existing?.id ?? idGenerator();
 
@@ -146,7 +146,7 @@ final class TrackingMutations {
               notes: notes ?? existing.notes,
               updatedAt: now,
             ) ??
-            trackingEntries.create(
+            trackingLifecycles.create(
               id: entryId,
               catalogRef: catalogRef,
               ownedRef: targetOwnedRef,
@@ -162,7 +162,7 @@ final class TrackingMutations {
               updatedAt: now,
             );
         final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
-        await trackingEntries.upsert(entry);
+        await trackingLifecycles.upsert(entry);
         await syncQueue
             .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
       },
@@ -180,7 +180,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: entry.catalogRef,
       action: () async {
-        await trackingEntries.markDeleted(entry, now);
+        await trackingLifecycles.markDeleted(entry, now);
         await syncQueue.enqueue(
           _syncChangeForTrackingLifecycle(
             entry.copyWith(updatedAt: now, deletedAt: now),
@@ -205,7 +205,7 @@ final class TrackingMutations {
     TrackingLifecycleRef ref, {
     bool notify = true,
   }) async {
-    final entry = await trackingEntries.findByRef(ref);
+    final entry = await trackingLifecycles.findByRef(ref);
     if (entry == null || entry.isDeleted) return;
     await removeTrackingLifecycle(entry, notify: notify);
   }
@@ -244,7 +244,7 @@ final class TrackingMutations {
         ? isDigital
         : collectarrTypedOwnedItemIsDigital(typedOwned.$2);
     final existingEntries =
-        await trackingEntries.findActiveByCatalogRoots([resolvedCatalogRef]);
+        await trackingLifecycles.findActiveByCatalogRoots([resolvedCatalogRef]);
     final existing = existingEntries.isEmpty
         ? null
         : existingEntries.firstWhere(
@@ -274,7 +274,7 @@ final class TrackingMutations {
                       : TrackingSourceType.physical),
               updatedAt: now,
             ) ??
-            trackingEntries.create(
+            trackingLifecycles.create(
               id: entryId,
               catalogRef: resolvedCatalogRef,
               ownedRef: ownedRef,
@@ -292,7 +292,7 @@ final class TrackingMutations {
               updatedAt: now,
             );
         final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
-        await trackingEntries.upsert(entry);
+        await trackingLifecycles.upsert(entry);
         await syncQueue
             .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
       },
@@ -324,7 +324,7 @@ final class TrackingMutations {
       origin: origin,
       localRef: resolvedCatalogRef,
       action: () async {
-        final baseEntry = trackingEntries.create(
+        final baseEntry = trackingLifecycles.create(
           id: entryId,
           catalogRef: resolvedCatalogRef,
           sourceType: sourceType,
@@ -338,7 +338,7 @@ final class TrackingMutations {
           updatedAt: now,
         );
         final entry = customizeLifecycle?.call(baseEntry) ?? baseEntry;
-        await trackingEntries.upsert(entry);
+        await trackingLifecycles.upsert(entry);
         if (!isLocalItem) {
           await syncQueue
               .enqueue(_syncChangeForTrackingLifecycle(entry, 'upsert', now));
@@ -368,7 +368,7 @@ final class TrackingMutations {
       entityType: 'tracking_entry',
       entityId: entry.id,
       action: action,
-      payload: trackingEntries.toSyncPayload(entry),
+      payload: trackingLifecycles.toSyncPayload(entry),
       clientChangedAt: now,
     );
   }

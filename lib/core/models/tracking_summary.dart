@@ -21,6 +21,9 @@ final class TrackingSummary {
     this.rating,
     this.startedAt,
     this.completedAt,
+    this.progressCurrent,
+    this.progressTotal,
+    this.timesCompleted,
     this.notes,
     this.deletedAt,
   });
@@ -35,6 +38,9 @@ final class TrackingSummary {
       rating: entry.rating,
       startedAt: entry.startedAt,
       completedAt: entry.finishedAt,
+      progressCurrent: entry.progressCurrent,
+      progressTotal: entry.progressTotal,
+      timesCompleted: entry.timesCompleted,
       notes: entry.notes,
       updatedAt: entry.updatedAt,
       deletedAt: entry.deletedAt,
@@ -49,6 +55,9 @@ final class TrackingSummary {
   final int? rating;
   final DateTime? startedAt;
   final DateTime? completedAt;
+  final int? progressCurrent;
+  final int? progressTotal;
+  final int? timesCompleted;
   final String? notes;
   final DateTime updatedAt;
   final DateTime? deletedAt;

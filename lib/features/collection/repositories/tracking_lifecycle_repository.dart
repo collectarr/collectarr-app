@@ -57,10 +57,17 @@ class TrackingLifecycleRepository {
   }
 
   Future<List<TrackingSummary>> listActiveSummaries() async {
-    final entries = await listActive();
-    return [
-      for (final entry in entries) TrackingSummary.fromLifecycle(entry),
-    ];
+    final summaries = <TrackingSummary>[];
+    for (final codec in _codecs.values) {
+      for (final record in await codec.readStorageRecords(
+        _db,
+        activeOnly: true,
+      )) {
+        summaries.add(codec.summaryFromStorageRow(record.row));
+      }
+    }
+    summaries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return summaries;
   }
 
   Future<List<TrackingLifecycle>> listActive() async {

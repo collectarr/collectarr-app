@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
@@ -12,12 +12,12 @@ import 'package:collectarr_app/features/providers/domain/models/provider_id.dart
 final class ProviderLocalStateBridge {
   const ProviderLocalStateBridge({
     required this.catalogSummaries,
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     required this.wishlist,
   });
 
   final CatalogDisplaySummaryRepository catalogSummaries;
-  final TrackingLifecycleRepository trackingEntries;
+  final TrackingLifecycleRepository trackingLifecycles;
   final WishlistItemsCacheRepository wishlist;
 
   Future<ProviderPersonalEntry?> read(
@@ -45,11 +45,11 @@ final class ProviderLocalStateBridge {
     );
   }
 
-  Future<TrackingLifecycle?> _findTracking(CatalogEntityRef localRef) async {
-    final entries = await trackingEntries.listActive();
-    for (final entry in entries) {
-      if (matches(entry.catalogRef, localRef)) {
-        return entry;
+  Future<TrackingSummary?> _findTracking(CatalogEntityRef localRef) async {
+    final summaries = await trackingLifecycles.listActiveSummaries();
+    for (final summary in summaries) {
+      if (matches(summary.catalogRef, localRef)) {
+        return summary;
       }
     }
     return null;
@@ -67,7 +67,7 @@ final class ProviderLocalStateBridge {
 
   ProviderPersonalEntry _fromTracking(
     CatalogEntityRef localRef,
-    TrackingLifecycle entry,
+    TrackingSummary entry,
     String? title, {
     ProviderItemLink? link,
   }) {
@@ -82,7 +82,7 @@ final class ProviderLocalStateBridge {
       progress: entry.progressCurrent,
       totalProgress: entry.progressTotal,
       startedAt: entry.startedAt,
-      completedAt: entry.finishedAt,
+      completedAt: entry.completedAt,
       repeatCount: entry.timesCompleted ?? 0,
       notes: entry.notes,
     );

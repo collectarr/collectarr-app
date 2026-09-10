@@ -536,11 +536,11 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
-  final runtime = defaultLibraryKindRegistry
+  final kindModule = defaultLibraryKindRegistry
       .tryGet(item.source.catalogItem?.mediaKind ?? CatalogMediaKind.unknown);
-  if (runtime == null) return null;
-  return runtime.presentation.builder.buildMetadataPresentation(
-    singularLabel: runtime.identity.singularLabel,
+  if (kindModule == null) return null;
+  return kindModule.presentation.builder.buildMetadataPresentation(
+    singularLabel: kindModule.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

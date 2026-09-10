@@ -107,7 +107,7 @@ final providerLocalStateBridgeProvider =
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),
-    trackingEntries: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
   );
 });
@@ -167,7 +167,7 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),
-    trackingEntries: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
     userId: auth.userId,
@@ -179,7 +179,7 @@ final catalogItemMutationsProvider = Provider<CatalogItemMutations>((ref) {
   return CatalogItemMutations(
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    trackingEntries: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -189,7 +189,7 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
   return WishlistMutations(
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     catalogCache: ref.watch(catalogCacheRepositoryProvider),
-    trackingEntries: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
@@ -198,7 +198,7 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
 
 final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
   return TrackingMutations(
-    trackingEntries: ref.watch(trackingLifecycleRepositoryProvider),
+    trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
@@ -265,10 +265,10 @@ Future<void> _applyProviderEntry(
   MutationOrigin origin,
 ) async {
   final bridge = ref.read(providerLocalStateBridgeProvider);
-  final trackingEntries =
+  final trackingLifecycles =
       await ref.read(trackingLifecycleRepositoryProvider).listActive();
   TrackingLifecycle? localTracking;
-  for (final entry in trackingEntries) {
+  for (final entry in trackingLifecycles) {
     if (bridge.matches(entry.catalogRef, localRef)) {
       localTracking = entry;
       break;

@@ -15,7 +15,7 @@ class ActivityEventAggregator {
   /// Build a time-sorted (newest-first) list of activity events for one item.
   static List<ActivityEvent> aggregate({
     required List<OwnedItemSummary> ownedItems,
-    required List<TrackingActivitySummary> trackingEntries,
+    required List<TrackingActivitySummary> trackingLifecycles,
     required List<WishlistItem> wishlistItems,
     required List<Loan> loans,
     Iterable<WatchSession> watchSessions = const <WatchSession>[],
@@ -25,7 +25,7 @@ class ActivityEventAggregator {
   }) {
     final universalContext = UniversalActivityContext(
       ownedItems: ownedItems,
-      trackingEntries: trackingEntries,
+      trackingLifecycles: trackingLifecycles,
       wishlistItems: wishlistItems,
       loans: loans,
       watchSessions: watchSessions,

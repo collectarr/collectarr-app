@@ -137,14 +137,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         clearNewest: ownedSummaryResolution.clearNewest,
       );
     }
-    final trackingEntries = switch (selected.source.catalogRef) {
+    final trackingLifecycles = switch (selected.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
             const <TrackingLifecycle>[],
       _ => const <TrackingLifecycle>[],
     };
     final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
-      trackingEntries,
+      trackingLifecycles,
       activeOwnedItem == null ? null : activeOwnedItem,
     );
     final onToggleOwned = selected.source.isOwned

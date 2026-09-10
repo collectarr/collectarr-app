@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -64,7 +65,9 @@ void main() {
             UniversalActivityContext(
               ownedItems: [owned],
               trackingLifecycles: [
-                TrackingActivitySummary.fromLifecycle(tracking)
+                TrackingActivitySummary.fromSummary(
+                  TrackingSummary.fromLifecycle(tracking),
+                )
               ],
               wishlistItems: [wishlist],
               loans: [loan],

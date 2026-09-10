@@ -21,7 +21,7 @@ final class WishlistMutations {
   const WishlistMutations({
     required this.wishlist,
     required this.catalogCache,
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     required this.trackingUnits,
     required this.syncQueue,
     required this.mutationRunner,
@@ -30,7 +30,7 @@ final class WishlistMutations {
 
   final WishlistItemsCacheRepository wishlist;
   final CatalogTransportRepository catalogCache;
-  final TrackingLifecycleRepository trackingEntries;
+  final TrackingLifecycleRepository trackingLifecycles;
   final TrackingUnitRepository trackingUnits;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;

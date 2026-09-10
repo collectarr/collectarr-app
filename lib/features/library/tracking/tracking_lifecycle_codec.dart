@@ -5,8 +5,11 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 
-/// The serialized, kind-neutral portion of a tracking-entry row.
+/// The serialized, kind-neutral portion of a lifecycle row.
 ///
 /// Hierarchy coordinates deliberately do not cross this boundary. The owning
 /// kind receives the row and its opaque coordinate projection through
@@ -52,7 +55,7 @@ final class TrackingLifecycleStorageRecord {
   final Object? coordinates;
 }
 
-/// Kind-owned tracking-entry storage and reconstruction behavior.
+/// Kind-owned lifecycle storage and reconstruction behavior.
 ///
 /// The generic repository owns transaction and query mechanics only. A codec
 /// semantic columns and their interpretation live in the kind adapter.
@@ -60,6 +63,11 @@ abstract interface class TrackingLifecycleCodec {
   const TrackingLifecycleCodec();
 
   CatalogMediaKind get kind;
+
+  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
+    LocalDatabase db, {
+    required bool activeOnly,
+  });
 
   /// Reads complete lifecycle rows from the owning kind table.
   Future<List<TrackingLifecycle>> listFromStorage(
@@ -119,9 +127,11 @@ abstract interface class TrackingLifecycleCodec {
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
+
+  TrackingSummary summaryFromStorageRow(TrackingLifecycleStorageRow row);
 }
 
-/// Shared persistence mechanics for kind-owned tracking-entry codecs.
+/// Shared persistence mechanics for kind-owned lifecycle codecs.
 ///
 /// The mixin owns only filtering/reconstruction mechanics. Each kind supplies
 /// its row query and its own Drift companion, so no semantic table definition
@@ -133,6 +143,26 @@ mixin TrackingLifecycleStorageSupport {
     TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
+
+  TrackingSummary summaryFromStorageRow(TrackingLifecycleStorageRow row) {
+    return TrackingSummary(
+      id: row.id,
+      catalogRef: row.catalogRef,
+      status:
+          mediaTrackingStatusFromValue(row.status) ?? MediaTrackingStatus.none,
+      ownedRef: row.ownedRef,
+      sourceType: trackingSourceTypeFromValue(row.sourceType),
+      rating: row.rating,
+      startedAt: row.startedAt,
+      completedAt: row.finishedAt,
+      progressCurrent: row.progressCurrent,
+      progressTotal: row.progressTotal,
+      timesCompleted: row.timesCompleted,
+      notes: row.notes,
+      updatedAt: row.updatedAt,
+      deletedAt: row.deletedAt,
+    );
+  }
 
   Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
     LocalDatabase db, {

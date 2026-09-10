@@ -440,8 +440,7 @@ class CollectionCsvCodec {
   List<String> _clzFriendlyHeaderForEntries(List<ShelfEntry> entries) {
     final kinds = {
       for (final entry in entries)
-        if (!entry.mediaKind.isUnknown)
-          entry.mediaKind.apiValue,
+        if (!entry.mediaKind.isUnknown) entry.mediaKind.apiValue,
     };
     if (kinds.length == 1) {
       return _clzFriendlyHeaderForKind(kinds.single);

@@ -14,7 +14,7 @@ typedef UniversalActivityKindPredicate = bool Function(CatalogMediaKind kind);
 final class UniversalActivityContext {
   const UniversalActivityContext({
     this.ownedItems = const [],
-    this.trackingEntries = const [],
+    this.trackingLifecycles = const [],
     this.wishlistItems = const [],
     this.loans = const [],
     this.watchSessions = const [],
@@ -22,7 +22,7 @@ final class UniversalActivityContext {
   });
 
   final Iterable<OwnedItemSummary> ownedItems;
-  final Iterable<TrackingActivitySummary> trackingEntries;
+  final Iterable<TrackingActivitySummary> trackingLifecycles;
   final Iterable<WishlistItem> wishlistItems;
   final Iterable<Loan> loans;
   final Iterable<WatchSession> watchSessions;
@@ -76,7 +76,7 @@ final class TrackingActivityContributor
 
   @override
   Iterable<ActivityEvent> contribute(UniversalActivityContext context) sync* {
-    for (final entry in context.trackingEntries) {
+    for (final entry in context.trackingLifecycles) {
       if (entry.isDeleted) continue;
       if (entry.startedAt != null) {
         yield ActivityEvent(

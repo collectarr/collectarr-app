@@ -20,14 +20,14 @@ final class CatalogItemMutations {
   const CatalogItemMutations({
     required this.catalogCache,
     required this.wishlist,
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     required this.syncQueue,
     required this.mutationRunner,
   });
 
   final CatalogTransportRepository catalogCache;
   final WishlistItemsCacheRepository wishlist;
-  final TrackingLifecycleRepository trackingEntries;
+  final TrackingLifecycleRepository trackingLifecycles;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
 
@@ -77,7 +77,7 @@ final class CatalogItemMutations {
     );
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
     final trackingList =
-        await trackingEntries.findActiveByCatalogRefs([localRef]);
+        await trackingLifecycles.findActiveByCatalogRefs([localRef]);
     final targetRef = snapshot.toTransportItem().catalogRef;
 
     return mutationRunner.run(
@@ -102,7 +102,7 @@ final class CatalogItemMutations {
             catalogRef: _rebaseCatalogRef(item.catalogRef, targetRef),
             updatedAt: now,
           );
-          await trackingEntries.upsert(updated);
+          await trackingLifecycles.upsert(updated);
           await syncQueue.enqueue(
             _syncChangeForTrackingLifecycle(updated, 'upsert', now),
           );
@@ -165,7 +165,7 @@ final class CatalogItemMutations {
       entityType: 'tracking_entry',
       entityId: entry.id,
       action: action,
-      payload: trackingEntries.toSyncPayload(entry),
+      payload: trackingLifecycles.toSyncPayload(entry),
       clientChangedAt: now,
     );
   }

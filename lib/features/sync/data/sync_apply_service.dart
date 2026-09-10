@@ -44,7 +44,7 @@ class SyncApplyService {
     required this.queue,
     required this.catalog,
     required this.ownedPersistence,
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     required this.wishlistItems,
     LocationRepository? locations,
   }) : locations = locations ?? LocationRepository(db);
@@ -54,7 +54,7 @@ class SyncApplyService {
   final SyncQueueRepository queue;
   final CatalogTransportRepository catalog;
   final CollectarrOwnedItemPersistence ownedPersistence;
-  final TrackingLifecycleRepository trackingEntries;
+  final TrackingLifecycleRepository trackingLifecycles;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
 
@@ -151,7 +151,7 @@ class SyncApplyService {
       for (final item in typedOwned) {
         await ownedPersistence.upsertTyped(item.$1, item.$2);
       }
-      await trackingEntries.upsertAll(tracking);
+      await trackingLifecycles.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
       if (watchSessions.isNotEmpty) {
         await WatchSessionsRepository(

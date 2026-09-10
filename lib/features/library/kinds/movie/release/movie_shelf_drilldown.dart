@@ -39,8 +39,8 @@ bool canOpenMovieShelfDrilldown(
   }
   final kind = item.source.catalogItem?.mediaKind;
   if (kind == null) return false;
-  final runtime = type ?? libraryKindModuleForKind(kind);
-  return runtime.presentation.builder.canOpenKindDrilldown(item);
+  final kindModule = type ?? libraryKindModuleForKind(kind);
+  return kindModule.presentation.builder.canOpenKindDrilldown(item);
 }
 
 List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({

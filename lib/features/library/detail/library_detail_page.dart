@@ -127,14 +127,14 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedSummary = ownedResolution.ownedItem;
-    final trackingEntries = switch (widget.item.source.catalogRef) {
+    final trackingLifecycles = switch (widget.item.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
             const <TrackingLifecycle>[],
       _ => const <TrackingLifecycle>[],
     };
     final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
-      trackingEntries,
+      trackingLifecycles,
       activeOwnedSummary,
     );
     final isOwned = ownedCopies.isNotEmpty ||

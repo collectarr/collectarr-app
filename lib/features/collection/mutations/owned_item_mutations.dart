@@ -23,7 +23,7 @@ final class OwnedItemMutations {
     required this.ownedItems,
     required this.wishlist,
     required this.catalogSummaries,
-    required this.trackingEntries,
+    required this.trackingLifecycles,
     required this.syncQueue,
     required this.mutationRunner,
     this.userId,
@@ -34,7 +34,7 @@ final class OwnedItemMutations {
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
   final CatalogDisplaySummaryRepository catalogSummaries;
-  final TrackingLifecycleRepository trackingEntries;
+  final TrackingLifecycleRepository trackingLifecycles;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final String? userId;

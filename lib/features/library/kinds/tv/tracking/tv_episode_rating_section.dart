@@ -122,16 +122,16 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final trackingEntries = ref.watch(
+    final trackingLifecycles = ref.watch(
             trackingPersistenceEntriesByCatalogRefProvider)[CatalogEntityRef(
           kind: CatalogMediaKind.tv,
           entityType: const CatalogEntityTypeId('work'),
           id: itemId,
         )] ??
         const <TrackingLifecycle>[];
-    final ratings = trackingEntries.isEmpty
+    final ratings = trackingLifecycles.isEmpty
         ? const <String, int>{}
-        : tvTrackingCoordinatesFor(trackingEntries.first).episodeRatings;
+        : tvTrackingCoordinatesFor(trackingLifecycles.first).episodeRatings;
 
     if (ratings.isEmpty) return const SizedBox.shrink();
 
