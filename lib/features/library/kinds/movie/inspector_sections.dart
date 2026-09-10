@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
@@ -119,7 +120,9 @@ class _MovieInspectorPanel extends StatelessWidget {
       hero: LibraryDetailHero(
         type: request.inspector.type,
         item: item,
-        ownedItem: request.inspector.ownedItem,
+        ownedItem: request.inspector.ownedItem == null
+            ? null
+            : ownedItemSummaryFromOwnedItem(request.inspector.ownedItem!),
         accent: accent,
       ),
       sections: [

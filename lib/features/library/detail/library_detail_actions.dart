@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -26,8 +26,8 @@ class LibraryDetailActionStrip extends StatelessWidget {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? activeOwnedItem;
-  final List<OwnedItem> ownedCopies;
+  final OwnedItemSummary? activeOwnedItem;
+  final List<OwnedItemSummary> ownedCopies;
   final String? selectedOwnedItemId;
   final ValueChanged<String?>? onSelectOwnedItem;
   final VoidCallback? onAddOwned;
@@ -63,14 +63,11 @@ class LibraryDetailActionStrip extends StatelessWidget {
                   items: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
                       DropdownMenuItem<String>(
-                        value: ownedCopies[index].id,
+                        value: ownedCopies[index].ref.id.value,
                         child: Text(
-                          buildOwnedCopyLabel(
+                          buildOwnedCopySummaryLabel(
                             ownedCopies[index],
-                            const [],
                             index,
-                            digitalFlagResolver:
-                                type.edit.resolveOwnedDigitalFlag,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -135,8 +132,8 @@ class LibraryDetailStatsBar extends StatelessWidget {
   });
 
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
-  final List<OwnedItem> ownedCopies;
+  final OwnedItemSummary? ownedItem;
+  final List<OwnedItemSummary> ownedCopies;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +147,9 @@ class LibraryDetailStatsBar extends StatelessWidget {
         : ownedCopies.fold<int>(0, (sum, i) => sum + i.quantity);
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
-        : ownedCopies.indexWhere((i) => i.id == ownedItem!.id);
+        : ownedCopies.indexWhere(
+            (i) => i.ref.id.value == ownedItem!.ref.id.value,
+          );
     final facts = <({String label, String value})>[
       (label: 'Status', value: genericLibraryStatusLabel(item)),
       (

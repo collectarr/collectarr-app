@@ -324,6 +324,37 @@ class OwnedItem<TDetails extends JsonEncodable> {
   }
 }
 
+/// Converts a common Owned value only at an existing UI/transport boundary.
+///
+/// New cross-kind code should read [OwnedItemSummary] directly from the
+/// owning repository. This helper exists for callers that still receive a
+/// common value from an edit/navigation request while that boundary is being
+/// removed.
+OwnedItemSummary ownedItemSummaryFromOwnedItem(OwnedItem item) {
+  return OwnedItemSummary(
+    ref: item.ref,
+    title: item.catalogRef.id,
+    catalogRef: item.catalogRef,
+    targetRef: item.targetRef,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+    deletedAt: item.deletedAt,
+    purchaseDate: item.purchaseDate,
+    purchaseStore: item.purchaseStore,
+    pricePaidCents: item.pricePaidCents,
+    currency: item.currency,
+    soldAt: item.soldAt,
+    soldTo: item.soldTo,
+    sellPriceCents: item.sellPriceCents,
+    marketValueCents: item.marketValueCents,
+    quantity: item.quantity,
+    ownerLabel: item.ownerLabel,
+    locationLabel: item.locationId,
+    notes: item.personalNotes,
+    hasNotes: item.personalNotes?.trim().isNotEmpty == true,
+  );
+}
+
 CatalogEntityRef? _targetRefFromLegacy(
   CatalogEntityRef catalogRef, {
   String? anchorType,

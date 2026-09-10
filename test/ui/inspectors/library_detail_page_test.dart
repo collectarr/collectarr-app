@@ -175,6 +175,15 @@ void main() {
             type: type,
             item: bookItem,
             ownedItem: owned,
+            ownedCopies: [
+              owned,
+              testOwnedItem(
+                id: 'owned-2',
+                itemId: 'book-1',
+                condition: 'Very Fine',
+                updatedAt: DateTime.utc(2026, 5, 23, 11),
+              ),
+            ],
             accent: Colors.orange,
             onAddOwned: () {},
             onRemoveOwned: () {},

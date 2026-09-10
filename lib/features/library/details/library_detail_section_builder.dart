@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
@@ -18,11 +19,14 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryProjectionView item,
   required Color accent,
   required OwnedItem? ownedItem,
+  OwnedItemSummary? ownedSummary,
   required TrackingEntry? trackingEntry,
-  required List<OwnedItem> ownedCopies,
+  required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final activeBundleReleaseId = catalogRefBundleReleaseId(ownedItem?.targetRef);
+  final activeBundleReleaseId = catalogRefBundleReleaseId(
+    ownedSummary?.targetRef ?? ownedItem?.targetRef,
+  );
 
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
@@ -46,6 +50,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             type: type,
             item: item,
             ownedItem: ownedItem,
+            ownedSummary: ownedSummary,
             ownedCopies: ownedCopies,
             trackingEntry: trackingEntry,
             accent: accent,

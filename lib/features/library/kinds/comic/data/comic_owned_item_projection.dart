@@ -66,6 +66,7 @@ final class ComicOwnedItemProjection {
         id: OwnedItemId(item.id.value),
       ),
       catalogRef: item.catalogRef,
+      targetRef: item.targetRef,
       title: item.itemId,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,

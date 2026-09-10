@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -22,8 +22,8 @@ class LibraryDetailHero extends StatelessWidget {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
-  final List<OwnedItem> ownedCopies;
+  final OwnedItemSummary? ownedItem;
+  final List<OwnedItemSummary> ownedCopies;
   final Color accent;
   final bool? isOwned;
 
@@ -32,12 +32,10 @@ class LibraryDetailHero extends StatelessWidget {
     final palette = appPalette(context);
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final resolvedOwnedRef = resolveLibraryOwnedItemRef(item, ownedItem);
+    final resolvedOwnedRef = resolveLibraryOwnedSummaryRef(item, ownedItem);
     final resolvedIsOwned =
         isOwned ?? (ownedItem != null || item.source.isOwned);
-    final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
-            mediaType: item.source.mediaKind.apiValue) ??
-        adapter?.referenceFormatLabel;
+    final referenceLabel = adapter?.referenceFormatLabel;
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -55,7 +53,9 @@ class LibraryDetailHero extends StatelessWidget {
         _detailHeroValueCurrency(ownedCopies, ownedItem, item);
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
-        : ownedCopies.indexWhere((i) => i.id == ownedItem!.id);
+        : ownedCopies.indexWhere(
+            (i) => i.ref.id.value == ownedItem!.ref.id.value,
+          );
     final summaryFacts = <({String label, String value})>[
       (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),
       (label: 'Quantity', value: totalQuantity.toString()),
@@ -101,15 +101,6 @@ class LibraryDetailHero extends StatelessWidget {
         LibraryInfoChip(
           icon: Icons.link_outlined,
           label: referenceLabel,
-          foreground: accent,
-          background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
-          borderColor: palette.divider.withValues(alpha: 0.9),
-        ),
-      if (ownedItem?.condition != null)
-        LibraryInfoChip(
-          icon: Icons.fact_check_outlined,
-          label: ownedItem!.condition!,
           foreground: accent,
           background: palette.surfaceSubtle
               .withValues(alpha: palette.isDark ? 0.42 : 0.72),
@@ -231,8 +222,8 @@ class LibraryDetailHero extends StatelessWidget {
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItem> items,
-  int? Function(OwnedItem item) selector,
+  List<OwnedItemSummary> items,
+  int? Function(OwnedItemSummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -248,8 +239,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _detailHeroValueCurrency(
-  List<OwnedItem> ownedCopies,
-  OwnedItem? ownedItem,
+  List<OwnedItemSummary> ownedCopies,
+  OwnedItemSummary? ownedItem,
   LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {

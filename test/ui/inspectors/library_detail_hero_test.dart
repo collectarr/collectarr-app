@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
@@ -70,7 +72,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: owned,
+              ownedItem: ownedItemSummaryFromOwnedItem(owned),
               accent: Colors.orange,
             ),
           ),
@@ -144,7 +146,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: owned,
+              ownedItem: ownedItemSummaryFromOwnedItem(owned),
               accent: Colors.orange,
             ),
           ),
@@ -256,8 +258,11 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: owned1,
-              ownedCopies: [owned1, owned2],
+              ownedItem: ownedItemSummaryFromOwnedItem(owned1),
+              ownedCopies: [
+                ownedItemSummaryFromOwnedItem(owned1),
+                ownedItemSummaryFromOwnedItem(owned2),
+              ],
               accent: Colors.orange,
             ),
           ),

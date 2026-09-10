@@ -87,6 +87,7 @@ final class OwnedItemSummary {
     required this.ref,
     required this.title,
     this.catalogRef,
+    this.targetRef,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
@@ -110,6 +111,7 @@ final class OwnedItemSummary {
   final OwnedItemRef ref;
   final String title;
   final CatalogEntityRef? catalogRef;
+  final CatalogEntityRef? targetRef;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
@@ -135,6 +137,7 @@ final class OwnedItemSummary {
     OwnedItemRef? ref,
     String? title,
     Object? catalogRef = _summaryUnset,
+    Object? targetRef = _summaryUnset,
     Object? subtitle = _summaryUnset,
     Object? imageUrl = _summaryUnset,
     Object? ownerLabel = _summaryUnset,
@@ -148,6 +151,9 @@ final class OwnedItemSummary {
       catalogRef: catalogRef == _summaryUnset
           ? this.catalogRef
           : catalogRef as CatalogEntityRef?,
+      targetRef: targetRef == _summaryUnset
+          ? this.targetRef
+          : targetRef as CatalogEntityRef?,
       createdAt: createdAt,
       updatedAt: updatedAt,
       deletedAt: deletedAt,

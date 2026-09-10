@@ -25,7 +25,8 @@ class InspectorHero extends StatelessWidget {
     return LibraryDetailHero(
       type: type,
       item: item,
-      ownedItem: ownedItem,
+      ownedItem:
+          ownedItem == null ? null : ownedItemSummaryFromOwnedItem(ownedItem!),
       accent: accent,
     );
   }

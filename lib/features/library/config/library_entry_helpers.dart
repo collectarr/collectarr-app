@@ -238,6 +238,13 @@ OwnedItemRef? resolveLibraryOwnedItemRef(
   return ownedItem?.ref ?? item.source.ownedRef;
 }
 
+OwnedItemRef? resolveLibraryOwnedSummaryRef(
+  LibraryProjectionView item,
+  OwnedItemSummary? ownedItem,
+) {
+  return ownedItem?.ref ?? item.source.ownedRef;
+}
+
 CatalogEntityRef? resolveLibraryMutationTarget({
   LibraryProjectionView? item,
   OwnedItem? ownedItem,
@@ -262,6 +269,21 @@ CatalogEntityRef? resolveLibraryMutationTarget({
     variantId: _normalizedEntryAnchorId(
       preferredVideoEditionVariantId(releaseNode.edition),
     ),
+  );
+}
+
+CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
+  LibraryProjectionView? item,
+  OwnedItemSummary? ownedItem,
+  WishlistItem? wishlistItem,
+}) {
+  final existingTarget = ownedItem?.targetRef ?? wishlistItem?.catalogRef;
+  if (existingTarget != null) {
+    return existingTarget;
+  }
+  return resolveLibraryMutationTarget(
+    item: item,
+    wishlistItem: wishlistItem,
   );
 }
 
@@ -333,6 +355,71 @@ LibraryOwnedItemResolution resolveActiveOwnedItem(
     ownedItem: resolved,
     nextSelectedOwnedItemId: resolved.id,
   );
+}
+
+class LibraryOwnedSummaryResolution {
+  const LibraryOwnedSummaryResolution({
+    required this.ownedItem,
+    this.nextSelectedOwnedItemId,
+    this.clearNewest = false,
+  });
+
+  final OwnedItemSummary? ownedItem;
+  final String? nextSelectedOwnedItemId;
+  final bool clearNewest;
+}
+
+LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
+  List<OwnedItemSummary> ownedCopies, {
+  OwnedItemSummary? fallback,
+  String? selectedOwnedItemId,
+  bool selectNewest = false,
+}) {
+  if (ownedCopies.isEmpty) {
+    return LibraryOwnedSummaryResolution(ownedItem: fallback);
+  }
+  if (selectNewest) {
+    final newest = ownedCopies.first;
+    return LibraryOwnedSummaryResolution(
+      ownedItem: newest,
+      nextSelectedOwnedItemId: newest.ref.id.value,
+      clearNewest: true,
+    );
+  }
+  if (selectedOwnedItemId != null) {
+    for (final item in ownedCopies) {
+      if (item.ref.id.value == selectedOwnedItemId) {
+        return LibraryOwnedSummaryResolution(ownedItem: item);
+      }
+    }
+  }
+  final resolved = fallback == null
+      ? ownedCopies.first
+      : ownedCopies.firstWhere(
+          (item) => item.ref == fallback.ref,
+          orElse: () => ownedCopies.first,
+        );
+  return LibraryOwnedSummaryResolution(
+    ownedItem: resolved,
+    nextSelectedOwnedItemId: resolved.ref.id.value,
+  );
+}
+
+String buildOwnedCopySummaryLabel(OwnedItemSummary item, int index) {
+  final parts = <String>['Copy ${index + 1}'];
+  final quantity = item.quantity;
+  if (quantity > 1) {
+    parts.add('Qty $quantity');
+  }
+  final location = item.locationLabel?.trim();
+  if (location != null && location.isNotEmpty) {
+    parts.add(location);
+  }
+  final purchaseLabel = formatNullableDate(item.purchaseDate);
+  if (purchaseLabel != null) {
+    parts.add(purchaseLabel);
+  }
+  return parts.join('  ·  ');
 }
 
 String? _libraryReferenceLabel(

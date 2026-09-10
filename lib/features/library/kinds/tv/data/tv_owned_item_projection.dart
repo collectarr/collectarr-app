@@ -61,6 +61,7 @@ final class TvOwnedItemProjection {
         id: OwnedItemId(item.id.value),
       ),
       catalogRef: item.catalogRef,
+      targetRef: item.targetRef,
       title: item.itemId,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
@@ -78,37 +79,6 @@ final class TvOwnedItemProjection {
       locationLabel: item.locationId,
       notes: item.personalNotes,
       hasNotes: item.personalNotes?.trim().isNotEmpty == true,
-    );
-  }
-
-  static OwnedItem<TvOwnedDetails> toOwnedItem(TvOwnedItem item) {
-    return OwnedItem<TvOwnedDetails>(
-      id: item.id.value,
-      catalogRef: item.catalogRef,
-      createdAt: item.createdAt,
-      isDigital: item.isDigital,
-      targetRef: item.targetRef,
-      condition: item.condition,
-      grade: item.grade,
-      purchaseDate: item.purchaseDate,
-      pricePaidCents: item.pricePaidCents,
-      currency: item.currency,
-      personalNotes: item.personalNotes,
-      quantity: item.quantity,
-      indexNumber: item.indexNumber,
-      tags: item.tags,
-      updatedAt: item.updatedAt,
-      deletedAt: item.deletedAt,
-      soldAt: item.soldAt,
-      sellPriceCents: item.sellPriceCents,
-      soldTo: item.soldTo,
-      ownerUserId: item.ownerUserId,
-      ownerLabel: item.ownerLabel,
-      locationId: item.locationId,
-      purchaseStore: item.purchaseStore,
-      collectionStatus: item.collectionStatus,
-      marketValueCents: item.marketValueCents,
-      details: item.details,
     );
   }
 }

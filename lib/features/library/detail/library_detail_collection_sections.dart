@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -20,6 +21,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     this.type,
     required this.item,
     required this.ownedItem,
+    this.ownedSummary,
     this.ownedCopies = const [],
     this.trackingEntry,
     required this.accent,
@@ -29,7 +31,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   final LibraryKindModule? type;
   final LibraryProjectionView item;
   final OwnedItem? ownedItem;
-  final List<OwnedItem> ownedCopies;
+  final OwnedItemSummary? ownedSummary;
+  final List<OwnedItemSummary> ownedCopies;
   final TrackingEntry? trackingEntry;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -39,20 +42,20 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final dto = item.dto;
     final effectiveOwnedCopies = ownedCopies.isNotEmpty
         ? ownedCopies
-        : ownedItem == null
-            ? const <OwnedItem>[]
-            : <OwnedItem>[ownedItem!];
+        : ownedSummary == null
+            ? const <OwnedItemSummary>[]
+            : <OwnedItemSummary>[ownedSummary!];
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final paid = formatMoney(
-      ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
-      ownedItem?.currency ?? adapter?.currency,
+      ownedSummary?.pricePaidCents ?? item.source.pricePaidCents,
+      ownedSummary?.currency ?? adapter?.currency,
     );
     final currentValue = formatMoney(
-      ownedItem?.marketValueCents,
-      ownedItem?.currency,
+      ownedSummary?.marketValueCents,
+      ownedSummary?.currency,
     );
-    final currency = ownedItem?.currency ?? adapter?.currency;
-    final sellPrice = formatMoney(ownedItem?.sellPriceCents, currency);
+    final currency = ownedSummary?.currency ?? adapter?.currency;
+    final sellPrice = formatMoney(ownedSummary?.sellPriceCents, currency);
     final kindPersonalFields = type?.inspector.buildPersonalDetailFields(
           context: context,
           item: item,
@@ -60,7 +63,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
           currency: currency,
         ) ??
         const [];
-    final profitLoss = _detailProfitLossLabel(ownedItem);
+    final profitLoss = _detailProfitLossLabel(ownedSummary);
     final totalPaidCents = _sumOwnedValueCents(
       effectiveOwnedCopies,
       (item) => item.pricePaidCents,
@@ -70,7 +73,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       (item) => item.marketValueCents,
     );
     final totalsCurrency =
-        _detailValueCurrency(effectiveOwnedCopies, ownedItem, item);
+        _detailValueCurrency(effectiveOwnedCopies, ownedSummary, item);
     final totalPaid = totalPaidCents == null
         ? ''
         : formatMoney(totalPaidCents, totalsCurrency);
@@ -90,19 +93,13 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Status', value: genericLibraryStatusLabel(item)),
             LibraryDetailField(
-                label: 'Owned ID', value: genericLibraryDash(ownedItem?.id)),
-            LibraryDetailField(
-                label: 'Condition',
-                value: genericLibraryDash(
-                    ownedItem?.condition ?? item.source.condition)),
-            LibraryDetailField(
-                label: 'Grade',
-                value:
-                    genericLibraryDash(ownedItem?.grade ?? item.source.grade)),
+                label: 'Owned ID',
+                value: genericLibraryDash(ownedSummary?.ref.id.value)),
             LibraryDetailField(
                 label: 'Quantity',
-                value:
-                    ownedItem == null ? '-' : ownedItem!.quantity.toString()),
+                value: ownedSummary == null
+                    ? '-'
+                    : ownedSummary!.quantity.toString()),
             LibraryDetailField(
                 label: 'Location',
                 value: genericLibraryDash(item.source.locationPath)),
@@ -122,7 +119,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Purchased',
                 value: genericLibraryDash(
-                  formatNullableDate(ownedItem?.purchaseDate),
+                  formatNullableDate(ownedSummary?.purchaseDate),
                 )),
             LibraryDetailField(
                 label: 'Sell price',
@@ -130,10 +127,11 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Profit / Loss', value: profitLoss ?? '-'),
             LibraryDetailField(
-                label: 'Sold to', value: genericLibraryDash(ownedItem?.soldTo)),
+                label: 'Sold to',
+                value: genericLibraryDash(ownedSummary?.soldTo)),
             LibraryDetailField(
                 label: 'Updated',
-                value: formatNullableDate(ownedItem?.updatedAt) ?? '-'),
+                value: formatNullableDate(ownedSummary?.updatedAt) ?? '-'),
             LibraryDetailField(
                 label: 'Read status',
                 value: genericLibraryDash(trackingStatus)),
@@ -143,7 +141,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
                 label: 'Rating', value: trackingRating?.toString() ?? '-'),
             LibraryDetailField(
                 label: 'Purchase Store',
-                value: genericLibraryDash(ownedItem?.purchaseStore)),
+                value: genericLibraryDash(ownedSummary?.purchaseStore)),
           ],
         ),
         if (trackingRating != null && trackingRating > 0) ...[
@@ -151,13 +149,13 @@ class LibraryDetailPersonalSection extends StatelessWidget {
           _DetailStarRating(
               rating: trackingRating, maxRating: 10, accent: accent),
         ],
-        if (ownedItem?.personalNotes != null &&
-            ownedItem!.personalNotes!.trim().isNotEmpty) ...[
+        if (ownedSummary?.notes != null &&
+            ownedSummary!.notes!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
           LibraryDetailFieldRow(
             field: LibraryDetailField(
               label: 'Notes',
-              value: ownedItem!.personalNotes!,
+              value: ownedSummary!.notes!,
             ),
           ),
         ],
@@ -177,8 +175,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItem> items,
-  int? Function(OwnedItem item) selector,
+  List<OwnedItemSummary> items,
+  int? Function(OwnedItemSummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -194,8 +192,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _detailValueCurrency(
-  List<OwnedItem> ownedCopies,
-  OwnedItem? ownedItem,
+  List<OwnedItemSummary> ownedCopies,
+  OwnedItemSummary? ownedItem,
   LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {
@@ -211,7 +209,7 @@ String? _detailValueCurrency(
   return null;
 }
 
-String? _detailProfitLossLabel(OwnedItem? ownedItem) {
+String? _detailProfitLossLabel(OwnedItemSummary? ownedItem) {
   final paid = ownedItem?.pricePaidCents;
   final sold = ownedItem?.sellPriceCents;
   if (paid == null || sold == null) {

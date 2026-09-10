@@ -1300,27 +1300,6 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln('};');
   buffer.writeln();
 
-  // Legacy detail surfaces still receive the common read projection. Keep
-  // this generated adapter isolated at the composition boundary until those
-  // surfaces accept OwnedItemRef/OwnedItemSummary directly.
-  buffer.writeln(
-    'final collectarrActiveOwnedItemReaders = '
-    '<CatalogMediaKind, Future<List<OwnedItem>> Function(LocalDatabase)>{',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final repository = persistence.repository.className;
-    final projection = persistence.projection.className;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: (database) async => '
-      '(await $repository(database).listActive())'
-      '.map($projection.toOwnedItem).toList(growable: false),',
-    );
-  }
-  buffer.writeln('};');
-  buffer.writeln();
-
   buffer.writeln(
     'OwnedItemCreatePayload collectarrOwnedCreatePayloadFromTyped('
     'CatalogMediaKind kind, Object item) {',

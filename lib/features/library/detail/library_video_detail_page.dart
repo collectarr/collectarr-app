@@ -228,7 +228,9 @@ class _LibraryVideoDetailPageState
             LibraryDetailHero(
               type: request.type,
               item: request.item,
-              ownedItem: request.ownedItem,
+              ownedItem: request.ownedItem == null
+                  ? null
+                  : ownedItemSummaryFromOwnedItem(request.ownedItem!),
               accent: request.accent,
               isOwned: request.item.source.isOwned,
             ),

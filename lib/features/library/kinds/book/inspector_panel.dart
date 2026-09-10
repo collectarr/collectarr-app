@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -56,7 +57,11 @@ class BookInspectorPanel extends StatelessWidget {
           LibraryDetailHero(
             type: request.inspector.type,
             item: item,
-            ownedItem: request.inspector.ownedItem,
+            ownedItem: request.inspector.ownedItem == null
+                ? null
+                : ownedItemSummaryFromOwnedItem(
+                    request.inspector.ownedItem!,
+                  ),
             accent: accent,
           ),
           const SizedBox(height: 6),
