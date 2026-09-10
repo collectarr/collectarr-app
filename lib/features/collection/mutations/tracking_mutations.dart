@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_target.dart';
@@ -197,11 +198,13 @@ final class TrackingMutations {
 
   /// Deletes a tracking row selected from a structural Shelf summary.
   ///
-  /// Mixed/global UI should not carry the full [TrackingEntry] aggregate just
-  /// to perform this operation. The repository resolves the v1 row at the
-  /// mutation boundary and the existing sync/delete semantics remain intact.
-  Future<void> removeTrackingById(String id, {bool notify = true}) async {
-    final entry = await trackingEntries.findById(id);
+  /// Mixed/global UI carries the structural kind/id ref only. The repository
+  /// resolves the v1 row at the mutation boundary.
+  Future<void> removeTrackingByRef(
+    TrackingEntryRef ref, {
+    bool notify = true,
+  }) async {
+    final entry = await trackingEntries.findByRef(ref);
     if (entry == null || entry.isDeleted) return;
     await removeTrackingEntry(entry, notify: notify);
   }

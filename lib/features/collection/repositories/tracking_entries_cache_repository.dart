@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
@@ -101,9 +102,11 @@ class TrackingEntriesCacheRepository {
         .toList(growable: false);
   }
 
-  Future<TrackingEntry?> findById(String id) async {
+  Future<TrackingEntry?> findByRef(TrackingEntryRef ref) async {
     final row = await (_db.select(_db.trackingEntriesCache)
-          ..where((row) => row.id.equals(id))
+          ..where(
+            (row) => row.id.equals(ref.id) & row.kind.equals(ref.kind.apiValue),
+          )
           ..limit(1))
         .getSingleOrNull();
     if (row == null) return null;

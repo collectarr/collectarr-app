@@ -1,10 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_entry.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,7 +34,8 @@ void main() {
       id: entry.id,
       updatedAt: updatedAt,
     );
-    expect(restored.catalogRef.entityType, const CatalogEntityTypeId('episode'));
+    expect(
+        restored.catalogRef.entityType, const CatalogEntityTypeId('episode'));
     final coordinates = tvTrackingCoordinatesFor(restored);
     expect(coordinates.seasonNumber, 3);
     expect(coordinates.episodeNumber, 7);
@@ -65,7 +68,12 @@ void main() {
       ),
     );
 
-    final entry = await repository.findById('tv-tracking-1');
+    final entry = await repository.findByRef(
+      const TrackingEntryRef(
+        kind: CatalogMediaKind.tv,
+        id: 'tv-tracking-1',
+      ),
+    );
     final typed = await db.select(db.tvTrackingRows).getSingle();
     expect(entry?.catalogRef.entityType, const CatalogEntityTypeId('episode'));
     expect(entry?.catalogRef.id, 'episode-1');
@@ -94,7 +102,7 @@ void main() {
     );
 
     await repository.upsert(
-      TrackingEntry(
+      MovieTrackingEntry(
         id: 'movie-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
@@ -105,7 +113,12 @@ void main() {
       ),
     );
 
-    final entry = await repository.findById('movie-tracking-1');
+    final entry = await repository.findByRef(
+      const TrackingEntryRef(
+        kind: CatalogMediaKind.movie,
+        id: 'movie-tracking-1',
+      ),
+    );
     expect(await db.select(db.tvTrackingRows).get(), isEmpty);
     expect(
       repository.toSyncPayload(entry!),

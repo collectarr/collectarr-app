@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
@@ -47,7 +48,9 @@ void main() {
     expect(typed.seasonNumber, 2);
     expect(typed.episodeNumber, 4);
 
-    final roundTrip = await repository.findById('episode-1');
+    final roundTrip = await repository.findByRef(
+      const TrackingUnitRef(kind: CatalogMediaKind.tv, id: 'episode-1'),
+    );
     expect(roundTrip, isA<TvTrackingUnit>());
     expect((roundTrip! as TvTrackingUnit).seasonNumber, 2);
     expect((roundTrip as TvTrackingUnit).episodeNumber, 4);
@@ -92,8 +95,12 @@ void main() {
       ),
     ]);
 
-    final manga = await repository.findById('chapter-1');
-    final comic = await repository.findById('issue-1');
+    final manga = await repository.findByRef(
+      const TrackingUnitRef(kind: CatalogMediaKind.manga, id: 'chapter-1'),
+    );
+    final comic = await repository.findByRef(
+      const TrackingUnitRef(kind: CatalogMediaKind.comic, id: 'issue-1'),
+    );
     expect(manga, isA<MangaTrackingUnit>());
     expect((manga! as MangaTrackingUnit).volumeNumber, 3);
     expect((manga as MangaTrackingUnit).chapterNumber, 18);

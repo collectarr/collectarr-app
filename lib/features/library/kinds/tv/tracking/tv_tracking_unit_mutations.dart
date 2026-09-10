@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -35,7 +36,9 @@ final class TvTrackingUnitMutations {
     await mutationRunner.run(
       localRef: seriesRef,
       action: () async {
-        final existing = await trackingUnits.findById(unitId);
+        final existing = await trackingUnits.findByRef(
+          TrackingUnitRef(kind: seriesRef.mediaKind, id: unitId),
+        );
         if (resolvedIsCompleted) {
           final unit = TvTrackingUnit(
             id: unitId,

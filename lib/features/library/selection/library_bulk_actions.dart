@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -206,8 +205,8 @@ class LibraryBulkActions {
       );
     }
     for (var index = 0; index < trackedEntries.length; index++) {
-      await trackingMutations.removeTrackingById(
-        trackedEntries[index].trackingSummary!.id,
+      await trackingMutations.removeTrackingByRef(
+        trackedEntries[index].trackingSummary!.ref,
       );
     }
   }

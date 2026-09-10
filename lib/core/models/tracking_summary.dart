@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
@@ -60,6 +61,11 @@ final class TrackingSummary {
   final String? notes;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+
+  TrackingEntryRef get ref => TrackingEntryRef(
+        kind: catalogRef.mediaKind,
+        id: id,
+      );
 
   bool get isDeleted => deletedAt != null;
   String? get statusStorageValue => mediaTrackingStatusToStorageValue(status);

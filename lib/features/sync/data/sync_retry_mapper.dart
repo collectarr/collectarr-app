@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
@@ -67,10 +68,21 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'tracking_entry':
+        final trackingPayload = change.localPayload ?? change.servicePayload;
+        final rawCatalogRef = trackingPayload?['catalog_ref'];
+        if (rawCatalogRef is! Map) return null;
+        final trackingCatalogRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawCatalogRef),
+        );
         final item = await TrackingEntriesCacheRepository(
           db,
           codecs: collectarrTrackingEntryCodecs,
-        ).findById(change.entityId);
+        ).findByRef(
+          TrackingEntryRef(
+            kind: trackingCatalogRef.mediaKind,
+            id: change.entityId,
+          ),
+        );
         if (item == null) {
           return null;
         }

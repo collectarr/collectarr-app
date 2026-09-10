@@ -25,6 +25,10 @@ class CollectionCsvRow {
   final String? kind;
   final String? title;
 
+  /// Typed in-memory kind reconstructed once from the schema-v1 wire value.
+  /// The raw [kind] string remains only for CSV serialization compatibility.
+  CatalogMediaKind get mediaKind => catalogMediaKindFromValue(kind);
+
   /// Values decoded from the shared personal columns at the file boundary.
   ///
   /// This is deliberately a transport value object, not a common Owned or

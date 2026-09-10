@@ -121,9 +121,9 @@ final class CollectionImportService {
       imported++;
       final importedCatalogSnapshot = importedCatalogSnapshotsByRef[rowRef];
       final existingCatalogSummary = existingCatalogSummaries[rowRef];
-      final catalogKind = importedCatalogSnapshot?.kind.apiValue ??
-          existingCatalogSummary?.kind.apiValue ??
-          row.kind;
+      final catalogKind = importedCatalogSnapshot?.kind ??
+          existingCatalogSummary?.kind ??
+          row.mediaKind;
       final catalogId = importedCatalogSnapshot?.id ?? row.itemId;
       if ((importedCatalogSnapshot != null || existingCatalogSummary != null) &&
           snapshotRefs.add(rowRef)) {
@@ -220,7 +220,7 @@ final class CollectionImportService {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
           catalogRef: CatalogEntityRef(
-            kind: catalogMediaKindFromApiValue(row.kind ?? catalogKind),
+            kind: catalogKind,
             entityType: const CatalogEntityTypeId('work'),
             id: row.itemId,
           ),
@@ -295,7 +295,7 @@ final class CollectionImportService {
         if (barcode != null && barcode.isNotEmpty) {
           final matched = await catalogLookup.resolve(
             CatalogLookupQuery(value: barcode),
-            kind: catalogMediaKindFromApiValue(row.kind),
+            kind: row.mediaKind,
           );
           if (matched != null) {
             row = row.copyWith(itemId: matched.ref.id);
@@ -309,7 +309,7 @@ final class CollectionImportService {
               title: row.title!,
               value: lookup.primary,
             ),
-            kind: catalogMediaKindFromApiValue(row.kind),
+            kind: row.mediaKind,
           );
           if (matched != null) {
             row = row.copyWith(itemId: matched.ref.id);
@@ -381,12 +381,14 @@ final class CollectionImportService {
   }
 
   CatalogEntityRef? _catalogRefForRow(CollectionCsvRow row) {
-    final kind = row.kind?.trim();
-    if (kind == null || kind.isEmpty || row.itemId.trim().isEmpty) {
+    final rawKind = row.kind;
+    if (rawKind == null ||
+        rawKind.trim().isEmpty ||
+        row.itemId.trim().isEmpty) {
       return null;
     }
     return CatalogEntityRef(
-      kind: catalogMediaKindFromApiValue(kind),
+      kind: row.mediaKind,
       entityType: const CatalogEntityTypeId('work'),
       id: row.itemId,
     );
@@ -399,7 +401,7 @@ final class CollectionImportService {
   /// when the row did not come from a complete kind-owned catalog projection.
   CatalogImportSnapshot? _catalogSnapshotFromCsvRow(CollectionCsvRow row) {
     final projection = libraryCollectionCsvProjectionForKind(
-      catalogMediaKindFromValue(row.kind),
+      row.mediaKind,
     );
     final cells = _catalogImportCells(row);
     if (projection == null || cells == null) {
@@ -423,7 +425,7 @@ final class CollectionImportService {
     CollectionCsvRow row,
   ) {
     final projection = libraryCollectionCsvProjectionForKind(
-      catalogMediaKindFromValue(row.kind),
+      row.mediaKind,
     );
     if (projection == null ||
         row.kindCatalogCells.length != libraryCollectionCsvCatalogCellCount) {
@@ -440,16 +442,15 @@ final class CollectionImportService {
     DateTime now, {
     OwnedItemSummary? existingSummary,
     (CatalogMediaKind kind, Object item)? existingTyped,
-    String? catalogKind,
+    CatalogMediaKind? catalogKind,
   }) {
-    final resolvedKind = row.kind ??
-        existingSummary?.ref.kind.apiValue ??
-        existingTyped?.$1.apiValue ??
-        catalogKind;
-    final kind = catalogMediaKindFromApiValue(resolvedKind);
+    final kind = existingSummary?.ref.kind ??
+        existingTyped?.$1 ??
+        catalogKind ??
+        row.mediaKind;
     final catalogRef = existingSummary?.catalogRef ??
         CatalogEntityRef(
-          kind: catalogMediaKindFromApiValue(resolvedKind),
+          kind: kind,
           entityType: const CatalogEntityTypeId('work'),
           id: row.itemId,
         );

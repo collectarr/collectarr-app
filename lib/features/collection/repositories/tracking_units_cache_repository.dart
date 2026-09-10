@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 import 'package:drift/drift.dart';
 
@@ -39,9 +39,11 @@ class TrackingUnitsCacheRepository {
         .toList(growable: false);
   }
 
-  Future<TrackingUnit?> findById(String id) async {
+  Future<TrackingUnit?> findByRef(TrackingUnitRef ref) async {
     final row = await (_db.select(_db.trackingUnitsCache)
-          ..where((tbl) => tbl.id.equals(id)))
+          ..where(
+            (tbl) => tbl.id.equals(ref.id) & tbl.kind.equals(ref.kind.apiValue),
+          ))
         .getSingleOrNull();
     if (row == null) {
       return null;
@@ -80,27 +82,6 @@ class TrackingUnitsCacheRepository {
   Future<void> markDeleted(TrackingUnit unit, DateTime deletedAt) async {
     await (_db.update(_db.trackingUnitsCache)
           ..where((tbl) => tbl.id.equals(unit.id)))
-        .write(
-      TrackingUnitsCacheCompanion(
-        deletedAt: Value(deletedAt),
-        updatedAt: Value(deletedAt),
-      ),
-    );
-  }
-
-  Future<void> markDeletedByIds(
-    Iterable<String> ids,
-    DateTime deletedAt,
-  ) async {
-    final normalizedIds = ids
-        .where((value) => value.trim().isNotEmpty)
-        .toSet()
-        .toList(growable: false);
-    if (normalizedIds.isEmpty) {
-      return;
-    }
-    await (_db.update(_db.trackingUnitsCache)
-          ..where((tbl) => tbl.id.isIn(normalizedIds) & tbl.deletedAt.isNull()))
         .write(
       TrackingUnitsCacheCompanion(
         deletedAt: Value(deletedAt),

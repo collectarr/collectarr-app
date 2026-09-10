@@ -174,7 +174,7 @@ class LibraryPageCollectionActionCoordinator {
         if (active != null) {
           await _page.ref
               .read(trackingMutationsProvider)
-              .removeTrackingById(active.id);
+              .removeTrackingByRef(active.ref);
         }
       case LibraryItemContextAction.copyTitle:
         await Clipboard.setData(ClipboardData(text: item.dto.title));

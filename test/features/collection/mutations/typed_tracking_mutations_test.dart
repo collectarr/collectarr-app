@@ -4,9 +4,11 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
@@ -441,7 +443,7 @@ void main() {
         entityType: const CatalogEntityTypeId('work'),
         id: 'book-clear-1',
       );
-      final existing = TrackingEntry(
+      final existing = BookTrackingEntry(
         id: 'tracking-clear-1',
         catalogRef: ref,
         status: MediaTrackingStatus.completed,
@@ -463,7 +465,12 @@ void main() {
         ),
       );
 
-      final updated = await trackingEntries.findById(existing.id);
+      final updated = await trackingEntries.findByRef(
+        const TrackingEntryRef(
+          kind: CatalogMediaKind.book,
+          id: 'tracking-clear-1',
+        ),
+      );
       expect(updated?.status, isNull);
       expect(updated?.rating, isNull);
       expect(updated?.startedAt, isNull);
