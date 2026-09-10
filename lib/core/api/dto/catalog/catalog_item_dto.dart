@@ -203,45 +203,11 @@ final class CatalogItemDto {
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
 
-  CatalogEntityRef get catalogRef => catalogRefForAnchor();
-
-  CatalogEntityRef catalogRefForAnchor({
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-  }) {
-    final type = anchorType?.trim().toLowerCase();
-    final normalizedEditionId = _normalizeLegacyId(editionId);
-    final normalizedVariantId = _normalizeLegacyId(variantId);
-    final normalizedBundleId = _normalizeLegacyId(bundleReleaseId);
-    return switch (type) {
-      'edition' when normalizedEditionId != null => CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('edition'),
-          id: normalizedEditionId,
-          rootId: id,
-        ),
-      'variant' when normalizedVariantId != null => CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('release'),
-          id: normalizedVariantId,
-          rootId: id,
-          parentId: normalizedEditionId,
-        ),
-      'bundle_release' when normalizedBundleId != null => CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('bundle_release'),
-          id: normalizedBundleId,
-          rootId: id,
-        ),
-      _ => CatalogEntityRef(
-          kind: mediaKind,
-          entityType: const CatalogEntityTypeId('work'),
-          id: id,
-        ),
-    };
-  }
+  CatalogEntityRef get catalogRef => CatalogEntityRef(
+        kind: mediaKind,
+        entityType: const CatalogEntityTypeId('work'),
+        id: id,
+      );
 
   CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {
     if (targetRef == null) {
@@ -373,11 +339,6 @@ final class CatalogItemDto {
       kindMetadata: kindMetadata,
     );
   }
-}
-
-String? _normalizeLegacyId(String? value) {
-  final trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
 const _unset = Object();

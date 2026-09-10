@@ -259,7 +259,8 @@ class LibraryEditDraft {
       tagOptions: splitPickListValues(ownedItem?.tags),
       availableLocations: const [],
       selectedLocationId: ownedItem?.locationId,
-      selectedOwnedAnchorType: ownedItem?.anchorType ?? 'item',
+      selectedOwnedAnchorType:
+          libraryTargetScopeForCatalogRef(ownedItem?.targetRef) ?? 'item',
       selectedEditionId: editionSelection.edition?.id,
       selectedVariantId: editionSelection.variant?.id,
       selectedBundleReleaseId: normalizeLibrarySelectionId(

@@ -14,11 +14,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     required this.catalogRef,
     this.createdAt,
     this.isDigital,
-    CatalogEntityRef? targetRef,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    this.targetRef,
     required TDetails this.details,
     this.condition,
     this.grade,
@@ -40,14 +36,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     this.purchaseStore,
     this.collectionStatus,
     this.marketValueCents,
-  }) : targetRef = targetRef ??
-            _targetRefFromLegacy(
-              catalogRef,
-              anchorType: anchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            );
+  });
 
   final String id;
   final CatalogEntityRef catalogRef;
@@ -56,9 +45,9 @@ class OwnedItem<TDetails extends JsonEncodable> {
 
   /// Canonical in-memory target for this owned copy.
   ///
-  /// The v1 anchor fields are intentionally not stored as a second domain
-  /// representation. They are reconstructed only by the compatibility
-  /// accessors and serializers below.
+  /// The v1 wire fields are intentionally not stored as a second domain
+  /// representation. They are reconstructed only at the serialization
+  /// boundary below.
   final CatalogEntityRef? targetRef;
   final String? condition;
   final String? grade;
@@ -94,11 +83,6 @@ class OwnedItem<TDetails extends JsonEncodable> {
   Money? get sellPrice => Money.fromCents(sellPriceCents, currency);
   Money? get marketValue => Money.fromCents(marketValueCents, currency);
 
-  String? get anchorType => _legacyAnchorTypeFromTarget(targetRef);
-  String? get editionId => _legacyEditionIdFromTarget(targetRef);
-  String? get variantId => _legacyVariantIdFromTarget(targetRef);
-  String? get bundleReleaseId => _legacyBundleReleaseIdFromTarget(targetRef);
-
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
@@ -107,7 +91,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       'catalog_ref': catalogRef.toJson(),
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
       if (isDigital != null) 'is_digital': isDigital,
-      ..._legacyTargetPayload(targetRef),
+      ..._v1TargetPayload(targetRef),
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -136,10 +120,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
       'catalog_ref': catalogRef.toJson(),
       'created_at': createdAt?.toUtc().toIso8601String(),
       'is_digital': isDigital,
-      'anchor_type': anchorType,
-      'edition_id': editionId,
-      'variant_id': variantId,
-      'bundle_release_id': bundleReleaseId,
+      ..._v1TargetPayload(targetRef),
       'condition': condition,
       'grade': grade,
       'purchase_date': purchaseDate?.toUtc().toIso8601String(),
@@ -165,28 +146,22 @@ class OwnedItem<TDetails extends JsonEncodable> {
   }
 
   factory OwnedItem.fromJson(
-    Map<String, dynamic> json, {
-    required TDetails Function(Map<String, dynamic> json) decodeDetails,
+    Map<String, Object?> json, {
+    required TDetails Function(Map<String, Object?> json) decodeDetails,
   }) {
-    final catalogRefJson = json['catalog_ref'] as Map<String, dynamic>;
+    final catalogRefJson = (json['catalog_ref'] as Map).cast<String, dynamic>();
     final catalogRef = CatalogEntityRef.fromJson(catalogRefJson);
     final details = decodeDetails(json);
 
     return OwnedItem<TDetails>(
       id: json['id'] as String,
       catalogRef: catalogRef,
-      details: details as TDetails,
+      details: details,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
       isDigital: json['is_digital'] as bool?,
-      targetRef: _targetRefFromLegacy(
-        catalogRef,
-        anchorType: json['anchor_type'] as String?,
-        editionId: json['edition_id'] as String?,
-        variantId: json['variant_id'] as String?,
-        bundleReleaseId: json['bundle_release_id'] as String?,
-      ),
+      targetRef: _targetRefFromV1Payload(catalogRef, payload: json),
       condition: json['condition'] as String?,
       grade: json['grade'] as String?,
       purchaseDate: json['purchase_date'] == null
@@ -222,10 +197,6 @@ class OwnedItem<TDetails extends JsonEncodable> {
     Object? createdAt = _ownedItemUnset,
     Object? isDigital = _ownedItemUnset,
     Object? targetRef = _ownedItemUnset,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
     TDetails? details,
     Object? condition = _ownedItemUnset,
     Object? grade = _ownedItemUnset,
@@ -249,13 +220,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     Object? marketValueCents = _ownedItemUnset,
   }) {
     final resolvedTargetRef = identical(targetRef, _ownedItemUnset)
-        ? _targetRefFromLegacy(
-            catalogRef ?? this.catalogRef,
-            anchorType: anchorType ?? this.anchorType,
-            editionId: editionId ?? this.editionId,
-            variantId: variantId ?? this.variantId,
-            bundleReleaseId: bundleReleaseId ?? this.bundleReleaseId,
-          )
+        ? this.targetRef
         : targetRef as CatalogEntityRef?;
 
     return OwnedItem<TDetails>(
@@ -355,13 +320,14 @@ OwnedItemSummary ownedItemSummaryFromOwnedItem(OwnedItem item) {
   );
 }
 
-CatalogEntityRef? _targetRefFromLegacy(
+CatalogEntityRef? _targetRefFromV1Payload(
   CatalogEntityRef catalogRef, {
-  String? anchorType,
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
+  required Map<String, Object?> payload,
 }) {
+  final anchorType = payload['anchor_type'] as String?;
+  final editionId = payload['edition_id'] as String?;
+  final variantId = payload['variant_id'] as String?;
+  final bundleReleaseId = payload['bundle_release_id'] as String?;
   final normalizedType = anchorType?.trim().toLowerCase();
   final rootId = catalogRef.rootId ?? catalogRef.id;
   if (normalizedType == 'item') {
@@ -412,17 +378,17 @@ CatalogEntityRef? _targetRefFromLegacy(
   return null;
 }
 
-Map<String, Object?> _legacyTargetPayload(CatalogEntityRef? targetRef) {
+Map<String, Object?> _v1TargetPayload(CatalogEntityRef? targetRef) {
   if (targetRef == null) return const <String, Object?>{};
   return {
-    'anchor_type': _legacyAnchorTypeFromTarget(targetRef),
-    'edition_id': _legacyEditionIdFromTarget(targetRef),
-    'variant_id': _legacyVariantIdFromTarget(targetRef),
-    'bundle_release_id': _legacyBundleReleaseIdFromTarget(targetRef),
+    'anchor_type': _v1AnchorTypeFromTarget(targetRef),
+    'edition_id': _v1EditionIdFromTarget(targetRef),
+    'variant_id': _v1VariantIdFromTarget(targetRef),
+    'bundle_release_id': _v1BundleReleaseIdFromTarget(targetRef),
   };
 }
 
-String? _legacyAnchorTypeFromTarget(CatalogEntityRef? targetRef) {
+String? _v1AnchorTypeFromTarget(CatalogEntityRef? targetRef) {
   if (targetRef == null) return null;
   return switch (targetRef.entityType.apiValue) {
     'edition' => 'edition',
@@ -432,7 +398,7 @@ String? _legacyAnchorTypeFromTarget(CatalogEntityRef? targetRef) {
   };
 }
 
-String? _legacyEditionIdFromTarget(CatalogEntityRef? targetRef) {
+String? _v1EditionIdFromTarget(CatalogEntityRef? targetRef) {
   return switch (targetRef?.entityType.apiValue) {
     'edition' => targetRef?.id,
     'release' => targetRef?.parentId,
@@ -440,11 +406,11 @@ String? _legacyEditionIdFromTarget(CatalogEntityRef? targetRef) {
   };
 }
 
-String? _legacyVariantIdFromTarget(CatalogEntityRef? targetRef) {
+String? _v1VariantIdFromTarget(CatalogEntityRef? targetRef) {
   return targetRef?.entityType.apiValue == 'release' ? targetRef?.id : null;
 }
 
-String? _legacyBundleReleaseIdFromTarget(CatalogEntityRef? targetRef) {
+String? _v1BundleReleaseIdFromTarget(CatalogEntityRef? targetRef) {
   return targetRef?.entityType.apiValue == 'bundle_release'
       ? targetRef?.id
       : null;

@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 /// Reads complete catalog snapshots at an explicit serialization boundary.
 ///
 /// A snapshot is transport-shaped data used by sync, metadata refresh and
-/// legacy edit flows. Mixed/global Library code must use
+/// explicit edit boundaries. Mixed/global Library code must use
 /// [CatalogDisplaySummaryRepository] instead, and kind code should decode a
 /// snapshot immediately into its concrete domain model.
 final class CatalogSnapshotRepository {

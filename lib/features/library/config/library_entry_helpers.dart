@@ -66,7 +66,7 @@ String libraryVolumeLabel(double? volumeNumber) =>
 String? libraryOwnedReferenceLabel(OwnedItem? ownedItem, {String? mediaType}) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
-    ownedItem?.anchorType,
+    libraryTargetScopeForCatalogRef(ownedItem?.targetRef),
     itemLabel:
         'Owned as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
     editionLabel:
@@ -110,7 +110,7 @@ String? libraryReferenceScopeLabel({
   WishlistItem? wishlistItem,
   String? mediaType,
 }) {
-  final anchorType = ownedItem?.anchorType ??
+  final anchorType = libraryTargetScopeForCatalogRef(ownedItem?.targetRef) ??
       libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef);
   return _referenceScopeLabelForAnchor(anchorType, mediaType: mediaType);
 }
@@ -121,7 +121,7 @@ String? libraryReferenceFormatLabel({
   required List<CatalogEditionDto> editions,
   String? fallbackFormatLabel,
 }) {
-  final anchorType = ownedItem?.anchorType ??
+  final anchorType = libraryTargetScopeForCatalogRef(ownedItem?.targetRef) ??
       libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef);
   if (anchorType == _bundleReleaseAnchor) {
     return null;

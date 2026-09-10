@@ -1213,7 +1213,12 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-bundle-existing-1',
       itemId: 'movie-bundle-existing-1',
-      anchorType: 'bundle_release',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId('bundle_release'),
+        id: 'bundle-existing-1',
+        rootId: 'movie-bundle-existing-1',
+      ),
       bundleReleaseId: 'bundle-existing-1',
       updatedAt: DateTime.utc(2026, 5, 31),
     );

@@ -250,6 +250,7 @@ OwnedItem testOwnedItem({
   DateTime? createdAt,
   DateTime? updatedAt,
   bool? isDigital,
+  CatalogEntityRef? targetRef,
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
@@ -397,9 +398,15 @@ OwnedItem testOwnedItem({
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
-    editionId: editionId,
-    variantId: variantId,
-    bundleReleaseId: bundleReleaseId,
+    targetRef: targetRef ??
+        ((editionId == null && variantId == null && bundleReleaseId == null)
+            ? null
+            : catalogRefForLibrarySelection(
+                resolvedCatalogRef,
+                editionId: editionId,
+                variantId: variantId,
+                bundleReleaseId: bundleReleaseId,
+              )),
     details: details,
     condition: condition,
     grade: grade,

@@ -246,7 +246,7 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           entity,
           'ownership',
           '${folder}_owned_details_codec.dart',
-          'OwnedDetailsCodec<',
+          'OwnedDetailsPersistenceCodec<',
         ),
         metadataDecoder: metadataDecoder,
         facetModule: facetModule,

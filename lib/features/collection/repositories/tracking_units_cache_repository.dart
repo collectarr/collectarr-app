@@ -192,7 +192,7 @@ class TrackingUnitsCacheRepository {
           return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
         }
       } on Object {
-        // Fall back to the legacy structural columns below.
+        // Read the schema-v1 structural columns below.
       }
     }
     return CatalogEntityRef(
