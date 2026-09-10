@@ -54,6 +54,10 @@ final class MusicOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static MusicOwnedItem? tryFromTyped(Object? item) {
+    return item is MusicOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(MusicOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

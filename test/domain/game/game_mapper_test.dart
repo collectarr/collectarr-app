@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_domain.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
@@ -36,20 +37,22 @@ void main() {
       publisher: 'Nintendo',
     );
 
+    final owned = testOwnedItem(
+      id: 'owned-game-10',
+      itemId: 'game-10',
+      kind: 'game',
+      gameCompleteness: 'CIB',
+      gameHasBox: true,
+      gameHasManual: true,
+      gamePriceChartingId: 'pc-12345',
+      gameCoreRegion: 'NTSC-U',
+      gameValueIsLocked: true,
+    );
     final shelf = ShelfEntry(
       itemId: 'game-10',
       catalogItem: catalogItem.asShelfCatalogItem,
-      ownedItem: testOwnedItem(
-        id: 'owned-game-10',
-        itemId: 'game-10',
-        kind: 'game',
-        gameCompleteness: 'CIB',
-        gameHasBox: true,
-        gameHasManual: true,
-        gamePriceChartingId: 'pc-12345',
-        gameCoreRegion: 'NTSC-U',
-        gameValueIsLocked: true,
-      ),
+      ownedItem: owned,
+      typedOwnedItem: GameOwnedItem.fromJson(owned.toJson()),
     );
 
     final workspaceDto = const GameWorkspaceProjector().projectTitle(

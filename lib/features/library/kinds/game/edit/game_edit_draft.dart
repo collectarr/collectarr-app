@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_it
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -125,7 +125,7 @@ LibraryEditKindDraft createGameEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final game = ownedItem?.details as GameOwnedDetails?;
+  final game = GameOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
   final meta = item.kindMetadata is GameCatalogMetadata
       ? item.kindMetadata as GameCatalogMetadata
       : null;

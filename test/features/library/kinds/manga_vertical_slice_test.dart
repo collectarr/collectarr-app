@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
@@ -110,6 +111,21 @@ void main() {
         localizedPublisher: 'VIZ Media',
       );
 
+      final owned = OwnedItem(
+        id: 'owned_1',
+        catalogRef: const CatalogEntityRef(
+          id: 'manga_1',
+          kind: CatalogMediaKind.manga,
+          entityType: const CatalogEntityTypeId('work'),
+        ),
+        condition: 'Near Mint',
+        updatedAt: DateTime.now(),
+        details: const MangaOwnedDetails(
+          obiStripPresent: true,
+          printing: '1st Print',
+          localizedEdition: 'VIZ Signature',
+        ),
+      );
       final shelfEntry = ShelfEntry(
         itemId: 'manga_1',
         catalogItem: CatalogItemDto(
@@ -119,21 +135,8 @@ void main() {
           ),
           kindMetadata: mangaMeta,
         ).asShelfCatalogItem,
-        ownedItem: OwnedItem(
-          id: 'owned_1',
-          catalogRef: const CatalogEntityRef(
-            id: 'manga_1',
-            kind: CatalogMediaKind.manga,
-            entityType: const CatalogEntityTypeId('work'),
-          ),
-          condition: 'Near Mint',
-          updatedAt: DateTime.now(),
-          details: const MangaOwnedDetails(
-            obiStripPresent: true,
-            printing: '1st Print',
-            localizedEdition: 'VIZ Signature',
-          ),
-        ),
+        ownedItem: owned,
+        typedOwnedItem: MangaOwnedItem.fromJson(owned.toJson()),
       );
 
       const projector = MangaWorkspaceProjector();

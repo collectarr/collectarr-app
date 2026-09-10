@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 export 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
@@ -58,7 +58,9 @@ final class TvPersonalOverlay {
 
   factory TvPersonalOverlay.fromShelf(ShelfEntry source) {
     return TvPersonalOverlay(
-      ownedItem: source.ownedItem,
+      ownedItem: source.typedOwnedItem is TvOwnedItem
+          ? source.typedOwnedItem as TvOwnedItem
+          : null,
       trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
@@ -68,7 +70,7 @@ final class TvPersonalOverlay {
     );
   }
 
-  final OwnedItem? ownedItem;
+  final TvOwnedItem? ownedItem;
   final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;

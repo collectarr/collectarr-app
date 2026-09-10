@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -278,7 +279,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
-    final owned = item.source.ownedItem;
+    final typedOwned = item.source.typedOwnedItem;
+    final owned = typedOwned is GameOwnedItem ? typedOwned : null;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[
       if (gameDto?.publisher?.trim().isNotEmpty == true)
@@ -313,8 +315,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final personalRows = <(String, String)>[
       if (owned?.condition?.trim().isNotEmpty == true)
         ('Condition', owned!.condition!),
-      if (item.source.ownedItem?.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', item.source.ownedItem!.collectionStatus!),
+      if (owned?.collectionStatus?.trim().isNotEmpty == true)
+        ('Collection status', owned!.collectionStatus!),
       if (item.source.locationPath?.trim().isNotEmpty == true)
         ('Location', item.source.locationPath!),
       if (owned?.ownerLabel?.trim().isNotEmpty == true)
@@ -327,8 +329,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
         ('Purchase date', formatDate(owned!.purchaseDate!)),
       if (owned?.purchaseStore?.trim().isNotEmpty == true)
         ('Purchase store', owned!.purchaseStore!),
-      if (item.source.ownedItem?.createdAt != null)
-        ('Added', formatDate(item.source.ownedItem!.createdAt!)),
+      if (owned?.createdAt != null)
+        ('Added', formatDate(owned!.createdAt!)),
       ('Modified', formatDate(item.source.updatedAt)),
     ];
     final creditRows = libraryCreatorsGroupedByRole(metadata?.creators);

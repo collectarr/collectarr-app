@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_display_mo
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -47,7 +48,10 @@ abstract final class TvKindSchema {
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = context.source.typedOwnedItem;
+      return owned is TvOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 

@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/catalog/catalog_display_summary_reposito
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
@@ -25,6 +26,19 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final trackingSummaries = await ref.watch(trackingSummariesProvider.future);
   final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
+  final ownedRepository = OwnedItemsRepository(db);
+  final typedOwnedResults = await Future.wait(
+    ownedSummaries.map(
+      (summary) => ownedRepository.findTypedByRef(summary.ref),
+    ),
+  );
+  final typedOwnedItemsByRef = <OwnedItemRef, Object>{};
+  for (var index = 0; index < typedOwnedResults.length; index++) {
+    final result = typedOwnedResults[index];
+    if (result != null) {
+      typedOwnedItemsByRef[ownedSummaries[index].ref] = result.$2;
+    }
+  }
   final catalogRefs = <CatalogEntityRef>{
     for (final item in ownedSummaries)
       if (item.catalogRef != null) _rootCatalogRef(item.catalogRef!),
@@ -56,6 +70,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     catalogSnapshotsByRef: catalogSnapshotsByRef,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
+    typedOwnedItemsByRef: typedOwnedItemsByRef,
     fallbackOwnerLabel: auth.email,
   );
 });
@@ -65,7 +80,6 @@ class ShelfState {
     required this.entries,
     this.workspaceEntries,
     required this.ownedCount,
-    required this.missingGradeCount,
     required this.wishlistCount,
     required this.pricedCount,
     required this.totalPaidCents,
@@ -73,11 +87,7 @@ class ShelfState {
     required this.hasMixedCurrencies,
     this.totalQuantity = 0,
     this.missingMetadataCount = 0,
-    this.gradeCounts = const {},
-    this.conditionCounts = const {},
-    this.readStatusCounts = const {},
     this.locationCounts = const {},
-    this.seriesCounts = const {},
     this.soldCount = 0,
     this.totalSellCents,
     this.marketValuedCount = 0,
@@ -88,6 +98,8 @@ class ShelfState {
     Iterable<OwnedItemSummary>? ownedSummaries,
     required List<WishlistItem> wishlistItems,
     Iterable<TrackingSummary>? trackingSummaries,
+    Map<OwnedItemRef, Object> typedOwnedItemsByRef =
+        const <OwnedItemRef, Object>{},
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
     Map<CatalogEntityRef, LibraryAddCatalogItem>? catalogSnapshotsByRef,
@@ -162,6 +174,9 @@ class ShelfState {
           // Transport snapshots remain available only to the typed Library
           // contributors that have not yet moved to their domain repository.
           catalogItem: catalogByRef[ref],
+          typedOwnedItem: ownedByCatalogRef[ref] == null
+              ? null
+              : typedOwnedItemsByRef[ownedByCatalogRef[ref]!.ref],
           wishlistItem: wishlistByCatalogRef[ref],
           locationPath:
               locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
@@ -203,7 +218,6 @@ class ShelfState {
       entries: entries,
       workspaceEntries: workspaceEntries,
       ownedCount: ownedByCatalogRef.length,
-      missingGradeCount: 0,
       wishlistCount: wishlistByCatalogRef.length,
       pricedCount: pricedOwned.length,
       totalPaidCents: hasMixedCurrencies
@@ -220,27 +234,10 @@ class ShelfState {
       ),
       missingMetadataCount:
           entries.where((entry) => entry.catalogSummary == null).length,
-      gradeCounts: _counts(
-        const <String>[],
-      ),
-      conditionCounts: _counts(
-        const <String>[],
-      ),
-      readStatusCounts: _counts(
-        entries.map(
-          (entry) => entry.trackingSummary?.statusLabel ?? 'Not tracked',
-        ),
-      ),
       locationCounts: _counts(
         entries
             .where((entry) => entry.isOwned)
             .map((entry) => entry.locationPath ?? 'No location'),
-      ),
-      seriesCounts: _counts(
-        entries
-            .map((entry) => entry.catalogSummary?.title)
-            .whereType<String>()
-            .where((title) => title.trim().isNotEmpty),
       ),
       soldCount: activeOwned.where((item) => item.soldAt != null).length,
       totalSellCents: hasMixedCurrencies
@@ -290,7 +287,6 @@ class ShelfState {
 
   /// Aggregate projection for the Stats dashboard. Keep kind semantics in
   /// their contributors rather than exposing them as universal Shelf filters.
-  final int missingGradeCount;
   final int wishlistCount;
   final int pricedCount;
   final int? totalPaidCents;
@@ -298,11 +294,7 @@ class ShelfState {
   final bool hasMixedCurrencies;
   final int totalQuantity;
   final int missingMetadataCount;
-  final Map<String, int> gradeCounts;
-  final Map<String, int> conditionCounts;
-  final Map<String, int> readStatusCounts;
   final Map<String, int> locationCounts;
-  final Map<String, int> seriesCounts;
   final int soldCount;
   final int? totalSellCents;
   final int marketValuedCount;
@@ -334,11 +326,17 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
     super.fallbackOwnerLabel,
     this.catalogItem,
     this.ownedItem,
+    this.typedOwnedItem,
   });
 
   final LibraryAddCatalogItem? catalogItem;
 
   final OwnedItem? ownedItem;
+
+  /// Concrete kind-owned aggregate available only after the Shelf has
+  /// resolved the owning kind. Generic/global callers must use
+  /// [ownedSummary] instead.
+  final Object? typedOwnedItem;
 
   @override
   CatalogEntityRef? get catalogRef =>

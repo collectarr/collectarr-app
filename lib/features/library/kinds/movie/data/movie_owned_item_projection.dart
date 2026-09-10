@@ -54,6 +54,10 @@ final class MovieOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static MovieOwnedItem? tryFromTyped(Object? item) {
+    return item is MovieOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(MovieOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

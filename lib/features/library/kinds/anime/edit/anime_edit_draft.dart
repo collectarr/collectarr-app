@@ -9,8 +9,8 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -219,7 +219,7 @@ LibraryEditKindDraft createAnimeEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final video = ownedItem?.details as AnimeOwnedDetails?;
+  final video = AnimeOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
   final metadata = item.kindMetadata;
   final anime = metadata is AnimeMetadata ? metadata : null;
   final videoEdit = VideoEditController(

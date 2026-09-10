@@ -88,12 +88,9 @@ void main() {
 
     expect(state.ownedCount, 2);
     expect(state.wishlistCount, 1);
-    expect(state.missingGradeCount, 0);
     expect(state.totalPaidCents, 2000);
     expect(state.primaryCurrency, 'USD');
     expect(state.missingMetadataCount, 2);
-    expect(state.gradeCounts, isEmpty);
-    expect(state.conditionCounts, isEmpty);
     expect(state.entries.first.title, 'Saga #1');
     expect(state.entries.first.watchSessions.single.sourceType,
         TrackingSourceType.streaming);

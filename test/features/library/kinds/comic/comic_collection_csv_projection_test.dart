@@ -49,6 +49,14 @@ void main() {
 
   test('projects Comic catalog and owned cells at the CSV boundary', () {
     final projection = const ComicCollectionCsvProjection();
+    final owned = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'comic-1',
+      coverPriceCents: 399,
+      rawOrSlabbed: 'Raw',
+      keyComic: true,
+      updatedAt: DateTime.utc(2026, 5, 12),
+    );
     final entry = ShelfEntry(
       itemId: 'comic-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
@@ -64,14 +72,8 @@ void main() {
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
       )).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
-        id: 'owned-1',
-        itemId: 'comic-1',
-        coverPriceCents: 399,
-        rawOrSlabbed: 'Raw',
-        keyComic: true,
-        updatedAt: DateTime.utc(2026, 5, 12),
-      ),
+      ownedItem: owned,
+      typedOwnedItem: testComicOwnedItemFrom(owned),
     );
 
     expect(projection.catalogCells(entry), [

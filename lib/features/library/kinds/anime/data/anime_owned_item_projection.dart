@@ -54,6 +54,10 @@ final class AnimeOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static AnimeOwnedItem? tryFromTyped(Object? item) {
+    return item is AnimeOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(AnimeOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

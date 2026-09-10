@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -57,7 +57,10 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = context.source.typedOwnedItem;
+      return owned is MusicOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -160,8 +163,10 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.signedBy,
     label: 'Signed By',
-    getValue: (context) =>
-        (context.source.ownedItem?.details as MusicOwnedDetails?)?.signedBy,
+    getValue: (context) {
+      final owned = context.source.typedOwnedItem;
+      return owned is MusicOwnedItem ? owned.details.signedBy : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 }

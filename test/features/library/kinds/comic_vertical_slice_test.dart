@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -97,6 +98,26 @@ void main() {
         variant: 'Direct',
       );
 
+      final owned = OwnedItem(
+        id: 'owned_1',
+        catalogRef: const CatalogEntityRef(
+          id: 'comic_1',
+          kind: CatalogMediaKind.comic,
+          entityType: const CatalogEntityTypeId('work'),
+        ),
+        condition: '9.8',
+        collectionValue: '9.8',
+        details: const ComicOwnedDetails(
+          keyComic: true,
+          keyReason: '1st Spider-Man',
+          keyCategory: '1st Appearance',
+          keySeverity: 'Major',
+          rawOrSlabbed: 'Slabbed',
+          gradingCompany: 'CGC',
+          signedBy: 'Stan Lee',
+        ),
+        updatedAt: DateTime.now(),
+      );
       final shelfEntry = ShelfEntry(
         itemId: 'comic_1',
         catalogItem: CatalogItemDto(
@@ -106,26 +127,8 @@ void main() {
           ),
           kindMetadata: comicMeta,
         ).asShelfCatalogItem,
-        ownedItem: OwnedItem(
-          id: 'owned_1',
-          catalogRef: const CatalogEntityRef(
-            id: 'comic_1',
-            kind: CatalogMediaKind.comic,
-            entityType: const CatalogEntityTypeId('work'),
-          ),
-          condition: '9.8',
-          collectionValue: '9.8',
-          details: const ComicOwnedDetails(
-            keyComic: true,
-            keyReason: '1st Spider-Man',
-            keyCategory: '1st Appearance',
-            keySeverity: 'Major',
-            rawOrSlabbed: 'Slabbed',
-            gradingCompany: 'CGC',
-            signedBy: 'Stan Lee',
-          ),
-          updatedAt: DateTime.now(),
-        ),
+        ownedItem: owned,
+        typedOwnedItem: ComicOwnedItem.fromJson(owned.toJson()),
       );
 
       const projector = ComicWorkspaceProjector();

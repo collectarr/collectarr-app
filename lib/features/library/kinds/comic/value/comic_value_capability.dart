@@ -55,10 +55,6 @@ class ComicValueCapability implements LibraryValueCapability {
   }
 
   static ComicOwnedItem? _comicOwnedItem(ShelfEntry entry) {
-    final owned = entry.ownedItem;
-    if (owned == null) {
-      return null;
-    }
-    return ComicOwnedItemProjection.tryFromOwnedItem(owned);
+    return ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
   }
 }

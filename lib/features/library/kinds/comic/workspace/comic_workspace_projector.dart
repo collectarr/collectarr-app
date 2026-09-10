@@ -26,7 +26,7 @@ final class ComicWorkspaceProjector
       throw StateError('Expected ComicMedia for comic workspace');
     }
     final ownedItem =
-        ComicOwnedItemProjection.tryFromOwnedItem(source.ownedItem);
+        ComicOwnedItemProjection.tryFromTyped(source.typedOwnedItem);
     return ComicWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),

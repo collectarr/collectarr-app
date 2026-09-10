@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:flutter/material.dart';
 
 List<LibraryDetailField> buildComicPersonalDetailFields({
@@ -11,8 +11,9 @@ List<LibraryDetailField> buildComicPersonalDetailFields({
   required OwnedItem? ownedItem,
   required String? currency,
 }) {
-  final details = ownedItem?.details;
-  if (details is! ComicOwnedDetails || details.coverPriceCents == null) {
+  final typedOwned = item.source.typedOwnedItem;
+  final details = typedOwned is ComicOwnedItem ? typedOwned.details : null;
+  if (details == null || details.coverPriceCents == null) {
     return const [];
   }
   return [

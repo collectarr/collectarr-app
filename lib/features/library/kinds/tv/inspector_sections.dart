@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/inspector/sections/metadata_fact
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
@@ -74,7 +75,8 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
               .toList()) ??
       const <TrailerLinkDto>[];
 
-  final ownedItem = request.ownedItem;
+  final ownedItem =
+      TvOwnedItemProjection.tryFromOwnedItem(request.ownedItem);
   final trackingEntry = request.trackingEntry;
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[

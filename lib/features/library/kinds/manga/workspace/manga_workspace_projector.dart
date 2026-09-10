@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -20,11 +20,8 @@ final class MangaWorkspaceProjector
     if (km is MangaMetadata) {
       metadata = km;
     }
-    MangaOwnedDetails? ownedDetails;
-    final det = source.ownedItem?.details;
-    if (det is MangaOwnedDetails) {
-      ownedDetails = det;
-    }
+    final owned = source.typedOwnedItem;
+    final ownedDetails = owned is MangaOwnedItem ? owned.details : null;
 
     return MangaWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),

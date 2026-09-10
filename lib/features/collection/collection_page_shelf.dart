@@ -194,10 +194,6 @@ class _ShelfDistributionPanel extends StatelessWidget {
           runSpacing: 8,
           children: [
             _DistributionGroup(
-              title: 'Read status',
-              values: state.readStatusCounts,
-            ),
-            _DistributionGroup(
               title: 'Locations',
               values: state.locationCounts,
             ),

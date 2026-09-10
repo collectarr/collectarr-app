@@ -10,14 +10,22 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -26,6 +34,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
@@ -452,6 +461,33 @@ OwnedItemSummary testOwnedItemSummary(OwnedItem item) {
   );
 }
 
+ComicOwnedItem testComicOwnedItemFrom(OwnedItem item) =>
+    ComicOwnedItem.fromJson(item.toJson());
+
+BookOwnedItem testBookOwnedItemFrom(OwnedItem item) =>
+    BookOwnedItem.fromJson(item.toJson());
+
+MovieOwnedItem testMovieOwnedItemFrom(OwnedItem item) =>
+    MovieOwnedItem.fromJson(item.toJson());
+
+AnimeOwnedItem testAnimeOwnedItemFrom(OwnedItem item) =>
+    AnimeOwnedItem.fromJson(item.toJson());
+
+BoardGameOwnedItem testBoardGameOwnedItemFrom(OwnedItem item) =>
+    BoardGameOwnedItem.fromJson(item.toJson());
+
+GameOwnedItem testGameOwnedItemFrom(OwnedItem item) =>
+    GameOwnedItem.fromJson(item.toJson());
+
+MangaOwnedItem testMangaOwnedItemFrom(OwnedItem item) =>
+    MangaOwnedItem.fromJson(item.toJson());
+
+MusicOwnedItem testMusicOwnedItemFrom(OwnedItem item) =>
+    MusicOwnedItem.fromJson(item.toJson());
+
+TvOwnedItem testTvOwnedItemFrom(OwnedItem item) =>
+    TvOwnedItem.fromJson(item.toJson());
+
 ShelfEntry testShelfEntry({
   String itemId = 'test-item-1',
   String kind = 'comic',
@@ -467,12 +503,34 @@ ShelfEntry testShelfEntry({
         kind: kind,
         title: title,
       );
+  final typedOwnedItem = switch (catalogMediaKindFromApiValue(kind)) {
+    CatalogMediaKind.comic when ownedItem != null =>
+      testComicOwnedItemFrom(ownedItem),
+    CatalogMediaKind.book when ownedItem != null =>
+      testBookOwnedItemFrom(ownedItem),
+    CatalogMediaKind.movie when ownedItem != null =>
+      testMovieOwnedItemFrom(ownedItem),
+    CatalogMediaKind.anime when ownedItem != null =>
+      testAnimeOwnedItemFrom(ownedItem),
+    CatalogMediaKind.boardgame when ownedItem != null =>
+      testBoardGameOwnedItemFrom(ownedItem),
+    CatalogMediaKind.game when ownedItem != null =>
+      testGameOwnedItemFrom(ownedItem),
+    CatalogMediaKind.manga when ownedItem != null =>
+      testMangaOwnedItemFrom(ownedItem),
+    CatalogMediaKind.music when ownedItem != null =>
+      testMusicOwnedItemFrom(ownedItem),
+    CatalogMediaKind.tv when ownedItem != null =>
+      testTvOwnedItemFrom(ownedItem),
+    _ => null,
+  };
   return ShelfEntry(
     itemId: itemId,
     catalogItem: LibraryAddCatalogItem.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedItem: ownedItem,
+    typedOwnedItem: typedOwnedItem,
     wishlistItem: wishlistItem,
     locationPath: locationPath,
   );

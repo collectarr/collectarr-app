@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_it
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -271,7 +271,7 @@ LibraryEditKindDraft createMangaEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final manga = ownedItem?.details as MangaOwnedDetails?;
+  final manga = MangaOwnedItemProjection.tryFromOwnedItem(ownedItem)?.details;
   final rawMetadata = item.kindMetadata;
   final MangaMetadata? metadata =
       rawMetadata is MangaMetadata ? rawMetadata : null;

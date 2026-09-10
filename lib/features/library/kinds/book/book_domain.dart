@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 export 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
@@ -34,7 +34,9 @@ final class BookPersonalOverlay {
 
   factory BookPersonalOverlay.fromShelf(ShelfEntry source) {
     return BookPersonalOverlay(
-      ownedItem: source.ownedItem,
+      ownedItem: source.typedOwnedItem is BookOwnedItem
+          ? source.typedOwnedItem as BookOwnedItem
+          : null,
       trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,
@@ -42,7 +44,7 @@ final class BookPersonalOverlay {
     );
   }
 
-  final OwnedItem? ownedItem;
+  final BookOwnedItem? ownedItem;
   final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;

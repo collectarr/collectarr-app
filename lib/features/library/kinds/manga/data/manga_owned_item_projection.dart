@@ -54,6 +54,10 @@ final class MangaOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static MangaOwnedItem? tryFromTyped(Object? item) {
+    return item is MangaOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(MangaOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

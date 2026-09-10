@@ -54,6 +54,10 @@ final class BookOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static BookOwnedItem? tryFromTyped(Object? item) {
+    return item is BookOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(BookOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

@@ -54,6 +54,10 @@ final class GameOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static GameOwnedItem? tryFromTyped(Object? item) {
+    return item is GameOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(GameOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

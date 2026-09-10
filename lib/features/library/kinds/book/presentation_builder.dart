@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -287,19 +288,21 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final source = item.source;
+    final typedOwned = source.typedOwnedItem;
+    final owned = typedOwned is BookOwnedItem ? typedOwned : null;
     final rating = source.trackingSummary?.rating;
     final personalFacts = <LibraryDetailField>[
       if (source.condition?.trim().isNotEmpty == true)
         LibraryDetailField(label: 'Condition', value: source.condition!.trim()),
-      if (source.ownedItem?.collectionValue?.trim().isNotEmpty == true)
+      if (owned?.grade?.trim().isNotEmpty == true)
         LibraryDetailField(
           label: 'Grade',
-          value: source.ownedItem!.collectionValue!.trim(),
+          value: owned!.grade!.trim(),
         ),
-      if (source.ownedItem?.collectionStatus?.trim().isNotEmpty == true)
+      if (owned?.collectionStatus?.trim().isNotEmpty == true)
         LibraryDetailField(
             label: 'Collection Status',
-            value: source.ownedItem!.collectionStatus!.trim()),
+            value: owned!.collectionStatus!.trim()),
       if (rating != null)
         LibraryDetailField(label: 'Rating', value: rating.toString()),
       if (source.locationPath?.trim().isNotEmpty == true)

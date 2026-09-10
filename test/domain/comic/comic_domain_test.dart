@@ -81,28 +81,30 @@ void main() {
       publisher: 'Marvel Comics',
     );
 
+    final owned = testOwnedItem(
+      id: 'owned-comic-key-1',
+      itemId: 'comic-key-1',
+      kind: 'comic',
+      rawOrSlabbed: 'Slabbed',
+      gradingCompany: 'CGC',
+      graderNotes: 'Off-white to white pages.',
+      signedBy: 'Stan Lee',
+      labelType: 'Signature Series',
+      customLabel: 'Yellow Label',
+      pageQuality: '9.4 NM',
+      certificationNumber: '1234567890',
+      keyComic: true,
+      keyReason: '1st appearance of Spider-Man',
+      keyCategory: 'First Appearance',
+      keySeverity: 'Major',
+      coverPriceCents: 12,
+      lastBagBoardDate: DateTime.utc(2025, 6, 1),
+    );
     final shelf = ShelfEntry(
       itemId: 'comic-key-1',
       catalogItem: catalogItem.asShelfCatalogItem,
-      ownedItem: testOwnedItem(
-        id: 'owned-comic-key-1',
-        itemId: 'comic-key-1',
-        kind: 'comic',
-        rawOrSlabbed: 'Slabbed',
-        gradingCompany: 'CGC',
-        graderNotes: 'Off-white to white pages.',
-        signedBy: 'Stan Lee',
-        labelType: 'Signature Series',
-        customLabel: 'Yellow Label',
-        pageQuality: '9.4 NM',
-        certificationNumber: '1234567890',
-        keyComic: true,
-        keyReason: '1st appearance of Spider-Man',
-        keyCategory: 'First Appearance',
-        keySeverity: 'Major',
-        coverPriceCents: 12,
-        lastBagBoardDate: DateTime.utc(2025, 6, 1),
-      ),
+      ownedItem: owned,
+      typedOwnedItem: testComicOwnedItemFrom(owned),
     );
 
     final workspaceDto = const ComicWorkspaceProjector().projectTitle(

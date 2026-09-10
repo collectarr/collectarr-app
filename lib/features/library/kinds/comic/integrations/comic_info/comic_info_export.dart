@@ -38,7 +38,7 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
     if (catalog == null) continue;
 
     final comic = ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());
-    final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
+    final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
     if (exportedCount > 0) {
       buffer.writeln();
       buffer.writeln('<!-- --- next issue --- -->');

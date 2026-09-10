@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +25,11 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final developer = gameDto?.publisher?.trim();
   final ageRating =
       (item.source.catalogItem?.payload['age_rating'] as String?)?.trim();
-  final completion = item.source.ownedItem?.collectionStatus?.trim() ??
-      (item.source.isOwned ? 'Owned' : null);
+  final owned = item.source.typedOwnedItem;
+  final completion = owned is GameOwnedItem
+      ? owned.collectionStatus?.trim() ??
+          (item.source.isOwned ? 'Owned' : null)
+      : (item.source.isOwned ? 'Owned' : null);
 
   if (releasePlatform != null && releasePlatform.isNotEmpty) {
     badges.add(

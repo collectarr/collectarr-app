@@ -362,7 +362,6 @@ void main() {
         workspaceEntries: [for (final it in items) it.source],
         ownedCount: 2,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
         primaryCurrency: 'USD',

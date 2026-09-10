@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:flutter/material.dart';
 
 List<LibraryDetailField> buildMusicPersonalDetailFields({
@@ -11,8 +11,9 @@ List<LibraryDetailField> buildMusicPersonalDetailFields({
   required OwnedItem? ownedItem,
   required String? currency,
 }) {
-  final details = ownedItem?.details;
-  if (details is! MusicOwnedDetails) {
+  final typedOwned = item.source.typedOwnedItem;
+  final details = typedOwned is MusicOwnedItem ? typedOwned.details : null;
+  if (details == null) {
     return const [];
   }
   return [

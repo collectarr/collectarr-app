@@ -59,6 +59,10 @@ final class ComicOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static ComicOwnedItem? tryFromTyped(Object? item) {
+    return item is ComicOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(ComicOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

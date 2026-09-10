@@ -113,14 +113,14 @@ final class ComicCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(ShelfEntry entry) =>
-      entry.ownedItem?.collectionValue;
+      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.grade;
 
   @override
   List<String> ownedCellsBeforeQuantity(
     ShelfEntry entry, {
     required bool clzFriendly,
   }) {
-    final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
+    final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
     final details = owned?.details;
     if (!clzFriendly) return const [];
     return [_formatMoney(details?.coverPriceCents, clzFriendly: true)];
@@ -131,7 +131,7 @@ final class ComicCollectionCsvProjection
     ShelfEntry entry, {
     required bool clzFriendly,
   }) {
-    final owned = ComicOwnedItemProjection.tryFromOwnedItem(entry.ownedItem);
+    final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
     final details = owned?.details;
     return [
       if (!clzFriendly)

@@ -54,6 +54,10 @@ final class TvOwnedItemProjection {
     return fromOwnedItem(item);
   }
 
+  static TvOwnedItem? tryFromTyped(Object? item) {
+    return item is TvOwnedItem ? item : null;
+  }
+
   static OwnedItemSummary toSummary(TvOwnedItem item) {
     return OwnedItemSummary(
       ref: OwnedItemRef(

@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/edit/edition_selection_helpers.d
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
@@ -315,8 +316,10 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _priceController = _draft.personal.priceController;
     _currencyController = _draft.personal.currencyController;
     _quantityController = _draft.personal.quantityController;
+    final typedOwned =
+        MusicOwnedItemProjection.tryFromOwnedItem(widget.request.ownedItem);
     _indexNumberController = TextEditingController(
-      text: widget.request.ownedItem?.indexNumber?.toString() ?? '',
+      text: typedOwned?.indexNumber?.toString() ?? '',
     );
     _ratingController = _draft.tracking.ratingController;
     _trackingController = _draft.tracking.trackingController;
@@ -344,12 +347,12 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
         musicDraft?.storageSlotController ?? TextEditingController();
     _signedByController = TextEditingController(
       text: musicDraft?.signedBy ??
-          (widget.request.ownedItem?.details as MusicOwnedDetails?)?.signedBy ??
+          typedOwned?.details.signedBy ??
           '',
     );
     _collectionStatusController = TextEditingController(
       text:
-          _collectionStatusToLabel(widget.request.ownedItem?.collectionStatus),
+          _collectionStatusToLabel(typedOwned?.collectionStatus),
     );
 
     final resolvedFormat = physicalMediaFormatByLabelOrId(

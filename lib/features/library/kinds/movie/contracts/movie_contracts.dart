@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
@@ -224,7 +225,9 @@ final class MovieEntry {
 
     return MovieEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.details as MovieOwnedDetails?,
+      ownedDetails: shelf.typedOwnedItem is MovieOwnedItem
+          ? (shelf.typedOwnedItem! as MovieOwnedItem).details
+          : null,
       trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

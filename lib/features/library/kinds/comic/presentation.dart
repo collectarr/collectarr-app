@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -108,12 +109,23 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Grade',
     anyLabel: 'Any grade',
     missingValueLabel: 'Missing grade',
-    value: (item) => item.source.ownedItem?.collectionValue,
+    value: (item) => ComicOwnedItemProjection.tryFromTyped(
+      item.source.typedOwnedItem,
+    )?.grade,
     matches: (item, value) => value == LibraryFilterDefinition.missingValue
         ? item.source.isOwned &&
-            (item.source.ownedItem?.collectionValue == null ||
-                item.source.ownedItem!.collectionValue!.trim().isEmpty)
-        : item.source.ownedItem?.collectionValue?.trim() == value,
+            (ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)
+                        ?.grade ==
+                    null ||
+                ComicOwnedItemProjection.tryFromTyped(
+                        item.source.typedOwnedItem)!
+                    .grade!
+                    .trim()
+                    .isEmpty)
+        : ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)
+                ?.grade
+                ?.trim() ==
+            value,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'condition',
@@ -220,8 +232,13 @@ bool? comicQuickViewMatcher(
 ) {
   return switch (view) {
     LibraryQuickView.missingGrade => item.source.isOwned &&
-        (item.source.ownedItem?.collectionValue == null ||
-            item.source.ownedItem!.collectionValue!.trim().isEmpty),
+        (ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)
+                    ?.grade ==
+                null ||
+            ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)!
+                .grade!
+                .trim()
+                .isEmpty),
     _ => null,
   };
 }

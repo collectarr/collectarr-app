@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -40,7 +41,10 @@ abstract final class MovieKindSchema {
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = context.source.typedOwnedItem;
+      return owned is MovieOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 

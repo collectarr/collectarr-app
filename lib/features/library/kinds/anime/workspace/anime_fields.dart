@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -40,7 +41,10 @@ abstract final class AnimeKindSchema {
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = context.source.typedOwnedItem;
+      return owned is AnimeOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 

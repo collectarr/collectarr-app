@@ -110,8 +110,10 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(ShelfEntry entry) =>
-      entry.ownedItem?.collectionValue;
+  String? ownedCollectionValue(ShelfEntry entry) {
+    final owned = entry.typedOwnedItem;
+    return owned is BoardGameOwnedItem ? owned.grade : null;
+  }
 
   @override
   List<String> ownedCellsBeforeQuantity(

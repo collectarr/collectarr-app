@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
@@ -239,7 +240,9 @@ final class MangaEntry {
 
     return MangaEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.details as MangaOwnedDetails?,
+      ownedDetails: shelf.typedOwnedItem is MangaOwnedItem
+          ? (shelf.typedOwnedItem! as MangaOwnedItem).details
+          : null,
       trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

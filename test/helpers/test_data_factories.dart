@@ -25,17 +25,23 @@ import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 
 export 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 
@@ -473,6 +479,24 @@ BookOwnedItem testBookOwnedItemFrom(OwnedItem item) =>
 MovieOwnedItem testMovieOwnedItemFrom(OwnedItem item) =>
     MovieOwnedItem.fromJson(item.toJson());
 
+AnimeOwnedItem testAnimeOwnedItemFrom(OwnedItem item) =>
+    AnimeOwnedItem.fromJson(item.toJson());
+
+BoardGameOwnedItem testBoardGameOwnedItemFrom(OwnedItem item) =>
+    BoardGameOwnedItem.fromJson(item.toJson());
+
+GameOwnedItem testGameOwnedItemFrom(OwnedItem item) =>
+    GameOwnedItem.fromJson(item.toJson());
+
+MangaOwnedItem testMangaOwnedItemFrom(OwnedItem item) =>
+    MangaOwnedItem.fromJson(item.toJson());
+
+MusicOwnedItem testMusicOwnedItemFrom(OwnedItem item) =>
+    MusicOwnedItem.fromJson(item.toJson());
+
+TvOwnedItem testTvOwnedItemFrom(OwnedItem item) =>
+    TvOwnedItem.fromJson(item.toJson());
+
 /// Builds a [ShelfEntry] with sensible defaults for testing.
 ///
 /// If [catalogItem] is omitted, a default one is created from [itemId] and
@@ -491,12 +515,34 @@ ShelfEntry testShelfEntry({
         kind: kind,
         title: title,
       );
+  final typedOwnedItem = switch (catalogMediaKindFromApiValue(kind)) {
+    CatalogMediaKind.comic when ownedItem != null =>
+      testComicOwnedItemFrom(ownedItem),
+    CatalogMediaKind.book when ownedItem != null =>
+      testBookOwnedItemFrom(ownedItem),
+    CatalogMediaKind.movie when ownedItem != null =>
+      testMovieOwnedItemFrom(ownedItem),
+    CatalogMediaKind.anime when ownedItem != null =>
+      testAnimeOwnedItemFrom(ownedItem),
+    CatalogMediaKind.boardgame when ownedItem != null =>
+      testBoardGameOwnedItemFrom(ownedItem),
+    CatalogMediaKind.game when ownedItem != null =>
+      testGameOwnedItemFrom(ownedItem),
+    CatalogMediaKind.manga when ownedItem != null =>
+      testMangaOwnedItemFrom(ownedItem),
+    CatalogMediaKind.music when ownedItem != null =>
+      testMusicOwnedItemFrom(ownedItem),
+    CatalogMediaKind.tv when ownedItem != null =>
+      testTvOwnedItemFrom(ownedItem),
+    _ => null,
+  };
   return ShelfEntry(
     itemId: itemId,
     catalogItem: LibraryAddCatalogItem.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedItem: ownedItem,
+    typedOwnedItem: typedOwnedItem,
     locationPath: locationPath,
   );
 }

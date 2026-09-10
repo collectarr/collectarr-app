@@ -184,16 +184,6 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 module,
                               ),
                             ),
-                            if (state.gradeCounts.isNotEmpty)
-                              LibraryStatsDistributionCard(
-                                title: 'Grades',
-                                values: state.gradeCounts,
-                              ),
-                            if (state.conditionCounts.isNotEmpty)
-                              LibraryStatsDistributionCard(
-                                title: 'Conditions',
-                                values: state.conditionCounts,
-                              ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
@@ -241,14 +231,6 @@ class _GenericStatsDashboard extends StatelessWidget {
                                 LibraryStatsHealthRow(
                                   label: 'Value coverage',
                                   fraction: valueCoverage,
-                                ),
-                                LibraryStatsHealthRow(
-                                  label: 'Graded coverage',
-                                  fraction: state.ownedCount == 0
-                                      ? 0.0
-                                      : (state.ownedCount -
-                                              state.missingGradeCount) /
-                                          state.ownedCount,
                                 ),
                                 LibraryStatsHealthRow(
                                   label: 'Metadata coverage',
