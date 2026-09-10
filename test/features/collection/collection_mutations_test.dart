@@ -13,7 +13,8 @@ import 'package:collectarr_app/features/catalog/transport/catalog_import_snapsho
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -1040,6 +1041,17 @@ void main() {
     addTearDown(container.dispose);
 
     final csv = CollectionCsv();
+    final ownedFixture = testOwnedItem(
+      id: 'owned-comic-details',
+      itemId: 'comic-owned-details',
+      rawOrSlabbed: 'Slabbed',
+      gradingCompany: 'CGC',
+      graderNotes: 'Pressing preserved',
+      signedBy: 'Artist',
+      keyComic: true,
+      keyReason: 'First appearance',
+      coverPriceCents: 499,
+    );
     final rows = csv.parse(
       csv.exportShelf([
         ShelfEntry(
@@ -1051,17 +1063,8 @@ void main() {
               title: 'Imported Comic',
             ),
           ).asShelfCatalogItem,
-          ownedSummary: testOwnedSummary(testOwnedItem(
-            id: 'owned-comic-details',
-            itemId: 'comic-owned-details',
-            rawOrSlabbed: 'Slabbed',
-            gradingCompany: 'CGC',
-            graderNotes: 'Pressing preserved',
-            signedBy: 'Artist',
-            keyComic: true,
-            keyReason: 'First appearance',
-            coverPriceCents: 499,
-          )),
+          ownedSummary: testOwnedSummary(ownedFixture),
+          typedOwnedItem: testComicOwnedItemFrom(ownedFixture),
         ),
       ]),
     );
