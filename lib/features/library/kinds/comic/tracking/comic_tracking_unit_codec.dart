@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
@@ -15,7 +15,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  Future<List<TrackingUnit>> listFromStorage(
+  Future<List<TrackingUnitSummary>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   }) async {
@@ -42,7 +42,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
   }
 
   @override
-  Future<TrackingUnit?> findFromStorage(
+  Future<TrackingUnitSummary?> findFromStorage(
     LocalDatabase db,
     TrackingUnitRef ref,
   ) async {
@@ -68,7 +68,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
   }
 
   @override
-  Future<void> upsertToStorage(LocalDatabase db, TrackingUnit unit) {
+  Future<void> upsertToStorage(LocalDatabase db, TrackingUnitSummary unit) {
     if (unit case final ComicTrackingUnit comic) {
       return db.into(db.comicTrackingUnitRows).insertOnConflictUpdate(
             ComicTrackingUnitRowsCompanion.insert(
@@ -90,7 +90,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
   @override
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingUnit unit,
+    TrackingUnitSummary unit,
     DateTime deletedAt,
   ) async {
     await (db.update(db.comicTrackingUnitRows)
@@ -123,7 +123,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
   }
 
   @override
-  TrackingUnit fromStorageRow(
+  TrackingUnitSummary fromStorageRow(
     TrackingUnitStorageRow row,
     Object? coordinates,
   ) {
@@ -143,7 +143,7 @@ final class ComicTrackingUnitCodec implements TrackingUnitCodec {
   }
 
   @override
-  int compareCoordinates(TrackingUnit left, TrackingUnit right) {
+  int compareCoordinates(TrackingUnitSummary left, TrackingUnitSummary right) {
     if (left is! ComicTrackingUnit || right is! ComicTrackingUnit) {
       return 0;
     }

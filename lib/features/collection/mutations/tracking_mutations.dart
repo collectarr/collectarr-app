@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_target.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
@@ -193,7 +193,8 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> removeTrackingEntry(TrackingLifecycle entry, {bool notify = true}) =>
+  Future<void> removeTrackingEntry(TrackingLifecycle entry,
+          {bool notify = true}) =>
       deleteTrackingEntry(entry, notify: notify);
 
   /// Deletes a tracking row selected from a structural Shelf summary.
@@ -347,7 +348,7 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> syncTrackingUnit(TrackingUnit unit) async {
+  Future<void> syncTrackingUnit(TrackingUnitSummary unit) async {
     final now = DateTime.now().toUtc();
     final updated = unit.copyWith(updatedAt: now);
     await mutationRunner.run(
@@ -373,7 +374,7 @@ final class TrackingMutations {
   }
 
   SyncChange _syncChangeForTrackingUnit(
-      TrackingUnit unit, String action, DateTime now) {
+      TrackingUnitSummary unit, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_unit:${unit.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'tracking_unit',

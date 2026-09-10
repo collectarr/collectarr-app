@@ -43,7 +43,7 @@ void main() {
   test('sync payloads use catalog_ref instead of item_id', () {
     final customEpisode = _read('lib/core/models/custom_episode.dart');
     final watchSession = _read('lib/core/models/watch_session.dart');
-    final trackingUnit = _read('lib/core/models/tracking_unit.dart');
+    final trackingUnit = _read('lib/core/models/tracking_unit_summary.dart');
 
     expect(
         _extractSyncPayloadBody(customEpisode), isNot(contains("'item_id'")));

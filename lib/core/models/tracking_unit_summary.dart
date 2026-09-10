@@ -1,13 +1,14 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
-/// Kind-neutral tracking-unit persistence projection.
+/// Structural mixed-feature projection of a kind-owned tracking unit.
 ///
 /// A unit's domain coordinates are owned by the concrete kind model. This
-/// base carries only references and lifecycle fields required by shared sync,
-/// cache, and event infrastructure.
-class TrackingUnit {
-  const TrackingUnit({
+/// summary carries only references and lifecycle fields required by shared
+/// sync, persistence orchestration, and event infrastructure. It is not a
+/// canonical tracking-domain aggregate.
+class TrackingUnitSummary {
+  const TrackingUnitSummary({
     required this.id,
     required this.targetRef,
     required this.unitType,
@@ -40,7 +41,7 @@ class TrackingUnit {
     };
   }
 
-  TrackingUnit copyWith({
+  TrackingUnitSummary copyWith({
     String? id,
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
@@ -50,7 +51,7 @@ class TrackingUnit {
     DateTime? updatedAt,
     DateTime? deletedAt,
   }) {
-    return TrackingUnit(
+    return TrackingUnitSummary(
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,

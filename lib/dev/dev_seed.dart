@@ -13,7 +13,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/dev/seeds/custom_field_seeds.dart';
@@ -939,7 +939,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
     for (final contributor in collectarrDevSeedContributors)
       ...contributor.trackingEntries(now),
   ];
-  final trackingUnits = <TrackingUnit>[];
+  final trackingUnits = <TrackingUnitSummary>[];
   final watchSessions = <WatchSession>[];
   final customEpisodes = <CustomEpisode>[];
   for (final contributor in collectarrDevSeedContributors) {
@@ -1028,7 +1028,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 }
 
 void _validateSeedTrackingUnits(
-  Iterable<TrackingUnit> units,
+  Iterable<TrackingUnitSummary> units,
   Iterable<CatalogItemDto> catalogItems, {
   required Set<String> supportedKinds,
 }) {

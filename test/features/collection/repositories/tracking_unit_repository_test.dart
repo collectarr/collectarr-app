@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
@@ -228,7 +228,7 @@ void main() {
 
     await expectLater(
       repository.upsert(
-        TrackingUnit(
+        TrackingUnitSummary(
           id: 'untyped-unit',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.unknown,

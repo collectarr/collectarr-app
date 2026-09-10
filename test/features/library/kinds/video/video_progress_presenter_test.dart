@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
@@ -42,7 +42,8 @@ TvEpisode _episode({
   );
 }
 
-TrackingUnit _trackedEpisode(int seasonNumber, int episodeNumber, DateTime at) {
+TrackingUnitSummary _trackedEpisode(
+    int seasonNumber, int episodeNumber, DateTime at) {
   return TvTrackingUnit(
     id: '$seasonNumber-$episodeNumber',
     targetRef: _ref(),

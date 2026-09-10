@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -66,7 +66,9 @@ final trackingPersistenceEntriesByCatalogRefProvider =
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.catalogRef, () => <TrackingLifecycle>[]).add(item);
+        grouped
+            .putIfAbsent(item.catalogRef, () => <TrackingLifecycle>[])
+            .add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -107,7 +109,8 @@ final trackingSummariesByCatalogRefProvider =
   );
 });
 
-final trackingUnitsProvider = FutureProvider<List<TrackingUnit>>((ref) async {
+final trackingUnitsProvider =
+    FutureProvider<List<TrackingUnitSummary>>((ref) async {
   final cache = TrackingUnitRepository(
     ref.watch(localDatabaseProvider),
     codecs: collectarrTrackingUnitCodecs,
@@ -116,30 +119,33 @@ final trackingUnitsProvider = FutureProvider<List<TrackingUnit>>((ref) async {
 });
 
 final trackingUnitsByCatalogRefMapProvider =
-    Provider<Map<CatalogEntityRef, List<TrackingUnit>>>((ref) {
+    Provider<Map<CatalogEntityRef, List<TrackingUnitSummary>>>((ref) {
   final tracking = ref.watch(trackingUnitsProvider);
   return tracking.maybeWhen(
     data: (items) {
-      final grouped = <CatalogEntityRef, List<TrackingUnit>>{};
+      final grouped = <CatalogEntityRef, List<TrackingUnitSummary>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.targetRef, () => <TrackingUnit>[]).add(item);
+        grouped
+            .putIfAbsent(item.targetRef, () => <TrackingUnitSummary>[])
+            .add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
       }
       return grouped;
     },
-    orElse: () => const <CatalogEntityRef, List<TrackingUnit>>{},
+    orElse: () => const <CatalogEntityRef, List<TrackingUnitSummary>>{},
   );
 });
 
 final trackingUnitsByCatalogRefProvider =
-    Provider.family<List<TrackingUnit>, CatalogEntityRef>((ref, catalogRef) {
+    Provider.family<List<TrackingUnitSummary>, CatalogEntityRef>(
+        (ref, catalogRef) {
   return ref.watch(trackingUnitsByCatalogRefMapProvider)[catalogRef] ??
-      const <TrackingUnit>[];
+      const <TrackingUnitSummary>[];
 });
 
 final wishlistByCatalogRefProvider =

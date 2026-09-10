@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -89,7 +89,7 @@ final class TvTrackingUnitMutations {
   }
 
   SyncChange _syncChangeForUnit(
-    TrackingUnit unit,
+    TrackingUnitSummary unit,
     String action,
     DateTime now,
   ) {

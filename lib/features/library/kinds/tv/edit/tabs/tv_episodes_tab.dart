@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -202,7 +202,7 @@ List<CustomEpisode> _sortedCustomEpisodes(
 List<_EpisodeRowData> _mergedEpisodeRows({
   required List<TvEpisode> providerEpisodes,
   required List<CustomEpisode> customEpisodes,
-  required List<TrackingUnit> trackedUnits,
+  required List<TrackingUnitSummary> trackedUnits,
   required List<WatchSession> watchSessions,
   required TvReleaseMediaEditController releaseMediaEdit,
 }) {
@@ -290,7 +290,7 @@ Widget _buildSeasonCard(
   required String seasonTitle,
   required String? imageUrl,
   required List<_EpisodeRowData> episodes,
-  required List<TrackingUnit> trackedUnits,
+  required List<TrackingUnitSummary> trackedUnits,
   required List<WatchSession> watchSessions,
   required Color accent,
   required LibraryKindModule type,
@@ -364,7 +364,7 @@ Widget _buildSeasonCard(
 }
 
 bool _episodeWatched({
-  required List<TrackingUnit> trackedUnits,
+  required List<TrackingUnitSummary> trackedUnits,
   required List<WatchSession> watchSessions,
   required int seasonNumber,
   required int episodeNumber,

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 
 /// Comic-owned issue progress unit.
-final class ComicTrackingUnit extends TrackingUnit {
+final class ComicTrackingUnit extends TrackingUnitSummary {
   const ComicTrackingUnit({
     required super.id,
     required super.targetRef,

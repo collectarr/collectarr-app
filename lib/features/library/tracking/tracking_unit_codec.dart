@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 
 /// The serialized, kind-neutral portion of a tracking-unit row.
@@ -47,21 +47,21 @@ abstract interface class TrackingUnitCodec {
   ///
   /// The Collection repository orchestrates across codecs, but each codec
   /// owns its Drift table and reconstructs its concrete unit type.
-  Future<List<TrackingUnit>> listFromStorage(
+  Future<List<TrackingUnitSummary>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   });
 
-  Future<TrackingUnit?> findFromStorage(
+  Future<TrackingUnitSummary?> findFromStorage(
     LocalDatabase db,
     TrackingUnitRef ref,
   );
 
-  Future<void> upsertToStorage(LocalDatabase db, TrackingUnit unit);
+  Future<void> upsertToStorage(LocalDatabase db, TrackingUnitSummary unit);
 
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingUnit unit,
+    TrackingUnitSummary unit,
     DateTime deletedAt,
   );
 
@@ -70,12 +70,12 @@ abstract interface class TrackingUnitCodec {
     Iterable<String>? ids,
   );
 
-  TrackingUnit fromStorageRow(
+  TrackingUnitSummary fromStorageRow(
     TrackingUnitStorageRow row,
     Object? coordinates,
   );
 
-  int compareCoordinates(TrackingUnit left, TrackingUnit right);
+  int compareCoordinates(TrackingUnitSummary left, TrackingUnitSummary right);
 }
 
 TrackingUnitStorageRow trackingUnitStorageRowFromColumns({

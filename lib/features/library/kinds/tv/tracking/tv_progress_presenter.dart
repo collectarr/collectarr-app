@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
@@ -12,7 +12,7 @@ class VideoProgressPresenter {
 
   VideoProgressSummary build({
     required List<TvSeason> seasons,
-    required List<TrackingUnit> trackedUnits,
+    required List<TrackingUnitSummary> trackedUnits,
     required List<WatchSession> watchSessions,
     DateTime? now,
   }) {
@@ -81,7 +81,7 @@ class VideoProgressPresenter {
 
   VideoSeasonProgressSummary seasonSummary({
     required TvSeason season,
-    required List<TrackingUnit> trackedUnits,
+    required List<TrackingUnitSummary> trackedUnits,
     required List<WatchSession> watchSessions,
     DateTime? now,
   }) {
@@ -140,7 +140,7 @@ class VideoProgressPresenter {
 
   List<VideoEpisodeProgressSummary> episodeRows({
     required TvSeason season,
-    required List<TrackingUnit> trackedUnits,
+    required List<TrackingUnitSummary> trackedUnits,
     required List<WatchSession> watchSessions,
   }) {
     final watchedEpisodes = _watchedEpisodeMap(trackedUnits, watchSessions);
@@ -227,7 +227,7 @@ class VideoProgressPresenter {
   }
 
   static Set<String> _watchedEpisodeKeys(
-    List<TrackingUnit> trackedUnits,
+    List<TrackingUnitSummary> trackedUnits,
     List<WatchSession> watchSessions,
   ) {
     final keys = <String>{};
@@ -261,7 +261,7 @@ class VideoProgressPresenter {
   }
 
   static Map<String, List<WatchSession>> _watchedEpisodeMap(
-    List<TrackingUnit> trackedUnits,
+    List<TrackingUnitSummary> trackedUnits,
     List<WatchSession> watchSessions,
   ) {
     final map = <String, List<WatchSession>>{};
@@ -307,7 +307,7 @@ class VideoProgressPresenter {
 
   static VideoEpisodeIdentity? _lastWatchedEpisode(
     List<_SeasonEpisode> episodes, {
-    required List<TrackingUnit> trackedUnits,
+    required List<TrackingUnitSummary> trackedUnits,
     required List<WatchSession> watchSessions,
   }) {
     final latestSession = _latestWatchSession(watchSessions);
@@ -345,7 +345,7 @@ class VideoProgressPresenter {
   }
 
   static TvTrackingUnit? _latestWatchedTrackingUnit(
-      List<TrackingUnit> trackedUnits) {
+      List<TrackingUnitSummary> trackedUnits) {
     TvTrackingUnit? latest;
     for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
       if (unit.isDeleted || unit.unitType != TvTrackingUnit.type) {

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -194,7 +194,7 @@ class _VideoSeasonTrackingSectionState
 
   int _resolvedSeasonNumber(
     List<TvSeason> seasons, {
-    required List<TrackingUnit> trackedUnits,
+    required List<TrackingUnitSummary> trackedUnits,
   }) {
     final currentSelection = _selectedSeasonNumber;
     if (currentSelection != null) {

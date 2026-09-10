@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 
@@ -20,8 +20,8 @@ class TrackingUnitRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, TrackingUnitCodec> _codecs;
 
-  Future<List<TrackingUnit>> listActive() async {
-    final units = <TrackingUnit>[];
+  Future<List<TrackingUnitSummary>> listActive() async {
+    final units = <TrackingUnitSummary>[];
     for (final codec in _codecs.values) {
       units.addAll(await codec.listFromStorage(_db));
     }
@@ -29,26 +29,26 @@ class TrackingUnitRepository {
     return units;
   }
 
-  Future<List<TrackingUnit>> findActiveByCatalogRefs(
+  Future<List<TrackingUnitSummary>> findActiveByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = catalogRefs.toSet();
-    if (wanted.isEmpty) return const <TrackingUnit>[];
+    if (wanted.isEmpty) return const <TrackingUnitSummary>[];
     return (await listActive())
         .where((unit) => wanted.contains(unit.targetRef))
         .toList(growable: false);
   }
 
-  Future<TrackingUnit?> findByRef(TrackingUnitRef ref) {
+  Future<TrackingUnitSummary?> findByRef(TrackingUnitRef ref) {
     return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
 
-  Future<void> upsert(TrackingUnit unit) async {
+  Future<void> upsert(TrackingUnitSummary unit) async {
     final codec = _codecForKind(unit.targetRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, unit));
   }
 
-  Future<void> upsertAll(Iterable<TrackingUnit> units) async {
+  Future<void> upsertAll(Iterable<TrackingUnitSummary> units) async {
     final values = units.toList(growable: false);
     if (values.isEmpty) return;
     await _db.transaction(() async {
@@ -59,7 +59,7 @@ class TrackingUnitRepository {
     });
   }
 
-  Future<void> markDeleted(TrackingUnit unit, DateTime deletedAt) {
+  Future<void> markDeleted(TrackingUnitSummary unit, DateTime deletedAt) {
     return _codecForKind(unit.targetRef.mediaKind)
         .markDeletedInStorage(_db, unit, deletedAt);
   }
@@ -74,7 +74,7 @@ class TrackingUnitRepository {
     return codec;
   }
 
-  int _compareForDisplay(TrackingUnit a, TrackingUnit b) {
+  int _compareForDisplay(TrackingUnitSummary a, TrackingUnitSummary b) {
     final itemCompare = (a.targetRef.rootId ?? a.targetRef.id)
         .compareTo(b.targetRef.rootId ?? b.targetRef.id);
     if (itemCompare != 0) return itemCompare;

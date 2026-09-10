@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 
 /// Anime-owned season/episode progress unit.
-final class AnimeTrackingUnit extends TrackingUnit {
+final class AnimeTrackingUnit extends TrackingUnitSummary {
   const AnimeTrackingUnit({
     required super.id,
     required super.targetRef,

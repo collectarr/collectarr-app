@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 
 /// Manga-owned volume/chapter progress unit.
-final class MangaTrackingUnit extends TrackingUnit {
+final class MangaTrackingUnit extends TrackingUnitSummary {
   const MangaTrackingUnit({
     required super.id,
     required super.targetRef,
