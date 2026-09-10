@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
@@ -236,9 +235,6 @@ final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
 
 BookOwnedItem _bookTransferOwnedItem(Object value) {
   if (value is BookOwnedItem) return value;
-  if (value is OwnedItem) {
-    return BookOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected BookOwnedItem');
 }
 

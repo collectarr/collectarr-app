@@ -171,7 +171,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: LibraryAddCatalogItem.fromItem(item),
-      ownedItem: ownedItem,
+      ownedItem: testOwnedSummary(ownedItem),
       trackingEntry: trackingEntry,
       accent: Colors.red,
       customFieldDefinitions: [customField],
@@ -352,7 +352,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: LibraryAddCatalogItem.fromItem(item),
-      ownedItem: ownedItem,
+      ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
     );
 
@@ -445,7 +445,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: LibraryAddCatalogItem.fromItem(item),
-      ownedItem: ownedItem,
+      ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
       customFieldDefinitions: [customField],
     );

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
@@ -229,9 +228,6 @@ const movieLibraryFacetModule = LibraryFacetModule(
 
 MovieOwnedItem _movieTransferOwnedItem(Object value) {
   if (value is MovieOwnedItem) return value;
-  if (value is OwnedItem) {
-    return MovieOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected MovieOwnedItem');
 }
 

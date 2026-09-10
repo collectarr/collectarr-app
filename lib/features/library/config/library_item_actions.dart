@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -147,7 +146,7 @@ class LibraryEditDialogRequest {
 
   final LibraryKindModule type;
   final LibraryAddCatalogItem item;
-  final OwnedItem? ownedItem;
+  final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate, present only after kind dispatch.
   /// Generic edit infrastructure must not decode or inspect this value.
@@ -171,7 +170,7 @@ class LibraryEditDialogRequest {
   LibraryEditDialogRequest copyWith({
     LibraryKindModule? type,
     LibraryAddCatalogItem? item,
-    OwnedItem? ownedItem,
+    OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     Color? accent,
     LibraryEditScope? scope,

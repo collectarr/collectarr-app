@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_physical_media_formats.dart';
@@ -225,9 +224,6 @@ final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
 
 MangaOwnedItem _mangaTransferOwnedItem(Object value) {
   if (value is MangaOwnedItem) return value;
-  if (value is OwnedItem) {
-    return MangaOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected MangaOwnedItem');
 }
 

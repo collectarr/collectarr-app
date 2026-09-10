@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
@@ -193,9 +192,6 @@ const animeLibraryFacetModule = LibraryFacetModule(
 
 AnimeOwnedItem _animeTransferOwnedItem(Object value) {
   if (value is AnimeOwnedItem) return value;
-  if (value is OwnedItem) {
-    return AnimeOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected AnimeOwnedItem');
 }
 

@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 
 class BookEditDraft extends LibraryEditKindDraft {
   BookEditDraft({
+    this.ownedItem,
     this.signedBy,
     this.dustJacketPresent = false,
     this.dustJacketCondition,
@@ -36,6 +38,8 @@ class BookEditDraft extends LibraryEditKindDraft {
     required this.subjectsController,
     required this.translatorsController,
   });
+
+  final BookOwnedItem? ownedItem;
 
   String? signedBy;
   bool dustJacketPresent;
@@ -62,6 +66,36 @@ class BookEditDraft extends LibraryEditKindDraft {
         dustJacketPresent: dustJacketPresent,
         dustJacketCondition: dustJacketCondition,
       );
+
+  @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
 
   @override
   BookOwnedItemUpdatePayload buildOwnedUpdatePayload({
@@ -217,12 +251,14 @@ LibraryEditKindDraft createBookEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final book = BookOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
+  final owned = BookOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final book = owned?.details;
   final rawMetadata = item.kindMetadata;
   final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata
       : BookCatalogMetadata.fromJson(item.payload);
   return BookEditDraft(
+    ownedItem: owned,
     signedBy: book?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,

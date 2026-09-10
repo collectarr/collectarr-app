@@ -51,7 +51,7 @@ class LibraryPageEditCoordinator {
 
   Future<void> showEditDialog(
     LibraryProjectionItem item,
-    OwnedItem? ownedItemOverride, {
+    OwnedItemSummary? ownedItemOverride, {
     bool openMetadataCompareOnOpen = false,
     LibraryEditScope? scope,
   }) async {
@@ -75,7 +75,7 @@ class LibraryPageEditCoordinator {
         .findByRefs([catalogItem.catalogRef]))[catalogItem.catalogRef];
     final freshMetadataItem =
         cached == null ? catalogItem : LibraryAddCatalogItem.fromItem(cached);
-    OwnedItem? owned = ownedItemOverride;
+    OwnedItemSummary? owned = ownedItemOverride;
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
           data: (value) => value,
           orElse: () => const <WishlistItem>[],
@@ -99,7 +99,7 @@ class LibraryPageEditCoordinator {
       _s.ref.read(
               trackingEntriesByCatalogRefProvider)[catalogItem.catalogRef] ??
           const <TrackingEntry>[],
-      owned == null ? null : ownedItemSummaryFromOwnedItem(owned),
+      owned,
     );
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
     final viewState = _s._viewState ?? _s._viewProfile.defaults();
@@ -169,7 +169,7 @@ class LibraryPageEditCoordinator {
           );
           final cfValuesFuture = owned != null
               ? customFieldRepo.listValuesForTarget(
-                  targetId: owned.id,
+                  targetId: owned.ref.id.value,
                   targetScope: CustomFieldTargetScope.ownedCopy,
                 )
               : Future.value(const <CustomFieldValue>[]);
@@ -241,7 +241,7 @@ class LibraryPageEditCoordinator {
 
   Future<void> _persistEditResult(
     LibraryEditSelection result, {
-    required OwnedItem? owned,
+    required OwnedItemSummary? owned,
     required WishlistItem? wishlist,
     required TrackingEntry? activeTrackingEntry,
     required LibraryAddCatalogItem catalogItem,
@@ -308,7 +308,7 @@ class LibraryPageEditCoordinator {
       final cfList = result.customFieldEdits.entries.map((e) {
         return CustomFieldValue(
           id: const Uuid().v4(),
-          targetId: owned.id,
+          targetId: owned.ref.id.value,
           targetScope: CustomFieldTargetScope.ownedCopy,
           catalogRef: owned.catalogRef,
           fieldDefinitionId: e.key,

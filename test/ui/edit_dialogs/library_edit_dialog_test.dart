@@ -125,7 +125,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       trackingEntry: trackingEntry,
                       accent: Colors.red,
@@ -250,7 +250,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -546,7 +546,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.deepOrange,
                     ),
@@ -867,7 +867,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       trackingEntry: trackingEntry,
                       accent: Colors.orange,
@@ -1145,7 +1145,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.blue,
                       availableBundleReleases: const [
@@ -1243,7 +1243,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.orange,
                     ),
@@ -1330,7 +1330,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -1556,7 +1556,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: LibraryAddCatalogItem.fromItem(item),
-                      ownedItem: ownedItem,
+                      ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.cyan,
                       physicalFormats: musicPhysicalMediaFormats,

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
@@ -163,9 +162,6 @@ final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
 
 ComicOwnedItem _comicTransferOwnedItem(Object value) {
   if (value is ComicOwnedItem) return value;
-  if (value is OwnedItem) {
-    return ComicOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected ComicOwnedItem');
 }
 

@@ -205,14 +205,14 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: comicKindModule,
       item: LibraryAddCatalogItem.fromItem(item),
-      ownedItem: testOwnedItem(
+      ownedItem: testOwnedSummary(testOwnedItem(
         itemId: item.identity.id,
         rawOrSlabbed: 'Slabbed',
         gradingCompany: 'CGC',
         keyComic: true,
         keyReason: 'First appearance',
         coverPriceCents: 2500,
-      ),
+      )),
       accent: Colors.blue,
     );
     final draft = LibraryEditDraft.fromRequest(request);

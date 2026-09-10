@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
@@ -24,7 +23,7 @@ typedef LibraryPageRebuild = void Function([VoidCallback? fn]);
 
 typedef LibraryPageEditDialogLauncher = Future<void> Function(
   LibraryProjectionItem item,
-  OwnedItem? ownedItemOverride,
+  OwnedItemSummary? ownedItemOverride,
 );
 
 typedef LibraryPageCompareMetadataWithServer = Future<void> Function(

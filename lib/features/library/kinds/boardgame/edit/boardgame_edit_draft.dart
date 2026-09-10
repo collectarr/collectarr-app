@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/material.dart';
 
 class BoardGameEditDraft extends LibraryEditKindDraft {
   BoardGameEditDraft({
+    this.ownedItem,
     this.editionLanguage,
     this.editionRegion,
     this.componentCondition,
@@ -57,6 +59,8 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
     required this.variantController,
     required this.releaseDateController,
   });
+
+  final BoardGameOwnedItem? ownedItem;
 
   String? editionLanguage;
   String? editionRegion;
@@ -110,6 +114,36 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
         hasPaintedMiniatures: hasPaintedMiniatures,
         storageNotes: storageNotes,
       );
+
+  @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
 
   @override
   BoardgameOwnedItemUpdatePayload buildOwnedUpdatePayload({
@@ -402,11 +436,13 @@ LibraryEditKindDraft createBoardGameEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final bg = BoardGameOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
+  final owned = BoardGameOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final bg = owned?.details;
   final meta = item.kindMetadata is BoardGameMetadata
       ? item.kindMetadata as BoardGameMetadata
       : null;
   return BoardGameEditDraft(
+    ownedItem: owned,
     editionLanguage: bg?.editionLanguage,
     editionRegion: bg?.editionRegion,
     componentCondition: bg?.componentCondition,

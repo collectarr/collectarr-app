@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -18,6 +19,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class MangaEditDraft extends LibraryEditKindDraft {
   MangaEditDraft({
+    this.ownedItem,
     this.rawOrSlabbed,
     this.signedBy,
     this.gradingCompany,
@@ -56,6 +58,8 @@ class MangaEditDraft extends LibraryEditKindDraft {
     required this.originalPublisherController,
     required this.localizedPublisherController,
   });
+
+  final MangaOwnedItem? ownedItem;
 
   String? rawOrSlabbed;
   String? signedBy;
@@ -114,6 +118,36 @@ class MangaEditDraft extends LibraryEditKindDraft {
         printing: printing,
         localizedEdition: localizedEdition,
       );
+
+  @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
 
   @override
   MangaOwnedItemUpdatePayload buildOwnedUpdatePayload({
@@ -270,11 +304,13 @@ LibraryEditKindDraft createMangaEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final manga = MangaOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
+  final owned = MangaOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final manga = owned?.details;
   final rawMetadata = item.kindMetadata;
   final MangaMetadata? metadata =
       rawMetadata is MangaMetadata ? rawMetadata : null;
   return MangaEditDraft(
+    ownedItem: owned,
     rawOrSlabbed: manga?.grading.rawOrSlabbed,
     signedBy: manga?.signedBy,
     gradingCompany: manga?.gradingCompany,

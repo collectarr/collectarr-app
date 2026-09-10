@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
@@ -145,9 +144,6 @@ final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
 
 GameOwnedItem _gameTransferOwnedItem(Object value) {
   if (value is GameOwnedItem) return value;
-  if (value is OwnedItem) {
-    return GameOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
 }
 

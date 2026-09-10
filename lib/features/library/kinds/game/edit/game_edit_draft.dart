@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_it
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -18,6 +19,7 @@ import 'game_edit_controller.dart';
 
 class GameEditDraft extends LibraryEditKindDraft {
   GameEditDraft({
+    this.ownedItem,
     required this.gameCompleteness,
     required this.gameHasBox,
     required this.gameHasManual,
@@ -26,6 +28,8 @@ class GameEditDraft extends LibraryEditKindDraft {
     required this.gameValueIsLocked,
     required this.gameEdit,
   });
+
+  final GameOwnedItem? ownedItem;
 
   String? gameCompleteness;
   bool? gameHasBox;
@@ -45,6 +49,36 @@ class GameEditDraft extends LibraryEditKindDraft {
         coreRegion: gameCoreRegion,
         valueIsLocked: gameValueIsLocked,
       );
+
+  @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
 
   @override
   GameOwnedItemUpdatePayload buildOwnedUpdatePayload({
@@ -124,7 +158,8 @@ LibraryEditKindDraft createGameEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final game = GameOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
+  final owned = GameOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final game = owned?.details;
   final meta = item.kindMetadata is GameCatalogMetadata
       ? item.kindMetadata as GameCatalogMetadata
       : null;
@@ -151,6 +186,7 @@ LibraryEditKindDraft createGameEditDraft({
   );
 
   return GameEditDraft(
+    ownedItem: owned,
     gameCompleteness: game?.completeness,
     gameHasBox: game?.hasBox,
     gameHasManual: game?.hasManual,

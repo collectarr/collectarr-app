@@ -10,6 +10,12 @@ abstract class LibraryEditKindDraft {
 
   JsonEncodable toDetailsDraft();
 
+  /// Seeds the shared edit shell from the concrete kind-owned aggregate.
+  ///
+  /// The generic shell owns controllers and layout only. Semantic Owned
+  /// values are read by the concrete draft before the shell is rendered.
+  void initializePersonalState(PersonalStateDraft personal) {}
+
   /// Builds the complete kind-owned Owned update payload from the edit form.
   ///
   /// The generic edit host supplies only structural form state. Each concrete

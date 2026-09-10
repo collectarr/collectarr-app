@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
@@ -197,9 +196,6 @@ const tvLibraryFacetModule = LibraryFacetModule(
 
 TvOwnedItem _tvTransferOwnedItem(Object value) {
   if (value is TvOwnedItem) return value;
-  if (value is OwnedItem) {
-    return TvOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected TvOwnedItem');
 }
 

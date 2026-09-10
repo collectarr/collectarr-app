@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
@@ -154,9 +153,6 @@ const musicLibraryFacetModule = LibraryFacetModule(
 
 MusicOwnedItem _musicTransferOwnedItem(Object value) {
   if (value is MusicOwnedItem) return value;
-  if (value is OwnedItem) {
-    return MusicOwnedItem.fromJson(Map<String, dynamic>.from(value.toJson()));
-  }
   throw ArgumentError.value(value, 'updated', 'Expected MusicOwnedItem');
 }
 

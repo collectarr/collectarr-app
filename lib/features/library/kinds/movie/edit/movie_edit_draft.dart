@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_controller
 import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -22,6 +23,7 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_draft_cont
 class MovieEditDraft extends LibraryEditKindDraft
     implements VideoEditDraftContract {
   MovieEditDraft({
+    this.ownedItem,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
@@ -36,6 +38,8 @@ class MovieEditDraft extends LibraryEditKindDraft
     required this.hdrFormats,
     required this.videoEdit,
   });
+
+  final MovieOwnedItem? ownedItem;
 
   @override
   final TextEditingController featuresController;
@@ -74,6 +78,36 @@ class MovieEditDraft extends LibraryEditKindDraft
         packaging: emptyToNull(packagingController.text),
         distributor: emptyToNull(distributorController.text),
       );
+
+  @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
 
   @override
   MovieOwnedItemUpdatePayload buildOwnedUpdatePayload({
@@ -211,7 +245,8 @@ LibraryEditKindDraft createMovieEditDraft({
   TrackingEntry? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
-  final video = MovieOwnedItemProjection.tryFromTyped(typedOwnedItem)?.details;
+  final owned = MovieOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final video = owned?.details;
   final metadata = item.kindMetadata;
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
   final videoEdit = VideoEditController(
@@ -248,6 +283,7 @@ LibraryEditKindDraft createMovieEditDraft({
   videoEdit.initializeVideoEditors();
 
   return MovieEditDraft(
+    ownedItem: owned,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),

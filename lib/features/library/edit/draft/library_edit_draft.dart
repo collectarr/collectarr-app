@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -60,7 +60,7 @@ class LibraryEditDraft {
 
   final LibraryKindModule type;
   final LibraryAddCatalogItem item;
-  final OwnedItem? ownedItem;
+  final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
   final TrackingEntry? trackingEntry;
@@ -108,7 +108,7 @@ class LibraryEditDraft {
   factory LibraryEditDraft.fromItem({
     required LibraryKindModule type,
     required LibraryAddCatalogItem item,
-    OwnedItem? ownedItem,
+    OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     WishlistItem? wishlistItem,
     TrackingEntry? trackingEntry,
@@ -138,7 +138,7 @@ class LibraryEditDraft {
   factory LibraryEditDraft.fromFields({
     required LibraryKindModule type,
     required LibraryAddCatalogItem item,
-    required OwnedItem? ownedItem,
+    required OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     required WishlistItem? wishlistItem,
     required TrackingEntry? trackingEntry,
@@ -167,12 +167,9 @@ class LibraryEditDraft {
       (item.searchAliases ?? const <String>[]).join(', '),
     );
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
-    final conditionController = create(ownedItem?.condition ?? '');
+    final conditionController = create();
     final gradeController = create(
-      type.edit.readOwnedCollectionValue(
-            ownedItem == null ? null : ownedItemSummaryFromOwnedItem(ownedItem),
-          ) ??
-          '',
+      type.edit.readOwnedCollectionValue(ownedItem) ?? '',
     );
     final purchaseDateController = create(
       ownedItem?.purchaseDate == null
@@ -186,9 +183,8 @@ class LibraryEditDraft {
     );
     final currencyController = create(ownedItem?.currency ?? '');
     final quantityController = create((ownedItem?.quantity ?? 1).toString());
-    final indexNumberController =
-        create(ownedItem?.indexNumber?.toString() ?? '');
-    final notesController = create(ownedItem?.personalNotes ?? '');
+    final indexNumberController = create();
+    final notesController = create(ownedItem?.notes ?? '');
     final wishlistPriceController = create(
       wishlistItem?.targetPriceCents == null
           ? ''
@@ -212,7 +208,7 @@ class LibraryEditDraft {
       trackingEntry?.timesCompleted?.toString() ?? '',
     );
     final trackingNotesController = create(trackingEntry?.notes ?? '');
-    final tagsController = create(ownedItem?.tags ?? '');
+    final tagsController = create();
     final sellPriceController = create(
       ownedItem?.sellPriceCents == null
           ? ''
@@ -266,7 +262,7 @@ class LibraryEditDraft {
       tagsController: tagsController,
       sellPriceController: sellPriceController,
       soldToController: soldToController,
-      tagOptions: splitPickListValues(ownedItem?.tags),
+      tagOptions: const [],
       availableLocations: const [],
       selectedLocationId: ownedItem?.locationId,
       selectedOwnedAnchorType:
@@ -279,7 +275,7 @@ class LibraryEditDraft {
       selectedWishlistCatalogRef: wishlistItem?.catalogRef,
       locationChanged: false,
       soldAt: ownedItem?.soldAt,
-      collectionStatus: ownedItem?.collectionStatus,
+      collectionStatus: null,
     );
 
     final tracking = TrackingDraft(
@@ -308,6 +304,7 @@ class LibraryEditDraft {
       trackingEntry: trackingEntry,
       textControllers: textControllers,
     );
+    kindDetails.initializePersonalState(personal);
 
     return LibraryEditDraft._(
       textControllers: textControllers,
@@ -376,9 +373,7 @@ class LibraryEditDraft {
         (item.titleExtension ?? item.editionTitle)?.trim() ??
         '';
     return type.edit.resolveOwnedDigitalFlag(
-          existingOwnedItem == null
-              ? null
-              : ownedItemSummaryFromOwnedItem(existingOwnedItem),
+          existingOwnedItem == null ? null : existingOwnedItem,
           item.editions,
           fallbackFormat: physicalFormat,
           fallbackLabel: format,
@@ -496,8 +491,7 @@ class LibraryEditDraft {
               purchaseStore:
                   emptyToNull(personal.purchaseStoreController.text) ??
                       ownedItem?.purchaseStore,
-              collectionStatus:
-                  personal.collectionStatus ?? ownedItem?.collectionStatus,
+              collectionStatus: personal.collectionStatus,
               marketValueCents:
                   parseMoneyCents(personal.marketValueController.text) ??
                       ownedItem?.marketValueCents,
@@ -535,7 +529,7 @@ class LibraryEditDraft {
       ownedUpdatePayload: existingOwnedItem == null
           ? null
           : kindDetails.buildOwnedUpdatePayload(
-              ownedItemId: existingOwnedItem.id,
+              ownedItemId: existingOwnedItem.ref.id.value,
               personal: personal,
             ),
       customFieldEdits: customFieldEdits,
