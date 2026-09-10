@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -158,7 +157,7 @@ void main() {
       ProviderScope(
         overrides: [
           localDatabaseProvider.overrideWithValue(db),
-          trackingEntriesProvider.overrideWith(
+          trackingPersistenceEntriesProvider.overrideWith(
             (ref) async => [
               TrackingEntry(
                 id: 'tracking-1',

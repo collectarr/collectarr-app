@@ -2,22 +2,54 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
 import 'package:drift/drift.dart';
 
 class TrackingEntriesCacheRepository {
   TrackingEntriesCacheRepository(
     this._db, {
-    required Iterable<TrackingEntryCodec> codecs,
+    Iterable<TrackingEntryCodec> codecs = const [],
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
   final Map<CatalogMediaKind, TrackingEntryCodec> _codecs;
+
+  /// Reads only the structural lifecycle projection required by mixed/global
+  /// screens. It deliberately does not load kind-owned coordinate tables or
+  /// reconstruct a [TrackingEntry] aggregate.
+  Future<List<TrackingSummary>> listActiveSummaries() async {
+    final rows = await (_db.select(_db.trackingEntriesCache)
+          ..where((row) => row.deletedAt.isNull())
+          ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]))
+        .get();
+    return [
+      for (final row in rows)
+        TrackingSummary(
+          id: row.id,
+          catalogRef: _catalogRefForRow(row, catalogKind: row.kind),
+          ownedRef: ownedItemRefFromSerialized(row.ownedItemId),
+          sourceType: trackingSourceTypeFromValue(row.sourceType),
+          status: mediaTrackingStatusFromValue(row.status) ??
+              MediaTrackingStatus.none,
+          rating: row.rating,
+          startedAt: row.startedAt,
+          completedAt: row.finishedAt,
+          progressCurrent: row.progressCurrent,
+          progressTotal: row.progressTotal,
+          timesCompleted: row.timesCompleted,
+          notes: row.notes,
+          updatedAt: row.updatedAt,
+          deletedAt: row.deletedAt,
+        ),
+    ];
+  }
 
   Future<List<TrackingEntry>> listActive() async {
     final rows = await (_db.select(_db.trackingEntriesCache)

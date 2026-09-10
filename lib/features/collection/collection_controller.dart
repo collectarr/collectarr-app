@@ -46,7 +46,8 @@ final collectionSummariesProvider =
   return cache.listActiveSummaries();
 });
 
-final trackingEntriesProvider =
+/// Full persistence aggregates are exposed only to typed edit/sync flows.
+final trackingPersistenceEntriesProvider =
     FutureProvider<List<TrackingEntry>>((ref) async {
   final cache = TrackingEntriesCacheRepository(
     ref.watch(localDatabaseProvider),
@@ -55,9 +56,9 @@ final trackingEntriesProvider =
   return cache.listActive();
 });
 
-final trackingEntriesByCatalogRefProvider =
+final trackingPersistenceEntriesByCatalogRefProvider =
     Provider<Map<CatalogEntityRef, List<TrackingEntry>>>((ref) {
-  final tracking = ref.watch(trackingEntriesProvider);
+  final tracking = ref.watch(trackingPersistenceEntriesProvider);
   return tracking.maybeWhen(
     data: (items) {
       final grouped = <CatalogEntityRef, List<TrackingEntry>>{};
@@ -78,12 +79,11 @@ final trackingEntriesByCatalogRefProvider =
 
 /// Structural tracking projection for mixed/global consumers.
 ///
-/// Mutation and kind-specific editor flows use [trackingEntriesProvider].
 /// Collection/Shelf/Activity must not carry the full tracking aggregate.
 final trackingSummariesProvider =
     FutureProvider<List<TrackingSummary>>((ref) async {
-  final entries = await ref.watch(trackingEntriesProvider.future);
-  return entries.map(TrackingSummary.fromEntry).toList(growable: false);
+  final cache = TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
+  return cache.listActiveSummaries();
 });
 
 final trackingSummariesByCatalogRefProvider =

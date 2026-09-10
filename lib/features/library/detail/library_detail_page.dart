@@ -129,7 +129,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final activeOwnedSummary = ownedResolution.ownedItem;
     final trackingEntries = switch (widget.item.source.catalogRef) {
       final catalogRef? =>
-        ref.watch(trackingEntriesByCatalogRefProvider)[catalogRef] ??
+        ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
             const <TrackingEntry>[],
       _ => const <TrackingEntry>[],
     };

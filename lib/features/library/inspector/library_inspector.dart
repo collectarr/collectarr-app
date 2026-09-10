@@ -139,7 +139,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     }
     final trackingEntries = switch (selected.source.catalogRef) {
       final catalogRef? =>
-        ref.watch(trackingEntriesByCatalogRefProvider)[catalogRef] ??
+        ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
             const <TrackingEntry>[],
       _ => const <TrackingEntry>[],
     };
