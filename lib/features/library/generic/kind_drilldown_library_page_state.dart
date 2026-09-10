@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
@@ -21,7 +21,7 @@ class KindDrilldownLibraryPageState extends GenericLibraryPageState {
   Widget? buildWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     return buildKindWorkspaceOverride(

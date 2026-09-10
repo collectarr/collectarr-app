@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/movie/release/movie_shelf_drilldown.dart';
@@ -210,7 +210,7 @@ class MovieLibraryMediaPresentationBuilder
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> ownedCopies,
+    required List<OwnedItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
     required String? selectedReleaseId,
     required void Function(String releaseId) onSelectRelease,

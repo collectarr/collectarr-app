@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
@@ -71,17 +72,16 @@ void main() {
     );
 
     final row = (await MovieOwnedRepository(db).listActive()).single;
-    final owned = testOwnedItem(
-      id: row.id.value,
-      itemId: row.itemId,
-      kind: 'movie',
-      locationId: row.locationId,
-      updatedAt: row.updatedAt,
-    );
     final actions = buildActions();
 
     await actions.editSelected(
-      entries: [ShelfEntry(itemId: 'movie-1', ownedItem: owned)],
+      entries: [
+        ShelfEntry(
+          itemId: 'movie-1',
+          ownedSummary: MovieOwnedItemProjection.toSummary(row),
+          typedOwnedItem: row,
+        ),
+      ],
       selection: const LibraryBulkEditSelection(
         applyLocation: true,
         locationId: 'loc-b',
@@ -121,20 +121,18 @@ void main() {
     );
 
     final row = (await MovieOwnedRepository(db).listActive()).single;
-    final owned = testOwnedItem(
-      id: row.id.value,
-      itemId: row.itemId,
-      kind: 'movie',
-      updatedAt: row.updatedAt,
-    );
     final actions = buildActions();
 
     await actions.moveSelectedToWishlist([
-      ShelfEntry(itemId: 'movie-1', ownedItem: owned),
+      ShelfEntry(
+        itemId: 'movie-1',
+        ownedSummary: MovieOwnedItemProjection.toSummary(row),
+        typedOwnedItem: row,
+      ),
     ]);
 
     final deletedOwned =
-        await MovieOwnedRepository(db).findById(MovieOwnedItemId(owned.id));
+        await MovieOwnedRepository(db).findById(MovieOwnedItemId(row.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
 
     expect(deletedOwned?.deletedAt, isNotNull);
@@ -193,12 +191,8 @@ void main() {
     await actions.removeSelected([
       ShelfEntry(
         itemId: 'movie-1',
-        ownedItem: testOwnedItem(
-          id: ownedRow.id.value,
-          itemId: ownedRow.itemId,
-          kind: 'movie',
-          updatedAt: ownedRow.updatedAt,
-        ),
+        ownedSummary: MovieOwnedItemProjection.toSummary(ownedRow),
+        typedOwnedItem: ownedRow,
       ),
       ShelfEntry(
         itemId: 'movie-2',

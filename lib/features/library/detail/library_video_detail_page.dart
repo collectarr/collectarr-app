@@ -121,14 +121,14 @@ class _LibraryVideoDetailPageState
         );
   }
 
-  OwnedItem? _selectedOwnedCopyFor(_ResolvedVideoRelease release) {
+  OwnedItemSummary? _selectedOwnedCopyFor(_ResolvedVideoRelease release) {
     if (release.ownedCopies.isEmpty) {
       return null;
     }
     final selectedId = _selectedOwnedItemIdByRelease[release.node.id];
     if (selectedId != null) {
       for (final copy in release.ownedCopies) {
-        if (copy.id == selectedId) {
+        if (copy.ref.id.value == selectedId) {
           return copy;
         }
       }
@@ -140,12 +140,9 @@ class _LibraryVideoDetailPageState
   Widget build(BuildContext context) {
     final request = widget.request;
     final wishlistValue = ref.watch(wishlistProvider);
-    // Video release resolution receives the concrete owned item already
-    // attached to the selected projection. Global collection reads are
-    // summary-only and must not be converted back to common OwnedItem.
-    final ownedCopies = request.item.source.ownedItem == null
-        ? const <OwnedItem>[]
-        : <OwnedItem>[request.item.source.ownedItem!];
+    final ownedCopies = request.item.source.ownedSummary == null
+        ? const <OwnedItemSummary>[]
+        : <OwnedItemSummary>[request.item.source.ownedSummary!];
     final wishlistItems = wishlistValue.maybeWhen(
       data: (items) => items
           .where(
@@ -258,7 +255,7 @@ class _LibraryVideoDetailPageState
                         request.type.edit.readOwnedCollectionValue,
                     releases: releases,
                     selectedReleaseId: activeRelease.node.id,
-                    selectedOwnedItemId: selectedOwnedCopy?.id,
+                    selectedOwnedItemId: selectedOwnedCopy?.ref.id.value,
                     onSelectRelease: (value) =>
                         setState(() => _selectedReleaseNodeId = value),
                     onSelectOwnedItem: (releaseId, ownedItemId) {
@@ -271,10 +268,11 @@ class _LibraryVideoDetailPageState
                     onRemoveWishlist: activeRelease.wishlistItem == null
                         ? null
                         : () => _removeWishlistForRelease(activeRelease),
-                    onEditCopy:
-                        request.onEdit == null || selectedOwnedCopy == null
-                            ? null
-                            : () => request.onEdit!(selectedOwnedCopy),
+                    onEditCopy: request.onEdit == null ||
+                            selectedOwnedCopy == null ||
+                            request.ownedItem == null
+                        ? null
+                        : () => request.onEdit!(request.ownedItem),
                     onRemoveCopy: selectedOwnedCopy == null
                         ? null
                         : () => _removeSelectedCopy(activeRelease),
@@ -357,7 +355,7 @@ List<LibraryNodeRef> _releaseNodesFor(
 
 List<_ResolvedVideoRelease> _resolvedReleasesFor(
   LibraryProjectionView item, {
-  required List<OwnedItem> ownedCopies,
+  required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
   final catalogItem = item.source.catalogItem;
@@ -383,13 +381,17 @@ _ResolvedVideoRelease _buildResolvedVideoRelease(
   LibraryProjectionView item,
   CatalogEditionDto edition, {
   required List<CatalogEditionDto> editions,
-  required List<OwnedItem> ownedCopies,
+  required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
   final matchedOwnedCopies = ownedCopies
       .where((copy) => _matchesReleaseAnchor(copy, edition))
       .toList(growable: false)
-    ..sort((left, right) => right.updatedAt.compareTo(left.updatedAt));
+    ..sort(
+      (left, right) => (right.updatedAt ?? DateTime(0)).compareTo(
+        left.updatedAt ?? DateTime(0),
+      ),
+    );
   WishlistItem? matchedWishlist;
   for (final wish in wishlistItems) {
     if (_matchesReleaseAnchor(wish, edition)) {
@@ -416,7 +418,7 @@ bool _matchesReleaseAnchor(Object item, CatalogEditionDto edition) {
   final String? editionId;
   final String? variantId;
   final String? bundleReleaseId;
-  if (item is OwnedItem) {
+  if (item is OwnedItemSummary) {
     editionId = catalogRefEditionId(item.targetRef);
     variantId = catalogRefVariantId(item.targetRef);
     bundleReleaseId = catalogRefBundleReleaseId(item.targetRef);
@@ -452,7 +454,7 @@ class _ResolvedVideoRelease {
 
   final LibraryReleaseNodeRef node;
   final CatalogEditionDto edition;
-  final List<OwnedItem> ownedCopies;
+  final List<OwnedItemSummary> ownedCopies;
   final WishlistItem? wishlistItem;
   final String sourceLabel;
 
@@ -787,10 +789,10 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 initialValue: release.ownedCopies.any(
-                  (copy) => copy.id == selectedOwnedItemId,
+                  (copy) => copy.ref.id.value == selectedOwnedItemId,
                 )
                     ? selectedOwnedItemId
-                    : release.ownedCopies.first.id,
+                    : release.ownedCopies.first.ref.id.value,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Selected copy',
@@ -800,19 +802,15 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
                       index < release.ownedCopies.length;
                       index += 1)
                     DropdownMenuItem<String>(
-                      value: release.ownedCopies[index].id,
+                      value: release.ownedCopies[index].ref.id.value,
                       child: Text(
                         buildOwnedCopyLabel(
-                          ownedItemSummaryFromOwnedItem(
-                            release.ownedCopies[index],
-                          ),
+                          release.ownedCopies[index],
                           [release.edition],
                           index,
                           digitalFlagResolver: digitalFlagResolver,
                           collectionValue: collectionValueReader(
-                            ownedItemSummaryFromOwnedItem(
-                              release.ownedCopies[index],
-                            ),
+                            release.ownedCopies[index],
                           ),
                         ),
                         maxLines: 1,

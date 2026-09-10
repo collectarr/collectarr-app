@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/details/library_detail_section.d
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -160,7 +160,7 @@ class TvLibraryMediaPresentationBuilder
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> ownedCopies,
+    required List<OwnedItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
     required String? selectedReleaseId,
     required void Function(String releaseId) onSelectRelease,

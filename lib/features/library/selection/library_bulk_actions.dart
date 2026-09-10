@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -9,6 +10,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_tracking_
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
 class LibraryBulkActions {
@@ -30,12 +32,17 @@ class LibraryBulkActions {
   }) async {
     final ownedEntries = [
       for (final entry in entries)
-        if (entry.ownedItem != null) entry,
+        if (entry.ownedSummary != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      final ownedItem = ownedEntries[index].ownedItem!;
+      final entry = ownedEntries[index];
+      final ownedItem = entry.ownedSummary!;
+      final catalogRef = ownedItem.catalogRef ?? entry.catalogRef;
+      if (catalogRef == null) {
+        continue;
+      }
       final runtime = libraryKindModuleForKind(
-        ownedItem.catalogRef.mediaKind,
+        catalogRef.mediaKind,
       );
       final updateCmd = runtime.edit.buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
@@ -48,10 +55,12 @@ class LibraryBulkActions {
       if (selection.rating != null || selection.readStatus != null) {
         await trackingMutations.syncOwnedTrackingEntry(
           ownedItem.ref,
-          catalogRef: ownedItem.catalogRef,
-          isDigital: ownedItem.isDigital,
+          catalogRef: catalogRef,
+          isDigital: entry.typedOwnedItem == null
+              ? null
+              : collectarrTypedOwnedItemIsDigital(entry.typedOwnedItem!),
           targetRef: catalogRefForLibrarySelection(
-            ownedItem.catalogRef,
+            catalogRef,
             editionId: catalogRefEditionId(ownedItem.targetRef),
             variantId: catalogRefVariantId(ownedItem.targetRef),
             bundleReleaseId: catalogRefBundleReleaseId(ownedItem.targetRef),
@@ -72,11 +81,11 @@ class LibraryBulkActions {
   }) async {
     final entriesToOwn = [
       for (final entry in entries)
-        if (entry.ownedItem == null) entry,
+        if (entry.ownedSummary == null) entry,
     ];
     final wishlistedEntries = [
       for (final entry in entries)
-        if (entry.isWishlisted && entry.ownedItem == null) entry,
+        if (entry.isWishlisted && entry.ownedSummary == null) entry,
     ];
     for (var index = 0; index < wishlistedEntries.length; index++) {
       await wishlistMutations.removeFromWishlist(
@@ -106,7 +115,7 @@ class LibraryBulkActions {
             catalogItem,
             common,
             libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
-            targetRef: entry.ownedItem?.catalogRef ??
+            targetRef: entry.ownedSummary?.catalogRef ??
                 entry.wishlistItem?.catalogRef ??
                 entry.catalogItem?.catalogRef,
             tracking: LibraryAddTrackingDraft(
@@ -121,7 +130,7 @@ class LibraryBulkActions {
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
       final catalogRef = entry.catalogItem?.catalogRef ??
-          entry.ownedItem?.catalogRef ??
+          entry.ownedSummary?.catalogRef ??
           entry.wishlistItem?.catalogRef ??
           entry.trackingSummary?.catalogRef;
       if (catalogRef == null) {
@@ -136,10 +145,10 @@ class LibraryBulkActions {
     }
     final ownedEntries = [
       for (final entry in entries)
-        if (entry.ownedItem != null) entry,
+        if (entry.ownedSummary != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await ownedMutations.removeItem(ownedEntries[index].ownedItem!.ref);
+      await ownedMutations.removeItem(ownedEntries[index].ownedSummary!.ref);
     }
   }
 
@@ -177,7 +186,7 @@ class LibraryBulkActions {
   Future<void> removeSelected(List<ShelfEntry> entries) async {
     final ownedEntries = [
       for (final entry in entries)
-        if (entry.ownedItem != null) entry,
+        if (entry.ownedSummary != null) entry,
     ];
     final wishlistedEntries = [
       for (final entry in entries)
@@ -185,10 +194,10 @@ class LibraryBulkActions {
     ];
     final trackedEntries = [
       for (final entry in entries)
-        if (entry.trackingSummary != null && entry.ownedItem == null) entry,
+        if (entry.trackingSummary != null && entry.ownedSummary == null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await ownedMutations.removeItem(ownedEntries[index].ownedItem!.ref);
+      await ownedMutations.removeItem(ownedEntries[index].ownedSummary!.ref);
     }
     for (var index = 0; index < wishlistedEntries.length; index++) {
       await wishlistMutations.removeFromWishlist(

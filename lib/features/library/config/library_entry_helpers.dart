@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
@@ -167,33 +166,6 @@ OwnedItemRef? resolveLibraryOwnedSummaryRef(
   return ownedItem?.ref ?? item.source.ownedRef;
 }
 
-CatalogEntityRef? resolveLibraryMutationTarget({
-  LibraryProjectionView? item,
-  OwnedItem? ownedItem,
-  WishlistItem? wishlistItem,
-}) {
-  final existingTarget = ownedItem?.targetRef ?? wishlistItem?.catalogRef;
-  if (existingTarget != null) {
-    return existingTarget;
-  }
-
-  final releaseNode = item?.node is LibraryReleaseNodeRef
-      ? (item!.node as LibraryReleaseNodeRef)
-      : null;
-  if (releaseNode == null) {
-    return null;
-  }
-  final sourceRef = item?.source.catalogRef;
-  if (sourceRef == null) return null;
-  return catalogRefForLibrarySelection(
-    sourceRef,
-    editionId: _normalizedEntryAnchorId(releaseNode.releaseId),
-    variantId: _normalizedEntryAnchorId(
-      preferredVideoEditionVariantId(releaseNode.edition),
-    ),
-  );
-}
-
 CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   LibraryProjectionView? item,
   OwnedItemSummary? ownedItem,
@@ -203,9 +175,18 @@ CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
   if (existingTarget != null) {
     return existingTarget;
   }
-  return resolveLibraryMutationTarget(
-    item: item,
-    wishlistItem: wishlistItem,
+  final releaseNode = item?.node is LibraryReleaseNodeRef
+      ? (item!.node as LibraryReleaseNodeRef)
+      : null;
+  if (releaseNode == null) return null;
+  final sourceRef = item?.source.catalogRef;
+  if (sourceRef == null) return null;
+  return catalogRefForLibrarySelection(
+    sourceRef,
+    editionId: _normalizedEntryAnchorId(releaseNode.releaseId),
+    variantId: _normalizedEntryAnchorId(
+      preferredVideoEditionVariantId(releaseNode.edition),
+    ),
   );
 }
 

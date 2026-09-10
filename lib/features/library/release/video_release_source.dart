@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
@@ -30,7 +30,7 @@ class VideoReleaseAnchor {
 
 List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
   dynamic item, {
-  Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
+  Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
   final payload = item.payload;
@@ -71,7 +71,7 @@ List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
 
 List<CatalogEditionDto> resolveVideoCatalogEditionsForShelf(
   ShelfEntry source, {
-  Iterable<OwnedItem> ownedItems = const <OwnedItem>[],
+  Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
   final item = source.catalogItem;
@@ -161,7 +161,7 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
 List<CatalogEditionDto> _resolveVideoCatalogEditions(
   _VideoReleaseSeedInput input,
   List<CatalogEditionDto> existingEditions, {
-  required Iterable<OwnedItem> ownedItems,
+  required Iterable<OwnedItemSummary> ownedItems,
   required Iterable<WishlistItem> wishlistItems,
 }) {
   if (existingEditions.isNotEmpty) {

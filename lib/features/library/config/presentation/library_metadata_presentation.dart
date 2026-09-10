@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
@@ -222,7 +222,7 @@ abstract class LibraryMediaPresentationBuilder {
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> ownedCopies,
+    required List<OwnedItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
     required String? selectedReleaseId,
     required void Function(String releaseId) onSelectRelease,

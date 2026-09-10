@@ -28,7 +28,7 @@ class LibraryCollectionActions {
         catalogItem,
         const LibraryAddCommonDraft(),
         runtime.add.createInitialDraft(),
-        targetRef: item.source.ownedItem?.catalogRef ??
+        targetRef: item.source.ownedSummary?.catalogRef ??
             item.source.wishlistItem?.catalogRef ??
             catalogItem.catalogRef,
       ),
@@ -36,17 +36,17 @@ class LibraryCollectionActions {
   }
 
   Future<void> removeOwned(LibraryProjectionItem item) async {
-    final owned = item.source.ownedItem;
-    if (owned == null) {
+    final ownedRef = item.source.ownedRef;
+    if (ownedRef == null) {
       return;
     }
-    await ownedMutations.removeItem(owned.ref);
+    await ownedMutations.removeItem(ownedRef);
   }
 
   Future<void> addWishlist(LibraryProjectionItem item) {
-    final targetRef = resolveLibraryMutationTarget(
+    final targetRef = resolveLibraryMutationTargetFromSummary(
       item: item,
-      ownedItem: item.source.ownedItem,
+      ownedItem: item.source.ownedSummary,
       wishlistItem: item.source.wishlistItem,
     );
     return wishlistMutations.addToWishlist(
@@ -55,9 +55,9 @@ class LibraryCollectionActions {
   }
 
   Future<void> removeWishlist(LibraryProjectionItem item) {
-    final targetRef = resolveLibraryMutationTarget(
+    final targetRef = resolveLibraryMutationTargetFromSummary(
       item: item,
-      ownedItem: item.source.ownedItem,
+      ownedItem: item.source.ownedSummary,
       wishlistItem: item.source.wishlistItem,
     );
     return wishlistMutations.removeFromWishlist(

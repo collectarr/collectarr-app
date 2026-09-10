@@ -1,4 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/release/video_release_source.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,11 +33,10 @@ void main() {
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
       ownedItems: [
-        testOwnedItem(
+        _ownedSummary(
           id: 'owned-1',
           itemId: 'movie-1',
           variantId: 'variant-local-only',
-          updatedAt: DateTime.utc(2026, 5, 25),
         ),
       ],
     );
@@ -55,11 +58,10 @@ void main() {
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
       ownedItems: [
-        testOwnedItem(
+        _ownedSummary(
           id: 'owned-2',
           itemId: 'movie-2',
           variantId: 'variant-4k',
-          updatedAt: DateTime.utc(2026, 5, 25),
         ),
       ],
     );
@@ -81,11 +83,11 @@ void main() {
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
       ownedItems: [
-        testOwnedItem(
+        _ownedSummary(
           id: 'owned-tv-2',
           itemId: 'tv-2',
+          kind: CatalogMediaKind.tv,
           variantId: 'variant-bluray',
-          updatedAt: DateTime.utc(2026, 5, 25),
         ),
       ],
     );
@@ -158,4 +160,33 @@ void main() {
       isFalse,
     );
   });
+}
+
+OwnedItemSummary _ownedSummary({
+  required String id,
+  required String itemId,
+  CatalogMediaKind kind = CatalogMediaKind.movie,
+  String? variantId,
+}) {
+  return OwnedItemSummary(
+    ref: OwnedItemRef(
+      kind: kind,
+      id: OwnedItemId(id),
+    ),
+    title: itemId,
+    catalogRef: CatalogEntityRef(
+      kind: kind,
+      entityType: const CatalogEntityTypeId('owned_copy'),
+      id: id,
+      rootId: itemId,
+    ),
+    targetRef: variantId == null
+        ? null
+        : CatalogEntityRef(
+            kind: kind,
+            entityType: const CatalogEntityTypeId('release'),
+            id: variantId,
+            rootId: itemId,
+          ),
+  );
 }

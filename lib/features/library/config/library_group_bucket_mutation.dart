@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 
@@ -9,7 +8,7 @@ typedef LibraryGroupBucketValueMutator = LibraryAddCatalogItem? Function(
 });
 
 typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
-  OwnedItem item,
+  Object item,
   String currentLabel, {
   String? replacement,
 });

@@ -912,7 +912,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Widget? buildKindWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     final selectedItem = projection.selectedItem;
@@ -967,7 +967,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   Widget? buildWorkspaceOverride(
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     return null;

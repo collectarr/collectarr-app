@@ -1,5 +1,8 @@
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
@@ -235,10 +238,14 @@ final musicLibraryGroupDefinitions = [
 
 LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
   return (item, currentLabel, {String? replacement}) {
+    if (item is! MusicOwnedItem) return null;
     if (item.condition?.trim() != currentLabel.trim()) return null;
     final next = replacement?.trim();
     return UpdateOwnedItemCommand(
-      ownedRef: item.ref,
+      ownedRef: OwnedItemRef(
+        kind: CatalogMediaKind.music,
+        id: OwnedItemId(item.id.value),
+      ),
       payload: MusicOwnedItemUpdatePayload(
         targetRef: const Patch<CatalogEntityRef?>.unchanged(),
         quantity: const Patch.unchanged(),

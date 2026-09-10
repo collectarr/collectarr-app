@@ -37,7 +37,8 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
 
     final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
-      ownedItems: source.ownedItem == null ? const [] : [source.ownedItem!],
+      ownedItems:
+          source.ownedSummary == null ? const [] : [source.ownedSummary!],
       wishlistItems:
           source.wishlistItem == null ? const [] : [source.wishlistItem!],
     );
@@ -47,14 +48,14 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
 
     final items = <LibraryProjectionItem<TDto>>[];
     for (final edition in resolvedEditions) {
-      final ownedMatches = source.ownedItem == null
+      final ownedMatches = source.ownedSummary == null
           ? false
           : matchesVideoReleaseAnchor(
               edition,
-              editionId: catalogRefEditionId(source.ownedItem!.targetRef),
-              variantId: catalogRefVariantId(source.ownedItem!.targetRef),
+              editionId: catalogRefEditionId(source.ownedSummary!.targetRef),
+              variantId: catalogRefVariantId(source.ownedSummary!.targetRef),
               bundleReleaseId:
-                  catalogRefBundleReleaseId(source.ownedItem!.targetRef),
+                  catalogRefBundleReleaseId(source.ownedSummary!.targetRef),
             );
       final wishlistMatches = source.wishlistItem == null
           ? false

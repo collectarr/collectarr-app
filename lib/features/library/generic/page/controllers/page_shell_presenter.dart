@@ -74,7 +74,8 @@ abstract final class LibraryPageShellPresenter {
                                     viewState,
                                   ))
                               .allItems)
-                            if (item.source.ownedItem case final owned?) owned,
+                            if (item.source.ownedSummary case final owned?)
+                              owned,
                         ],
                         allWishlistItems: allWishlistItems,
                       ),
@@ -113,7 +114,7 @@ abstract final class LibraryPageShellPresenter {
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
     required ShelfState shelfState,
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     final runtime = state.widget.type;

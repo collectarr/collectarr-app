@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -118,26 +118,18 @@ void main() {
           CatalogEditionDto(id: 'ed_1', title: 'Special Edition'),
         ],
       );
-      final owned = OwnedItem(
-        id: 'own_1',
-        updatedAt: DateTime(2026),
+      final owned = _movieOwnedSummary(
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
           entityType: const CatalogEntityTypeId('edition'),
           id: 'ed_1',
           rootId: 'movie_1',
         ),
-        catalogRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('owned_copy'),
-          id: 'movie_1',
-        ),
-        details: const TestOwnedDetails(),
       );
       final source = ShelfEntry(
           itemId: 'movie_1',
           catalogItem: catalogItem.asShelfCatalogItem,
-          ownedItem: owned);
+          ownedSummary: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -206,26 +198,18 @@ void main() {
           ),
         ],
       );
-      final owned = OwnedItem(
-        id: 'own_1',
-        updatedAt: DateTime(2026),
+      final owned = _movieOwnedSummary(
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('variant'),
+          entityType: const CatalogEntityTypeId('release'),
           id: 'var_b',
           rootId: 'movie_1',
         ),
-        catalogRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('owned_copy'),
-          id: 'movie_1',
-        ),
-        details: const TestOwnedDetails(),
       );
       final source = ShelfEntry(
           itemId: 'movie_1',
           catalogItem: catalogItem.asShelfCatalogItem,
-          ownedItem: owned);
+          ownedSummary: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -249,26 +233,18 @@ void main() {
           CatalogEditionDto(id: 'ed_1', title: 'Trilogy Pack'),
         ],
       );
-      final owned = OwnedItem(
-        id: 'own_1',
-        updatedAt: DateTime(2026),
+      final owned = _movieOwnedSummary(
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
           entityType: const CatalogEntityTypeId('bundle_release'),
           id: 'ed_1',
           rootId: 'movie_1',
         ),
-        catalogRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('owned_copy'),
-          id: 'movie_1',
-        ),
-        details: const TestOwnedDetails(),
       );
       final source = ShelfEntry(
           itemId: 'movie_1',
           catalogItem: catalogItem.asShelfCatalogItem,
-          ownedItem: owned);
+          ownedSummary: owned);
 
       final items = capability.projectReleases(
         source: source,
@@ -415,4 +391,21 @@ void main() {
       );
     });
   });
+}
+
+OwnedItemSummary _movieOwnedSummary({required CatalogEntityRef targetRef}) {
+  return OwnedItemSummary(
+    ref: const OwnedItemRef(
+      kind: CatalogMediaKind.movie,
+      id: OwnedItemId('owned-1'),
+    ),
+    title: 'movie_1',
+    catalogRef: const CatalogEntityRef(
+      kind: CatalogMediaKind.movie,
+      entityType: CatalogEntityTypeId('owned_copy'),
+      id: 'owned-1',
+      rootId: 'movie_1',
+    ),
+    targetRef: targetRef,
+  );
 }

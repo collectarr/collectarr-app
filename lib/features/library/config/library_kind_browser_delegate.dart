@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -71,7 +71,7 @@ abstract class LibraryKindBrowserDelegate {
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     return null;
@@ -86,7 +86,7 @@ abstract class LibraryKindBrowserDelegate {
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> ownedCopies,
+    required List<OwnedItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
   }) {
     return buildLibraryKindDrilldown(

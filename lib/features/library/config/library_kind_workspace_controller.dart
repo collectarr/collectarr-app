@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
@@ -45,7 +45,7 @@ class LibraryKindWorkspaceController
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     if (!canOpenKindDrilldown(type, selectedItem)) {

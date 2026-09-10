@@ -163,7 +163,7 @@ void main() {
       updatedAt: DateTime.utc(2026, 5, 25, 10),
     );
 
-    final resolved = resolveLibraryMutationTarget(
+    final resolved = resolveLibraryMutationTargetFromSummary(
       item: item,
       wishlistItem: wishlistItem,
     );
