@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_catalog_kind_lookups.dart';
 
@@ -17,21 +18,15 @@ final class CatalogLookupRepository {
 
   Future<CatalogSearchHit?> resolve(
     CatalogLookupQuery query, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
-    final normalizedKind = _normalizeKind(kind);
     for (final lookup in _lookups) {
-      if (normalizedKind != null && lookup.kind.apiValue != normalizedKind) {
+      if (kind != null && lookup.kind != kind) {
         continue;
       }
       final hit = await lookup.resolve(query);
       if (hit != null) return hit;
     }
     return null;
-  }
-
-  static String? _normalizeKind(String? kind) {
-    final normalized = kind?.trim().toLowerCase();
-    return normalized == null || normalized.isEmpty ? null : normalized;
   }
 }

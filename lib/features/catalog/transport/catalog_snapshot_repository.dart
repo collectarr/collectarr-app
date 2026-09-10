@@ -46,14 +46,10 @@ final class CatalogSnapshotRepository {
     return result;
   }
 
-  Future<List<CatalogItemDto>> findAll({String? kind}) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    final requestedKind = normalizedKind == null || normalizedKind.isEmpty
-        ? null
-        : normalizedKind;
+  Future<List<CatalogItemDto>> findAll({CatalogMediaKind? kind}) async {
     return [
       for (final item in await _allItems())
-        if (requestedKind == null || item.kind == requestedKind) item,
+        if (kind == null || item.mediaKind == kind) item,
     ];
   }
 

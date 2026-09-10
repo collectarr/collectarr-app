@@ -295,7 +295,7 @@ final class CollectionImportService {
         if (barcode != null && barcode.isNotEmpty) {
           final matched = await catalogLookup.resolve(
             CatalogLookupQuery(value: barcode),
-            kind: row.kind,
+            kind: catalogMediaKindFromApiValue(row.kind),
           );
           if (matched != null) {
             row = row.copyWith(itemId: matched.ref.id);
@@ -309,7 +309,7 @@ final class CollectionImportService {
               title: row.title!,
               value: lookup.primary,
             ),
-            kind: row.kind,
+            kind: catalogMediaKindFromApiValue(row.kind),
           );
           if (matched != null) {
             row = row.copyWith(itemId: matched.ref.id);

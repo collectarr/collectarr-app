@@ -69,7 +69,7 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
 ) {
   final mediaFamily = catalogMediaFamilyForKind(kind);
   final formats = physicalMediaFormatsFromCatalog(catalog,
-      kind: kind.apiValue, mediaFamily: mediaFamily);
+      kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 class PhysicalMediaFormat {
   const PhysicalMediaFormat({
@@ -30,14 +31,13 @@ class PhysicalMediaFormat {
 
 List<PhysicalMediaFormat> physicalMediaFormatsFromCatalog(
   Iterable<CatalogMediaType> mediaTypes, {
-  String? kind,
+  CatalogMediaKind? kind,
   String mediaFamily = 'video',
 }) {
-  final normalizedKind = kind?.trim().toLowerCase();
   final normalizedMediaFamily = mediaFamily.trim().toLowerCase();
   final formatsById = <String, PhysicalMediaFormat>{};
   for (final type in mediaTypes) {
-    if (normalizedKind != null && type.kind != normalizedKind) {
+    if (kind != null && type.kind != kind.apiValue) {
       continue;
     }
     for (final format in type.physicalFormats) {

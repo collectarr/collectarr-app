@@ -68,7 +68,7 @@ void main() {
         CatalogLookupQuery(
           value: '978 0 306 40615 ${kinds.indexOf(kind)}',
         ),
-        kind: kind.apiValue,
+        kind: kind,
       );
       expect(hit, isNotNull, reason: kind.apiValue);
       expect(hit!.ref.id, '${kind.apiValue}-barcode');
@@ -101,7 +101,7 @@ void main() {
     for (final kind in kinds) {
       final hit = await lookup.resolve(
         CatalogLookupQuery(title: '  ${kind.apiValue}   title ', value: '42'),
-        kind: kind.apiValue,
+        kind: kind,
       );
       expect(hit, isNotNull, reason: kind.apiValue);
       expect(hit!.ref.id, '${kind.apiValue}-title');
@@ -117,7 +117,7 @@ void main() {
     expect(
       await lookup.resolve(
         const CatalogLookupQuery(value: '123'),
-        kind: CatalogMediaKind.unknown.apiValue,
+        kind: CatalogMediaKind.unknown,
       ),
       isNull,
     );

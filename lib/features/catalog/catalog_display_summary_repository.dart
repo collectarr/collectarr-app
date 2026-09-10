@@ -20,13 +20,10 @@ final class CatalogDisplaySummaryRepository {
   final LocalDatabase _db;
   final List<CatalogKindSummaryReader> _readers;
 
-  Future<List<CatalogDisplaySummary>> findAll({String? kind}) async {
-    final normalizedKind = kind?.trim().toLowerCase();
+  Future<List<CatalogDisplaySummary>> findAll({CatalogMediaKind? kind}) async {
     final summaries = <CatalogDisplaySummary>[];
     for (final reader in _readers) {
-      if (normalizedKind != null &&
-          normalizedKind.isNotEmpty &&
-          reader.kind.apiValue != normalizedKind) {
+      if (kind != null && reader.kind != kind) {
         continue;
       }
       summaries.addAll(await reader.listSummaries(_db));
