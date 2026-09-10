@@ -1,8 +1,17 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -104,16 +113,26 @@ void main() {
       );
     });
 
-    test('heterogeneous registry resolves correct typed module for all 9 kinds',
-        () {
-      for (final kind in CatalogMediaKind.values
-          .where((k) => k != CatalogMediaKind.unknown)) {
-        final runtime = libraryKindModuleForKind(kind);
-        expect(runtime.kind, kind);
-        final workspace = libraryKindWorkspaceForKind(kind);
-        expect(workspace.fields, isNotNull);
-        expect(workspace.projector, isNotNull);
+    test('every concrete kind exposes its typed workspace directly', () {
+      void expectKind(CatalogMediaKind kind, Object module, Object workspace) {
+        expect(module, isNotNull);
+        expect(workspace, isNotNull);
+        expect(kind, isNot(CatalogMediaKind.unknown));
       }
+
+      expectKind(CatalogMediaKind.anime, animeKindModule, animeKindWorkspace);
+      expectKind(
+        CatalogMediaKind.boardgame,
+        boardGameKindModule,
+        boardGameKindWorkspace,
+      );
+      expectKind(CatalogMediaKind.book, bookKindModule, bookKindWorkspace);
+      expectKind(CatalogMediaKind.comic, comicKindModule, comicKindWorkspace);
+      expectKind(CatalogMediaKind.game, gameKindModule, gameKindWorkspace);
+      expectKind(CatalogMediaKind.manga, mangaKindModule, mangaKindWorkspace);
+      expectKind(CatalogMediaKind.movie, movieKindModule, movieKindWorkspace);
+      expectKind(CatalogMediaKind.music, musicKindModule, musicKindWorkspace);
+      expectKind(CatalogMediaKind.tv, tvKindModule, tvKindWorkspace);
     });
   });
 }

@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardgame_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
@@ -208,29 +206,59 @@ final _providerKindCases = <_ProviderKindCase>[
   ),
 ];
 
-/// The registry intentionally erases only at the dispatch boundary. Contract
-/// tests keep the concrete catalog return types explicit instead of casting
-/// every mapper through a runtime-generic type.
-final _typedCatalogMappers =
-    <CatalogMediaKind, Object Function(NormalizedProviderEnvelopeV1)>{
-  CatalogMediaKind.anime:
-      const AnimeLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.boardgame:
-      const BoardGameLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.book:
-      const BookLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.comic:
-      const ComicLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.game:
-      const GameLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.manga:
-      const MangaLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.movie:
-      const MovieLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.music:
-      const MusicLibraryKindProviderMapper().catalogFromEnvelope,
-  CatalogMediaKind.tv: const TvLibraryKindProviderMapper().catalogFromEnvelope,
-};
+CatalogItemDto _metadataItemFor(
+  CatalogMediaKind kind,
+  NormalizedProviderEnvelopeV1 envelope,
+) {
+  return switch (kind) {
+    CatalogMediaKind.anime =>
+      const AnimeLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.boardgame => const BoardGameLibraryKindProviderMapper()
+        .metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.book =>
+      const BookLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.comic =>
+      const ComicLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.game =>
+      const GameLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.manga =>
+      const MangaLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.movie =>
+      const MovieLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.music =>
+      const MusicLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.tv =>
+      const TvLibraryKindProviderMapper().metadataItemFromEnvelope(envelope),
+    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
+  };
+}
+
+Object _catalogFor(
+  CatalogMediaKind kind,
+  NormalizedProviderEnvelopeV1 envelope,
+) {
+  return switch (kind) {
+    CatalogMediaKind.anime =>
+      const AnimeLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.boardgame =>
+      const BoardGameLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.book =>
+      const BookLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.comic =>
+      const ComicLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.game =>
+      const GameLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.manga =>
+      const MangaLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.movie =>
+      const MovieLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.music =>
+      const MusicLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.tv =>
+      const TvLibraryKindProviderMapper().catalogFromEnvelope(envelope),
+    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
+  };
+}
 
 NormalizedProviderEnvelopeV1 _envelopeFor(_ProviderKindCase testCase) {
   final normalized = testCase.normalizeNative();
@@ -279,29 +307,33 @@ void main() {
       final envelope = _envelopeFor(testCase);
       expect(envelope.normalized['kind'], testCase.kind.apiValue);
 
-      final mapper = libraryKindProviderMetadataMapperForKind(testCase.kind);
-      expect(mapper, isNotNull);
-
-      final item = mapper!(envelope);
+      final item = _metadataItemFor(testCase.kind, envelope);
       expect(item.mediaKind, testCase.kind);
       expect(item.id, testCase.providerItemId);
       expect(item.title.trim(), isNotEmpty);
       expect(item.kindMetadata, isNot(isA<Map<String, dynamic>>()));
       expect(item.kindMetadata, isNot(isA<NormalizedProviderEnvelopeV1>()));
 
-      final catalog = _typedCatalogMappers[testCase.kind]!(envelope);
+      final catalog = _catalogFor(testCase.kind, envelope);
       expect(catalog, isNotNull);
       expect(catalog, isNot(isA<Map<String, dynamic>>()));
     });
   }
 
-  test('every registered kind mapper rejects a mismatched envelope kind', () {
-    final registeredKinds = collectarrKindModules
-        .map((runtime) => runtime.kind)
-        .toList(growable: false);
-    for (var index = 0; index < registeredKinds.length; index++) {
-      final runtime = collectarrKindModules[index];
-      final wrongKind = registeredKinds[(index + 1) % registeredKinds.length];
+  test('every concrete kind mapper rejects a mismatched envelope kind', () {
+    for (final testCase in _providerKindCases) {
+      final wrongKind = switch (testCase.kind) {
+        CatalogMediaKind.anime => CatalogMediaKind.manga,
+        CatalogMediaKind.manga => CatalogMediaKind.anime,
+        CatalogMediaKind.boardgame => CatalogMediaKind.book,
+        CatalogMediaKind.book => CatalogMediaKind.boardgame,
+        CatalogMediaKind.comic => CatalogMediaKind.game,
+        CatalogMediaKind.game => CatalogMediaKind.comic,
+        CatalogMediaKind.movie => CatalogMediaKind.tv,
+        CatalogMediaKind.tv => CatalogMediaKind.movie,
+        CatalogMediaKind.music => CatalogMediaKind.book,
+        CatalogMediaKind.unknown => CatalogMediaKind.comic,
+      };
       final envelope = NormalizedProviderEnvelopeV1(
         provider: 'contract-test',
         providerItemId: 'wrong-kind',
@@ -311,15 +343,13 @@ void main() {
         images: const [],
         attribution: const ProviderAttribution(required: false),
       );
-      final mapper = libraryKindProviderMetadataMapperForKind(runtime.kind)!;
-
       expect(
-        () => mapper(envelope),
+        () => _metadataItemFor(testCase.kind, envelope),
         throwsA(isA<StateError>()),
-        reason: '${runtime.kind.apiValue} must validate its input kind',
+        reason: '${testCase.kind.apiValue} must validate its input kind',
       );
       expect(
-        () => _typedCatalogMappers[runtime.kind]!(envelope),
+        () => _catalogFor(testCase.kind, envelope),
         throwsA(isA<StateError>()),
       );
     }
