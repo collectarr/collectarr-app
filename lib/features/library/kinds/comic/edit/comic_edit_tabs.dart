@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -534,20 +533,16 @@ extension ComicEditTabBuilders on ComicEditHost {
             child: Column(
               children: [
                 buildComicOwnershipAnchorSelectionField(),
-                if (comicSelectedOwnedAnchorType ==
-                        PersonalItemAnchorType.edition.apiValue ||
-                    comicSelectedOwnedAnchorType ==
-                        PersonalItemAnchorType.variant.apiValue) ...[
+                if (comicSelectedOwnedAnchorType == 'edition' ||
+                    comicSelectedOwnedAnchorType == 'variant') ...[
                   const SizedBox(height: 10),
                   LibraryEditResponsiveRow(children: [
                     buildComicEditionSelectionField(),
-                    if (comicSelectedOwnedAnchorType ==
-                        PersonalItemAnchorType.variant.apiValue)
+                    if (comicSelectedOwnedAnchorType == 'variant')
                       buildComicVariantSelectionField(),
                   ]),
                 ],
-                if (comicSelectedOwnedAnchorType ==
-                    PersonalItemAnchorType.bundleRelease.apiValue) ...[
+                if (comicSelectedOwnedAnchorType == 'bundle_release') ...[
                   const SizedBox(height: 10),
                   buildComicBundleReleaseSelectionField(
                     fieldKey: const Key('library-edit-owned-bundle-field'),

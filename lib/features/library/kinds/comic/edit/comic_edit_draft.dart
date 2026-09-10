@@ -66,7 +66,7 @@ class ComicEditDraft extends LibraryEditKindDraft {
   }) {
     final targetRef = catalogRefForOwnedSelection(
       CatalogMediaKind.comic,
-      anchorType: personal.selectedOwnedAnchorType.apiValue,
+      anchorType: personal.selectedOwnedAnchorType,
       editionId: personal.selectedEditionId,
       variantId: personal.selectedVariantId,
       bundleReleaseId: personal.selectedBundleReleaseId,

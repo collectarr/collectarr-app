@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 export 'package:collectarr_app/core/models/money.dart';
@@ -99,9 +98,6 @@ class OwnedItem<TDetails extends JsonEncodable> {
   String? get editionId => _legacyEditionIdFromTarget(targetRef);
   String? get variantId => _legacyVariantIdFromTarget(targetRef);
   String? get bundleReleaseId => _legacyBundleReleaseIdFromTarget(targetRef);
-
-  PersonalItemAnchorType? get personalAnchor =>
-      resolvePersonalItemAnchor(anchorType: anchorType);
 
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
@@ -335,46 +331,54 @@ CatalogEntityRef? _targetRefFromLegacy(
   String? variantId,
   String? bundleReleaseId,
 }) {
-  final type = resolvePersonalItemAnchor(
-    anchorType: anchorType,
-    editionId: editionId,
-    variantId: variantId,
-    bundleReleaseId: bundleReleaseId,
-  );
-  if (type == null) return null;
+  final normalizedType = anchorType?.trim().toLowerCase();
   final rootId = catalogRef.rootId ?? catalogRef.id;
-  return switch (type) {
-    PersonalItemAnchorType.edition => editionId == null
-        ? null
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('edition'),
-            id: editionId,
-            rootId: rootId,
-          ),
-    PersonalItemAnchorType.variant => variantId == null
-        ? null
-        : CatalogEntityRef(
-            kind: catalogRef.kind,
-            entityType: const CatalogEntityTypeId('release'),
-            id: variantId,
-            rootId: rootId,
-            parentId: editionId,
-          ),
-    PersonalItemAnchorType.bundleRelease => bundleReleaseId == null
+  if (normalizedType == 'item') {
+    return catalogRef.copyWith(
+      id: rootId,
+      entityType: const CatalogEntityTypeId('work'),
+      rootId: null,
+    );
+  }
+  if (bundleReleaseId != null || normalizedType == 'bundle_release') {
+    return bundleReleaseId == null
         ? null
         : CatalogEntityRef(
             kind: catalogRef.kind,
             entityType: const CatalogEntityTypeId('bundle_release'),
             id: bundleReleaseId,
             rootId: rootId,
-          ),
-    PersonalItemAnchorType.item => catalogRef.copyWith(
-        id: rootId,
-        entityType: const CatalogEntityTypeId('work'),
-        rootId: null,
-      ),
-  };
+          );
+  }
+  if (variantId != null || normalizedType == 'variant') {
+    return variantId == null
+        ? editionId == null
+            ? null
+            : CatalogEntityRef(
+                kind: catalogRef.kind,
+                entityType: const CatalogEntityTypeId('edition'),
+                id: editionId,
+                rootId: rootId,
+              )
+        : CatalogEntityRef(
+            kind: catalogRef.kind,
+            entityType: const CatalogEntityTypeId('release'),
+            id: variantId,
+            rootId: rootId,
+            parentId: editionId,
+          );
+  }
+  if (editionId != null || normalizedType == 'edition') {
+    return editionId == null
+        ? null
+        : CatalogEntityRef(
+            kind: catalogRef.kind,
+            entityType: const CatalogEntityTypeId('edition'),
+            id: editionId,
+            rootId: rootId,
+          );
+  }
+  return null;
 }
 
 Map<String, Object?> _legacyTargetPayload(CatalogEntityRef? targetRef) {
@@ -390,10 +394,10 @@ Map<String, Object?> _legacyTargetPayload(CatalogEntityRef? targetRef) {
 String? _legacyAnchorTypeFromTarget(CatalogEntityRef? targetRef) {
   if (targetRef == null) return null;
   return switch (targetRef.entityType.apiValue) {
-    'edition' => PersonalItemAnchorType.edition.apiValue,
-    'release' => PersonalItemAnchorType.variant.apiValue,
-    'bundle_release' => PersonalItemAnchorType.bundleRelease.apiValue,
-    _ => PersonalItemAnchorType.item.apiValue,
+    'edition' => 'edition',
+    'release' => 'variant',
+    'bundle_release' => 'bundle_release',
+    _ => 'item',
   };
 }
 

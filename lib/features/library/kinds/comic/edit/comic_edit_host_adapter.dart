@@ -377,7 +377,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   String get comicSelectedOwnedAnchorType =>
-      draft.personal.selectedOwnedAnchorType.apiValue;
+      draft.personal.selectedOwnedAnchorType;
 
   @override
   List<ItemImageEdit> get comicItemImageEdits => draft.itemImageEdits;

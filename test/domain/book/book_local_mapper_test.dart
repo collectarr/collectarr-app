@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/local/book_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';

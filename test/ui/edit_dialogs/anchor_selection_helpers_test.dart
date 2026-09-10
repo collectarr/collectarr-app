@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,7 +29,7 @@ void main() {
 
   test('owned variant anchor keeps resolved edition and variant in sync', () {
     final state = resolveOwnedAnchorSelectionState(
-      anchorType: PersonalItemAnchorType.variant.apiValue,
+      anchorType: 'variant',
       editions: [buildEdition()],
       selectedEditionId: 'edition-hc',
       selectedVariantId: 'variant-alt',
@@ -39,7 +38,7 @@ void main() {
       availableBundleReleaseIds: const ['bundle-1'],
     );
 
-    expect(state.anchorType, PersonalItemAnchorType.variant.apiValue);
+    expect(state.anchorType, 'variant');
     expect(state.selectedEditionId, 'edition-hc');
     expect(state.selectedVariantId, 'variant-alt');
     expect(state.selectedBundleReleaseId, isNull);
@@ -49,7 +48,7 @@ void main() {
 
   test('owned bundle anchor clears edition and tracking ids', () {
     final state = resolveOwnedAnchorSelectionState(
-      anchorType: PersonalItemAnchorType.bundleRelease.apiValue,
+      anchorType: 'bundle_release',
       editions: [buildEdition()],
       selectedEditionId: 'edition-hc',
       selectedVariantId: 'variant-alt',

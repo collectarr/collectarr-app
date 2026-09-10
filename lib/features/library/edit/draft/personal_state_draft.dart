@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +55,7 @@ class PersonalStateDraft {
   List<String> tagOptions;
   List<StorageLocation> availableLocations;
   String? selectedLocationId;
-  PersonalItemAnchorType selectedOwnedAnchorType;
+  String selectedOwnedAnchorType;
   String? selectedEditionId;
   String? selectedVariantId;
   String? selectedBundleReleaseId;

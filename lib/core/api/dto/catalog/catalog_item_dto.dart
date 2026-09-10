@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.da
 import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -212,33 +211,25 @@ final class CatalogItemDto {
     String? variantId,
     String? bundleReleaseId,
   }) {
-    final type = resolvePersonalItemAnchor(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
+    final type = anchorType?.trim().toLowerCase();
     final normalizedEditionId = _normalizeLegacyId(editionId);
     final normalizedVariantId = _normalizeLegacyId(variantId);
     final normalizedBundleId = _normalizeLegacyId(bundleReleaseId);
     return switch (type) {
-      PersonalItemAnchorType.edition when normalizedEditionId != null =>
-        CatalogEntityRef(
+      'edition' when normalizedEditionId != null => CatalogEntityRef(
           kind: mediaKind,
           entityType: const CatalogEntityTypeId('edition'),
           id: normalizedEditionId,
           rootId: id,
         ),
-      PersonalItemAnchorType.variant when normalizedVariantId != null =>
-        CatalogEntityRef(
+      'variant' when normalizedVariantId != null => CatalogEntityRef(
           kind: mediaKind,
           entityType: const CatalogEntityTypeId('release'),
           id: normalizedVariantId,
           rootId: id,
           parentId: normalizedEditionId,
         ),
-      PersonalItemAnchorType.bundleRelease when normalizedBundleId != null =>
-        CatalogEntityRef(
+      'bundle_release' when normalizedBundleId != null => CatalogEntityRef(
           kind: mediaKind,
           entityType: const CatalogEntityTypeId('bundle_release'),
           id: normalizedBundleId,

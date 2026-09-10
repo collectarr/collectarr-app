@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
 
 class LibraryOwnedAnchorSelectionState {
@@ -29,7 +28,7 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
   required String? variantName,
   required List<String> availableBundleReleaseIds,
 }) {
-  if (anchorType == PersonalItemAnchorType.variant.apiValue) {
+  if (anchorType == 'variant') {
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: selectedEditionId,
@@ -47,7 +46,7 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
     );
   }
 
-  if (anchorType == PersonalItemAnchorType.edition.apiValue) {
+  if (anchorType == 'edition') {
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: selectedEditionId,
@@ -65,7 +64,7 @@ LibraryOwnedAnchorSelectionState resolveOwnedAnchorSelectionState({
     );
   }
 
-  if (anchorType == PersonalItemAnchorType.bundleRelease.apiValue) {
+  if (anchorType == 'bundle_release') {
     return LibraryOwnedAnchorSelectionState(
       anchorType: anchorType,
       selectedEditionId: null,

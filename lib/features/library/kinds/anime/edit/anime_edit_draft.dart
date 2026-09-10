@@ -88,7 +88,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
   }) {
     final targetRef = catalogRefForOwnedSelection(
       CatalogMediaKind.anime,
-      anchorType: personal.selectedOwnedAnchorType.apiValue,
+      anchorType: personal.selectedOwnedAnchorType,
       editionId: personal.selectedEditionId,
       variantId: personal.selectedVariantId,
       bundleReleaseId: personal.selectedBundleReleaseId,

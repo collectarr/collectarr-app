@@ -122,7 +122,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
   }) {
     final targetRef = catalogRefForOwnedSelection(
       CatalogMediaKind.manga,
-      anchorType: personal.selectedOwnedAnchorType.apiValue,
+      anchorType: personal.selectedOwnedAnchorType,
       editionId: personal.selectedEditionId,
       variantId: personal.selectedVariantId,
       bundleReleaseId: personal.selectedBundleReleaseId,

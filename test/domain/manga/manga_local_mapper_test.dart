@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/local/manga_local_mapper.dart';

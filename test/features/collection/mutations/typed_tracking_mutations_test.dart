@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';

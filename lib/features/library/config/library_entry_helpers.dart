@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -13,6 +12,11 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+const _itemAnchor = 'item';
+const _editionAnchor = 'edition';
+const _variantAnchor = 'variant';
+const _bundleReleaseAnchor = 'bundle_release';
 
 class LibraryOwnedItemResolution {
   const LibraryOwnedItemResolution({
@@ -62,7 +66,7 @@ String libraryVolumeLabel(double? volumeNumber) =>
 String? libraryOwnedReferenceLabel(OwnedItem? ownedItem, {String? mediaType}) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
   return _libraryReferenceLabel(
-    ownedItem?.personalAnchor,
+    ownedItem?.anchorType,
     itemLabel:
         'Owned as ${labels.labelFor('item', fallback: 'Media').toLowerCase()}',
     editionLabel:
@@ -106,7 +110,7 @@ String? libraryReferenceScopeLabel({
   WishlistItem? wishlistItem,
   String? mediaType,
 }) {
-  final anchorType = ownedItem?.personalAnchor ??
+  final anchorType = ownedItem?.anchorType ??
       libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef);
   return _referenceScopeLabelForAnchor(anchorType, mediaType: mediaType);
 }
@@ -117,9 +121,9 @@ String? libraryReferenceFormatLabel({
   required List<CatalogEditionDto> editions,
   String? fallbackFormatLabel,
 }) {
-  final anchorType = ownedItem?.personalAnchor ??
+  final anchorType = ownedItem?.anchorType ??
       libraryTargetScopeForCatalogRef(wishlistItem?.catalogRef);
-  if (anchorType == PersonalItemAnchorType.bundleRelease) {
+  if (anchorType == _bundleReleaseAnchor) {
     return null;
   }
   final resolved = _resolveLibraryReferenceRelease(
@@ -261,15 +265,15 @@ CatalogEntityRef? resolveLibraryMutationTarget({
   );
 }
 
-PersonalItemAnchorType? libraryTargetScopeForCatalogRef(CatalogEntityRef? ref) {
+String? libraryTargetScopeForCatalogRef(CatalogEntityRef? ref) {
   if (ref == null) {
     return null;
   }
   return switch (ref.entityType.apiValue) {
-    'edition' => PersonalItemAnchorType.edition,
-    'release' => PersonalItemAnchorType.variant,
-    'bundle_release' => PersonalItemAnchorType.bundleRelease,
-    _ => PersonalItemAnchorType.item,
+    'edition' => _editionAnchor,
+    'release' => _variantAnchor,
+    'bundle_release' => _bundleReleaseAnchor,
+    _ => _itemAnchor,
   };
 }
 
@@ -332,36 +336,37 @@ LibraryOwnedItemResolution resolveActiveOwnedItem(
 }
 
 String? _libraryReferenceLabel(
-  PersonalItemAnchorType? anchor, {
+  String? anchor, {
   required String itemLabel,
   required String editionLabel,
   required String variantLabel,
   required String bundleLabel,
 }) {
-  return switch (anchor) {
-    PersonalItemAnchorType.item => itemLabel,
-    PersonalItemAnchorType.edition => editionLabel,
-    PersonalItemAnchorType.variant => variantLabel,
-    PersonalItemAnchorType.bundleRelease => bundleLabel,
-    null => null,
-  };
+  if (anchor == _itemAnchor) return itemLabel;
+  if (anchor == _editionAnchor) return editionLabel;
+  if (anchor == _variantAnchor) return variantLabel;
+  if (anchor == _bundleReleaseAnchor) return bundleLabel;
+  return null;
 }
 
 String? _referenceScopeLabelForAnchor(
-  PersonalItemAnchorType? anchor, {
+  String? anchor, {
   String? mediaType,
 }) {
   final labels = _libraryReferenceLabelsForMediaType(mediaType);
-  return switch (anchor) {
-    PersonalItemAnchorType.item => labels.labelFor('item', fallback: 'Media'),
-    PersonalItemAnchorType.edition =>
-      labels.labelFor('edition', fallback: 'Edition'),
-    PersonalItemAnchorType.variant =>
-      labels.labelFor('variant', fallback: 'Physical release'),
-    PersonalItemAnchorType.bundleRelease =>
-      labels.labelFor('bundle', fallback: 'Bundle'),
-    null => null,
-  };
+  if (anchor == _itemAnchor) {
+    return labels.labelFor('item', fallback: 'Media');
+  }
+  if (anchor == _editionAnchor) {
+    return labels.labelFor('edition', fallback: 'Edition');
+  }
+  if (anchor == _variantAnchor) {
+    return labels.labelFor('variant', fallback: 'Physical release');
+  }
+  if (anchor == _bundleReleaseAnchor) {
+    return labels.labelFor('bundle', fallback: 'Bundle');
+  }
+  return null;
 }
 
 LibraryPresentationLabels _libraryReferenceLabelsForMediaType(

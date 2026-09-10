@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -259,10 +258,7 @@ class LibraryEditDraft {
       tagOptions: splitPickListValues(ownedItem?.tags),
       availableLocations: const [],
       selectedLocationId: ownedItem?.locationId,
-      selectedOwnedAnchorType: PersonalItemAnchorType.fromApiValue(
-            ownedItem?.personalAnchor?.apiValue,
-          ) ??
-          PersonalItemAnchorType.item,
+      selectedOwnedAnchorType: ownedItem?.anchorType ?? 'item',
       selectedEditionId: editionSelection.edition?.id,
       selectedVariantId: editionSelection.variant?.id,
       selectedBundleReleaseId: normalizeLibrarySelectionId(
@@ -455,7 +451,7 @@ class LibraryEditDraft {
           : LibraryPersonalEditSelection(
               targetRef: catalogRefForOwnedSelection(
                 type.kind,
-                anchorType: personal.selectedOwnedAnchorType.apiValue,
+                anchorType: personal.selectedOwnedAnchorType,
                 editionId: personal.selectedEditionId,
                 variantId: personal.selectedVariantId,
                 bundleReleaseId: personal.selectedBundleReleaseId,
