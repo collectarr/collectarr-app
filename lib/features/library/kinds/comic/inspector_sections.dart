@@ -90,7 +90,7 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final characters = catalogItem?.characters ?? const <String>[];
   final creators = catalogItem?.creators ?? const <Map<String, dynamic>>[];
   final ownedItem =
-      ComicOwnedItemProjection.tryFromOwnedItem(request.ownedItem);
+      ComicOwnedItemProjection.tryFromTyped(request.typedOwnedItem);
 
   return [
     _ComicInspectorTab(

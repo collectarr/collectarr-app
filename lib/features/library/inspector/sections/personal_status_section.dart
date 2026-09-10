@@ -12,6 +12,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
     required this.item,
     required this.accent,
     this.ownedItem,
+    this.typedOwnedItem,
     this.trackingEntry,
     this.onFilterByValue,
   });
@@ -19,6 +20,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
   final LibraryKindModule type;
   final LibraryProjectionView item;
   final OwnedItem? ownedItem;
+  final Object? typedOwnedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -29,6 +31,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
       type: type,
       item: item,
       ownedItem: ownedItem,
+      typedOwnedItem: typedOwnedItem,
       trackingEntry: trackingEntry,
       accent: accent,
       onFilterByValue: onFilterByValue,

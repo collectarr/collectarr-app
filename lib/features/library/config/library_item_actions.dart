@@ -219,6 +219,7 @@ class LibraryDetailPageRequest {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.typedOwnedItem,
     required this.accent,
     this.actions = const LibraryItemActions(),
     VoidCallback? onAddOwned,
@@ -236,6 +237,9 @@ class LibraryDetailPageRequest {
   final LibraryKindModule type;
   final LibraryProjectionView item;
   final OwnedItem? ownedItem;
+
+  /// Concrete kind-owned aggregate available after Library kind dispatch.
+  final Object? typedOwnedItem;
   final Color accent;
   final LibraryItemActions actions;
   final ValueChanged<String>? onFilterByValue;
@@ -274,6 +278,7 @@ class LibraryInspectorRequest {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.typedOwnedItem,
     this.onEdit,
     this.ownedCopies = const [],
     required this.trackingEntry,
@@ -287,6 +292,9 @@ class LibraryInspectorRequest {
   final LibraryKindModule type;
   final LibraryProjectionView item;
   final OwnedItem? ownedItem;
+
+  /// Concrete kind-owned aggregate for kind-owned inspector contributions.
+  final Object? typedOwnedItem;
   final VoidCallback? onEdit;
   final List<OwnedItem> ownedCopies;
   final TrackingEntry? trackingEntry;

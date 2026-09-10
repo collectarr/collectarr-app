@@ -171,6 +171,23 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    final ownedItem = testOwnedItem(
+      id: 'owned-comic-hero-2',
+      itemId: 'comic-hero-2',
+      kind: 'comic',
+      isDigital: false,
+      condition: 'Near Mint',
+      grade: '9.8',
+      coverPriceCents: 899,
+      marketValueCents: 2499,
+      pricePaidCents: 1299,
+      rawOrSlabbed: 'Slabbed',
+      gradingCompany: 'CGC',
+      certificationNumber: '1234567890',
+      keyComic: true,
+      keyReason: 'First print finale',
+      updatedAt: DateTime.utc(2026, 5, 23),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -183,23 +200,10 @@ void main() {
                 id: 'comic-hero-2',
                 kind: 'comic',
                 title: 'The Last Ronin',
+                ownedItem: ownedItem,
               ),
-              ownedItem: testOwnedItem(
-                id: 'owned-comic-hero-2',
-                itemId: 'comic-hero-2',
-                isDigital: false,
-                condition: 'Near Mint',
-                grade: '9.8',
-                coverPriceCents: 899,
-                marketValueCents: 2499,
-                pricePaidCents: 1299,
-                rawOrSlabbed: 'Slabbed',
-                gradingCompany: 'CGC',
-                certificationNumber: '1234567890',
-                keyComic: true,
-                keyReason: 'First print finale',
-                updatedAt: DateTime.utc(2026, 5, 23),
-              ),
+              ownedItem: ownedItem,
+              typedOwnedItem: testComicOwnedItemFrom(ownedItem),
               ownedCopies: [
                 testOwnedItem(
                   id: 'owned-comic-hero-2',
@@ -411,6 +415,18 @@ void main() {
 
   testWidgets('personal section shows cover price for Comic-owned details',
       (tester) async {
+    final ownedItem = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'comic-1',
+      kind: 'comic',
+      purchaseDate: DateTime.utc(2026, 5, 11),
+      pricePaidCents: 1299,
+      coverPriceCents: 1599,
+      soldAt: DateTime.utc(2026, 5, 20),
+      sellPriceCents: 1899,
+      currency: 'USD',
+      updatedAt: DateTime.utc(2026, 5, 22),
+    );
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -420,18 +436,10 @@ void main() {
               id: 'comic-1',
               kind: 'comic',
               title: 'Saga',
+              ownedItem: ownedItem,
             ),
-            ownedItem: testOwnedItem(
-              id: 'owned-1',
-              itemId: 'comic-1',
-              purchaseDate: DateTime.utc(2026, 5, 11),
-              pricePaidCents: 1299,
-              coverPriceCents: 1599,
-              soldAt: DateTime.utc(2026, 5, 20),
-              sellPriceCents: 1899,
-              currency: 'USD',
-              updatedAt: DateTime.utc(2026, 5, 22),
-            ),
+            ownedItem: ownedItem,
+            typedOwnedItem: testComicOwnedItemFrom(ownedItem),
             accent: Colors.orange,
           ),
         ),
@@ -494,7 +502,11 @@ void main() {
                 id: 'book-1',
                 kind: 'book',
                 title: 'The Fellowship of the Ring',
-                ownedItem: testOwnedItem(id: 'owned-1', itemId: 'book-1'),
+                ownedItem: testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  kind: 'book',
+                ),
               ),
               onToggleOwned: () {},
               onToggleWishlist: () {},

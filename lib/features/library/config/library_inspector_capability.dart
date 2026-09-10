@@ -9,6 +9,7 @@ typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
   required BuildContext context,
   required LibraryProjectionView item,
   required OwnedItem? ownedItem,
+  required Object? typedOwnedItem,
   required String? currency,
 });
 
@@ -40,12 +41,14 @@ class LibraryInspectorCapability {
     required BuildContext context,
     required LibraryProjectionView item,
     required OwnedItem? ownedItem,
+    required Object? typedOwnedItem,
     required String? currency,
   }) {
     return personalDetailFieldsBuilder?.call(
           context: context,
           item: item,
           ownedItem: ownedItem,
+          typedOwnedItem: typedOwnedItem,
           currency: currency,
         ) ??
         const [];

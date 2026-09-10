@@ -9,9 +9,10 @@ List<LibraryDetailField> buildMusicPersonalDetailFields({
   required BuildContext context,
   required LibraryProjectionView item,
   required OwnedItem? ownedItem,
+  required Object? typedOwnedItem,
   required String? currency,
 }) {
-  final typedOwned = item.source.typedOwnedItem;
+  final typedOwned = typedOwnedItem;
   final details = typedOwned is MusicOwnedItem ? typedOwned.details : null;
   if (details == null) {
     return const [];

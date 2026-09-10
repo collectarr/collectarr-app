@@ -50,6 +50,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             type: type,
             item: item,
             ownedItem: ownedItem,
+            typedOwnedItem: item.source.typedOwnedItem,
             ownedSummary: ownedSummary,
             ownedCopies: ownedCopies,
             trackingEntry: trackingEntry,

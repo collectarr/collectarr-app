@@ -20,6 +20,7 @@ class LibraryPageEditCoordinator {
         type: _s.widget.type,
         item: item,
         ownedItem: item.source.ownedItem,
+        typedOwnedItem: item.source.typedOwnedItem,
         accent: _s.widget.accent,
         onAddOwned: () => _s._collectionActionCoordinator.runCollectionAction(
           (actions) => actions.addOwned(item),

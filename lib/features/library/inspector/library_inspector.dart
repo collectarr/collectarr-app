@@ -111,6 +111,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.typedOwnedItem,
     this.ownedCopies,
     this.detailsLayout = LibraryDetailsLayout.hidden,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
@@ -131,6 +132,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final LibraryKindModule type;
   final LibraryProjectionView? item;
   final OwnedItem? ownedItem;
+  final Object? typedOwnedItem;
   final List<OwnedItem>? ownedCopies;
   final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
@@ -182,6 +184,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
+    final typedOwnedItem =
+        widget.typedOwnedItem ?? selected.source.typedOwnedItem;
     // The selected projection owns the concrete item. The mixed collection
     // provider exposes summaries and is intentionally not converted back to
     // the removed common OwnedItem aggregate.
@@ -280,6 +284,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           type: widget.type,
           item: selected,
           ownedItem: activeOwnedItem,
+          typedOwnedItem: typedOwnedItem,
           accent: widget.accent,
           onAddOwned: selected.source.isOwned
               ? () => _addOwnedCopy(
@@ -309,6 +314,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         type: widget.type,
         item: selected,
         ownedItem: activeOwnedItem,
+        typedOwnedItem: typedOwnedItem,
         onEdit: widget.onEdit == null
             ? null
             : () => widget.onEdit!(activeOwnedItem),
@@ -507,6 +513,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           type: widget.type,
           item: selected,
           ownedItem: activeOwnedItem,
+          typedOwnedItem: inspectorRequest.typedOwnedItem,
           trackingEntry: activeTrackingEntry,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,

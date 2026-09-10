@@ -21,6 +21,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     this.type,
     required this.item,
     required this.ownedItem,
+    this.typedOwnedItem,
     this.ownedSummary,
     this.ownedCopies = const [],
     this.trackingEntry,
@@ -31,6 +32,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   final LibraryKindModule? type;
   final LibraryProjectionView item;
   final OwnedItem? ownedItem;
+  final Object? typedOwnedItem;
   final OwnedItemSummary? ownedSummary;
   final List<OwnedItemSummary> ownedCopies;
   final TrackingEntry? trackingEntry;
@@ -60,6 +62,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
           context: context,
           item: item,
           ownedItem: ownedItem,
+          typedOwnedItem: typedOwnedItem ?? item.source.typedOwnedItem,
           currency: currency,
         ) ??
         const [];

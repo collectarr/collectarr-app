@@ -41,7 +41,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final dto = item.dto;
     final comic = dto is ComicWorkspaceDto ? dto.comic : null;
     final ownedItem =
-        ComicOwnedItemProjection.tryFromOwnedItem(request.ownedItem);
+        ComicOwnedItemProjection.tryFromTyped(request.typedOwnedItem);
     final surface = palette.surface;
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);

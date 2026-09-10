@@ -45,6 +45,7 @@ class InspectorPersonalSection extends StatelessWidget {
     required this.type,
     required this.item,
     this.ownedItem,
+    this.typedOwnedItem,
     this.trackingEntry,
     required this.accent,
     this.valueSnapshot,
@@ -54,6 +55,7 @@ class InspectorPersonalSection extends StatelessWidget {
   final LibraryKindModule type;
   final LibraryProjectionView item;
   final OwnedItem? ownedItem;
+  final Object? typedOwnedItem;
   final TrackingEntry? trackingEntry;
   final Color accent;
   final LibraryValueSnapshot? valueSnapshot;
@@ -103,6 +105,7 @@ class InspectorPersonalSection extends StatelessWidget {
       context: context,
       item: item,
       ownedItem: ownedItem,
+      typedOwnedItem: typedOwnedItem ?? item.source.typedOwnedItem,
       currency: ownedItem?.currency ?? adapter?.currency,
     );
     final List<String> tagList =

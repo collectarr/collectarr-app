@@ -9,9 +9,10 @@ List<LibraryDetailField> buildComicPersonalDetailFields({
   required BuildContext context,
   required LibraryProjectionView item,
   required OwnedItem? ownedItem,
+  required Object? typedOwnedItem,
   required String? currency,
 }) {
-  final typedOwned = item.source.typedOwnedItem;
+  final typedOwned = typedOwnedItem;
   final details = typedOwned is ComicOwnedItem ? typedOwned.details : null;
   if (details == null || details.coverPriceCents == null) {
     return const [];

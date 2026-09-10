@@ -75,8 +75,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
               .toList()) ??
       const <TrailerLinkDto>[];
 
-  final ownedItem =
-      TvOwnedItemProjection.tryFromOwnedItem(request.ownedItem);
+  final ownedItem = TvOwnedItemProjection.tryFromTyped(request.typedOwnedItem);
   final trackingEntry = request.trackingEntry;
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[

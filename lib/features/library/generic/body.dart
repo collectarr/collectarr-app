@@ -360,6 +360,7 @@ class LibraryBody extends StatelessWidget {
           type: type,
           item: selected,
           ownedItem: selected?.source.ownedItem,
+          typedOwnedItem: selected?.source.typedOwnedItem,
           detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,
           accent: accent,
