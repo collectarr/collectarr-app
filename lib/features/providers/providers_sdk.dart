@@ -30,7 +30,7 @@ export 'credentials/secure_provider_credential_store.dart';
 export 'domain/contracts/metadata_provider.dart';
 export 'domain/contracts/provider_registry.dart';
 export 'transport/provider_preview_mapper.dart';
-export 'transport/normalized_provider_envelope_v1.dart';
+export 'transport/provider_metadata_envelope.dart';
 export 'domain/models/provider_attribution.dart';
 export 'domain/models/provider_descriptor.dart';
 export 'domain/models/provider_id.dart';

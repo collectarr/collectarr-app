@@ -14,7 +14,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -157,7 +157,7 @@ void main() {
         () {
       const mapper = BookLibraryKindProviderMapper();
       final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+        ProviderMetadataEnvelope(
           provider: 'openlibrary',
           providerItemId: 'OL12345M',
           kind: 'book',
@@ -197,7 +197,7 @@ void main() {
 
     test('BookLibraryKindProviderMapper rejects a non-Book envelope', () {
       const mapper = BookLibraryKindProviderMapper();
-      final envelope = NormalizedProviderEnvelopeV1(
+      final envelope = ProviderMetadataEnvelope(
         provider: 'comicvine',
         providerItemId: 'comic-1',
         kind: 'comic',

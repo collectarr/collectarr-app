@@ -1,19 +1,19 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 /// Maps normalized provider data directly into the TV-owned domain graph.
 final class TvProviderTypedMapper {
   const TvProviderTypedMapper._();
 
-  static TvSeries fromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  static TvSeries fromEnvelope(ProviderMetadataEnvelope envelope) {
     final payload = payloadFromEnvelope(envelope);
     return TvSeries.fromJson(payload);
   }
 
   static Map<String, dynamic> payloadFromEnvelope(
-    NormalizedProviderEnvelopeV1 envelope,
+    ProviderMetadataEnvelope envelope,
   ) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,

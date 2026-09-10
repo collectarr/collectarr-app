@@ -6,7 +6,7 @@ import 'package:xml/xml.dart';
 import '../../../../core/models/catalog_media_kind.dart';
 
 import '../../credentials/models/bgg_credentials.dart';
-import '../../transport/normalized_provider_envelope_v1.dart';
+import '../../transport/provider_metadata_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
@@ -124,7 +124,7 @@ class BGGProvider extends ProviderAdapter {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
@@ -192,7 +192,7 @@ class BGGProvider extends ProviderAdapter {
       );
     }
 
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: cleanId,

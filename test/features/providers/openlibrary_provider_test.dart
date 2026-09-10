@@ -224,7 +224,7 @@ void main() {
       );
       expect(olFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(olFixtureRaw as Map),
       );
 

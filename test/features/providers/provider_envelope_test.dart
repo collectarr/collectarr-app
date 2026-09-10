@@ -3,16 +3,16 @@ import 'dart:io';
 
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('NormalizedProviderEnvelopeV1 domain model', () {
+  group('ProviderMetadataEnvelope domain model', () {
     test('round-trips custom envelope model to and from JSON', () {
-      const envelope = NormalizedProviderEnvelopeV1(
+      const envelope = ProviderMetadataEnvelope(
         schemaVersion: 'v1',
         provider: 'openlibrary',
         providerItemId: 'OL12345W',
@@ -45,7 +45,7 @@ void main() {
       );
 
       final jsonMap = envelope.toJson();
-      final restored = NormalizedProviderEnvelopeV1.fromJson(jsonMap);
+      final restored = ProviderMetadataEnvelope.fromJson(jsonMap);
 
       expect(restored, equals(envelope));
       expect(restored.provider, 'openlibrary');
@@ -89,7 +89,7 @@ void main() {
 
       for (final rawItem in jsonList) {
         final itemMap = Map<String, dynamic>.from(rawItem as Map);
-        final envelope = NormalizedProviderEnvelopeV1.fromJson(itemMap);
+        final envelope = ProviderMetadataEnvelope.fromJson(itemMap);
 
         expect(envelope.schemaVersion, 'v1');
         expect(envelope.provider, isNotEmpty);
@@ -121,7 +121,7 @@ void main() {
 
       final schema =
           jsonDecode(schemaFile.readAsStringSync()) as Map<String, dynamic>;
-      expect(schema['title'], 'NormalizedProviderEnvelopeV1');
+      expect(schema['title'], 'ProviderMetadataEnvelope');
       expect(schema['type'], 'object');
       final required = List<String>.from(schema['required'] as List);
       expect(
@@ -140,9 +140,9 @@ void main() {
     });
 
     test(
-        'metadataItemFromEnvelope maps NormalizedProviderEnvelopeV1 into CatalogItemDto correctly',
+        'metadataItemFromEnvelope maps ProviderMetadataEnvelope into CatalogItemDto correctly',
         () {
-      final comicEnvelope = NormalizedProviderEnvelopeV1(
+      final comicEnvelope = ProviderMetadataEnvelope(
         provider: 'gcd',
         providerItemId: '123',
         kind: 'comic',

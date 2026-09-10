@@ -208,7 +208,7 @@ final _providerKindCases = <_ProviderKindCase>[
 
 CatalogItemDto _metadataItemFor(
   CatalogMediaKind kind,
-  NormalizedProviderEnvelopeV1 envelope,
+  ProviderMetadataEnvelope envelope,
 ) {
   return switch (kind) {
     CatalogMediaKind.anime =>
@@ -235,7 +235,7 @@ CatalogItemDto _metadataItemFor(
 
 Object _catalogFor(
   CatalogMediaKind kind,
-  NormalizedProviderEnvelopeV1 envelope,
+  ProviderMetadataEnvelope envelope,
 ) {
   return switch (kind) {
     CatalogMediaKind.anime =>
@@ -260,9 +260,9 @@ Object _catalogFor(
   };
 }
 
-NormalizedProviderEnvelopeV1 _envelopeFor(_ProviderKindCase testCase) {
+ProviderMetadataEnvelope _envelopeFor(_ProviderKindCase testCase) {
   final normalized = testCase.normalizeNative();
-  return NormalizedProviderEnvelopeV1(
+  return ProviderMetadataEnvelope(
     provider: testCase.provider,
     providerItemId: testCase.providerItemId,
     kind: testCase.kind.apiValue,
@@ -312,7 +312,7 @@ void main() {
       expect(item.id, testCase.providerItemId);
       expect(item.title.trim(), isNotEmpty);
       expect(item.kindMetadata, isNot(isA<Map<String, dynamic>>()));
-      expect(item.kindMetadata, isNot(isA<NormalizedProviderEnvelopeV1>()));
+      expect(item.kindMetadata, isNot(isA<ProviderMetadataEnvelope>()));
 
       final catalog = _catalogFor(testCase.kind, envelope);
       expect(catalog, isNotNull);
@@ -334,7 +334,7 @@ void main() {
         CatalogMediaKind.music => CatalogMediaKind.book,
         CatalogMediaKind.unknown => CatalogMediaKind.comic,
       };
-      final envelope = NormalizedProviderEnvelopeV1(
+      final envelope = ProviderMetadataEnvelope(
         provider: 'contract-test',
         providerItemId: 'wrong-kind',
         kind: wrongKind.apiValue,

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/providers/music
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/musicbrainz_provider.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/metadata_provider.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
 /// Kind-owned facade over the shared MusicBrainz transport.
@@ -37,7 +37,7 @@ final class MusicMusicBrainzIntegration {
     return MusicMusicBrainzMapper.fromNative(release);
   }
 
-  MusicRelease mapEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  MusicRelease mapEnvelope(ProviderMetadataEnvelope envelope) {
     return MusicMusicBrainzMapper.fromEnvelope(envelope);
   }
 }

@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -144,7 +144,7 @@ void main() {
         () {
       const mapper = AnimeLibraryKindProviderMapper();
       final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+        ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: '154587',
           kind: 'anime',

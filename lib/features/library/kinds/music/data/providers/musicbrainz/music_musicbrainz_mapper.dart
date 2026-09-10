@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_media.d
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/providers/adapters/musicbrainz/models/musicbrainz_release.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 /// Converts MusicBrainz-native and normalized payloads into Music's typed graph.
 final class MusicMusicBrainzMapper {
@@ -41,7 +41,7 @@ final class MusicMusicBrainzMapper {
     );
   }
 
-  static MusicRelease fromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  static MusicRelease fromEnvelope(ProviderMetadataEnvelope envelope) {
     _validateEnvelope(envelope);
     final normalized = Map<String, dynamic>.from(envelope.normalized);
     final providerId = _requiredText(
@@ -298,7 +298,7 @@ final class MusicMusicBrainzMapper {
   static String? _coverUrl(String providerId) =>
       'https://coverartarchive.org/release/$providerId/front.jpg';
 
-  static void _validateEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  static void _validateEnvelope(ProviderMetadataEnvelope envelope) {
     if (envelope.provider.trim().toLowerCase() != 'musicbrainz') {
       throw StateError(
         'Music MusicBrainz integration received ${envelope.provider} data',

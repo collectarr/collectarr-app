@@ -3,13 +3,13 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadat
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 class MangaLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<MangaCatalog> {
   const MangaLibraryKindProviderMapper();
 
-  MangaMetadata metadataFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  MangaMetadata metadataFromEnvelope(ProviderMetadataEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.manga,
@@ -28,7 +28,7 @@ class MangaLibraryKindProviderMapper
   }
 
   @override
-  MangaCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  MangaCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.manga,
@@ -48,8 +48,7 @@ class MangaLibraryKindProviderMapper
   }
 
   @override
-  CatalogItemDto metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
     return CatalogItemDto(
       identity: LibraryItemIdentity(
         id: envelope.providerItemId,

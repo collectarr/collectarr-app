@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provi
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -166,12 +166,12 @@ void main() {
   });
 }
 
-NormalizedProviderEnvelopeV1 _movieEnvelope({
+ProviderMetadataEnvelope _movieEnvelope({
   String kind = 'movie',
   Map<String, dynamic> normalized = const <String, dynamic>{},
   List<ProviderImageRef> images = const <ProviderImageRef>[],
 }) {
-  return NormalizedProviderEnvelopeV1(
+  return ProviderMetadataEnvelope(
     provider: 'tmdb',
     providerItemId: 'movie-1',
     kind: kind,

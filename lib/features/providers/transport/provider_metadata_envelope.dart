@@ -6,8 +6,8 @@ import '../domain/models/provider_image_ref.dart';
 import '../domain/models/provider_provenance.dart';
 
 @immutable
-class NormalizedProviderEnvelopeV1 {
-  const NormalizedProviderEnvelopeV1({
+class ProviderMetadataEnvelope {
+  const ProviderMetadataEnvelope({
     this.schemaVersion = 'v1',
     required this.provider,
     required this.providerItemId,
@@ -27,11 +27,11 @@ class NormalizedProviderEnvelopeV1 {
   final List<ProviderImageRef> images;
   final ProviderAttribution attribution;
 
-  factory NormalizedProviderEnvelopeV1.fromAdminPreview(
+  factory ProviderMetadataEnvelope.fromAdminPreview(
     AdminProviderPreview preview, {
     required String itemId,
   }) {
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       provider: preview.provider,
       providerItemId: itemId,
       kind: preview.kind,
@@ -90,7 +90,7 @@ class NormalizedProviderEnvelopeV1 {
     );
   }
 
-  factory NormalizedProviderEnvelopeV1.fromJson(Map<String, dynamic> json) {
+  factory ProviderMetadataEnvelope.fromJson(Map<String, dynamic> json) {
     final rawNormalized = json['normalized'];
     final normalized = <String, dynamic>{};
     if (rawNormalized is Map) {
@@ -123,7 +123,7 @@ class NormalizedProviderEnvelopeV1 {
             Map<String, dynamic>.from(rawAttribution))
         : const ProviderAttribution(required: false);
 
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       schemaVersion: json['schema_version']?.toString() ?? 'v1',
       provider: json['provider']?.toString() ?? '',
       providerItemId: json['provider_item_id']?.toString() ?? '',
@@ -151,7 +151,7 @@ class NormalizedProviderEnvelopeV1 {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NormalizedProviderEnvelopeV1 &&
+      other is ProviderMetadataEnvelope &&
           runtimeType == other.runtimeType &&
           schemaVersion == other.schemaVersion &&
           provider == other.provider &&

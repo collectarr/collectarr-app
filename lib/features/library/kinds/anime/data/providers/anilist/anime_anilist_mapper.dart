@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/providers/adapters/anilist/models/anilist_media.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 /// Converts AniList's native GraphQL model into the Anime-owned domain graph.
 final class AnimeAniListMapper {
@@ -17,7 +17,7 @@ final class AnimeAniListMapper {
     return AnimeMedia.fromJson(_payloadFromNative(media));
   }
 
-  static AnimeMedia fromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  static AnimeMedia fromEnvelope(ProviderMetadataEnvelope envelope) {
     _validateEnvelope(envelope);
     final normalized = Map<String, dynamic>.from(envelope.normalized);
     final coverImageUrl = _text(normalized['cover_image_url']) ??
@@ -107,7 +107,7 @@ final class AnimeAniListMapper {
     };
   }
 
-  static void _validateEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  static void _validateEnvelope(ProviderMetadataEnvelope envelope) {
     if (envelope.provider.trim().toLowerCase() != 'anilist') {
       throw StateError(
         'Anime AniList integration received ${envelope.provider} data',

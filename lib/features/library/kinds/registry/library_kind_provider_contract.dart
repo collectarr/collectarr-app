@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 /// Typed kind-owned provider mapping contract.
 ///
@@ -9,11 +9,11 @@ import 'package:collectarr_app/features/providers/transport/normalized_provider_
 /// admin are registered as tear-off functions at the composition root; they
 /// are not part of this typed domain contract.
 abstract interface class TypedLibraryKindProviderMapper<TCatalog> {
-  TCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope);
+  TCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope);
 }
 
 typedef ProviderMetadataItemMapper = CatalogItemDto Function(
-  NormalizedProviderEnvelopeV1 envelope,
+  ProviderMetadataEnvelope envelope,
 );
 
 typedef ProviderCorrectionBuilder = Map<String, Object?> Function({
@@ -26,7 +26,7 @@ typedef ProviderCorrectionBuilder = Map<String, Object?> Function({
 /// Provider adapters may use different native DTOs, but every mapping must
 /// hand the kind the same minimum identity and title contract.
 void validateLibraryKindProviderEnvelope({
-  required NormalizedProviderEnvelopeV1 envelope,
+  required ProviderMetadataEnvelope envelope,
   required CatalogMediaKind expectedKind,
 }) {
   final actualKind = catalogMediaKindFromApiValue(envelope.kind);

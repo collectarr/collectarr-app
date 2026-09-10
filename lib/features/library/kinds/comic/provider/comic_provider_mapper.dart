@@ -3,14 +3,14 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 class ComicLibraryKindProviderMapper
     implements TypedLibraryKindProviderMapper<ComicCatalog> {
   const ComicLibraryKindProviderMapper();
 
   @override
-  ComicCatalog catalogFromEnvelope(NormalizedProviderEnvelopeV1 envelope) {
+  ComicCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.comic,
@@ -30,8 +30,7 @@ class ComicLibraryKindProviderMapper
   }
 
   @override
-  CatalogItemDto metadataItemFromEnvelope(
-      NormalizedProviderEnvelopeV1 envelope) {
+  CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
       expectedKind: CatalogMediaKind.comic,

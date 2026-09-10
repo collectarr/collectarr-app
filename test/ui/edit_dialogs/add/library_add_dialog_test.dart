@@ -2754,7 +2754,7 @@ class _FakeMetadataProvider implements MetadataCapability {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
@@ -2762,7 +2762,7 @@ class _FakeMetadataProvider implements MetadataCapability {
     if (providerItemId == 'musicbrainz-1' ||
         mediaKind == CatalogMediaKind.music ||
         name == 'musicbrainz') {
-      return NormalizedProviderEnvelopeV1(
+      return ProviderMetadataEnvelope(
         provider: name,
         providerItemId: providerItemId,
         kind: 'music',
@@ -2789,7 +2789,7 @@ class _FakeMetadataProvider implements MetadataCapability {
         attribution: const ProviderAttribution(required: false),
       );
     }
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: providerItemId,
       kind: mediaKind.apiValue,
@@ -2802,11 +2802,11 @@ class _FakeMetadataProvider implements MetadataCapability {
     );
   }
 
-  Future<NormalizedProviderEnvelopeV1?> searchByBarcode(
+  Future<ProviderMetadataEnvelope?> searchByBarcode(
     String barcode, {
     CatalogMediaKind? kind,
   }) async {
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: '$name-$barcode',
       kind: (kind ?? catalogMediaKindFromApiValue(defaultKind)).apiValue,

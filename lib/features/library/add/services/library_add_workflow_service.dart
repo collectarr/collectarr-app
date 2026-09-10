@@ -22,7 +22,7 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +48,7 @@ class LibraryAddWorkflowService {
     }
     return LibraryAddCatalogItem.fromItem(
       mapper(
-        NormalizedProviderEnvelopeV1.fromAdminPreview(
+        ProviderMetadataEnvelope.fromAdminPreview(
           preview,
           itemId: id,
         ),

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -15,7 +15,7 @@ abstract interface class MetadataCapability {
     int limit = 25,
   });
 
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   });
@@ -73,7 +73,7 @@ abstract interface class ImageCapability {
 }
 
 abstract interface class BarcodeCapability {
-  Future<NormalizedProviderEnvelopeV1?> lookupByBarcode(
+  Future<ProviderMetadataEnvelope?> lookupByBarcode(
     String barcode, {
     CatalogMediaKind? kind,
   });
@@ -155,7 +155,7 @@ final class ProviderConnector implements MetadataCapability {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) {

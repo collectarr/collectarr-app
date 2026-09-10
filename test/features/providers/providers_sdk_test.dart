@@ -37,11 +37,11 @@ class _FakeTestProvider implements MetadataCapability {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: providerItemId,
       kind: (kind ?? descriptor.kind).apiValue,

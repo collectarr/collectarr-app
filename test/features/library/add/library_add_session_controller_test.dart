@@ -568,7 +568,7 @@ void main() {
             kind: CatalogMediaKind.book,
           ),
         ],
-        fetchHandler: (id, {kind}) async => NormalizedProviderEnvelopeV1(
+        fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(
           schemaVersion: 'v1',
           provider: 'test_prov',
           providerItemId: id,
@@ -652,7 +652,7 @@ void main() {
             kind: CatalogMediaKind.comic,
           ),
         ],
-        fetchHandler: (id, {kind}) async => NormalizedProviderEnvelopeV1(
+        fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(
           schemaVersion: 'v1',
           provider: 'comic_prov',
           providerItemId: id,
@@ -763,7 +763,7 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   final String kind;
   final Future<List<ProviderSearchResult>> Function(String query,
       {CatalogMediaKind? kind, int limit})? searchHandler;
-  final Future<NormalizedProviderEnvelopeV1> Function(String id,
+  final Future<ProviderMetadataEnvelope> Function(String id,
       {CatalogMediaKind? kind})? fetchHandler;
 
   @override
@@ -795,7 +795,7 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
     CatalogMediaKind? kind,
   }) async {

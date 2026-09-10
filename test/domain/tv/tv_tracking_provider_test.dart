@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_typed_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_profile.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -93,7 +93,7 @@ void main() {
   test(
       'typed TV provider mapper validates kind and falls back to provider image',
       () {
-    final envelope = NormalizedProviderEnvelopeV1(
+    final envelope = ProviderMetadataEnvelope(
       provider: 'tmdb',
       providerItemId: '1396',
       kind: 'tv',
@@ -117,7 +117,7 @@ void main() {
 
     expect(
       () => TvProviderTypedMapper.fromEnvelope(
-        NormalizedProviderEnvelopeV1(
+        ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '872585',
           kind: 'movie',

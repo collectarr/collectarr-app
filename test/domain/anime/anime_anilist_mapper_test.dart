@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/anime/data/providers/anilist/anime_anilist_integration.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/providers/anilist/anime_anilist_mapper.dart';
 import 'package:collectarr_app/features/providers/adapters/anilist/models/anilist_media.dart';
-import 'package:collectarr_app/features/providers/transport/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
@@ -64,7 +64,7 @@ void main() {
   });
 
   test('maps an AniList envelope and falls back to its image list', () {
-    final envelope = NormalizedProviderEnvelopeV1(
+    final envelope = ProviderMetadataEnvelope(
       provider: 'anilist',
       providerItemId: 'anime:999',
       kind: 'anime',
@@ -96,7 +96,7 @@ void main() {
     );
     expect(
       () => AnimeAniListMapper.fromEnvelope(
-        NormalizedProviderEnvelopeV1(
+        ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: 'manga:42',
           kind: 'manga',

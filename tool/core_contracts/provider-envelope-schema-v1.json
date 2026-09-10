@@ -148,6 +148,6 @@
     "images",
     "attribution"
   ],
-  "title": "NormalizedProviderEnvelopeV1",
+  "title": "ProviderMetadataEnvelope",
   "type": "object"
 }
