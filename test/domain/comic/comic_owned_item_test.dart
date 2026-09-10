@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
@@ -93,12 +92,17 @@ void main() {
       details: item.details,
     );
 
-    final typed = ComicOwnedItemProjection.fromOwnedItem(source);
+    final typed = ComicOwnedItem.fromJson(
+      Map<String, dynamic>.from(source.toJson()),
+    );
     expect(typed.id, item.id);
     expect(typed.details, item.details);
     expect(typed.reading, const ComicReadingState());
 
-    final roundTripped = ComicOwnedItemProjection.toOwnedItem(typed);
+    final roundTripped = OwnedItem.fromJson(
+      Map<String, Object?>.from(typed.toJson()),
+      decodeDetails: ComicOwnedDetails.fromJson,
+    );
     expect(roundTripped.toJson(), source.toJson());
   });
 
