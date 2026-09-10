@@ -25,9 +25,8 @@ class LibraryPageToolbarController {
           ? item.dto as WorkspaceDtoAdapter
           : null;
       final itemNumber = adapter?.itemNumber?.trim();
-      final format = adapter?.referenceFormatLabel ??
-          adapter?.format ??
-          adapter?.variant;
+      final format =
+          adapter?.referenceFormatLabel ?? adapter?.format ?? adapter?.variant;
       final subtitleParts = <String>[
         if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
         if (format != null && format.isNotEmpty) format,
@@ -239,9 +238,10 @@ class LibraryPageToolbarController {
                 _s.widget.type.edit.hasConditionPickList
                     ? _s._dialogCoordinator.showConditionPickListEditorFlow
                     : null,
-            onShowGradePickListEditorFlow: _s.widget.type.edit.hasGradePickList
-                ? _s._dialogCoordinator.showGradePickListEditorFlow
-                : null,
+            onShowGradePickListEditorFlow:
+                _s.widget.type.edit.hasCollectionValuePickList
+                    ? _s._dialogCoordinator.showGradePickListEditorFlow
+                    : null,
             onShowTagPickListEditorFlow:
                 _s._dialogCoordinator.showTagPickListEditorFlow,
           ),

@@ -202,7 +202,7 @@ void main() {
             reason: '$kind payload must retain its owning kind');
         expect(runtime.edit.ownedIndexUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned Owned index payload');
-        expect(runtime.edit.ownedConditionGradeUpdatePayloadBuilder, isNotNull,
+        expect(runtime.edit.ownedConditionValueUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned condition/grade payload');
         expect(runtime.edit.ownedBulkUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned bulk payload');

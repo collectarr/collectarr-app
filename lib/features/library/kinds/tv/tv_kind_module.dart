@@ -69,6 +69,14 @@ const _tvAddChrome = LibraryAddChromeConfig(
 
 final _tvTransferableFields = <TransferableField>[
   TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  TransferableField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
@@ -167,6 +175,10 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     _tvLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _tvTransferableFields) field.key,
+    ],
     kindFields: _tvTransferableFields,
   ),
   stats: const TvStatsCapability(),
@@ -269,24 +281,27 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     conditions: TvVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     createDraft: createTvEditDraft,
     ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         TvOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        TvOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            TvOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             TvOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

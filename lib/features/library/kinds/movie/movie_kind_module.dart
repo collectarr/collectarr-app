@@ -70,6 +70,14 @@ const _movieAddChrome = LibraryAddChromeConfig(
 
 final _movieTransferableFields = <TransferableField>[
   TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  TransferableField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
@@ -199,6 +207,10 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     _movieLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _movieTransferableFields) field.key,
+    ],
     kindFields: _movieTransferableFields,
   ),
   stats: const MovieStatsCapability(),
@@ -288,24 +300,27 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     conditions: MovieVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     createDraft: createMovieEditDraft,
     ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         MovieOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        MovieOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            MovieOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             MovieOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

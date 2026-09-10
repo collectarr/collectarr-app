@@ -37,6 +37,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -46,6 +47,17 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 const _musicArtistFilterId = LibraryAddFilterId('music.artist');
 const _musicLabelFilterId = LibraryAddFilterId('music.label');
 const _musicYearFilterId = LibraryAddFilterId('music.year');
+
+final _musicTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+];
 
 const _musicAddChrome = LibraryAddChromeConfig(
   mediaReferenceLabel: 'Album',
@@ -115,7 +127,13 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   linkedMetadata: TypedLibraryLinkedMetadataCapability<MusicCatalogMetadata>(
     _musicLinkedMetadataValues,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _musicTransferableFields) field.key,
+    ],
+    kindFields: _musicTransferableFields,
+  ),
   stats: const MusicStatsCapability(),
   add: StandardLibraryAddCapability<MusicAddDraft>(
     kind: CatalogMediaKind.music,
@@ -196,24 +214,27 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     conditions: MusicVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     createDraft: createMusicEditDraft,
     ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         MusicOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        MusicOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            MusicOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             MusicOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

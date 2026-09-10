@@ -40,7 +40,7 @@ class LibraryBulkActions {
       final updateCmd = runtime.edit.buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
         condition: selection.condition,
-        grade: selection.collectionValue,
+        collectionValue: selection.collectionValue,
         locationId: selection.locationId,
         tags: selection.tags,
       );

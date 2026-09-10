@@ -48,6 +48,14 @@ final class ComicTransferableField {
 
 final comicTransferableFields = <ComicTransferableField>[
   ComicTransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  ComicTransferableField(
     key: 'rawOrSlabbed',
     label: 'Raw / Slabbed',
     icon: Icons.layers_outlined,

@@ -595,7 +595,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     label: 'Grade',
                     options: _kindVocabularyOptions(
                       suffix: 'grade',
-                      fallback: _editCapability.grades,
+                      fallback: _editCapability.collectionValueOptions,
                     ),
                   ),
                 ]),

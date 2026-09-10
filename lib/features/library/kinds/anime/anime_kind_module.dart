@@ -65,6 +65,14 @@ const _animeAddChrome = LibraryAddChromeConfig(
 
 final _animeTransferableFields = <TransferableField>[
   TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  TransferableField(
     key: 'features',
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
@@ -160,6 +168,10 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     _animeLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _animeTransferableFields) field.key,
+    ],
     kindFields: _animeTransferableFields,
   ),
   stats: const AnimeStatsCapability(),
@@ -257,7 +269,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     conditions: AnimeVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
     createDraft: createAnimeEditDraft,
     ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
@@ -265,17 +277,20 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
         AnimeOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        AnimeOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            AnimeOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             AnimeOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

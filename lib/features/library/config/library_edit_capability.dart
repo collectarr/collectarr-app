@@ -29,9 +29,9 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
 typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
     Function(String ownedItemId, int indexNumber);
 
-typedef LibraryOwnedConditionGradeUpdatePayloadBuilder
+typedef LibraryOwnedConditionValueUpdatePayloadBuilder
     = OwnedItemUpdatePayload<Object?> Function(
-        String ownedItemId, String? condition, String? grade);
+        String ownedItemId, String? condition, String? collectionValue);
 
 typedef LibraryOwnedCollectionValueReader = String? Function(
   OwnedItem? ownedItem,
@@ -41,7 +41,7 @@ typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
     Function(
   String ownedItemId,
   String? condition,
-  String? grade,
+  String? collectionValue,
   String? locationId,
   String? tags,
 );
@@ -67,7 +67,7 @@ typedef LibraryOwnedTransferUpdatePayloadBuilder
 typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload<Object?>
     Function();
 
-/// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
+/// Encapsulates edit dialogs, edit chrome, field config, condition/value options,
 /// kind-owned draft creation, and update command building.
 class LibraryEditCapability {
   const LibraryEditCapability({
@@ -78,14 +78,14 @@ class LibraryEditCapability {
     this.editChrome = const LibraryEditChromeConfig(),
     this.vocabularies,
     required this.conditions,
-    this.grades = const [],
+    this.collectionValueOptions = const [],
     required this.ownedCollectionValueReader,
     required this.defaultCondition,
-    required this.defaultGrade,
+    required this.defaultCollectionValue,
     required this.createDraft,
     required this.ownedDigitalFlagResolver,
     this.ownedIndexUpdatePayloadBuilder,
-    this.ownedConditionGradeUpdatePayloadBuilder,
+    this.ownedConditionValueUpdatePayloadBuilder,
     this.ownedBulkUpdatePayloadBuilder,
     this.ownedPersonalDetailsUpdatePayloadBuilder,
     this.ownedTransferUpdatePayloadBuilder,
@@ -99,15 +99,15 @@ class LibraryEditCapability {
   final LibraryEditChromeConfig editChrome;
   final LibraryKindVocabularyCapability? vocabularies;
   final List<String> conditions;
-  final List<String> grades;
+  final List<String> collectionValueOptions;
   final LibraryOwnedCollectionValueReader ownedCollectionValueReader;
   final String defaultCondition;
-  final String defaultGrade;
+  final String defaultCollectionValue;
   final LibraryEditKindDraftFactory createDraft;
   final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
   final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
-  final LibraryOwnedConditionGradeUpdatePayloadBuilder?
-      ownedConditionGradeUpdatePayloadBuilder;
+  final LibraryOwnedConditionValueUpdatePayloadBuilder?
+      ownedConditionValueUpdatePayloadBuilder;
   final LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder;
   final LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
       ownedPersonalDetailsUpdatePayloadBuilder;
@@ -116,7 +116,7 @@ class LibraryEditCapability {
   final LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
-  bool get hasGradePickList => grades.isNotEmpty;
+  bool get hasCollectionValuePickList => collectionValueOptions.isNotEmpty;
 
   String? readOwnedCollectionValue(OwnedItem? ownedItem) =>
       ownedCollectionValueReader(ownedItem);
@@ -154,27 +154,27 @@ class LibraryEditCapability {
     );
   }
 
-  UpdateOwnedItemCommand buildConditionGradeUpdateCommand({
+  UpdateOwnedItemCommand buildConditionValueUpdateCommand({
     required OwnedItemRef ownedRef,
     required String? condition,
-    required String? grade,
+    required String? collectionValue,
   }) {
-    final builder = ownedConditionGradeUpdatePayloadBuilder;
+    final builder = ownedConditionValueUpdatePayloadBuilder;
     if (builder == null) {
       throw StateError(
-        'No typed Owned condition/grade update builder is registered.',
+        'No typed Owned condition/value update builder is registered.',
       );
     }
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
-      payload: builder(ownedRef.id.value, condition, grade),
+      payload: builder(ownedRef.id.value, condition, collectionValue),
     );
   }
 
   UpdateOwnedItemCommand buildBulkUpdateCommand({
     required OwnedItemRef ownedRef,
     required String? condition,
-    required String? grade,
+    required String? collectionValue,
     required String? locationId,
     required String? tags,
   }) {
@@ -187,7 +187,7 @@ class LibraryEditCapability {
       payload: builder(
         ownedRef.id.value,
         condition,
-        grade,
+        collectionValue,
         locationId,
         tags,
       ),

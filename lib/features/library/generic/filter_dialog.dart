@@ -287,14 +287,15 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
     for (final definition in type.presentation.filterDefinitions) definition.id,
   };
   final editCap = type.edit;
-  final grades = editCap.grades;
-  final hasGrades = grades.isNotEmpty && supportedFields.contains('grade');
+  final collectionValues = editCap.collectionValueOptions;
+  final hasCollectionValues =
+      collectionValues.isNotEmpty && supportedFields.contains('grade');
   final fieldValues = <String, String?>{};
   for (final entry in selection.fieldValues.entries) {
     if (!supportedFields.contains(entry.key)) {
       continue;
     }
-    if (entry.key == 'grade' && !hasGrades) {
+    if (entry.key == 'grade' && !hasCollectionValues) {
       continue;
     }
     fieldValues[entry.key] = entry.value;

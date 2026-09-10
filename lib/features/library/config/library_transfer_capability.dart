@@ -12,7 +12,6 @@ const kTransferableReleaseFieldKeys = <String>[
 
 const kTransferablePersonalFieldKeys = <String>[
   'condition',
-  'grade',
   'personalNotes',
   'locationId',
   'tags',

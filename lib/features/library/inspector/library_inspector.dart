@@ -401,7 +401,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (!usesCustomInspectorPanel &&
         activeOwnedItem != null &&
         (editCapability.conditions.isNotEmpty ||
-            editCapability.grades.isNotEmpty) &&
+            editCapability.collectionValueOptions.isNotEmpty) &&
         widget.type.edit.resolveOwnedDigitalFlag(
               activeOwnedItem,
               selected.source.catalogItem?.editions ?? const [],
@@ -424,7 +424,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     value.toString()
                 ];
           final builtInGrades = gradeDefinition == null
-              ? editCapability.grades
+              ? editCapability.collectionValueOptions
               : [
                   for (final value in gradeDefinition.builtIns) value.toString()
                 ];
@@ -463,17 +463,18 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                   ],
                 ),
             accent: widget.accent,
-            onConditionChanged: (value) => _updateConditionGrade(
+            onConditionChanged: (value) => _updateConditionValue(
               context,
               activeOwnedItem,
               condition: value,
-              grade: widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
+              collectionValue:
+                  widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
             ),
-            onSecondaryChanged: (value) => _updateConditionGrade(
+            onSecondaryChanged: (value) => _updateConditionValue(
               context,
               activeOwnedItem,
               condition: activeOwnedItem.condition,
-              grade: value,
+              collectionValue: value,
             ),
           );
         },
@@ -576,7 +577,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           ],
           if (activeOwnedItem != null &&
               (editCapability.conditions.isNotEmpty ||
-                  editCapability.grades.isNotEmpty) &&
+                  editCapability.collectionValueOptions.isNotEmpty) &&
               widget.type.edit.resolveOwnedDigitalFlag(
                     activeOwnedItem,
                     selected.source.catalogItem?.editions ?? const [],
@@ -596,17 +597,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  Future<void> _updateConditionGrade(
+  Future<void> _updateConditionValue(
     BuildContext context,
     OwnedItem item, {
     required String? condition,
-    required String? grade,
+    required String? collectionValue,
   }) async {
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          widget.type.edit.buildConditionGradeUpdateCommand(
+          widget.type.edit.buildConditionValueUpdateCommand(
             ownedRef: item.ref,
             condition: condition,
-            grade: grade,
+            collectionValue: collectionValue,
           ),
         );
     if (context.mounted) {

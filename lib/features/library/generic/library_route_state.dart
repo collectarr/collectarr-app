@@ -395,7 +395,7 @@ LibraryQuickView? sanitizeLibraryQuickViewForType(
   if (quickView == null) {
     return null;
   }
-  if (quickView.requiresGrades && type.edit.grades.isEmpty) {
+  if (quickView.requiresGrades && type.edit.collectionValueOptions.isEmpty) {
     return null;
   }
   return quickView;

@@ -66,6 +66,14 @@ String? _mangaHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
 
 final _mangaTransferableFields = <TransferableField>[
   TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  TransferableField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
@@ -205,6 +213,10 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     _mangaLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _mangaTransferableFields) field.key,
+    ],
     kindFields: _mangaTransferableFields,
   ),
   stats: const MangaStatsCapability(),
@@ -303,7 +315,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     editChrome: const LibraryEditChromeConfig(
       titleUsesItemTitle: true,
       synopsisLabel: 'Plot',
@@ -316,17 +328,20 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
         MangaOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        MangaOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            MangaOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             MangaOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

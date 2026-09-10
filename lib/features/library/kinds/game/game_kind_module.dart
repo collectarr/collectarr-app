@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/kinds/game/edit/media/game_media
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
+import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
@@ -44,6 +45,17 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _gamePlatformFilterId = LibraryAddFilterId('game.platform');
 const _gameYearFilterId = LibraryAddFilterId('game.year');
+
+final _gameTransferableFields = <TransferableField>[
+  TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+];
 
 Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       metadata.series,
@@ -94,7 +106,13 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   linkedMetadata: TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
     _gameLinkedMetadataValues,
   ),
-  transfer: const LibraryTransferCapability(),
+  transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _gameTransferableFields) field.key,
+    ],
+    kindFields: _gameTransferableFields,
+  ),
   stats: const GameStatsCapability(),
   add: StandardLibraryAddCapability<GameAddDraft>(
     kind: CatalogMediaKind.game,
@@ -160,7 +178,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     conditions: GameVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     presentation: gameLibraryEditPresentation,
     createDraft: createGameEditDraft,
     ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
@@ -168,17 +186,20 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
         GameOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        GameOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            GameOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             GameOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

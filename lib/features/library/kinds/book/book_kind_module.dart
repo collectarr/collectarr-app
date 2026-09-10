@@ -55,6 +55,14 @@ const _bookYearFilterId = LibraryAddFilterId('book.year');
 
 final _bookTransferableFields = <TransferableField>[
   TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  TransferableField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
@@ -214,6 +222,10 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     _bookLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _bookTransferableFields) field.key,
+    ],
     kindFields: _bookTransferableFields,
   ),
   stats: const BookStatsCapability(),
@@ -310,24 +322,27 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     conditions: BookVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     createDraft: createBookEditDraft,
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         BookOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        BookOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            BookOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             BookOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

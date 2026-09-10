@@ -11,7 +11,7 @@ enum TransferableFieldType {
   boolean,
 }
 
-/// A field on [OwnedItem] that can participate in the Transfer Field Data flow.
+/// A structural field descriptor used by the transfer UI.
 class TransferableField {
   const TransferableField({
     required this.key,
@@ -67,16 +67,12 @@ class TransferableField {
   }
 
   // ---------------------------------------------------------------------------
-  // Readers and Writers for universal OwnedItem properties
+  // Readers and writers for genuinely universal Owned properties.
   // ---------------------------------------------------------------------------
 
   static String? _readCondition(OwnedItem item) => item.condition;
   static OwnedItem _writeCondition(OwnedItem item, String? v) =>
       item.copyWith(condition: v);
-
-  static String? _readGrade(OwnedItem item) => item.grade;
-  static OwnedItem _writeGrade(OwnedItem item, String? v) =>
-      item.copyWith(grade: v);
 
   static String? _readPersonalNotes(OwnedItem item) => item.personalNotes;
   static OwnedItem _writePersonalNotes(OwnedItem item, String? v) =>
@@ -130,7 +126,7 @@ class TransferableField {
   static OwnedItem _writeSoldAt(OwnedItem item, String? v) =>
       item.copyWith(soldAt: v != null ? DateTime.tryParse(v) : null);
 
-  /// Universal built-in transferable fields on [OwnedItem].
+  /// Universal built-in transferable fields.
   static const List<TransferableField> universalBuiltIn = [
     // --- Text ---
     TransferableField(
@@ -140,14 +136,6 @@ class TransferableField {
       type: TransferableFieldType.text,
       read: _readCondition,
       write: _writeCondition,
-    ),
-    TransferableField(
-      key: 'grade',
-      label: 'Grade',
-      icon: Icons.workspace_premium_outlined,
-      type: TransferableFieldType.text,
-      read: _readGrade,
-      write: _writeGrade,
     ),
     TransferableField(
       key: 'personalNotes',

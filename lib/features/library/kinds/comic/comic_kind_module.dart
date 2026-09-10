@@ -81,6 +81,7 @@ String? _comicHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
 
 const _comicTransferableFieldKeys = <String>[
   ...kDefaultTransferableFieldKeys,
+  'grade',
   'rawOrSlabbed',
   'gradingCompany',
   'graderNotes',
@@ -269,10 +270,10 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
     presentation: comicsLibraryEditPresentation,
     conditions: ComicVocabularies.condition.builtIns,
-    grades: ComicVocabularies.grade.builtIns,
+    collectionValueOptions: ComicVocabularies.grade.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     editChrome: const LibraryEditChromeConfig(
       titleUsesItemTitle: true,
       synopsisLabel: 'Plot',
@@ -285,17 +286,20 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
         ComicOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        ComicOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            ComicOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             ComicOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

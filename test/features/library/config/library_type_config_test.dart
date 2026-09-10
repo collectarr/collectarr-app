@@ -599,8 +599,10 @@ void main() {
   });
 
   test('transferable field keys are kind-owned', () {
-    expect(bookKindModule.transfer.transferableFieldKeys,
-        kDefaultTransferableFieldKeys);
+    expect(
+      bookKindModule.transfer.transferableFieldKeys,
+      containsAll([...kDefaultTransferableFieldKeys, 'grade']),
+    );
     expect(
       comicKindModule.transfer.transferableFieldKeys,
       containsAll([

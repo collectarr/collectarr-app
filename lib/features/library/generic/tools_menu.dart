@@ -68,7 +68,8 @@ class LibraryToolsButton extends StatelessWidget {
       quickViewsLabel: 'Views',
       quickViews: [
         for (final view in LibraryQuickView.values)
-          if (!view.requiresGrades || type.edit.grades.isNotEmpty)
+          if (!view.requiresGrades ||
+              type.edit.collectionValueOptions.isNotEmpty)
             LibraryUtilityQuickView(
               value: view,
               label: view.label,

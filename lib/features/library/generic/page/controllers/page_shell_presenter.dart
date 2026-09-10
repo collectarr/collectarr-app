@@ -402,7 +402,7 @@ abstract final class LibraryPageShellPresenter {
         onEditConditionPickList: state.widget.type.edit.hasConditionPickList
             ? state._dialogCoordinator.showConditionPickListEditorFlow
             : null,
-        onEditGradePickList: state.widget.type.edit.hasGradePickList
+        onEditGradePickList: state.widget.type.edit.hasCollectionValuePickList
             ? state._dialogCoordinator.showGradePickListEditorFlow
             : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,

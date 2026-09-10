@@ -45,6 +45,14 @@ const _boardGameYearFilterId = LibraryAddFilterId('boardgame.year');
 
 final _boardgameTransferableFields = <TransferableField>[
   TransferableField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  TransferableField(
     key: 'isSleeved',
     label: 'Sleeved',
     icon: Icons.shield_outlined,
@@ -132,6 +140,10 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     _boardGameLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _boardgameTransferableFields) field.key,
+    ],
     kindFields: _boardgameTransferableFields,
   ),
   add: StandardLibraryAddCapability<BoardgameAddDraft>(
@@ -211,24 +223,27 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     conditions: BoardGameVocabularies.condition.builtIns,
     ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
-    defaultGrade: 'Ungraded',
+    defaultCollectionValue: 'Ungraded',
     createDraft: createBoardGameEditDraft,
     ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         BoardgameOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionGradeUpdatePayloadBuilder: (ownedItemId, condition, grade) =>
-        BoardgameOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder:
+        (ownedItemId, condition, collectionValue) =>
+            BoardgameOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
-      grade: Patch.set(grade),
+      grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, grade, locationId, tags) =>
+        (ownedItemId, condition, collectionValue, locationId, tags) =>
             BoardgameOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
-      grade: grade == null ? const Patch.unchanged() : Patch.set(grade),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
       locationId:
           locationId == null ? const Patch.unchanged() : Patch.set(locationId),
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),

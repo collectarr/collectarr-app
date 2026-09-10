@@ -15,7 +15,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     this.createdAt,
     this.isDigital,
     this.targetRef,
-    required TDetails this.details,
+    required this.details,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -86,7 +86,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
   bool get isDeleted => deletedAt != null;
   bool get isSold => soldAt != null;
 
-  Map<String, dynamic> toSyncPayload() {
+  JsonMap toSyncPayload() {
     return {
       'catalog_ref': catalogRef.toJson(),
       if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
@@ -114,7 +114,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     };
   }
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     return {
       'id': id,
       'catalog_ref': catalogRef.toJson(),
@@ -149,7 +149,7 @@ class OwnedItem<TDetails extends JsonEncodable> {
     Map<String, Object?> json, {
     required TDetails Function(Map<String, Object?> json) decodeDetails,
   }) {
-    final catalogRefJson = (json['catalog_ref'] as Map).cast<String, dynamic>();
+    final catalogRefJson = (json['catalog_ref'] as Map).cast<String, Object?>();
     final catalogRef = CatalogEntityRef.fromJson(catalogRefJson);
     final details = decodeDetails(json);
 
@@ -322,5 +322,5 @@ OwnedItemSummary ownedItemSummaryFromOwnedItem(OwnedItem item) {
 
 CatalogEntityRef? _targetRefFromJson(Object? value) {
   if (value is! Map) return null;
-  return CatalogEntityRef.fromJson(Map<String, dynamic>.from(value));
+  return CatalogEntityRef.fromJson(Map<String, Object?>.from(value));
 }
