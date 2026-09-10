@@ -371,9 +371,6 @@ class LibraryFilterOptions {
       for (final tag in splitPickListValues(source.tags)) {
         addValue('tag', tag);
       }
-      if (source.grade?.trim().isNotEmpty == true) {
-        addValue('grade', source.grade);
-      }
       if (source.condition?.trim().isNotEmpty == true) {
         addValue('condition', source.condition);
       }

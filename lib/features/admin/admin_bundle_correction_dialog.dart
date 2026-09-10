@@ -40,11 +40,17 @@ class _BundleReleaseCorrectionDialogState
         TextEditingController(text: bundle.variantType ?? '');
     _packagingTypeController =
         TextEditingController(text: bundle.packagingType ?? '');
-    _regionController = TextEditingController(text: bundle.region ?? '');
+    _regionController = TextEditingController(
+      text: bundle.valueForAdminField('region') as String? ?? '',
+    );
     _languageController = TextEditingController(text: bundle.language ?? '');
-    _publisherController = TextEditingController(text: bundle.publisher ?? '');
+    _publisherController = TextEditingController(
+      text: bundle.valueForAdminField('publisher') as String? ?? '',
+    );
     _skuController = TextEditingController(text: bundle.sku ?? '');
-    _barcodeController = TextEditingController(text: bundle.barcode ?? '');
+    _barcodeController = TextEditingController(
+      text: bundle.valueForAdminField('barcode') as String? ?? '',
+    );
     _releaseDateController = TextEditingController(
       text: bundle.releaseDate == null ? '' : _formatDate(bundle.releaseDate!),
     );
@@ -382,12 +388,20 @@ class _BundleReleaseCorrectionDialogState
         _packagingTypeController.text,
         widget.bundle.packagingType,
       ),
-      region: _changedText(_regionController.text, widget.bundle.region),
+      region: _changedText(
+        _regionController.text,
+        widget.bundle.valueForAdminField('region') as String?,
+      ),
       language: _changedText(_languageController.text, widget.bundle.language),
-      publisher:
-          _changedText(_publisherController.text, widget.bundle.publisher),
+      publisher: _changedText(
+        _publisherController.text,
+        widget.bundle.valueForAdminField('publisher') as String?,
+      ),
       sku: _changedText(_skuController.text, widget.bundle.sku),
-      barcode: _changedText(_barcodeController.text, widget.bundle.barcode),
+      barcode: _changedText(
+        _barcodeController.text,
+        widget.bundle.valueForAdminField('barcode') as String?,
+      ),
       releaseDate: releaseDate != null &&
               !_sameUtcDate(releaseDate, widget.bundle.releaseDate)
           ? releaseDate
@@ -435,8 +449,12 @@ class _BundleReleaseCorrectionDialogState
       widget.bundle.packagingType,
       correction.packagingType ?? widget.bundle.packagingType,
     );
-    add('Region', widget.bundle.region,
-        correction.region ?? widget.bundle.region);
+    final currentRegion = widget.bundle.valueForAdminField('region') as String?;
+    final currentPublisher =
+        widget.bundle.valueForAdminField('publisher') as String?;
+    final currentBarcode =
+        widget.bundle.valueForAdminField('barcode') as String?;
+    add('Region', currentRegion, correction.region ?? currentRegion);
     add(
       'Language',
       widget.bundle.language,
@@ -444,12 +462,11 @@ class _BundleReleaseCorrectionDialogState
     );
     add(
       'Publisher',
-      widget.bundle.publisher,
-      correction.publisher ?? widget.bundle.publisher,
+      currentPublisher,
+      correction.publisher ?? currentPublisher,
     );
     add('SKU', widget.bundle.sku, correction.sku ?? widget.bundle.sku);
-    add('Barcode', widget.bundle.barcode,
-        correction.barcode ?? widget.bundle.barcode);
+    add('Barcode', currentBarcode, correction.barcode ?? currentBarcode);
     add(
       'Release date',
       widget.bundle.releaseDate,

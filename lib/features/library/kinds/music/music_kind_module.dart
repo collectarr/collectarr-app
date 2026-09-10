@@ -41,7 +41,6 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_fiel
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _musicArtistFilterId = LibraryAddFilterId('music.artist');
@@ -195,6 +194,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,
     conditions: MusicVocabularies.condition.builtIns,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createMusicEditDraft,

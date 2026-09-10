@@ -23,7 +23,6 @@ import 'package:collectarr_app/features/library/details/library_detail_wiring.da
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
@@ -440,7 +439,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     conditionListName: conditionDefinition?.key,
                     gradeListName: gradeDefinition?.key,
                     selectedCondition: activeOwnedItem.condition,
-                    selectedGrade: activeOwnedItem.grade,
+                    selectedGrade: widget.type.edit
+                        .readOwnedCollectionValue(activeOwnedItem),
                   ),
                 ),
               )
@@ -448,25 +448,28 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           return InspectorCollectionFields(
             enabled: true,
             condition: activeOwnedItem.condition,
-            grade: activeOwnedItem.grade,
+            secondaryValue:
+                widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
             conditions: options?.conditions ??
                 mergePickListValues(
                   builtInValues: builtInConditions,
                   selectedValues: [activeOwnedItem.condition],
                 ),
-            grades: options?.grades ??
+            secondaryOptions: options?.grades ??
                 mergePickListValues(
                   builtInValues: builtInGrades,
-                  selectedValues: [activeOwnedItem.grade],
+                  selectedValues: [
+                    widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
+                  ],
                 ),
             accent: widget.accent,
             onConditionChanged: (value) => _updateConditionGrade(
               context,
               activeOwnedItem,
               condition: value,
-              grade: activeOwnedItem.grade,
+              grade: widget.type.edit.readOwnedCollectionValue(activeOwnedItem),
             ),
-            onGradeChanged: (value) => _updateConditionGrade(
+            onSecondaryChanged: (value) => _updateConditionGrade(
               context,
               activeOwnedItem,
               condition: activeOwnedItem.condition,

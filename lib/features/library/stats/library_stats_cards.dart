@@ -230,10 +230,10 @@ class LibraryMissingIssuesCard extends StatelessWidget {
                     runSpacing: 5,
                     children: [
                       for (final issue in missingIssues.take(10))
-                        _MissingIssuePill(issue: issue),
+                        _MissingIssuePill(value: issue),
                       if (missingIssues.length > 10)
                         _MissingIssuePill(
-                          issue: missingIssues.length - 10,
+                          value: missingIssues.length - 10,
                           more: true,
                         ),
                     ],
@@ -480,9 +480,9 @@ class _MoneyDistributionRow extends StatelessWidget {
 }
 
 class _MissingIssuePill extends StatelessWidget {
-  const _MissingIssuePill({required this.issue, this.more = false});
+  const _MissingIssuePill({required this.value, this.more = false});
 
-  final int issue;
+  final int value;
   final bool more;
 
   @override
@@ -497,7 +497,7 @@ class _MissingIssuePill extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         child: Text(
-          more ? '+$issue' : '#$issue',
+          more ? '+$value' : '#$value',
           style: TextStyle(
             color: colors.textPrimary,
             fontSize: 11,

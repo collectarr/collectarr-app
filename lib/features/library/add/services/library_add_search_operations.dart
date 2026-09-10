@@ -117,7 +117,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
     api: api,
     type: type,
     catalog: catalog,
-    barcodes: [identifierCode],
+    codes: [identifierCode],
   ).timeout(timeout);
   final foundItems = <LibraryAddCatalogItem>[
     for (final result in results)

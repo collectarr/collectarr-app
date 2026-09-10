@@ -392,7 +392,6 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
   Object? get kindMetadata => catalogItem?.kindMetadata;
 
   String? get condition => ownedItem?.condition;
-  String? get grade => ownedItem?.grade;
   int? get pricePaidCents =>
       ownedSummary?.pricePaidCents ?? ownedItem?.pricePaidCents;
   int? get sellPriceCents =>

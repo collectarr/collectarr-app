@@ -36,18 +36,24 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     _characterInputController = TextEditingController();
     _storyArcInputController = TextEditingController();
     _characters = List<String>.from(_relationNameList(widget.item.characters));
-    _storyArcs = List<String>.from(_relationNameList(widget.item.storyArcs));
+    _storyArcs = List<String>.from(
+      _relationNameList(
+        widget.item.valueForAdminField('story_arcs')
+            as List<Map<String, dynamic>>?,
+      ),
+    );
     _creators = [
       for (final creator in widget.item.creators)
         _EditableCreator.fromMap(creator),
     ];
     _tracks = [
-      for (final track in (widget.item.music?.tracks ?? const <CatalogTrackDto>[]))
+      for (final track
+          in (widget.item.music?.tracks ?? const <CatalogTrackDto>[]))
         _EditableTrack.fromTrack(track),
     ];
     _physicalFormatId = edition?.physicalFormat ??
         physicalMediaFormatById(
-          edition?.physicalFormatLabel ?? '',
+          edition?.formatLabel ?? '',
           formats: widget.physicalFormats,
         )?.id ??
         '';
@@ -880,11 +886,11 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       'item_number' => item.itemNumber,
       'edition_title' => edition?.title,
       'release_date' => edition?.releaseDate,
-      'publisher' => edition?.publisher ?? item.publisher,
-      'imprint' => item.publishing?.imprint,
+      'publisher' => item.valueForAdminField(key),
+      'imprint' => item.valueForAdminField(key),
       'subtitle' => item.publishing?.subtitle,
       'series_group' => item.publishing?.seriesGroup,
-      'barcode' => item.barcode ?? variant?.barcode,
+      'barcode' => item.valueForAdminField(key),
       'variant_name' => variant?.name,
       'page_count' => item.publishing?.pageCount,
       'runtime_minutes' => item.video?.runtimeMinutes,

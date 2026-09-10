@@ -11,16 +11,16 @@ typedef LibraryBarcodeLookupResultCallback = void Function(
 
 class LibraryBarcodeLookupResult {
   const LibraryBarcodeLookupResult.found({
-    required this.barcode,
+    required this.code,
     required CatalogSearchCandidate this.item,
   }) : error = null;
 
   const LibraryBarcodeLookupResult.missing({
-    required this.barcode,
+    required this.code,
     required Object this.error,
   }) : item = null;
 
-  final String barcode;
+  final String code;
   final CatalogSearchCandidate? item;
   final Object? error;
 
@@ -52,24 +52,24 @@ Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
-  required Iterable<String> barcodes,
+  required Iterable<String> codes,
   LibraryBarcodeLookupResultCallback? onResult,
 }) async {
   final results = <LibraryBarcodeLookupResult>[];
   final foundItems = <CatalogSearchCandidate>[];
-  for (final barcode in barcodes) {
+  for (final code in codes) {
     try {
-      final item = await lookupLibraryBarcode(api, type, barcode);
+      final item = await lookupLibraryBarcode(api, type, code);
       foundItems.add(item);
       final result = LibraryBarcodeLookupResult.found(
-        barcode: barcode,
+        code: code,
         item: item,
       );
       results.add(result);
       onResult?.call(result);
     } catch (error) {
       final result = LibraryBarcodeLookupResult.missing(
-        barcode: barcode,
+        code: code,
         error: error,
       );
       results.add(result);

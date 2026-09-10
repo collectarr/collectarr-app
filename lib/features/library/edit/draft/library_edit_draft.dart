@@ -26,7 +26,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:flutter/material.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
@@ -163,7 +162,9 @@ class LibraryEditDraft {
     );
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
     final conditionController = create(ownedItem?.condition ?? '');
-    final gradeController = create(ownedItem?.grade ?? '');
+    final gradeController = create(
+      type.edit.readOwnedCollectionValue(ownedItem) ?? '',
+    );
     final purchaseDateController = create(
       ownedItem?.purchaseDate == null
           ? ''

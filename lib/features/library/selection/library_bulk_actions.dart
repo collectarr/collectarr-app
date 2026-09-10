@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
@@ -41,7 +40,7 @@ class LibraryBulkActions {
       final updateCmd = runtime.edit.buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
         condition: selection.condition,
-        grade: selection.grade,
+        grade: selection.collectionValue,
         locationId: selection.locationId,
         tags: selection.tags,
       );

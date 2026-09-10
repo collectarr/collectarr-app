@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LibraryBulkEditSelection {
   const LibraryBulkEditSelection({
     this.condition,
-    this.grade,
+    this.collectionValue,
     this.applyLocation = false,
     this.locationId,
     this.tags,
@@ -22,7 +22,7 @@ class LibraryBulkEditSelection {
   });
 
   final String? condition;
-  final String? grade;
+  final String? collectionValue;
   final bool applyLocation;
   final String? locationId;
   final String? tags;
@@ -47,7 +47,7 @@ class LibraryBulkEditDialog extends ConsumerStatefulWidget {
 
 class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   String? _condition;
-  String? _grade;
+  String? _collectionValue;
   String? _readStatus;
   int? _rating;
   final _tagsController = TextEditingController();
@@ -114,7 +114,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
               ],
               if (grades.isNotEmpty) ...[
                 DropdownButtonFormField<String>(
-                  initialValue: _grade,
+                  initialValue: _collectionValue,
                   dropdownColor: palette.panelRaised,
                   borderRadius: kAppMenuBorderRadius,
                   decoration: const InputDecoration(
@@ -129,7 +129,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                   ],
                   onChanged: (value) {
                     setState(
-                      () => _grade =
+                      () => _collectionValue =
                           value == null || value.isEmpty ? null : value,
                     );
                   },
@@ -204,7 +204,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
           onPressed: () => Navigator.of(context).pop(
             LibraryBulkEditSelection(
               condition: _condition,
-              grade: _grade,
+              collectionValue: _collectionValue,
               applyLocation: _applyLocation,
               locationId: _locationId,
               tags: _emptyToNull(_tagsController.text),
@@ -252,7 +252,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
       conditionListName: conditionDefinition?.key,
       gradeListName: gradeDefinition?.key,
       selectedCondition: _condition,
-      selectedGrade: _grade,
+      selectedGrade: _collectionValue,
     );
     final tagOptions = await loadTagPickListOptions(
       ref.read(localDatabaseProvider),

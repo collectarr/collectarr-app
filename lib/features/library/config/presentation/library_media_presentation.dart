@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 
@@ -14,6 +15,11 @@ typedef LibraryCardPresentationBuilder = LibraryCardPresentation Function(
   required bool musicVertical,
 });
 
+typedef LibraryQuickViewMatcher = bool? Function(
+  LibraryProjectionView item,
+  LibraryQuickView view,
+);
+
 class LibraryMediaPresentation {
   const LibraryMediaPresentation({
     required this.searchFieldLabels,
@@ -22,6 +28,7 @@ class LibraryMediaPresentation {
     required this.builder,
     required this.bucketLabelBuilder,
     this.cardPresentationBuilder,
+    this.quickViewMatcher,
     this.usesCompactTableLayout = false,
     this.compactBucketIcon = Icons.folder,
     this.emptyStateProviderSummarySuffix = '',
@@ -42,6 +49,7 @@ class LibraryMediaPresentation {
   final LibraryMediaPresentationBuilder builder;
   final LibraryBucketLabelBuilder bucketLabelBuilder;
   final LibraryCardPresentationBuilder? cardPresentationBuilder;
+  final LibraryQuickViewMatcher? quickViewMatcher;
   final bool usesCompactTableLayout;
   final IconData compactBucketIcon;
   final String emptyStateProviderSummarySuffix;

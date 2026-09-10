@@ -44,7 +44,7 @@ void main() {
       api: api,
       type: comicKindModule,
       catalog: CatalogTransportRepository(db),
-      barcodes: const ['012345678905', '000000000000'],
+      codes: const ['012345678905', '000000000000'],
       onResult: seen.add,
     );
     final rows = await CatalogSnapshotRepository(db).findAll();
@@ -52,7 +52,7 @@ void main() {
     expect(results.length, 2);
     expect(results.first.found, isTrue);
     expect(results.last.found, isFalse);
-    expect(seen.map((result) => result.barcode), [
+    expect(seen.map((result) => result.code), [
       '012345678905',
       '000000000000',
     ]);

@@ -69,6 +69,23 @@ class BundleReleaseSummary {
   final String? volumeName;
   final BundleReleaseContentSummary contentSummary;
 
+  Object? valueForAdminField(String key) => switch (key) {
+        'title' => title,
+        'bundle_type' => bundleType,
+        'format' => format,
+        'variant_type' => variantType,
+        'packaging_type' => packagingType,
+        'region' => region,
+        'language' => language,
+        'publisher' => publisher,
+        'sku' => sku,
+        'barcode' => barcode,
+        'release_date' => releaseDate,
+        'cover_image_url' => coverImageUrl,
+        'thumbnail_image_url' => thumbnailImageUrl,
+        _ => null,
+      };
+
   factory BundleReleaseSummary.fromJson(Map<String, dynamic> json) {
     return BundleReleaseSummary(
       id: json['id'] as String,

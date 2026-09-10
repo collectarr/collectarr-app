@@ -34,7 +34,6 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_cover_scan_hints.dart';
@@ -271,6 +270,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     presentation: comicsLibraryEditPresentation,
     conditions: ComicVocabularies.condition.builtIns,
     grades: ComicVocabularies.grade.builtIns,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     editChrome: const LibraryEditChromeConfig(

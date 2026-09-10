@@ -31,35 +31,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const double _kInspectorEditorLabelWidth = 92;
 
-/// Inline condition / grade dropdowns for any library type.
+/// Inline collection-value dropdowns for any library type.
+///
+/// The host owns only the layout. The owning kind supplies the secondary
+/// value label and vocabulary; the widget deliberately does not model a
+/// domain-specific field.
 class InspectorCollectionFields extends StatelessWidget {
   const InspectorCollectionFields({
     super.key,
     required this.enabled,
     required this.condition,
-    required this.grade,
+    required this.secondaryValue,
     required this.conditions,
-    required this.grades,
+    required this.secondaryOptions,
     required this.onConditionChanged,
-    required this.onGradeChanged,
+    required this.onSecondaryChanged,
     required this.accent,
   });
 
   final bool enabled;
   final String? condition;
-  final String? grade;
+  final String? secondaryValue;
   final List<String> conditions;
-  final List<String> grades;
+  final List<String> secondaryOptions;
   final ValueChanged<String?>? onConditionChanged;
-  final ValueChanged<String?>? onGradeChanged;
+  final ValueChanged<String?>? onSecondaryChanged;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final hasConditions = conditions.isNotEmpty;
-    final hasGrades = grades.isNotEmpty;
-    if (!hasConditions && !hasGrades) return const SizedBox.shrink();
+    final hasSecondaryOptions = secondaryOptions.isNotEmpty;
+    if (!hasConditions && !hasSecondaryOptions) {
+      return const SizedBox.shrink();
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -82,27 +88,29 @@ class InspectorCollectionFields extends StatelessWidget {
               onChanged: enabled ? onConditionChanged : null,
             ),
           ),
-        if (hasGrades)
+        if (hasSecondaryOptions)
           _InspectorEditorRow(
-            label: 'Grade',
+            label: 'Collection value',
             child: DropdownButtonFormField<String>(
               isExpanded: true,
               dropdownColor: palette.panelRaised,
               borderRadius: kAppMenuBorderRadius,
-              initialValue: grades.contains(grade) ? grade : null,
+              initialValue: secondaryOptions.contains(secondaryValue)
+                  ? secondaryValue
+                  : null,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 isDense: true,
               ),
               items: [
-                for (final option in grades)
+                for (final option in secondaryOptions)
                   DropdownMenuItem(value: option, child: Text(option)),
               ],
-              onChanged: enabled ? onGradeChanged : null,
+              onChanged: enabled ? onSecondaryChanged : null,
             ),
           ),
         Text(
-          'Condition and grade save immediately.',
+          'Collection values save immediately.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: palette.textMuted,
               ),

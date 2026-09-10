@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
@@ -106,11 +108,12 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Grade',
     anyLabel: 'Any grade',
     missingValueLabel: 'Missing grade',
-    value: (item) => item.source.grade,
+    value: (item) => item.source.ownedItem?.grade,
     matches: (item, value) => value == LibraryFilterDefinition.missingValue
         ? item.source.isOwned &&
-            (item.source.grade == null || item.source.grade!.trim().isEmpty)
-        : item.source.grade?.trim() == value,
+            (item.source.ownedItem?.grade == null ||
+                item.source.ownedItem!.grade!.trim().isEmpty)
+        : item.source.ownedItem?.grade?.trim() == value,
   ),
   LibraryFilterDefinition<dynamic>(
     id: 'condition',
@@ -203,9 +206,22 @@ final comicLibraryMediaPresentation = LibraryMediaPresentation(
   builder: comicLibraryMediaBuilder,
   bucketLabelBuilder: comicLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildComicCardPresentation,
+  quickViewMatcher: comicQuickViewMatcher,
   usesCompactTableLayout: true,
   previewLabels: comicsPreviewLabels,
   filterDefinitions: comicLibraryFilterDefinitions,
   sortFavorites: comicLibrarySortFavorites,
   columnFavorites: comicsTableColumnPresets,
 );
+
+bool? comicQuickViewMatcher(
+  LibraryProjectionView item,
+  LibraryQuickView view,
+) {
+  return switch (view) {
+    LibraryQuickView.missingGrade => item.source.isOwned &&
+        (item.source.ownedItem?.grade == null ||
+            item.source.ownedItem!.grade!.trim().isEmpty),
+    _ => null,
+  };
+}

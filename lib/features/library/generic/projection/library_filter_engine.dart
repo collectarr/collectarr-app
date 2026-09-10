@@ -43,7 +43,7 @@ class LibraryFilterEngine {
     if (!_matchesCollectionStatusScope(item, query.collectionStatusScope)) {
       return false;
     }
-    if (!_matchesQuickView(item, query.quickView)) {
+    if (!_matchesQuickView(item, type, query.quickView)) {
       return false;
     }
     if (!_matchesFilter(
@@ -135,17 +135,19 @@ class LibraryFilterEngine {
 
   bool _matchesQuickView(
     LibraryProjectionItem item,
+    LibraryKindModule type,
     LibraryQuickView? quickView,
   ) {
+    if (quickView == null) return true;
+    final kindResult = type.presentation.quickViewMatcher?.call(item, quickView);
+    if (kindResult != null) return kindResult;
     return switch (quickView) {
-      null => true,
       LibraryQuickView.owned => item.source.isOwned,
       LibraryQuickView.wishlist => item.source.isWishlisted,
       LibraryQuickView.missingCovers =>
         item.dto.coverImageUrl == null || item.dto.coverImageUrl!.isEmpty,
       LibraryQuickView.missingMetadata => false,
-      LibraryQuickView.missingGrade => item.source.isOwned &&
-          (item.source.grade == null || item.source.grade!.trim().isEmpty),
+      LibraryQuickView.missingGrade => false,
     };
   }
 

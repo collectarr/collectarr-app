@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
@@ -33,6 +32,10 @@ typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
 typedef LibraryOwnedConditionGradeUpdatePayloadBuilder
     = OwnedItemUpdatePayload<Object?> Function(
         String ownedItemId, String? condition, String? grade);
+
+typedef LibraryOwnedCollectionValueReader = String? Function(
+  OwnedItem? ownedItem,
+);
 
 typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
     Function(
@@ -76,6 +79,7 @@ class LibraryEditCapability {
     this.vocabularies,
     required this.conditions,
     this.grades = const [],
+    required this.ownedCollectionValueReader,
     required this.defaultCondition,
     required this.defaultGrade,
     required this.createDraft,
@@ -96,6 +100,7 @@ class LibraryEditCapability {
   final LibraryKindVocabularyCapability? vocabularies;
   final List<String> conditions;
   final List<String> grades;
+  final LibraryOwnedCollectionValueReader ownedCollectionValueReader;
   final String defaultCondition;
   final String defaultGrade;
   final LibraryEditKindDraftFactory createDraft;
@@ -112,6 +117,9 @@ class LibraryEditCapability {
 
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasGradePickList => grades.isNotEmpty;
+
+  String? readOwnedCollectionValue(OwnedItem? ownedItem) =>
+      ownedCollectionValueReader(ownedItem);
 
   bool? resolveOwnedDigitalFlag(
     OwnedItem? ownedItem,

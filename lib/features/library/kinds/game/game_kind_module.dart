@@ -40,7 +40,6 @@ import 'package:collectarr_app/features/library/config/library_kind_browser_dele
 
 import 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _gamePlatformFilterId = LibraryAddFilterId('game.platform');
@@ -159,6 +158,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
     conditions: GameVocabularies.condition.builtIns,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     presentation: gameLibraryEditPresentation,

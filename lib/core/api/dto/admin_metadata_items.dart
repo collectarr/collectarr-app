@@ -202,6 +202,61 @@ class AdminMetadataItem {
 
   AdminEdition? get primaryEdition => editions.isEmpty ? null : editions.first;
 
+  /// Reads a serialized admin field without making the Admin feature depend on
+  /// the transport DTO's semantic object graph. The field key is supplied by
+  /// the generated metadata contract at the API boundary.
+  Object? valueForAdminField(String key) {
+    final edition = primaryEdition;
+    final variant = primaryVariant;
+    return switch (key) {
+      'title' => title,
+      'original_title' => originalTitle,
+      'localized_title' => localizedTitle,
+      'sort_key' => sortKey,
+      'search_aliases' => searchAliases,
+      'title_extension' => titleExtension,
+      'item_number' => itemNumber,
+      'edition_title' => edition?.title,
+      'release_date' => edition?.releaseDate ?? coverDate,
+      'publisher' => edition?.publisher ?? publisher,
+      'imprint' => publishing?.imprint,
+      'subtitle' => publishing?.subtitle,
+      'series_group' => publishing?.seriesGroup,
+      'barcode' => variant?.barcode ?? barcode,
+      'variant_name' => variant?.name,
+      'page_count' => publishing?.pageCount,
+      'runtime_minutes' => video?.runtimeMinutes,
+      'color' => video?.color,
+      'nr_discs' => video?.nrDiscs,
+      'screen_ratio' => video?.screenRatio,
+      'audio_tracks' => video?.audioTracks,
+      'subtitles' => video?.subtitles,
+      'layers' => video?.layers,
+      'catalog_number' => music?.catalogNumber,
+      'release_status' => music?.releaseStatus,
+      'country' => country,
+      'language' => language,
+      'age_rating' => ageRating,
+      'audience_rating' => audienceRating,
+      'series_tags' => series?.tags,
+      'cover_image_url' => variant?.coverImageUrl,
+      'thumbnail_image_url' => variant?.thumbnailImageUrl,
+      'synopsis' => synopsis,
+      'crossover' => crossover,
+      'plot_summary' => plotSummary,
+      'plot_description' => plotDescription,
+      'genres' => genres,
+      'platforms' => platforms,
+      'trailer_urls' => trailerUrls,
+      'external_links' => externalLinks,
+      'characters' => characters,
+      'story_arcs' => storyArcs,
+      'creators' => creators,
+      'tracks' => music?.tracks,
+      _ => null,
+    };
+  }
+
   String? get displayCoverUrl =>
       primaryVariant?.thumbnailImageUrl ?? primaryVariant?.coverImageUrl;
 
@@ -354,6 +409,8 @@ class AdminEdition {
   final String? physicalFormatLabel;
   final List<AdminVariant> variants;
 
+  String? get formatLabel => physicalFormatLabel ?? physicalFormat;
+
   factory AdminEdition.fromJson(Map<String, dynamic> json) {
     return AdminEdition(
       id: json['id']?.toString() ?? '',
@@ -398,6 +455,8 @@ class AdminVariant {
   final String? thumbnailImageUrl;
   final String? physicalFormat;
   final String? physicalFormatLabel;
+
+  String? get formatLabel => physicalFormatLabel ?? physicalFormat;
 
   String get coverStatus {
     if (coverImageUrl == null && thumbnailImageUrl == null) {

@@ -47,7 +47,6 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
@@ -287,6 +286,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
     presentation: movieLibraryEditPresentation,
     conditions: MovieVocabularies.condition.builtIns,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createMovieEditDraft,

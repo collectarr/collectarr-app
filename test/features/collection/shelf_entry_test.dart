@@ -41,7 +41,7 @@ void main() {
       expect(entry.isOwned, isTrue);
       expect(entry.isWishlisted, isFalse);
       expect(entry.condition, 'Near Mint');
-      expect(entry.grade, '9.8');
+      expect(entry.ownedItem?.grade, '9.8');
       expect(entry.pricePaidCents, 1500);
       expect(entry.marketValueCents, 4500);
       expect(entry.currency, 'USD');
@@ -78,7 +78,7 @@ void main() {
       expect(entry.isOwned, isFalse);
       expect(entry.isWishlisted, isTrue);
       expect(entry.condition, isNull);
-      expect(entry.grade, isNull);
+      expect(entry.ownedItem, isNull);
       expect(entry.pricePaidCents, isNull);
       expect(entry.tags, isNull);
       expect(entry.tagList, isEmpty);

@@ -36,7 +36,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardga
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
@@ -210,6 +209,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
     presentation: boardGamesLibraryEditPresentation,
     conditions: BoardGameVocabularies.condition.builtIns,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     createDraft: createBoardGameEditDraft,

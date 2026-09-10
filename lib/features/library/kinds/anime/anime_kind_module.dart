@@ -43,7 +43,6 @@ import 'package:collectarr_app/features/library/config/library_facet_module.dart
 import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -256,6 +255,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     editDialogBuilder: buildAnimeLibraryEditDialog,
     presentation: animeLibraryEditPresentation,
     conditions: AnimeVocabularies.condition.builtIns,
+    ownedCollectionValueReader: (ownedItem) => ownedItem?.grade,
     defaultCondition: 'Near Mint',
     defaultGrade: 'Ungraded',
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
