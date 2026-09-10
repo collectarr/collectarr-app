@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -9,7 +9,7 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -48,32 +48,32 @@ final collectionSummariesProvider =
 
 /// Full persistence aggregates are exposed only to typed edit/sync flows.
 final trackingPersistenceEntriesProvider =
-    FutureProvider<List<TrackingEntry>>((ref) async {
-  final cache = TrackingEntryRepository(
+    FutureProvider<List<TrackingLifecycle>>((ref) async {
+  final cache = TrackingLifecycleRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingEntryCodecs,
+    codecs: collectarrTrackingLifecycleCodecs,
   );
   return cache.listActive();
 });
 
 final trackingPersistenceEntriesByCatalogRefProvider =
-    Provider<Map<CatalogEntityRef, List<TrackingEntry>>>((ref) {
+    Provider<Map<CatalogEntityRef, List<TrackingLifecycle>>>((ref) {
   final tracking = ref.watch(trackingPersistenceEntriesProvider);
   return tracking.maybeWhen(
     data: (items) {
-      final grouped = <CatalogEntityRef, List<TrackingEntry>>{};
+      final grouped = <CatalogEntityRef, List<TrackingLifecycle>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
         }
-        grouped.putIfAbsent(item.catalogRef, () => <TrackingEntry>[]).add(item);
+        grouped.putIfAbsent(item.catalogRef, () => <TrackingLifecycle>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
       }
       return grouped;
     },
-    orElse: () => const <CatalogEntityRef, List<TrackingEntry>>{},
+    orElse: () => const <CatalogEntityRef, List<TrackingLifecycle>>{},
   );
 });
 
@@ -82,7 +82,7 @@ final trackingPersistenceEntriesByCatalogRefProvider =
 /// Collection/Shelf/Activity must not carry the full tracking aggregate.
 final trackingSummariesProvider =
     FutureProvider<List<TrackingSummary>>((ref) async {
-  final cache = TrackingEntryRepository(ref.watch(localDatabaseProvider));
+  final cache = TrackingLifecycleRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
 });
 

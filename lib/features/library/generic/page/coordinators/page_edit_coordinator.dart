@@ -98,7 +98,7 @@ class LibraryPageEditCoordinator {
     final activeTrackingEntry = resolveActiveTrackingEntry(
       _s.ref.read(
               trackingPersistenceEntriesByCatalogRefProvider)[catalogItem.catalogRef] ??
-          const <TrackingEntry>[],
+          const <TrackingLifecycle>[],
       owned,
     );
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
@@ -243,7 +243,7 @@ class LibraryPageEditCoordinator {
     LibraryEditSelection result, {
     required OwnedItemSummary? owned,
     required WishlistItem? wishlist,
-    required TrackingEntry? activeTrackingEntry,
+    required TrackingLifecycle? activeTrackingEntry,
     required LibraryAddCatalogItem catalogItem,
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,

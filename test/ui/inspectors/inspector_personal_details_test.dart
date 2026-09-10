@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../helpers/test_constants.dart';
 import '../../helpers/secure_storage_mock.dart';
 import '../../helpers/test_data_factories.dart';
-import '../../helpers/tracking_entry_test_helpers.dart';
+import '../../helpers/tracking_lifecycle_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -103,7 +103,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final trackingRepository = trackingEntryTestRepository(db);
+    final trackingRepository = trackingLifecycleTestRepository(db);
     await trackingRepository.upsert(
       trackingRepository.create(
         id: 'tracking-1',
@@ -124,7 +124,7 @@ void main() {
             body: InspectorTrackingDetailsEditor(
               itemId: 'movie-1',
               mediaType: 'movie',
-              trackingEntry: TrackingEntry(
+              trackingEntry: TrackingLifecycle(
                 id: 'tracking-1',
                 catalogRef: testCatalogRef('movie-1', kind: 'movie'),
                 sourceType: 'digital',

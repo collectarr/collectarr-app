@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -301,7 +301,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
 LibraryEditKindDraft createMangaEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingEntry? trackingEntry,
+  TrackingLifecycle? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
   final owned = MangaOwnedItemProjection.tryFromTyped(typedOwnedItem);

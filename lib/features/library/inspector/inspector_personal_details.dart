@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
@@ -444,7 +444,7 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
 
   final String itemId;
   final String mediaType;
-  final TrackingEntry trackingEntry;
+  final TrackingLifecycle trackingEntry;
   final MediaTrackingProfile profile;
   final Color accent;
   final LibraryTrackingEditorCapability? trackingEditor;
@@ -703,7 +703,7 @@ class _InspectorTrackingDetailsEditorState
     );
   }
 
-  void _syncFromEntry(TrackingEntry entry) {
+  void _syncFromEntry(TrackingLifecycle entry) {
     _ratingController.text = entry.rating?.toString() ?? '';
     _statusController.text = entry.statusStorageValue ?? '';
     _progressCurrentController.text = entry.progressCurrent?.toString() ?? '';

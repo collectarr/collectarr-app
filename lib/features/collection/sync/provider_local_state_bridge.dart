@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
@@ -17,7 +17,7 @@ final class ProviderLocalStateBridge {
   });
 
   final CatalogDisplaySummaryRepository catalogSummaries;
-  final TrackingEntryRepository trackingEntries;
+  final TrackingLifecycleRepository trackingEntries;
   final WishlistItemsCacheRepository wishlist;
 
   Future<ProviderPersonalEntry?> read(
@@ -45,7 +45,7 @@ final class ProviderLocalStateBridge {
     );
   }
 
-  Future<TrackingEntry?> _findTracking(CatalogEntityRef localRef) async {
+  Future<TrackingLifecycle?> _findTracking(CatalogEntityRef localRef) async {
     final entries = await trackingEntries.listActive();
     for (final entry in entries) {
       if (matches(entry.catalogRef, localRef)) {
@@ -67,7 +67,7 @@ final class ProviderLocalStateBridge {
 
   ProviderPersonalEntry _fromTracking(
     CatalogEntityRef localRef,
-    TrackingEntry entry,
+    TrackingLifecycle entry,
     String? title, {
     ProviderItemLink? link,
   }) {

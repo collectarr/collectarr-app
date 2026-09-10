@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/tracking/media_tracking.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -25,7 +25,7 @@ void main() {
   });
 
   test('tracking entry exposes reusable media tracking view', () {
-    final trackingEntry = TrackingEntry(
+    final trackingEntry = TrackingLifecycle(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       ownedRef: OwnedItemRef.fromKey('comic:owned-1'),

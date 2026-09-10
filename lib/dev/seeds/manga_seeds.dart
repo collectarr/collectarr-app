@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
@@ -727,9 +727,9 @@ List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingEntry> mangaSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> mangaSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        MangaTrackingEntry(
+        MangaTrackingLifecycle(
           id: 'seed-track-manga-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-manga-${seedOrdinal2(i)}'),
           ownedRef:

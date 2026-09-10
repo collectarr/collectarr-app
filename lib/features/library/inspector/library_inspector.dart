@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -140,8 +140,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final trackingEntries = switch (selected.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
-            const <TrackingEntry>[],
-      _ => const <TrackingEntry>[],
+            const <TrackingLifecycle>[],
+      _ => const <TrackingLifecycle>[],
     };
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
@@ -264,7 +264,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView selected,
     OwnedItemSummary? activeOwnedItem,
     List<OwnedItemSummary> ownedCopies,
-    TrackingEntry? activeTrackingEntry,
+    TrackingLifecycle? activeTrackingEntry,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
     required String? activeBundleReleaseId,

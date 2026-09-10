@@ -8,12 +8,12 @@ import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -21,10 +21,10 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
@@ -38,7 +38,7 @@ void main() {
   late TrackingMutations trackingMutations;
   late CatalogTransportRepository catalogCache;
   late OwnedItemsRepository ownedItems;
-  late TrackingEntryRepository trackingEntries;
+  late TrackingLifecycleRepository trackingEntries;
   late MutationOrigin? observedOrigin;
 
   setUp(() {
@@ -46,9 +46,9 @@ void main() {
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = CatalogTransportRepository(db);
     ownedItems = OwnedItemsRepository(db);
-    trackingEntries = TrackingEntryRepository(
+    trackingEntries = TrackingLifecycleRepository(
       db,
-      codecs: collectarrTrackingEntryCodecs,
+      codecs: collectarrTrackingLifecycleCodecs,
     );
     final runner = CollectionMutationRunner(
       database: db,
@@ -347,7 +347,7 @@ void main() {
       ]);
       await ownedItems.upsertTyped(CatalogMediaKind.tv, owned);
       await trackingEntries.upsert(
-        TvTrackingEntry(
+        TvTrackingLifecycle(
           id: 'tracking-tv-1',
           catalogRef: ref,
           ownedRef: OwnedItemRef(
@@ -443,7 +443,7 @@ void main() {
         entityType: const CatalogEntityTypeId('work'),
         id: 'book-clear-1',
       );
-      final existing = BookTrackingEntry(
+      final existing = BookTrackingLifecycle(
         id: 'tracking-clear-1',
         catalogRef: ref,
         status: MediaTrackingStatus.completed,

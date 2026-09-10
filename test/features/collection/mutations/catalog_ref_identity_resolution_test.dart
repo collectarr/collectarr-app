@@ -11,10 +11,10 @@ import 'package:collectarr_app/features/collection/events/collection_event_bus.d
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:drift/native.dart';
@@ -41,9 +41,9 @@ void main() {
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
       catalogCache: catalogCache,
-      trackingEntries: TrackingEntryRepository(
+      trackingEntries: TrackingLifecycleRepository(
         db,
-        codecs: collectarrTrackingEntryCodecs,
+        codecs: collectarrTrackingLifecycleCodecs,
       ),
       trackingUnits: TrackingUnitRepository(
         db,
@@ -57,9 +57,9 @@ void main() {
       ownedItems: OwnedItemsRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       wishlist: wishlistRepo,
-      trackingEntries: TrackingEntryRepository(
+      trackingEntries: TrackingLifecycleRepository(
         db,
-        codecs: collectarrTrackingEntryCodecs,
+        codecs: collectarrTrackingLifecycleCodecs,
       ),
       syncQueue: syncQueue,
       mutationRunner: runner,

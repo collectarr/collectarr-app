@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -18,7 +18,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryProjectionView item,
   required Color accent,
   OwnedItemSummary? ownedSummary,
-  required TrackingEntry? trackingEntry,
+  required TrackingLifecycle? trackingEntry,
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {

@@ -1,17 +1,17 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:flutter/material.dart';
 
 /// A kind-owned mutation applied to the common lifecycle entry at save time.
 ///
 /// The host does not know which fields the mutation changes. This keeps kind
 /// coordinates and other semantic tracking state behind the owning kind.
-typedef TrackingEntryEditMutation = TrackingEntry Function(
-  TrackingEntry entry,
+typedef TrackingEntryEditMutation = TrackingLifecycle Function(
+  TrackingLifecycle entry,
 );
 
 typedef TrackingEditorExtensionBuilder = Widget Function(
   BuildContext context, {
-  required TrackingEntry entry,
+  required TrackingLifecycle entry,
   required ValueChanged<TrackingEntryEditMutation> onChanged,
   required Color accent,
 });
@@ -24,7 +24,7 @@ class LibraryTrackingEditorCapability {
 
   Widget build(
     BuildContext context, {
-    required TrackingEntry entry,
+    required TrackingLifecycle entry,
     required ValueChanged<TrackingEntryEditMutation> onChanged,
     required Color accent,
   }) {

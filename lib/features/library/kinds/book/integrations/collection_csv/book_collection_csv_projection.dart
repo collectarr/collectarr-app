@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
@@ -24,7 +24,7 @@ final class BookCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.book;
 
   @override
-  TrackingEntryCodec get trackingEntryCodec => const BookTrackingEntryCodec();
+  TrackingLifecycleCodec get trackingLifecycleCodec => const BookTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

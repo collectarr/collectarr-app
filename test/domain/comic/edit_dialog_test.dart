@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -143,7 +143,7 @@ void main() {
       purchaseStore: 'Old Shop',
       updatedAt: DateTime.utc(2026, 5, 30),
     );
-    final trackingEntry = TrackingEntry(
+    final trackingEntry = TrackingLifecycle(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       ownedRef: OwnedItemRef.fromKey('comic:owned-1'),

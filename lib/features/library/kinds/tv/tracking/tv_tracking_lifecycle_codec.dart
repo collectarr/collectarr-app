@@ -3,26 +3,26 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'tv_tracking_entry.dart';
+import 'tv_tracking_lifecycle.dart';
 
 /// TV-owned tracking-entry coordinates.
 ///
 /// The universal tracking index stores only lifecycle and structural reference
 /// data. TV episode coordinates live in [TvTrackingRows].
-final class TvTrackingEntryCodec
-    with TrackingEntryStorageSupport
-    implements TrackingEntryCodec {
-  const TvTrackingEntryCodec();
+final class TvTrackingLifecycleCodec
+    with TrackingLifecycleStorageSupport
+    implements TrackingLifecycleCodec {
+  const TvTrackingLifecycleCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
-  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
@@ -32,8 +32,8 @@ final class TvTrackingEntryCodec
     final coordinates = await loadCoordinates(db, rows.map((row) => row.id));
     return [
       for (final row in rows)
-        TrackingEntryStorageRecord(
-          trackingEntryStorageRowFromColumns(
+        TrackingLifecycleStorageRecord(
+          trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedItemId: row.ownedItemId,
@@ -57,7 +57,7 @@ final class TvTrackingEntryCodec
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingEntry entry,
+    TrackingLifecycle entry,
     DateTime deletedAt,
   ) async {
     await (db.update(db.tvTrackingRows)
@@ -71,7 +71,7 @@ final class TvTrackingEntryCodec
   }
 
   @override
-  TvTrackingEntry create({
+  TvTrackingLifecycle create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -94,7 +94,7 @@ final class TvTrackingEntryCodec
         'Expected TV tracking entry',
       );
     }
-    return TvTrackingEntry(
+    return TvTrackingLifecycle(
       id: id,
       catalogRef: catalogRef,
       coordinates: TvTrackingCoordinates(),
@@ -139,7 +139,7 @@ final class TvTrackingEntryCodec
   @override
   Future<void> writeStorageRecord(
     LocalDatabase db,
-    TrackingEntry entry,
+    TrackingLifecycle entry,
   ) async {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
@@ -175,7 +175,7 @@ final class TvTrackingEntryCodec
   }
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
+  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
     if (entry.catalogRef.mediaKind != kind) {
       throw ArgumentError.value(
         entry.catalogRef.mediaKind,
@@ -194,7 +194,7 @@ final class TvTrackingEntryCodec
   }
 
   @override
-  TrackingEntry fromSyncPayload({
+  TrackingLifecycle fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -210,7 +210,7 @@ final class TvTrackingEntryCodec
     }
     final seasonNumber = _int(payload['season_number']);
     final episodeNumber = _int(payload['episode_number']);
-    return TvTrackingEntry(
+    return TvTrackingLifecycle(
       id: id,
       catalogRef: seasonNumber != null || episodeNumber != null
           ? catalogRef.copyWith(
@@ -237,14 +237,14 @@ final class TvTrackingEntryCodec
   }
 
   @override
-  TrackingEntry fromStorageRow(
-    TrackingEntryStorageRow row,
+  TrackingLifecycle fromStorageRow(
+    TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {
     final typed = coordinates is TvTrackingCoordinates
         ? coordinates
         : TvTrackingCoordinates();
-    return TvTrackingEntry(
+    return TvTrackingLifecycle(
       id: row.id,
       catalogRef: typed.hasEpisodeCoordinates
           ? row.catalogRef

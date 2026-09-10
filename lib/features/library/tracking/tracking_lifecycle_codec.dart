@@ -3,16 +3,16 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 
 /// The serialized, kind-neutral portion of a tracking-entry row.
 ///
 /// Hierarchy coordinates deliberately do not cross this boundary. The owning
 /// kind receives the row and its opaque coordinate projection through
-/// [TrackingEntryCodec.fromStorageRow].
-final class TrackingEntryStorageRow {
-  const TrackingEntryStorageRow({
+/// [TrackingLifecycleCodec.fromStorageRow].
+final class TrackingLifecycleStorageRow {
+  const TrackingLifecycleStorageRow({
     required this.id,
     required this.catalogRef,
     required this.ownedRef,
@@ -45,10 +45,10 @@ final class TrackingEntryStorageRow {
   final DateTime? deletedAt;
 }
 
-final class TrackingEntryStorageRecord {
-  const TrackingEntryStorageRecord(this.row, this.coordinates);
+final class TrackingLifecycleStorageRecord {
+  const TrackingLifecycleStorageRecord(this.row, this.coordinates);
 
-  final TrackingEntryStorageRow row;
+  final TrackingLifecycleStorageRow row;
   final Object? coordinates;
 }
 
@@ -56,31 +56,31 @@ final class TrackingEntryStorageRecord {
 ///
 /// The generic repository owns transaction and query mechanics only. A codec
 /// semantic columns and their interpretation live in the kind adapter.
-abstract interface class TrackingEntryCodec {
-  const TrackingEntryCodec();
+abstract interface class TrackingLifecycleCodec {
+  const TrackingLifecycleCodec();
 
   CatalogMediaKind get kind;
 
   /// Reads complete lifecycle rows from the owning kind table.
-  Future<List<TrackingEntry>> listFromStorage(
+  Future<List<TrackingLifecycle>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   });
 
-  Future<TrackingEntry?> findFromStorage(
+  Future<TrackingLifecycle?> findFromStorage(
     LocalDatabase db,
     TrackingEntryRef ref,
   );
 
-  Future<void> upsertToStorage(LocalDatabase db, TrackingEntry entry);
+  Future<void> upsertToStorage(LocalDatabase db, TrackingLifecycle entry);
 
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingEntry entry,
+    TrackingLifecycle entry,
     DateTime deletedAt,
   );
 
-  TrackingEntry create({
+  TrackingLifecycle create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -102,21 +102,21 @@ abstract interface class TrackingEntryCodec {
     Iterable<String>? ids,
   );
 
-  Map<String, dynamic> toSyncPayload(TrackingEntry entry);
+  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry);
 
   /// Reconstructs a tracking entry received from the provider sync boundary.
   ///
   /// Kind-specific coordinates are parsed by the owning codec rather than by
   /// the shared model's transport factory.
-  TrackingEntry fromSyncPayload({
+  TrackingLifecycle fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
     DateTime? deletedAt,
   });
 
-  TrackingEntry fromStorageRow(
-    TrackingEntryStorageRow row,
+  TrackingLifecycle fromStorageRow(
+    TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
 }
@@ -126,28 +126,28 @@ abstract interface class TrackingEntryCodec {
 /// The mixin owns only filtering/reconstruction mechanics. Each kind supplies
 /// its row query and its own Drift companion, so no semantic table definition
 /// or field interpretation crosses the kind boundary.
-mixin TrackingEntryStorageSupport {
+mixin TrackingLifecycleStorageSupport {
   CatalogMediaKind get kind;
 
-  TrackingEntry fromStorageRow(
-    TrackingEntryStorageRow row,
+  TrackingLifecycle fromStorageRow(
+    TrackingLifecycleStorageRow row,
     Object? coordinates,
   );
 
-  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   });
 
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingEntry entry);
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry);
 
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingEntry entry,
+    TrackingLifecycle entry,
     DateTime deletedAt,
   );
 
-  Future<List<TrackingEntry>> listFromStorage(
+  Future<List<TrackingLifecycle>> listFromStorage(
     LocalDatabase db, {
     bool activeOnly = true,
   }) async {
@@ -160,7 +160,7 @@ mixin TrackingEntryStorageSupport {
     ];
   }
 
-  Future<TrackingEntry?> findFromStorage(
+  Future<TrackingLifecycle?> findFromStorage(
     LocalDatabase db,
     TrackingEntryRef ref,
   ) async {
@@ -176,20 +176,20 @@ mixin TrackingEntryStorageSupport {
     return null;
   }
 
-  Future<void> upsertToStorage(LocalDatabase db, TrackingEntry entry) {
+  Future<void> upsertToStorage(LocalDatabase db, TrackingLifecycle entry) {
     return writeStorageRecord(db, entry);
   }
 
   Future<void> markDeletedInStorage(
     LocalDatabase db,
-    TrackingEntry entry,
+    TrackingLifecycle entry,
     DateTime deletedAt,
   ) {
     return deleteStorageRecord(db, entry, deletedAt);
   }
 }
 
-TrackingEntryStorageRow trackingEntryStorageRowFromColumns({
+TrackingLifecycleStorageRow trackingLifecycleStorageRowFromColumns({
   required String id,
   required String catalogRefJson,
   required String? ownedItemId,
@@ -210,7 +210,7 @@ TrackingEntryStorageRow trackingEntryStorageRowFromColumns({
     throw FormatException(
         'Tracking entry catalog_ref is invalid: $catalogRefJson');
   }
-  return TrackingEntryStorageRow(
+  return TrackingLifecycleStorageRow(
     id: id,
     catalogRef: CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded)),
     ownedRef: ownedItemRefFromSerialized(ownedItemId),

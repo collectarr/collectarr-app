@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
@@ -20,7 +20,7 @@ final class TrackingActivitySummary {
     this.deletedAt,
   });
 
-  factory TrackingActivitySummary.fromEntry(TrackingEntry entry) {
+  factory TrackingActivitySummary.fromEntry(TrackingLifecycle entry) {
     return TrackingActivitySummary.fromSummary(
       TrackingSummary.fromEntry(entry),
     );

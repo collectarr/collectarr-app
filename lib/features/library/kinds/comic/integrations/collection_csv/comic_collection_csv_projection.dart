@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -31,7 +31,7 @@ final class ComicCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  TrackingEntryCodec get trackingEntryCodec => const ComicTrackingEntryCodec();
+  TrackingLifecycleCodec get trackingLifecycleCodec => const ComicTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

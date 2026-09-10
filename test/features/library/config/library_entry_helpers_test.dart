@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -19,7 +19,7 @@ void main() {
   test(
       'resolveActiveTrackingEntry prefers the tracking row for the active copy',
       () {
-    final trackedOnly = TrackingEntry(
+    final trackedOnly = TrackingLifecycle(
       id: 'tracking-item',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
@@ -29,7 +29,7 @@ void main() {
       progressCurrent: 10,
       updatedAt: DateTime.utc(2026, 5, 25, 10),
     );
-    final copyTracked = TrackingEntry(
+    final copyTracked = TrackingLifecycle(
       id: 'tracking-copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,

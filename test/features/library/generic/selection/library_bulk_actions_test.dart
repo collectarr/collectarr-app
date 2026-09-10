@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
@@ -25,7 +25,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../helpers/test_data_factories.dart';
-import '../../../../helpers/tracking_entry_test_helpers.dart';
+import '../../../../helpers/tracking_lifecycle_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -231,7 +231,7 @@ void main() {
     final deletedOwned = await MovieOwnedRepository(db)
         .findById(MovieOwnedItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
-    final deletedTracking = await trackingEntryTestRepository(db).findByRef(
+    final deletedTracking = await trackingLifecycleTestRepository(db).findByRef(
       TrackingEntryRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
     );
 

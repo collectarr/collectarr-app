@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
 import 'package:drift/native.dart';
@@ -17,9 +17,9 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final catalog = CatalogTransportRepository(db);
-    final tracking = TrackingEntryRepository(
+    final tracking = TrackingLifecycleRepository(
       db,
-      codecs: collectarrTrackingEntryCodecs,
+      codecs: collectarrTrackingLifecycleCodecs,
     );
     final bridge = ProviderLocalStateBridge(
       catalogSummaries: CatalogDisplaySummaryRepository(db),
@@ -38,7 +38,7 @@ void main() {
       entityType: const CatalogEntityTypeId('work'),
     );
     await tracking.upsert(
-      TrackingEntry(
+      TrackingLifecycle(
         id: 'tracking-1',
         catalogRef: localRef,
         status: MediaTrackingStatus.completed,

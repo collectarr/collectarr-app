@@ -14,10 +14,10 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -50,9 +50,9 @@ void main() {
     final ownedRepo = OwnedItemsRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
     final catalogRepo = CatalogTransportRepository(db);
-    final trackingRepo = TrackingEntryRepository(
+    final trackingRepo = TrackingLifecycleRepository(
       db,
-      codecs: collectarrTrackingEntryCodecs,
+      codecs: collectarrTrackingLifecycleCodecs,
     );
     final trackingUnitsRepo = TrackingUnitRepository(
       db,
@@ -173,9 +173,9 @@ void main() {
       status: MediaTrackingStatus.inProgress,
     );
 
-    final entries = await TrackingEntryRepository(
+    final entries = await TrackingLifecycleRepository(
       db,
-      codecs: collectarrTrackingEntryCodecs,
+      codecs: collectarrTrackingLifecycleCodecs,
     ).findActiveByCatalogRoots([
       testCatalogRef('book-300', kind: 'book'),
     ]);

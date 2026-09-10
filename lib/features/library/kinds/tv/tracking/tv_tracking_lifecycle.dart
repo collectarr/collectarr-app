@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 
 /// TV-owned hierarchy coordinates for a tracking entry.
 ///
@@ -18,8 +18,8 @@ final class TvTrackingCoordinates {
   bool get hasEpisodeCoordinates =>
       seasonNumber != null || episodeNumber != null;
 
-  factory TvTrackingCoordinates.fromEntry(TrackingEntry entry) {
-    return entry is TvTrackingEntry
+  factory TvTrackingCoordinates.fromEntry(TrackingLifecycle entry) {
+    return entry is TvTrackingLifecycle
         ? entry.coordinates
         : TvTrackingCoordinates();
   }
@@ -27,10 +27,10 @@ final class TvTrackingCoordinates {
 
 /// A TV tracking lifecycle entry with typed TV-owned coordinates.
 ///
-/// The class is assignable to the common [TrackingEntry] lifecycle contract,
+/// The class is assignable to the common [TrackingLifecycle] lifecycle contract,
 /// while TV code reads episode data only through [coordinates].
-final class TvTrackingEntry extends TrackingEntry {
-  TvTrackingEntry({
+final class TvTrackingLifecycle extends TrackingLifecycle {
+  TvTrackingLifecycle({
     required super.id,
     required super.catalogRef,
     required this.coordinates,
@@ -50,11 +50,11 @@ final class TvTrackingEntry extends TrackingEntry {
 
   final TvTrackingCoordinates coordinates;
 
-  factory TvTrackingEntry.fromEntry(
-    TrackingEntry entry, {
+  factory TvTrackingLifecycle.fromEntry(
+    TrackingLifecycle entry, {
     TvTrackingCoordinates? coordinates,
   }) {
-    return TvTrackingEntry(
+    return TvTrackingLifecycle(
       id: entry.id,
       catalogRef: entry.catalogRef,
       coordinates: coordinates ?? TvTrackingCoordinates.fromEntry(entry),
@@ -74,21 +74,21 @@ final class TvTrackingEntry extends TrackingEntry {
   }
 
   @override
-  TvTrackingEntry copyWith({
+  TvTrackingLifecycle copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingEntryUnset,
-    Object? sourceType = trackingEntryUnset,
-    Object? status = trackingEntryUnset,
-    Object? rating = trackingEntryUnset,
-    Object? startedAt = trackingEntryUnset,
-    Object? finishedAt = trackingEntryUnset,
-    Object? progressCurrent = trackingEntryUnset,
-    Object? progressTotal = trackingEntryUnset,
-    Object? timesCompleted = trackingEntryUnset,
-    Object? notes = trackingEntryUnset,
+    Object? ownedRef = trackingLifecycleUnset,
+    Object? sourceType = trackingLifecycleUnset,
+    Object? status = trackingLifecycleUnset,
+    Object? rating = trackingLifecycleUnset,
+    Object? startedAt = trackingLifecycleUnset,
+    Object? finishedAt = trackingLifecycleUnset,
+    Object? progressCurrent = trackingLifecycleUnset,
+    Object? progressTotal = trackingLifecycleUnset,
+    Object? timesCompleted = trackingLifecycleUnset,
+    Object? notes = trackingLifecycleUnset,
     DateTime? updatedAt,
-    Object? deletedAt = trackingEntryUnset,
+    Object? deletedAt = trackingLifecycleUnset,
   }) {
     final copied = super.copyWith(
       id: id,
@@ -106,27 +106,27 @@ final class TvTrackingEntry extends TrackingEntry {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return TvTrackingEntry.fromEntry(copied, coordinates: coordinates);
+    return TvTrackingLifecycle.fromEntry(copied, coordinates: coordinates);
   }
 
-  TvTrackingEntry copyWithCoordinates({
+  TvTrackingLifecycle copyWithCoordinates({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingEntryUnset,
-    Object? sourceType = trackingEntryUnset,
-    Object? status = trackingEntryUnset,
-    Object? rating = trackingEntryUnset,
-    Object? startedAt = trackingEntryUnset,
-    Object? finishedAt = trackingEntryUnset,
-    Object? progressCurrent = trackingEntryUnset,
-    Object? progressTotal = trackingEntryUnset,
-    Object? timesCompleted = trackingEntryUnset,
-    Object? notes = trackingEntryUnset,
-    Object? seasonNumber = trackingEntryUnset,
-    Object? episodeNumber = trackingEntryUnset,
+    Object? ownedRef = trackingLifecycleUnset,
+    Object? sourceType = trackingLifecycleUnset,
+    Object? status = trackingLifecycleUnset,
+    Object? rating = trackingLifecycleUnset,
+    Object? startedAt = trackingLifecycleUnset,
+    Object? finishedAt = trackingLifecycleUnset,
+    Object? progressCurrent = trackingLifecycleUnset,
+    Object? progressTotal = trackingLifecycleUnset,
+    Object? timesCompleted = trackingLifecycleUnset,
+    Object? notes = trackingLifecycleUnset,
+    Object? seasonNumber = trackingLifecycleUnset,
+    Object? episodeNumber = trackingLifecycleUnset,
     Map<String, int>? episodeRatings,
     DateTime? updatedAt,
-    Object? deletedAt = trackingEntryUnset,
+    Object? deletedAt = trackingLifecycleUnset,
   }) {
     final copied = super.copyWith(
       id: id,
@@ -144,13 +144,13 @@ final class TvTrackingEntry extends TrackingEntry {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return TvTrackingEntry.fromEntry(
+    return TvTrackingLifecycle.fromEntry(
       copied,
       coordinates: TvTrackingCoordinates(
-        seasonNumber: identical(seasonNumber, trackingEntryUnset)
+        seasonNumber: identical(seasonNumber, trackingLifecycleUnset)
             ? coordinates.seasonNumber
             : seasonNumber as int?,
-        episodeNumber: identical(episodeNumber, trackingEntryUnset)
+        episodeNumber: identical(episodeNumber, trackingLifecycleUnset)
             ? coordinates.episodeNumber
             : episodeNumber as int?,
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
@@ -159,12 +159,12 @@ final class TvTrackingEntry extends TrackingEntry {
   }
 }
 
-TvTrackingCoordinates tvTrackingCoordinatesFor(TrackingEntry entry) {
-  return entry is TvTrackingEntry
+TvTrackingCoordinates tvTrackingCoordinatesFor(TrackingLifecycle entry) {
+  return entry is TvTrackingLifecycle
       ? entry.coordinates
       : TvTrackingCoordinates.fromEntry(entry);
 }
 
-TvTrackingEntry tvTrackingEntryFor(TrackingEntry entry) {
-  return entry is TvTrackingEntry ? entry : TvTrackingEntry.fromEntry(entry);
+TvTrackingLifecycle tvTrackingEntryFor(TrackingLifecycle entry) {
+  return entry is TvTrackingLifecycle ? entry : TvTrackingLifecycle.fromEntry(entry);
 }

@@ -8,8 +8,8 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -257,9 +257,9 @@ Future<_CoordinatorHarness> _pumpHarness(
     ownedItems: OwnedItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
     catalogSummaries: CatalogDisplaySummaryRepository(db),
-    trackingEntries: TrackingEntryRepository(
+    trackingEntries: TrackingLifecycleRepository(
       db,
-      codecs: collectarrTrackingEntryCodecs,
+      codecs: collectarrTrackingLifecycleCodecs,
     ),
     syncQueue: SyncQueueRepository(db),
     mutationRunner: CollectionMutationRunner(

@@ -10,10 +10,10 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 /// The sentinel lets kind-owned tracking entries preserve omitted nullable
 /// patches through common lifecycle updates without adding semantic fields to
 /// the shared model.
-const Object trackingEntryUnset = Object();
+const Object trackingLifecycleUnset = Object();
 
-class TrackingEntry extends PersonalTrackingBase {
-  TrackingEntry({
+class TrackingLifecycle extends PersonalTrackingBase {
+  TrackingLifecycle({
     required this.id,
     required this.catalogRef,
     this.ownedRef,
@@ -67,55 +67,55 @@ class TrackingEntry extends PersonalTrackingBase {
     };
   }
 
-  TrackingEntry copyWith({
+  TrackingLifecycle copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingEntryUnset,
-    Object? sourceType = trackingEntryUnset,
-    Object? status = trackingEntryUnset,
-    Object? rating = trackingEntryUnset,
-    Object? startedAt = trackingEntryUnset,
-    Object? finishedAt = trackingEntryUnset,
-    Object? progressCurrent = trackingEntryUnset,
-    Object? progressTotal = trackingEntryUnset,
-    Object? timesCompleted = trackingEntryUnset,
-    Object? notes = trackingEntryUnset,
+    Object? ownedRef = trackingLifecycleUnset,
+    Object? sourceType = trackingLifecycleUnset,
+    Object? status = trackingLifecycleUnset,
+    Object? rating = trackingLifecycleUnset,
+    Object? startedAt = trackingLifecycleUnset,
+    Object? finishedAt = trackingLifecycleUnset,
+    Object? progressCurrent = trackingLifecycleUnset,
+    Object? progressTotal = trackingLifecycleUnset,
+    Object? timesCompleted = trackingLifecycleUnset,
+    Object? notes = trackingLifecycleUnset,
     DateTime? updatedAt,
-    Object? deletedAt = trackingEntryUnset,
+    Object? deletedAt = trackingLifecycleUnset,
   }) {
-    return TrackingEntry(
+    return TrackingLifecycle(
       id: id ?? this.id,
       catalogRef: catalogRef ?? this.catalogRef,
-      ownedRef: identical(ownedRef, trackingEntryUnset)
+      ownedRef: identical(ownedRef, trackingLifecycleUnset)
           ? this.ownedRef
           : ownedRef as OwnedItemRef?,
-      sourceType: identical(sourceType, trackingEntryUnset)
+      sourceType: identical(sourceType, trackingLifecycleUnset)
           ? this.sourceType
           : trackingSourceTypeFromValue(sourceType),
-      status: identical(status, trackingEntryUnset)
+      status: identical(status, trackingLifecycleUnset)
           ? this.status
           : mediaTrackingStatusFromValue(status),
       rating:
-          identical(rating, trackingEntryUnset) ? this.rating : rating as int?,
-      startedAt: identical(startedAt, trackingEntryUnset)
+          identical(rating, trackingLifecycleUnset) ? this.rating : rating as int?,
+      startedAt: identical(startedAt, trackingLifecycleUnset)
           ? this.startedAt
           : startedAt as DateTime?,
-      finishedAt: identical(finishedAt, trackingEntryUnset)
+      finishedAt: identical(finishedAt, trackingLifecycleUnset)
           ? this.finishedAt
           : finishedAt as DateTime?,
-      progressCurrent: identical(progressCurrent, trackingEntryUnset)
+      progressCurrent: identical(progressCurrent, trackingLifecycleUnset)
           ? this.progressCurrent
           : progressCurrent as int?,
-      progressTotal: identical(progressTotal, trackingEntryUnset)
+      progressTotal: identical(progressTotal, trackingLifecycleUnset)
           ? this.progressTotal
           : progressTotal as int?,
-      timesCompleted: identical(timesCompleted, trackingEntryUnset)
+      timesCompleted: identical(timesCompleted, trackingLifecycleUnset)
           ? this.timesCompleted
           : timesCompleted as int?,
       notes:
-          identical(notes, trackingEntryUnset) ? this.notes : notes as String?,
+          identical(notes, trackingLifecycleUnset) ? this.notes : notes as String?,
       updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: identical(deletedAt, trackingEntryUnset)
+      deletedAt: identical(deletedAt, trackingLifecycleUnset)
           ? this.deletedAt
           : deletedAt as DateTime?,
     );

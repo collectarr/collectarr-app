@@ -12,7 +12,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
@@ -28,7 +28,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -562,9 +562,9 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
     LocalDatabase db) async {
   final catalogRows = await CatalogSnapshotRepository(db).findAll();
   final ownedRows = await OwnedItemsRepository(db).listActiveSummaries();
-  final trackingRows = await TrackingEntryRepository(
+  final trackingRows = await TrackingLifecycleRepository(
     db,
-    codecs: collectarrTrackingEntryCodecs,
+    codecs: collectarrTrackingLifecycleCodecs,
   ).listActive();
   final imageRows = await db.select(db.itemImagesCache).get();
   final typedGraphCounts = await devSeedTypedGraphCounts(db);
@@ -900,9 +900,9 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
 
   final catalogRepo = CatalogTransportRepository(db);
   final ownedRepo = OwnedItemsRepository(db);
-  final trackingRepo = TrackingEntryRepository(
+  final trackingRepo = TrackingLifecycleRepository(
     db,
-    codecs: collectarrTrackingEntryCodecs,
+    codecs: collectarrTrackingLifecycleCodecs,
   );
   final trackingUnitsRepo = TrackingUnitRepository(
     db,
@@ -935,7 +935,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   ];
 
   // --- Tracking Entries ---
-  final trackingEntries = <TrackingEntry>[
+  final trackingEntries = <TrackingLifecycle>[
     for (final contributor in collectarrDevSeedContributors)
       ...contributor.trackingEntries(now),
   ];
@@ -1066,7 +1066,7 @@ void _validateSeedTrackingUnits(
 void _validateSeedFixtures({
   required List<CatalogItemDto> catalogItems,
   required List<Object> ownedItems,
-  required List<TrackingEntry> trackingEntries,
+  required List<TrackingLifecycle> trackingEntries,
 }) {
   final catalogById = <String, CatalogItemDto>{};
   for (final item in catalogItems) {

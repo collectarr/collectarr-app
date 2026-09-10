@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/edit/video/video_edit_models.dar
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -249,7 +249,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createAnimeEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingEntry? trackingEntry,
+  TrackingLifecycle? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
   final owned = AnimeOwnedItemProjection.tryFromTyped(typedOwnedItem);

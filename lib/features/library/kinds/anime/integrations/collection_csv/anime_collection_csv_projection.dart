@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
@@ -27,7 +27,7 @@ final class AnimeCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
-  TrackingEntryCodec get trackingEntryCodec => const AnimeTrackingEntryCodec();
+  TrackingLifecycleCodec get trackingLifecycleCodec => const AnimeTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
 import 'package:collectarr_app/features/providers/domain/engine/provider_sync_coordinator.dart';
@@ -26,7 +26,7 @@ import 'package:collectarr_app/features/collection/mutations/watch_session_mutat
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
@@ -36,7 +36,7 @@ import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 
@@ -59,10 +59,10 @@ final catalogCacheRepositoryProvider =
 });
 
 final trackingEntryRepositoryProvider =
-    Provider<TrackingEntryRepository>((ref) {
-  return TrackingEntryRepository(
+    Provider<TrackingLifecycleRepository>((ref) {
+  return TrackingLifecycleRepository(
     ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingEntryCodecs,
+    codecs: collectarrTrackingLifecycleCodecs,
   );
 });
 
@@ -267,7 +267,7 @@ Future<void> _applyProviderEntry(
   final bridge = ref.read(providerLocalStateBridgeProvider);
   final trackingEntries =
       await ref.read(trackingEntryRepositoryProvider).listActive();
-  TrackingEntry? localTracking;
+  TrackingLifecycle? localTracking;
   for (final entry in trackingEntries) {
     if (bridge.matches(entry.catalogRef, localRef)) {
       localTracking = entry;

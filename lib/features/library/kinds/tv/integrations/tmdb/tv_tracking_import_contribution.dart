@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 

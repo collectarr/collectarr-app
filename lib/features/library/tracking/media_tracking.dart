@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
 export 'package:collectarr_app/core/models/tracking_status.dart';
@@ -47,7 +47,7 @@ class MediaTracking {
       };
 }
 
-extension TrackingEntryMediaTracking on TrackingEntry {
+extension TrackingEntryMediaTracking on TrackingLifecycle {
   MediaTracking get mediaTracking {
     return MediaTracking(
       status: status ?? MediaTrackingStatus.none,

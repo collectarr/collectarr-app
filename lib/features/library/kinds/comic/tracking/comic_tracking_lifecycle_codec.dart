@@ -2,27 +2,27 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'comic_tracking_entry.dart';
+import 'comic_tracking_lifecycle.dart';
 
 /// Comic-owned lifecycle tracking mapping.
 ///
 /// Comics do not have episodic tracking coordinates. The codec still owns the
 /// wire/storage mapping so sync never falls back to a generic kind parser.
-final class ComicTrackingEntryCodec
-    with TrackingEntryStorageSupport
-    implements TrackingEntryCodec {
-  const ComicTrackingEntryCodec();
+final class ComicTrackingLifecycleCodec
+    with TrackingLifecycleStorageSupport
+    implements TrackingLifecycleCodec {
+  const ComicTrackingLifecycleCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
@@ -31,8 +31,8 @@ final class ComicTrackingEntryCodec
     final rows = await query.get();
     return [
       for (final row in rows)
-        TrackingEntryStorageRecord(
-          trackingEntryStorageRowFromColumns(
+        TrackingLifecycleStorageRecord(
+          trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedItemId: row.ownedItemId,
@@ -54,7 +54,7 @@ final class ComicTrackingEntryCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingEntry entry) async {
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.comicTrackingRows).insertOnConflictUpdate(
           ComicTrackingRowsCompanion.insert(
@@ -79,7 +79,7 @@ final class ComicTrackingEntryCodec
   @override
   Future<void> deleteStorageRecord(
     LocalDatabase db,
-    TrackingEntry entry,
+    TrackingLifecycle entry,
     DateTime deletedAt,
   ) async {
     _validateKind(entry.catalogRef);
@@ -94,7 +94,7 @@ final class ComicTrackingEntryCodec
   }
 
   @override
-  ComicTrackingEntry create({
+  ComicTrackingLifecycle create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -111,7 +111,7 @@ final class ComicTrackingEntryCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return ComicTrackingEntry(
+    return ComicTrackingLifecycle(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -137,13 +137,13 @@ final class ComicTrackingEntryCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
+  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload();
   }
 
   @override
-  TrackingEntry fromSyncPayload({
+  TrackingLifecycle fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -151,7 +151,7 @@ final class ComicTrackingEntryCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return ComicTrackingEntry(
+    return ComicTrackingLifecycle(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -170,12 +170,12 @@ final class ComicTrackingEntryCodec
   }
 
   @override
-  TrackingEntry fromStorageRow(
-    TrackingEntryStorageRow row,
+  TrackingLifecycle fromStorageRow(
+    TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return ComicTrackingEntry(
+    return ComicTrackingLifecycle(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,

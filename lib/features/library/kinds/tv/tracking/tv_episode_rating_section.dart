@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_grid.dart';
@@ -8,7 +8,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'tv_tracking_entry.dart';
+import 'tv_tracking_lifecycle.dart';
 
 /// Inspector section showing a heatmap grid of per-episode ratings.
 class TvEpisodeRatingSection extends ConsumerWidget {
@@ -22,7 +22,7 @@ class TvEpisodeRatingSection extends ConsumerWidget {
 
   final String itemId;
   final Color accent;
-  final TrackingEntry? trackingEntry;
+  final TrackingLifecycle? trackingEntry;
   final ValueChanged<Map<String, int>> onEpisodeRatingsChanged;
 
   @override
@@ -128,7 +128,7 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
               entityType: const CatalogEntityTypeId('work'),
               id: itemId,
             )] ??
-            const <TrackingEntry>[];
+            const <TrackingLifecycle>[];
     final ratings = trackingEntries.isEmpty
         ? const <String, int>{}
         : tvTrackingCoordinatesFor(trackingEntries.first).episodeRatings;

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
-import '../helpers/tracking_entry_test_helpers.dart';
+import '../helpers/tracking_lifecycle_test_helpers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

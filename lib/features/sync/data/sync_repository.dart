@@ -4,10 +4,10 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 import 'package:collectarr_app/features/sync/data/sync_retry_mapper.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
@@ -48,9 +48,9 @@ class SyncRepository {
       queue: SyncQueueRepository(_db),
       catalog: CatalogTransportRepository(_db),
       ownedPersistence: CollectarrOwnedItemPersistence(_db),
-      trackingEntries: TrackingEntryRepository(
+      trackingEntries: TrackingLifecycleRepository(
         _db,
-        codecs: collectarrTrackingEntryCodecs,
+        codecs: collectarrTrackingLifecycleCodecs,
       ),
       wishlistItems: WishlistItemsCacheRepository(_db),
     ).syncNow(deviceId, since: since);

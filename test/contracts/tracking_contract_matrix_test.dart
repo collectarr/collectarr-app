@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
@@ -11,15 +11,15 @@ import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.da
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_entry_codecs.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 
-import 'tracking_entry_contract.dart';
+import 'tracking_lifecycle_contract.dart';
 import 'tracking_profile_contract.dart';
 
 void main() {
   final codecsByKind = {
-    for (final codec in collectarrTrackingEntryCodecs) codec.kind: codec,
+    for (final codec in collectarrTrackingLifecycleCodecs) codec.kind: codec,
   };
   defineTrackingProfileContract(
     name: 'Comic',
@@ -76,7 +76,7 @@ void main() {
 void _defineTrackingEntryContract(
   String name,
   CatalogMediaKind kind,
-  Map<CatalogMediaKind, TrackingEntryCodec> codecsByKind,
+  Map<CatalogMediaKind, TrackingLifecycleCodec> codecsByKind,
 ) {
   defineTrackingEntryContract(
     name: name,

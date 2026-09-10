@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
-import '../../../helpers/tracking_entry_test_helpers.dart';
+import '../../../helpers/tracking_lifecycle_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/collection/mutations/owned_item_mutation
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -68,9 +68,9 @@ void main() {
       ownedItems: OwnedItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
-      trackingEntries: TrackingEntryRepository(
+      trackingEntries: TrackingLifecycleRepository(
         db,
-        codecs: collectarrTrackingEntryCodecs,
+        codecs: collectarrTrackingLifecycleCodecs,
       ),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
@@ -79,9 +79,9 @@ void main() {
     wishlistMutations = WishlistMutations(
       wishlist: WishlistItemsCacheRepository(db),
       catalogCache: catalogCache,
-      trackingEntries: TrackingEntryRepository(
+      trackingEntries: TrackingLifecycleRepository(
         db,
-        codecs: collectarrTrackingEntryCodecs,
+        codecs: collectarrTrackingLifecycleCodecs,
       ),
       trackingUnits: TrackingUnitRepository(
         db,
@@ -92,9 +92,9 @@ void main() {
     );
 
     trackingMutations = TrackingMutations(
-      trackingEntries: TrackingEntryRepository(
+      trackingEntries: TrackingLifecycleRepository(
         db,
-        codecs: collectarrTrackingEntryCodecs,
+        codecs: collectarrTrackingLifecycleCodecs,
       ),
       trackingUnits: TrackingUnitRepository(
         db,

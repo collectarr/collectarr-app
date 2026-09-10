@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_proj
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';

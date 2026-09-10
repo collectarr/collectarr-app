@@ -169,7 +169,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/edit/draft/library_edit_draft.dart',
     // These contracts cross the explicit sync serialization boundary; the
     // owning TV/Anime codecs interpret the payload, not the generic host.
-    'lib/features/library/tracking/tracking_entry_codec.dart',
+    'lib/features/library/tracking/tracking_lifecycle_codec.dart',
     'lib/features/library/tracking/watch_session_codec.dart',
     'lib/features/library/tracking/custom_episode_codec.dart',
     'lib/features/library/generic/library_sort_preset_store.dart',
@@ -188,7 +188,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   static const _dynamicCatalogAllowlist = {
     // Generic tracking fallback is a lifecycle-only sync serialization
     // boundary; episodic fields are interpreted only by owning kind codecs.
-    'lib/core/models/tracking_entry.dart',
+    'lib/core/models/tracking_lifecycle.dart',
     'lib/features/collection/csv/collection_csv.dart',
     'lib/features/collection/mutations/collection_import_service.dart',
     'lib/features/collection/mutations/owned_item_mutations.dart',
@@ -213,7 +213,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'lib/features/library/edit/draft/library_edit_models.dart',
     // Explicit sync serialization contracts; concrete codecs own payload
     // interpretation after the generic host dispatches by kind.
-    'lib/features/library/tracking/tracking_entry_codec.dart',
+    'lib/features/library/tracking/tracking_lifecycle_codec.dart',
     'lib/features/library/tracking/watch_session_codec.dart',
     'lib/features/library/tracking/custom_episode_codec.dart',
     'lib/features/library/detail/library_detail_hero.dart',

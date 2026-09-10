@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
@@ -78,7 +78,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
   final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingLifecycle? trackingEntry;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;

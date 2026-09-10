@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -157,7 +157,7 @@ class LibraryEditDialogRequest {
   LibraryEditScope get resolvedScope => scope ?? LibraryEditScope.all;
 
   final WishlistItem? wishlistItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingLifecycle? trackingEntry;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
@@ -175,7 +175,7 @@ class LibraryEditDialogRequest {
     Color? accent,
     LibraryEditScope? scope,
     WishlistItem? wishlistItem,
-    TrackingEntry? trackingEntry,
+    TrackingLifecycle? trackingEntry,
     List<BundleReleaseSummary>? availableBundleReleases,
     List<PhysicalMediaFormat>? physicalFormats,
     List<CustomFieldDefinition>? customFieldDefinitions,
@@ -297,7 +297,7 @@ class LibraryInspectorRequest {
   final Object? typedOwnedItem;
   final VoidCallback? onEdit;
   final List<OwnedItemSummary> ownedCopies;
-  final TrackingEntry? trackingEntry;
+  final TrackingLifecycle? trackingEntry;
   final Color accent;
   final LibraryDetailsLayout detailsLayout;
   final ValueChanged<String>? onFilterByValue;

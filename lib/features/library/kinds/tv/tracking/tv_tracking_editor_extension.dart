@@ -1,12 +1,12 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:flutter/material.dart';
 
-import 'tv_tracking_entry.dart';
+import 'tv_tracking_lifecycle.dart';
 
 Widget buildTvTrackingEditorExtension(
   BuildContext context, {
-  required TrackingEntry entry,
+  required TrackingLifecycle entry,
   required ValueChanged<TrackingEntryEditMutation> onChanged,
   required Color accent,
 }) {
@@ -24,7 +24,7 @@ class _TvTrackingEditorExtension extends StatefulWidget {
     required this.accent,
   });
 
-  final TrackingEntry entry;
+  final TrackingLifecycle entry;
   final ValueChanged<TrackingEntryEditMutation> onChanged;
   final Color accent;
 

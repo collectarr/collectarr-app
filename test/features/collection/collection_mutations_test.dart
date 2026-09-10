@@ -33,7 +33,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import '../../helpers/tracking_entry_test_helpers.dart';
+import '../../helpers/tracking_lifecycle_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -415,7 +415,7 @@ void main() {
       testCatalogItem(id: 'movie-1', kind: 'movie', title: 'Dune'),
     ]);
 
-    final trackingRepository = trackingEntryTestRepository(db);
+    final trackingRepository = trackingLifecycleTestRepository(db);
     await trackingRepository.upsert(
       trackingRepository.create(
         id: 'tracking-existing',

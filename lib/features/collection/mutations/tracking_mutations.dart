@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -29,8 +29,8 @@ String _defaultIdGenerator() => const Uuid().v4();
 /// Collection owns persistence and mutation mechanics. A kind may enrich the
 /// common lifecycle entry before it is stored, without making the
 /// collection API depend on that kind's semantic fields.
-typedef TrackingEntryCustomizer = TrackingEntry Function(
-  TrackingEntry entry,
+typedef TrackingEntryCustomizer = TrackingLifecycle Function(
+  TrackingLifecycle entry,
 );
 
 final class TrackingMutations {
@@ -44,7 +44,7 @@ final class TrackingMutations {
     this.idGenerator = _defaultIdGenerator,
   });
 
-  final TrackingEntryRepository trackingEntries;
+  final TrackingLifecycleRepository trackingEntries;
   final TrackingUnitRepository trackingUnits;
   final WatchSessionsRepository watchSessions;
   final OwnedItemsRepository? ownedItems;
@@ -53,7 +53,7 @@ final class TrackingMutations {
   final IdGenerator idGenerator;
 
   Future<void> updateTrackingEntry(
-    TrackingEntry entry, {
+    TrackingLifecycle entry, {
     MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
@@ -171,7 +171,7 @@ final class TrackingMutations {
   }
 
   Future<void> deleteTrackingEntry(
-    TrackingEntry entry, {
+    TrackingLifecycle entry, {
     bool notify = true,
     MutationOrigin origin = MutationOrigin.user,
   }) async {
@@ -193,7 +193,7 @@ final class TrackingMutations {
     );
   }
 
-  Future<void> removeTrackingEntry(TrackingEntry entry, {bool notify = true}) =>
+  Future<void> removeTrackingEntry(TrackingLifecycle entry, {bool notify = true}) =>
       deleteTrackingEntry(entry, notify: notify);
 
   /// Deletes a tracking row selected from a structural Shelf summary.
@@ -361,7 +361,7 @@ final class TrackingMutations {
   }
 
   SyncChange _syncChangeForTrackingEntry(
-      TrackingEntry entry, String action, DateTime now) {
+      TrackingLifecycle entry, String action, DateTime now) {
     return SyncChange(
       id: 'tracking_entry:${entry.id}:$action:${now.millisecondsSinceEpoch}',
       entityType: 'tracking_entry',

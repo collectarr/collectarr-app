@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 
@@ -1402,9 +1402,9 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingEntry> musicSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> musicSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        MusicTrackingEntry(
+        MusicTrackingLifecycle(
           id: 'seed-track-music-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-music-${seedOrdinal2(i)}'),
           ownedRef:

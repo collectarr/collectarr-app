@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -24,7 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
 import '../../helpers/test_data_factories.dart';
-import '../../helpers/tracking_entry_test_helpers.dart';
+import '../../helpers/tracking_lifecycle_test_helpers.dart';
 
 void main() {
   testWidgets('detail page shows copy selector when multiple copies exist', (
@@ -159,7 +159,7 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           trackingPersistenceEntriesProvider.overrideWith(
             (ref) async => [
-              TrackingEntry(
+              TrackingLifecycle(
                 id: 'tracking-1',
                 catalogRef: testCatalogRef('movie-1', kind: 'movie'),
                 sourceType: 'digital',
@@ -221,7 +221,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = movieKindModule;
-    final trackingRepository = trackingEntryTestRepository(db);
+    final trackingRepository = trackingLifecycleTestRepository(db);
     await trackingRepository.upsert(
       trackingRepository.create(
         id: 'tracking-1',

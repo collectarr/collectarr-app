@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
 ///
@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.da
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
 
-  TrackingEntryCodec get trackingEntryCodec;
+  TrackingLifecycleCodec get trackingLifecycleCodec;
 
   String importDisplayTitle(List<String> catalogCells);
 
@@ -40,7 +40,7 @@ abstract interface class LibraryCollectionCsvProjection {
   /// Creates the universal lifecycle record at the CSV serialization
   /// boundary. The host supplies only structural refs and decoded lifecycle
   /// values; the owning kind decides whether this import is applicable.
-  TrackingEntry? trackingEntryFromImport({
+  TrackingLifecycle? trackingEntryFromImport({
     required String entryId,
     required CatalogEntityRef catalogRef,
     required OwnedItemRef ownedRef,
@@ -49,7 +49,7 @@ abstract interface class LibraryCollectionCsvProjection {
     required String? status,
     required DateTime? startedAt,
     required DateTime? finishedAt,
-    TrackingEntry? existing,
+    TrackingLifecycle? existing,
   });
 
   /// The complete CLZ header for a single-kind export.
@@ -266,10 +266,10 @@ mixin LibraryCollectionCsvProjectionPresentation {
 mixin LibraryCollectionCsvTrackingImport
     implements LibraryCollectionCsvProjection {
   @override
-  TrackingEntryCodec get trackingEntryCodec;
+  TrackingLifecycleCodec get trackingLifecycleCodec;
 
   @override
-  TrackingEntry? trackingEntryFromImport({
+  TrackingLifecycle? trackingEntryFromImport({
     required String entryId,
     required CatalogEntityRef catalogRef,
     required OwnedItemRef ownedRef,
@@ -278,7 +278,7 @@ mixin LibraryCollectionCsvTrackingImport
     required String? status,
     required DateTime? startedAt,
     required DateTime? finishedAt,
-    TrackingEntry? existing,
+    TrackingLifecycle? existing,
   }) {
     final resolvedStatus = mediaTrackingStatusFromValue(status);
     if (existing != null) {
@@ -292,7 +292,7 @@ mixin LibraryCollectionCsvTrackingImport
         updatedAt: now,
       );
     }
-    return trackingEntryCodec.create(
+    return trackingLifecycleCodec.create(
       id: entryId,
       catalogRef: catalogRef,
       ownedRef: ownedRef,

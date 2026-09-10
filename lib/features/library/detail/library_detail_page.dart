@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -130,8 +130,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final trackingEntries = switch (widget.item.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
-            const <TrackingEntry>[],
-      _ => const <TrackingEntry>[],
+            const <TrackingLifecycle>[],
+      _ => const <TrackingLifecycle>[],
     };
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,

@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
@@ -508,9 +508,9 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> boardgameSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        BoardGameTrackingEntry(
+        BoardGameTrackingLifecycle(
           // Keep a deterministic first tracking ID for idempotent seed runs.
           id: i == 1
               ? 'seed-track-06'

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -177,7 +177,7 @@ void main() {
                 grade: '9.4',
                 updatedAt: DateTime.utc(2026, 5, 22),
               )),
-              trackingEntry: TrackingEntry(
+              trackingEntry: TrackingLifecycle(
                 id: 'track-1',
                 catalogRef: testCatalogRef('book-1', kind: 'book'),
                 rating: 8,

@@ -3,35 +3,34 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'boardgame_tracking_entry.dart';
+import 'manga_tracking_lifecycle.dart';
 
-/// BoardGame-owned lifecycle tracking mapping. Edition and completeness data
-/// are deliberately not interpreted by the sync host.
-final class BoardGameTrackingEntryCodec
-    with TrackingEntryStorageSupport
-    implements TrackingEntryCodec {
-  const BoardGameTrackingEntryCodec();
-
-  @override
-  CatalogMediaKind get kind => CatalogMediaKind.boardgame;
+/// Manga-owned lifecycle tracking mapping. Chapter progress uses typed
+/// tracking units, so this entry carries only lifecycle fields.
+final class MangaTrackingLifecycleCodec
+    with TrackingLifecycleStorageSupport
+    implements TrackingLifecycleCodec {
+  const MangaTrackingLifecycleCodec();
 
   @override
-  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+  CatalogMediaKind get kind => CatalogMediaKind.manga;
+
+  @override
+  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
-    final query = db.select(db.boardGameTrackingRows);
+    final query = db.select(db.mangaTrackingRows);
     if (activeOnly) query.where((row) => row.deletedAt.isNull());
     final rows = await query.get();
     return [
       for (final row in rows)
-        TrackingEntryStorageRecord(
-          trackingEntryStorageRowFromColumns(
+        TrackingLifecycleStorageRecord(
+          trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedItemId: row.ownedItemId,
@@ -53,87 +52,10 @@ final class BoardGameTrackingEntryCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingEntry entry) {
-    return upsertToStorage(db, entry);
-  }
-
-  @override
-  Future<void> deleteStorageRecord(
-    LocalDatabase db,
-    TrackingEntry entry,
-    DateTime deletedAt,
-  ) {
-    return markDeletedInStorage(db, entry, deletedAt);
-  }
-
-  @override
-  Future<List<TrackingEntry>> listFromStorage(
-    LocalDatabase db, {
-    bool activeOnly = true,
-  }) async {
-    final query = db.select(db.boardGameTrackingRows);
-    if (activeOnly) query.where((row) => row.deletedAt.isNull());
-    final rows = await query.get();
-    return [
-      for (final row in rows)
-        fromStorageRow(
-          trackingEntryStorageRowFromColumns(
-            id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            ownedItemId: row.ownedItemId,
-            sourceType: row.sourceType,
-            status: row.status,
-            rating: row.rating,
-            startedAt: row.startedAt,
-            finishedAt: row.finishedAt,
-            progressCurrent: row.progressCurrent,
-            progressTotal: row.progressTotal,
-            timesCompleted: row.timesCompleted,
-            notes: row.notes,
-            updatedAt: row.updatedAt,
-            deletedAt: row.deletedAt,
-          ),
-          null,
-        ),
-    ];
-  }
-
-  @override
-  Future<TrackingEntry?> findFromStorage(
-    LocalDatabase db,
-    TrackingEntryRef ref,
-  ) async {
-    if (ref.kind != kind) return null;
-    final row = await (db.select(db.boardGameTrackingRows)
-          ..where((item) => item.id.equals(ref.id)))
-        .getSingleOrNull();
-    if (row == null) return null;
-    return fromStorageRow(
-      trackingEntryStorageRowFromColumns(
-        id: row.id,
-        catalogRefJson: row.catalogRefJson,
-        ownedItemId: row.ownedItemId,
-        sourceType: row.sourceType,
-        status: row.status,
-        rating: row.rating,
-        startedAt: row.startedAt,
-        finishedAt: row.finishedAt,
-        progressCurrent: row.progressCurrent,
-        progressTotal: row.progressTotal,
-        timesCompleted: row.timesCompleted,
-        notes: row.notes,
-        updatedAt: row.updatedAt,
-        deletedAt: row.deletedAt,
-      ),
-      null,
-    );
-  }
-
-  @override
-  Future<void> upsertToStorage(LocalDatabase db, TrackingEntry entry) async {
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry) async {
     _validateKind(entry.catalogRef);
-    await db.into(db.boardGameTrackingRows).insertOnConflictUpdate(
-          BoardGameTrackingRowsCompanion.insert(
+    await db.into(db.mangaTrackingRows).insertOnConflictUpdate(
+          MangaTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
             ownedItemId: Value(entry.ownedRef?.key),
@@ -153,24 +75,19 @@ final class BoardGameTrackingEntryCodec
   }
 
   @override
-  Future<void> markDeletedInStorage(
-    LocalDatabase db,
-    TrackingEntry entry,
-    DateTime deletedAt,
-  ) async {
+  Future<void> deleteStorageRecord(
+      LocalDatabase db, TrackingLifecycle entry, DateTime deletedAt) async {
     _validateKind(entry.catalogRef);
-    await (db.update(db.boardGameTrackingRows)
+    await (db.update(db.mangaTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
-        .write(
-      BoardGameTrackingRowsCompanion(
-        deletedAt: Value(deletedAt),
-        updatedAt: Value(deletedAt),
-      ),
-    );
+        .write(MangaTrackingRowsCompanion(
+      deletedAt: Value(deletedAt),
+      updatedAt: Value(deletedAt),
+    ));
   }
 
   @override
-  BoardGameTrackingEntry create({
+  MangaTrackingLifecycle create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -187,7 +104,7 @@ final class BoardGameTrackingEntryCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return BoardGameTrackingEntry(
+    return MangaTrackingLifecycle(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -213,13 +130,13 @@ final class BoardGameTrackingEntryCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
+  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload();
   }
 
   @override
-  TrackingEntry fromSyncPayload({
+  TrackingLifecycle fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -227,7 +144,7 @@ final class BoardGameTrackingEntryCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return BoardGameTrackingEntry(
+    return MangaTrackingLifecycle(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -246,12 +163,12 @@ final class BoardGameTrackingEntryCodec
   }
 
   @override
-  TrackingEntry fromStorageRow(
-    TrackingEntryStorageRow row,
+  TrackingLifecycle fromStorageRow(
+    TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return BoardGameTrackingEntry(
+    return MangaTrackingLifecycle(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,
@@ -273,8 +190,7 @@ final class BoardGameTrackingEntryCodec
     final raw = payload['catalog_ref'];
     if (raw is! Map) {
       throw const FormatException(
-        'BoardGame tracking entry is missing catalog_ref',
-      );
+          'Manga tracking entry is missing catalog_ref');
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
@@ -284,7 +200,7 @@ final class BoardGameTrackingEntryCodec
       throw ArgumentError.value(
         ref.mediaKind,
         'catalogRef.kind',
-        'Expected BoardGame tracking entry',
+        'Expected Manga tracking entry',
       );
     }
   }

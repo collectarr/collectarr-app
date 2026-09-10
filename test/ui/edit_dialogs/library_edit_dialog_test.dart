@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
@@ -100,7 +100,7 @@ void main() {
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 15),
     );
-    final trackingEntry = TrackingEntry(
+    final trackingEntry = TrackingLifecycle(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
       ownedRef: OwnedItemRef.fromKey('movie:owned-1'),
@@ -842,7 +842,7 @@ void main() {
       collectionStatus: 'for_sale',
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    final trackingEntry = TrackingEntry(
+    final trackingEntry = TrackingLifecycle(
       id: 'tracking-book-preserve-1',
       catalogRef: testCatalogRef('book-preserve-1', kind: 'book'),
       sourceType: 'physical',
@@ -1037,7 +1037,7 @@ void main() {
         ),
       ],
     ));
-    final trackingEntry = TrackingEntry(
+    final trackingEntry = TrackingLifecycle(
       id: 'tracking-digital-1',
       catalogRef: testCatalogRef('movie-tracked-1', kind: 'movie'),
       sourceType: 'digital',

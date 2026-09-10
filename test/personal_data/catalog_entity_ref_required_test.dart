@@ -7,7 +7,7 @@ void main() {
     final files = <String>[
       'lib/features/library/kinds/comic/domain/comic_owned_item.dart',
       'lib/core/models/wishlist_item.dart',
-      'lib/core/models/tracking_entry.dart',
+      'lib/core/models/tracking_lifecycle.dart',
     ];
 
     for (final path in files) {

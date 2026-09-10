@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -55,7 +55,7 @@ class InspectorPersonalSection extends StatelessWidget {
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingLifecycle? trackingEntry;
   final Color accent;
   final LibraryValueSnapshot? valueSnapshot;
   final ValueChanged<String>? onFilterByValue;

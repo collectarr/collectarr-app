@@ -3,34 +3,34 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:drift/drift.dart';
 
-import 'movie_tracking_entry.dart';
+import 'music_tracking_lifecycle.dart';
 
-/// Movie-owned lifecycle tracking mapping. Movies have no TV/Anime episode
-/// coordinate payload.
-final class MovieTrackingEntryCodec
-    with TrackingEntryStorageSupport
-    implements TrackingEntryCodec {
-  const MovieTrackingEntryCodec();
-
-  @override
-  CatalogMediaKind get kind => CatalogMediaKind.movie;
+/// Music-owned lifecycle tracking mapping. Track/disc state remains in the
+/// Music vertical and is not inferred by the sync host.
+final class MusicTrackingLifecycleCodec
+    with TrackingLifecycleStorageSupport
+    implements TrackingLifecycleCodec {
+  const MusicTrackingLifecycleCodec();
 
   @override
-  Future<List<TrackingEntryStorageRecord>> readStorageRecords(
+  CatalogMediaKind get kind => CatalogMediaKind.music;
+
+  @override
+  Future<List<TrackingLifecycleStorageRecord>> readStorageRecords(
     LocalDatabase db, {
     required bool activeOnly,
   }) async {
-    final query = db.select(db.movieTrackingRows);
+    final query = db.select(db.musicTrackingRows);
     if (activeOnly) query.where((row) => row.deletedAt.isNull());
     final rows = await query.get();
     return [
       for (final row in rows)
-        TrackingEntryStorageRecord(
-          trackingEntryStorageRowFromColumns(
+        TrackingLifecycleStorageRecord(
+          trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
             ownedItemId: row.ownedItemId,
@@ -52,10 +52,10 @@ final class MovieTrackingEntryCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingEntry entry) async {
+  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry) async {
     _validateKind(entry.catalogRef);
-    await db.into(db.movieTrackingRows).insertOnConflictUpdate(
-          MovieTrackingRowsCompanion.insert(
+    await db.into(db.musicTrackingRows).insertOnConflictUpdate(
+          MusicTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
             ownedItemId: Value(entry.ownedRef?.key),
@@ -76,18 +76,18 @@ final class MovieTrackingEntryCodec
 
   @override
   Future<void> deleteStorageRecord(
-      LocalDatabase db, TrackingEntry entry, DateTime deletedAt) async {
+      LocalDatabase db, TrackingLifecycle entry, DateTime deletedAt) async {
     _validateKind(entry.catalogRef);
-    await (db.update(db.movieTrackingRows)
+    await (db.update(db.musicTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
-        .write(MovieTrackingRowsCompanion(
+        .write(MusicTrackingRowsCompanion(
       deletedAt: Value(deletedAt),
       updatedAt: Value(deletedAt),
     ));
   }
 
   @override
-  MovieTrackingEntry create({
+  MusicTrackingLifecycle create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -104,7 +104,7 @@ final class MovieTrackingEntryCodec
     DateTime? deletedAt,
   }) {
     _validateKind(catalogRef);
-    return MovieTrackingEntry(
+    return MusicTrackingLifecycle(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedRef,
@@ -130,13 +130,13 @@ final class MovieTrackingEntryCodec
       const {};
 
   @override
-  Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
+  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
     _validateKind(entry.catalogRef);
     return entry.toSyncPayload();
   }
 
   @override
-  TrackingEntry fromSyncPayload({
+  TrackingLifecycle fromSyncPayload({
     required Map<String, dynamic> payload,
     required String id,
     required DateTime updatedAt,
@@ -144,7 +144,7 @@ final class MovieTrackingEntryCodec
   }) {
     final catalogRef = _catalogRefFromPayload(payload);
     _validateKind(catalogRef);
-    return MovieTrackingEntry(
+    return MusicTrackingLifecycle(
       id: id,
       catalogRef: catalogRef,
       ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
@@ -163,12 +163,12 @@ final class MovieTrackingEntryCodec
   }
 
   @override
-  TrackingEntry fromStorageRow(
-    TrackingEntryStorageRow row,
+  TrackingLifecycle fromStorageRow(
+    TrackingLifecycleStorageRow row,
     Object? coordinates,
   ) {
     _validateKind(row.catalogRef);
-    return MovieTrackingEntry(
+    return MusicTrackingLifecycle(
       id: row.id,
       catalogRef: row.catalogRef,
       ownedRef: row.ownedRef,
@@ -190,7 +190,7 @@ final class MovieTrackingEntryCodec
     final raw = payload['catalog_ref'];
     if (raw is! Map) {
       throw const FormatException(
-          'Movie tracking entry is missing catalog_ref');
+          'Music tracking entry is missing catalog_ref');
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
@@ -200,7 +200,7 @@ final class MovieTrackingEntryCodec
       throw ArgumentError.value(
         ref.mediaKind,
         'catalogRef.kind',
-        'Expected Movie tracking entry',
+        'Expected Music tracking entry',
       );
     }
   }

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_e
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -268,7 +268,7 @@ class TvEditDraft extends LibraryEditKindDraft
 LibraryEditKindDraft createTvEditDraft({
   required LibraryAddCatalogItem item,
   Object? typedOwnedItem,
-  TrackingEntry? trackingEntry,
+  TrackingLifecycle? trackingEntry,
   required TextControllerGroup textControllers,
 }) {
   final owned = TvOwnedItemProjection.tryFromTyped(typedOwnedItem);

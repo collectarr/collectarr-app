@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 
 // ---------------------------------------------------------------------------
@@ -14,8 +14,8 @@ enum LibraryEditSubmitAction {
   saveAndNext,
 }
 
-typedef LibraryTrackingEntryMutation = TrackingEntry Function(
-  TrackingEntry entry,
+typedef LibraryTrackingEntryMutation = TrackingLifecycle Function(
+  TrackingLifecycle entry,
 );
 
 class LibraryEditSelection {

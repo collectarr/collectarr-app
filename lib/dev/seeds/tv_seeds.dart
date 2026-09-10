@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -10,7 +10,7 @@ import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
@@ -1037,9 +1037,9 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
         ),
     ];
 
-List<TrackingEntry> tvSeedTrackingEntries(DateTime now) => [
+List<TrackingLifecycle> tvSeedTrackingEntries(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        TvTrackingEntry(
+        TvTrackingLifecycle(
           id: 'seed-track-tv-${seedOrdinal2(i)}',
           catalogRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
           coordinates: TvTrackingCoordinates(

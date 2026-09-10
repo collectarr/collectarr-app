@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -32,7 +32,7 @@ void main() {
       soldTo: 'Collector',
       updatedAt: now,
     );
-    final tracking = TrackingEntry(
+    final tracking = TrackingLifecycle(
       id: 'tracking-book-activity',
       catalogRef: catalogRef,
       status: MediaTrackingStatus.completed,

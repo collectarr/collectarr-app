@@ -1,28 +1,28 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///
 /// The old universal tracking table is intentionally absent. Mixed Collection
 /// code receives concrete entries only at the codec boundary and receives
 /// structural summaries for global read projections.
-class TrackingEntryRepository {
-  TrackingEntryRepository(
+class TrackingLifecycleRepository {
+  TrackingLifecycleRepository(
     this._db, {
-    Iterable<TrackingEntryCodec> codecs = const [],
+    Iterable<TrackingLifecycleCodec> codecs = const [],
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, TrackingEntryCodec> _codecs;
+  final Map<CatalogMediaKind, TrackingLifecycleCodec> _codecs;
 
-  TrackingEntry create({
+  TrackingLifecycle create({
     required String id,
     required CatalogEntityRef catalogRef,
     OwnedItemRef? ownedRef,
@@ -63,16 +63,16 @@ class TrackingEntryRepository {
     ];
   }
 
-  Future<List<TrackingEntry>> listActive() async {
+  Future<List<TrackingLifecycle>> listActive() async {
     return _list(activeOnly: true);
   }
 
-  Future<List<TrackingEntry>> listAll() async {
+  Future<List<TrackingLifecycle>> listAll() async {
     return _list(activeOnly: false);
   }
 
-  Future<List<TrackingEntry>> _list({required bool activeOnly}) async {
-    final entries = <TrackingEntry>[];
+  Future<List<TrackingLifecycle>> _list({required bool activeOnly}) async {
+    final entries = <TrackingLifecycle>[];
     for (final codec in _codecs.values) {
       entries.addAll(
         await codec.listFromStorage(_db, activeOnly: activeOnly),
@@ -82,11 +82,11 @@ class TrackingEntryRepository {
     return entries;
   }
 
-  Future<TrackingEntry?> findByRef(TrackingEntryRef ref) {
+  Future<TrackingLifecycle?> findByRef(TrackingEntryRef ref) {
     return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
 
-  Future<List<TrackingEntry>> findActiveByCatalogRefs(
+  Future<List<TrackingLifecycle>> findActiveByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = catalogRefs.toSet();
@@ -96,7 +96,7 @@ class TrackingEntryRepository {
         .toList(growable: false);
   }
 
-  Future<List<TrackingEntry>> findActiveByCatalogRoots(
+  Future<List<TrackingLifecycle>> findActiveByCatalogRoots(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = {
@@ -108,12 +108,12 @@ class TrackingEntryRepository {
         .toList(growable: false);
   }
 
-  Future<void> upsert(TrackingEntry entry) async {
+  Future<void> upsert(TrackingLifecycle entry) async {
     final codec = _codecForKind(entry.catalogRef.mediaKind);
     await _db.transaction(() => codec.upsertToStorage(_db, entry));
   }
 
-  Future<void> upsertAll(List<TrackingEntry> entries) async {
+  Future<void> upsertAll(List<TrackingLifecycle> entries) async {
     if (entries.isEmpty) return;
     await _db.transaction(() async {
       for (final entry in entries) {
@@ -123,12 +123,12 @@ class TrackingEntryRepository {
     });
   }
 
-  Future<void> markDeleted(TrackingEntry entry, DateTime deletedAt) {
+  Future<void> markDeleted(TrackingLifecycle entry, DateTime deletedAt) {
     return _codecForKind(entry.catalogRef.mediaKind)
         .markDeletedInStorage(_db, entry, deletedAt);
   }
 
-  Map<String, dynamic> toSyncPayload(TrackingEntry entry) {
+  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
     return _codecForKind(entry.catalogRef.mediaKind).toSyncPayload(entry);
   }
 
@@ -151,7 +151,7 @@ class TrackingEntryRepository {
     return ref;
   }
 
-  TrackingEntryCodec _codecForKind(CatalogMediaKind kind) {
+  TrackingLifecycleCodec _codecForKind(CatalogMediaKind kind) {
     final codec = _codecs[kind];
     if (codec == null) {
       throw StateError(

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 
 /// Anime-owned hierarchy coordinates for a tracking entry.
 ///
@@ -19,16 +19,16 @@ final class AnimeTrackingCoordinates {
   bool get hasEpisodeCoordinates =>
       seasonNumber != null || episodeNumber != null;
 
-  factory AnimeTrackingCoordinates.fromEntry(TrackingEntry entry) {
-    return entry is AnimeTrackingEntry
+  factory AnimeTrackingCoordinates.fromEntry(TrackingLifecycle entry) {
+    return entry is AnimeTrackingLifecycle
         ? entry.coordinates
         : AnimeTrackingCoordinates();
   }
 }
 
 /// An Anime tracking lifecycle entry with typed Anime-owned coordinates.
-final class AnimeTrackingEntry extends TrackingEntry {
-  AnimeTrackingEntry({
+final class AnimeTrackingLifecycle extends TrackingLifecycle {
+  AnimeTrackingLifecycle({
     required super.id,
     required super.catalogRef,
     required this.coordinates,
@@ -48,11 +48,11 @@ final class AnimeTrackingEntry extends TrackingEntry {
 
   final AnimeTrackingCoordinates coordinates;
 
-  factory AnimeTrackingEntry.fromEntry(
-    TrackingEntry entry, {
+  factory AnimeTrackingLifecycle.fromEntry(
+    TrackingLifecycle entry, {
     AnimeTrackingCoordinates? coordinates,
   }) {
-    return AnimeTrackingEntry(
+    return AnimeTrackingLifecycle(
       id: entry.id,
       catalogRef: entry.catalogRef,
       coordinates: coordinates ?? AnimeTrackingCoordinates.fromEntry(entry),
@@ -72,21 +72,21 @@ final class AnimeTrackingEntry extends TrackingEntry {
   }
 
   @override
-  AnimeTrackingEntry copyWith({
+  AnimeTrackingLifecycle copyWith({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingEntryUnset,
-    Object? sourceType = trackingEntryUnset,
-    Object? status = trackingEntryUnset,
-    Object? rating = trackingEntryUnset,
-    Object? startedAt = trackingEntryUnset,
-    Object? finishedAt = trackingEntryUnset,
-    Object? progressCurrent = trackingEntryUnset,
-    Object? progressTotal = trackingEntryUnset,
-    Object? timesCompleted = trackingEntryUnset,
-    Object? notes = trackingEntryUnset,
+    Object? ownedRef = trackingLifecycleUnset,
+    Object? sourceType = trackingLifecycleUnset,
+    Object? status = trackingLifecycleUnset,
+    Object? rating = trackingLifecycleUnset,
+    Object? startedAt = trackingLifecycleUnset,
+    Object? finishedAt = trackingLifecycleUnset,
+    Object? progressCurrent = trackingLifecycleUnset,
+    Object? progressTotal = trackingLifecycleUnset,
+    Object? timesCompleted = trackingLifecycleUnset,
+    Object? notes = trackingLifecycleUnset,
     DateTime? updatedAt,
-    Object? deletedAt = trackingEntryUnset,
+    Object? deletedAt = trackingLifecycleUnset,
   }) {
     final copied = super.copyWith(
       id: id,
@@ -104,27 +104,27 @@ final class AnimeTrackingEntry extends TrackingEntry {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return AnimeTrackingEntry.fromEntry(copied, coordinates: coordinates);
+    return AnimeTrackingLifecycle.fromEntry(copied, coordinates: coordinates);
   }
 
-  AnimeTrackingEntry copyWithCoordinates({
+  AnimeTrackingLifecycle copyWithCoordinates({
     String? id,
     CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingEntryUnset,
-    Object? sourceType = trackingEntryUnset,
-    Object? status = trackingEntryUnset,
-    Object? rating = trackingEntryUnset,
-    Object? startedAt = trackingEntryUnset,
-    Object? finishedAt = trackingEntryUnset,
-    Object? progressCurrent = trackingEntryUnset,
-    Object? progressTotal = trackingEntryUnset,
-    Object? timesCompleted = trackingEntryUnset,
-    Object? notes = trackingEntryUnset,
-    Object? seasonNumber = trackingEntryUnset,
-    Object? episodeNumber = trackingEntryUnset,
+    Object? ownedRef = trackingLifecycleUnset,
+    Object? sourceType = trackingLifecycleUnset,
+    Object? status = trackingLifecycleUnset,
+    Object? rating = trackingLifecycleUnset,
+    Object? startedAt = trackingLifecycleUnset,
+    Object? finishedAt = trackingLifecycleUnset,
+    Object? progressCurrent = trackingLifecycleUnset,
+    Object? progressTotal = trackingLifecycleUnset,
+    Object? timesCompleted = trackingLifecycleUnset,
+    Object? notes = trackingLifecycleUnset,
+    Object? seasonNumber = trackingLifecycleUnset,
+    Object? episodeNumber = trackingLifecycleUnset,
     Map<String, int>? episodeRatings,
     DateTime? updatedAt,
-    Object? deletedAt = trackingEntryUnset,
+    Object? deletedAt = trackingLifecycleUnset,
   }) {
     final copied = super.copyWith(
       id: id,
@@ -142,13 +142,13 @@ final class AnimeTrackingEntry extends TrackingEntry {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
     );
-    return AnimeTrackingEntry.fromEntry(
+    return AnimeTrackingLifecycle.fromEntry(
       copied,
       coordinates: AnimeTrackingCoordinates(
-        seasonNumber: identical(seasonNumber, trackingEntryUnset)
+        seasonNumber: identical(seasonNumber, trackingLifecycleUnset)
             ? coordinates.seasonNumber
             : seasonNumber as int?,
-        episodeNumber: identical(episodeNumber, trackingEntryUnset)
+        episodeNumber: identical(episodeNumber, trackingLifecycleUnset)
             ? coordinates.episodeNumber
             : (episodeNumber as num?)?.toDouble(),
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
@@ -157,14 +157,14 @@ final class AnimeTrackingEntry extends TrackingEntry {
   }
 }
 
-AnimeTrackingCoordinates animeTrackingCoordinatesFor(TrackingEntry entry) {
-  return entry is AnimeTrackingEntry
+AnimeTrackingCoordinates animeTrackingCoordinatesFor(TrackingLifecycle entry) {
+  return entry is AnimeTrackingLifecycle
       ? entry.coordinates
       : AnimeTrackingCoordinates.fromEntry(entry);
 }
 
-AnimeTrackingEntry animeTrackingEntryFor(TrackingEntry entry) {
-  return entry is AnimeTrackingEntry
+AnimeTrackingLifecycle animeTrackingEntryFor(TrackingLifecycle entry) {
+  return entry is AnimeTrackingLifecycle
       ? entry
-      : AnimeTrackingEntry.fromEntry(entry);
+      : AnimeTrackingLifecycle.fromEntry(entry);
 }

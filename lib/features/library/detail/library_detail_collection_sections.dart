@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -30,7 +30,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   final Object? typedOwnedItem;
   final OwnedItemSummary? ownedSummary;
   final List<OwnedItemSummary> ownedCopies;
-  final TrackingEntry? trackingEntry;
+  final TrackingLifecycle? trackingEntry;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -206,7 +206,7 @@ String? _detailProfitLossLabel(OwnedItemSummary? ownedItem) {
   return formatMoney(sold - paid, ownedItem?.currency);
 }
 
-String? _detailTrackingProgressLabel(TrackingEntry? trackingEntry) {
+String? _detailTrackingProgressLabel(TrackingLifecycle? trackingEntry) {
   final current = trackingEntry?.progressCurrent;
   final total = trackingEntry?.progressTotal;
   if (current == null && total == null) {

@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -63,7 +63,7 @@ class LibraryEditDraft {
   final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingLifecycle? trackingEntry;
   final Color accent;
   final List<BundleReleaseSummary> availableBundleReleases;
   final List<PhysicalMediaFormat> physicalFormats;
@@ -111,7 +111,7 @@ class LibraryEditDraft {
     OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     WishlistItem? wishlistItem,
-    TrackingEntry? trackingEntry,
+    TrackingLifecycle? trackingEntry,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
@@ -141,7 +141,7 @@ class LibraryEditDraft {
     required OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     required WishlistItem? wishlistItem,
-    required TrackingEntry? trackingEntry,
+    required TrackingLifecycle? trackingEntry,
     required Color accent,
     List<BundleReleaseSummary> availableBundleReleases = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],

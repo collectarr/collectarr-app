@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -16,13 +16,13 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entry_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_entry_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
@@ -54,7 +54,7 @@ class SyncApplyService {
   final SyncQueueRepository queue;
   final CatalogTransportRepository catalog;
   final CollectarrOwnedItemPersistence ownedPersistence;
-  final TrackingEntryRepository trackingEntries;
+  final TrackingLifecycleRepository trackingEntries;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
 
@@ -89,7 +89,7 @@ class SyncApplyService {
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
     final typedOwned = <(CatalogMediaKind kind, Object item)>[];
-    final tracking = <TrackingEntry>[];
+    final tracking = <TrackingLifecycle>[];
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
@@ -301,7 +301,7 @@ class SyncApplyService {
     });
   }
 
-  TrackingEntry _trackingEntryFromEntity(Map<String, dynamic> entity) {
+  TrackingLifecycle _trackingEntryFromEntity(Map<String, dynamic> entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -315,7 +315,7 @@ class SyncApplyService {
         : CatalogMediaKind.unknown;
     final codec = kind.isUnknown
         ? null
-        : collectarrTrackingEntryCodecs.cast<TrackingEntryCodec?>().firstWhere(
+        : collectarrTrackingLifecycleCodecs.cast<TrackingLifecycleCodec?>().firstWhere(
               (candidate) => candidate?.kind == kind,
               orElse: () => null,
             );

@@ -99,7 +99,7 @@ class LibraryEntry {
 /// catalog/Owned union.
 ///
 /// Tracking is intentionally represented only by [TrackingSummary]. A full
-/// [TrackingEntry] is a persistence aggregate and must not be carried through
+/// [TrackingLifecycle] is a persistence aggregate and must not be carried through
 /// every workspace row.
 class LibraryWorkspaceSource {
   const LibraryWorkspaceSource({

@@ -20,7 +20,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../helpers/tracking_entry_test_helpers.dart';
+import '../../../helpers/tracking_lifecycle_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
