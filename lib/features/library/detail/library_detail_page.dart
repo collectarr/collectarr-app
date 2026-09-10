@@ -134,7 +134,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedSummary = ownedResolution.ownedItem;
-    final legacyOwnedItem = widget.ownedItem;
+    final suppliedOwnedItem = widget.ownedItem;
     final trackingEntries = switch (widget.item.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingEntriesByCatalogRefProvider)[catalogRef] ??
@@ -143,7 +143,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     };
     final activeTrackingEntry = resolveActiveTrackingEntry(
       trackingEntries,
-      legacyOwnedItem,
+      suppliedOwnedItem,
     );
     final isOwned = ownedCopies.isNotEmpty ||
         activeOwnedSummary != null ||
@@ -172,9 +172,9 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                         }),
                 onEdit: widget.onEdit == null
                     ? null
-                    : () => widget.onEdit!(_legacyOwnedItemForSummary(
+                    : () => widget.onEdit!(_ownedItemForSummary(
                           activeOwnedSummary,
-                          fallback: legacyOwnedItem,
+                          fallback: suppliedOwnedItem,
                         )),
                 onToggleOwned: isOwned
                     ? activeOwnedSummary == null
@@ -220,7 +220,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   type: widget.type,
                   item: widget.item,
                   accent: widget.accent,
-                  ownedItem: legacyOwnedItem,
+                  ownedItem: suppliedOwnedItem,
                   ownedSummary: activeOwnedSummary,
                   trackingEntry: activeTrackingEntry,
                   ownedCopies: ownedCopies,
@@ -290,7 +290,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     });
   }
 
-  OwnedItem? _legacyOwnedItemForSummary(
+  OwnedItem? _ownedItemForSummary(
     OwnedItemSummary? summary, {
     required OwnedItem? fallback,
   }) {

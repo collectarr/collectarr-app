@@ -242,12 +242,6 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_provider_mapper.dart',
           'TypedLibraryKindProviderMapper',
         ),
-        ownedDetailsCodec: _discoverContributor(
-          entity,
-          'ownership',
-          '${folder}_owned_details_codec.dart',
-          'OwnedDetailsPersistenceCodec<',
-        ),
         metadataDecoder: metadataDecoder,
         facetModule: facetModule,
         ownedPersistence: _discoverOwnedPersistence(entity),
@@ -774,13 +768,6 @@ import 'package:go_router/go_router.dart';
   );
   _renderProviderMetadataMapperMap(buffer, descriptors);
   _renderProviderCorrectionBuilderMap(buffer, descriptors);
-  _renderContributorMap(
-    buffer,
-    descriptors: descriptors,
-    name: 'collectarrKindOwnedDetailsCodecs',
-    type: 'OwnedDetailsPersistenceCodec',
-    field: (descriptor) => descriptor.ownedDetailsCodec,
-  );
   _renderFacetMap(buffer, descriptors);
   _renderMetadataDecoderMap(buffer, descriptors);
   _renderOwnedPersistenceMaps(buffer, descriptors);
@@ -1431,7 +1418,6 @@ final class _KindDescriptor {
     this.watchSessionCodec,
     this.customEpisodeCodec,
     this.providerMapper,
-    this.ownedDetailsCodec,
     this.metadataDecoder,
     this.facetModule,
     this.ownedPersistence,
@@ -1459,7 +1445,6 @@ final class _KindDescriptor {
   final _Contributor? watchSessionCodec;
   final _Contributor? customEpisodeCodec;
   final _Contributor? providerMapper;
-  final _Contributor? ownedDetailsCodec;
   final _MetadataDecoder? metadataDecoder;
   final String? facetModule;
   final _OwnedPersistence? ownedPersistence;
@@ -1485,7 +1470,6 @@ final class _KindDescriptor {
       watchSessionCodec,
       customEpisodeCodec,
       providerMapper,
-      ownedDetailsCodec,
     ]) {
       if (contributor != null) yield contributor;
     }

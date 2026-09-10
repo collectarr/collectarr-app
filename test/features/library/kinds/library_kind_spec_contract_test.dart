@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,7 +61,7 @@ void main() {
         CatalogMediaKind.movie: ComicOwnedDetails(),
       };
       for (final spec in collectarrKindModules) {
-        final codec = collectarrOwnedDetailsCodecForKind(spec.kind);
+        final codec = ownedDetailsCodecForTest(spec.kind);
         final defaultDetails = codec.defaultDetails();
         expect(defaultDetails, isNotNull);
 

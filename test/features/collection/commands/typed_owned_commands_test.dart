@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -9,7 +8,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/owned_details_exports.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
@@ -109,8 +108,7 @@ void main() {
           ),
         );
 
-        final defaultDetails =
-            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
+        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
         final stored = await OwnedItemsRepository(db).findTypedByRef(itemRef);
         expect(stored, isNotNull);
         expect(stored!.$1, kind);
@@ -170,8 +168,7 @@ void main() {
               ),
         );
 
-        final defaultDetails =
-            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
+        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
 
         final updatedStored =
             await OwnedItemsRepository(db).findTypedByRef(updated);
@@ -184,8 +181,7 @@ void main() {
 
     test('default details for all 9 kinds resolves to non-generic details', () {
       for (final kind in allActiveKinds) {
-        final defaultDetails =
-            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
+        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
             reason: '$kind default details must not be TestOwnedDetails');
 
@@ -214,25 +210,21 @@ void main() {
       expect(book.toJson(), isEmpty);
       expect(boardgame.toJson(), isEmpty);
 
-      final parsedBook = collectarrOwnedDetailsCodecForKind(
-        CatalogMediaKind.book,
-      ).fromJson({});
-      final parsedBoardgame = collectarrOwnedDetailsCodecForKind(
-        CatalogMediaKind.boardgame,
-      ).fromJson({});
+      final parsedBook = const BookOwnedDetailsCodec().fromJson({});
+      final parsedBoardgame = const BoardgameOwnedDetailsCodec().fromJson({});
 
       expect(parsedBook, isA<BookOwnedDetails>());
       expect(parsedBoardgame, isA<BoardgameOwnedDetails>());
 
       expect(
         const BookOwnedDetailsCodec().draftFromDetails(
-          parsedBook as BookOwnedDetails,
+          parsedBook,
         ),
         isA<BookOwnedDetailsDraft>(),
       );
       expect(
         const BoardgameOwnedDetailsCodec().draftFromDetails(
-          parsedBoardgame as BoardgameOwnedDetails,
+          parsedBoardgame,
         ),
         isA<BoardgameOwnedDetailsDraft>(),
       );

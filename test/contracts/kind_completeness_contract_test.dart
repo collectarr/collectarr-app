@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_details_codecs.dart';
+import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -50,7 +50,7 @@ void main() {
             reason: '$kind must have explicit edit draft factory');
 
         // Owned details and codec live in the kind-owned serialization registry.
-        final ownedCodec = collectarrOwnedDetailsCodecForKind(kind);
+        final ownedCodec = ownedDetailsCodecForTest(kind);
         expect(ownedCodec.defaultDetails(), isNotNull,
             reason: '$kind defaultOwnedDetails must not be null');
         expect(
@@ -101,7 +101,7 @@ void main() {
     test('serialization detail registry covers every active kind', () {
       final decodedTypes = <Type>{};
       for (final kind in activeKinds) {
-        final codec = collectarrOwnedDetailsCodecForKind(kind);
+        final codec = ownedDetailsCodecForTest(kind);
         final details = codec.defaultDetails();
         final decoded = codec.fromJson(details.toJson());
         expect(decoded.runtimeType, details.runtimeType,
@@ -112,7 +112,7 @@ void main() {
 
       expect(decodedTypes, hasLength(activeKinds.length));
       expect(
-        () => collectarrOwnedDetailsCodecForKind(CatalogMediaKind.unknown),
+        () => ownedDetailsCodecForTest(CatalogMediaKind.unknown),
         throwsArgumentError,
       );
     });
@@ -150,8 +150,7 @@ void main() {
         () {
       final detailsTypes = <Type>{};
       for (final kind in activeKinds) {
-        final defaultDetails =
-            collectarrOwnedDetailsCodecForKind(kind).defaultDetails();
+        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
         expect(defaultDetails, isNotNull);
         detailsTypes.add(defaultDetails.runtimeType);
       }
@@ -181,7 +180,6 @@ void main() {
         'all fields are explicitly and strictly classified into correct scopes (Plan D)',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindModuleForKind(kind);
         final workspace = libraryKindWorkspaceForKind(kind);
         for (final field in workspace.fields.fields) {
           final id = field.id.value.toLowerCase();

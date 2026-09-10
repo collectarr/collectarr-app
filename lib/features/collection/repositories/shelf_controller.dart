@@ -33,11 +33,10 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   };
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
-  // This is a compatibility adapter for Library kind contributors only. Even
-  // while those contributors still consume the transport snapshot, joins are
-  // keyed by the complete catalog reference so equal IDs across kinds cannot
-  // collide.
-  final legacyCatalogItems =
+  // Library kind contributors receive transport snapshots only at this
+  // explicit boundary. Joins are keyed by the complete catalog reference so
+  // equal IDs across kinds cannot collide.
+  final catalogSnapshotsByRef =
       await CatalogSnapshotRepository(db).findByRefs(catalogRefs);
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
@@ -54,7 +53,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
         trackingEntries.map(TrackingSummary.fromEntry).toList(growable: false),
     watchSessions: watchSessions,
     catalogSummariesByRef: catalogSummaries,
-    legacyCatalogItemsByRef: legacyCatalogItems,
+    catalogSnapshotsByRef: catalogSnapshotsByRef,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
     fallbackOwnerLabel: auth.email,
@@ -93,25 +92,25 @@ class ShelfState {
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
     Map<String, CatalogDisplaySummary>? catalogSummaries,
     Map<String, CatalogItemDto>? catalogItems,
-    Map<String, CatalogItemDto>? legacyCatalogItems,
-    Map<CatalogEntityRef, CatalogItemDto>? legacyCatalogItemsByRef,
+    Map<String, CatalogItemDto>? catalogSnapshotsById,
+    Map<CatalogEntityRef, CatalogItemDto>? catalogSnapshotsByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
-    final legacyCatalogById = <String, CatalogItemDto>{
-      ...?legacyCatalogItems,
+    final catalogById = <String, CatalogItemDto>{
+      ...?catalogSnapshotsById,
       ...?catalogItems,
     };
-    final legacyCatalogByRef = <CatalogEntityRef, CatalogItemDto>{
-      ...?legacyCatalogItemsByRef,
-      for (final item in legacyCatalogById.values) item.catalogRef: item,
+    final catalogByRef = <CatalogEntityRef, CatalogItemDto>{
+      ...?catalogSnapshotsByRef,
+      for (final item in catalogById.values) item.catalogRef: item,
     };
     final resolvedCatalogSummaries = catalogSummaries ??
         {
-          for (final item in legacyCatalogById.values)
-            item.id: _catalogSummaryFromLegacy(item),
+          for (final item in catalogById.values)
+            item.id: _catalogSummaryFromSnapshot(item),
         };
     final resolvedCatalogSummariesByRef = catalogSummariesByRef ??
         {
@@ -173,8 +172,9 @@ class ShelfState {
               resolvedCatalogSummaries[ref.id],
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
-          // Compatibility adapters for unchanged Library contributors.
-          catalogItem: legacyCatalogByRef[ref],
+          // Transport snapshots remain available only to the typed Library
+          // contributors that have not yet moved to their domain repository.
+          catalogItem: catalogByRef[ref],
           wishlistItem: wishlistByCatalogRef[ref],
           locationPath:
               locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
@@ -331,7 +331,11 @@ class ShelfState {
   }
 }
 
-class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
+/// Workspace source carrying the transport snapshot required by the current
+/// kind-specific Library projectors. Mixed Shelf state remains represented by
+/// [LibraryEntry]; this source is only created after the workspace selects a
+/// concrete library kind.
+class ShelfEntry extends LibraryWorkspaceSource {
   const ShelfEntry({
     required super.itemId,
     super.catalogSummary,
@@ -385,8 +389,10 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
   String get title {
     final base = super.title;
     if (!base.startsWith('Catalog item ')) return base;
-    final legacy = catalogItem?.resolvedDisplayTitle.trim();
-    return legacy == null || legacy.isEmpty ? base : legacy;
+    final snapshotTitle = catalogItem?.resolvedDisplayTitle.trim();
+    return snapshotTitle == null || snapshotTitle.isEmpty
+        ? base
+        : snapshotTitle;
   }
 
   @override
@@ -446,7 +452,7 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   return ref;
 }
 
-CatalogDisplaySummary _catalogSummaryFromLegacy(CatalogItemDto item) {
+CatalogDisplaySummary _catalogSummaryFromSnapshot(CatalogItemDto item) {
   final itemNumber = item.itemNumber?.trim();
   final title = item.resolvedDisplayTitle.trim();
   return CatalogDisplaySummary.work(

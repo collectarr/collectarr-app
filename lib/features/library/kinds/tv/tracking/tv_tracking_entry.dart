@@ -18,7 +18,7 @@ final class TvTrackingCoordinates {
   bool get hasEpisodeCoordinates =>
       seasonNumber != null || episodeNumber != null;
 
-  factory TvTrackingCoordinates.fromLegacy(TrackingEntry entry) {
+  factory TvTrackingCoordinates.fromEntry(TrackingEntry entry) {
     return entry is TvTrackingEntry
         ? entry.coordinates
         : TvTrackingCoordinates();
@@ -57,7 +57,7 @@ final class TvTrackingEntry extends TrackingEntry {
     return TvTrackingEntry(
       id: entry.id,
       catalogRef: entry.catalogRef,
-      coordinates: coordinates ?? TvTrackingCoordinates.fromLegacy(entry),
+      coordinates: coordinates ?? TvTrackingCoordinates.fromEntry(entry),
       ownedRef: entry.ownedRef,
       sourceType: entry.sourceType,
       status: entry.status,
@@ -162,7 +162,7 @@ final class TvTrackingEntry extends TrackingEntry {
 TvTrackingCoordinates tvTrackingCoordinatesFor(TrackingEntry entry) {
   return entry is TvTrackingEntry
       ? entry.coordinates
-      : TvTrackingCoordinates.fromLegacy(entry);
+      : TvTrackingCoordinates.fromEntry(entry);
 }
 
 TvTrackingEntry tvTrackingEntryFor(TrackingEntry entry) {

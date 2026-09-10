@@ -59,32 +59,6 @@ void main() {
     expect(copied.coordinates.episodeRatings, const {'12.5': 10});
   });
 
-  test('typed adapters can wrap a legacy common entry during migration', () {
-    final legacy = TrackingEntry(
-      id: 'legacy-tv-entry',
-      catalogRef: const CatalogEntityRef(
-        kind: CatalogMediaKind.tv,
-        entityType: const CatalogEntityTypeId('episode'),
-        id: 'episode-1',
-        rootId: 'series-1',
-      ),
-      updatedAt: updatedAt,
-    );
-
-    final typed = TvTrackingEntry.fromEntry(
-      legacy,
-      coordinates: TvTrackingCoordinates(
-        seasonNumber: 3,
-        episodeNumber: 4,
-        episodeRatings: const {'3:4': 8},
-      ),
-    );
-
-    expect(typed.coordinates.seasonNumber, 3);
-    expect(typed.coordinates.episodeNumber, 4);
-    expect(typed.coordinates.episodeRatings, const {'3:4': 8});
-  });
-
   test('TV codec reconstructs a typed entry at the sync boundary', () {
     final entry = const TvTrackingEntryCodec().fromSyncPayload(
       payload: {

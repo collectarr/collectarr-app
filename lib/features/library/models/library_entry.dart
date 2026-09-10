@@ -152,7 +152,7 @@ final class TrackingSummary {
 /// This is deliberately not a subtype of [LibraryEntry]. The mixed Shelf
 /// projection and the post-dispatch workspace source have different
 /// ownership rules; making one inherit from the other recreates the generic
-/// catalog/Owned compatibility union we are removing.
+/// catalog/Owned union.
 ///
 /// Tracking is intentionally represented only by [TrackingSummary]. A full
 /// [TrackingEntry] is a persistence aggregate and must not be carried through

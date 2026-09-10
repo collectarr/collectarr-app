@@ -19,7 +19,7 @@ final class AnimeTrackingCoordinates {
   bool get hasEpisodeCoordinates =>
       seasonNumber != null || episodeNumber != null;
 
-  factory AnimeTrackingCoordinates.fromLegacy(TrackingEntry entry) {
+  factory AnimeTrackingCoordinates.fromEntry(TrackingEntry entry) {
     return entry is AnimeTrackingEntry
         ? entry.coordinates
         : AnimeTrackingCoordinates();
@@ -55,7 +55,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
     return AnimeTrackingEntry(
       id: entry.id,
       catalogRef: entry.catalogRef,
-      coordinates: coordinates ?? AnimeTrackingCoordinates.fromLegacy(entry),
+      coordinates: coordinates ?? AnimeTrackingCoordinates.fromEntry(entry),
       ownedRef: entry.ownedRef,
       sourceType: entry.sourceType,
       status: entry.status,
@@ -160,7 +160,7 @@ final class AnimeTrackingEntry extends TrackingEntry {
 AnimeTrackingCoordinates animeTrackingCoordinatesFor(TrackingEntry entry) {
   return entry is AnimeTrackingEntry
       ? entry.coordinates
-      : AnimeTrackingCoordinates.fromLegacy(entry);
+      : AnimeTrackingCoordinates.fromEntry(entry);
 }
 
 AnimeTrackingEntry animeTrackingEntryFor(TrackingEntry entry) {
