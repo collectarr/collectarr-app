@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
@@ -12,18 +15,91 @@ final class AnimeTrackingUnitCodec implements TrackingUnitCodec {
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
-  Future<void> clearCoordinates(LocalDatabase db, String id) async {
-    await (db.delete(db.animeTrackingUnitRows)
-          ..where((row) => row.id.equals(id)))
-        .go();
+  Future<List<TrackingUnit>> listFromStorage(
+    LocalDatabase db, {
+    bool activeOnly = true,
+  }) async {
+    final query = db.select(db.animeTrackingUnitRows);
+    if (activeOnly) query.where((row) => row.deletedAt.isNull());
+    final rows = await query.get();
+    final coordinates = await loadCoordinates(db, rows.map((row) => row.id));
+    return [
+      for (final row in rows)
+        fromStorageRow(
+          trackingUnitStorageRowFromColumns(
+            id: row.id,
+            targetRefJson: row.targetRefJson,
+            trackingEntryId: row.trackingEntryId,
+            ownedItemId: row.ownedItemId,
+            unitType: row.unitType,
+            completedAt: row.completedAt,
+            updatedAt: row.updatedAt,
+            deletedAt: row.deletedAt,
+          ),
+          coordinates[row.id],
+        ),
+    ];
   }
 
   @override
-  Future<void> writeCoordinates(LocalDatabase db, TrackingUnit unit) async {
+  Future<TrackingUnit?> findFromStorage(
+    LocalDatabase db,
+    TrackingUnitRef ref,
+  ) async {
+    if (ref.kind != kind) return null;
+    final row = await (db.select(db.animeTrackingUnitRows)
+          ..where((item) => item.id.equals(ref.id)))
+        .getSingleOrNull();
+    if (row == null) return null;
+    final coordinates = await loadCoordinates(db, [row.id]);
+    return fromStorageRow(
+      trackingUnitStorageRowFromColumns(
+        id: row.id,
+        targetRefJson: row.targetRefJson,
+        trackingEntryId: row.trackingEntryId,
+        ownedItemId: row.ownedItemId,
+        unitType: row.unitType,
+        completedAt: row.completedAt,
+        updatedAt: row.updatedAt,
+        deletedAt: row.deletedAt,
+      ),
+      coordinates[row.id],
+    );
+  }
+
+  @override
+  Future<void> upsertToStorage(LocalDatabase db, TrackingUnit unit) {
+    return _writeCoordinates(db, unit);
+  }
+
+  @override
+  Future<void> markDeletedInStorage(
+    LocalDatabase db,
+    TrackingUnit unit,
+    DateTime deletedAt,
+  ) async {
+    await (db.update(db.animeTrackingUnitRows)
+          ..where((row) => row.id.equals(unit.id)))
+        .write(
+      AnimeTrackingUnitRowsCompanion(
+        deletedAt: Value(deletedAt),
+        updatedAt: Value(deletedAt),
+      ),
+    );
+  }
+
+  Future<void> _writeCoordinates(LocalDatabase db, TrackingUnit unit) async {
     if (unit case final AnimeTrackingUnit video) {
       await db.into(db.animeTrackingUnitRows).insertOnConflictUpdate(
             AnimeTrackingUnitRowsCompanion.insert(
               id: unit.id,
+              targetRefJson: jsonEncode(unit.targetRef.toJson()),
+              trackingEntryId: Value(unit.trackingEntryId),
+              ownedItemId: Value(unit.ownedRef?.key),
+              unitType: unit.unitType,
+              completedAt: unit.completedAt,
+              updatedAt: unit.updatedAt,
+              deletedAt: Value(unit.deletedAt),
               seasonNumber: Value(video.seasonNumber),
               episodeNumber: Value(video.episodeNumber),
             ),

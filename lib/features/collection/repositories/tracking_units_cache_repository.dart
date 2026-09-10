@@ -1,13 +1,14 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_unit.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
-import 'package:drift/drift.dart';
 
+/// Orchestrates tracking-unit lifecycle across kind-owned persistence codecs.
+///
+/// There is deliberately no universal TrackingUnitsCache table. This class
+/// owns only mixed-feature query/mutation mechanics; each registered kind owns
+/// its table, row mapper, coordinates, and concrete unit reconstruction.
 class TrackingUnitsCacheRepository {
   TrackingUnitsCacheRepository(
     this._db, {
@@ -20,160 +21,57 @@ class TrackingUnitsCacheRepository {
   final Map<CatalogMediaKind, TrackingUnitCodec> _codecs;
 
   Future<List<TrackingUnit>> listActive() async {
-    final rows = await (_db.select(_db.trackingUnitsCache)
-          ..where((tbl) => tbl.deletedAt.isNull()))
-        .get();
-    final coordinates = await _loadCoordinates();
-    return _toModels(rows, coordinates);
+    final units = <TrackingUnit>[];
+    for (final codec in _codecs.values) {
+      units.addAll(await codec.listFromStorage(_db));
+    }
+    units.sort(_compareForDisplay);
+    return units;
   }
 
   Future<List<TrackingUnit>> findActiveByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = catalogRefs.toSet();
-    if (wanted.isEmpty) {
-      return const <TrackingUnit>[];
-    }
+    if (wanted.isEmpty) return const <TrackingUnit>[];
     return (await listActive())
         .where((unit) => wanted.contains(unit.targetRef))
         .toList(growable: false);
   }
 
-  Future<TrackingUnit?> findByRef(TrackingUnitRef ref) async {
-    final row = await (_db.select(_db.trackingUnitsCache)
-          ..where(
-            (tbl) => tbl.id.equals(ref.id) & tbl.kind.equals(ref.kind.apiValue),
-          ))
-        .getSingleOrNull();
-    if (row == null) {
-      return null;
-    }
-    final coordinates = await _loadCoordinates([row.id]);
-    return _toModel(row, coordinates[row.id]);
+  Future<TrackingUnit?> findByRef(TrackingUnitRef ref) {
+    return _codecForKind(ref.kind).findFromStorage(_db, ref);
   }
 
   Future<void> upsert(TrackingUnit unit) async {
-    await _db.transaction(() async {
-      await _db.into(_db.trackingUnitsCache).insertOnConflictUpdate(
-            _toBaseCompanion(unit),
-          );
-      await _replaceCoordinates(unit);
-    });
+    final codec = _codecForKind(unit.targetRef.mediaKind);
+    await _db.transaction(() => codec.upsertToStorage(_db, unit));
   }
 
   Future<void> upsertAll(Iterable<TrackingUnit> units) async {
     final values = units.toList(growable: false);
-    if (values.isEmpty) {
-      return;
-    }
+    if (values.isEmpty) return;
     await _db.transaction(() async {
-      await _db.batch((batch) {
-        batch.insertAllOnConflictUpdate(
-          _db.trackingUnitsCache,
-          values.map(_toBaseCompanion).toList(growable: false),
-        );
-      });
       for (final unit in values) {
-        await _replaceCoordinates(unit);
+        await _codecForKind(unit.targetRef.mediaKind)
+            .upsertToStorage(_db, unit);
       }
     });
   }
 
-  Future<void> markDeleted(TrackingUnit unit, DateTime deletedAt) async {
-    await (_db.update(_db.trackingUnitsCache)
-          ..where(
-            (tbl) =>
-                tbl.id.equals(unit.id) &
-                tbl.kind.equals(unit.targetRef.kind.apiValue),
-          ))
-        .write(
-      TrackingUnitsCacheCompanion(
-        deletedAt: Value(deletedAt),
-        updatedAt: Value(deletedAt),
-      ),
-    );
+  Future<void> markDeleted(TrackingUnit unit, DateTime deletedAt) {
+    return _codecForKind(unit.targetRef.mediaKind)
+        .markDeletedInStorage(_db, unit, deletedAt);
   }
 
-  TrackingUnitsCacheCompanion _toBaseCompanion(TrackingUnit unit) {
-    return TrackingUnitsCacheCompanion(
-      id: Value(unit.id),
-      kind: Value(unit.targetRef.kind.apiValue),
-      targetRefJson: Value(jsonEncode(unit.targetRef.toJson())),
-      trackingEntryId: Value(unit.trackingEntryId),
-      ownedItemId: Value(unit.ownedRef?.key),
-      unitType: Value(unit.unitType),
-      completedAt: Value(unit.completedAt),
-      updatedAt: Value(unit.updatedAt),
-      deletedAt: Value(unit.deletedAt),
-    );
-  }
-
-  Future<void> _replaceCoordinates(TrackingUnit unit) async {
-    for (final codec in _codecs.values) {
-      await codec.clearCoordinates(_db, unit.id);
-    }
-    final codec = _codecs[unit.targetRef.mediaKind];
+  TrackingUnitCodec _codecForKind(CatalogMediaKind kind) {
+    final codec = _codecs[kind];
     if (codec == null) {
       throw StateError(
-        'No tracking-unit codec is registered for kind '
-        '"${unit.targetRef.kind}".',
+        'No tracking-unit codec is registered for kind "${kind.apiValue}".',
       );
     }
-    await codec.writeCoordinates(_db, unit);
-  }
-
-  Future<Map<String, Object?>> _loadCoordinates([
-    Iterable<String>? ids,
-  ]) async {
-    final coordinates = <String, Object?>{};
-    for (final codec in _codecs.values) {
-      coordinates.addAll(await codec.loadCoordinates(_db, ids));
-    }
-    return coordinates;
-  }
-
-  List<TrackingUnit> _toModels(
-    List<TrackingUnitsCacheData> rows,
-    Map<String, Object?> coordinates,
-  ) {
-    final models = [
-      for (final row in rows) _toModel(row, coordinates[row.id]),
-    ];
-    models.sort(_compareForDisplay);
-    return models;
-  }
-
-  TrackingUnit _toModel(
-    TrackingUnitsCacheData row,
-    Object? coordinates,
-  ) {
-    final targetRef = _targetRefForRow(row);
-    final storageRow = TrackingUnitStorageRow(
-      id: row.id,
-      targetRef: targetRef,
-      trackingEntryId: row.trackingEntryId,
-      ownedRef: ownedItemRefFromSerialized(row.ownedItemId),
-      unitType: row.unitType,
-      completedAt: row.completedAt,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
-    );
-    final codec = _codecs[catalogMediaKindFromApiValue(row.kind)];
-    if (codec == null) {
-      throw StateError(
-        'No tracking-unit codec is registered for kind "${row.kind}".',
-      );
-    }
-    return codec.fromStorageRow(storageRow, coordinates);
-  }
-
-  CatalogEntityRef _targetRefForRow(TrackingUnitsCacheData row) {
-    final raw = row.targetRefJson.trim();
-    final decoded = jsonDecode(raw);
-    if (decoded is Map) {
-      return CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded));
-    }
-    throw FormatException('Tracking unit target_ref is invalid: $raw');
+    return codec;
   }
 
   int _compareForDisplay(TrackingUnit a, TrackingUnit b) {

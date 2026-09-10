@@ -1197,494 +1197,6 @@ class TrackingEntriesCacheCompanion
   }
 }
 
-class $TrackingUnitsCacheTable extends TrackingUnitsCache
-    with TableInfo<$TrackingUnitsCacheTable, TrackingUnitsCacheData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TrackingUnitsCacheTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
-  @override
-  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
-      'kind', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _targetRefJsonMeta =
-      const VerificationMeta('targetRefJson');
-  @override
-  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
-      'target_ref_json', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _trackingEntryIdMeta =
-      const VerificationMeta('trackingEntryId');
-  @override
-  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
-      'tracking_entry_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
-  @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _unitTypeMeta =
-      const VerificationMeta('unitType');
-  @override
-  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
-      'unit_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _completedAtMeta =
-      const VerificationMeta('completedAt');
-  @override
-  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
-      'completed_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _deletedAtMeta =
-      const VerificationMeta('deletedAt');
-  @override
-  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
-      'deleted_at', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        kind,
-        targetRefJson,
-        trackingEntryId,
-        ownedItemId,
-        unitType,
-        completedAt,
-        updatedAt,
-        deletedAt
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tracking_units_cache';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<TrackingUnitsCacheData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('kind')) {
-      context.handle(
-          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
-    } else if (isInserting) {
-      context.missing(_kindMeta);
-    }
-    if (data.containsKey('target_ref_json')) {
-      context.handle(
-          _targetRefJsonMeta,
-          targetRefJson.isAcceptableOrUnknown(
-              data['target_ref_json']!, _targetRefJsonMeta));
-    } else if (isInserting) {
-      context.missing(_targetRefJsonMeta);
-    }
-    if (data.containsKey('tracking_entry_id')) {
-      context.handle(
-          _trackingEntryIdMeta,
-          trackingEntryId.isAcceptableOrUnknown(
-              data['tracking_entry_id']!, _trackingEntryIdMeta));
-    }
-    if (data.containsKey('owned_item_id')) {
-      context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
-    }
-    if (data.containsKey('unit_type')) {
-      context.handle(_unitTypeMeta,
-          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
-    } else if (isInserting) {
-      context.missing(_unitTypeMeta);
-    }
-    if (data.containsKey('completed_at')) {
-      context.handle(
-          _completedAtMeta,
-          completedAt.isAcceptableOrUnknown(
-              data['completed_at']!, _completedAtMeta));
-    } else if (isInserting) {
-      context.missing(_completedAtMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    if (data.containsKey('deleted_at')) {
-      context.handle(_deletedAtMeta,
-          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {kind, id};
-  @override
-  TrackingUnitsCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TrackingUnitsCacheData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      kind: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
-      targetRefJson: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
-      trackingEntryId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
-      unitType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
-      completedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
-      deletedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
-    );
-  }
-
-  @override
-  $TrackingUnitsCacheTable createAlias(String alias) {
-    return $TrackingUnitsCacheTable(attachedDatabase, alias);
-  }
-}
-
-class TrackingUnitsCacheData extends DataClass
-    implements Insertable<TrackingUnitsCacheData> {
-  final String id;
-  final String kind;
-  final String targetRefJson;
-  final String? trackingEntryId;
-  final String? ownedItemId;
-  final String unitType;
-  final DateTime completedAt;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
-  const TrackingUnitsCacheData(
-      {required this.id,
-      required this.kind,
-      required this.targetRefJson,
-      this.trackingEntryId,
-      this.ownedItemId,
-      required this.unitType,
-      required this.completedAt,
-      required this.updatedAt,
-      this.deletedAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['kind'] = Variable<String>(kind);
-    map['target_ref_json'] = Variable<String>(targetRefJson);
-    if (!nullToAbsent || trackingEntryId != null) {
-      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
-    }
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
-    }
-    map['unit_type'] = Variable<String>(unitType);
-    map['completed_at'] = Variable<DateTime>(completedAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || deletedAt != null) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt);
-    }
-    return map;
-  }
-
-  TrackingUnitsCacheCompanion toCompanion(bool nullToAbsent) {
-    return TrackingUnitsCacheCompanion(
-      id: Value(id),
-      kind: Value(kind),
-      targetRefJson: Value(targetRefJson),
-      trackingEntryId: trackingEntryId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(trackingEntryId),
-      ownedItemId: ownedItemId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownedItemId),
-      unitType: Value(unitType),
-      completedAt: Value(completedAt),
-      updatedAt: Value(updatedAt),
-      deletedAt: deletedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(deletedAt),
-    );
-  }
-
-  factory TrackingUnitsCacheData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TrackingUnitsCacheData(
-      id: serializer.fromJson<String>(json['id']),
-      kind: serializer.fromJson<String>(json['kind']),
-      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
-      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
-      unitType: serializer.fromJson<String>(json['unitType']),
-      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'kind': serializer.toJson<String>(kind),
-      'targetRefJson': serializer.toJson<String>(targetRefJson),
-      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
-      'unitType': serializer.toJson<String>(unitType),
-      'completedAt': serializer.toJson<DateTime>(completedAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-    };
-  }
-
-  TrackingUnitsCacheData copyWith(
-          {String? id,
-          String? kind,
-          String? targetRefJson,
-          Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedItemId = const Value.absent(),
-          String? unitType,
-          DateTime? completedAt,
-          DateTime? updatedAt,
-          Value<DateTime?> deletedAt = const Value.absent()}) =>
-      TrackingUnitsCacheData(
-        id: id ?? this.id,
-        kind: kind ?? this.kind,
-        targetRefJson: targetRefJson ?? this.targetRefJson,
-        trackingEntryId: trackingEntryId.present
-            ? trackingEntryId.value
-            : this.trackingEntryId,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
-        unitType: unitType ?? this.unitType,
-        completedAt: completedAt ?? this.completedAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-      );
-  TrackingUnitsCacheData copyWithCompanion(TrackingUnitsCacheCompanion data) {
-    return TrackingUnitsCacheData(
-      id: data.id.present ? data.id.value : this.id,
-      kind: data.kind.present ? data.kind.value : this.kind,
-      targetRefJson: data.targetRefJson.present
-          ? data.targetRefJson.value
-          : this.targetRefJson,
-      trackingEntryId: data.trackingEntryId.present
-          ? data.trackingEntryId.value
-          : this.trackingEntryId,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      unitType: data.unitType.present ? data.unitType.value : this.unitType,
-      completedAt:
-          data.completedAt.present ? data.completedAt.value : this.completedAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TrackingUnitsCacheData(')
-          ..write('id: $id, ')
-          ..write('kind: $kind, ')
-          ..write('targetRefJson: $targetRefJson, ')
-          ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
-          ..write('completedAt: $completedAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, kind, targetRefJson, trackingEntryId,
-      ownedItemId, unitType, completedAt, updatedAt, deletedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TrackingUnitsCacheData &&
-          other.id == this.id &&
-          other.kind == this.kind &&
-          other.targetRefJson == this.targetRefJson &&
-          other.trackingEntryId == this.trackingEntryId &&
-          other.ownedItemId == this.ownedItemId &&
-          other.unitType == this.unitType &&
-          other.completedAt == this.completedAt &&
-          other.updatedAt == this.updatedAt &&
-          other.deletedAt == this.deletedAt);
-}
-
-class TrackingUnitsCacheCompanion
-    extends UpdateCompanion<TrackingUnitsCacheData> {
-  final Value<String> id;
-  final Value<String> kind;
-  final Value<String> targetRefJson;
-  final Value<String?> trackingEntryId;
-  final Value<String?> ownedItemId;
-  final Value<String> unitType;
-  final Value<DateTime> completedAt;
-  final Value<DateTime> updatedAt;
-  final Value<DateTime?> deletedAt;
-  final Value<int> rowid;
-  const TrackingUnitsCacheCompanion({
-    this.id = const Value.absent(),
-    this.kind = const Value.absent(),
-    this.targetRefJson = const Value.absent(),
-    this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.unitType = const Value.absent(),
-    this.completedAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.deletedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TrackingUnitsCacheCompanion.insert({
-    required String id,
-    required String kind,
-    required String targetRefJson,
-    this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    required String unitType,
-    required DateTime completedAt,
-    required DateTime updatedAt,
-    this.deletedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        kind = Value(kind),
-        targetRefJson = Value(targetRefJson),
-        unitType = Value(unitType),
-        completedAt = Value(completedAt),
-        updatedAt = Value(updatedAt);
-  static Insertable<TrackingUnitsCacheData> custom({
-    Expression<String>? id,
-    Expression<String>? kind,
-    Expression<String>? targetRefJson,
-    Expression<String>? trackingEntryId,
-    Expression<String>? ownedItemId,
-    Expression<String>? unitType,
-    Expression<DateTime>? completedAt,
-    Expression<DateTime>? updatedAt,
-    Expression<DateTime>? deletedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (kind != null) 'kind': kind,
-      if (targetRefJson != null) 'target_ref_json': targetRefJson,
-      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (unitType != null) 'unit_type': unitType,
-      if (completedAt != null) 'completed_at': completedAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (deletedAt != null) 'deleted_at': deletedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TrackingUnitsCacheCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? kind,
-      Value<String>? targetRefJson,
-      Value<String?>? trackingEntryId,
-      Value<String?>? ownedItemId,
-      Value<String>? unitType,
-      Value<DateTime>? completedAt,
-      Value<DateTime>? updatedAt,
-      Value<DateTime?>? deletedAt,
-      Value<int>? rowid}) {
-    return TrackingUnitsCacheCompanion(
-      id: id ?? this.id,
-      kind: kind ?? this.kind,
-      targetRefJson: targetRefJson ?? this.targetRefJson,
-      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      unitType: unitType ?? this.unitType,
-      completedAt: completedAt ?? this.completedAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (kind.present) {
-      map['kind'] = Variable<String>(kind.value);
-    }
-    if (targetRefJson.present) {
-      map['target_ref_json'] = Variable<String>(targetRefJson.value);
-    }
-    if (trackingEntryId.present) {
-      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
-    }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (unitType.present) {
-      map['unit_type'] = Variable<String>(unitType.value);
-    }
-    if (completedAt.present) {
-      map['completed_at'] = Variable<DateTime>(completedAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (deletedAt.present) {
-      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TrackingUnitsCacheCompanion(')
-          ..write('id: $id, ')
-          ..write('kind: $kind, ')
-          ..write('targetRefJson: $targetRefJson, ')
-          ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
-          ..write('completedAt: $completedAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('deletedAt: $deletedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $SyncQueueTable extends SyncQueue
     with TableInfo<$SyncQueueTable, SyncQueueData> {
   @override
@@ -12339,6 +11851,48 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unitTypeMeta =
+      const VerificationMeta('unitType');
+  @override
+  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
+      'unit_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _seasonNumberMeta =
       const VerificationMeta('seasonNumber');
   @override
@@ -12352,7 +11906,18 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
       'episode_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [id, seasonNumber, episodeNumber];
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetRefJson,
+        trackingEntryId,
+        ownedItemId,
+        unitType,
+        completedAt,
+        updatedAt,
+        deletedAt,
+        seasonNumber,
+        episodeNumber
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -12368,6 +11933,50 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_targetRefJsonMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('unit_type')) {
+      context.handle(_unitTypeMeta,
+          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
+    } else if (isInserting) {
+      context.missing(_unitTypeMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
     }
     if (data.containsKey('season_number')) {
       context.handle(
@@ -12392,6 +12001,20 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
     return AnimeTrackingUnitRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      unitType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
       seasonNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
       episodeNumber: attachedDatabase.typeMapping
@@ -12408,14 +12031,43 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
 class AnimeTrackingUnitRow extends DataClass
     implements Insertable<AnimeTrackingUnitRow> {
   final String id;
+  final String targetRefJson;
+  final String? trackingEntryId;
+  final String? ownedItemId;
+  final String unitType;
+  final DateTime completedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final int? seasonNumber;
   final int? episodeNumber;
   const AnimeTrackingUnitRow(
-      {required this.id, this.seasonNumber, this.episodeNumber});
+      {required this.id,
+      required this.targetRefJson,
+      this.trackingEntryId,
+      this.ownedItemId,
+      required this.unitType,
+      required this.completedAt,
+      required this.updatedAt,
+      this.deletedAt,
+      this.seasonNumber,
+      this.episodeNumber});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['target_ref_json'] = Variable<String>(targetRefJson);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    map['unit_type'] = Variable<String>(unitType);
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     if (!nullToAbsent || seasonNumber != null) {
       map['season_number'] = Variable<int>(seasonNumber);
     }
@@ -12428,6 +12080,19 @@ class AnimeTrackingUnitRow extends DataClass
   AnimeTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
     return AnimeTrackingUnitRowsCompanion(
       id: Value(id),
+      targetRefJson: Value(targetRefJson),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      unitType: Value(unitType),
+      completedAt: Value(completedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       seasonNumber: seasonNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(seasonNumber),
@@ -12442,6 +12107,13 @@ class AnimeTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return AnimeTrackingUnitRow(
       id: serializer.fromJson<String>(json['id']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      unitType: serializer.fromJson<String>(json['unitType']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
     );
@@ -12451,6 +12123,13 @@ class AnimeTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'unitType': serializer.toJson<String>(unitType),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
     };
@@ -12458,10 +12137,26 @@ class AnimeTrackingUnitRow extends DataClass
 
   AnimeTrackingUnitRow copyWith(
           {String? id,
+          String? targetRefJson,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<String?> ownedItemId = const Value.absent(),
+          String? unitType,
+          DateTime? completedAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent()}) =>
       AnimeTrackingUnitRow(
         id: id ?? this.id,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        unitType: unitType ?? this.unitType,
+        completedAt: completedAt ?? this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
         seasonNumber:
             seasonNumber.present ? seasonNumber.value : this.seasonNumber,
         episodeNumber:
@@ -12470,6 +12165,19 @@ class AnimeTrackingUnitRow extends DataClass
   AnimeTrackingUnitRow copyWithCompanion(AnimeTrackingUnitRowsCompanion data) {
     return AnimeTrackingUnitRow(
       id: data.id.present ? data.id.value : this.id,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       seasonNumber: data.seasonNumber.present
           ? data.seasonNumber.value
           : this.seasonNumber,
@@ -12483,6 +12191,13 @@ class AnimeTrackingUnitRow extends DataClass
   String toString() {
     return (StringBuffer('AnimeTrackingUnitRow(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber')
           ..write(')'))
@@ -12490,12 +12205,29 @@ class AnimeTrackingUnitRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, seasonNumber, episodeNumber);
+  int get hashCode => Object.hash(
+      id,
+      targetRefJson,
+      trackingEntryId,
+      ownedItemId,
+      unitType,
+      completedAt,
+      updatedAt,
+      deletedAt,
+      seasonNumber,
+      episodeNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AnimeTrackingUnitRow &&
           other.id == this.id &&
+          other.targetRefJson == this.targetRefJson &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.unitType == this.unitType &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber);
 }
@@ -12503,29 +12235,68 @@ class AnimeTrackingUnitRow extends DataClass
 class AnimeTrackingUnitRowsCompanion
     extends UpdateCompanion<AnimeTrackingUnitRow> {
   final Value<String> id;
+  final Value<String> targetRefJson;
+  final Value<String?> trackingEntryId;
+  final Value<String?> ownedItemId;
+  final Value<String> unitType;
+  final Value<DateTime> completedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
   final Value<int> rowid;
   const AnimeTrackingUnitRowsCompanion({
     this.id = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.unitType = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AnimeTrackingUnitRowsCompanion.insert({
     required String id,
+    required String targetRefJson,
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    required String unitType,
+    required DateTime completedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : id = Value(id);
+  })  : id = Value(id),
+        targetRefJson = Value(targetRefJson),
+        unitType = Value(unitType),
+        completedAt = Value(completedAt),
+        updatedAt = Value(updatedAt);
   static Insertable<AnimeTrackingUnitRow> custom({
     Expression<String>? id,
+    Expression<String>? targetRefJson,
+    Expression<String>? trackingEntryId,
+    Expression<String>? ownedItemId,
+    Expression<String>? unitType,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (unitType != null) 'unit_type': unitType,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
       if (rowid != null) 'rowid': rowid,
@@ -12534,11 +12305,25 @@ class AnimeTrackingUnitRowsCompanion
 
   AnimeTrackingUnitRowsCompanion copyWith(
       {Value<String>? id,
+      Value<String>? targetRefJson,
+      Value<String?>? trackingEntryId,
+      Value<String?>? ownedItemId,
+      Value<String>? unitType,
+      Value<DateTime>? completedAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
       Value<int>? rowid}) {
     return AnimeTrackingUnitRowsCompanion(
       id: id ?? this.id,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      unitType: unitType ?? this.unitType,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
       rowid: rowid ?? this.rowid,
@@ -12550,6 +12335,27 @@ class AnimeTrackingUnitRowsCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (unitType.present) {
+      map['unit_type'] = Variable<String>(unitType.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (seasonNumber.present) {
       map['season_number'] = Variable<int>(seasonNumber.value);
@@ -12567,6 +12373,13 @@ class AnimeTrackingUnitRowsCompanion
   String toString() {
     return (StringBuffer('AnimeTrackingUnitRowsCompanion(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
           ..write('rowid: $rowid')
@@ -21411,6 +21224,48 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unitTypeMeta =
+      const VerificationMeta('unitType');
+  @override
+  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
+      'unit_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _volumeNumberMeta =
       const VerificationMeta('volumeNumber');
   @override
@@ -21424,7 +21279,18 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
       'chapter_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [id, volumeNumber, chapterNumber];
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetRefJson,
+        trackingEntryId,
+        ownedItemId,
+        unitType,
+        completedAt,
+        updatedAt,
+        deletedAt,
+        volumeNumber,
+        chapterNumber
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -21440,6 +21306,50 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_targetRefJsonMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('unit_type')) {
+      context.handle(_unitTypeMeta,
+          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
+    } else if (isInserting) {
+      context.missing(_unitTypeMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
     }
     if (data.containsKey('volume_number')) {
       context.handle(
@@ -21464,6 +21374,20 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
     return BookTrackingUnitRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      unitType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
       volumeNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
       chapterNumber: attachedDatabase.typeMapping
@@ -21480,14 +21404,43 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
 class BookTrackingUnitRow extends DataClass
     implements Insertable<BookTrackingUnitRow> {
   final String id;
+  final String targetRefJson;
+  final String? trackingEntryId;
+  final String? ownedItemId;
+  final String unitType;
+  final DateTime completedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final int? volumeNumber;
   final int? chapterNumber;
   const BookTrackingUnitRow(
-      {required this.id, this.volumeNumber, this.chapterNumber});
+      {required this.id,
+      required this.targetRefJson,
+      this.trackingEntryId,
+      this.ownedItemId,
+      required this.unitType,
+      required this.completedAt,
+      required this.updatedAt,
+      this.deletedAt,
+      this.volumeNumber,
+      this.chapterNumber});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['target_ref_json'] = Variable<String>(targetRefJson);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    map['unit_type'] = Variable<String>(unitType);
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     if (!nullToAbsent || volumeNumber != null) {
       map['volume_number'] = Variable<int>(volumeNumber);
     }
@@ -21500,6 +21453,19 @@ class BookTrackingUnitRow extends DataClass
   BookTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
     return BookTrackingUnitRowsCompanion(
       id: Value(id),
+      targetRefJson: Value(targetRefJson),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      unitType: Value(unitType),
+      completedAt: Value(completedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       volumeNumber: volumeNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(volumeNumber),
@@ -21514,6 +21480,13 @@ class BookTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BookTrackingUnitRow(
       id: serializer.fromJson<String>(json['id']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      unitType: serializer.fromJson<String>(json['unitType']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
       chapterNumber: serializer.fromJson<int?>(json['chapterNumber']),
     );
@@ -21523,6 +21496,13 @@ class BookTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'unitType': serializer.toJson<String>(unitType),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'volumeNumber': serializer.toJson<int?>(volumeNumber),
       'chapterNumber': serializer.toJson<int?>(chapterNumber),
     };
@@ -21530,10 +21510,26 @@ class BookTrackingUnitRow extends DataClass
 
   BookTrackingUnitRow copyWith(
           {String? id,
+          String? targetRefJson,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<String?> ownedItemId = const Value.absent(),
+          String? unitType,
+          DateTime? completedAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
           Value<int?> volumeNumber = const Value.absent(),
           Value<int?> chapterNumber = const Value.absent()}) =>
       BookTrackingUnitRow(
         id: id ?? this.id,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        unitType: unitType ?? this.unitType,
+        completedAt: completedAt ?? this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
         volumeNumber:
             volumeNumber.present ? volumeNumber.value : this.volumeNumber,
         chapterNumber:
@@ -21542,6 +21538,19 @@ class BookTrackingUnitRow extends DataClass
   BookTrackingUnitRow copyWithCompanion(BookTrackingUnitRowsCompanion data) {
     return BookTrackingUnitRow(
       id: data.id.present ? data.id.value : this.id,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       volumeNumber: data.volumeNumber.present
           ? data.volumeNumber.value
           : this.volumeNumber,
@@ -21555,6 +21564,13 @@ class BookTrackingUnitRow extends DataClass
   String toString() {
     return (StringBuffer('BookTrackingUnitRow(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('volumeNumber: $volumeNumber, ')
           ..write('chapterNumber: $chapterNumber')
           ..write(')'))
@@ -21562,12 +21578,29 @@ class BookTrackingUnitRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, volumeNumber, chapterNumber);
+  int get hashCode => Object.hash(
+      id,
+      targetRefJson,
+      trackingEntryId,
+      ownedItemId,
+      unitType,
+      completedAt,
+      updatedAt,
+      deletedAt,
+      volumeNumber,
+      chapterNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is BookTrackingUnitRow &&
           other.id == this.id &&
+          other.targetRefJson == this.targetRefJson &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.unitType == this.unitType &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.volumeNumber == this.volumeNumber &&
           other.chapterNumber == this.chapterNumber);
 }
@@ -21575,29 +21608,68 @@ class BookTrackingUnitRow extends DataClass
 class BookTrackingUnitRowsCompanion
     extends UpdateCompanion<BookTrackingUnitRow> {
   final Value<String> id;
+  final Value<String> targetRefJson;
+  final Value<String?> trackingEntryId;
+  final Value<String?> ownedItemId;
+  final Value<String> unitType;
+  final Value<DateTime> completedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int?> volumeNumber;
   final Value<int?> chapterNumber;
   final Value<int> rowid;
   const BookTrackingUnitRowsCompanion({
     this.id = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.unitType = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.volumeNumber = const Value.absent(),
     this.chapterNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BookTrackingUnitRowsCompanion.insert({
     required String id,
+    required String targetRefJson,
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    required String unitType,
+    required DateTime completedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     this.volumeNumber = const Value.absent(),
     this.chapterNumber = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : id = Value(id);
+  })  : id = Value(id),
+        targetRefJson = Value(targetRefJson),
+        unitType = Value(unitType),
+        completedAt = Value(completedAt),
+        updatedAt = Value(updatedAt);
   static Insertable<BookTrackingUnitRow> custom({
     Expression<String>? id,
+    Expression<String>? targetRefJson,
+    Expression<String>? trackingEntryId,
+    Expression<String>? ownedItemId,
+    Expression<String>? unitType,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? volumeNumber,
     Expression<int>? chapterNumber,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (unitType != null) 'unit_type': unitType,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (volumeNumber != null) 'volume_number': volumeNumber,
       if (chapterNumber != null) 'chapter_number': chapterNumber,
       if (rowid != null) 'rowid': rowid,
@@ -21606,11 +21678,25 @@ class BookTrackingUnitRowsCompanion
 
   BookTrackingUnitRowsCompanion copyWith(
       {Value<String>? id,
+      Value<String>? targetRefJson,
+      Value<String?>? trackingEntryId,
+      Value<String?>? ownedItemId,
+      Value<String>? unitType,
+      Value<DateTime>? completedAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
       Value<int?>? volumeNumber,
       Value<int?>? chapterNumber,
       Value<int>? rowid}) {
     return BookTrackingUnitRowsCompanion(
       id: id ?? this.id,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      unitType: unitType ?? this.unitType,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       volumeNumber: volumeNumber ?? this.volumeNumber,
       chapterNumber: chapterNumber ?? this.chapterNumber,
       rowid: rowid ?? this.rowid,
@@ -21622,6 +21708,27 @@ class BookTrackingUnitRowsCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (unitType.present) {
+      map['unit_type'] = Variable<String>(unitType.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (volumeNumber.present) {
       map['volume_number'] = Variable<int>(volumeNumber.value);
@@ -21639,6 +21746,13 @@ class BookTrackingUnitRowsCompanion
   String toString() {
     return (StringBuffer('BookTrackingUnitRowsCompanion(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('volumeNumber: $volumeNumber, ')
           ..write('chapterNumber: $chapterNumber, ')
           ..write('rowid: $rowid')
@@ -26185,6 +26299,48 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unitTypeMeta =
+      const VerificationMeta('unitType');
+  @override
+  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
+      'unit_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _issueNumberMeta =
       const VerificationMeta('issueNumber');
   @override
@@ -26192,7 +26348,17 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
       'issue_number', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [id, issueNumber];
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetRefJson,
+        trackingEntryId,
+        ownedItemId,
+        unitType,
+        completedAt,
+        updatedAt,
+        deletedAt,
+        issueNumber
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -26208,6 +26374,50 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_targetRefJsonMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('unit_type')) {
+      context.handle(_unitTypeMeta,
+          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
+    } else if (isInserting) {
+      context.missing(_unitTypeMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
     }
     if (data.containsKey('issue_number')) {
       context.handle(
@@ -26226,6 +26436,20 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
     return ComicTrackingUnitRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      unitType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
       issueNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}issue_number']),
     );
@@ -26240,12 +26464,41 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
 class ComicTrackingUnitRow extends DataClass
     implements Insertable<ComicTrackingUnitRow> {
   final String id;
+  final String targetRefJson;
+  final String? trackingEntryId;
+  final String? ownedItemId;
+  final String unitType;
+  final DateTime completedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final String? issueNumber;
-  const ComicTrackingUnitRow({required this.id, this.issueNumber});
+  const ComicTrackingUnitRow(
+      {required this.id,
+      required this.targetRefJson,
+      this.trackingEntryId,
+      this.ownedItemId,
+      required this.unitType,
+      required this.completedAt,
+      required this.updatedAt,
+      this.deletedAt,
+      this.issueNumber});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['target_ref_json'] = Variable<String>(targetRefJson);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    map['unit_type'] = Variable<String>(unitType);
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     if (!nullToAbsent || issueNumber != null) {
       map['issue_number'] = Variable<String>(issueNumber);
     }
@@ -26255,6 +26508,19 @@ class ComicTrackingUnitRow extends DataClass
   ComicTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
     return ComicTrackingUnitRowsCompanion(
       id: Value(id),
+      targetRefJson: Value(targetRefJson),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      unitType: Value(unitType),
+      completedAt: Value(completedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       issueNumber: issueNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(issueNumber),
@@ -26266,6 +26532,13 @@ class ComicTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ComicTrackingUnitRow(
       id: serializer.fromJson<String>(json['id']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      unitType: serializer.fromJson<String>(json['unitType']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       issueNumber: serializer.fromJson<String?>(json['issueNumber']),
     );
   }
@@ -26274,19 +26547,56 @@ class ComicTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'unitType': serializer.toJson<String>(unitType),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'issueNumber': serializer.toJson<String?>(issueNumber),
     };
   }
 
   ComicTrackingUnitRow copyWith(
-          {String? id, Value<String?> issueNumber = const Value.absent()}) =>
+          {String? id,
+          String? targetRefJson,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<String?> ownedItemId = const Value.absent(),
+          String? unitType,
+          DateTime? completedAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
+          Value<String?> issueNumber = const Value.absent()}) =>
       ComicTrackingUnitRow(
         id: id ?? this.id,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        unitType: unitType ?? this.unitType,
+        completedAt: completedAt ?? this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
         issueNumber: issueNumber.present ? issueNumber.value : this.issueNumber,
       );
   ComicTrackingUnitRow copyWithCompanion(ComicTrackingUnitRowsCompanion data) {
     return ComicTrackingUnitRow(
       id: data.id.present ? data.id.value : this.id,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       issueNumber:
           data.issueNumber.present ? data.issueNumber.value : this.issueNumber,
     );
@@ -26296,52 +26606,122 @@ class ComicTrackingUnitRow extends DataClass
   String toString() {
     return (StringBuffer('ComicTrackingUnitRow(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('issueNumber: $issueNumber')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, issueNumber);
+  int get hashCode => Object.hash(id, targetRefJson, trackingEntryId,
+      ownedItemId, unitType, completedAt, updatedAt, deletedAt, issueNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ComicTrackingUnitRow &&
           other.id == this.id &&
+          other.targetRefJson == this.targetRefJson &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.unitType == this.unitType &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.issueNumber == this.issueNumber);
 }
 
 class ComicTrackingUnitRowsCompanion
     extends UpdateCompanion<ComicTrackingUnitRow> {
   final Value<String> id;
+  final Value<String> targetRefJson;
+  final Value<String?> trackingEntryId;
+  final Value<String?> ownedItemId;
+  final Value<String> unitType;
+  final Value<DateTime> completedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<String?> issueNumber;
   final Value<int> rowid;
   const ComicTrackingUnitRowsCompanion({
     this.id = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.unitType = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.issueNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComicTrackingUnitRowsCompanion.insert({
     required String id,
+    required String targetRefJson,
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    required String unitType,
+    required DateTime completedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     this.issueNumber = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : id = Value(id);
+  })  : id = Value(id),
+        targetRefJson = Value(targetRefJson),
+        unitType = Value(unitType),
+        completedAt = Value(completedAt),
+        updatedAt = Value(updatedAt);
   static Insertable<ComicTrackingUnitRow> custom({
     Expression<String>? id,
+    Expression<String>? targetRefJson,
+    Expression<String>? trackingEntryId,
+    Expression<String>? ownedItemId,
+    Expression<String>? unitType,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<String>? issueNumber,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (unitType != null) 'unit_type': unitType,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (issueNumber != null) 'issue_number': issueNumber,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   ComicTrackingUnitRowsCompanion copyWith(
-      {Value<String>? id, Value<String?>? issueNumber, Value<int>? rowid}) {
+      {Value<String>? id,
+      Value<String>? targetRefJson,
+      Value<String?>? trackingEntryId,
+      Value<String?>? ownedItemId,
+      Value<String>? unitType,
+      Value<DateTime>? completedAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
+      Value<String?>? issueNumber,
+      Value<int>? rowid}) {
     return ComicTrackingUnitRowsCompanion(
       id: id ?? this.id,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      unitType: unitType ?? this.unitType,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       issueNumber: issueNumber ?? this.issueNumber,
       rowid: rowid ?? this.rowid,
     );
@@ -26352,6 +26732,27 @@ class ComicTrackingUnitRowsCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (unitType.present) {
+      map['unit_type'] = Variable<String>(unitType.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (issueNumber.present) {
       map['issue_number'] = Variable<String>(issueNumber.value);
@@ -26366,6 +26767,13 @@ class ComicTrackingUnitRowsCompanion
   String toString() {
     return (StringBuffer('ComicTrackingUnitRowsCompanion(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('issueNumber: $issueNumber, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -31952,6 +32360,48 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unitTypeMeta =
+      const VerificationMeta('unitType');
+  @override
+  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
+      'unit_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _volumeNumberMeta =
       const VerificationMeta('volumeNumber');
   @override
@@ -31965,7 +32415,18 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
       'chapter_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [id, volumeNumber, chapterNumber];
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetRefJson,
+        trackingEntryId,
+        ownedItemId,
+        unitType,
+        completedAt,
+        updatedAt,
+        deletedAt,
+        volumeNumber,
+        chapterNumber
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -31981,6 +32442,50 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_targetRefJsonMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('unit_type')) {
+      context.handle(_unitTypeMeta,
+          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
+    } else if (isInserting) {
+      context.missing(_unitTypeMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
     }
     if (data.containsKey('volume_number')) {
       context.handle(
@@ -32005,6 +32510,20 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
     return MangaTrackingUnitRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      unitType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
       volumeNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}volume_number']),
       chapterNumber: attachedDatabase.typeMapping
@@ -32021,14 +32540,43 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
 class MangaTrackingUnitRow extends DataClass
     implements Insertable<MangaTrackingUnitRow> {
   final String id;
+  final String targetRefJson;
+  final String? trackingEntryId;
+  final String? ownedItemId;
+  final String unitType;
+  final DateTime completedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final int? volumeNumber;
   final int? chapterNumber;
   const MangaTrackingUnitRow(
-      {required this.id, this.volumeNumber, this.chapterNumber});
+      {required this.id,
+      required this.targetRefJson,
+      this.trackingEntryId,
+      this.ownedItemId,
+      required this.unitType,
+      required this.completedAt,
+      required this.updatedAt,
+      this.deletedAt,
+      this.volumeNumber,
+      this.chapterNumber});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['target_ref_json'] = Variable<String>(targetRefJson);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    map['unit_type'] = Variable<String>(unitType);
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     if (!nullToAbsent || volumeNumber != null) {
       map['volume_number'] = Variable<int>(volumeNumber);
     }
@@ -32041,6 +32589,19 @@ class MangaTrackingUnitRow extends DataClass
   MangaTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
     return MangaTrackingUnitRowsCompanion(
       id: Value(id),
+      targetRefJson: Value(targetRefJson),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      unitType: Value(unitType),
+      completedAt: Value(completedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       volumeNumber: volumeNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(volumeNumber),
@@ -32055,6 +32616,13 @@ class MangaTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MangaTrackingUnitRow(
       id: serializer.fromJson<String>(json['id']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      unitType: serializer.fromJson<String>(json['unitType']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       volumeNumber: serializer.fromJson<int?>(json['volumeNumber']),
       chapterNumber: serializer.fromJson<int?>(json['chapterNumber']),
     );
@@ -32064,6 +32632,13 @@ class MangaTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'unitType': serializer.toJson<String>(unitType),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'volumeNumber': serializer.toJson<int?>(volumeNumber),
       'chapterNumber': serializer.toJson<int?>(chapterNumber),
     };
@@ -32071,10 +32646,26 @@ class MangaTrackingUnitRow extends DataClass
 
   MangaTrackingUnitRow copyWith(
           {String? id,
+          String? targetRefJson,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<String?> ownedItemId = const Value.absent(),
+          String? unitType,
+          DateTime? completedAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
           Value<int?> volumeNumber = const Value.absent(),
           Value<int?> chapterNumber = const Value.absent()}) =>
       MangaTrackingUnitRow(
         id: id ?? this.id,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        unitType: unitType ?? this.unitType,
+        completedAt: completedAt ?? this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
         volumeNumber:
             volumeNumber.present ? volumeNumber.value : this.volumeNumber,
         chapterNumber:
@@ -32083,6 +32674,19 @@ class MangaTrackingUnitRow extends DataClass
   MangaTrackingUnitRow copyWithCompanion(MangaTrackingUnitRowsCompanion data) {
     return MangaTrackingUnitRow(
       id: data.id.present ? data.id.value : this.id,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       volumeNumber: data.volumeNumber.present
           ? data.volumeNumber.value
           : this.volumeNumber,
@@ -32096,6 +32700,13 @@ class MangaTrackingUnitRow extends DataClass
   String toString() {
     return (StringBuffer('MangaTrackingUnitRow(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('volumeNumber: $volumeNumber, ')
           ..write('chapterNumber: $chapterNumber')
           ..write(')'))
@@ -32103,12 +32714,29 @@ class MangaTrackingUnitRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, volumeNumber, chapterNumber);
+  int get hashCode => Object.hash(
+      id,
+      targetRefJson,
+      trackingEntryId,
+      ownedItemId,
+      unitType,
+      completedAt,
+      updatedAt,
+      deletedAt,
+      volumeNumber,
+      chapterNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MangaTrackingUnitRow &&
           other.id == this.id &&
+          other.targetRefJson == this.targetRefJson &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.unitType == this.unitType &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.volumeNumber == this.volumeNumber &&
           other.chapterNumber == this.chapterNumber);
 }
@@ -32116,29 +32744,68 @@ class MangaTrackingUnitRow extends DataClass
 class MangaTrackingUnitRowsCompanion
     extends UpdateCompanion<MangaTrackingUnitRow> {
   final Value<String> id;
+  final Value<String> targetRefJson;
+  final Value<String?> trackingEntryId;
+  final Value<String?> ownedItemId;
+  final Value<String> unitType;
+  final Value<DateTime> completedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int?> volumeNumber;
   final Value<int?> chapterNumber;
   final Value<int> rowid;
   const MangaTrackingUnitRowsCompanion({
     this.id = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.unitType = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.volumeNumber = const Value.absent(),
     this.chapterNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MangaTrackingUnitRowsCompanion.insert({
     required String id,
+    required String targetRefJson,
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    required String unitType,
+    required DateTime completedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     this.volumeNumber = const Value.absent(),
     this.chapterNumber = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : id = Value(id);
+  })  : id = Value(id),
+        targetRefJson = Value(targetRefJson),
+        unitType = Value(unitType),
+        completedAt = Value(completedAt),
+        updatedAt = Value(updatedAt);
   static Insertable<MangaTrackingUnitRow> custom({
     Expression<String>? id,
+    Expression<String>? targetRefJson,
+    Expression<String>? trackingEntryId,
+    Expression<String>? ownedItemId,
+    Expression<String>? unitType,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? volumeNumber,
     Expression<int>? chapterNumber,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (unitType != null) 'unit_type': unitType,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (volumeNumber != null) 'volume_number': volumeNumber,
       if (chapterNumber != null) 'chapter_number': chapterNumber,
       if (rowid != null) 'rowid': rowid,
@@ -32147,11 +32814,25 @@ class MangaTrackingUnitRowsCompanion
 
   MangaTrackingUnitRowsCompanion copyWith(
       {Value<String>? id,
+      Value<String>? targetRefJson,
+      Value<String?>? trackingEntryId,
+      Value<String?>? ownedItemId,
+      Value<String>? unitType,
+      Value<DateTime>? completedAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
       Value<int?>? volumeNumber,
       Value<int?>? chapterNumber,
       Value<int>? rowid}) {
     return MangaTrackingUnitRowsCompanion(
       id: id ?? this.id,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      unitType: unitType ?? this.unitType,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       volumeNumber: volumeNumber ?? this.volumeNumber,
       chapterNumber: chapterNumber ?? this.chapterNumber,
       rowid: rowid ?? this.rowid,
@@ -32163,6 +32844,27 @@ class MangaTrackingUnitRowsCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (unitType.present) {
+      map['unit_type'] = Variable<String>(unitType.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (volumeNumber.present) {
       map['volume_number'] = Variable<int>(volumeNumber.value);
@@ -32180,6 +32882,13 @@ class MangaTrackingUnitRowsCompanion
   String toString() {
     return (StringBuffer('MangaTrackingUnitRowsCompanion(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('volumeNumber: $volumeNumber, ')
           ..write('chapterNumber: $chapterNumber, ')
           ..write('rowid: $rowid')
@@ -46811,6 +47520,48 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _targetRefJsonMeta =
+      const VerificationMeta('targetRefJson');
+  @override
+  late final GeneratedColumn<String> targetRefJson = GeneratedColumn<String>(
+      'target_ref_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _trackingEntryIdMeta =
+      const VerificationMeta('trackingEntryId');
+  @override
+  late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
+      'tracking_entry_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ownedItemIdMeta =
+      const VerificationMeta('ownedItemId');
+  @override
+  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
+      'owned_item_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _unitTypeMeta =
+      const VerificationMeta('unitType');
+  @override
+  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
+      'unit_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _seasonNumberMeta =
       const VerificationMeta('seasonNumber');
   @override
@@ -46824,7 +47575,18 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
       'episode_number', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [id, seasonNumber, episodeNumber];
+  List<GeneratedColumn> get $columns => [
+        id,
+        targetRefJson,
+        trackingEntryId,
+        ownedItemId,
+        unitType,
+        completedAt,
+        updatedAt,
+        deletedAt,
+        seasonNumber,
+        episodeNumber
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -46839,6 +47601,50 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('target_ref_json')) {
+      context.handle(
+          _targetRefJsonMeta,
+          targetRefJson.isAcceptableOrUnknown(
+              data['target_ref_json']!, _targetRefJsonMeta));
+    } else if (isInserting) {
+      context.missing(_targetRefJsonMeta);
+    }
+    if (data.containsKey('tracking_entry_id')) {
+      context.handle(
+          _trackingEntryIdMeta,
+          trackingEntryId.isAcceptableOrUnknown(
+              data['tracking_entry_id']!, _trackingEntryIdMeta));
+    }
+    if (data.containsKey('owned_item_id')) {
+      context.handle(
+          _ownedItemIdMeta,
+          ownedItemId.isAcceptableOrUnknown(
+              data['owned_item_id']!, _ownedItemIdMeta));
+    }
+    if (data.containsKey('unit_type')) {
+      context.handle(_unitTypeMeta,
+          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
+    } else if (isInserting) {
+      context.missing(_unitTypeMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
     }
     if (data.containsKey('season_number')) {
       context.handle(
@@ -46863,6 +47669,20 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
     return TvTrackingUnitRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      targetRefJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
+      trackingEntryId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
+      ownedItemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      unitType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
       seasonNumber: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}season_number']),
       episodeNumber: attachedDatabase.typeMapping
@@ -46879,14 +47699,43 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
 class TvTrackingUnitRow extends DataClass
     implements Insertable<TvTrackingUnitRow> {
   final String id;
+  final String targetRefJson;
+  final String? trackingEntryId;
+  final String? ownedItemId;
+  final String unitType;
+  final DateTime completedAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
   final int? seasonNumber;
   final int? episodeNumber;
   const TvTrackingUnitRow(
-      {required this.id, this.seasonNumber, this.episodeNumber});
+      {required this.id,
+      required this.targetRefJson,
+      this.trackingEntryId,
+      this.ownedItemId,
+      required this.unitType,
+      required this.completedAt,
+      required this.updatedAt,
+      this.deletedAt,
+      this.seasonNumber,
+      this.episodeNumber});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['target_ref_json'] = Variable<String>(targetRefJson);
+    if (!nullToAbsent || trackingEntryId != null) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId);
+    }
+    if (!nullToAbsent || ownedItemId != null) {
+      map['owned_item_id'] = Variable<String>(ownedItemId);
+    }
+    map['unit_type'] = Variable<String>(unitType);
+    map['completed_at'] = Variable<DateTime>(completedAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     if (!nullToAbsent || seasonNumber != null) {
       map['season_number'] = Variable<int>(seasonNumber);
     }
@@ -46899,6 +47748,19 @@ class TvTrackingUnitRow extends DataClass
   TvTrackingUnitRowsCompanion toCompanion(bool nullToAbsent) {
     return TvTrackingUnitRowsCompanion(
       id: Value(id),
+      targetRefJson: Value(targetRefJson),
+      trackingEntryId: trackingEntryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(trackingEntryId),
+      ownedItemId: ownedItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownedItemId),
+      unitType: Value(unitType),
+      completedAt: Value(completedAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
       seasonNumber: seasonNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(seasonNumber),
@@ -46913,6 +47775,13 @@ class TvTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TvTrackingUnitRow(
       id: serializer.fromJson<String>(json['id']),
+      targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
+      trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
+      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      unitType: serializer.fromJson<String>(json['unitType']),
+      completedAt: serializer.fromJson<DateTime>(json['completedAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       seasonNumber: serializer.fromJson<int?>(json['seasonNumber']),
       episodeNumber: serializer.fromJson<int?>(json['episodeNumber']),
     );
@@ -46922,6 +47791,13 @@ class TvTrackingUnitRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'targetRefJson': serializer.toJson<String>(targetRefJson),
+      'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
+      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'unitType': serializer.toJson<String>(unitType),
+      'completedAt': serializer.toJson<DateTime>(completedAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'seasonNumber': serializer.toJson<int?>(seasonNumber),
       'episodeNumber': serializer.toJson<int?>(episodeNumber),
     };
@@ -46929,10 +47805,26 @@ class TvTrackingUnitRow extends DataClass
 
   TvTrackingUnitRow copyWith(
           {String? id,
+          String? targetRefJson,
+          Value<String?> trackingEntryId = const Value.absent(),
+          Value<String?> ownedItemId = const Value.absent(),
+          String? unitType,
+          DateTime? completedAt,
+          DateTime? updatedAt,
+          Value<DateTime?> deletedAt = const Value.absent(),
           Value<int?> seasonNumber = const Value.absent(),
           Value<int?> episodeNumber = const Value.absent()}) =>
       TvTrackingUnitRow(
         id: id ?? this.id,
+        targetRefJson: targetRefJson ?? this.targetRefJson,
+        trackingEntryId: trackingEntryId.present
+            ? trackingEntryId.value
+            : this.trackingEntryId,
+        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        unitType: unitType ?? this.unitType,
+        completedAt: completedAt ?? this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
         seasonNumber:
             seasonNumber.present ? seasonNumber.value : this.seasonNumber,
         episodeNumber:
@@ -46941,6 +47833,19 @@ class TvTrackingUnitRow extends DataClass
   TvTrackingUnitRow copyWithCompanion(TvTrackingUnitRowsCompanion data) {
     return TvTrackingUnitRow(
       id: data.id.present ? data.id.value : this.id,
+      targetRefJson: data.targetRefJson.present
+          ? data.targetRefJson.value
+          : this.targetRefJson,
+      trackingEntryId: data.trackingEntryId.present
+          ? data.trackingEntryId.value
+          : this.trackingEntryId,
+      ownedItemId:
+          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       seasonNumber: data.seasonNumber.present
           ? data.seasonNumber.value
           : this.seasonNumber,
@@ -46954,6 +47859,13 @@ class TvTrackingUnitRow extends DataClass
   String toString() {
     return (StringBuffer('TvTrackingUnitRow(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber')
           ..write(')'))
@@ -46961,41 +47873,97 @@ class TvTrackingUnitRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, seasonNumber, episodeNumber);
+  int get hashCode => Object.hash(
+      id,
+      targetRefJson,
+      trackingEntryId,
+      ownedItemId,
+      unitType,
+      completedAt,
+      updatedAt,
+      deletedAt,
+      seasonNumber,
+      episodeNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TvTrackingUnitRow &&
           other.id == this.id &&
+          other.targetRefJson == this.targetRefJson &&
+          other.trackingEntryId == this.trackingEntryId &&
+          other.ownedItemId == this.ownedItemId &&
+          other.unitType == this.unitType &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
           other.seasonNumber == this.seasonNumber &&
           other.episodeNumber == this.episodeNumber);
 }
 
 class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
   final Value<String> id;
+  final Value<String> targetRefJson;
+  final Value<String?> trackingEntryId;
+  final Value<String?> ownedItemId;
+  final Value<String> unitType;
+  final Value<DateTime> completedAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int?> seasonNumber;
   final Value<int?> episodeNumber;
   final Value<int> rowid;
   const TvTrackingUnitRowsCompanion({
     this.id = const Value.absent(),
+    this.targetRefJson = const Value.absent(),
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    this.unitType = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TvTrackingUnitRowsCompanion.insert({
     required String id,
+    required String targetRefJson,
+    this.trackingEntryId = const Value.absent(),
+    this.ownedItemId = const Value.absent(),
+    required String unitType,
+    required DateTime completedAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
     this.seasonNumber = const Value.absent(),
     this.episodeNumber = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : id = Value(id);
+  })  : id = Value(id),
+        targetRefJson = Value(targetRefJson),
+        unitType = Value(unitType),
+        completedAt = Value(completedAt),
+        updatedAt = Value(updatedAt);
   static Insertable<TvTrackingUnitRow> custom({
     Expression<String>? id,
+    Expression<String>? targetRefJson,
+    Expression<String>? trackingEntryId,
+    Expression<String>? ownedItemId,
+    Expression<String>? unitType,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? seasonNumber,
     Expression<int>? episodeNumber,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (targetRefJson != null) 'target_ref_json': targetRefJson,
+      if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
+      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (unitType != null) 'unit_type': unitType,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (seasonNumber != null) 'season_number': seasonNumber,
       if (episodeNumber != null) 'episode_number': episodeNumber,
       if (rowid != null) 'rowid': rowid,
@@ -47004,11 +47972,25 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
 
   TvTrackingUnitRowsCompanion copyWith(
       {Value<String>? id,
+      Value<String>? targetRefJson,
+      Value<String?>? trackingEntryId,
+      Value<String?>? ownedItemId,
+      Value<String>? unitType,
+      Value<DateTime>? completedAt,
+      Value<DateTime>? updatedAt,
+      Value<DateTime?>? deletedAt,
       Value<int?>? seasonNumber,
       Value<int?>? episodeNumber,
       Value<int>? rowid}) {
     return TvTrackingUnitRowsCompanion(
       id: id ?? this.id,
+      targetRefJson: targetRefJson ?? this.targetRefJson,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      ownedItemId: ownedItemId ?? this.ownedItemId,
+      unitType: unitType ?? this.unitType,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       seasonNumber: seasonNumber ?? this.seasonNumber,
       episodeNumber: episodeNumber ?? this.episodeNumber,
       rowid: rowid ?? this.rowid,
@@ -47020,6 +48002,27 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (targetRefJson.present) {
+      map['target_ref_json'] = Variable<String>(targetRefJson.value);
+    }
+    if (trackingEntryId.present) {
+      map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
+    }
+    if (ownedItemId.present) {
+      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    }
+    if (unitType.present) {
+      map['unit_type'] = Variable<String>(unitType.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
     if (seasonNumber.present) {
       map['season_number'] = Variable<int>(seasonNumber.value);
@@ -47037,6 +48040,13 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
   String toString() {
     return (StringBuffer('TvTrackingUnitRowsCompanion(')
           ..write('id: $id, ')
+          ..write('targetRefJson: $targetRefJson, ')
+          ..write('trackingEntryId: $trackingEntryId, ')
+          ..write('ownedItemId: $ownedItemId, ')
+          ..write('unitType: $unitType, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('seasonNumber: $seasonNumber, ')
           ..write('episodeNumber: $episodeNumber, ')
           ..write('rowid: $rowid')
@@ -47052,8 +48062,6 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
       $WishlistItemsCacheTable(this);
   late final $TrackingEntriesCacheTable trackingEntriesCache =
       $TrackingEntriesCacheTable(this);
-  late final $TrackingUnitsCacheTable trackingUnitsCache =
-      $TrackingUnitsCacheTable(this);
   late final $SyncQueueTable syncQueue = $SyncQueueTable(this);
   late final $UserMetadataOverridesCacheTable userMetadataOverridesCache =
       $UserMetadataOverridesCacheTable(this);
@@ -47169,7 +48177,6 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         wishlistItemsCache,
         trackingEntriesCache,
-        trackingUnitsCache,
         syncQueue,
         userMetadataOverridesCache,
         userExternalLinksCache,
@@ -47797,246 +48804,6 @@ typedef $$TrackingEntriesCacheTableProcessedTableManager
         ),
         TrackingEntriesCacheData,
         PrefetchHooks Function()>;
-typedef $$TrackingUnitsCacheTableCreateCompanionBuilder
-    = TrackingUnitsCacheCompanion Function({
-  required String id,
-  required String kind,
-  required String targetRefJson,
-  Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  required String unitType,
-  required DateTime completedAt,
-  required DateTime updatedAt,
-  Value<DateTime?> deletedAt,
-  Value<int> rowid,
-});
-typedef $$TrackingUnitsCacheTableUpdateCompanionBuilder
-    = TrackingUnitsCacheCompanion Function({
-  Value<String> id,
-  Value<String> kind,
-  Value<String> targetRefJson,
-  Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  Value<String> unitType,
-  Value<DateTime> completedAt,
-  Value<DateTime> updatedAt,
-  Value<DateTime?> deletedAt,
-  Value<int> rowid,
-});
-
-class $$TrackingUnitsCacheTableFilterComposer
-    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
-  $$TrackingUnitsCacheTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get kind => $composableBuilder(
-      column: $table.kind, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get trackingEntryId => $composableBuilder(
-      column: $table.trackingEntryId,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get completedAt => $composableBuilder(
-      column: $table.completedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
-      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
-}
-
-class $$TrackingUnitsCacheTableOrderingComposer
-    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
-  $$TrackingUnitsCacheTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get kind => $composableBuilder(
-      column: $table.kind, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
-      column: $table.trackingEntryId,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
-      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
-      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
-}
-
-class $$TrackingUnitsCacheTableAnnotationComposer
-    extends Composer<_$LocalDatabase, $TrackingUnitsCacheTable> {
-  $$TrackingUnitsCacheTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get kind =>
-      $composableBuilder(column: $table.kind, builder: (column) => column);
-
-  GeneratedColumn<String> get targetRefJson => $composableBuilder(
-      column: $table.targetRefJson, builder: (column) => column);
-
-  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
-      column: $table.trackingEntryId, builder: (column) => column);
-
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get unitType =>
-      $composableBuilder(column: $table.unitType, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
-      column: $table.completedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get deletedAt =>
-      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
-}
-
-class $$TrackingUnitsCacheTableTableManager extends RootTableManager<
-    _$LocalDatabase,
-    $TrackingUnitsCacheTable,
-    TrackingUnitsCacheData,
-    $$TrackingUnitsCacheTableFilterComposer,
-    $$TrackingUnitsCacheTableOrderingComposer,
-    $$TrackingUnitsCacheTableAnnotationComposer,
-    $$TrackingUnitsCacheTableCreateCompanionBuilder,
-    $$TrackingUnitsCacheTableUpdateCompanionBuilder,
-    (
-      TrackingUnitsCacheData,
-      BaseReferences<_$LocalDatabase, $TrackingUnitsCacheTable,
-          TrackingUnitsCacheData>
-    ),
-    TrackingUnitsCacheData,
-    PrefetchHooks Function()> {
-  $$TrackingUnitsCacheTableTableManager(
-      _$LocalDatabase db, $TrackingUnitsCacheTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TrackingUnitsCacheTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TrackingUnitsCacheTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TrackingUnitsCacheTableAnnotationComposer(
-                  $db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String> kind = const Value.absent(),
-            Value<String> targetRefJson = const Value.absent(),
-            Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String> unitType = const Value.absent(),
-            Value<DateTime> completedAt = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
-            Value<DateTime?> deletedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TrackingUnitsCacheCompanion(
-            id: id,
-            kind: kind,
-            targetRefJson: targetRefJson,
-            trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
-            completedAt: completedAt,
-            updatedAt: updatedAt,
-            deletedAt: deletedAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String id,
-            required String kind,
-            required String targetRefJson,
-            Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            required String unitType,
-            required DateTime completedAt,
-            required DateTime updatedAt,
-            Value<DateTime?> deletedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TrackingUnitsCacheCompanion.insert(
-            id: id,
-            kind: kind,
-            targetRefJson: targetRefJson,
-            trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
-            completedAt: completedAt,
-            updatedAt: updatedAt,
-            deletedAt: deletedAt,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$TrackingUnitsCacheTableProcessedTableManager = ProcessedTableManager<
-    _$LocalDatabase,
-    $TrackingUnitsCacheTable,
-    TrackingUnitsCacheData,
-    $$TrackingUnitsCacheTableFilterComposer,
-    $$TrackingUnitsCacheTableOrderingComposer,
-    $$TrackingUnitsCacheTableAnnotationComposer,
-    $$TrackingUnitsCacheTableCreateCompanionBuilder,
-    $$TrackingUnitsCacheTableUpdateCompanionBuilder,
-    (
-      TrackingUnitsCacheData,
-      BaseReferences<_$LocalDatabase, $TrackingUnitsCacheTable,
-          TrackingUnitsCacheData>
-    ),
-    TrackingUnitsCacheData,
-    PrefetchHooks Function()>;
 typedef $$SyncQueueTableCreateCompanionBuilder = SyncQueueCompanion Function({
   required String id,
   required String entityType,
@@ -53219,6 +53986,13 @@ typedef $$AnimeTrackingRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$AnimeTrackingUnitRowsTableCreateCompanionBuilder
     = AnimeTrackingUnitRowsCompanion Function({
   required String id,
+  required String targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  required String unitType,
+  required DateTime completedAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<int> rowid,
@@ -53226,6 +54000,13 @@ typedef $$AnimeTrackingUnitRowsTableCreateCompanionBuilder
 typedef $$AnimeTrackingUnitRowsTableUpdateCompanionBuilder
     = AnimeTrackingUnitRowsCompanion Function({
   Value<String> id,
+  Value<String> targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String> unitType,
+  Value<DateTime> completedAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<int> rowid,
@@ -53242,6 +54023,28 @@ class $$AnimeTrackingUnitRowsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
@@ -53261,6 +54064,29 @@ class $$AnimeTrackingUnitRowsTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber,
@@ -53282,6 +54108,27 @@ class $$AnimeTrackingUnitRowsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitType =>
+      $composableBuilder(column: $table.unitType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumn<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber, builder: (column) => column);
@@ -53322,24 +54169,52 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String> unitType = const Value.absent(),
+            Value<DateTime> completedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AnimeTrackingUnitRowsCompanion(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            required String targetRefJson,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            required String unitType,
+            required DateTime completedAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               AnimeTrackingUnitRowsCompanion.insert(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             rowid: rowid,
@@ -57160,6 +58035,13 @@ typedef $$BookOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$BookTrackingUnitRowsTableCreateCompanionBuilder
     = BookTrackingUnitRowsCompanion Function({
   required String id,
+  required String targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  required String unitType,
+  required DateTime completedAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> volumeNumber,
   Value<int?> chapterNumber,
   Value<int> rowid,
@@ -57167,6 +58049,13 @@ typedef $$BookTrackingUnitRowsTableCreateCompanionBuilder
 typedef $$BookTrackingUnitRowsTableUpdateCompanionBuilder
     = BookTrackingUnitRowsCompanion Function({
   Value<String> id,
+  Value<String> targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String> unitType,
+  Value<DateTime> completedAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> volumeNumber,
   Value<int?> chapterNumber,
   Value<int> rowid,
@@ -57183,6 +58072,28 @@ class $$BookTrackingUnitRowsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
@@ -57202,6 +58113,29 @@ class $$BookTrackingUnitRowsTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber,
@@ -57223,6 +58157,27 @@ class $$BookTrackingUnitRowsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitType =>
+      $composableBuilder(column: $table.unitType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumn<int> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber, builder: (column) => column);
@@ -57262,24 +58217,52 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String> unitType = const Value.absent(),
+            Value<DateTime> completedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> volumeNumber = const Value.absent(),
             Value<int?> chapterNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               BookTrackingUnitRowsCompanion(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             volumeNumber: volumeNumber,
             chapterNumber: chapterNumber,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            required String targetRefJson,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            required String unitType,
+            required DateTime completedAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> volumeNumber = const Value.absent(),
             Value<int?> chapterNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               BookTrackingUnitRowsCompanion.insert(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             volumeNumber: volumeNumber,
             chapterNumber: chapterNumber,
             rowid: rowid,
@@ -59217,12 +60200,26 @@ typedef $$ComicReadingRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$ComicTrackingUnitRowsTableCreateCompanionBuilder
     = ComicTrackingUnitRowsCompanion Function({
   required String id,
+  required String targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  required String unitType,
+  required DateTime completedAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
   Value<String?> issueNumber,
   Value<int> rowid,
 });
 typedef $$ComicTrackingUnitRowsTableUpdateCompanionBuilder
     = ComicTrackingUnitRowsCompanion Function({
   Value<String> id,
+  Value<String> targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String> unitType,
+  Value<DateTime> completedAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
   Value<String?> issueNumber,
   Value<int> rowid,
 });
@@ -59238,6 +60235,28 @@ class $$ComicTrackingUnitRowsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get issueNumber => $composableBuilder(
       column: $table.issueNumber, builder: (column) => ColumnFilters(column));
@@ -59255,6 +60274,29 @@ class $$ComicTrackingUnitRowsTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get issueNumber => $composableBuilder(
       column: $table.issueNumber, builder: (column) => ColumnOrderings(column));
 }
@@ -59270,6 +60312,27 @@ class $$ComicTrackingUnitRowsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitType =>
+      $composableBuilder(column: $table.unitType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumn<String> get issueNumber => $composableBuilder(
       column: $table.issueNumber, builder: (column) => column);
@@ -59307,21 +60370,49 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String> unitType = const Value.absent(),
+            Value<DateTime> completedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<String?> issueNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicTrackingUnitRowsCompanion(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             issueNumber: issueNumber,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            required String targetRefJson,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            required String unitType,
+            required DateTime completedAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<String?> issueNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicTrackingUnitRowsCompanion.insert(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             issueNumber: issueNumber,
             rowid: rowid,
           ),
@@ -61689,6 +62780,13 @@ typedef $$MangaOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$MangaTrackingUnitRowsTableCreateCompanionBuilder
     = MangaTrackingUnitRowsCompanion Function({
   required String id,
+  required String targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  required String unitType,
+  required DateTime completedAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> volumeNumber,
   Value<int?> chapterNumber,
   Value<int> rowid,
@@ -61696,6 +62794,13 @@ typedef $$MangaTrackingUnitRowsTableCreateCompanionBuilder
 typedef $$MangaTrackingUnitRowsTableUpdateCompanionBuilder
     = MangaTrackingUnitRowsCompanion Function({
   Value<String> id,
+  Value<String> targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String> unitType,
+  Value<DateTime> completedAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> volumeNumber,
   Value<int?> chapterNumber,
   Value<int> rowid,
@@ -61712,6 +62817,28 @@ class $$MangaTrackingUnitRowsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber, builder: (column) => ColumnFilters(column));
@@ -61731,6 +62858,29 @@ class $$MangaTrackingUnitRowsTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber,
@@ -61752,6 +62902,27 @@ class $$MangaTrackingUnitRowsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitType =>
+      $composableBuilder(column: $table.unitType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumn<int> get volumeNumber => $composableBuilder(
       column: $table.volumeNumber, builder: (column) => column);
@@ -61792,24 +62963,52 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String> unitType = const Value.absent(),
+            Value<DateTime> completedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> volumeNumber = const Value.absent(),
             Value<int?> chapterNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MangaTrackingUnitRowsCompanion(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             volumeNumber: volumeNumber,
             chapterNumber: chapterNumber,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            required String targetRefJson,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            required String unitType,
+            required DateTime completedAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> volumeNumber = const Value.absent(),
             Value<int?> chapterNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               MangaTrackingUnitRowsCompanion.insert(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             volumeNumber: volumeNumber,
             chapterNumber: chapterNumber,
             rowid: rowid,
@@ -68278,6 +69477,13 @@ typedef $$TvTrackingRowsTableProcessedTableManager = ProcessedTableManager<
 typedef $$TvTrackingUnitRowsTableCreateCompanionBuilder
     = TvTrackingUnitRowsCompanion Function({
   required String id,
+  required String targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  required String unitType,
+  required DateTime completedAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<int> rowid,
@@ -68285,6 +69491,13 @@ typedef $$TvTrackingUnitRowsTableCreateCompanionBuilder
 typedef $$TvTrackingUnitRowsTableUpdateCompanionBuilder
     = TvTrackingUnitRowsCompanion Function({
   Value<String> id,
+  Value<String> targetRefJson,
+  Value<String?> trackingEntryId,
+  Value<String?> ownedItemId,
+  Value<String> unitType,
+  Value<DateTime> completedAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
   Value<int?> seasonNumber,
   Value<int?> episodeNumber,
   Value<int> rowid,
@@ -68301,6 +69514,28 @@ class $$TvTrackingUnitRowsTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber, builder: (column) => ColumnFilters(column));
@@ -68320,6 +69555,29 @@ class $$TvTrackingUnitRowsTableOrderingComposer
   });
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get unitType => $composableBuilder(
+      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber,
@@ -68341,6 +69599,27 @@ class $$TvTrackingUnitRowsTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get targetRefJson => $composableBuilder(
+      column: $table.targetRefJson, builder: (column) => column);
+
+  GeneratedColumn<String> get trackingEntryId => $composableBuilder(
+      column: $table.trackingEntryId, builder: (column) => column);
+
+  GeneratedColumn<String> get ownedItemId => $composableBuilder(
+      column: $table.ownedItemId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitType =>
+      $composableBuilder(column: $table.unitType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   GeneratedColumn<int> get seasonNumber => $composableBuilder(
       column: $table.seasonNumber, builder: (column) => column);
@@ -68379,24 +69658,52 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String> targetRefJson = const Value.absent(),
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            Value<String> unitType = const Value.absent(),
+            Value<DateTime> completedAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TvTrackingUnitRowsCompanion(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            required String targetRefJson,
+            Value<String?> trackingEntryId = const Value.absent(),
+            Value<String?> ownedItemId = const Value.absent(),
+            required String unitType,
+            required DateTime completedAt,
+            required DateTime updatedAt,
+            Value<DateTime?> deletedAt = const Value.absent(),
             Value<int?> seasonNumber = const Value.absent(),
             Value<int?> episodeNumber = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TvTrackingUnitRowsCompanion.insert(
             id: id,
+            targetRefJson: targetRefJson,
+            trackingEntryId: trackingEntryId,
+            ownedItemId: ownedItemId,
+            unitType: unitType,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            deletedAt: deletedAt,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             rowid: rowid,
@@ -68432,8 +69739,6 @@ class $LocalDatabaseManager {
       $$WishlistItemsCacheTableTableManager(_db, _db.wishlistItemsCache);
   $$TrackingEntriesCacheTableTableManager get trackingEntriesCache =>
       $$TrackingEntriesCacheTableTableManager(_db, _db.trackingEntriesCache);
-  $$TrackingUnitsCacheTableTableManager get trackingUnitsCache =>
-      $$TrackingUnitsCacheTableTableManager(_db, _db.trackingUnitsCache);
   $$SyncQueueTableTableManager get syncQueue =>
       $$SyncQueueTableTableManager(_db, _db.syncQueue);
   $$UserMetadataOverridesCacheTableTableManager

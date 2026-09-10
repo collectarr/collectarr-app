@@ -77,6 +77,13 @@ class MangaOwnedItemsRows extends Table {
 
 class MangaTrackingUnitRows extends Table {
   TextColumn get id => text()();
+  TextColumn get targetRefJson => text()();
+  TextColumn get trackingEntryId => text().nullable()();
+  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get unitType => text()();
+  DateTimeColumn get completedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
   IntColumn get volumeNumber => integer().nullable()();
   IntColumn get chapterNumber => integer().nullable()();
 

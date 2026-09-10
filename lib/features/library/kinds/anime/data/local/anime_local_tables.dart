@@ -125,6 +125,13 @@ class AnimeTrackingRows extends Table {
 
 class AnimeTrackingUnitRows extends Table {
   TextColumn get id => text()();
+  TextColumn get targetRefJson => text()();
+  TextColumn get trackingEntryId => text().nullable()();
+  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get unitType => text()();
+  DateTimeColumn get completedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
   IntColumn get seasonNumber => integer().nullable()();
   IntColumn get episodeNumber => integer().nullable()();
 

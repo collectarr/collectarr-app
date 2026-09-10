@@ -41,10 +41,9 @@ void main() {
       ),
     );
 
-    final base = await db.select(db.trackingUnitsCache).getSingle();
     final typed = await db.select(db.tvTrackingUnitRows).getSingle();
-    expect(base.kind, 'tv');
-    expect(base.unitType, 'episode');
+    expect(typed.targetRefJson, contains('series-1'));
+    expect(typed.unitType, 'episode');
     expect(typed.seasonNumber, 2);
     expect(typed.episodeNumber, 4);
 

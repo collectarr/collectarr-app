@@ -89,21 +89,19 @@ void main() {
     await tester.tap(find.text('E1 • Asteroid Blues'));
     await pumpUntilSettled(tester);
 
-    final units = await db.select(db.trackingUnitsCache).get();
     final videoUnits = await db.select(db.tvTrackingUnitRows).get();
-    expect(units, hasLength(1));
+    expect(videoUnits, hasLength(1));
     expect(
       CatalogEntityRef.fromJson(
         Map<String, Object?>.from(
-          jsonDecode(units.single.targetRefJson) as Map,
+          jsonDecode(videoUnits.single.targetRefJson) as Map,
         ),
       ).id,
       itemId,
     );
-    expect(videoUnits, hasLength(1));
     expect(videoUnits.single.seasonNumber, 1);
     expect(videoUnits.single.episodeNumber, 1);
-    expect(units.single.deletedAt, isNull);
+    expect(videoUnits.single.deletedAt, isNull);
 
     final entries = await db.select(db.trackingEntriesCache).get();
     final tvTrackingEntries = await db.select(db.tvTrackingRows).get();

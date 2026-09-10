@@ -128,6 +128,13 @@ class ComicReadingRows extends Table {
 
 class ComicTrackingUnitRows extends Table {
   TextColumn get id => text()();
+  TextColumn get targetRefJson => text()();
+  TextColumn get trackingEntryId => text().nullable()();
+  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get unitType => text()();
+  DateTimeColumn get completedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
   TextColumn get issueNumber => text().nullable()();
 
   @override
