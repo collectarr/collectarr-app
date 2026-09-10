@@ -55,7 +55,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.red,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -108,7 +108,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: musicItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.cyan,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -159,7 +159,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: gameItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.green,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -215,7 +215,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: bookItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.amber,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -267,7 +267,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.purple,
               onAddOwned: () {},
               onRemoveOwned: () {},

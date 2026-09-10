@@ -53,7 +53,7 @@ void main() {
                       context: context,
                       type: type,
                       item: item,
-                      ownedItem: null,
+                      ownedSummary: null,
                       accent: Colors.deepOrange,
                       onAddOwned: () {},
                       onRemoveOwned: () {},

@@ -19,7 +19,7 @@ class LibraryPageEditCoordinator {
       request: LibraryDetailPageRequest(
         type: _s.widget.type,
         item: item,
-        ownedItem: item.source.ownedItem,
+        ownedSummary: item.source.ownedSummary,
         typedOwnedItem: item.source.typedOwnedItem,
         accent: _s.widget.accent,
         onAddOwned: () => _s._collectionActionCoordinator.runCollectionAction(
@@ -37,7 +37,7 @@ class LibraryPageEditCoordinator {
                   (actions) => actions.removeWishlist(item),
                 )
             : null,
-        onEdit: (ownedItem) => unawaited(showEditDialog(item, ownedItem)),
+        onEdit: (_) => unawaited(showEditDialog(item, item.source.ownedItem)),
         onFilterByValue: (value) => _s._rebuild(() {
           _s._linkedMetadataFilter = _s._linkedMetadataFilter?.value == value
               ? null

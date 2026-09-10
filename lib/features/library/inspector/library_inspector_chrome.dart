@@ -121,12 +121,10 @@ class InspectorActionBar extends StatelessWidget {
                   ),
             ),
             LibraryStatusChip(
-              icon: (item.source.isOwned || item.source.ownedItem != null)
+              icon: item.source.isOwned
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: (item.source.isOwned || item.source.ownedItem != null)
-                  ? 'Owned'
-                  : 'Catalog only',
+              label: item.source.isOwned ? 'Owned' : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -47,7 +46,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.ownedItem,
+    required this.ownedSummary,
     this.ownedCopies,
     required this.accent,
     required this.onAddOwned,
@@ -60,14 +59,14 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
-  final List<OwnedItem>? ownedCopies;
+  final OwnedItemSummary? ownedSummary;
+  final List<OwnedItemSummary>? ownedCopies;
   final Color accent;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
-  final void Function(OwnedItem? ownedItem)? onEdit;
+  final void Function(OwnedItemSummary? ownedItem)? onEdit;
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -81,21 +80,22 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
   @override
   void initState() {
     super.initState();
-    _selectedOwnedItemId = widget.ownedItem?.id;
+    _selectedOwnedItemId = widget.ownedSummary?.ref.id.value;
   }
 
   @override
   void didUpdateWidget(covariant LibraryDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.item.node.id != oldWidget.item.node.id) {
-      _selectedOwnedItemId = widget.ownedItem?.id;
+      _selectedOwnedItemId = widget.ownedSummary?.ref.id.value;
       _selectNewestOwnedItem = false;
       return;
     }
-    if (widget.ownedItem?.id != oldWidget.ownedItem?.id &&
-        widget.ownedItem != null &&
+    if (widget.ownedSummary?.ref.id.value !=
+            oldWidget.ownedSummary?.ref.id.value &&
+        widget.ownedSummary != null &&
         _selectedOwnedItemId == null) {
-      _selectedOwnedItemId = widget.ownedItem!.id;
+      _selectedOwnedItemId = widget.ownedSummary!.ref.id.value;
     }
   }
 
@@ -116,24 +116,17 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final ownedCopies = widget.ownedCopies == null
         ? (loadedCopies != null && loadedCopies.isNotEmpty
             ? loadedCopies
-            : (widget.ownedItem == null
+            : (widget.ownedSummary == null
                 ? const <OwnedItemSummary>[]
-                : <OwnedItemSummary>[
-                    ownedItemSummaryFromOwnedItem(widget.ownedItem!)
-                  ]))
-        : widget.ownedCopies!
-            .map(ownedItemSummaryFromOwnedItem)
-            .toList(growable: false);
+                : <OwnedItemSummary>[widget.ownedSummary!]))
+        : widget.ownedCopies!;
     final ownedResolution = resolveActiveOwnedSummary(
       ownedCopies,
-      fallback: widget.ownedItem == null
-          ? null
-          : ownedItemSummaryFromOwnedItem(widget.ownedItem!),
+      fallback: widget.ownedSummary,
       selectedOwnedItemId: _selectedOwnedItemId,
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedSummary = ownedResolution.ownedItem;
-    final suppliedOwnedItem = widget.ownedItem;
     final trackingEntries = switch (widget.item.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingEntriesByCatalogRefProvider)[catalogRef] ??
@@ -171,10 +164,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                         }),
                 onEdit: widget.onEdit == null
                     ? null
-                    : () => widget.onEdit!(_ownedItemForSummary(
-                          activeOwnedSummary,
-                          fallback: suppliedOwnedItem,
-                        )),
+                    : () => widget.onEdit!(activeOwnedSummary),
                 onToggleOwned: isOwned
                     ? activeOwnedSummary == null
                         ? widget.onRemoveOwned
@@ -219,7 +209,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   type: widget.type,
                   item: widget.item,
                   accent: widget.accent,
-                  ownedItem: suppliedOwnedItem,
                   ownedSummary: activeOwnedSummary,
                   trackingEntry: activeTrackingEntry,
                   ownedCopies: ownedCopies,
@@ -287,20 +276,6 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       }
       _selectNewestOwnedItem = false;
     });
-  }
-
-  OwnedItem? _ownedItemForSummary(
-    OwnedItemSummary? summary, {
-    required OwnedItem? fallback,
-  }) {
-    if (summary == null) return fallback;
-    final suppliedCopies = widget.ownedCopies;
-    if (suppliedCopies != null) {
-      for (final item in suppliedCopies) {
-        if (item.ref == summary.ref) return item;
-      }
-    }
-    return fallback;
   }
 }
 

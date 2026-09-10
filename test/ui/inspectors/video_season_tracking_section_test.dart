@@ -59,7 +59,7 @@ void main() {
             request: LibraryDetailPageRequest(
               type: type,
               item: tvItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},

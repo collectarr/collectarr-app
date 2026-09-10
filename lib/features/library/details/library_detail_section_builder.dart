@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
@@ -18,15 +17,13 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryKindModule type,
   required LibraryProjectionView item,
   required Color accent,
-  required OwnedItem? ownedItem,
   OwnedItemSummary? ownedSummary,
   required TrackingEntry? trackingEntry,
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final activeBundleReleaseId = catalogRefBundleReleaseId(
-    ownedSummary?.targetRef ?? ownedItem?.targetRef,
-  );
+  final activeBundleReleaseId =
+      catalogRefBundleReleaseId(ownedSummary?.targetRef);
 
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
@@ -41,7 +38,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ),
       ],
     ),
-    if (ownedItem != null || trackingEntry != null)
+    if (ownedSummary != null || trackingEntry != null)
       LibraryDetailSectionSpec(
         slot: LibraryDetailSectionSlot.personal,
         title: 'Personal status',
@@ -49,7 +46,6 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           LibraryDetailPersonalSection(
             type: type,
             item: item,
-            ownedItem: ownedItem,
             typedOwnedItem: item.source.typedOwnedItem,
             ownedSummary: ownedSummary,
             ownedCopies: ownedCopies,
@@ -61,7 +57,6 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             type: type,
             item: item,
             accent: accent,
-            ownedItem: ownedItem,
             trackingEntry: trackingEntry,
           ),
         ],

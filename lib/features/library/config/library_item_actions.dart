@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -218,7 +219,7 @@ class LibraryDetailPageRequest {
   const LibraryDetailPageRequest({
     required this.type,
     required this.item,
-    required this.ownedItem,
+    required this.ownedSummary,
     this.typedOwnedItem,
     required this.accent,
     this.actions = const LibraryItemActions(),
@@ -226,7 +227,7 @@ class LibraryDetailPageRequest {
     VoidCallback? onRemoveOwned,
     VoidCallback? onAddWishlist,
     VoidCallback? onRemoveWishlist,
-    void Function(OwnedItem? ownedItem)? onEdit,
+    void Function(OwnedItemSummary? ownedItem)? onEdit,
     this.onFilterByValue,
   })  : _onAddOwned = onAddOwned,
         _onRemoveOwned = onRemoveOwned,
@@ -236,7 +237,7 @@ class LibraryDetailPageRequest {
 
   final LibraryKindModule type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
+  final OwnedItemSummary? ownedSummary;
 
   /// Concrete kind-owned aggregate available after Library kind dispatch.
   final Object? typedOwnedItem;
@@ -248,14 +249,14 @@ class LibraryDetailPageRequest {
   final VoidCallback? _onRemoveOwned;
   final VoidCallback? _onAddWishlist;
   final VoidCallback? _onRemoveWishlist;
-  final void Function(OwnedItem? ownedItem)? _onEdit;
+  final void Function(OwnedItemSummary? ownedItem)? _onEdit;
 
   VoidCallback? get onAddOwned => _onAddOwned ?? actions.onToggleOwned;
   VoidCallback? get onRemoveOwned => _onRemoveOwned ?? actions.onToggleOwned;
   VoidCallback? get onAddWishlist => _onAddWishlist ?? actions.onToggleWishlist;
   VoidCallback? get onRemoveWishlist =>
       _onRemoveWishlist ?? actions.onToggleWishlist;
-  void Function(OwnedItem? ownedItem)? get onEdit =>
+  void Function(OwnedItemSummary? ownedItem)? get onEdit =>
       _onEdit ?? (actions.onEdit != null ? (_) => actions.onEdit!() : null);
 }
 

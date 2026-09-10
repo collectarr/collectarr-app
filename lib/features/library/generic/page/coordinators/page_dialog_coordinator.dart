@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -490,9 +489,9 @@ class LibraryPageDialogCoordinator {
   ) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final context = _page.context;
-    final ownedItemsByRef = <OwnedItemRef, OwnedItem>{};
+    final ownedItemsByRef = <OwnedItemRef, OwnedItemSummary>{};
     for (final item in projection.filteredItems) {
-      final ownedItem = item.source.ownedItem;
+      final ownedItem = item.source.ownedSummary;
       if (_page.selection.itemIds.contains(item.node.id) &&
           ownedItem != null &&
           !_page.activeLoanOwnedItemIds.contains(ownedItem.ref)) {
@@ -516,10 +515,7 @@ class LibraryPageDialogCoordinator {
       await repo.create(
         Loan(
           id: const Uuid().v4(),
-          ownedRef: OwnedItemRef(
-            kind: ownedItem.catalogRef.mediaKind,
-            id: OwnedItemId(ownedItem.id),
-          ),
+          ownedRef: ownedItem.ref,
           borrowerName: draft.borrowerName,
           lentDate: draft.lentDate,
           dueDate: draft.dueDate,
@@ -571,7 +567,7 @@ class LibraryPageDialogCoordinator {
     final coordinator = _page.ref.read(collectionCommandCoordinatorProvider);
     var count = 0;
     for (var i = 0; i < items.length; i++) {
-      final ownedItem = items[i].source.ownedItem;
+      final ownedItem = items[i].source.ownedSummary;
       if (ownedItem == null) continue;
       await coordinator.updateOwnedItem(
         _page.type.edit.buildIndexUpdateCommand(

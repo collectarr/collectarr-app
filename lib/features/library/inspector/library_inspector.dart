@@ -283,7 +283,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         request: LibraryDetailPageRequest(
           type: widget.type,
           item: selected,
-          ownedItem: activeOwnedItem,
+          ownedSummary: ownedSummaryResolution.ownedItem,
           typedOwnedItem: typedOwnedItem,
           accent: widget.accent,
           onAddOwned: selected.source.isOwned
@@ -297,7 +297,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               : () => _removeOwnedCopy(activeOwnedItem),
           onAddWishlist: widget.onAddWishlist,
           onRemoveWishlist: widget.onRemoveWishlist,
-          onEdit: widget.onEdit,
+          onEdit: widget.onEdit == null
+              ? null
+              : (_) => widget.onEdit!(activeOwnedItem),
           onFilterByValue: widget.onFilterByValue,
         ),
       );

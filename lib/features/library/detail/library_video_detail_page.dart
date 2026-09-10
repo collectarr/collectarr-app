@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -214,7 +213,7 @@ class _LibraryVideoDetailPageState
               tooltip: 'Edit metadata and collection fields',
               onPressed: request.onEdit == null
                   ? null
-                  : () => request.onEdit!(request.ownedItem),
+                  : () => request.onEdit!(request.ownedSummary),
               icon: const Icon(Icons.edit_outlined),
             ),
           ],
@@ -225,9 +224,7 @@ class _LibraryVideoDetailPageState
             LibraryDetailHero(
               type: request.type,
               item: request.item,
-              ownedItem: request.ownedItem == null
-                  ? null
-                  : ownedItemSummaryFromOwnedItem(request.ownedItem!),
+              ownedItem: request.ownedSummary,
               accent: request.accent,
               isOwned: request.item.source.isOwned,
             ),
@@ -268,11 +265,10 @@ class _LibraryVideoDetailPageState
                     onRemoveWishlist: activeRelease.wishlistItem == null
                         ? null
                         : () => _removeWishlistForRelease(activeRelease),
-                    onEditCopy: request.onEdit == null ||
-                            selectedOwnedCopy == null ||
-                            request.ownedItem == null
-                        ? null
-                        : () => request.onEdit!(request.ownedItem),
+                    onEditCopy:
+                        request.onEdit == null || selectedOwnedCopy == null
+                            ? null
+                            : () => request.onEdit!(selectedOwnedCopy),
                     onRemoveCopy: selectedOwnedCopy == null
                         ? null
                         : () => _removeSelectedCopy(activeRelease),

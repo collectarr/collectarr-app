@@ -949,7 +949,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                     edition: edition,
                     isOwned: edition.id ==
                         catalogRefEditionId(
-                            widget.item.source.ownedItem?.targetRef),
+                            widget.item.source.ownedSummary?.targetRef),
                     accent: widget.accent,
                   ),
               ],

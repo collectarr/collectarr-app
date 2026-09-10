@@ -1,11 +1,8 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -20,7 +17,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     super.key,
     this.type,
     required this.item,
-    required this.ownedItem,
     this.typedOwnedItem,
     this.ownedSummary,
     this.ownedCopies = const [],
@@ -31,7 +27,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
 
   final LibraryKindModule? type;
   final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
   final Object? typedOwnedItem;
   final OwnedItemSummary? ownedSummary;
   final List<OwnedItemSummary> ownedCopies;
@@ -61,7 +56,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final kindPersonalFields = type?.inspector.buildPersonalDetailFields(
           context: context,
           item: item,
-          ownedItem: ownedItem,
+          ownedItem: ownedSummary,
           typedOwnedItem: typedOwnedItem ?? item.source.typedOwnedItem,
           currency: currency,
         ) ??
@@ -162,16 +157,6 @@ class LibraryDetailPersonalSection extends StatelessWidget {
             ),
           ),
         ],
-        if (ownedItem?.tags != null && ownedItem!.tags!.trim().isNotEmpty) ...[
-          const SizedBox(height: 8),
-          LibraryDetailChipGroupWidget(
-            onValueTap: onFilterByValue,
-            values: [
-              for (final tag in ownedItem!.tags!.split(','))
-                if (tag.trim().isNotEmpty) tag.trim(),
-            ],
-          ),
-        ],
       ],
     );
   }
@@ -231,40 +216,6 @@ String? _detailTrackingProgressLabel(TrackingEntry? trackingEntry) {
     return '${current ?? 0}/$total';
   }
   return '${current ?? 0}';
-}
-
-class LibraryDetailLocalSnapshotSection extends StatelessWidget {
-  const LibraryDetailLocalSnapshotSection({
-    super.key,
-    required this.item,
-    required this.ownedItem,
-  });
-
-  final LibraryProjectionView item;
-  final OwnedItem? ownedItem;
-
-  @override
-  Widget build(BuildContext context) {
-    return LibraryDetailSection(
-      title: 'Local snapshot',
-      children: [
-        SelectableText(
-          [
-            'catalog_id: ${item.node.titleItemId}',
-            'kind: ${item.source.catalogItem?.kind ?? '-'}',
-            'owned_id: ${ownedItem?.id ?? '-'}',
-            'edition_id: ${catalogRefEditionId(ownedItem?.targetRef) ?? '-'}',
-            'variant_id: ${catalogRefVariantId(ownedItem?.targetRef) ?? '-'}',
-            'updated_at: ${(ownedItem?.updatedAt ?? DateTime.now()).toUtc().toIso8601String()}',
-          ].join('\n'),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: appPalette(context).textMuted,
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-      ],
-    );
-  }
 }
 
 class _DetailStarRating extends StatelessWidget {

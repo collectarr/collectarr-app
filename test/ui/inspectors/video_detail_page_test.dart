@@ -73,12 +73,9 @@ void main() {
           ),
         ],
       ).asShelfCatalogItem,
-      ownedItem: testOwnedItem(
+      ownedSummary: movieOwnedSummary(
         id: 'owned-1',
         itemId: 'movie-1',
-        editionId: 'edition-4k',
-        quantity: 1,
-        updatedAt: DateTime.utc(2026, 5, 25, 10),
       ),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
@@ -88,7 +85,7 @@ void main() {
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedItem: null,
+      ownedSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -217,7 +214,7 @@ void main() {
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedItem: null,
+      ownedSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -318,7 +315,7 @@ void main() {
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedItem: null,
+      ownedSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},

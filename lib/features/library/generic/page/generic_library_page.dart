@@ -933,7 +933,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
         request: LibraryDetailPageRequest(
           type: widget.type,
           item: selectedItem,
-          ownedItem: selectedItem.source.ownedItem,
+          ownedSummary: selectedItem.source.ownedSummary,
           typedOwnedItem: selectedItem.source.typedOwnedItem,
           accent: widget.accent,
           onAddOwned: () => _collectionActionCoordinator.runCollectionAction(
@@ -952,8 +952,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                     (actions) => actions.removeWishlist(selectedItem),
                   )
               : null,
-          onEdit: (ownedItem) => unawaited(
-            _editCoordinator.showEditDialog(selectedItem, ownedItem),
+          onEdit: (_) => unawaited(
+            _editCoordinator.showEditDialog(
+              selectedItem,
+              selectedItem.source.ownedItem,
+            ),
           ),
           onFilterByValue: _toggleLinkedMetadataFilter,
         ),

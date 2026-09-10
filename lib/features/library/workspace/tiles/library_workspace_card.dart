@@ -154,10 +154,10 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: item.source.mediaKind.apiValue,
       editions: rawEditions,
-      editionId: catalogRefEditionId(item.source.ownedItem?.targetRef),
-      variantId: catalogRefVariantId(item.source.ownedItem?.targetRef),
+      editionId: catalogRefEditionId(item.source.ownedSummary?.targetRef),
+      variantId: catalogRefVariantId(item.source.ownedSummary?.targetRef),
       bundleReleaseId:
-          catalogRefBundleReleaseId(item.source.ownedItem?.targetRef),
+          catalogRefBundleReleaseId(item.source.ownedSummary?.targetRef),
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).

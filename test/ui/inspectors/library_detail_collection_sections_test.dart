@@ -48,7 +48,6 @@ void main() {
         home: Scaffold(
           body: LibraryDetailPersonalSection(
             item: movieItem,
-            ownedItem: owned1,
             ownedSummary: ownedItemSummaryFromOwnedItem(owned1),
             ownedCopies: [
               ownedItemSummaryFromOwnedItem(testOwnedItem(

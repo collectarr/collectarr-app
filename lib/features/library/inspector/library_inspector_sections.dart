@@ -104,7 +104,7 @@ class InspectorPersonalSection extends StatelessWidget {
     final kindPersonalFields = type.inspector.buildPersonalDetailFields(
       context: context,
       item: item,
-      ownedItem: ownedItem,
+      ownedItem: item.source.ownedSummary,
       typedOwnedItem: typedOwnedItem ?? item.source.typedOwnedItem,
       currency: ownedItem?.currency ?? adapter?.currency,
     );

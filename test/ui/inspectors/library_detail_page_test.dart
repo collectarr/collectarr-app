@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -83,7 +84,7 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            ownedItem: owned,
+            ownedSummary: ownedItemSummaryFromOwnedItem(owned),
             accent: Colors.orange,
             onAddOwned: () {},
             onRemoveOwned: () {},
@@ -125,7 +126,7 @@ void main() {
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    OwnedItem? editedOwnedItem;
+    OwnedItemSummary? editedOwnedSummary;
 
     final owned = testOwnedItem(
       id: 'owned-1',
@@ -174,14 +175,16 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            ownedItem: owned,
+            ownedSummary: ownedItemSummaryFromOwnedItem(owned),
             ownedCopies: [
-              owned,
-              testOwnedItem(
-                id: 'owned-2',
-                itemId: 'book-1',
-                condition: 'Very Fine',
-                updatedAt: DateTime.utc(2026, 5, 23, 11),
+              ownedItemSummaryFromOwnedItem(owned),
+              ownedItemSummaryFromOwnedItem(
+                testOwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                ),
               ),
             ],
             accent: Colors.orange,
@@ -189,7 +192,7 @@ void main() {
             onRemoveOwned: () {},
             onAddWishlist: () {},
             onRemoveWishlist: () {},
-            onEdit: (ownedItem) => editedOwnedItem = ownedItem,
+            onEdit: (ownedSummary) => editedOwnedSummary = ownedSummary,
           ),
         ),
       ),
@@ -211,7 +214,7 @@ void main() {
     await tester.tap(find.text('Edit').first);
     await tester.pump();
 
-    expect(editedOwnedItem?.id, 'owned-2');
+    expect(editedOwnedSummary?.ref.id.value, 'owned-2');
   });
 
   testWidgets('detail page shows tracking editor for tracked-only items',
@@ -266,7 +269,7 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: movieItem,
-            ownedItem: null,
+            ownedSummary: null,
             accent: Colors.orange,
             onAddOwned: () {},
             onRemoveOwned: () {},

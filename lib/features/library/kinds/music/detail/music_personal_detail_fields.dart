@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 List<LibraryDetailField> buildMusicPersonalDetailFields({
   required BuildContext context,
   required LibraryProjectionView item,
-  required OwnedItem? ownedItem,
+  required OwnedItemSummary? ownedItem,
   required Object? typedOwnedItem,
   required String? currency,
 }) {

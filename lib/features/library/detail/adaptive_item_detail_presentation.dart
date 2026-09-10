@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -14,13 +14,13 @@ Future<void> showAdaptiveItemDetail({
   required BuildContext context,
   required LibraryKindModule type,
   required LibraryProjectionView item,
-  required OwnedItem? ownedItem,
+  required OwnedItemSummary? ownedSummary,
   required Color accent,
   required VoidCallback? onAddOwned,
   required VoidCallback? onRemoveOwned,
   required VoidCallback? onAddWishlist,
   required VoidCallback? onRemoveWishlist,
-  required void Function(OwnedItem? ownedItem)? onEdit,
+  required void Function(OwnedItemSummary? ownedItem)? onEdit,
   ValueChanged<String>? onFilterByValue,
 }) {
   final windowClass = AppWindowClass.of(context);
@@ -56,14 +56,14 @@ Future<void> showAdaptiveItemDetail({
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     tooltip: 'Edit item',
-                    onPressed: () => onEdit(ownedItem),
+                    onPressed: () => onEdit(ownedSummary),
                   ),
               ],
             ),
             body: LibraryDetailPage(
               type: type,
               item: item,
-              ownedItem: ownedItem,
+              ownedSummary: ownedSummary,
               accent: accent,
               onAddOwned: onAddOwned,
               onRemoveOwned: onRemoveOwned,
@@ -120,7 +120,7 @@ Future<void> showAdaptiveItemDetail({
                 child: LibraryDetailPage(
                   type: type,
                   item: item,
-                  ownedItem: ownedItem,
+                  ownedSummary: ownedSummary,
                   accent: accent,
                   onAddOwned: onAddOwned,
                   onRemoveOwned: onRemoveOwned,
