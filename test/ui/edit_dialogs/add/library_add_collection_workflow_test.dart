@@ -11,6 +11,9 @@ import 'package:collectarr_app/features/library/add/library_add_collection_workf
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
@@ -294,6 +297,42 @@ void main() {
     expect(trackingRows.single.catalogRef.id, 'comic-track-empty-1');
     expect(trackingRows.single.statusStorageValue, isNull);
   });
+}
+
+Future<void> addLibraryItemsToTarget({
+  required CatalogTransportRepository catalog,
+  required OwnedItemMutations ownedMutations,
+  required WishlistMutations wishlistMutations,
+  required TrackingMutations trackingMutations,
+  required Iterable<LibraryAddCatalogTransport> items,
+  required LibraryAddTarget target,
+  LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
+  LibraryAddDefaults defaults = const LibraryAddDefaults(),
+  LibraryAddCommonDraft? commonDraft,
+  LibraryAddTrackingDraft? trackingDraft,
+  Map<String, LibraryAddKindDraft> kindDraftsByItemId = const {},
+  Map<String, LibraryAddEditionSelection> editionSelectionsByItemId = const {},
+  Map<String, String> bundleReleaseIdsByItemId = const {},
+}) {
+  return const LibraryAddCoordinator().add(
+    LibraryAddBatchRequest(
+      dependencies: LibraryAddMutationDependencies(
+        catalog: catalog,
+        ownedMutations: ownedMutations,
+        wishlistMutations: wishlistMutations,
+        trackingMutations: trackingMutations,
+      ),
+      items: items,
+      target: target,
+      referenceType: referenceType,
+      defaults: defaults,
+      commonDraft: commonDraft,
+      trackingDraft: trackingDraft,
+      kindDraftsByItemId: kindDraftsByItemId,
+      editionSelectionsByItemId: editionSelectionsByItemId,
+      bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
+    ),
+  );
 }
 
 class _WorkflowFixture {

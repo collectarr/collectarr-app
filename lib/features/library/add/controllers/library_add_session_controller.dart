@@ -28,6 +28,8 @@ import 'package:collectarr_app/features/library/add/services/library_add_proposa
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/add/services/provider_candidate_catalog_projection.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
@@ -1350,42 +1352,42 @@ class LibraryAddSessionController
           );
 
           await workflowService.addProviderCandidate(
-            context: context,
-            api: api!,
-            isAdmin: isAdmin,
-            type: type,
-            candidate: selectedCandidate,
-            target: state.target,
-            mounted: true,
-            isAdding: false,
-            rebuild: (_) {},
-            setIsAdding: (_) {},
-            setError: (msg) => state =
-                state.copyWith(search: state.search.copyWith(error: msg)),
-            onSuccess: (_) {},
-            isMissingBearerTokenError: _isMissingBearerTokenError,
-            catalog: catalog!,
-            ownedMutations: ownedMutations,
-            wishlistMutations: wishlistMutations,
-            trackingMutations: trackingMutations,
-            physicalFormats: physicalFormats,
-            previewState: previewController,
-            providerActionService: providerActionService,
-            providerOrchestrationService: providerOrchestrationService,
-            providerMapper: _providerCorrectionsForKind(type.kind),
-            visibleProviderResults: () => state.visibleProviderResults(
-              type.add.resultPolicy,
-            ),
-            showEditDialog: (ctx, req) =>
-                showLibraryEditDialog(context: ctx, request: req),
-            clearRejectedMetadataSession: _handleAuthExpiration,
-            referenceType: state.selection.referenceType,
-            defaults: LibraryAddDefaults(
-              condition: state.defaultCondition,
-              purchaseDate: state.defaultPurchaseDate,
-              locationId: state.defaultLocationId,
-              readStatus: state.defaultReadStatus,
-              tags: state.defaultTags,
+            LibraryProviderAddRequest(
+              api: api!,
+              isAdmin: isAdmin,
+              type: type,
+              candidate: selectedCandidate,
+              target: state.target,
+              accent: LibraryAccentScope.accentOf(context),
+              dependencies: LibraryProviderAddDependencies(
+                catalog: catalog!,
+                ownedMutations: ownedMutations,
+                wishlistMutations: wishlistMutations,
+                trackingMutations: trackingMutations,
+                physicalFormats: physicalFormats,
+                previewState: previewController,
+                providerActionService: providerActionService,
+                providerOrchestrationService: providerOrchestrationService,
+                providerMapper: _providerCorrectionsForKind(type.kind),
+                visibleProviderResults: () => state.visibleProviderResults(
+                  type.add.resultPolicy,
+                ),
+                showEditDialog: (req) =>
+                    showLibraryEditDialog(context: context, request: req),
+                closeEditDialog: () => Navigator.of(context).pop(),
+                clearRejectedMetadataSession: _handleAuthExpiration,
+              ),
+              referenceType: state.selection.referenceType,
+              defaults: LibraryAddDefaults(
+                condition: state.defaultCondition,
+                purchaseDate: state.defaultPurchaseDate,
+                locationId: state.defaultLocationId,
+                readStatus: state.defaultReadStatus,
+                tags: state.defaultTags,
+              ),
+              reportError: (message) => state = state.copyWith(
+                search: state.search.copyWith(error: message),
+              ),
             ),
           );
         } else {
@@ -1433,34 +1435,31 @@ class LibraryAddSessionController
             .where((item) => checkedResults.contains(item.id))
             .toList();
         if (catalog != null) {
-          await workflowService.addItems(
-            mounted: true,
-            isAdding: false,
-            rebuild: (_) {},
-            setIsAdding: (_) {},
-            setError: (msg) => state =
-                state.copyWith(search: state.search.copyWith(error: msg)),
-            onSuccess: (_) {},
-            catalog: catalog!,
-            ownedMutations: ownedMutations,
-            wishlistMutations: wishlistMutations,
-            trackingMutations: trackingMutations,
-            items: itemsToAdd,
-            target: state.target,
-            trackingDraft: LibraryAddTrackingDraft(
-              rating: state.trackingDraft.rating,
-              readStatus:
-                  state.defaultReadStatus ?? state.trackingDraft.readStatus,
-              startedAt: state.trackingDraft.startedAt,
-              finishedAt: state.trackingDraft.finishedAt,
-            ),
-            referenceType: state.selection.referenceType,
-            defaults: LibraryAddDefaults(
-              condition: state.defaultCondition,
-              purchaseDate: state.defaultPurchaseDate,
-              locationId: state.defaultLocationId,
-              readStatus: state.defaultReadStatus,
-              tags: state.defaultTags,
+          await const LibraryAddCoordinator().add(
+            LibraryAddBatchRequest(
+              dependencies: LibraryAddMutationDependencies(
+                catalog: catalog!,
+                ownedMutations: ownedMutations,
+                wishlistMutations: wishlistMutations,
+                trackingMutations: trackingMutations,
+              ),
+              items: itemsToAdd,
+              target: state.target,
+              trackingDraft: LibraryAddTrackingDraft(
+                rating: state.trackingDraft.rating,
+                readStatus:
+                    state.defaultReadStatus ?? state.trackingDraft.readStatus,
+                startedAt: state.trackingDraft.startedAt,
+                finishedAt: state.trackingDraft.finishedAt,
+              ),
+              referenceType: state.selection.referenceType,
+              defaults: LibraryAddDefaults(
+                condition: state.defaultCondition,
+                purchaseDate: state.defaultPurchaseDate,
+                locationId: state.defaultLocationId,
+                readStatus: state.defaultReadStatus,
+                tags: state.defaultTags,
+              ),
             ),
           );
         }

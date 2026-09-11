@@ -1,31 +1,18 @@
-import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/provider_candidate_catalog_projection.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
-import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
+import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class LibraryAddWorkflowService {
@@ -66,13 +53,8 @@ class LibraryAddWorkflowService {
   }
 
   Future<LibraryAddCatalogTransport> providerAddItemForCandidate({
-    required ApiClient? api,
     required ProviderCandidate candidate,
-    required bool mounted,
-    required void Function(VoidCallback fn) rebuild,
     required LibraryAddPreviewController previewState,
-    required void Function(String? message) setError,
-    required bool Function(Object error) isMissingBearerTokenError,
   }) async {
     if (candidate.isStub) {
       return catalogItemFromProviderCandidate(candidate);
@@ -86,178 +68,71 @@ class LibraryAddWorkflowService {
     return catalogItemFromProviderCandidate(candidate);
   }
 
-  Future<void> addItems({
-    required bool mounted,
-    required bool isAdding,
-    required void Function(VoidCallback fn) rebuild,
-    required void Function(bool value) setIsAdding,
-    required void Function(String? message) setError,
-    required void Function(LibraryAddDialogResult result) onSuccess,
-    required CatalogTransportRepository catalog,
-    required OwnedItemMutations ownedMutations,
-    required WishlistMutations wishlistMutations,
-    required TrackingMutations trackingMutations,
-    required Iterable<LibraryAddCatalogTransport> items,
-    required LibraryAddTarget target,
-    LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
-    LibraryAddDefaults defaults = const LibraryAddDefaults(),
-    LibraryAddCommonDraft? commonDraft,
-    LibraryAddTrackingDraft? trackingDraft,
-    Map<String, LibraryAddKindDraft> kindDraftsByItemId = const {},
-    Map<String, LibraryAddEditionSelection> editionSelectionsByItemId =
-        const {},
-    Map<String, String> bundleReleaseIdsByItemId = const {},
-  }) async {
-    final resolvedItems = items.toList(growable: false);
-    if (resolvedItems.isEmpty || isAdding) {
-      return;
-    }
-    rebuild(() {
-      setIsAdding(true);
-      setError(null);
-    });
-    try {
-      await addLibraryItemsToTarget(
-        catalog: catalog,
-        ownedMutations: ownedMutations,
-        wishlistMutations: wishlistMutations,
-        trackingMutations: trackingMutations,
-        items: resolvedItems,
-        target: target,
-        referenceType: referenceType,
-        defaults: defaults,
-        commonDraft: commonDraft,
-        trackingDraft: trackingDraft,
-        kindDraftsByItemId: kindDraftsByItemId,
-        editionSelectionsByItemId: editionSelectionsByItemId,
-        bundleReleaseIdsByItemId: bundleReleaseIdsByItemId,
-      );
-      if (mounted) {
-        onSuccess(
-          LibraryAddDialogResult(
-            target: target,
-            itemIds: [for (final item in resolvedItems) item.id],
-          ),
-        );
-      }
-    } catch (error) {
-      if (mounted) {
-        rebuild(() => setError('Add failed: $error'));
-      }
-    } finally {
-      if (mounted) {
-        rebuild(() => setIsAdding(false));
-      }
-    }
-  }
-
-  Future<void> addProviderCandidate({
-    required BuildContext context,
-    required ApiClient api,
-    required bool isAdmin,
-    required LibraryKindModule type,
-    required ProviderCandidate candidate,
-    required LibraryAddTarget target,
-    required bool mounted,
-    required bool isAdding,
-    required void Function(VoidCallback fn) rebuild,
-    required void Function(bool value) setIsAdding,
-    required void Function(String? message) setError,
-    required void Function(LibraryAddDialogResult result) onSuccess,
-    required bool Function(Object error) isMissingBearerTokenError,
-    required CatalogTransportRepository catalog,
-    required OwnedItemMutations ownedMutations,
-    required WishlistMutations wishlistMutations,
-    required TrackingMutations trackingMutations,
-    required List<PhysicalMediaFormat> physicalFormats,
-    required LibraryAddPreviewController previewState,
-    required LibraryProviderActionService providerActionService,
-    required LibraryProviderOrchestrationService providerOrchestrationService,
-    required BuildProviderCorrections providerMapper,
-    required List<ProviderCandidate> Function() visibleProviderResults,
-    required Future<LibraryEditSelection?> Function(
-      BuildContext context,
-      LibraryEditDialogRequest request,
-    ) showEditDialog,
-    required Future<bool> Function(Object error, String action)
-        clearRejectedMetadataSession,
-    LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
-    LibraryAddDefaults defaults = const LibraryAddDefaults(),
-  }) async {
-    if (!isAdmin || candidate.isStub) {
+  Future<void> addProviderCandidate(LibraryProviderAddRequest request) async {
+    final dependencies = request.dependencies;
+    final candidate = request.candidate;
+    final target = request.target;
+    final type = request.type;
+    if (!request.isAdmin || candidate.isStub) {
       final previewItem = await providerAddItemForCandidate(
-        api: api,
         candidate: candidate,
-        mounted: mounted,
-        rebuild: rebuild,
-        previewState: previewState,
-        setError: setError,
-        isMissingBearerTokenError: isMissingBearerTokenError,
+        previewState: dependencies.previewState,
       );
-      await addItems(
-        mounted: mounted,
-        isAdding: isAdding,
-        rebuild: rebuild,
-        setIsAdding: setIsAdding,
-        setError: setError,
-        onSuccess: onSuccess,
-        catalog: catalog,
-        ownedMutations: ownedMutations,
-        wishlistMutations: wishlistMutations,
-        trackingMutations: trackingMutations,
-        items: [previewItem],
-        target: target,
-        referenceType: referenceType,
-        defaults: defaults,
+      await const LibraryAddCoordinator().add(
+        LibraryAddBatchRequest(
+          dependencies: LibraryAddMutationDependencies(
+            catalog: dependencies.catalog,
+            ownedMutations: dependencies.ownedMutations,
+            wishlistMutations: dependencies.wishlistMutations,
+            trackingMutations: dependencies.trackingMutations,
+          ),
+          items: [previewItem],
+          target: target,
+          referenceType: request.referenceType,
+          defaults: request.defaults,
+        ),
       );
       return;
     }
 
     var currentCandidate = candidate;
     try {
-      while (mounted) {
-        final cached =
-            previewState.providerPreviewFor(currentCandidate.localCatalogId);
+      while (true) {
+        final cached = dependencies.previewState.providerPreviewFor(
+          currentCandidate.localCatalogId,
+        );
         final previewItem = cached != null
             ? metadataItemFromPreview(cached)
             : catalogItemFromProviderCandidate(currentCandidate);
 
-        final visibleCandidates = visibleProviderResults();
+        final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(
           (entry) => entry.localCatalogId == currentCandidate.localCatalogId,
         );
         ProviderCandidate? navigateCandidate;
-        if (!context.mounted) {
-          return;
-        }
-        final accent = LibraryAccentScope.accentOf(context);
-        final result = await showEditDialog(
-          context,
+        final result = await dependencies.showEditDialog(
           LibraryEditDialogRequest(
             type: type,
             item: previewItem,
             ownedItem: null,
-            accent: accent,
+            accent: request.accent,
             scope: LibraryEditScope.all,
-            physicalFormats: physicalFormats,
+            physicalFormats: dependencies.physicalFormats,
             onPrevious: currentIndex > 0
                 ? () {
                     navigateCandidate = visibleCandidates[currentIndex - 1];
-                    Navigator.of(context).pop();
+                    dependencies.closeEditDialog();
                   }
                 : null,
             onNext:
                 currentIndex >= 0 && currentIndex < visibleCandidates.length - 1
                     ? () {
                         navigateCandidate = visibleCandidates[currentIndex + 1];
-                        Navigator.of(context).pop();
+                        dependencies.closeEditDialog();
                       }
                     : null,
           ),
         );
-        if (!mounted) {
-          return;
-        }
         if (navigateCandidate != null) {
           currentCandidate = navigateCandidate!;
           continue;
@@ -266,58 +141,52 @@ class LibraryAddWorkflowService {
           return;
         }
 
-        final ingest = await providerActionService.ingestCandidate(
-          api: api,
+        final ingest = await dependencies.providerActionService.ingestCandidate(
+          api: request.api,
           candidate: currentCandidate,
         );
 
         final edited = result.item;
         final ingested = libraryAddCatalogItemFromIngestResult(ingest.item);
-        if (mounted) {
-          await providerOrchestrationService.applyIngestCorrections(
-            api: api,
-            providerMapper: providerMapper,
-            kind: ingested.mediaKind.apiValue,
-            itemId: ingest.itemId,
-            preview: previewItem,
-            edited: edited,
-          );
-        }
+        await dependencies.providerOrchestrationService.applyIngestCorrections(
+          api: request.api,
+          providerMapper: dependencies.providerMapper,
+          kind: ingested.mediaKind.apiValue,
+          itemId: ingest.itemId,
+          preview: previewItem,
+          edited: edited,
+        );
 
         final finalItem = mergeProviderAddResult(
           ingested: ingested,
           edited: edited,
         );
-        await addItems(
-          mounted: mounted,
-          isAdding: isAdding,
-          rebuild: rebuild,
-          setIsAdding: setIsAdding,
-          setError: setError,
-          onSuccess: onSuccess,
-          catalog: catalog,
-          ownedMutations: ownedMutations,
-          wishlistMutations: wishlistMutations,
-          trackingMutations: trackingMutations,
-          items: [finalItem],
-          target: target,
-          referenceType: referenceType,
-          defaults: defaults,
+        await const LibraryAddCoordinator().add(
+          LibraryAddBatchRequest(
+            dependencies: LibraryAddMutationDependencies(
+              catalog: dependencies.catalog,
+              ownedMutations: dependencies.ownedMutations,
+              wishlistMutations: dependencies.wishlistMutations,
+              trackingMutations: dependencies.trackingMutations,
+            ),
+            items: [finalItem],
+            target: target,
+            referenceType: request.referenceType,
+            defaults: request.defaults,
+          ),
         );
         return;
       }
     } catch (error) {
-      if (mounted &&
-          await clearRejectedMetadataSession(error, 'Provider ingest')) {
+      if (await dependencies.clearRejectedMetadataSession(
+        error,
+        'Provider ingest',
+      )) {
         return;
       }
-      if (mounted) {
-        rebuild(
-          () => setError(
-            'Provider ingest failed: ${ConnectionDiagnostics.metadataError(error, api.baseUrl)}',
-          ),
-        );
-      }
+      request.reportError?.call(
+        'Provider ingest failed: ${ConnectionDiagnostics.metadataError(error, request.api.baseUrl)}',
+      );
     }
   }
 }
