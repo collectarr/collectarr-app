@@ -229,7 +229,7 @@ void main() {
         CatalogMediaKind.music: MusicOwnedDetailsDraft,
       };
       for (final kind in activeKinds) {
-        final runtime = testKindModule(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -357,7 +357,7 @@ void main() {
         'no supported kind resolves to unknown or generic fallback in registry',
         () {
       for (final kind in activeKinds) {
-        final runtime = testKindModule(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
       }
@@ -365,7 +365,7 @@ void main() {
 
     test('all kinds own Add release and format presentation', () {
       for (final kind in activeKinds) {
-        final module = testKindModule(kind);
+        final module = testKindRegistration(kind);
         final item = CatalogSearchCandidate.fromItem(
           testCatalogItem(
             id: '${kind.apiValue}-format-test',
@@ -402,13 +402,13 @@ void main() {
 
     testWidgets('ComicAddManualPane uses standard visual primitives',
         (tester) async {
-      final comicRuntime = testKindModule(CatalogMediaKind.comic);
+      final comicRuntime = testKindRegistration(CatalogMediaKind.comic);
       final draft = comicRuntime.add.createManualDraft() as ComicAddManualDraft;
 
       final request = LibraryAddManualPaneRequest(
         kind: CatalogMediaKind.comic,
         accent: Colors.blue,
-        type: comicKindModule,
+        type: const ComicRegistration(),
         manualDraft: draft,
         titleController: TextEditingController(text: 'Batman'),
         tagsController: TextEditingController(),

@@ -115,11 +115,9 @@ class ShelfState {
       ...?catalogSnapshotsByRef,
     };
     final resolvedCatalogSummariesByRef =
-        <CatalogEntityRef, CatalogDisplaySummary>{
-      ...?catalogSummariesByRef,
-      for (final item in catalogByRef.values)
-        item.catalogRef: _catalogSummaryFromSnapshot(item),
-    };
+        Map<CatalogEntityRef, CatalogDisplaySummary>.unmodifiable(
+      catalogSummariesByRef ?? const <CatalogEntityRef, CatalogDisplaySummary>{},
+    );
     final resolvedOwnedSummaries =
         ownedSummaries?.toList(growable: false) ?? const <OwnedItemSummary>[];
     final resolvedTrackingSummaries =
@@ -171,8 +169,10 @@ class ShelfState {
       for (final ref in refs) ...[
         LibraryWorkspaceSource(
           itemId: ref.id,
-          catalogSummary: resolvedCatalogSummariesByRef[ref] ??
-              catalogByRef[ref]?.displaySummary,
+          // Mixed/global Shelf rendering is summary-only. The transport
+          // snapshot below is retained solely for the owning kind's typed
+          // workspace projector.
+          catalogSummary: resolvedCatalogSummariesByRef[ref],
           catalogSearchTokens: _catalogSearchTokens(catalogByRef[ref]),
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
@@ -288,16 +288,6 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
     return ref.copyWith(entityType: const CatalogEntityTypeId('work'));
   }
   return ref;
-}
-
-CatalogDisplaySummary _catalogSummaryFromSnapshot(CatalogSearchCandidate item) {
-  final title = item.resolvedDisplayTitle.trim();
-  return CatalogDisplaySummary.work(
-    kind: item.mediaKind,
-    id: item.id,
-    title: title,
-    imageUrl: item.displayCoverUrl,
-  );
 }
 
 List<String> _catalogSearchTokens(CatalogSearchCandidate? item) {

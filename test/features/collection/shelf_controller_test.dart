@@ -66,6 +66,19 @@ void main() {
           itemNumber: '1',
         ).asShelfCatalogItem,
       },
+      catalogSummariesByRef: {
+        testCatalogItem(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'Saga',
+          itemNumber: '1',
+        ).catalogRef: testCatalogItem(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'Saga',
+          itemNumber: '1',
+        ).asShelfCatalogSummary,
+      },
       itemImagesByOwnedItem: {
         OwnedItemRef(
           kind: CatalogMediaKind.comic,
@@ -144,6 +157,17 @@ void main() {
           kind: 'book',
           title: 'Catalog keyed by ref',
         ).asShelfCatalogItem,
+      },
+      catalogSummariesByRef: {
+        testCatalogItem(
+          id: 'book-1',
+          kind: 'book',
+          title: 'Catalog keyed by ref',
+        ).catalogRef: testCatalogItem(
+          id: 'book-1',
+          kind: 'book',
+          title: 'Catalog keyed by ref',
+        ).asShelfCatalogSummary,
       },
     );
 

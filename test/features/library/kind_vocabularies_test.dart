@@ -157,7 +157,7 @@ void main() {
       ];
 
       for (final kind in kinds) {
-        final runtime = testKindModule(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime.kind, kind, reason: 'Runtime for $kind should exist');
         final vocCapability = runtime.edit.vocabularies;
         expect(vocCapability, isNotNull,

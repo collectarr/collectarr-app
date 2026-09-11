@@ -50,6 +50,7 @@ void main() {
         )),
       ],
       wishlistItems: const [],
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
       catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
     );
 
@@ -117,6 +118,7 @@ void main() {
         )),
       ],
       wishlistItems: const [],
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
       catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
     );
 
@@ -179,6 +181,9 @@ void main() {
     final shelf = ShelfState.from(
       ownedSummaries: const [],
       wishlistItems: const [],
+      catalogSummariesByRef: {
+        podcast.catalogRef: podcast.asShelfCatalogSummary,
+      },
       catalogSnapshotsByRef: {podcast.catalogRef: podcast.asShelfCatalogItem},
     );
 
@@ -236,6 +241,7 @@ void main() {
         )),
       ],
       wishlistItems: const [],
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
       catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
     );
 
@@ -292,6 +298,7 @@ void main() {
     final shelf = ShelfState.from(
       ownedSummaries: [testOwnedItemSummary(owned)],
       wishlistItems: const [],
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
       catalogSnapshotsByRef: {game.catalogRef: game.asShelfCatalogItem},
     );
     await LoanRepository(db).create(

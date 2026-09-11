@@ -23,7 +23,7 @@ void main() {
     test('all 9 production kinds are registered and have explicit capabilities',
         () {
       for (final kind in activeKinds) {
-        final runtime = testKindModule(kind);
+        final runtime = testKindRegistration(kind);
         final workspace = testKindWorkspace(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
@@ -92,7 +92,7 @@ void main() {
 
     test('no production kind uses generic fallback for core capabilities', () {
       for (final kind in activeKinds) {
-        final runtime = testKindModule(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime.kind, isNot(equals(CatalogMediaKind.unknown)));
         expect(runtime.identity.singularLabel.isNotEmpty, isTrue);
         expect(runtime.identity.pluralLabel.isNotEmpty, isTrue);
@@ -164,7 +164,7 @@ void main() {
         () {
       final addDraftTypes = <Type>{};
       for (final kind in activeKinds) {
-        final runtime = testKindModule(kind);
+        final runtime = testKindRegistration(kind);
         final initialDraft = runtime.add.createInitialDraft();
         expect(initialDraft.kind, equals(runtime.kind),
             reason: '$kind add draft kind must match runtime.kind');
@@ -241,7 +241,7 @@ void main() {
         'edit draft creation produces kind-owned edit drafts with non-null factories',
         () {
       for (final kind in activeKinds) {
-        final runtime = testKindModule(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime.edit, isNotNull);
         expect(runtime.edit.createDraft, isNotNull);
       }

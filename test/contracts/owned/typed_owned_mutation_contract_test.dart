@@ -44,7 +44,7 @@ void main() {
           common: const LibraryAddCommonDraft(
             condition: 'Good',
           ),
-          details: testKindModule(kind)
+          details: testKindRegistration(kind)
               .add
               .createInitialDraft()
               .toOwnedDetailsDraft(),

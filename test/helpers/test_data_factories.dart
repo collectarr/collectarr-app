@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
@@ -188,6 +189,9 @@ CatalogItemDto testCatalogItem({
 extension ShelfCatalogFixture on CatalogItemDto {
   CatalogSearchCandidate get asShelfCatalogItem =>
       CatalogSearchCandidate.fromItem(this);
+
+  CatalogDisplaySummary get asShelfCatalogSummary =>
+      CatalogSearchCandidate.fromItem(this).displaySummary;
 }
 
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
