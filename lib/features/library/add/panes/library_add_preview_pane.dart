@@ -1195,35 +1195,11 @@ List<(String, String?)> _metadataRowsForCandidate(
 List<(String, String?)> _metadataRowsForItem(
   LibraryAddCatalogTransport item,
   LibraryKindModule type,
-) {
-  final previewLabels = type.presentation.previewLabels;
-  return [
-    (
-      previewLabels.labelFor('publisher', fallback: 'Publisher'),
-      item.publisher,
-    ),
-    (
-      'Released',
-      item.releaseDate != null
-          ? '${item.releaseDate!.year}-${item.releaseDate!.month.toString().padLeft(2, '0')}-${item.releaseDate!.day.toString().padLeft(2, '0')}'
-          : (item.releaseYear ?? item.releaseDate?.year)?.toString()
-    ),
-    if (item.itemNumber != null)
-      (
-        previewLabels.labelFor('item_number', fallback: 'Number'),
-        item.itemNumber,
-      ),
-    if (item.variant != null)
-      (
-        previewLabels.labelFor('variant', fallback: 'Variant'),
-        item.variant,
-      ),
-    (
-      previewLabels.labelFor('barcode', fallback: 'Barcode'),
-      item.identifierCode,
-    ),
-  ];
-}
+) =>
+    type.presentation.builder.buildAddPreviewMetadataRows(
+      item: item,
+      previewLabels: type.presentation.previewLabels,
+    );
 
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
   const _LibraryAddPreviewMetadataRow({

@@ -51,6 +51,37 @@ class BoardGameLibraryMediaPresentationBuilder
       _buildBoardGameSearchResultDisplay(item);
 
   @override
+  List<(String, String?)> buildAddPreviewMetadataRows({
+    required LibraryAddCatalogTransport item,
+    required LibraryMediaPreviewLabels previewLabels,
+  }) {
+    final releaseDate = item.releaseDate;
+    return [
+      (
+        previewLabels.labelFor('publisher', fallback: 'Publisher'),
+        item.publisher
+      ),
+      (
+        'Released',
+        releaseDate == null
+            ? item.releaseYear?.toString()
+            : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
+      ),
+      if (item.itemNumber != null)
+        (
+          previewLabels.labelFor('item_number', fallback: 'Number'),
+          item.itemNumber
+        ),
+      if (item.variant != null)
+        (previewLabels.labelFor('variant', fallback: 'Variant'), item.variant),
+      (
+        previewLabels.labelFor('barcode', fallback: 'Barcode'),
+        item.identifierCode
+      ),
+    ];
+  }
+
+  @override
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
     required LibraryProjectionView item,
