@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_unsupporte
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
@@ -63,7 +63,7 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
 
 typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
     = OwnedItemCreatePayload Function(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
   LibraryAddCommonDraft common,
   TDraft draft,
   JsonEncodable details, {
@@ -71,14 +71,14 @@ typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
 });
 
 typedef LibraryAddDigitalCopyFlagBuilder = bool? Function(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
 );
 
-typedef LibraryAddProviderCandidateProjection = LibraryAddCatalogTransport
+typedef LibraryAddProviderCandidateProjection = CatalogSearchCandidate
     Function(ProviderCandidate candidate);
 
-typedef LibraryAddCoreCatalogProjection = LibraryAddCatalogTransport Function(
-  LibraryAddCatalogTransport item,
+typedef LibraryAddCoreCatalogProjection = CatalogSearchCandidate Function(
+  CatalogSearchCandidate item,
 );
 
 class LibraryAddSearchCapability {
@@ -111,7 +111,7 @@ class LibraryAddSearchCapability {
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
-  final LibraryAddMatchSummaryBuilder<LibraryAddCatalogTransport>?
+  final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
       coreMatchSummaryBuilder;
   final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
       providerMatchSummaryBuilder;
@@ -159,7 +159,7 @@ class LibraryAddSearchCapability {
       coverScanFilterValuesBuilder?.call(result) ?? const {};
 
   String? coreMatchSummary(
-    LibraryAddCatalogTransport item,
+    CatalogSearchCandidate item,
     LibraryAddSearchContext context,
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
@@ -208,28 +208,28 @@ abstract interface class LibraryAddCapability<
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
-  LibraryAddCatalogTransport catalogTransportFromProviderCandidate(
+  CatalogSearchCandidate catalogTransportFromProviderCandidate(
     ProviderCandidate candidate,
   );
 
-  LibraryAddCatalogTransport catalogTransportFromCoreItem(
-    LibraryAddCatalogTransport item,
+  CatalogSearchCandidate catalogTransportFromCoreItem(
+    CatalogSearchCandidate item,
   );
 
-  bool? digitalCopyFlag(LibraryAddCatalogTransport item) => null;
+  bool? digitalCopyFlag(CatalogSearchCandidate item) => null;
 
   Widget? buildPreviewPane(
     BuildContext context,
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddOwnedItemCommand buildCommand(LibraryAddCatalogTransport item,
+  AddOwnedItemCommand buildCommand(CatalogSearchCandidate item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {CatalogEntityRef? targetRef,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 
   AddOwnedItemCommand buildCommandFromDetails(
-    LibraryAddCatalogTransport item,
+    CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
     LibraryAddKindDraft? draft,
@@ -302,18 +302,18 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   TDraft createInitialDraft() => initialDraftBuilder();
 
   @override
-  bool? digitalCopyFlag(LibraryAddCatalogTransport item) =>
+  bool? digitalCopyFlag(CatalogSearchCandidate item) =>
       digitalCopyFlagBuilder?.call(item);
 
   @override
-  LibraryAddCatalogTransport catalogTransportFromProviderCandidate(
+  CatalogSearchCandidate catalogTransportFromProviderCandidate(
     ProviderCandidate candidate,
   ) =>
       providerCandidateProjectionBuilder(candidate);
 
   @override
-  LibraryAddCatalogTransport catalogTransportFromCoreItem(
-    LibraryAddCatalogTransport item,
+  CatalogSearchCandidate catalogTransportFromCoreItem(
+    CatalogSearchCandidate item,
   ) =>
       coreCatalogProjectionBuilder(item);
 
@@ -340,7 +340,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     return previewPaneBuilder?.call(context, request);
   }
 
-  OwnedItemCreatePayload _buildOwnedPayload(LibraryAddCatalogTransport item,
+  OwnedItemCreatePayload _buildOwnedPayload(CatalogSearchCandidate item,
       LibraryAddCommonDraft common, TDraft draft, JsonEncodable details,
       {String? kindValue}) {
     try {
@@ -366,7 +366,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   @override
-  AddOwnedItemCommand buildCommand(LibraryAddCatalogTransport item,
+  AddOwnedItemCommand buildCommand(CatalogSearchCandidate item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {CatalogEntityRef? targetRef,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
@@ -398,7 +398,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommandFromDetails(
-    LibraryAddCatalogTransport item,
+    CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
     LibraryAddKindDraft? draft,

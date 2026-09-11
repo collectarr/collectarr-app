@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 class LibraryEditPresentationContext {
@@ -75,7 +75,7 @@ class LibraryEditPresentationState {
 abstract class LibraryEditPresentationBuilder {
   const LibraryEditPresentationBuilder();
 
-  String buildDialogTitle({required LibraryAddCatalogTransport item}) {
+  String buildDialogTitle({required CatalogSearchCandidate item}) {
     final yearSuffix = item.releaseYear == null ? '' : ' (${item.releaseYear})';
     return item.displayTitle ?? '${item.title}$yearSuffix';
   }
@@ -99,7 +99,7 @@ abstract class LibraryEditPresentationBuilder {
     required LibraryEditDraft draft,
     required Color accent,
     required LibraryEditScope scope,
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   }) =>
       null;

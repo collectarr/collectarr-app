@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_kind_draf
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,7 +53,7 @@ final class LibraryAddSessionState {
   final String? physicalFormatId;
   final bool isAdding;
 
-  LibraryAddCatalogTransport? get selectedItem {
+  CatalogSearchCandidate? get selectedItem {
     if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
@@ -87,12 +87,12 @@ final class LibraryAddSessionState {
     return preview.providerPreviewFor(candidate.localCatalogId);
   }
 
-  List<LibraryAddCatalogTransport> visibleCoreResults(
+  List<CatalogSearchCandidate> visibleCoreResults(
     LibraryAddResultPolicy policy, {
-    required bool Function(LibraryAddCatalogTransport item) isOwnedCatalogItem,
+    required bool Function(CatalogSearchCandidate item) isOwnedCatalogItem,
   }) {
     if (!selection.showCoreResults) {
-      return const <LibraryAddCatalogTransport>[];
+      return const <CatalogSearchCandidate>[];
     }
     final ownedRefs = <CatalogEntityRef>{
       for (final item in search.results)

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -241,7 +241,7 @@ class BookEditDraft extends LibraryEditKindDraft {
     );
 
     final updatedItem = selection.item.mapTransport(
-      (transport) => LibraryAddCatalogTransport.fromItem(
+      (transport) => CatalogSearchCandidate.fromItem(
         transport.withKindMetadata(updatedMetadata),
       ),
     );
@@ -250,7 +250,7 @@ class BookEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createBookEditDraft({
-  required LibraryAddCatalogTransport item,
+  required CatalogSearchCandidate item,
   Object? typedOwnedItem,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,

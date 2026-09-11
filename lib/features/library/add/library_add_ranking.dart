@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 typedef LibraryAddMetadataSearchScore = int Function(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
   LibraryAddSearchContext context,
 );
 
@@ -25,7 +25,7 @@ class LibraryAddSearchRankField {
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
-  final Iterable<Object?> Function(LibraryAddCatalogTransport item)
+  final Iterable<Object?> Function(CatalogSearchCandidate item)
       metadataValues;
   final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
 }
@@ -41,8 +41,8 @@ class LibraryAddSearchRanking {
   final LibraryAddProviderSearchScore scoreProvider;
   final int Function(LibraryAddSearchContext context) maxScore;
 
-  List<LibraryAddCatalogTransport> rankMetadata(
-    List<LibraryAddCatalogTransport> items,
+  List<CatalogSearchCandidate> rankMetadata(
+    List<CatalogSearchCandidate> items,
     LibraryAddSearchContext context,
   ) {
     if (items.length < 2 || !context.hasAnyInput) {
@@ -62,7 +62,7 @@ class LibraryAddSearchRanking {
   }
 
   bool shouldSearchProviderForCoreResults(
-    List<LibraryAddCatalogTransport> items,
+    List<CatalogSearchCandidate> items,
     LibraryAddSearchContext context, {
     double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
   }) {
@@ -84,7 +84,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
   required List<LibraryAddSearchRankField> fields,
 }) {
   int scoreMetadata(
-    LibraryAddCatalogTransport item,
+    CatalogSearchCandidate item,
     LibraryAddSearchContext context,
   ) {
     var score = _scoreText(
@@ -211,8 +211,8 @@ String _normalize(Object? value) {
       '';
 }
 
-List<LibraryAddCatalogTransport> filterAndRankCatalogItems(
-  List<LibraryAddCatalogTransport> items,
+List<CatalogSearchCandidate> filterAndRankCatalogItems(
+  List<CatalogSearchCandidate> items,
   LibraryAddSearchRanking ranking,
   LibraryAddSearchContext context, {
   int minimumScore = 1,

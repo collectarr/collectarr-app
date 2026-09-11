@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
@@ -295,7 +295,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
         selection.item.mapTransport((transport) => transport).kindMetadata;
 
     final updatedItem = selection.item.mapTransport(
-      (transport) => LibraryAddCatalogTransport.fromItem(
+      (transport) => CatalogSearchCandidate.fromItem(
         transport.withKindMetadata(updatedMetadata),
       ),
     );
@@ -304,7 +304,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createMangaEditDraft({
-  required LibraryAddCatalogTransport item,
+  required CatalogSearchCandidate item,
   Object? typedOwnedItem,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,

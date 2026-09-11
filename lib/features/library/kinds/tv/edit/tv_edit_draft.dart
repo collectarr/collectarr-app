@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/edit/video/video_edit_draft_contract.dart';
@@ -195,7 +195,7 @@ class TvEditDraft extends LibraryEditKindDraft
           .toList();
       result = result.copyWith(
         item: result.item.mapTransport(
-          (transport) => LibraryAddCatalogTransport.fromItem(
+          (transport) => CatalogSearchCandidate.fromItem(
             transport.withKindMetadata(
               metadata.copyWith(
                 episodeRuntimeMinutes:
@@ -273,7 +273,7 @@ class TvEditDraft extends LibraryEditKindDraft
 }
 
 LibraryEditKindDraft createTvEditDraft({
-  required LibraryAddCatalogTransport item,
+  required CatalogSearchCandidate item,
   Object? typedOwnedItem,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,

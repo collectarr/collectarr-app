@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -37,13 +37,13 @@ class BookLibraryMediaPresentationBuilder
 
   @override
   String? buildAddPreviewItemNumber({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<(String id, String label)> buildAddPreviewFormatBadges({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
     final result = <(String, String)>[];
@@ -78,20 +78,20 @@ class BookLibraryMediaPresentationBuilder
 
   @override
   List<CatalogEditionDto> buildReleaseEditions({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     return item.mapTransport((transport) => transport).editions;
   }
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       _buildBookSearchResultDisplay(item);
 
   @override
   List<(String, String?)> buildAddPreviewMetadataRows({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
     final releaseDate = item.releaseDate;
@@ -550,7 +550,7 @@ class BookLibraryMediaPresentationBuilder
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required LibraryAddCatalogTransport? item,
+    required CatalogSearchCandidate? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
@@ -602,7 +602,7 @@ class BookLibraryMediaPresentationBuilder
 }
 
 LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
 ) {
   final itemNumber =
       item.mapTransport((transport) => transport).itemNumber?.trim();
@@ -924,7 +924,7 @@ class _BookAddPreviewTopFacts extends StatelessWidget {
 
 String? _bookSubtitleForSelection({
   required String title,
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -959,7 +959,7 @@ String? _bookSubtitleForSelection({
 }
 
 String? _bookCreatorLineForSelection({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
   final preferred = <String>[];
@@ -1008,7 +1008,7 @@ bool _isPrimaryBookCreatorRole(String? role) {
 }
 
 String? _bookPublisherYearLineForSelection({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -1028,7 +1028,7 @@ String? _bookPublisherYearLineForSelection({
 }
 
 String? _bookFormatLanguageLineForSelection({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _bookMetadataItem(item);
@@ -1048,7 +1048,7 @@ String? _bookFormatLanguageLineForSelection({
 }
 
 String? _bookIsbnForSelection({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _bookMetadataItem(item);
@@ -1057,7 +1057,7 @@ String? _bookIsbnForSelection({
 }
 
 int? _bookPageCountForSelection({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
   return _bookMetadataItem(item)?.publishing?.pageCount ??
@@ -1065,7 +1065,7 @@ int? _bookPageCountForSelection({
 }
 
 List<String> _bookDiscoveryTagsForSelection({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -1105,7 +1105,7 @@ BookCatalogMetadata? _bookMetadata(LibraryProjectionView item) {
   return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }
 
-BookCatalogMetadata? _bookMetadataItem(LibraryAddCatalogTransport? item) {
+BookCatalogMetadata? _bookMetadataItem(CatalogSearchCandidate? item) {
   final metadata = item?.mapTransport((transport) => transport).kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
   final payload = item?.mapTransport((transport) => transport).payload;

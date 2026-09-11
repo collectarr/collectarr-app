@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 class LibraryAddDefaults {
   const LibraryAddDefaults({
@@ -79,7 +79,7 @@ final class LibraryAddBatchRequest {
   });
 
   final LibraryAddMutationDependencies dependencies;
-  final Iterable<LibraryAddCatalogTransport> items;
+  final Iterable<CatalogSearchCandidate> items;
   final LibraryAddTarget target;
   final LibraryAddReferenceType referenceType;
   final LibraryAddDefaults defaults;
@@ -193,7 +193,7 @@ final class LibraryAddCoordinator {
 }
 
 _ResolvedAddReference _resolveReferenceForItem(
-  LibraryAddCatalogTransport item, {
+  CatalogSearchCandidate item, {
   required LibraryAddReferenceType referenceType,
   LibraryAddEditionSelection? editionSelection,
   String? bundleReleaseId,

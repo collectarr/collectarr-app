@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 class MusicExternalLinkEdit {
@@ -174,7 +174,7 @@ class MusicEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createMusicEditDraft({
-  required LibraryAddCatalogTransport item,
+  required CatalogSearchCandidate item,
   Object? typedOwnedItem,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,

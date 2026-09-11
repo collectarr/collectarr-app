@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
 const _videoReleaseSourceKey = 'release_source';
@@ -29,7 +29,7 @@ class VideoReleaseAnchor {
 }
 
 List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
-  LibraryAddCatalogTransport item, {
+  CatalogSearchCandidate item, {
   Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {

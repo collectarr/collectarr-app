@@ -1,24 +1,24 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
-LibraryAddCatalogTransport tvCatalogTransportFromCoreItem(
-  LibraryAddCatalogTransport item,
+CatalogSearchCandidate tvCatalogTransportFromCoreItem(
+  CatalogSearchCandidate item,
 ) {
   return item.mapTransport(
-    (transport) => LibraryAddCatalogTransport.fromItem(
+    (transport) => CatalogSearchCandidate.fromItem(
       transport.withKindMetadata(TvSeriesMetadata.fromJson(transport.payload)),
     ),
   );
 }
 
-LibraryAddCatalogTransport tvCatalogTransportFromProviderCandidate(
+CatalogSearchCandidate tvCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
   final item = CatalogItemDto.fromJson(payload);
-  return LibraryAddCatalogTransport.fromItem(
+  return CatalogSearchCandidate.fromItem(
     item.withKindMetadata(TvSeriesMetadata.fromJson(payload)),
   );
 }

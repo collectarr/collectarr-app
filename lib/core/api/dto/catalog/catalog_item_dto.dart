@@ -138,17 +138,25 @@ final class CatalogItemDto {
   final Object? _kindMetadata;
 
   Map<String, dynamic> get payload {
+    final base = <String, dynamic>{
+      ..._payload,
+      // Kind mappers receive this map at the transport boundary. Preserve
+      // identity here so a mapper can reconstruct the concrete aggregate
+      // without reaching back into the erased DTO envelope.
+      'id': id,
+      'kind': mediaKind.apiValue,
+    };
     final metadata = _kindMetadata;
     if (metadata is Map) {
-      return Map<String, dynamic>.from(metadata);
+      return {...base, ...Map<String, dynamic>.from(metadata)};
     }
     if (metadata is JsonEncodable) {
       return {
-        ..._payload,
+        ...base,
         ...metadata.toJson(),
       };
     }
-    return Map<String, dynamic>.from(_payload);
+    return base;
   }
 
   Object? get kindMetadata => _kindMetadata ?? payload;

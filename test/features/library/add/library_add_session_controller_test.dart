@@ -22,7 +22,7 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
@@ -184,7 +184,7 @@ void main() {
       );
 
       final success = await controller.submitSelectedItem(
-        LibraryAddCatalogTransport.fromItem(item),
+        CatalogSearchCandidate.fromItem(item),
       );
       expect(success, true);
 
@@ -203,7 +203,7 @@ void main() {
       );
 
       final success = await controller.submitSelectedItem(
-        LibraryAddCatalogTransport.fromItem(item),
+        CatalogSearchCandidate.fromItem(item),
       );
       expect(success, true);
 
@@ -227,7 +227,7 @@ void main() {
       );
 
       final success = await controller.submitSelectedItem(
-        LibraryAddCatalogTransport.fromItem(item),
+        CatalogSearchCandidate.fromItem(item),
       );
       expect(success, true);
 
@@ -300,8 +300,7 @@ void main() {
         'title': 'Daredevil',
       });
 
-      controller
-          .selectSuggestion(LibraryAddCatalogTransport.fromItem(suggestion));
+      controller.selectSuggestion(CatalogSearchCandidate.fromItem(suggestion));
 
       expect(controller.state.search.query, 'Daredevil');
       expect(controller.state.selection.selectedResultId, 'sugg-1');
@@ -354,7 +353,7 @@ void main() {
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.comic).add;
       final command = cap.buildCommand(
-        LibraryAddCatalogTransport.fromItem(item),
+        CatalogSearchCandidate.fromItem(item),
         common,
         draft,
         tracking: const LibraryAddTrackingDraft(rating: 10),
@@ -378,7 +377,7 @@ void main() {
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.movie).add;
       final command = cap.buildCommand(
-        LibraryAddCatalogTransport.fromItem(item),
+        CatalogSearchCandidate.fromItem(item),
         common,
         draft,
       );
@@ -401,7 +400,7 @@ void main() {
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.game).add;
       final command = cap.buildCommand(
-        LibraryAddCatalogTransport.fromItem(item),
+        CatalogSearchCandidate.fromItem(item),
         common,
         draft,
       );
@@ -424,7 +423,7 @@ void main() {
 
       final cap = libraryKindModuleForKind(CatalogMediaKind.music).add;
       final command = cap.buildCommand(
-        LibraryAddCatalogTransport.fromItem(item),
+        CatalogSearchCandidate.fromItem(item),
         common,
         draft,
       );

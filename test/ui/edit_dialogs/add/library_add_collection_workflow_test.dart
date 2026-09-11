@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_repo
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -304,7 +304,7 @@ Future<void> addLibraryItemsToTarget({
   required OwnedItemMutations ownedMutations,
   required WishlistMutations wishlistMutations,
   required TrackingMutations trackingMutations,
-  required Iterable<LibraryAddCatalogTransport> items,
+  required Iterable<CatalogSearchCandidate> items,
   required LibraryAddTarget target,
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
@@ -366,8 +366,8 @@ class _WorkflowFixture {
   }
 }
 
-LibraryAddCatalogTransport _comic(String id) {
-  return LibraryAddCatalogTransport.fromItem(
+CatalogSearchCandidate _comic(String id) {
+  return CatalogSearchCandidate.fromItem(
     testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: id,
@@ -382,8 +382,8 @@ LibraryAddCatalogTransport _comic(String id) {
   );
 }
 
-LibraryAddCatalogTransport _comicWithRelease(String id) {
-  return LibraryAddCatalogTransport.fromItem(
+CatalogSearchCandidate _comicWithRelease(String id) {
+  return CatalogSearchCandidate.fromItem(
     testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: id,
@@ -412,8 +412,8 @@ LibraryAddCatalogTransport _comicWithRelease(String id) {
   );
 }
 
-LibraryAddCatalogTransport _digitalMovie(String id) {
-  return LibraryAddCatalogTransport.fromItem(
+CatalogSearchCandidate _digitalMovie(String id) {
+  return CatalogSearchCandidate.fromItem(
     testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: id,
@@ -427,8 +427,8 @@ LibraryAddCatalogTransport _digitalMovie(String id) {
   );
 }
 
-LibraryAddCatalogTransport _comicWithMultipleReleases(String id) {
-  return LibraryAddCatalogTransport.fromItem(
+CatalogSearchCandidate _comicWithMultipleReleases(String id) {
+  return CatalogSearchCandidate.fromItem(
     testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: id,

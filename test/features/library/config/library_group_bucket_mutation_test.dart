@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
@@ -9,11 +9,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
 
-LibraryAddCatalogTransport _metadata(
+CatalogSearchCandidate _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
-  return LibraryAddCatalogTransport.fromItem(
+  return CatalogSearchCandidate.fromItem(
     testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: '$kind-1',
@@ -25,8 +25,8 @@ LibraryAddCatalogTransport _metadata(
   );
 }
 
-LibraryAddCatalogTransport _mutateGroup(
-  LibraryAddCatalogTransport item,
+CatalogSearchCandidate _mutateGroup(
+  CatalogSearchCandidate item,
   CatalogMediaKind kind,
   String mode,
   String currentLabel, {
@@ -44,7 +44,7 @@ LibraryAddCatalogTransport _mutateGroup(
     replacement: replacement,
   );
   expect(updated, isNotNull);
-  return LibraryAddCatalogTransport.fromItem(
+  return CatalogSearchCandidate.fromItem(
       updated!.mapTransport((transport) => transport));
 }
 
@@ -153,7 +153,7 @@ void main() {
     );
 
     expect(updated, isNotNull);
-    final updatedItem = LibraryAddCatalogTransport.fromItem(
+    final updatedItem = CatalogSearchCandidate.fromItem(
       updated!.mapTransport((transport) => transport),
     );
     final payload = updatedItem.mapTransport((transport) => transport).payload;
@@ -179,7 +179,7 @@ void main() {
     );
 
     expect(updated, isNotNull);
-    final updatedItem = LibraryAddCatalogTransport.fromItem(
+    final updatedItem = CatalogSearchCandidate.fromItem(
       updated!.mapTransport((transport) => transport),
     );
     final payload = updatedItem.mapTransport((transport) => transport).payload;

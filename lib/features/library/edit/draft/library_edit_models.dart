@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
@@ -32,7 +32,7 @@ class LibraryEditSelection {
     this.submitAction = LibraryEditSubmitAction.save,
   });
 
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final LibraryPersonalEditSelection? personal;
   final LibraryEditScope scope;
   final LibraryWishlistEditSelection? wishlist;
@@ -44,7 +44,7 @@ class LibraryEditSelection {
   final LibraryEditSubmitAction submitAction;
 
   LibraryEditSelection copyWith({
-    LibraryAddCatalogTransport? item,
+    CatalogSearchCandidate? item,
     LibraryPersonalEditSelection? personal,
     LibraryEditScope? scope,
     LibraryWishlistEditSelection? wishlist,

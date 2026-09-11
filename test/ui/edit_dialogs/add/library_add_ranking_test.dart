@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -223,13 +223,13 @@ void main() {
   });
 }
 
-LibraryAddCatalogTransport _item({
+CatalogSearchCandidate _item({
   required String title,
   String? publisher,
   String? itemNumber,
   int? releaseYear,
 }) {
-  return LibraryAddCatalogTransport.fromItem(
+  return CatalogSearchCandidate.fromItem(
     testCatalogItemFromJson({
       'id': 'test-${title.hashCode}',
       'kind': 'comic',

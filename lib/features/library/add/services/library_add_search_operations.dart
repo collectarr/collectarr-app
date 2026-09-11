@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 
 class LibraryAddCoreSearchResult {
@@ -14,7 +14,7 @@ class LibraryAddCoreSearchResult {
     required this.shouldSearchProvider,
   });
 
-  final List<LibraryAddCatalogTransport> items;
+  final List<CatalogSearchCandidate> items;
   final bool shouldSearchProvider;
 }
 
@@ -69,7 +69,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   final rankedItems = ranking.rankMetadata(
     [
       for (final item in items)
-        LibraryAddCatalogTransport.fromSnapshot(item.toImportSnapshot()),
+        CatalogSearchCandidate.fromSnapshot(item.toImportSnapshot()),
     ],
     searchContext,
   );
@@ -80,7 +80,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   );
 }
 
-Future<List<LibraryAddCatalogTransport>> fetchLibraryAddSuggestions({
+Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
@@ -98,7 +98,7 @@ Future<List<LibraryAddCatalogTransport>> fetchLibraryAddSuggestions({
   return filterAndRankCatalogItems(
     [
       for (final item in items)
-        LibraryAddCatalogTransport.fromSnapshot(item.toImportSnapshot()),
+        CatalogSearchCandidate.fromSnapshot(item.toImportSnapshot()),
     ],
     ranking,
     searchContext,
@@ -119,10 +119,10 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
     catalog: catalog,
     codes: [identifierCode],
   ).timeout(timeout);
-  final foundItems = <LibraryAddCatalogTransport>[
+  final foundItems = <CatalogSearchCandidate>[
     for (final result in results)
       if (result.item != null)
-        LibraryAddCatalogTransport.fromSnapshot(
+        CatalogSearchCandidate.fromSnapshot(
             result.item!.toImportSnapshot()),
   ];
   return LibraryAddCoreSearchResult(

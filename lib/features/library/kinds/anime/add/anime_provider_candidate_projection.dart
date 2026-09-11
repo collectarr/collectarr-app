@@ -1,24 +1,24 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
-LibraryAddCatalogTransport animeCatalogTransportFromCoreItem(
-  LibraryAddCatalogTransport item,
+CatalogSearchCandidate animeCatalogTransportFromCoreItem(
+  CatalogSearchCandidate item,
 ) {
   return item.mapTransport(
-    (transport) => LibraryAddCatalogTransport.fromItem(
+    (transport) => CatalogSearchCandidate.fromItem(
       transport.withKindMetadata(AnimeMetadata.fromJson(transport.payload)),
     ),
   );
 }
 
-LibraryAddCatalogTransport animeCatalogTransportFromProviderCandidate(
+CatalogSearchCandidate animeCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
   final item = CatalogItemDto.fromJson(payload);
-  return LibraryAddCatalogTransport.fromItem(
+  return CatalogSearchCandidate.fromItem(
     item.withKindMetadata(AnimeMetadata.fromJson(payload)),
   );
 }

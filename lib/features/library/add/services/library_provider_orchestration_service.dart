@@ -2,13 +2,13 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
 typedef BuildProviderCorrections = ProviderCorrectionPatch Function({
-  required LibraryAddCatalogTransport preview,
-  required LibraryAddCatalogTransport edited,
+  required CatalogSearchCandidate preview,
+  required CatalogSearchCandidate edited,
 });
 
 class LibraryProviderOrchestrationService {
@@ -16,7 +16,7 @@ class LibraryProviderOrchestrationService {
 
   static const _workflow = LibraryAddWorkflowService();
 
-  LibraryAddCatalogTransport proposalDraftFromCandidate({
+  CatalogSearchCandidate proposalDraftFromCandidate({
     required LibraryKindModule type,
     required ProviderCandidate candidate,
   }) {
@@ -26,7 +26,7 @@ class LibraryProviderOrchestrationService {
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
     );
-    return LibraryAddCatalogTransport.fromJson({
+    return CatalogSearchCandidate.fromJson({
       'id': id,
       'kind': mediaKind.apiValue,
       'title': candidate.title,
@@ -40,8 +40,8 @@ class LibraryProviderOrchestrationService {
     required BuildProviderCorrections providerMapper,
     required String kind,
     required String itemId,
-    required LibraryAddCatalogTransport preview,
-    required LibraryAddCatalogTransport edited,
+    required CatalogSearchCandidate preview,
+    required CatalogSearchCandidate edited,
   }) async {
     final corrections = providerMapper(
       preview: preview,

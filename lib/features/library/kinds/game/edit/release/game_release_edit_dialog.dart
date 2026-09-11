@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/release/game_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 Widget buildGameReleaseLibraryEditDialog(
@@ -82,7 +82,7 @@ class _GameReleaseSchemaEditDialogState
         Navigator.of(context).pop(
           selection.copyWith(
             item: selection.item.mapTransport(
-              (transport) => LibraryAddCatalogTransport.fromItem(
+              (transport) => CatalogSearchCandidate.fromItem(
                 transport.withKindMetadata(updatedMetadata),
               ),
             ),

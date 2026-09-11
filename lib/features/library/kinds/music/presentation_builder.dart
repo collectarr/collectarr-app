@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
@@ -30,13 +30,13 @@ class MusicLibraryMediaPresentationBuilder
 
   @override
   String? buildAddPreviewItemNumber({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<(String id, String label)> buildAddPreviewFormatBadges({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
     final result = <(String, String)>[];
@@ -71,14 +71,14 @@ class MusicLibraryMediaPresentationBuilder
 
   @override
   List<CatalogEditionDto> buildReleaseEditions({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     return item.mapTransport((transport) => transport).editions;
   }
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     final metadata = _musicMetadataItem(item);
     final subtitle = _firstMeaningfulMusicValue([
@@ -119,7 +119,7 @@ class MusicLibraryMediaPresentationBuilder
 
   @override
   List<(String, String?)> buildAddPreviewMetadataRows({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
     final releaseDate = item.releaseDate;
@@ -157,7 +157,7 @@ class MusicLibraryMediaPresentationBuilder
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required LibraryAddCatalogTransport? item,
+    required CatalogSearchCandidate? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
@@ -481,7 +481,7 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
   return _musicMetadataItem(item.source.catalogTransport);
 }
 
-MusicCatalogMetadata? _musicMetadataItem(LibraryAddCatalogTransport? item) {
+MusicCatalogMetadata? _musicMetadataItem(CatalogSearchCandidate? item) {
   if (item == null) return null;
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
@@ -1033,7 +1033,7 @@ class _MusicPreviewTrackData {
 
 String? _musicReleaseLine({
   required String albumTitle,
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
   final releaseYear = item?.releaseYear ??
@@ -1047,7 +1047,7 @@ String? _musicReleaseLine({
 }
 
 String? _musicLabelCatalogLine({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
@@ -1075,7 +1075,7 @@ String? _musicLabelCatalogLine({
 }
 
 String? _musicSupportingLine({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
@@ -1098,7 +1098,7 @@ String? _musicSupportingLine({
 }
 
 String? _musicAlbumSubtitle({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _musicMetadataItem(item);
@@ -1130,7 +1130,7 @@ String? _musicAlbumSubtitle({
 }
 
 List<_MusicPreviewTrackData> _musicPreviewTracks({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required AdminProviderPreview? preview,
 }) {
   final itemTracks = _musicMetadataItem(item)?.tracks;

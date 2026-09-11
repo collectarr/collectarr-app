@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
 const libraryAddVideoMediaOptionId = 'video.media';
@@ -9,7 +9,7 @@ const libraryAddVideoReleaseOptionId = 'video.release';
 enum LibraryAddVideoResultScope { media, season, release }
 
 typedef LibraryAddVideoCoreScopeResolver = LibraryAddVideoResultScope Function(
-    LibraryAddCatalogTransport item);
+    CatalogSearchCandidate item);
 
 typedef LibraryAddVideoProviderScopeResolver = LibraryAddVideoResultScope
     Function(ProviderCandidate candidate);
@@ -19,7 +19,7 @@ LibraryAddResultPolicy buildLibraryAddVideoResultPolicy({
   required bool supportsSeasonScope,
   required LibraryAddVideoCoreScopeResolver coreScopeForItem,
   required LibraryAddVideoProviderScopeResolver providerScopeForCandidate,
-  required String Function(LibraryAddCatalogTransport item)
+  required String Function(CatalogSearchCandidate item)
       coreGroupTitleBuilder,
   required bool Function(ProviderCandidate candidate) providerCandidateIsGroup,
   int Function(ProviderCandidate left, ProviderCandidate right)?

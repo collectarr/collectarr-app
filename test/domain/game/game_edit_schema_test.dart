@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocab
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../contracts/media_edit_contract.dart';
@@ -201,8 +201,8 @@ GameEditDraft _createDraft(GameCatalogMetadata metadata) {
   ) as GameEditDraft;
 }
 
-LibraryAddCatalogTransport _item(GameCatalogMetadata metadata) {
-  return LibraryAddCatalogTransport.fromItem(
+CatalogSearchCandidate _item(GameCatalogMetadata metadata) {
+  return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
       identity: const LibraryItemIdentity(
         id: 'game-1',

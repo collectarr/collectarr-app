@@ -41,7 +41,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -145,8 +145,8 @@ CatalogItemDto testCatalogItem({
 }
 
 extension ShelfCatalogFixture on CatalogItemDto {
-  LibraryAddCatalogTransport get asShelfCatalogItem =>
-      LibraryAddCatalogTransport.fromItem(this);
+  CatalogSearchCandidate get asShelfCatalogItem =>
+      CatalogSearchCandidate.fromItem(this);
 }
 
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
@@ -203,7 +203,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     catalogRef.mediaKind,
   ).add;
   return add.buildCommandFromDetails(
-    LibraryAddCatalogTransport.fromItem(
+    CatalogSearchCandidate.fromItem(
       testCatalogItem(
         id: catalogRef.id,
         kind: catalogRef.kind.apiValue,
@@ -555,10 +555,10 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
   };
   return LibraryWorkspaceSource(
     itemId: itemId,
-    catalogSummary: LibraryAddCatalogTransport.fromItem(
+    catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
-    catalogTransport: LibraryAddCatalogTransport.fromItem(
+    catalogTransport: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),

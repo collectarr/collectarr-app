@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -33,13 +33,13 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   String? buildAddPreviewItemNumber({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       item.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<(String id, String label)> buildAddPreviewFormatBadges({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     final seen = <String>{};
     final result = <(String, String)>[];
@@ -74,20 +74,20 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   List<CatalogEditionDto> buildReleaseEditions({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     return item.mapTransport((transport) => transport).editions;
   }
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       _buildAnimeSearchResultDisplay(item);
 
   @override
   List<(String, String?)> buildAddPreviewMetadataRows({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) {
     final releaseDate = item.releaseDate;
@@ -353,7 +353,7 @@ class AnimeLibraryMediaPresentationBuilder
 }
 
 LibraryAddSearchResultDisplay _buildAnimeSearchResultDisplay(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
 ) {
   final itemNumber =
       item.mapTransport((transport) => transport).itemNumber?.trim();

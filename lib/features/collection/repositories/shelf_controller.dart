@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -56,7 +56,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final catalogSnapshotsByRef =
       (await CatalogSnapshotRepository(db).findByRefs(catalogRefs)).map(
           (ref, item) =>
-              MapEntry(ref, LibraryAddCatalogTransport.fromItem(item)));
+              MapEntry(ref, CatalogSearchCandidate.fromItem(item)));
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -105,13 +105,13 @@ class ShelfState {
         const <OwnedItemRef, Object>{},
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
-    Map<CatalogEntityRef, LibraryAddCatalogTransport>? catalogSnapshotsByRef,
+    Map<CatalogEntityRef, CatalogSearchCandidate>? catalogSnapshotsByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
-    final catalogByRef = <CatalogEntityRef, LibraryAddCatalogTransport>{
+    final catalogByRef = <CatalogEntityRef, CatalogSearchCandidate>{
       ...?catalogSnapshotsByRef,
     };
     final resolvedCatalogSummariesByRef =
@@ -291,7 +291,7 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
 }
 
 CatalogDisplaySummary _catalogSummaryFromSnapshot(
-    LibraryAddCatalogTransport item) {
+    CatalogSearchCandidate item) {
   final title = item.resolvedDisplayTitle.trim();
   return CatalogDisplaySummary.work(
     kind: item.mediaKind,
@@ -301,7 +301,7 @@ CatalogDisplaySummary _catalogSummaryFromSnapshot(
   );
 }
 
-List<String> _catalogSearchTokens(LibraryAddCatalogTransport? item) {
+List<String> _catalogSearchTokens(CatalogSearchCandidate? item) {
   if (item == null) {
     return const <String>[];
   }

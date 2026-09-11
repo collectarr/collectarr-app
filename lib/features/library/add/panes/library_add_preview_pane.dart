@@ -61,7 +61,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final Color accent;
   final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
-  final LibraryAddCatalogTransport? item;
+  final CatalogSearchCandidate? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
@@ -497,7 +497,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final List<BundleReleaseSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
@@ -530,7 +530,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
 }
 
 List<(String, String?)> libraryAddMetadataRowsForItem(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
   LibraryKindModule type,
 ) =>
     _metadataRowsForItem(item, type);
@@ -749,7 +749,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final List<BundleReleaseSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
@@ -1179,7 +1179,7 @@ List<(String, String?)> _metadataRowsForCandidate(
     );
 
 List<(String, String?)> _metadataRowsForItem(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
   LibraryKindModule type,
 ) =>
     type.presentation.builder.buildAddPreviewMetadataRows(
@@ -1236,7 +1236,7 @@ List<(String, String?)> _metadataRowsForFullPreview(
     );
 
 List<_PreviewDiscoverySectionData> _discoverySections({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -1276,7 +1276,7 @@ class LibraryAddPreviewDiscoverySectionData {
 }
 
 List<LibraryAddPreviewDiscoverySectionData> libraryAddPreviewDiscoverySections({
-  required LibraryAddCatalogTransport? item,
+  required CatalogSearchCandidate? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {

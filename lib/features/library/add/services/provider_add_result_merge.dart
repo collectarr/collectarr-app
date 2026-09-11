@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 
-LibraryAddCatalogTransport mergeProviderAddResult({
-  required LibraryAddCatalogTransport ingested,
-  required LibraryAddCatalogTransport edited,
+CatalogSearchCandidate mergeProviderAddResult({
+  required CatalogSearchCandidate ingested,
+  required CatalogSearchCandidate edited,
 }) {
   final merged = ingested.copyWith(
     title: edited.title,
@@ -19,7 +19,7 @@ LibraryAddCatalogTransport mergeProviderAddResult({
     coverImageData: edited.coverImageData ?? ingested.coverImageData,
   );
   return edited.mapTransport(
-    (transport) => LibraryAddCatalogTransport.fromItem(
+    (transport) => CatalogSearchCandidate.fromItem(
       merged.mapTransport(
         (mergedTransport) =>
             mergedTransport.withKindMetadata(transport.kindMetadata),
@@ -28,9 +28,9 @@ LibraryAddCatalogTransport mergeProviderAddResult({
   );
 }
 
-LibraryAddCatalogTransport mergeResolvedProviderAddItem({
-  required LibraryAddCatalogTransport fallback,
-  required LibraryAddCatalogTransport fullItem,
+CatalogSearchCandidate mergeResolvedProviderAddItem({
+  required CatalogSearchCandidate fallback,
+  required CatalogSearchCandidate fullItem,
 }) {
   return fullItem.displayCoverUrl != null
       ? fullItem
@@ -41,9 +41,9 @@ LibraryAddCatalogTransport mergeResolvedProviderAddItem({
         );
 }
 
-LibraryAddCatalogTransport mergeHydratedProviderAddResult({
-  required LibraryAddCatalogTransport hydrated,
-  required LibraryAddCatalogTransport sourceSelection,
+CatalogSearchCandidate mergeHydratedProviderAddResult({
+  required CatalogSearchCandidate hydrated,
+  required CatalogSearchCandidate sourceSelection,
 }) {
   final hydratedEditions =
       hydrated.mapTransport((transport) => transport.editions);

@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -170,7 +170,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
       trackingLifecycle: trackingLifecycle,
       accent: Colors.red,
@@ -304,7 +304,7 @@ void main() {
 
     expect(selection, isNotNull);
     final savedItem = selection!.item;
-    final payload = savedItem.payload;
+    final payload = savedItem.mapTransport((transport) => transport.payload);
     expect(savedItem.title, 'Over the Garden Wall');
     expect(payload['crossover'], 'Image United');
     expect(payload['story_arcs'], ['Finale']);
@@ -314,12 +314,14 @@ void main() {
     expect(payload['genres'], ['Sci-Fi']);
     expect(DateTime.tryParse(payload['cover_date'] as String),
         DateTime(2026, 1, 1));
-    expect(savedItem.trailerUrls, hasLength(2));
-    expect(savedItem.trailerUrls.first.url, 'https://example.com/original');
-    expect(savedItem.trailerUrls.first.title, 'Original link');
-    expect(savedItem.trailerUrls.last.url, 'https://example.com/review');
-    expect(savedItem.trailerUrls.last.title, 'Review');
-    expect(savedItem.trailerUrls.last.isAutomatic, isFalse);
+    final trailers =
+        savedItem.mapTransport((transport) => transport.trailerUrls);
+    expect(trailers, hasLength(2));
+    expect(trailers.first.url, 'https://example.com/original');
+    expect(trailers.first.title, 'Original link');
+    expect(trailers.last.url, 'https://example.com/review');
+    expect(trailers.last.title, 'Review');
+    expect(trailers.last.isAutomatic, isFalse);
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
   });
 
@@ -351,7 +353,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
     );
@@ -444,7 +446,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
       customFieldDefinitions: [customField],

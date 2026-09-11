@@ -4,10 +4,10 @@ import 'package:collectarr_app/features/library/config/catalog_reference_helpers
 import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_physical_media_formats.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 LibraryOwnedFormatHint resolveMangaOwnedFormatHint(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
 ) {
   final transport = item.mapTransport((transport) => transport);
   final format = transport.physicalFormat;

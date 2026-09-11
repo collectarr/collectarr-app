@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_custom_ta
 import 'package:collectarr_app/features/library/kinds/comic/stats/comic_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/value/comic_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
@@ -125,7 +125,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: comicKindModule,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.blue,
       scope: LibraryEditScope.media,
@@ -168,7 +168,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: comicKindModule,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.blue,
       scope: LibraryEditScope.release,
@@ -204,7 +204,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: comicKindModule,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: testOwnedSummary(testOwnedItem(
         itemId: item.identity.id,
         rawOrSlabbed: 'Slabbed',
@@ -246,7 +246,7 @@ void main() {
                 draft: draft,
                 accent: Colors.blue,
                 scope: LibraryEditScope.all,
-                item: LibraryAddCatalogTransport.fromItem(item),
+                item: CatalogSearchCandidate.fromItem(item),
                 markDirty: () {},
               )!;
               return ownedTab;

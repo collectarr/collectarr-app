@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
@@ -124,7 +124,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       trackingLifecycle: trackingLifecycle,
@@ -253,7 +253,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.red,
@@ -345,7 +345,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -410,7 +410,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
@@ -549,7 +549,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.deepOrange,
@@ -754,7 +754,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.orange,
                     ),
@@ -871,7 +871,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       trackingLifecycle: trackingLifecycle,
@@ -968,7 +968,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.orange,
                     ),
@@ -1065,7 +1065,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       trackingLifecycle: trackingLifecycle,
                       accent: Colors.teal,
@@ -1149,7 +1149,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.blue,
@@ -1247,7 +1247,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.orange,
@@ -1334,7 +1334,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.teal,
@@ -1419,7 +1419,7 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       wishlistItem: wishlistItem,
                       accent: Colors.purple,
@@ -1560,7 +1560,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: testOwnedSummary(ownedItem),
                       typedOwnedItem: testTypedOwnedItemFrom(ownedItem),
                       accent: Colors.cyan,
@@ -1661,7 +1661,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                     ),
@@ -1733,7 +1733,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       scope: LibraryEditScope.all,
@@ -1797,7 +1797,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(item),
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.brown,
                       scope: LibraryEditScope.all,
@@ -1852,7 +1852,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryAddCatalogTransport.fromItem(
+                      item: CatalogSearchCandidate.fromItem(
                         testCatalogItemWithKindMetadata(
                           testCatalogItem(
                             id: 'comic-1',

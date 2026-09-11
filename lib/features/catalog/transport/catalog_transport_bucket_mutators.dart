@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 /// Structural mutation contract for editing a bucket-backed catalog value.
 ///
@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 /// implementation only performs payload mechanics; field meaning and the
 /// payload keys remain owned by the kind that registers the mutator.
 typedef CatalogTransportBucketValueMutator = CatalogImportSnapshot? Function(
-  LibraryAddCatalogTransport source,
+  CatalogSearchCandidate source,
   String currentLabel, {
   String? replacement,
 });
@@ -132,7 +132,7 @@ void _setOrRemoveStringValue(
 }
 
 CatalogImportSnapshot _catalogSnapshotWithPayload(
-  LibraryAddCatalogTransport item,
+  CatalogSearchCandidate item,
   Map<String, dynamic> payload,
 ) {
   return CatalogImportSnapshot.fromJson({

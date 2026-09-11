@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/edit/video/tabs/video_edition_ta
 import 'package:collectarr_app/features/library/edit/video/tabs/video_links_tab.dart';
 import 'package:collectarr_app/features/library/edit/video/tabs/video_media_tab.dart';
 import 'package:collectarr_app/features/library/edit/video/tabs/video_specs_tab.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 Widget? buildVideoCustomTabView({
@@ -18,7 +18,7 @@ Widget? buildVideoCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryAddCatalogTransport item,
+  required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
   final videoEdit = (draft.kindDetails is VideoEditDraftContract)

@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../contracts/media_edit_contract.dart';
@@ -121,7 +121,7 @@ void main() {
 }
 
 MangaEditDraft _createDraft(MangaMetadata metadata) {
-  final item = LibraryAddCatalogTransport.fromItem(CatalogItemDto(
+  final item = CatalogSearchCandidate.fromItem(CatalogItemDto(
     identity: const LibraryItemIdentity(
       id: 'manga-1',
       mediaKind: CatalogMediaKind.manga,

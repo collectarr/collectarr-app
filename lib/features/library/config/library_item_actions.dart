@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
 
@@ -145,7 +145,7 @@ class LibraryEditDialogRequest {
   });
 
   final LibraryKindModule type;
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate, present only after kind dispatch.
@@ -169,7 +169,7 @@ class LibraryEditDialogRequest {
 
   LibraryEditDialogRequest copyWith({
     LibraryKindModule? type,
-    LibraryAddCatalogTransport? item,
+    CatalogSearchCandidate? item,
     OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     Color? accent,

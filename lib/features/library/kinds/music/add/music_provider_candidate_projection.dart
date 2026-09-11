@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
-LibraryAddCatalogTransport musicCatalogTransportFromCoreItem(
-  LibraryAddCatalogTransport item,
+CatalogSearchCandidate musicCatalogTransportFromCoreItem(
+  CatalogSearchCandidate item,
 ) {
   return item.mapTransport(
-    (transport) => LibraryAddCatalogTransport.fromItem(
+    (transport) => CatalogSearchCandidate.fromItem(
       transport.withKindMetadata(
         MusicCatalogMetadata.fromJson(transport.payload),
       ),
@@ -15,12 +15,12 @@ LibraryAddCatalogTransport musicCatalogTransportFromCoreItem(
   );
 }
 
-LibraryAddCatalogTransport musicCatalogTransportFromProviderCandidate(
+CatalogSearchCandidate musicCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
   final item = CatalogItemDto.fromJson(payload);
-  return LibraryAddCatalogTransport.fromItem(
+  return CatalogSearchCandidate.fromItem(
     item.withKindMetadata(MusicCatalogMetadata.fromJson(payload)),
   );
 }

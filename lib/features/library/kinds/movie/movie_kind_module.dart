@@ -41,7 +41,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
@@ -545,7 +545,7 @@ String? _optionalMovieText(String value) {
 }
 
 LibraryAddVideoResultScope _movieAddResultScope(
-    LibraryAddCatalogTransport item) {
+    CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [
@@ -574,7 +574,7 @@ LibraryAddVideoResultScope _movieAddProviderResultScope(
   return LibraryAddVideoResultScope.media;
 }
 
-String _movieAddGroupTitle(LibraryAddCatalogTransport item) {
+String _movieAddGroupTitle(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata) {
     return metadata.seriesTitle?.trim() ??

@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -157,30 +157,30 @@ abstract class LibraryMediaPresentationBuilder {
       const [];
 
   List<CatalogEditionDto> buildReleaseEditions({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       const [];
 
   /// Provides the kind-owned title used by the generic Add preview shell.
-  String buildAddPreviewTitle({required LibraryAddCatalogTransport item}) =>
+  String buildAddPreviewTitle({required CatalogSearchCandidate item}) =>
       item.title;
 
   /// Keeps issue/number semantics inside the owning kind. The generic shell
   /// only renders the returned structural label when one is applicable.
   String? buildAddPreviewItemNumber({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       null;
 
   /// Returns only the structural format badges that the generic Add shell
   /// should render. Physical-format meaning stays in the owning kind.
   List<(String id, String label)> buildAddPreviewFormatBadges({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       const [];
 
   List<(String, String?)> buildAddPreviewMetadataRows({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
     required LibraryMediaPreviewLabels previewLabels,
   }) =>
       const [];
@@ -198,7 +198,7 @@ abstract class LibraryMediaPresentationBuilder {
       const [];
 
   List<TrailerLinkDto> buildLinks({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) =>
       const [];
 
@@ -208,7 +208,7 @@ abstract class LibraryMediaPresentationBuilder {
       null;
 
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
   }) {
     return null;
   }
@@ -218,7 +218,7 @@ abstract class LibraryMediaPresentationBuilder {
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required LibraryAddCatalogTransport? item,
+    required CatalogSearchCandidate? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,

@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
@@ -187,7 +187,7 @@ void main() {
           rootId: item.id,
         );
         final command = addCap.buildCommand(
-          LibraryAddCatalogTransport.fromItem(metadataItem),
+          CatalogSearchCandidate.fromItem(metadataItem),
           common,
           typedDraft,
           targetRef: catalogRefForLibrarySelection(
@@ -272,7 +272,7 @@ void main() {
     test('all kinds own Add release and format presentation', () {
       for (final kind in activeKinds) {
         final module = testKindModule(kind);
-        final item = LibraryAddCatalogTransport.fromItem(
+        final item = CatalogSearchCandidate.fromItem(
           testCatalogItem(
             id: '${kind.apiValue}-format-test',
             kind: kind.apiValue,

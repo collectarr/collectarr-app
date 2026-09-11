@@ -16,7 +16,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
@@ -58,7 +58,7 @@ class LibraryEditDraft {
   final TextControllerGroup _textControllers;
 
   final LibraryKindModule type;
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final OwnedItemSummary? ownedItem;
   final Object? typedOwnedItem;
   final WishlistItem? wishlistItem;
@@ -106,7 +106,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromItem({
     required LibraryKindModule type,
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
     OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     WishlistItem? wishlistItem,
@@ -136,7 +136,7 @@ class LibraryEditDraft {
 
   factory LibraryEditDraft.fromFields({
     required LibraryKindModule type,
-    required LibraryAddCatalogTransport item,
+    required CatalogSearchCandidate item,
     required OwnedItemSummary? ownedItem,
     Object? typedOwnedItem,
     required WishlistItem? wishlistItem,

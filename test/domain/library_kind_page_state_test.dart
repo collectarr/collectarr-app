@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import '../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
@@ -194,7 +194,7 @@ void main() {
 
     final request = LibraryEditDialogRequest(
       type: bookKindModule,
-      item: LibraryAddCatalogTransport.fromItem(testCatalogItemWithKindMetadata(
+      item: CatalogSearchCandidate.fromItem(testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'book-1',
           kind: 'book',

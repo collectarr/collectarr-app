@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
@@ -16,7 +16,7 @@ class VideoEditLinksTab extends ConsumerWidget {
     required this.videoEdit,
   });
 
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final Color accent;
   final VideoEditController videoEdit;
 

@@ -29,7 +29,7 @@ class LibraryAddUnifiedSearchGroup {
   final String title;
   final int? year;
   final String? coverUrl;
-  final List<LibraryAddCatalogTransport> coreItems;
+  final List<CatalogSearchCandidate> coreItems;
   final ProviderCandidate? groupCandidate;
   final List<ProviderCandidate> providerItems;
   final Set<String> sources;
@@ -49,7 +49,7 @@ class LibraryAddUnifiedSearchGroup {
 /// then Core items are merged into matching groups or added as new groups
 /// at the top.
 List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
-  required List<LibraryAddCatalogTransport> coreResults,
+  required List<CatalogSearchCandidate> coreResults,
   required List<ProviderCandidate> providerResults,
   required LibraryAddResultPolicy resultPolicy,
 }) {
@@ -57,7 +57,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   final titles = <String, String>{};
   final years = <String, int?>{};
   final coverUrls = <String, String?>{};
-  final coreItems = <String, List<LibraryAddCatalogTransport>>{};
+  final coreItems = <String, List<CatalogSearchCandidate>>{};
   final groupCandidates = <String, ProviderCandidate>{};
   final providerItemsMap = <String, List<ProviderCandidate>>{};
   final sourceSets = <String, Set<String>>{};
@@ -183,7 +183,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
-  final String? Function(LibraryAddCatalogTransport item)? coreMatchSummary;
+  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
 
   @override
@@ -560,7 +560,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
   });
 
   final LibraryKindModule type;
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final Color accent;
   final bool selected;
   final bool checked;

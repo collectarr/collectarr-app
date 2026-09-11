@@ -34,7 +34,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -150,7 +150,7 @@ class LibraryAddSessionController
   LibraryAddSessionState get state => value;
   set state(LibraryAddSessionState newState) => value = newState;
 
-  CatalogEntityRef _selectedWishlistRef(LibraryAddCatalogTransport item) {
+  CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) {
     final selection = state.selection;
     return catalogRefForLibrarySelection(
       item.catalogRef,
@@ -160,7 +160,7 @@ class LibraryAddSessionController
     );
   }
 
-  CatalogEntityRef _selectedTargetRef(LibraryAddCatalogTransport item) {
+  CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) {
     final selection = state.selection;
     return catalogRefForLibrarySelection(
       item.catalogRef,
@@ -282,7 +282,7 @@ class LibraryAddSessionController
     }
   }
 
-  void selectSuggestion(LibraryAddCatalogTransport item) {
+  void selectSuggestion(CatalogSearchCandidate item) {
     state = state.copyWith(
       search: state.search.copyWith(
         query: item.title,
@@ -953,7 +953,7 @@ class LibraryAddSessionController
       return;
     }
 
-    LibraryAddCatalogTransport? selected;
+    CatalogSearchCandidate? selected;
     for (final item in state.search.results) {
       if (item.id == itemId) {
         selected = item;
@@ -970,14 +970,14 @@ class LibraryAddSessionController
     );
 
     try {
-      final LibraryAddCatalogTransport hydrated = await api!
+      final CatalogSearchCandidate hydrated = await api!
           .getTypedMetadataItem(
         kind: selected.mediaKind,
         id: itemId,
       )
-          .then<LibraryAddCatalogTransport>((dto) {
+          .then<CatalogSearchCandidate>((dto) {
         final item = mergeHydratedProviderAddResult(
-          hydrated: LibraryAddCatalogTransport.fromJson({
+          hydrated: CatalogSearchCandidate.fromJson({
             ...dto.raw,
             'id': dto.id,
             'title': dto.title,
@@ -1011,7 +1011,7 @@ class LibraryAddSessionController
         editions: mergedEditions,
       );
 
-      final hydratedMap = Map<String, LibraryAddCatalogTransport>.from(
+      final hydratedMap = Map<String, CatalogSearchCandidate>.from(
         state.preview.hydratedResults,
       );
       hydratedMap[itemId] = mergedItem;
@@ -1283,7 +1283,7 @@ class LibraryAddSessionController
     );
   }
 
-  Future<bool> submitSelectedItem(LibraryAddCatalogTransport item) async {
+  Future<bool> submitSelectedItem(CatalogSearchCandidate item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     state = state.copyWith(
       isAdding: true,
@@ -1574,8 +1574,8 @@ class LibraryAddSessionController
 }
 
 ProviderCorrectionPatch _emptyProviderCorrections({
-  required LibraryAddCatalogTransport edited,
-  required LibraryAddCatalogTransport preview,
+  required CatalogSearchCandidate edited,
+  required CatalogSearchCandidate preview,
 }) =>
     const ProviderCorrectionPatch.empty();
 
@@ -1583,8 +1583,8 @@ BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
   final builder = libraryKindProviderCorrectionBuilderForKind(kind);
   if (builder == null) return _emptyProviderCorrections;
   return ({
-    required LibraryAddCatalogTransport edited,
-    required LibraryAddCatalogTransport preview,
+    required CatalogSearchCandidate edited,
+    required CatalogSearchCandidate preview,
   }) =>
       builder(
         preview: preview,

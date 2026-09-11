@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -17,7 +17,7 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
+        CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
           'id': 'comic-423',
           'kind': 'comic',
           'title': 'Batman',
@@ -51,7 +51,7 @@ void main() {
         .ranking
         .shouldSearchProviderForCoreResults(
       [
-        LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
+        CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
           'id': 'movie-1',
           'kind': 'movie',
           'title': 'Blade Runner 2049',

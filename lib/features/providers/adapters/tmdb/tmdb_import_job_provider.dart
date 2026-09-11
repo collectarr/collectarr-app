@@ -594,7 +594,7 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
               kind: item.kind,
               title: item.title,
               releaseYear: item.releaseYear,
-              searchAliases: item.searchAliases,
+              searchAliases: item.searchAliases ?? const <String>[],
             ),
         ];
       },

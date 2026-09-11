@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -17,7 +17,7 @@ import 'package:uuid/uuid.dart';
 class LibraryAddWorkflowService {
   const LibraryAddWorkflowService();
 
-  LibraryAddCatalogTransport metadataItemFromPreview(
+  CatalogSearchCandidate metadataItemFromPreview(
     AdminProviderPreview preview, {
     String? itemId,
   }) {
@@ -32,7 +32,7 @@ class LibraryAddWorkflowService {
     if (mapper == null) {
       throw StateError('No provider mapper registered for ${preview.kind}');
     }
-    return LibraryAddCatalogTransport.fromItem(
+    return CatalogSearchCandidate.fromItem(
       mapper(
         ProviderMetadataEnvelope.fromAdminPreview(
           preview,
@@ -51,7 +51,7 @@ class LibraryAddWorkflowService {
     return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
   }
 
-  Future<LibraryAddCatalogTransport> providerAddItemForCandidate({
+  Future<CatalogSearchCandidate> providerAddItemForCandidate({
     required LibraryKindModule type,
     required ProviderCandidate candidate,
     required LibraryAddPreviewController previewState,

@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_physical_media
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -35,7 +35,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
     );
@@ -102,7 +102,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogTransport.fromItem(item),
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
       physicalFormats: musicPhysicalMediaFormats,

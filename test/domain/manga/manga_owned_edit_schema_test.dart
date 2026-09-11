@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -174,7 +174,7 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
   ) as MangaEditDraft;
 }
 
-LibraryAddCatalogTransport _mangaItem() => LibraryAddCatalogTransport.fromItem(
+CatalogSearchCandidate _mangaItem() => CatalogSearchCandidate.fromItem(
       CatalogItemDto(
         identity: const LibraryItemIdentity(
           id: 'manga-1',

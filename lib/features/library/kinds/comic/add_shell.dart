@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_add_search_options_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
@@ -503,7 +503,7 @@ class _ComicSearchRow extends StatelessWidget {
 }
 
 class _ComicSearchEntry {
-  _ComicSearchEntry.core(LibraryAddCatalogTransport item)
+  _ComicSearchEntry.core(CatalogSearchCandidate item)
       : catalog = _comicMediaFromResult(item),
         candidate = null;
   const _ComicSearchEntry.provider(this.candidate) : catalog = null;
@@ -523,7 +523,7 @@ class _ComicSearchEntry {
       catalog == null ? candidate!.localCatalogId : catalogId;
 }
 
-ComicMedia _comicMediaFromResult(LibraryAddCatalogTransport item) {
+ComicMedia _comicMediaFromResult(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is! ComicMedia) {
     throw StateError('Expected ComicMedia for comic add result');

@@ -8,7 +8,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
@@ -72,7 +72,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         itemImages = draft.itemImages;
 
   final LibraryKindModule type;
-  final LibraryAddCatalogTransport item;
+  final CatalogSearchCandidate item;
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate passed through the typed edit boundary.

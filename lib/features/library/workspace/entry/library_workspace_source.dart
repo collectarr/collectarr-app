@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 /// Concrete workspace source used after kind dispatch.
 ///
@@ -42,7 +42,7 @@ final class LibraryWorkspaceSource {
   final String? fallbackOwnerLabel;
 
   /// Opaque catalog transport kept only for typed kind workspace code.
-  final LibraryAddCatalogTransport? catalogTransport;
+  final CatalogSearchCandidate? catalogTransport;
 
   /// Concrete kind-owned aggregate available after dispatch. Mixed/global
   /// callers must use [ownedSummary] instead.
