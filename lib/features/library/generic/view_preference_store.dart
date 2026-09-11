@@ -28,7 +28,7 @@ class LibraryViewPreferenceStore {
 
   final CatalogMediaKind kind;
 
-  LibraryKindModule get _type => libraryKindModuleForKind(kind);
+  LibraryKindRegistration get _type => libraryKindRegistrationForKind(kind);
 
   String _key(String suffix) => 'library.${kind.apiValue}.$suffix';
 

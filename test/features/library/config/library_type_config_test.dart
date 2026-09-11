@@ -37,13 +37,13 @@ import 'package:collectarr_app/features/library/add/models/library_add_reference
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-LibraryFieldIdRuntime _field(LibraryKindModule runtime, String value) =>
+LibraryFieldIdRuntime _field(LibraryKindRegistration runtime, String value) =>
     libraryKindWorkspaceForKind(runtime.kind).fields.decodeColumnId(value);
 
-LibrarySortIdRuntime _sort(LibraryKindModule runtime, String value) =>
+LibrarySortIdRuntime _sort(LibraryKindRegistration runtime, String value) =>
     libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(value);
 
-LibraryGroupIdRuntime _group(LibraryKindModule runtime, String value) =>
+LibraryGroupIdRuntime _group(LibraryKindRegistration runtime, String value) =>
     libraryKindWorkspaceForKind(runtime.kind).fields.decodeGroupId(value);
 
 void main() {
@@ -551,11 +551,13 @@ void main() {
     );
     expect(movieKindModule.add.dialogLauncher, same(showMovieLibraryAddDialog));
     expect(
-      libraryKindModule(CatalogMediaKind.movie).edit.editDialogBuilder,
+      libraryKindRegistration(CatalogMediaKind.movie).edit.editDialogBuilder,
       isNotNull,
     );
     expect(
-      libraryKindModule(CatalogMediaKind.movie).inspector.detailPageBuilder,
+      libraryKindRegistration(CatalogMediaKind.movie)
+          .inspector
+          .detailPageBuilder,
       isNotNull,
     );
   });
@@ -705,7 +707,7 @@ void main() {
   });
 
   test('comics runtime exposes reusable workspace table behavior', () {
-    final comicRuntime = libraryKindModule(CatalogMediaKind.comic);
+    final comicRuntime = libraryKindRegistration(CatalogMediaKind.comic);
     expect(comicRuntime, same(comicKindModule));
     expect(comicRuntime.kind, CatalogMediaKind.comic);
     expect(
@@ -762,14 +764,17 @@ void main() {
         'tv',
       ],
     );
-    expect(libraryKindModule(CatalogMediaKind.book), same(bookKindModule));
     expect(
-      libraryKindModule(CatalogMediaKind.boardgame),
+        libraryKindRegistration(CatalogMediaKind.book), same(bookKindModule));
+    expect(
+      libraryKindRegistration(CatalogMediaKind.boardgame),
       same(boardGameKindModule),
     );
-    expect(libraryKindModule(CatalogMediaKind.manga), same(mangaKindModule));
-    expect(libraryKindModule(CatalogMediaKind.tv), same(tvKindModule));
-    expect(libraryKindModule(CatalogMediaKind.anime), same(animeKindModule));
+    expect(
+        libraryKindRegistration(CatalogMediaKind.manga), same(mangaKindModule));
+    expect(libraryKindRegistration(CatalogMediaKind.tv), same(tvKindModule));
+    expect(
+        libraryKindRegistration(CatalogMediaKind.anime), same(animeKindModule));
     expect(
       movieKindModule.viewProfile
           .defaults()
@@ -777,7 +782,8 @@ void main() {
           .contains(_field(movieKindModule, 'movie.title')),
       isTrue,
     );
-    expect(libraryKindModule(CatalogMediaKind.music), same(musicKindModule));
+    expect(
+        libraryKindRegistration(CatalogMediaKind.music), same(musicKindModule));
     expect(
       libraryKindWorkspaceForKind(CatalogMediaKind.game).columnSort(
         _field(gameKindModule, 'game.release_date'),

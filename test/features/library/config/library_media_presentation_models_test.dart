@@ -112,7 +112,7 @@ void main() {
   test(
       'assert that every defaultVisibleColumnId and preset visible column ID resolves successfully',
       () {
-    for (final module in collectarrKindModules) {
+    for (final module in collectarrKindRegistrationsList) {
       final kind = module.kind;
 
       // Test default visible columns

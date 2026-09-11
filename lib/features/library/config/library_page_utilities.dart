@@ -225,7 +225,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   /// Show the bulk edit dialog and return the selection (null = cancelled).
   Future<LibraryBulkEditSelection?> showBulkEditDialog(
     BuildContext context, {
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required int selectedCount,
   }) {
     return showDialog<LibraryBulkEditSelection>(

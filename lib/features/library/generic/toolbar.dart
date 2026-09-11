@@ -216,7 +216,7 @@ class LibraryToolbar extends StatelessWidget {
         onGroupPresentationChanged = actions.onGroupPresentationChanged,
         includeDesktopSecondaryBand = config.includeDesktopSecondaryBand;
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final TextEditingController searchController;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;

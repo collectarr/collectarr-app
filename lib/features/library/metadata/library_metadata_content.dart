@@ -8,7 +8,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 LibraryMetadataPresentation buildLibraryMetadataPresentation({
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required LibraryProjectionView item,
   ValueChanged<String>? onFilterByValue,
   bool includeIdentityFacts = false,
@@ -37,7 +37,7 @@ class LibraryMetadataContent extends StatelessWidget {
     this.includeIdentityFacts = false,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final ValueChanged<String>? onFilterByValue;
   final bool includeIdentityFacts;

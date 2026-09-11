@@ -13,7 +13,7 @@ const libraryManageSortFavoritesMenuValue = 'manage_sort_favorites';
 
 Future<Set<String>?> showSortFavoritesManagerDialog({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
   String? activeSortFavoriteId,
@@ -363,7 +363,7 @@ class _SortFavoritesManagerDialog extends StatefulWidget {
     this.activeSortFavoriteId,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final List<LibrarySortFavorite> favorites;
   final Set<String> initialPinnedIds;
   final String? activeSortFavoriteId;
@@ -723,7 +723,7 @@ class _PinnedSortFavoriteTile extends StatelessWidget {
     required this.onRemove,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibrarySortFavorite favorite;
   final bool active;
   final int index;
@@ -818,7 +818,7 @@ class _AvailableSortFavoriteTile extends StatelessWidget {
     required this.onAdd,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibrarySortFavorite favorite;
   final bool active;
   final VoidCallback onAdd;
@@ -882,7 +882,7 @@ class _AvailableSortFavoriteTile extends StatelessWidget {
 }
 
 String _sortFavoriteSummary(
-    LibraryKindModule type, List<LibrarySortRule> rules) {
+    LibraryKindRegistration type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
@@ -891,7 +891,7 @@ String _sortFavoriteSummary(
       .join('  |  ');
 }
 
-String _sortColumnLabel(LibraryKindModule type, String column) {
+String _sortColumnLabel(LibraryKindRegistration type, String column) {
   final fields = libraryKindWorkspaceForKind(type.kind).fields;
   return fields.findSortDefinition(fields.decodeSortId(column))?.label ??
       column;

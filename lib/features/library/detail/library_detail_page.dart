@@ -58,7 +58,7 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedSummary;
   final List<OwnedItemSummary>? ownedCopies;
@@ -298,7 +298,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     required this.onAssignFolders,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final OwnedItemSummary? activeOwnedItem;
   final List<OwnedItemSummary> ownedCopies;

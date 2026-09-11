@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LibrarySortPresetStore {
   const LibrarySortPresetStore(this.config);
 
-  final LibraryKindModule config;
+  final LibraryKindRegistration config;
 
   Future<List<LibrarySortPreset>> read() async {
     final prefs = await SharedPreferences.getInstance();

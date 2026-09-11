@@ -201,7 +201,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       tracking: tracking,
     );
   }
-  final add = libraryKindModuleForKind(
+  final add = libraryKindRegistrationForKind(
     catalogRef.mediaKind,
   ).add;
   return add.buildCommandFromDetails(

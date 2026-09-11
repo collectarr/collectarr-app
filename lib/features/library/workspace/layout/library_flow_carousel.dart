@@ -831,7 +831,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
     ].whereType<String>().join('  Ã‚Â·  ');
 
     final catalog = widget.item.source.catalogTransport;
-    final module = libraryKindModuleForKind(widget.item.source.mediaKind);
+    final module = libraryKindRegistrationForKind(widget.item.source.mediaKind);
     final List<CatalogEditionDto> editions = catalog == null
         ? const <CatalogEditionDto>[]
         : module.presentation.builder.buildReleaseEditions(item: catalog);

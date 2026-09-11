@@ -53,7 +53,7 @@ LibraryAddProviderSearchDebounceDecision
 
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required ApiClient api,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required CatalogTransportRepository catalog,
   required MetadataSearchQuery input,
   required Duration timeout,
@@ -83,7 +83,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
 
 Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
   required ApiClient api,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required CatalogTransportRepository catalog,
   required MetadataSearchQuery input,
   required LibraryAddSearchRanking ranking,
@@ -108,7 +108,7 @@ Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
 
 Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   required ApiClient api,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required CatalogTransportRepository catalog,
   required String identifierCode,
   required Duration timeout,
@@ -133,7 +133,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
 
 Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   ApiClient? api,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required String provider,
   required String query,
   required LibraryAddSearchRanking ranking,

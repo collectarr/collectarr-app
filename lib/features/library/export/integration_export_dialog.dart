@@ -26,7 +26,7 @@ enum ExportFormat {
 /// Shows an export dialog with multiple format options.
 Future<void> showIntegrationExportDialog({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required ShelfState shelfState,
 }) {
   return showDialog<void>(
@@ -44,7 +44,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     required this.shelfState,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final ShelfState shelfState;
 
   @override
@@ -102,7 +102,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     Navigator.pop(context);
   }
 
-  String _toCsv(LibraryKindModule module) {
+  String _toCsv(LibraryKindRegistration module) {
     return CollectionCsvCodec().exportShelf(
       shelfState.entries,
     );
@@ -146,7 +146,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     return buffer.toString();
   }
 
-  String _toMarkdown(LibraryKindModule module) {
+  String _toMarkdown(LibraryKindRegistration module) {
     final buffer = StringBuffer();
     buffer.writeln('# ${type.identity.title}');
     buffer.writeln('');

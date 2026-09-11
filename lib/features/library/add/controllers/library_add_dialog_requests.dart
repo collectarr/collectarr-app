@@ -89,7 +89,7 @@ class LibraryAddManualPaneRequest {
 
   final CatalogMediaKind kind;
   final Color accent;
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddKindDraft? kindDraft;
   final LibraryKindAddDraft manualDraft;
@@ -151,7 +151,7 @@ class LibraryAddPreviewPaneRequest {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final CatalogSearchCandidate? item;
   final ProviderCandidate? candidate;
@@ -181,7 +181,7 @@ class LibraryAddHeaderRequest {
     required this.onClose,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final VoidCallback onClose;
 }
@@ -216,7 +216,7 @@ class LibraryAddModeBarRequest {
     this.kindSpecificPaneBuilder,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddDialogMode mode;
@@ -282,7 +282,7 @@ class LibraryAddSearchPaneRequest {
     required this.onSearchCore,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final bool isBusy;
   final String? error;
   final Color accent;
@@ -341,7 +341,7 @@ class LibraryAddBottomBarRequest {
     required this.onPropose,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final List<String> conditions;
   final String? defaultTags;
   final Color accent;

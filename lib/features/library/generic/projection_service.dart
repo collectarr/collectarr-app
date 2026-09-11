@@ -5,7 +5,7 @@ class LibraryProjectionService {
 
   LibraryProjection build({
     required ShelfState shelf,
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,

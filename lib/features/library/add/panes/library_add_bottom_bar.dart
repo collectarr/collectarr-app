@@ -30,7 +30,7 @@ class LibraryAddBottomBar extends StatelessWidget {
     required this.onPropose,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final bool isWideLayout;
   final List<String> conditions;
   final String? defaultTags;

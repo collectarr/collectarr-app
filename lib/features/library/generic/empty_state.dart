@@ -14,7 +14,7 @@ class LibraryEmptyState extends StatelessWidget {
     required this.onClearFilter,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final IconData icon;
   final Color accent;
   final bool hasActiveFilter;
@@ -121,7 +121,7 @@ class LibraryEmptyState extends StatelessWidget {
   }
 }
 
-String _emptyStateSummary(LibraryKindModule type) {
+String _emptyStateSummary(LibraryKindRegistration type) {
   final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
   if (supportedProviders.isEmpty) {
     return 'No providers are registered for this library yet.';

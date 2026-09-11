@@ -38,7 +38,7 @@ class LibraryBulkEditDialog extends ConsumerStatefulWidget {
     required this.selectedCount,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final int selectedCount;
 
   @override
@@ -184,7 +184,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                   for (var i = 1; i <= 5; i++)
                     DropdownMenuItem(
                       value: i,
-                      child: Text('${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦' * i}${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â ' * (5 - i)}'),
+                      child: Text(
+                          '${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦' * i}${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â ' * (5 - i)}'),
                     ),
                 ],
                 onChanged: (value) {

@@ -9,7 +9,7 @@ class LibraryToolbarConfig {
     required this.includeDesktopSecondaryBand,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryWorkspaceBrowserMode browserMode;
   final bool supportsMediaReleaseSplit;
   final bool includeDesktopSecondaryBand;

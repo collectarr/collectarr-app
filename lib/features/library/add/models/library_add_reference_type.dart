@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 enum LibraryAddReferenceType { media, edition, bundleRelease }
 
 extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
-  String labelForType(LibraryKindModule type) {
+  String labelForType(LibraryKindRegistration type) {
     return switch (this) {
       LibraryAddReferenceType.media => type.addChrome.mediaReferenceLabel,
       LibraryAddReferenceType.edition => 'Edition',
@@ -12,7 +12,7 @@ extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
     };
   }
 
-  String helperLabelForType(LibraryKindModule type) {
+  String helperLabelForType(LibraryKindRegistration type) {
     return switch (this) {
       LibraryAddReferenceType.media => type.addChrome.mediaReferenceHelperLabel,
       LibraryAddReferenceType.edition =>

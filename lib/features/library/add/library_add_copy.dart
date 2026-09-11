@@ -6,7 +6,7 @@ class LibraryAddCopy {
 
   static String addToTargetLabel({
     required int count,
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required LibraryAddTarget target,
   }) {
     final safeCount = count <= 1 ? 1 : count;

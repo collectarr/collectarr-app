@@ -21,7 +21,9 @@ const _bundleReleaseAnchor = 'bundle_release';
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.mediaKind;
   if (kind.isUnknown) return null;
-  return libraryKindModuleForKind(kind).hierarchy.contractDiagnosticLabel(item);
+  return libraryKindRegistrationForKind(kind)
+      .hierarchy
+      .contractDiagnosticLabel(item);
 }
 
 String libraryVolumeDisplayValue(double? volumeNumber) {
@@ -327,7 +329,7 @@ String? _libraryReferenceLabel(
 
 LibraryPresentationLabels _libraryReferenceLabelsForMediaType(
     String? mediaType) {
-  return libraryKindModuleForKind(catalogMediaKindFromValue(mediaType))
+  return libraryKindRegistrationForKind(catalogMediaKindFromValue(mediaType))
       .presentation
       .referenceLabels;
 }

@@ -32,7 +32,7 @@ CatalogSearchCandidate _mutateGroup(
   String currentLabel, {
   String? replacement,
 }) {
-  final runtime = libraryKindModuleForKind(kind);
+  final runtime = libraryKindRegistrationForKind(kind);
   final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
   final definition = fields.findGroupDefinition(
     fields.decodeGroupId(mode),

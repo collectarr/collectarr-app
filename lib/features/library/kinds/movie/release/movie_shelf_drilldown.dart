@@ -31,7 +31,7 @@ class MovieShelfReleaseDrilldownItem {
 }
 
 bool canOpenMovieShelfDrilldown(
-  LibraryKindModule? type,
+  LibraryKindRegistration? type,
   LibraryProjectionView item,
 ) {
   if (item.node.scope != LibraryBrowserScope.title) {
@@ -39,7 +39,7 @@ bool canOpenMovieShelfDrilldown(
   }
   final kind = item.source.catalogTransport?.mediaKind;
   if (kind == null) return false;
-  final kindModule = type ?? libraryKindModuleForKind(kind);
+  final kindModule = type ?? libraryKindRegistrationForKind(kind);
   return kindModule.presentation.builder.canOpenKindDrilldown(item);
 }
 

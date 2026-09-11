@@ -50,9 +50,9 @@ const _editContexts = <LibraryEditPresentationContext>[
 void main() {
   testWidgets('all active kinds render edit presentation parity matrix',
       (tester) async {
-    expect(collectarrKindModules, hasLength(9));
+    expect(collectarrKindRegistrationsList, hasLength(9));
 
-    for (final runtime in collectarrKindModules) {
+    for (final runtime in collectarrKindRegistrationsList) {
       expect(runtime.kind, isNot(CatalogMediaKind.unknown));
       for (final context in _editContexts) {
         final builder = runtime.edit.presentation.builderForScope(

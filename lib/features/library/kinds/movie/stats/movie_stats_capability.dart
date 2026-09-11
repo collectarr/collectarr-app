@@ -41,7 +41,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     final runtime = totalRuntimeMinutes(state.entries);
     final averageRating = averageAudienceRating(state.entries);
@@ -65,7 +65,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     final seasonGap = _numberedGapSummary(
       state.entries,

@@ -160,7 +160,7 @@ class LibraryBody extends StatelessWidget {
     this.onFolderTreeNodeExpandedToggled,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjection projection;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;

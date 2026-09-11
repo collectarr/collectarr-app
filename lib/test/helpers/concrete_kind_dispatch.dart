@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_work
 ///
 /// Contract tests intentionally use concrete generated kind modules rather
 /// than exercising the erased registry lookup they are meant to validate.
-LibraryKindModule testKindModule(CatalogMediaKind kind) {
+LibraryKindRegistration testKindModule(CatalogMediaKind kind) {
   return switch (kind) {
     CatalogMediaKind.anime => animeKindModule,
     CatalogMediaKind.boardgame => boardGameKindModule,

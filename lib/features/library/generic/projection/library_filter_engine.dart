@@ -18,7 +18,7 @@ class LibraryFilterEngine {
     required LibraryProjectionItem item,
     required LibraryProjectionQuery query,
     required LibrarySearchDocument searchDoc,
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     LibraryProjectionIndex? index,
     Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
@@ -63,7 +63,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucket(
     LibraryProjectionItem item,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
     LibraryGroupIdRuntime groupId,
     String? selectedBucket,
     LibraryProjectionIndex? index,
@@ -81,7 +81,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucketScopeFilters(
     LibraryProjectionItem item,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
     List<LibraryBucketScopeFilter> filters,
     LibraryProjectionIndex? index,
   ) {
@@ -102,7 +102,7 @@ class LibraryFilterEngine {
   }
 
   LibraryGroupIdRuntime _defaultGroupId(
-    LibraryKindModule type,
+    LibraryKindRegistration type,
     LibraryProjectionQuery query,
   ) {
     final fields = libraryKindWorkspaceForKind(type.kind).fields;
@@ -133,7 +133,7 @@ class LibraryFilterEngine {
 
   bool _matchesQuickView(
     LibraryProjectionItem item,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
     LibraryQuickView? quickView,
   ) {
     if (quickView == null) return true;
@@ -152,7 +152,7 @@ class LibraryFilterEngine {
 
   bool _matchesFilter(
     LibraryProjectionItem item,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
     LibraryFilterSelection filters,
     Set<OwnedItemRef> activeLoanOwnedItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
@@ -281,7 +281,7 @@ class LibraryFilterEngine {
   bool _matchesLinkedMetadata(
     LibraryProjectionItem item,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     if (linkedMetadataFilter == null) {
       return true;

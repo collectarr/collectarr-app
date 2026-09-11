@@ -46,7 +46,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     final averageRating = averageBggRating(state.entries);
     final bestRank = bestBggRank(state.entries);
@@ -70,7 +70,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     return [
       LibraryStatsRankedCard(

@@ -107,7 +107,7 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
     this.switchLayoutSnapshot,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Widget topBar;
   final Color accent;
   final Uri routeUri;

@@ -56,7 +56,7 @@ void main() {
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
 
-    final comicModule = libraryKindModuleForKind(CatalogMediaKind.comic);
+    final comicModule = libraryKindRegistrationForKind(CatalogMediaKind.comic);
     expect(comicModule.metadata.supportsServerCompare, isTrue);
     expect(comicModule.metadata.compareBuilder, isNotNull);
   });
@@ -113,7 +113,7 @@ void main() {
     expect(panels.length, 3);
     expect(panels.every((p) => p is MetadataDiffPanel), isTrue);
 
-    final musicModule = libraryKindModuleForKind(CatalogMediaKind.music);
+    final musicModule = libraryKindRegistrationForKind(CatalogMediaKind.music);
     expect(musicModule.metadata.supportsServerCompare, isTrue);
     expect(musicModule.metadata.compareBuilder, isNotNull);
   });

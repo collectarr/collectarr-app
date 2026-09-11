@@ -17,7 +17,7 @@ class LibraryProviderOrchestrationService {
   static const _workflow = LibraryAddWorkflowService();
 
   CatalogSearchCandidate proposalDraftFromCandidate({
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required ProviderCandidate candidate,
   }) {
     final mediaKind = type.kind;

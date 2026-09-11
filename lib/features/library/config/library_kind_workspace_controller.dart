@@ -18,7 +18,7 @@ class LibraryKindWorkspaceController
 
   @override
   bool canOpenItemDetailDrilldown(
-    LibraryKindModule type,
+    LibraryKindRegistration type,
     LibraryProjectionView item,
   ) {
     return canOpenKindDrilldown(type, item);
@@ -26,7 +26,7 @@ class LibraryKindWorkspaceController
 
   @override
   void openItemDetailDrilldown(
-    LibraryKindModule type,
+    LibraryKindRegistration type,
     LibraryProjectionView item,
   ) {
     if (!canOpenItemDetailDrilldown(type, item)) {
@@ -38,7 +38,7 @@ class LibraryKindWorkspaceController
   @override
   Widget? buildWorkspaceOverride({
     required BuildContext context,
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required LibraryProjection projection,
     required LibraryProjectionView selectedItem,
     required LibraryWorkspaceViewState viewState,

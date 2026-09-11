@@ -6,7 +6,7 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   test('every kind owns explicit digital-copy resolution', () {
-    for (final type in collectarrKindModules) {
+    for (final type in collectarrKindRegistrationsList) {
       final digital = testOwnedItem(
         id: '${type.kind.apiValue}-digital',
         itemId: '${type.kind.apiValue}-item',

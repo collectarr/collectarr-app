@@ -20,8 +20,8 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(collectarrKindModules, hasLength(9));
-    for (final runtime in collectarrKindModules) {
+    expect(collectarrKindRegistrationsList, hasLength(9));
+    for (final runtime in collectarrKindRegistrationsList) {
       final manualDraft = LibraryAddManualDraft(
         customFieldValues: const [],
         itemImages: const [],
@@ -96,7 +96,7 @@ class _AddManualParityHarness extends StatelessWidget {
     required this.density,
   });
 
-  final LibraryKindModule runtime;
+  final LibraryKindRegistration runtime;
   final LibraryAddManualPaneRequest request;
   final LibraryDensity density;
 

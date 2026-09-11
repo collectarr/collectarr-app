@@ -10,7 +10,7 @@ abstract class ComicEditHost {
   BuildContext get comicContext;
   ProviderContainer get comicRef;
   Color get comicAccent;
-  LibraryKindModule get comicLibraryType;
+  LibraryKindRegistration get comicLibraryType;
   ComicMedia get comicMedia;
   List<ItemImage> get comicItemImages;
   LibraryEditPresentationState get comicEditPresentation;

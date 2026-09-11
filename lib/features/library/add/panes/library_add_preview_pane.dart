@@ -57,7 +57,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
@@ -493,7 +493,7 @@ class LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -531,19 +531,19 @@ class LibraryAddReferenceSelector extends StatelessWidget {
 
 List<(String, String?)> libraryAddMetadataRowsForItem(
   CatalogSearchCandidate item,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) =>
     _metadataRowsForItem(item, type);
 
 List<(String, String?)> libraryAddMetadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) =>
     _metadataRowsForCandidate(candidate, type);
 
 List<(String, String?)> libraryAddMetadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) =>
     _metadataRowsForFullPreview(preview, type);
 
@@ -745,7 +745,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
@@ -1171,7 +1171,7 @@ Widget _buildPreviewFormatBadges(
 
 List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) =>
     type.presentation.builder.buildAddPreviewMetadataRowsForCandidate(
       candidate: candidate,
@@ -1180,7 +1180,7 @@ List<(String, String?)> _metadataRowsForCandidate(
 
 List<(String, String?)> _metadataRowsForItem(
   CatalogSearchCandidate item,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) =>
     type.presentation.builder.buildAddPreviewMetadataRows(
       item: item,
@@ -1228,7 +1228,7 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
 
 List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) =>
     type.presentation.builder.buildAddPreviewMetadataRowsForFullPreview(
       preview: preview,

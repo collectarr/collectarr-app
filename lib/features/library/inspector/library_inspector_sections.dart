@@ -25,7 +25,7 @@ class InspectorMetadataSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -53,7 +53,7 @@ class InspectorPersonalSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;

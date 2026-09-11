@@ -39,7 +39,7 @@ class LibraryBulkActions {
       if (catalogRef == null) {
         continue;
       }
-      final kindModule = libraryKindModuleForKind(
+      final kindModule = libraryKindRegistrationForKind(
         catalogRef.mediaKind,
       );
       final updateCmd = kindModule.edit.buildBulkUpdateCommand(
@@ -108,17 +108,20 @@ class LibraryBulkActions {
           '${entry.itemId}',
         );
       }
-      final addCmd = libraryKindModuleForKind(resolvedKind).add.buildCommand(
-            catalogItem,
-            common,
-            libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
-            targetRef: entry.ownedSummary?.catalogRef ??
-                entry.wishlistItem?.catalogRef ??
-                entry.catalogRef,
-            tracking: LibraryAddTrackingDraft(
-              readStatus: defaultReadStatus,
-            ),
-          );
+      final addCmd =
+          libraryKindRegistrationForKind(resolvedKind).add.buildCommand(
+                catalogItem,
+                common,
+                libraryKindRegistrationForKind(resolvedKind)
+                    .add
+                    .createInitialDraft(),
+                targetRef: entry.ownedSummary?.catalogRef ??
+                    entry.wishlistItem?.catalogRef ??
+                    entry.catalogRef,
+                tracking: LibraryAddTrackingDraft(
+                  readStatus: defaultReadStatus,
+                ),
+              );
       await coordinator.addOwnedItem(addCmd);
     }
   }

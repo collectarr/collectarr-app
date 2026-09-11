@@ -14,7 +14,7 @@ class LibraryCompactBucketBar extends StatelessWidget {
     required this.onSelected,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final List<LibraryBucket> buckets;
   final String selectedBucket;

@@ -26,7 +26,7 @@ final class LibraryProviderAddCoordinator {
   final LibraryAddWorkflowService workflow;
 
   Future<CatalogSearchCandidate> providerAddItemForCandidate({
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required ProviderCandidate candidate,
     required LibraryAddPreviewController previewState,
   }) async {

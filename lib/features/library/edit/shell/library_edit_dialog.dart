@@ -73,7 +73,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         customFieldValues = draft.customFieldValues,
         itemImages = draft.itemImages;
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final CatalogSearchCandidate item;
   final OwnedItemSummary? ownedItem;
 

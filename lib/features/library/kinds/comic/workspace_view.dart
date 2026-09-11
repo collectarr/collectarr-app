@@ -16,7 +16,8 @@ const double kLibraryTableRowHeight = 38;
 const double kLibraryTableSelectionRailWidth = 3;
 
 final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
-  kindModuleResolver: () => libraryKindModuleForKind(CatalogMediaKind.comic),
+  kindModuleResolver: () =>
+      libraryKindRegistrationForKind(CatalogMediaKind.comic),
   defaultCoverSize: kComicsDefaultCoverSize,
   minCoverSize: kComicsMinCoverSize,
   maxCoverSize: kComicsMaxCoverSize,

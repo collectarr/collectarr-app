@@ -144,7 +144,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
     final kind = item.source.mediaKind;
-    final module = libraryKindModuleForKind(kind);
+    final module = libraryKindRegistrationForKind(kind);
     final catalog = item.source.catalogTransport;
     final List<CatalogEditionDto> rawEditions = catalog == null
         ? const []

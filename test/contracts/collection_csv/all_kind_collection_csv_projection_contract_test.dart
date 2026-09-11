@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('every registered catalog kind owns a collection CSV projection', () {
-    final registeredKinds = collectarrKindModules
+    final registeredKinds = collectarrKindRegistrationsList
         .map((module) => module.kind)
         .where((kind) => !kind.isUnknown)
         .toSet();

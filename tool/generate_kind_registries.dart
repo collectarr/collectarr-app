@@ -621,22 +621,13 @@ import 'package:go_router/go_router.dart';
     "import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';",
   );
   buffer.writeln();
-  buffer.writeln('final List<LibraryKindModule> collectarrKindModules = [');
-  for (final descriptor in descriptors) {
-    buffer.writeln('  ${descriptor.moduleName},');
-  }
-  buffer.writeln('];');
-  buffer.writeln();
   buffer.writeln(
-    'final Map<CatalogMediaKind, LibraryKindModule> '
-    'collectarrKindModulesByKind = Map.unmodifiable({',
+    'final List<LibraryKindRegistration> collectarrKindRegistrationsList = [',
   );
   for (final descriptor in descriptors) {
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: ${descriptor.moduleName},',
-    );
+    buffer.writeln('  const ${_registrationClassName(descriptor)}(),');
   }
-  buffer.writeln('});');
+  buffer.writeln('];');
   buffer.writeln();
   _renderModuleCapabilityMap(
     buffer,
@@ -863,13 +854,28 @@ import 'package:go_router/go_router.dart';
   }
   buffer.writeln('});');
   buffer.writeln();
+  buffer.writeln(
+    'final Map<CatalogMediaKind, LibraryKindNavigationRegistration> '
+    'collectarrKindNavigationRegistrations = Map.unmodifiable({',
+  );
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      '${_registrationClassName(descriptor)}(),',
+    );
+  }
+  buffer.writeln('});');
+  buffer.writeln();
   for (final descriptor in descriptors) {
     _renderRegistrationClass(buffer, descriptor);
   }
   buffer.writeln(
-    'LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {',
+    'LibraryKindNavigationRegistration '
+    'generatedLibraryKindNavigationRegistrationForKind(CatalogMediaKind kind) {',
   );
-  buffer.writeln('  final registration = collectarrKindRegistrations[kind];');
+  buffer.writeln(
+    '  final registration = collectarrKindNavigationRegistrations[kind];',
+  );
   buffer.writeln('  if (registration != null) return registration;');
   buffer.writeln('  throw ArgumentError(');
   buffer.writeln(
@@ -967,7 +973,9 @@ void _renderRegistrationClass(
   _KindDescriptor descriptor,
 ) {
   final className = _registrationClassName(descriptor);
-  buffer.writeln('final class $className implements LibraryKindRegistration {');
+  buffer.writeln(
+    'final class $className implements LibraryKindNavigationRegistration {',
+  );
   buffer.writeln('  const $className();');
   buffer.writeln();
   buffer.writeln('  @override');
@@ -988,7 +996,9 @@ void _renderRegistrationClass(
   buffer.writeln('    LibraryLayoutSnapshot? switchLayoutSnapshot,');
   buffer.writeln('  }) {');
   buffer.writeln('    return ${descriptor.pageClass}(');
-  buffer.writeln('      type: ${descriptor.moduleName},');
+  buffer.writeln(
+    '      type: const ${_registrationClassName(descriptor)}(),',
+  );
   buffer.writeln('      topBar: topBar,');
   buffer.writeln('      accent: accent,');
   buffer.writeln('      routeUri: routeUri,');
@@ -1002,7 +1012,9 @@ void _renderRegistrationClass(
   buffer.writeln('    required LibraryAddDialogRequest request,');
   buffer.writeln('  }) {');
   buffer.writeln('    return LibraryAddDialog(');
-  buffer.writeln('      type: ${descriptor.moduleName},');
+  buffer.writeln(
+    '      type: const ${_registrationClassName(descriptor)}(),',
+  );
   buffer.writeln('      accent: request.accent,');
   buffer.writeln('      initialQuery: request.initialQuery,');
   buffer.writeln('      initialIdentifier: request.initialIdentifier,');

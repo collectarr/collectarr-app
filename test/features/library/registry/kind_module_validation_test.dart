@@ -11,13 +11,14 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Kind Module Validation & Namespacing (Tasks 8 & 9)', () {
     test('all registered kind modules declare mandatory projector', () {
-      for (final module in collectarrKindModules) {
+      for (final module in collectarrKindRegistrationsList) {
         expect(libraryKindWorkspaceForKind(module.kind).projector, isNotNull);
       }
     });
 
     test('feature capability registries cover every active kind', () {
-      final activeKinds = collectarrKindModules.map((module) => module.kind);
+      final activeKinds =
+          collectarrKindRegistrationsList.map((module) => module.kind);
 
       expect(collectarrKindPhysicalMediaFormats.keys, containsAll(activeKinds));
       expect(collectarrKindPresentations.keys, containsAll(activeKinds));
@@ -39,7 +40,7 @@ void main() {
 
     test('module capability access resolves through the matching feature map',
         () {
-      for (final module in collectarrKindModules) {
+      for (final module in collectarrKindRegistrationsList) {
         expect(module.presentation,
             same(collectarrKindPresentations[module.kind]));
         expect(module.metadata, same(collectarrKindMetadata[module.kind]));
@@ -111,7 +112,10 @@ void main() {
     test('LibraryKindRegistry throws StateError on duplicate kind registration',
         () {
       expect(
-        () => LibraryKindRegistry([comicKindModule, comicKindModule]),
+        () => LibraryKindRegistry([
+          const ComicRegistration(),
+          const ComicRegistration(),
+        ]),
         throwsStateError,
       );
     });

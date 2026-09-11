@@ -66,13 +66,13 @@ abstract interface class LibraryStatsCapability {
 
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   );
 
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   );
 }
 
@@ -103,7 +103,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) =>
       const [];
 
@@ -111,7 +111,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) =>
       const [];
 }

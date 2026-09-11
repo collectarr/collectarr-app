@@ -101,7 +101,7 @@ class LibraryRouteState {
     );
   }
 
-  Uri toUri(Uri baseUri, {required LibraryKindModule type}) {
+  Uri toUri(Uri baseUri, {required LibraryKindRegistration type}) {
     final kind = type.kind.apiValue;
     final params = <String, String>{kindKey: kind.trim().toLowerCase()};
     final trimmedQuery = _trimmed(searchQuery);
@@ -149,7 +149,7 @@ class LibraryRouteState {
     return baseUri.replace(queryParameters: params);
   }
 
-  LibraryRouteState filteredForType(LibraryKindModule type) {
+  LibraryRouteState filteredForType(LibraryKindRegistration type) {
     final expectedKind = type.kind.apiValue;
     final routeKind = kind?.trim().toLowerCase();
     if (routeKind != null && routeKind != expectedKind) {
@@ -209,7 +209,7 @@ class LibraryRouteState {
 
   static String? _encodeSortRules(
     List<LibrarySortRule>? rules,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     if (rules == null || rules.isEmpty) {
       return null;
@@ -261,7 +261,7 @@ class LibraryRouteState {
   }
 
   static LibraryFolderPreset? _decodeFolderPreset(String? rawValue,
-      [LibraryKindModule? type]) {
+      [LibraryKindRegistration? type]) {
     final trimmedValue = _trimmed(rawValue);
     if (trimmedValue == null) {
       return null;
@@ -390,7 +390,7 @@ String _normalizeFilterFieldId(String id) {
 
 LibraryQuickView? sanitizeLibraryQuickViewForType(
   LibraryQuickView? quickView,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) {
   if (quickView == null) {
     return null;

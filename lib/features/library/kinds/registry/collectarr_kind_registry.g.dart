@@ -237,30 +237,17 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dar
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 
-final List<LibraryKindModule> collectarrKindModules = [
-  animeKindModule,
-  boardGameKindModule,
-  bookKindModule,
-  comicKindModule,
-  gameKindModule,
-  mangaKindModule,
-  movieKindModule,
-  musicKindModule,
-  tvKindModule,
+final List<LibraryKindRegistration> collectarrKindRegistrationsList = [
+  const AnimeRegistration(),
+  const BoardgameRegistration(),
+  const BookRegistration(),
+  const ComicRegistration(),
+  const GameRegistration(),
+  const MangaRegistration(),
+  const MovieRegistration(),
+  const MusicRegistration(),
+  const TvRegistration(),
 ];
-
-final Map<CatalogMediaKind, LibraryKindModule> collectarrKindModulesByKind =
-    Map.unmodifiable({
-  CatalogMediaKind.anime: animeKindModule,
-  CatalogMediaKind.boardgame: boardGameKindModule,
-  CatalogMediaKind.book: bookKindModule,
-  CatalogMediaKind.comic: comicKindModule,
-  CatalogMediaKind.game: gameKindModule,
-  CatalogMediaKind.manga: mangaKindModule,
-  CatalogMediaKind.movie: movieKindModule,
-  CatalogMediaKind.music: musicKindModule,
-  CatalogMediaKind.tv: tvKindModule,
-});
 
 final Map<CatalogMediaKind, List<PhysicalMediaFormat>>
     collectarrKindPhysicalMediaFormats =
@@ -2137,7 +2124,20 @@ final Map<CatalogMediaKind, LibraryKindRegistration>
   CatalogMediaKind.tv: TvRegistration(),
 });
 
-final class AnimeRegistration implements LibraryKindRegistration {
+final Map<CatalogMediaKind, LibraryKindNavigationRegistration>
+    collectarrKindNavigationRegistrations = Map.unmodifiable({
+  CatalogMediaKind.anime: AnimeRegistration(),
+  CatalogMediaKind.boardgame: BoardgameRegistration(),
+  CatalogMediaKind.book: BookRegistration(),
+  CatalogMediaKind.comic: ComicRegistration(),
+  CatalogMediaKind.game: GameRegistration(),
+  CatalogMediaKind.manga: MangaRegistration(),
+  CatalogMediaKind.movie: MovieRegistration(),
+  CatalogMediaKind.music: MusicRegistration(),
+  CatalogMediaKind.tv: TvRegistration(),
+});
+
+final class AnimeRegistration implements LibraryKindNavigationRegistration {
   const AnimeRegistration();
 
   @override
@@ -2154,7 +2154,7 @@ final class AnimeRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return AnimeLibraryPage(
-      type: animeKindModule,
+      type: const AnimeRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2168,7 +2168,7 @@ final class AnimeRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: animeKindModule,
+      type: const AnimeRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2223,7 +2223,7 @@ final class AnimeRegistration implements LibraryKindRegistration {
   }
 }
 
-final class BoardgameRegistration implements LibraryKindRegistration {
+final class BoardgameRegistration implements LibraryKindNavigationRegistration {
   const BoardgameRegistration();
 
   @override
@@ -2240,7 +2240,7 @@ final class BoardgameRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return BoardGameLibraryPage(
-      type: boardGameKindModule,
+      type: const BoardgameRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2254,7 +2254,7 @@ final class BoardgameRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: boardGameKindModule,
+      type: const BoardgameRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2309,7 +2309,7 @@ final class BoardgameRegistration implements LibraryKindRegistration {
   }
 }
 
-final class BookRegistration implements LibraryKindRegistration {
+final class BookRegistration implements LibraryKindNavigationRegistration {
   const BookRegistration();
 
   @override
@@ -2326,7 +2326,7 @@ final class BookRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return BookLibraryPage(
-      type: bookKindModule,
+      type: const BookRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2340,7 +2340,7 @@ final class BookRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: bookKindModule,
+      type: const BookRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2395,7 +2395,7 @@ final class BookRegistration implements LibraryKindRegistration {
   }
 }
 
-final class ComicRegistration implements LibraryKindRegistration {
+final class ComicRegistration implements LibraryKindNavigationRegistration {
   const ComicRegistration();
 
   @override
@@ -2412,7 +2412,7 @@ final class ComicRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return ComicLibraryPage(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2426,7 +2426,7 @@ final class ComicRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2481,7 +2481,7 @@ final class ComicRegistration implements LibraryKindRegistration {
   }
 }
 
-final class GameRegistration implements LibraryKindRegistration {
+final class GameRegistration implements LibraryKindNavigationRegistration {
   const GameRegistration();
 
   @override
@@ -2498,7 +2498,7 @@ final class GameRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return GameLibraryPage(
-      type: gameKindModule,
+      type: const GameRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2512,7 +2512,7 @@ final class GameRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: gameKindModule,
+      type: const GameRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2567,7 +2567,7 @@ final class GameRegistration implements LibraryKindRegistration {
   }
 }
 
-final class MangaRegistration implements LibraryKindRegistration {
+final class MangaRegistration implements LibraryKindNavigationRegistration {
   const MangaRegistration();
 
   @override
@@ -2584,7 +2584,7 @@ final class MangaRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return MangaLibraryPage(
-      type: mangaKindModule,
+      type: const MangaRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2598,7 +2598,7 @@ final class MangaRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: mangaKindModule,
+      type: const MangaRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2653,7 +2653,7 @@ final class MangaRegistration implements LibraryKindRegistration {
   }
 }
 
-final class MovieRegistration implements LibraryKindRegistration {
+final class MovieRegistration implements LibraryKindNavigationRegistration {
   const MovieRegistration();
 
   @override
@@ -2670,7 +2670,7 @@ final class MovieRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return MovieLibraryPage(
-      type: movieKindModule,
+      type: const MovieRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2684,7 +2684,7 @@ final class MovieRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: movieKindModule,
+      type: const MovieRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2739,7 +2739,7 @@ final class MovieRegistration implements LibraryKindRegistration {
   }
 }
 
-final class MusicRegistration implements LibraryKindRegistration {
+final class MusicRegistration implements LibraryKindNavigationRegistration {
   const MusicRegistration();
 
   @override
@@ -2756,7 +2756,7 @@ final class MusicRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return MusicLibraryPage(
-      type: musicKindModule,
+      type: const MusicRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2770,7 +2770,7 @@ final class MusicRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: musicKindModule,
+      type: const MusicRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2825,7 +2825,7 @@ final class MusicRegistration implements LibraryKindRegistration {
   }
 }
 
-final class TvRegistration implements LibraryKindRegistration {
+final class TvRegistration implements LibraryKindNavigationRegistration {
   const TvRegistration();
 
   @override
@@ -2842,7 +2842,7 @@ final class TvRegistration implements LibraryKindRegistration {
     LibraryLayoutSnapshot? switchLayoutSnapshot,
   }) {
     return TvLibraryPage(
-      type: tvKindModule,
+      type: const TvRegistration(),
       topBar: topBar,
       accent: accent,
       routeUri: routeUri,
@@ -2856,7 +2856,7 @@ final class TvRegistration implements LibraryKindRegistration {
     required LibraryAddDialogRequest request,
   }) {
     return LibraryAddDialog(
-      type: tvKindModule,
+      type: const TvRegistration(),
       accent: request.accent,
       initialQuery: request.initialQuery,
       initialIdentifier: request.initialIdentifier,
@@ -2911,8 +2911,9 @@ final class TvRegistration implements LibraryKindRegistration {
   }
 }
 
-LibraryKindRegistration libraryKindRegistrationForKind(CatalogMediaKind kind) {
-  final registration = collectarrKindRegistrations[kind];
+LibraryKindNavigationRegistration
+    generatedLibraryKindNavigationRegistrationForKind(CatalogMediaKind kind) {
+  final registration = collectarrKindNavigationRegistrations[kind];
   if (registration != null) return registration;
   throw ArgumentError(
     'No LibraryKindRegistration registered for kind "$kind"',

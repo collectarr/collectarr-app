@@ -14,7 +14,7 @@ const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) {
   final coverGridHeightFactor = type.uiPolicy.coverAspectRatio;
   return LibraryWorkspaceViewProfile(
@@ -42,7 +42,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
 }
 
 LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
-  LibraryKindModule type,
+  LibraryKindRegistration type,
   LibraryWorkspacePreset preset,
 ) {
   final defaultCols =
@@ -76,7 +76,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
 }
 
 String? plannedMediaSubgroupKeyForEntry(
-  LibraryKindModule type,
+  LibraryKindRegistration type,
   LibraryProjectionView item,
   LibraryGroupIdRuntime groupId,
 ) {

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 bool canOpenKindDrilldown(
-  LibraryKindModule type,
+  LibraryKindRegistration type,
   LibraryProjectionView item,
 ) {
   return type.presentation.builder.canOpenKindDrilldown(item);
@@ -13,7 +13,7 @@ bool canOpenKindDrilldown(
 
 Widget? buildLibraryKindDrilldown({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required LibraryProjectionView selectedItem,
   required Color accent,
   required double coverSize,

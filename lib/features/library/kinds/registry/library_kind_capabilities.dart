@@ -12,9 +12,9 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 /// Feature-specific dispatch accessors for a concrete kind identity.
 ///
 /// These accessors are backed by independent generated maps. Keeping them out
-/// of [LibraryKindModule] prevents the identity/navigation boundary from
+/// of [LibraryKindRegistration] prevents the identity/navigation boundary from
 /// becoming a universal semantic service locator again.
-extension LibraryKindModuleCapabilities on LibraryKindModule {
+extension LibraryKindRegistrationCapabilities on LibraryKindRegistration {
   List<PhysicalMediaFormat> get physicalMediaFormats =>
       collectarrKindPhysicalMediaFormats[kind]!;
 

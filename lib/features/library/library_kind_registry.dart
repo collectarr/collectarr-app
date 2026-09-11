@@ -27,15 +27,15 @@ export 'package:collectarr_app/features/library/kinds/registry/library_kind_regi
 
 final class LibraryKindRegistry {
   LibraryKindRegistry(
-    Iterable<LibraryKindModule> specs,
+    Iterable<LibraryKindRegistration> specs,
   ) : _byKind = _buildValidatedRegistry(specs);
 
-  final Map<CatalogMediaKind, LibraryKindModule> _byKind;
+  final Map<CatalogMediaKind, LibraryKindRegistration> _byKind;
 
-  static Map<CatalogMediaKind, LibraryKindModule> _buildValidatedRegistry(
-    Iterable<LibraryKindModule> specs,
+  static Map<CatalogMediaKind, LibraryKindRegistration> _buildValidatedRegistry(
+    Iterable<LibraryKindRegistration> specs,
   ) {
-    final map = <CatalogMediaKind, LibraryKindModule>{};
+    final map = <CatalogMediaKind, LibraryKindRegistration>{};
     for (final spec in specs) {
       if (map.containsKey(spec.kind)) {
         throw StateError(
@@ -47,19 +47,21 @@ final class LibraryKindRegistry {
     return Map.unmodifiable(map);
   }
 
-  LibraryKindModule require(CatalogMediaKind kind) {
+  LibraryKindRegistration require(CatalogMediaKind kind) {
     final kindModule = _byKind[kind];
     if (kindModule == null) {
-      throw ArgumentError('No LibraryKindModule registered for kind: $kind');
+      throw ArgumentError(
+          'No LibraryKindRegistration registered for kind: $kind');
     }
     return kindModule;
   }
 
-  LibraryKindModule? tryGet(CatalogMediaKind kind) => _byKind[kind];
+  LibraryKindRegistration? tryGet(CatalogMediaKind kind) => _byKind[kind];
 
-  LibraryKindModule getByKind(CatalogMediaKind kind) => require(kind);
+  LibraryKindRegistration getByKind(CatalogMediaKind kind) => require(kind);
 
-  List<LibraryKindModule> get allModules => List.unmodifiable(_byKind.values);
+  List<LibraryKindRegistration> get allModules =>
+      List.unmodifiable(_byKind.values);
 }
 
 final defaultLibraryKindRegistry = (() {
@@ -67,7 +69,7 @@ final defaultLibraryKindRegistry = (() {
     CatalogMediaKind.tv,
     const TvTrackingImportContribution(),
   );
-  return LibraryKindRegistry(collectarrKindModules);
+  return LibraryKindRegistry(collectarrKindRegistrationsList);
 })();
 
 final Map<CatalogMediaKind, LibraryCollectionCsvProjection>
@@ -217,18 +219,34 @@ final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
   return defaultLibraryKindRegistry;
 });
 
-LibraryKindModule libraryKindModule(
+LibraryKindRegistration libraryKindRegistration(
   CatalogMediaKind kind, {
   LibraryKindRegistry? registry,
 }) =>
-    libraryKindModuleForKind(kind, registry: registry);
+    libraryKindRegistrationForKind(kind, registry: registry);
 
-LibraryKindModule libraryKindModuleForKind(
+LibraryKindRegistration libraryKindRegistrationForKind(
   CatalogMediaKind kind, {
   LibraryKindRegistry? registry,
 }) {
   final reg = registry ?? defaultLibraryKindRegistry;
   return reg.require(kind);
+}
+
+LibraryKindNavigationRegistration libraryKindNavigationRegistrationForKind(
+  CatalogMediaKind kind, {
+  LibraryKindRegistry? registry,
+}) {
+  if (registry != null) {
+    final registration = registry.require(kind);
+    if (registration is LibraryKindNavigationRegistration) {
+      return registration;
+    }
+    throw StateError(
+      'Registration for $kind does not provide navigation capabilities',
+    );
+  }
+  return generatedLibraryKindNavigationRegistrationForKind(kind);
 }
 
 /// Workspace dispatch is separate from the navigation/module boundary. The
@@ -243,7 +261,7 @@ LibraryKindWorkspace libraryKindWorkspaceForKind(CatalogMediaKind kind) {
 
 /// Composition-root dispatch for kind-owned facet extraction and remote facet
 /// loading. The generic library only receives the structural facet module;
-/// it does not read facet semantics from [LibraryKindModule].
+/// it does not read facet semantics from [LibraryKindRegistration].
 LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
   return collectarrKindFacetModules[kind];
 }
@@ -266,7 +284,7 @@ ProviderCorrectionBuilder? libraryKindProviderCorrectionBuilderForKind(
 }
 
 bool libraryGroupModeSupportsCompletion(
-  LibraryKindModule type,
+  LibraryKindRegistration type,
   String groupMode,
 ) {
   final workspace = libraryKindWorkspaceForKind(type.kind);

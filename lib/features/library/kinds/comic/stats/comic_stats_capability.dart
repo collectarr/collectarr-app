@@ -48,7 +48,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     final keyComicCount = countKeyComics(state.entries);
     return [
@@ -71,7 +71,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     final seriesGap = _seriesGapSummary(state.entries);
     final volumeGap = _numberedGapSummary(

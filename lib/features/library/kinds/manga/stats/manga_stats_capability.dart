@@ -50,7 +50,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) =>
       const [];
 
@@ -58,7 +58,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     final volumeGap = _bestMissingVolumeSummary(state.entries);
 

@@ -232,7 +232,7 @@ void main() {
 }
 
 LibraryProjection _projection(
-  LibraryKindModule type,
+  LibraryKindRegistration type,
   List<LibraryWorkspaceSource> sources,
 ) {
   final items = [
@@ -302,7 +302,7 @@ final class _CoordinatorHarness {
     );
   }
 
-  LibraryPageCoordinatorContext contextFor(LibraryKindModule type) {
+  LibraryPageCoordinatorContext contextFor(LibraryKindRegistration type) {
     return LibraryPageCoordinatorContext(
       context: buildContext,
       ref: ref,

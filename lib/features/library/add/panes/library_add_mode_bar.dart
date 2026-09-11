@@ -8,7 +8,7 @@ class LibraryAddIdentifierPrefillBanner extends StatelessWidget {
     required this.identifierCode,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final String identifierCode;
 
   @override
@@ -75,7 +75,7 @@ class LibraryAddModeBar extends StatefulWidget {
     this.kindSpecificPaneBuilder,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddDialogMode mode;
@@ -498,7 +498,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.onScan,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;

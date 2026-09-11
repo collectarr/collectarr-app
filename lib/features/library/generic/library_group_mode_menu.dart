@@ -20,7 +20,7 @@ class _ManageFavoritesRequest {
 
 Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required List<String> availableModes,
   List<LibraryFolderPreset> initialFavorites = const [],
 }) {
@@ -51,7 +51,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
     this.availableModes,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryFolderPreset? folderPreset;
   final Color accent;
   final IconData icon;
@@ -300,7 +300,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
     this.onSelected,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryFolderPreset? selectedPreset;
   final List<String> availableModes;
   final List<LibraryFolderPreset> initialPinnedPresets;
@@ -645,7 +645,7 @@ class _GroupModeFavoritesDialog extends StatefulWidget {
     required this.initialFavorites,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final List<String> availableModes;
   final List<LibraryFolderPreset> initialFavorites;
 

@@ -12,8 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('LibraryKindSpec Contract & Capability Tests', () {
     test('all 9 active kind specs expose validated field registries', () {
-      expect(collectarrKindModules.length, 9);
-      for (final spec in collectarrKindModules) {
+      expect(collectarrKindRegistrationsList.length, 9);
+      for (final spec in collectarrKindRegistrationsList) {
         final workspace = libraryKindWorkspaceForKind(spec.kind);
         expect(workspace.fields.kindNamespace, spec.kind.apiValue);
         expect(workspace.fields.columns, isNotEmpty);
@@ -22,7 +22,7 @@ void main() {
     });
 
     test('all active kind specs have non-null required core properties', () {
-      for (final spec in collectarrKindModules) {
+      for (final spec in collectarrKindRegistrationsList) {
         final workspace = libraryKindWorkspaceForKind(spec.kind);
         expect(spec.kind, isNotNull);
         expect(spec.identity, isNotNull);
@@ -46,8 +46,8 @@ void main() {
       expect(comicKindModule.toolbar!.actions, isNotEmpty);
 
       // Specs without custom toolbar actions have null toolbar
-      final specsWithoutToolbar =
-          collectarrKindModules.where((s) => s.kind != CatalogMediaKind.comic);
+      final specsWithoutToolbar = collectarrKindRegistrationsList
+          .where((s) => s.kind != CatalogMediaKind.comic);
       for (final spec in specsWithoutToolbar) {
         expect(spec.toolbar, isNull,
             reason: '${spec.kind} should have null toolbar when absent');
@@ -61,7 +61,7 @@ void main() {
         CatalogMediaKind.comic: BookOwnedDetails(),
         CatalogMediaKind.movie: ComicOwnedDetails(),
       };
-      for (final spec in collectarrKindModules) {
+      for (final spec in collectarrKindRegistrationsList) {
         final codec = ownedDetailsCodecForTest(spec.kind);
         final defaultDetails = codec.defaultDetails();
         expect(defaultDetails, isNotNull);
@@ -82,10 +82,14 @@ void main() {
     });
 
     test('immutable registry requires and tryGets specs correctly', () {
-      final registry = LibraryKindRegistry(collectarrKindModules);
+      final registry = LibraryKindRegistry(collectarrKindRegistrationsList);
       expect(registry.allModules.length, 9);
-      expect(registry.require(CatalogMediaKind.comic), comicKindModule);
-      expect(registry.tryGet(CatalogMediaKind.comic), comicKindModule);
+      expect(
+        registry.require(CatalogMediaKind.comic),
+        isA<LibraryKindRegistration>(),
+      );
+      expect(registry.tryGet(CatalogMediaKind.comic)?.kind,
+          CatalogMediaKind.comic);
       expect(registry.tryGet(CatalogMediaKind.unknown), isNull);
       expect(
         () => registry.require(CatalogMediaKind.unknown),
@@ -95,7 +99,10 @@ void main() {
 
     test('registry throws StateError on duplicate registration', () {
       expect(
-        () => LibraryKindRegistry([comicKindModule, comicKindModule]),
+        () => LibraryKindRegistry([
+          const ComicRegistration(),
+          const ComicRegistration(),
+        ]),
         throwsStateError,
       );
     });

@@ -11,11 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('exact core match suppresses provider fallback', () {
-    final shouldFallback = libraryKindModuleForKind(CatalogMediaKind.comic)
-        .add
-        .search
-        .ranking
-        .shouldSearchProviderForCoreResults(
+    final shouldFallback =
+        libraryKindRegistrationForKind(CatalogMediaKind.comic)
+            .add
+            .search
+            .ranking
+            .shouldSearchProviderForCoreResults(
       [
         CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
           'id': 'comic-423',
@@ -45,11 +46,12 @@ void main() {
   });
 
   test('weak core top match keeps provider fallback enabled', () {
-    final shouldFallback = libraryKindModuleForKind(CatalogMediaKind.movie)
-        .add
-        .search
-        .ranking
-        .shouldSearchProviderForCoreResults(
+    final shouldFallback =
+        libraryKindRegistrationForKind(CatalogMediaKind.movie)
+            .add
+            .search
+            .ranking
+            .shouldSearchProviderForCoreResults(
       [
         CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
           'id': 'movie-1',
@@ -67,7 +69,7 @@ void main() {
 
   test('empty core results still trigger provider fallback', () {
     expect(
-      libraryKindModuleForKind(CatalogMediaKind.anime)
+      libraryKindRegistrationForKind(CatalogMediaKind.anime)
           .add
           .search
           .ranking

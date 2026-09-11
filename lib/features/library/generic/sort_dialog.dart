@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
@@ -34,7 +34,7 @@ class _LibrarySortDialog extends StatefulWidget {
     this.availableColumns,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final List<LibrarySortRule> currentRules;
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
@@ -1131,7 +1131,8 @@ bool _sameSortRules(List<LibrarySortRule> first, List<LibrarySortRule> second) {
   return true;
 }
 
-String _sortRuleSummary(LibraryKindModule type, List<LibrarySortRule> rules) {
+String _sortRuleSummary(
+    LibraryKindRegistration type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
@@ -1141,7 +1142,7 @@ String _sortRuleSummary(LibraryKindModule type, List<LibrarySortRule> rules) {
 }
 
 LibraryTableColumnGroup _sortFieldGroup(
-  LibraryKindModule type,
+  LibraryKindRegistration type,
   String column,
 ) {
   final fields = libraryKindWorkspaceForKind(type.kind).fields;
@@ -1162,7 +1163,7 @@ String _groupLabel(LibraryTableColumnGroup group) {
   };
 }
 
-bool _defaultSortAscending(LibraryKindModule type, String column) {
+bool _defaultSortAscending(LibraryKindRegistration type, String column) {
   final fields = libraryKindWorkspaceForKind(type.kind).fields;
   return fields.sortDefinitionFor(fields.decodeSortId(column)).defaultAscending;
 }
@@ -1178,7 +1179,7 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   return deduped;
 }
 
-String _sortColumnLabel(LibraryKindModule type, String column) {
+String _sortColumnLabel(LibraryKindRegistration type, String column) {
   try {
     final fields = libraryKindWorkspaceForKind(type.kind).fields;
     return fields.sortDefinitionFor(fields.decodeSortId(column)).label;

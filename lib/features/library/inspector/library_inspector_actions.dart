@@ -15,7 +15,7 @@ class InspectorPrimaryActions extends StatelessWidget {
   });
 
   final LibraryProjectionView item;
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;

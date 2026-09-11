@@ -104,7 +104,7 @@ class LibraryAddDialogRequest {
     this.initialIdentifier,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color? accent;
   final String? initialQuery;
   final String? initialIdentifier;
@@ -145,7 +145,7 @@ class LibraryEditDialogRequest {
     this.openMetadataCompareOnOpen = false,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final CatalogSearchCandidate item;
   final OwnedItemSummary? ownedItem;
 
@@ -169,7 +169,7 @@ class LibraryEditDialogRequest {
   final bool openMetadataCompareOnOpen;
 
   LibraryEditDialogRequest copyWith({
-    LibraryKindModule? type,
+    LibraryKindRegistration? type,
     CatalogSearchCandidate? item,
     OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
@@ -235,7 +235,7 @@ class LibraryDetailPageRequest {
         _onRemoveWishlist = onRemoveWishlist,
         _onEdit = onEdit;
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedSummary;
 
@@ -290,7 +290,7 @@ class LibraryInspectorRequest {
     this.searchTarget = LibrarySearchTarget.all,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
 

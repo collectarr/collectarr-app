@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Canonical & Kind-Scoped Group Mode Resolution Tests', () {
-    final comicModule = libraryKindModuleForKind(CatalogMediaKind.comic);
-    final bookModule = libraryKindModuleForKind(CatalogMediaKind.book);
+    final comicModule = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final bookModule = libraryKindRegistrationForKind(CatalogMediaKind.book);
     final comicWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.comic);
     final bookWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.book);
 

@@ -15,7 +15,7 @@ enum LibraryOwnershipFilter { all, owned, wishlist, forSale, onOrder }
 
 String libraryOwnershipFilterLabel(
   LibraryOwnershipFilter filter, {
-  LibraryKindModule? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -42,7 +42,7 @@ enum LibraryTrackingStatusFilter {
 
 String libraryTrackingStatusFilterLabel(
   LibraryTrackingStatusFilter filter, {
-  LibraryKindModule? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -88,7 +88,7 @@ enum LibraryLoanStatusFilter { all, onLoan, available }
 
 String libraryLoanStatusFilterLabel(
   LibraryLoanStatusFilter filter, {
-  LibraryKindModule? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -104,7 +104,7 @@ enum LibraryDateRangeField { updated, purchased, started, finished }
 
 String libraryDateRangeFieldLabel(
   LibraryDateRangeField field, {
-  LibraryKindModule? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -118,12 +118,14 @@ String libraryDateRangeFieldLabel(
 }
 
 LibraryFilterOptionLabels _libraryFilterOptionLabels({
-  LibraryKindModule? type,
+  LibraryKindRegistration? type,
   CatalogMediaKind? mediaType,
 }) {
   return type?.presentation.filterOptionLabels ??
       (mediaType != null
-          ? libraryKindModuleForKind(mediaType).presentation.filterOptionLabels
+          ? libraryKindRegistrationForKind(mediaType)
+              .presentation
+              .filterOptionLabels
           : null) ??
       const LibraryFilterOptionLabels();
 }
@@ -280,7 +282,7 @@ int _fieldValuesHash(Map<String, String?> values) {
 
 LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   LibraryFilterSelection selection,
-  LibraryKindModule type,
+  LibraryKindRegistration type,
 ) {
   final supportedFields = {
     for (final definition in type.presentation.filterDefinitions) definition.id,
@@ -462,7 +464,7 @@ bool libraryFilterMatches(
 /// if the user cancels.
 Future<LibraryFilterSelection?> showLibraryFilterDialog({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required LibraryFilterSelection current,
   required LibraryFilterOptions options,
 }) {
@@ -483,7 +485,7 @@ class _LibraryFilterDialog extends StatefulWidget {
     required this.options,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryFilterSelection initial;
   final LibraryFilterOptions options;
 

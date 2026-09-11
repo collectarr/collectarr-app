@@ -40,7 +40,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     this.onBoxSelectionChanged,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final List<GroupShelfEntry> groups;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;

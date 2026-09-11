@@ -33,7 +33,7 @@ class CompactLibraryToolbar extends StatelessWidget {
     this.extraActions = const [],
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final TextEditingController searchController;
   final LibraryToolbarCounts counts;
   final String? selectedBucket;

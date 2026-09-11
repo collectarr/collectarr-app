@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_layout_
 import 'package:flutter/material.dart';
 
 Widget buildLibraryKindPage({
-  required LibraryKindRegistration registration,
+  required LibraryKindNavigationRegistration registration,
   required Widget topBar,
   required Color accent,
   required Uri routeUri,

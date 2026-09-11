@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 Future<LibraryMetadataRefreshResult?> showGenericLibraryMetadataRefreshDialog({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required Color accent,
   required LibraryProjection projection,
 }) {

@@ -22,7 +22,7 @@ class LibraryDetailHero extends StatelessWidget {
     this.isOwned,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final List<OwnedItemSummary> ownedCopies;

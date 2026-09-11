@@ -31,7 +31,7 @@ void main() {
         updatedAt: DateTime(2026, 1, 1),
       );
 
-      final fields = libraryKindModuleForKind(CatalogMediaKind.book)
+      final fields = libraryKindRegistrationForKind(CatalogMediaKind.book)
           .transfer
           .fieldsWithCustomFields(const [], LibraryEditScope.all);
       final condField = fields.firstWhere((f) => f.key == 'condition');
@@ -66,7 +66,7 @@ void main() {
 
   group('Kind-owned Transfer Capabilities', () {
     test('comic kind provides comic-specific transferable fields', () {
-      final comicKind = libraryKindModuleForKind(CatalogMediaKind.comic);
+      final comicKind = libraryKindRegistrationForKind(CatalogMediaKind.comic);
       final fields = comicKind.transfer.fieldsWithCustomFields(
         const [],
         LibraryEditScope.all,
@@ -101,7 +101,7 @@ void main() {
     });
 
     test('movie kind provides movie-specific transferable fields', () {
-      final movieKind = libraryKindModuleForKind(CatalogMediaKind.movie);
+      final movieKind = libraryKindRegistrationForKind(CatalogMediaKind.movie);
       final fields = movieKind.transfer.fieldsWithCustomFields(
         const [],
         LibraryEditScope.all,

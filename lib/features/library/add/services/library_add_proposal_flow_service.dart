@@ -18,7 +18,7 @@ class LibraryAddProposalFlowService {
   Future<void> proposeCandidate({
     required BuildContext context,
     required ApiClient api,
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required ProviderCandidate candidate,
     required LibraryProviderActionService providerActionService,
     required LibraryProviderOrchestrationService orchestrationService,

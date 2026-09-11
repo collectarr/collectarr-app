@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 /// - On medium/expanded viewports: Shows a modal or embedded presentation.
 Future<void> showAdaptiveItemDetail({
   required BuildContext context,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required LibraryProjectionView item,
   required OwnedItemSummary? ownedSummary,
   required Color accent,

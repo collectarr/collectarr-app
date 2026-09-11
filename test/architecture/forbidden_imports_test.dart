@@ -653,7 +653,7 @@ class ComicFeature {}
 
   test('unknown kinds have no production registration', () {
     expect(
-      () => libraryKindModuleForKind(CatalogMediaKind.unknown),
+      () => libraryKindRegistrationForKind(CatalogMediaKind.unknown),
       throwsArgumentError,
     );
     expect(

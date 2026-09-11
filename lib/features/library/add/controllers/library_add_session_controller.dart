@@ -49,7 +49,7 @@ class LibraryAddSessionController
     extends ValueNotifier<LibraryAddSessionState> {
   LibraryAddSessionController({
     required this.kind,
-    LibraryKindModule? type,
+    LibraryKindRegistration? type,
     required this.ownedMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
@@ -73,21 +73,22 @@ class LibraryAddSessionController
                 mode: LibraryAddDialogMode.search,
                 target: LibraryAddTarget.owned,
                 search: LibraryAddSearchState.initial(
-                  selectedProvider: type?.metadata
-                          .defaultSupportedOption(kind)
-                          ?.id ??
-                      libraryKindModuleForKind(kind)
-                          .metadata
-                          .defaultSupportedOption(kind)
-                          ?.id ??
-                      libraryKindModuleForKind(kind).metadata.defaultProviderId,
-                  advancedFilters: libraryKindModuleForKind(kind)
+                  selectedProvider:
+                      type?.metadata.defaultSupportedOption(kind)?.id ??
+                          libraryKindRegistrationForKind(kind)
+                              .metadata
+                              .defaultSupportedOption(kind)
+                              ?.id ??
+                          libraryKindRegistrationForKind(kind)
+                              .metadata
+                              .defaultProviderId,
+                  advancedFilters: libraryKindRegistrationForKind(kind)
                       .add
                       .search
                       .initialAdvancedFilters,
                 ),
                 selection: LibraryAddSelectionState(
-                  resultPolicyState: libraryKindModuleForKind(kind)
+                  resultPolicyState: libraryKindRegistrationForKind(kind)
                       .add
                       .resultPolicy
                       .initialState,
@@ -95,17 +96,18 @@ class LibraryAddSessionController
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
                 trackingDraft: const LibraryAddTrackingDraft(),
-                manualDraft:
-                    libraryKindModuleForKind(kind).add.createInitialDraft(),
+                manualDraft: libraryKindRegistrationForKind(kind)
+                    .add
+                    .createInitialDraft(),
                 submitState: const AsyncValue.data(null),
-                defaultCondition: (type ?? libraryKindModuleForKind(kind))
+                defaultCondition: (type ?? libraryKindRegistrationForKind(kind))
                     .edit
                     .defaultCondition,
               ),
         );
 
   final CatalogMediaKind kind;
-  final LibraryKindModule? _kindModule;
+  final LibraryKindRegistration? _kindModule;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
@@ -140,7 +142,8 @@ class LibraryAddSessionController
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
 
-  LibraryKindModule get type => _kindModule ?? libraryKindModuleForKind(kind);
+  LibraryKindRegistration get type =>
+      _kindModule ?? libraryKindRegistrationForKind(kind);
 
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
@@ -174,7 +177,7 @@ class LibraryAddSessionController
   }
 
   LibraryAddSearchCapability get _searchCapability =>
-      libraryKindModuleForKind(kind).add.search;
+      libraryKindRegistrationForKind(kind).add.search;
 
   LibraryAddSearchContext _searchContext({String? query}) {
     return LibraryAddSearchContext(
@@ -659,7 +662,7 @@ class LibraryAddSessionController
   void selectReferenceEdition(String editionId) {
     final item = state.selectedItem;
     if (item == null) return;
-    final editions = libraryKindModuleForKind(item.mediaKind)
+    final editions = libraryKindRegistrationForKind(item.mediaKind)
         .presentation
         .builder
         .buildReleaseEditions(item: item);
@@ -1292,7 +1295,7 @@ class LibraryAddSessionController
       submitState: const AsyncValue.loading(),
     );
     try {
-      final capability = libraryKindModuleForKind(kind).add;
+      final capability = libraryKindRegistrationForKind(kind).add;
       final command = capability.buildCommand(
         item,
         state.commonDraft,
@@ -1414,7 +1417,7 @@ class LibraryAddSessionController
             );
           }
 
-          final capability = libraryKindModuleForKind(kind).add;
+          final capability = libraryKindRegistrationForKind(kind).add;
           final command = capability.buildCommand(
             metadataItem,
             state.commonDraft,
@@ -1471,7 +1474,7 @@ class LibraryAddSessionController
           );
         }
       } else if (selectedResult != null) {
-        final capability = libraryKindModuleForKind(kind).add;
+        final capability = libraryKindRegistrationForKind(kind).add;
         final command = capability.buildCommand(
           selectedResult,
           state.commonDraft,
@@ -1556,12 +1559,13 @@ class LibraryAddSessionController
       ),
       selection: LibraryAddSelectionState(
         resultPolicyState:
-            libraryKindModuleForKind(kind).add.resultPolicy.initialState,
+            libraryKindRegistrationForKind(kind).add.resultPolicy.initialState,
       ),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
       trackingDraft: const LibraryAddTrackingDraft(),
-      manualDraft: libraryKindModuleForKind(kind).add.createInitialDraft(),
+      manualDraft:
+          libraryKindRegistrationForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
       defaultCondition: type.edit.defaultCondition,
     );

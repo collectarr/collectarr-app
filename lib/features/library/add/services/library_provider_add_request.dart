@@ -68,7 +68,7 @@ final class LibraryProviderAddRequest {
 
   final ApiClient api;
   final bool isAdmin;
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final ProviderCandidate candidate;
   final LibraryAddTarget target;
   final Color accent;

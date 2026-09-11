@@ -52,7 +52,7 @@ class LibraryWorkspaceViewProfile {
     this.sortAscendingForColumn,
   });
 
-  final LibraryKindModule Function() kindModuleResolver;
+  final LibraryKindRegistration Function() kindModuleResolver;
   final double defaultCoverSize;
   final double minCoverSize;
   final double maxCoverSize;

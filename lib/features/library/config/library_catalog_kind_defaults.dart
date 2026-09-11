@@ -16,7 +16,7 @@ class LibraryCatalogKindDefaults {
 
 LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(
     CatalogMediaKind kind) {
-  for (final module in collectarrKindModules) {
+  for (final module in collectarrKindRegistrationsList) {
     if (module.kind != kind) continue;
     return LibraryCatalogKindDefaults(
       singularLabel: module.identity.normalizeCatalogLabels

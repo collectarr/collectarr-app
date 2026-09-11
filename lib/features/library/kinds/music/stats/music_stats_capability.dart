@@ -41,7 +41,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     final tracks = totalTracks(state.entries);
     final media = totalMedia(state.entries);
@@ -65,7 +65,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindModule type,
+    LibraryKindRegistration type,
   ) {
     return [
       LibraryStatsRankedCard(

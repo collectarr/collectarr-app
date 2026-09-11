@@ -32,7 +32,7 @@ class LibraryProjectionEngine {
 
   LibraryProjection execute({
     required ShelfState shelf,
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
     required LibraryProjectionQuery query,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,

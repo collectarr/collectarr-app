@@ -26,7 +26,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindModule? type;
+  final LibraryKindRegistration? type;
   final LibraryProjectionView item;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final OwnedItemSummary? ownedSummary;

@@ -55,7 +55,7 @@ class LibraryToolbarViewContext {
     required this.onTogglePinnedColumnFavorite,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryWorkspaceBrowserMode activeBrowserMode;
   final String? activeReleaseFolderTitleItemId;
 

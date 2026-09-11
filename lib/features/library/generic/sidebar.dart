@@ -58,7 +58,7 @@ class LibrarySidebar extends StatelessWidget {
     this.onToggleTreeNodeExpanded,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final Color accent;
   final List<LibraryBucket> buckets;
   final String groupMode;

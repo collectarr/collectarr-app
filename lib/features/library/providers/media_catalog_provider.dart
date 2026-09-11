@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,7 +49,7 @@ final videoPhysicalMediaFormatsProvider = Provider<List<PhysicalMediaFormat>>(
     final formats = physicalMediaFormatsFromCatalog(catalog);
     return formats.isNotEmpty
         ? formats
-        : collectarrKindModulesByKind[CatalogMediaKind.movie]!
+        : collectarrKindRegistrations[CatalogMediaKind.movie]!
             .physicalMediaFormats;
   },
 );
@@ -73,7 +74,7 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   if (formats.isNotEmpty) {
     return formats;
   }
-  return collectarrKindModulesByKind[kind]?.physicalMediaFormats ?? const [];
+  return collectarrKindRegistrations[kind]?.physicalMediaFormats ?? const [];
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(
@@ -85,7 +86,7 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
 }
 
 final fallbackMediaCatalog = [
-  for (final module in collectarrKindModules)
+  for (final module in collectarrKindRegistrationsList)
     CatalogMediaType(
       kind: module.kind.apiValue,
       singularLabel: module.identity.singularLabel,

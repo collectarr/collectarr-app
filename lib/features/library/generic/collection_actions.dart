@@ -18,7 +18,7 @@ class LibraryCollectionActions {
 
   Future<void> addOwned(LibraryProjectionItem item) {
     final catalogItem = item.source.catalogTransport!;
-    final kindModule = libraryKindModuleForKind(catalogItem.mediaKind);
+    final kindModule = libraryKindRegistrationForKind(catalogItem.mediaKind);
     return coordinator.addOwnedItem(
       kindModule.add.buildCommand(
         catalogItem,

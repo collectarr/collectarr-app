@@ -122,8 +122,9 @@ final class LibraryAddCoordinator {
     final baseTracking = trackingDraft ?? defaults.toTrackingDraft();
 
     for (final item in values) {
-      final digitalOwnedItem =
-          libraryKindModuleForKind(item.mediaKind).add.digitalCopyFlag(item);
+      final digitalOwnedItem = libraryKindRegistrationForKind(item.mediaKind)
+          .add
+          .digitalCopyFlag(item);
       final isDigitalOwnedItem = digitalOwnedItem == true;
       final reference = _resolveReferenceForItem(
         item,
@@ -150,7 +151,7 @@ final class LibraryAddCoordinator {
       switch (target) {
         case LibraryAddTarget.owned:
           final itemKind = item.mediaKind;
-          final capability = libraryKindModuleForKind(itemKind).add;
+          final capability = libraryKindRegistrationForKind(itemKind).add;
           final addCmd = capability.buildCommand(
             item,
             itemCommon,
@@ -222,7 +223,7 @@ _ResolvedAddReference _resolveReferenceForItem(
           ),
         );
       }
-      final editions = libraryKindModuleForKind(item.mediaKind)
+      final editions = libraryKindRegistrationForKind(item.mediaKind)
           .presentation
           .builder
           .buildReleaseEditions(item: item);

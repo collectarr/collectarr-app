@@ -11,7 +11,7 @@ class LibraryFolderTreeBuilder {
 
   List<LibraryFolderTreeNode> buildTree({
     required List<LibraryProjectionItem> items,
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required LibraryFolderPreset preset,
     Set<String> expandedNodeIds = const {},
     String? selectedNodeId,
@@ -42,7 +42,7 @@ class LibraryFolderTreeBuilder {
 
   List<LibraryFolderTreeNode> _buildFolderTreeNodes(
     List<LibraryProjectionItem> items, {
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required List<String> modes,
     required int depth,
     required List<String> pathBuckets,

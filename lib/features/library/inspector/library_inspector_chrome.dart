@@ -83,7 +83,7 @@ class InspectorActionBar extends StatelessWidget {
     this.extraActions = const <Widget>[],
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;

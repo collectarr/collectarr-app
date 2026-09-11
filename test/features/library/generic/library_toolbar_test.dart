@@ -176,7 +176,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     Future<void> expectScanCover({
-      required LibraryKindModule type,
+      required LibraryKindRegistration type,
       required LibraryWorkspaceViewState viewState,
       required bool expected,
     }) async {

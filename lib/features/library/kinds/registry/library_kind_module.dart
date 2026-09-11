@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 export 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 export 'package:collectarr_app/features/library/config/library_kind_identity.dart';
@@ -39,6 +40,7 @@ export 'package:collectarr_app/features/library/config/library_relation_capabili
 export 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 
 /// Narrow identity boundary used by generic navigation and orchestration.
 ///
@@ -52,7 +54,7 @@ abstract interface class LibraryKindModule {
 }
 
 class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
-    implements LibraryKindModule {
+    implements LibraryKindRegistration {
   const LibraryKindSpec({
     required this.add,
     required this.edit,

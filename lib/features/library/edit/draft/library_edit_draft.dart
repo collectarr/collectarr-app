@@ -58,7 +58,7 @@ class LibraryEditDraft {
 
   final TextControllerGroup _textControllers;
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final CatalogSearchCandidate item;
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
@@ -106,7 +106,7 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromItem({
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required CatalogSearchCandidate item,
     OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
@@ -136,7 +136,7 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromFields({
-    required LibraryKindModule type,
+    required LibraryKindRegistration type,
     required CatalogSearchCandidate item,
     required OwnedItemSummary? ownedItem,
     LibraryOwnedItemDispatch? ownedItemDispatch,
@@ -568,7 +568,7 @@ class LibraryEditDraft {
     );
   }
 
-  JsonEncodable buildDetailsDraft() => libraryKindModuleForKind(
+  JsonEncodable buildDetailsDraft() => libraryKindRegistrationForKind(
         type.kind,
       ).edit.buildDetailsDraft(kindDetails);
 
@@ -595,7 +595,7 @@ class LibraryEditDraft {
   }
 
   OwnedItemUpdateRequest toUpdateOwnedItemCommand(String ownedItemId) {
-    return libraryKindModuleForKind(type.kind).edit.buildUpdateCommand(
+    return libraryKindRegistrationForKind(type.kind).edit.buildUpdateCommand(
           session: this,
           ownedRef: OwnedItemRef(
             kind: type.kind,

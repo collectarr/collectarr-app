@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 /// Shows a rich statistics dashboard dialog for any media type.
 Future<void> showStatsDashboardDialog(
   BuildContext context, {
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required ShelfState state,
 }) {
   return showDialog<void>(
@@ -23,7 +23,7 @@ Future<void> showStatsDashboardDialog(
 class _GenericStatsDashboard extends StatelessWidget {
   const _GenericStatsDashboard({required this.type, required this.state});
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final ShelfState state;
 
   LibraryMediaStatsLabels get _statsLabels => type.presentation.statsLabels;
@@ -295,7 +295,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topSeriesCounts(
     List<LibraryWorkspaceSource> entries,
-    LibraryKindModule module,
+    LibraryKindRegistration module,
   ) {
     return _countBy(
       entries,
@@ -305,7 +305,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topPublisherCounts(
     List<LibraryWorkspaceSource> entries,
-    LibraryKindModule module,
+    LibraryKindRegistration module,
   ) {
     return _countBy(
       entries,
@@ -316,7 +316,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static int _missingMetadataCount(
     List<LibraryWorkspaceSource> entries,
-    LibraryKindModule module,
+    LibraryKindRegistration module,
   ) {
     var count = 0;
     for (final entry in entries) {
@@ -343,7 +343,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topInvestedSeries(
     List<LibraryWorkspaceSource> entries,
-    LibraryKindModule module,
+    LibraryKindRegistration module,
   ) {
     return _sumBy(
       entries,
@@ -364,7 +364,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _topSalesSeries(
     List<LibraryWorkspaceSource> entries,
-    LibraryKindModule module,
+    LibraryKindRegistration module,
   ) {
     return _sumBy(
       entries,
@@ -377,7 +377,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _metadataQualityBands(
     List<LibraryWorkspaceSource> entries,
-    LibraryKindModule module,
+    LibraryKindRegistration module,
   ) {
     final counts = <String, int>{
       'Strong': 0,
@@ -394,8 +394,8 @@ class _GenericStatsDashboard extends StatelessWidget {
 
   static Map<String, int> _metadataAlertCounts(
     List<LibraryWorkspaceSource> entries,
-    LibraryKindModule type,
-    LibraryKindModule module,
+    LibraryKindRegistration type,
+    LibraryKindRegistration module,
   ) {
     final labels = libraryMediaGroupLabels(type);
     final missingPublisherLabel =
@@ -433,7 +433,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static String _metadataBand(
-      LibraryWorkspaceSource entry, LibraryKindModule module) {
+      LibraryWorkspaceSource entry, LibraryKindRegistration module) {
     final projection = module.stats.buildMetadataProjection(entry);
     if (projection == null) {
       return 'Needs work';

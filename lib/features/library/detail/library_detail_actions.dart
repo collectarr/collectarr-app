@@ -24,7 +24,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
     required this.onEdit,
   });
 
-  final LibraryKindModule type;
+  final LibraryKindRegistration type;
   final LibraryProjectionView item;
   final OwnedItemSummary? activeOwnedItem;
   final List<OwnedItemSummary> ownedCopies;

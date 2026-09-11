@@ -17,10 +17,19 @@ void main() {
   const productionRoot = 'lib';
   const homePath = 'lib/features/library/home/home_page.dart';
 
-  test('registration interface stays smaller than the runtime aggregate', () {
+  test('registration boundaries stay smaller than the runtime aggregate', () {
     final source = File(registrationPath).readAsStringSync();
 
+    expect(
+        source, contains('abstract interface class LibraryKindRegistration'));
+    expect(
+      source,
+      contains('abstract interface class LibraryKindNavigationRegistration'),
+    );
     expect(source, isNot(contains('LibraryKindModule')));
+    expect(source, isNot(contains('LibraryKindSpec')));
+    expect(source, contains('CatalogMediaKind get kind'));
+    expect(source, contains('LibraryKindIdentity get identity'));
     expect(source, contains('buildLibraryPage'));
     expect(source, contains('buildAdd'));
     expect(source, contains('openMediaEdit'));
@@ -31,6 +40,7 @@ void main() {
   test('page dispatch has no concrete-kind switch or imports', () {
     final source = File(pagesPath).readAsStringSync();
 
+    expect(source, contains('LibraryKindNavigationRegistration'));
     expect(source, isNot(contains('LibraryKindModule')));
     expect(source, isNot(contains('CatalogMediaKind')));
     expect(source, isNot(contains('kinds/anime/page.dart')));
@@ -57,7 +67,10 @@ void main() {
     }
     expect(source, contains('library_kind_registrations.dart'));
     expect(registrations, contains('collectarrKindRegistrations'));
-    expect(registrations, contains('libraryKindRegistrationForKind'));
+    expect(
+      registrations,
+      contains('generatedLibraryKindNavigationRegistrationForKind'),
+    );
     expect(registrations, contains('collectarrKindRoutes'));
     expect(
       registrations,
@@ -66,7 +79,7 @@ void main() {
     expect(registrations, isNot(contains('for (final registration')));
     expect(
       registrations,
-      isNot(contains('LibraryKindModule get _module')),
+      isNot(contains('LibraryKindRegistration get _module')),
       reason: 'registrations must call concrete kind entrypoints directly',
     );
   });
@@ -164,7 +177,7 @@ void main() {
     final source = File(homePath).readAsStringSync();
 
     expect(source, contains('registration:'));
-    expect(source, contains('libraryKindRegistrationForKind'));
+    expect(source, contains('libraryKindNavigationRegistrationForKind'));
   });
 
   test('metadata rehydration does not live in the kind registry', () {

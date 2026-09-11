@@ -29,7 +29,7 @@ void main() {
       ],
       genres: ['Typed Genre'],
     );
-    final candidates = libraryKindModuleForKind(CatalogMediaKind.comic)
+    final candidates = libraryKindRegistrationForKind(CatalogMediaKind.comic)
         .linkedMetadata
         .candidatesForEntry(
           _shelfEntry(
@@ -111,7 +111,7 @@ void main() {
       producers: ['Aniplex'],
     );
     final entry = _shelfEntry(CatalogMediaKind.anime, metadata);
-    final candidates = libraryKindModuleForKind(CatalogMediaKind.anime)
+    final candidates = libraryKindRegistrationForKind(CatalogMediaKind.anime)
         .linkedMetadata
         .candidatesForEntry(entry)
         .toList();

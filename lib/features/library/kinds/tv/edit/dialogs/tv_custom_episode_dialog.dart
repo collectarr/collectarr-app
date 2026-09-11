@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 Future<void> showTvCustomEpisodeDialog(
   BuildContext context, {
   required WidgetRef ref,
-  required LibraryKindModule type,
+  required LibraryKindRegistration type,
   required String itemId,
   CustomEpisode? existingEpisode,
   int seasonNumber = 1,
