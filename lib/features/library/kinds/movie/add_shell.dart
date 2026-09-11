@@ -150,10 +150,11 @@ Widget buildMovieAddSearchPane(
                         final title = isCore ? item.title : candidate!.title;
                         final coverUrl =
                             isCore ? item.displayCoverUrl : candidate!.imageUrl;
-                        final publisher =
-                            (item?.payload['publisher'] as String?) ??
-                                ((item?.payload['publishing']
-                                    as Map?)?['original_publisher'] as String?);
+                        final publisher = (item
+                                ?.toTransportItem()
+                                .payload['publisher'] as String?) ??
+                            ((item?.toTransportItem().payload['publishing']
+                                as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [
                                 if ((item.releaseYear ??

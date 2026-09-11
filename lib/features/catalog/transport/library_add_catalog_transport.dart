@@ -37,7 +37,6 @@ final class LibraryAddCatalogTransport {
   String get id => _item.id;
   CatalogMediaKind get mediaKind => _item.mediaKind;
   LibraryItemIdentity get identity => _item.identity;
-  Map<String, dynamic> get payload => _item.payload;
   dynamic get kindMetadata => _item.kindMetadata;
   String get title => _item.title;
   String? get displayTitle => _item.displayTitle;

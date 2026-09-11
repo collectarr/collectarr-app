@@ -189,7 +189,7 @@ LibraryEditSelection applyComicSelectionEdits(
       .toList(growable: false);
   final current = selection.item.kindMetadata is ComicMedia
       ? selection.item.kindMetadata as ComicMedia
-      : ComicMedia.fromJson(selection.item.payload);
+      : ComicMedia.fromJson(selection.item.toTransportItem().payload);
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[

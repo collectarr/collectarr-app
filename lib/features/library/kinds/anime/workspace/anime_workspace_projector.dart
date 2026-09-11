@@ -27,7 +27,9 @@ final class AnimeWorkspaceProjector
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
         : (km != null
-            ? AnimeMetadata.fromJson(source.catalogTransport!.payload)
+            ? AnimeMetadata.fromJson(
+                source.catalogTransport!.toTransportItem().payload,
+              )
             : null);
     return AnimeWorkspaceDto(
       common: _animeCommonProjection(source, node),
@@ -54,7 +56,9 @@ final class AnimeWorkspaceProjector
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
         : (km != null
-            ? AnimeMetadata.fromJson(source.catalogTransport!.payload)
+            ? AnimeMetadata.fromJson(
+                source.catalogTransport!.toTransportItem().payload,
+              )
             : null);
     return AnimeWorkspaceDto(
       common: _animeCommonProjection(source, node),
@@ -80,7 +84,9 @@ final class AnimeWorkspaceProjector
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
         : (km != null
-            ? AnimeMetadata.fromJson(source.catalogTransport!.payload)
+            ? AnimeMetadata.fromJson(
+                source.catalogTransport!.toTransportItem().payload,
+              )
             : null);
     return AnimeWorkspaceDto(
       common: _animeCommonProjection(source, node),
@@ -108,7 +114,8 @@ WorkspaceCommonProjection _animeCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload = catalog?.payload ?? const <String, dynamic>{};
+  final payload =
+      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

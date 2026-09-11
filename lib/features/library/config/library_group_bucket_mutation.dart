@@ -23,8 +23,8 @@ LibraryGroupBucketValueMutator libraryCatalogStringBucketValueMutator(
   return (source, currentLabel, {String? replacement}) {
     final item = source.catalogTransport;
     if (item == null) return null;
-    final payload = Map<String, dynamic>.from(
-      item.payload,
+    final payload = item.mapTransport(
+      (transport) => Map<String, dynamic>.from(transport.payload),
     );
     final keys = payloadKeys.toSet();
     final next = replacement?.trim();
@@ -68,8 +68,8 @@ LibraryGroupBucketValueMutator libraryCatalogStringListBucketValueMutator(
   return (source, currentLabel, {String? replacement}) {
     final item = source.catalogTransport;
     if (item == null) return null;
-    final payload = Map<String, dynamic>.from(
-      item.payload,
+    final payload = item.mapTransport(
+      (transport) => Map<String, dynamic>.from(transport.payload),
     );
     final rawValues = payload[payloadKey];
     final current = currentLabel.trim();

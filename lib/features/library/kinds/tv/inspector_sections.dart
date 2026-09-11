@@ -44,7 +44,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     entityType: const CatalogEntityTypeId('work'),
     id: item.node.titleItemId,
   );
-  final catalogPayload = catalogItem?.payload;
+  final catalogPayload = catalogItem?.toTransportItem().payload;
   final rawEditions = ((catalogPayload?['editions'] as List?)
           ?.whereType<Map<String, dynamic>>()
           .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))

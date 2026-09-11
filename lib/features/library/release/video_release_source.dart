@@ -33,7 +33,7 @@ List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
   Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {
-  final payload = item.payload;
+  final payload = item.mapTransport((transport) => transport.payload);
   final editionsPayload = payload['editions'] as List?;
   final rawEditions = editionsPayload != null
       ? editionsPayload

@@ -92,7 +92,8 @@ class _TvVideoDetailContributionState
           seasonsAsync: seasonsAsync,
           series: series,
         );
-        final payload = request.item.source.catalogTransport?.payload;
+        final payload =
+            request.item.source.catalogTransport?.toTransportItem().payload;
         final links = ((payload?['trailer_urls'] as List?)
                 ?.whereType<Map<String, dynamic>>()
                 .map((entry) =>

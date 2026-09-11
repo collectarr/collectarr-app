@@ -1088,13 +1088,13 @@ List<String> _bookDiscoveryTagsForSelection({
 BookCatalogMetadata? _bookMetadata(LibraryProjectionView item) {
   final metadata = item.source.catalogTransport?.kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
-  final payload = item.source.catalogTransport?.payload;
+  final payload = item.source.catalogTransport?.toTransportItem().payload;
   return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }
 
 BookCatalogMetadata? _bookMetadataItem(LibraryAddCatalogTransport? item) {
   final metadata = item?.kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
-  final payload = item?.payload;
+  final payload = item?.toTransportItem().payload;
   return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }

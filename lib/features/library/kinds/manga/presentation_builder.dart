@@ -277,7 +277,7 @@ class MangaLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
     final catalogItem = item.source.catalogTransport;
-    final payload = catalogItem?.payload;
+    final payload = catalogItem?.toTransportItem().payload;
     final seriesRaw = payload?['series'];
     final series = seriesRaw is Map
         ? CatalogSeriesDetailsDto.fromJson(Map<String, dynamic>.from(seriesRaw))
@@ -411,7 +411,7 @@ class MangaLibraryMediaPresentationBuilder
       ],
       sections: {
         'creators': LibraryMetadataSection(
-          values: (catalogItem?.payload['creators'] as List?)
+          values: (catalogItem?.toTransportItem().payload['creators'] as List?)
                   ?.cast<Map<String, dynamic>>() ??
               const <Map<String, dynamic>>[],
           placement: LibraryMetadataSectionPlacement.credits,
@@ -419,23 +419,25 @@ class MangaLibraryMediaPresentationBuilder
           completenessWeight: 12,
         ),
         'characters': LibraryMetadataSection(
-          values: (catalogItem?.payload['characters'] as List?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              const <String>[],
+          values:
+              (catalogItem?.toTransportItem().payload['characters'] as List?)
+                      ?.map((e) => e.toString())
+                      .toList() ??
+                  const <String>[],
           placement: LibraryMetadataSectionPlacement.credits,
           completenessWeight: 6,
         ),
         'story_arcs': LibraryMetadataSection(
-          values: (catalogItem?.payload['story_arcs'] as List?)
-                  ?.map((e) => e.toString())
-                  .toList() ??
-              const <String>[],
+          values:
+              (catalogItem?.toTransportItem().payload['story_arcs'] as List?)
+                      ?.map((e) => e.toString())
+                      .toList() ??
+                  const <String>[],
           placement: LibraryMetadataSectionPlacement.credits,
           inlineLabelKey: 'story_arcs_inline',
         ),
         'genres': LibraryMetadataSection(
-          values: (catalogItem?.payload['genres'] as List?)
+          values: (catalogItem?.toTransportItem().payload['genres'] as List?)
                   ?.map((e) => e.toString())
                   .toList() ??
               const <String>[],

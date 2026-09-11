@@ -22,12 +22,7 @@ class VideoEditLinksTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final payload = item.payload;
-    final providerLinks = (payload['trailer_urls'] as List?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e)))
-            .toList() ??
-        const <TrailerLinkDto>[];
+    final providerLinks = item.trailerUrls;
     return EditTabShell(
       children: [
         if (providerLinks.isNotEmpty)

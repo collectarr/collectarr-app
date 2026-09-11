@@ -189,7 +189,8 @@ class BookEditDraft extends LibraryEditKindDraft {
     final rawMetadata = selection.item.kindMetadata;
     final meta = rawMetadata is BookCatalogMetadata
         ? rawMetadata
-        : BookCatalogMetadata.fromJson(selection.item.payload);
+        : BookCatalogMetadata.fromJson(
+            selection.item.toTransportItem().payload);
     final count = int.tryParse(pageCountController.text);
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
@@ -256,7 +257,7 @@ LibraryEditKindDraft createBookEditDraft({
   final rawMetadata = item.kindMetadata;
   final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata
-      : BookCatalogMetadata.fromJson(item.payload);
+      : BookCatalogMetadata.fromJson(item.toTransportItem().payload);
   return BookEditDraft(
     ownedItem: owned,
     signedBy: book?.signedBy,

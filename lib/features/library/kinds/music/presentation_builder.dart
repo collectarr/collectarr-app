@@ -203,7 +203,7 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber: (item?.payload['item_number'] as String?) ??
+      itemNumber: (item?.toTransportItem().payload['item_number'] as String?) ??
           preview?.itemNumber ??
           candidate?.issueNumber,
       tracks: tracks,
@@ -478,7 +478,7 @@ MusicCatalogMetadata? _musicMetadataItem(LibraryAddCatalogTransport? item) {
   if (item == null) return null;
   final metadata = item.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
-  return MusicCatalogMetadata.fromJson(item.payload);
+  return MusicCatalogMetadata.fromJson(item.toTransportItem().payload);
 }
 
 String _stripTrailingMusicDescriptor(String title, String? descriptor) {

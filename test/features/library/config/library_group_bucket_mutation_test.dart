@@ -71,9 +71,10 @@ void main() {
       replacement: 'New publisher',
     );
 
-    expect(updated.payload['publisher'], 'New publisher');
-    expect(updated.payload['original_publisher'], 'New publisher');
-    final publishing = updated.payload['publishing'] as Map;
+    final payload = updated.toTransportItem().payload;
+    expect(payload['publisher'], 'New publisher');
+    expect(payload['original_publisher'], 'New publisher');
+    final publishing = payload['publishing'] as Map;
     expect(publishing['original_publisher'], 'New publisher');
     expect(publishing['imprint'], 'Old imprint');
   });
@@ -93,8 +94,9 @@ void main() {
       replacement: 'New studio',
     );
 
-    expect(updated.payload['publisher'], 'New studio');
-    expect(updated.payload['studio'], 'New studio');
+    final payload = updated.toTransportItem().payload;
+    expect(payload['publisher'], 'New studio');
+    expect(payload['studio'], 'New studio');
   });
 
   test('replaces one genre without duplicating a case-insensitive value', () {
@@ -111,7 +113,7 @@ void main() {
       replacement: 'drama',
     );
 
-    expect(updated.payload['genres'], ['drama']);
+    expect(updated.toTransportItem().payload['genres'], ['drama']);
   });
 
   test('replaces a joined list bucket as one value', () {
@@ -128,7 +130,7 @@ void main() {
       replacement: 'Adventure',
     );
 
-    expect(updated.payload['genres'], ['Adventure']);
+    expect(updated.toTransportItem().payload['genres'], ['Adventure']);
   });
 
   test('preserves an explicit scalar alias when a list supplies the bucket',
@@ -153,8 +155,9 @@ void main() {
     final updatedItem = LibraryAddCatalogTransport.fromItem(
       updated!.toTransportItem(),
     );
-    expect(updatedItem.payload['studios'], ['New studio']);
-    expect(updatedItem.payload['publisher'], 'Explicit publisher');
+    final payload = updatedItem.toTransportItem().payload;
+    expect(payload['studios'], ['New studio']);
+    expect(payload['publisher'], 'Explicit publisher');
   });
 
   test('updates a matching scalar alias with a list bucket', () {
@@ -178,8 +181,9 @@ void main() {
     final updatedItem = LibraryAddCatalogTransport.fromItem(
       updated!.toTransportItem(),
     );
-    expect(updatedItem.payload['studios'], ['New studio']);
-    expect(updatedItem.payload['publisher'], 'New studio');
+    final payload = updatedItem.toTransportItem().payload;
+    expect(payload['studios'], ['New studio']);
+    expect(payload['publisher'], 'New studio');
   });
 
   test('returns no update when the current label does not match', () {

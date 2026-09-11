@@ -23,8 +23,10 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final badges = <LibraryCardBadge>[];
   final releasePlatform = adapter?.referenceFormatLabel?.trim();
   final developer = gameDto?.publisher?.trim();
-  final ageRating =
-      (item.source.catalogTransport?.payload['age_rating'] as String?)?.trim();
+  final ageRating = (item.source.catalogTransport
+          ?.toTransportItem()
+          .payload['age_rating'] as String?)
+      ?.trim();
   final owned = item.source.typedOwnedItem;
   final completion = owned is GameOwnedItem
       ? owned.collectionStatus?.trim() ?? (item.source.isOwned ? 'Owned' : null)

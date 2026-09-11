@@ -24,7 +24,9 @@ final class GameWorkspaceProjector
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {
-      metadata = GameCatalogMetadata.fromJson(source.catalogTransport!.payload);
+      metadata = GameCatalogMetadata.fromJson(
+        source.catalogTransport!.toTransportItem().payload,
+      );
     }
     return GameWorkspaceDto(
       common: _gameCommonProjection(source, node),
@@ -48,7 +50,9 @@ final class GameWorkspaceProjector
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {
-      metadata = GameCatalogMetadata.fromJson(source.catalogTransport!.payload);
+      metadata = GameCatalogMetadata.fromJson(
+        source.catalogTransport!.toTransportItem().payload,
+      );
     }
     return GameWorkspaceDto(
       common: _gameCommonProjection(source, node),
@@ -87,7 +91,8 @@ WorkspaceCommonProjection _gameCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload = catalog?.payload ?? const <String, dynamic>{};
+  final payload =
+      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

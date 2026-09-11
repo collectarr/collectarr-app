@@ -30,7 +30,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
         selectedItem?.title ??
         selectedCandidate!.title;
     final itemNumber = selectedBundle == null
-        ? (selectedItem?.payload['item_number'] as String?)
+        ? (selectedItem?.toTransportItem().payload['item_number'] as String?)
         : null;
     final preview = request.candidatePreview;
     final synopsis = selectedItem?.synopsis ??
@@ -116,13 +116,17 @@ class _MovieAddPreviewPane extends StatelessWidget {
                               selectedItem!.releaseYear.toString(),
                               accent: request.accent,
                             ),
-                          if ((selectedItem?.payload['physical_format_label']
+                          if ((selectedItem
+                                          ?.toTransportItem()
+                                          .payload['physical_format_label']
                                       as String?)
                                   ?.trim()
                                   .isNotEmpty ==
                               true)
                             LibraryAddResultBadge(
-                              (selectedItem!.payload['physical_format_label']
+                              (selectedItem!
+                                          .toTransportItem()
+                                          .payload['physical_format_label']
                                       as String)
                                   .trim(),
                               accent: request.accent,

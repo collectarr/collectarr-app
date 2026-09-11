@@ -94,7 +94,8 @@ WorkspaceCommonProjection _musicCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload = catalog?.payload ?? const <String, dynamic>{};
+  final payload =
+      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;
