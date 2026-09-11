@@ -22,11 +22,9 @@ abstract interface class CatalogKindTransportCodec
     Iterable<String> ids,
   );
 
-  Object? typedMetadataFromDto(CatalogItemDto item);
-
   CatalogKindDerivedData? derivedDataFromDto(CatalogItemDto item);
 
-  Future<void> upsert(LocalDatabase db, CatalogItemDto item);
+  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item);
 
-  Future<List<CatalogItemDto>> list(LocalDatabase db);
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db);
 }

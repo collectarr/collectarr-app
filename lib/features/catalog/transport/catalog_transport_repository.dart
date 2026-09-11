@@ -105,6 +105,6 @@ final class CatalogTransportRepository {
         'Cannot persist catalog item without a supported kind: ${item.kind}',
       );
     }
-    await codec.upsert(_db, item);
+    await codec.upsertTransport(_db, item);
   }
 }

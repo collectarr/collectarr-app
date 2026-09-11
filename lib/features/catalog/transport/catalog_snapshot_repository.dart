@@ -50,7 +50,7 @@ final class CatalogSnapshotRepository {
   Future<List<CatalogItemDto>> _allItems() async {
     final result = <CatalogItemDto>[];
     for (final codec in _codecs.values) {
-      result.addAll(await codec.list(_db));
+      result.addAll(await codec.listTransport(_db));
     }
     return result;
   }

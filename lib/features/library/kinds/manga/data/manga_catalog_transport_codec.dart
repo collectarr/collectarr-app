@@ -22,7 +22,7 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
     String normalizedValue,
   ) async {
     return _countCatalogProjectionValues(
-      await list(db),
+      await listTransport(db),
       fields: _catalogFieldsFor(semanticName),
       normalizedValue: normalizedValue,
     );
@@ -36,7 +36,7 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
     final wanted = ids.toSet();
     if (wanted.isEmpty) return const {};
     final result = <String, int>{};
-    for (final item in await list(db)) {
+    for (final item in await listTransport(db)) {
       if (!wanted.contains(item.id)) continue;
       final value = _replacementValueFromPayload(item);
       if (value != null) result[item.id] = value;
@@ -44,8 +44,7 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
     return result;
   }
 
-  @override
-  Object? typedMetadataFromDto(CatalogItemDto item) {
+  Object? _typedMetadataFromDto(CatalogItemDto item) {
     final metadata = item.kindMetadata;
     if (metadata is MangaMedia) return metadata;
     return metadata is Map ? MangaMedia.fromJson(item.payload) : null;
@@ -55,20 +54,20 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
   CatalogKindDerivedData? derivedDataFromDto(CatalogItemDto item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: typedMetadataFromDto(item),
+        metadata: _typedMetadataFromDto(item),
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
 
   @override
-  Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
+  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
     return MangaRepository(db).updateMedia(
       MangaMedia.fromJson(catalogPayloadFor(item)),
     );
   }
 
   @override
-  Future<List<CatalogItemDto>> list(LocalDatabase db) async {
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
     final media = await MangaRepository(db).search();
     return [
       for (final item in media) _projection(item),
