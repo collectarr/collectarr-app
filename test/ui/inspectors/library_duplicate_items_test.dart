@@ -138,7 +138,7 @@ void main() {
     expect(find.text('97% match'), findsOneWidget);
     expect(find.text('2 items'), findsOneWidget);
     expect(find.text('Same barcode'), findsOneWidget);
-    expect(find.text('Saga #1'), findsNWidgets(2));
+    expect(find.text('Saga'), findsNWidgets(2));
   });
 }
 

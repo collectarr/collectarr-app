@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -21,6 +23,59 @@ class ComicLibraryMediaPresentationBuilder
 
   final bool showSummary;
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  List<LibraryDuplicateCandidate> buildDuplicateCandidates(
+    LibraryWorkspaceSource entry,
+  ) {
+    final item = entry.catalogTransport;
+    if (item == null) return const [];
+    final candidates = <LibraryDuplicateCandidate>[];
+    final entryLabel = [
+      item.title,
+      if (item.itemNumber?.trim() case final value? when value.isNotEmpty)
+        '#$value',
+    ].join(' ');
+    final identifier = normalizeLibraryDuplicateIdentifier(item.identifierCode);
+    if (identifier != null) {
+      candidates.add(
+        LibraryDuplicateCandidate(
+          key: 'barcode:$identifier',
+          label: 'Barcode ${item.identifierCode!.trim()}',
+          reason: 'Same barcode',
+          confidenceScore: 78,
+          entryLabel: entryLabel,
+        ),
+      );
+    }
+    final title = normalizeLibraryDuplicateToken(item.title);
+    final issue = normalizeLibraryDuplicateToken(item.itemNumber);
+    if (title == null || issue == null) return candidates;
+    final publisher = normalizeLibraryDuplicateToken(item.publisher) ?? '';
+    final year = (item.releaseYear ?? item.releaseDate?.year)?.toString() ?? '';
+    final variant = normalizeLibraryDuplicateToken(item.variant) ?? '';
+    final labelParts = [
+      item.title,
+      '#${item.itemNumber!.trim()}',
+      if (item.publisher?.trim() case final value? when value.isNotEmpty) value,
+      if (year.isNotEmpty) year,
+      if (item.variant?.trim() case final value? when value.isNotEmpty) value,
+    ];
+    var confidenceScore = 52;
+    if (publisher.isNotEmpty) confidenceScore += 4;
+    if (year.isNotEmpty) confidenceScore += 3;
+    if (variant.isNotEmpty) confidenceScore += 2;
+    candidates.add(
+      LibraryDuplicateCandidate(
+        key: 'issue:$title|$issue|$publisher|$year|$variant',
+        label: labelParts.join(' - '),
+        reason: 'Same issue metadata',
+        confidenceScore: confidenceScore,
+        entryLabel: entryLabel,
+      ),
+    );
+    return candidates;
+  }
 
   @override
   List<CatalogEditionDto> buildReleaseEditions({

@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -15,6 +17,24 @@ class GameLibraryMediaPresentationBuilder
   });
 
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  List<LibraryDuplicateCandidate> buildDuplicateCandidates(
+    LibraryWorkspaceSource entry,
+  ) {
+    final item = entry.catalogTransport;
+    final identifier =
+        normalizeLibraryDuplicateIdentifier(item?.identifierCode);
+    if (item == null || identifier == null) return const [];
+    return [
+      LibraryDuplicateCandidate(
+        key: 'identifier:$identifier',
+        label: 'Identifier ${item.identifierCode!.trim()}',
+        reason: 'Same identifier',
+        confidenceScore: 78,
+      ),
+    ];
+  }
 
   @override
   List<CatalogEditionDto> buildReleaseEditions({

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -11,6 +12,7 @@ class LibraryDuplicateGroup {
     required this.reason,
     required this.confidenceScore,
     required this.entries,
+    this.entryLabels = const {},
   });
 
   final String key;
@@ -18,6 +20,7 @@ class LibraryDuplicateGroup {
   final String reason;
   final int confidenceScore;
   final List<LibraryWorkspaceSource> entries;
+  final Map<LibraryWorkspaceSource, String> entryLabels;
 
   int get count => entries.length;
 }
@@ -25,58 +28,43 @@ class LibraryDuplicateGroup {
 List<LibraryDuplicateGroup> findDuplicateShelfGroups(
   List<LibraryWorkspaceSource> entries,
 ) {
-  final barcodeBuckets = <String, _DuplicateBucket>{};
+  final candidatesByKey = <String, List<_CandidateEntry>>{};
   for (final entry in entries) {
-    final payload = entry.catalogTransport?.payload ?? const {};
-    final rawBarcode = payload['barcode']?.toString();
-    final barcode = _normalizedBarcode(rawBarcode);
-    if (barcode == null) {
-      continue;
+    final module = defaultLibraryKindRegistry.tryGet(entry.mediaKind);
+    if (module == null) continue;
+    for (final candidate
+        in module.presentation.builder.buildDuplicateCandidates(entry)) {
+      candidatesByKey
+          .putIfAbsent(candidate.key, () => [])
+          .add(_CandidateEntry(candidate, entry));
     }
-    _addToBucket(
-      barcodeBuckets,
-      key: 'barcode:$barcode',
-      label: 'Barcode ${rawBarcode!.trim()}',
-      reason: 'Same barcode',
-      entry: entry,
-    );
   }
 
-  final groups = _duplicateGroups(barcodeBuckets);
-  final barcodeDuplicateItemIds = {
-    for (final group in groups)
-      for (final entry in group.entries) entry.itemId,
-  };
-
-  final issueBuckets = <String, _DuplicateBucket>{};
-  for (final entry in entries) {
-    if (barcodeDuplicateItemIds.contains(entry.itemId)) {
+  final buckets = <String, _DuplicateBucket>{};
+  final occupiedByStrongerMatch = <LibraryWorkspaceSource>{};
+  final orderedCandidates = candidatesByKey.values.toList()
+    ..sort((left, right) =>
+        _candidateScore(right).compareTo(_candidateScore(left)));
+  for (final candidateEntries in orderedCandidates) {
+    final distinctEntries = candidateEntries.map((item) => item.entry).toSet();
+    if (distinctEntries.length < 2) continue;
+    final score = _candidateScore(candidateEntries);
+    if (score < 70 && distinctEntries.every(occupiedByStrongerMatch.contains)) {
       continue;
     }
-    final item = entry.catalogTransport;
-    if (item == null) {
-      continue;
+    for (final candidateEntry in candidateEntries) {
+      _addToBucket(
+        buckets,
+        candidate: candidateEntry.candidate,
+        entry: candidateEntry.entry,
+      );
     }
-    final payload = item.payload;
-    final title = _normalizedText(item.title);
-    final issue = _normalizedText(
-        (payload['item_number'] ?? payload['itemNumber'])?.toString());
-    if (title == null || issue == null) {
-      continue;
+    if (score >= 70) {
+      occupiedByStrongerMatch.addAll(distinctEntries);
     }
-    final publisher = _normalizedText(payload['publisher']?.toString()) ?? '';
-    final year = (item.releaseYear ?? item.releaseDate?.year)?.toString() ?? '';
-    final variant = _normalizedText(payload['variant']?.toString()) ?? '';
-    _addToBucket(
-      issueBuckets,
-      key: 'issue:$title|$issue|$publisher|$year|$variant',
-      label: _issueDuplicateLabel(entry),
-      reason: 'Same issue metadata',
-      entry: entry,
-    );
   }
 
-  groups.addAll(_duplicateGroups(issueBuckets));
+  final groups = _duplicateGroups(buckets);
   groups.sort((a, b) {
     final scoreOrder = b.confidenceScore.compareTo(a.confidenceScore);
     if (scoreOrder != 0) {
@@ -257,7 +245,10 @@ class _DuplicateGroupTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 for (final entry in group.entries)
-                  _DuplicateEntryRow(entry: entry),
+                  _DuplicateEntryRow(
+                    entry: entry,
+                    label: group.entryLabels[entry] ?? entry.title,
+                  ),
               ],
             ),
           ),
@@ -298,13 +289,13 @@ class _DuplicateInfoChip extends StatelessWidget {
 }
 
 class _DuplicateEntryRow extends StatelessWidget {
-  const _DuplicateEntryRow({required this.entry});
+  const _DuplicateEntryRow({required this.entry, required this.label});
 
   final LibraryWorkspaceSource entry;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
-    final item = entry.catalogTransport;
     final colorScheme = Theme.of(context).colorScheme;
     final palette = appPalette(context);
     return DecoratedBox(
@@ -340,10 +331,7 @@ class _DuplicateEntryRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item == null
-                        ? entry.title
-                        : _itemTitle(
-                            item.title, item.payload['item_number'] as String?),
+                    label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -373,25 +361,51 @@ class _DuplicateBucket {
   _DuplicateBucket({
     required this.label,
     required this.reason,
+    required this.confidenceScore,
   });
 
   final String label;
   final String reason;
+  int confidenceScore;
   final List<LibraryWorkspaceSource> entries = [];
+  final Map<LibraryWorkspaceSource, String> entryLabels = {};
+}
+
+final class _CandidateEntry {
+  const _CandidateEntry(this.candidate, this.entry);
+
+  final LibraryDuplicateCandidate candidate;
+  final LibraryWorkspaceSource entry;
+}
+
+int _candidateScore(List<_CandidateEntry> candidates) {
+  return candidates.fold<int>(
+      0,
+      (score, candidate) => candidate.candidate.confidenceScore > score
+          ? candidate.candidate.confidenceScore
+          : score);
 }
 
 void _addToBucket(
   Map<String, _DuplicateBucket> buckets, {
-  required String key,
-  required String label,
-  required String reason,
+  required LibraryDuplicateCandidate candidate,
   required LibraryWorkspaceSource entry,
 }) {
   final bucket = buckets.putIfAbsent(
-    key,
-    () => _DuplicateBucket(label: label, reason: reason),
+    candidate.key,
+    () => _DuplicateBucket(
+      label: candidate.label,
+      reason: candidate.reason,
+      confidenceScore: candidate.confidenceScore,
+    ),
   );
+  if (candidate.confidenceScore > bucket.confidenceScore) {
+    bucket.confidenceScore = candidate.confidenceScore;
+  }
   bucket.entries.add(entry);
+  if (candidate.entryLabel case final label?) {
+    bucket.entryLabels[entry] = label;
+  }
 }
 
 List<LibraryDuplicateGroup> _duplicateGroups(
@@ -406,57 +420,13 @@ List<LibraryDuplicateGroup> _duplicateGroups(
           reason: bucket.value.reason,
           confidenceScore: _duplicateConfidenceScore(bucket.value),
           entries: _sortedEntries(bucket.value.entries),
+          entryLabels: Map.unmodifiable(bucket.value.entryLabels),
         ),
   ];
 }
 
 int _duplicateConfidenceScore(_DuplicateBucket bucket) {
-  final catalogItems = [
-    for (final entry in bucket.entries)
-      if (entry.catalogTransport != null) entry.catalogTransport!,
-  ];
-  if (catalogItems.length < 2) {
-    return 0;
-  }
-
-  var score = switch (bucket.reason) {
-    'Same barcode' => 78,
-    'Same issue metadata' => 52,
-    _ => 40,
-  };
-
-  if (_allShareValue(catalogItems.map((item) => _normalizedText(item.title)))) {
-    score += 8;
-  }
-  if (_allShareValue(
-    catalogItems.map((item) {
-      final payload = item.payload;
-      return _normalizedText(
-          (payload['item_number'] ?? payload['itemNumber'])?.toString());
-    }),
-  )) {
-    score += 5;
-  }
-  if (_allShareValue(
-    catalogItems.map((item) {
-      final payload = item.payload;
-      return _normalizedText(payload['publisher']?.toString());
-    }),
-  )) {
-    score += 4;
-  }
-  if (_allShareValue(catalogItems.map(_releaseYearToken))) {
-    score += 3;
-  }
-  if (_allShareValue(
-    catalogItems.map((item) {
-      final payload = item.payload;
-      return _normalizedText(payload['variant']?.toString());
-    }),
-  )) {
-    score += 2;
-  }
-
+  var score = bucket.confidenceScore;
   final ownedCount = bucket.entries.where((entry) => entry.isOwned).length;
   if (ownedCount > 0 && ownedCount < bucket.entries.length) {
     score += 2;
@@ -464,15 +434,6 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
 
   score += bucket.entries.length > 2 ? 2 : 0;
   return score.clamp(0, 99);
-}
-
-bool _allShareValue(Iterable<String?> values) {
-  final normalized = values.whereType<String>().toSet();
-  return normalized.length == 1 && normalized.isNotEmpty;
-}
-
-String? _releaseYearToken(LibraryAddCatalogTransport item) {
-  return (item.releaseYear ?? item.releaseDate?.year)?.toString();
 }
 
 List<LibraryWorkspaceSource> _sortedEntries(
@@ -487,69 +448,14 @@ List<LibraryWorkspaceSource> _sortedEntries(
     });
 }
 
-String _issueDuplicateLabel(LibraryWorkspaceSource entry) {
-  final catalogItem = entry.catalogTransport;
-  if (catalogItem == null) {
-    return entry.title;
-  }
-  final payload = catalogItem.payload;
-  final itemNumber =
-      (payload['item_number'] ?? payload['itemNumber'])?.toString();
-  final publisher = payload['publisher']?.toString();
-  final variant = payload['variant']?.toString();
-
-  final pieces = [
-    _itemTitle(catalogItem.title, itemNumber),
-    if (_hasText(publisher)) publisher!.trim(),
-    if ((catalogItem.releaseYear ?? catalogItem.releaseDate?.year) != null)
-      (catalogItem.releaseYear ?? catalogItem.releaseDate?.year).toString(),
-    if (_hasText(variant)) variant!.trim(),
-  ];
-  return pieces.join(' - ');
-}
-
 String _entrySubtitle(LibraryWorkspaceSource entry) {
-  final catalogItem = entry.catalogTransport;
-  final payload = catalogItem?.payload ?? const {};
-  final publisher = payload['publisher']?.toString();
-  final barcode = payload['barcode']?.toString();
-
   final pieces = <String>[
     if (entry.isOwned) 'Owned',
     if (entry.isWishlisted) 'Wishlist',
-    if (_hasText(publisher)) publisher!.trim(),
-    if (catalogItem != null &&
-        (catalogItem.releaseYear ?? catalogItem.releaseDate?.year) != null)
-      (catalogItem.releaseYear ?? catalogItem.releaseDate?.year).toString(),
-    if (_hasText(barcode)) 'Barcode ${barcode!.trim()}',
     'ID ${entry.itemId}',
   ];
   return pieces.join(' - ');
 }
-
-String _itemTitle(String title, String? itemNumber) {
-  final issue = itemNumber?.trim();
-  if (issue == null || issue.isEmpty) {
-    return title;
-  }
-  return '$title #$issue';
-}
-
-String? _normalizedBarcode(String? value) {
-  final normalized = value?.replaceAll(RegExp(r'[^0-9A-Za-z]'), '');
-  return normalized == null || normalized.isEmpty
-      ? null
-      : normalized.toLowerCase();
-}
-
-String? _normalizedText(String? value) {
-  final normalized = value?.trim().replaceAll(RegExp(r'\s+'), ' ');
-  return normalized == null || normalized.isEmpty
-      ? null
-      : normalized.toLowerCase();
-}
-
-bool _hasText(String? value) => value != null && value.trim().isNotEmpty;
 
 int _duplicateReasonOrder(String reason) {
   return switch (reason) {

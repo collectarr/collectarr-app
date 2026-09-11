@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
+import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -12,6 +13,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
@@ -144,6 +146,15 @@ String? _normalizedMetadataText(Object? value) {
 
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
+
+  /// Builds semantic duplicate candidates for this kind.
+  ///
+  /// Generic duplicate UI only groups and renders the structural candidates.
+  /// The kind decides which identifiers and matching rules are meaningful.
+  List<LibraryDuplicateCandidate> buildDuplicateCandidates(
+    LibraryWorkspaceSource entry,
+  ) =>
+      const [];
 
   List<CatalogEditionDto> buildReleaseEditions({
     required LibraryAddCatalogTransport item,
