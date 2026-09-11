@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -27,6 +29,13 @@ class MangaLibraryMediaPresentationBuilder
   final String publisherLabel;
   final String variantLabel;
   final String barcodeLabel;
+
+  @override
+  List<CatalogEditionDto> buildReleaseEditions({
+    required LibraryAddCatalogTransport item,
+  }) {
+    return item.editions;
+  }
 
   @override
   LibraryMetadataPresentation buildMetadataPresentation({

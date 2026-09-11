@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -24,6 +26,13 @@ const animeMetadataLabels = LibraryMetadataLabels(
 class AnimeLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
   const AnimeLibraryMediaPresentationBuilder();
+
+  @override
+  List<CatalogEditionDto> buildReleaseEditions({
+    required LibraryAddCatalogTransport item,
+  }) {
+    return item.editions;
+  }
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {

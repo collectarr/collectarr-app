@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
@@ -31,6 +32,13 @@ class BookLibraryMediaPresentationBuilder
   final bool showSummary;
   final bool showVolumeHierarchy;
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  List<CatalogEditionDto> buildReleaseEditions({
+    required LibraryAddCatalogTransport item,
+  }) {
+    return item.editions;
+  }
 
   @override
   LibraryMetadataPresentation buildMetadataPresentation({

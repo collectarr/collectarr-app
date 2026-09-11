@@ -1,5 +1,6 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -142,15 +143,12 @@ class LibraryWorkspaceCard extends StatelessWidget {
             Brightness.dark
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
-    final editionsPayload =
-        item.source.catalogTransport?.payload['editions'] as List?;
-    final rawEditions = editionsPayload != null
-        ? editionsPayload
-            .whereType<Map<String, dynamic>>()
-            .map(
-                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
-            .toList()
-        : const <CatalogEditionDto>[];
+    final kind = item.source.mediaKind;
+    final module = libraryKindModuleForKind(kind);
+    final catalog = item.source.catalogTransport;
+    final List<CatalogEditionDto> rawEditions = catalog == null
+        ? const []
+        : module.presentation.builder.buildReleaseEditions(item: catalog);
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: item.source.mediaKind.apiValue,
       editions: rawEditions,
@@ -161,8 +159,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     );
 
     // Resolve the kind-supplied card presentation (or fall back to default).
-    final kind = item.source.mediaKind;
-    final module = libraryKindModuleForKind(kind);
     final musicVertical = cardLayout == LibraryCardLayout.vertical;
     final presentation = module.presentation.buildCardPresentation(
       item,

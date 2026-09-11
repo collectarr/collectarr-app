@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_preview_seasons_section.dart';
@@ -25,6 +27,13 @@ const tvMetadataLabels = LibraryMetadataLabels(
 class TvLibraryMediaPresentationBuilder
     extends LibraryMediaPresentationBuilder {
   const TvLibraryMediaPresentationBuilder();
+
+  @override
+  List<CatalogEditionDto> buildReleaseEditions({
+    required LibraryAddCatalogTransport item,
+  }) {
+    return item.editions;
+  }
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {

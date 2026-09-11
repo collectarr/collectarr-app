@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -830,13 +830,11 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       if (formatLabel != null) formatLabel,
     ].whereType<String>().join('  ·  ');
 
-    final payload = widget.item.source.catalogTransport?.payload;
-    final editions = (payload?['editions'] as List?)
-            ?.whereType<Map<Object?, Object?>>()
-            .map(
-                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
-            .toList() ??
-        const <CatalogEditionDto>[];
+    final catalog = widget.item.source.catalogTransport;
+    final module = libraryKindModuleForKind(widget.item.source.mediaKind);
+    final editions = catalog == null
+        ? const []
+        : module.presentation.builder.buildReleaseEditions(item: catalog);
     final hasReleases = editions.length > 1;
 
     final itemNumber = adapter?.itemNumber;
