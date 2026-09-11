@@ -73,8 +73,9 @@ class LibraryPageEditCoordinator {
     final itemImageRepo = ItemImageRepository(db);
     final cached = (await CatalogSnapshotRepository(db)
         .findByRefs([catalogItem.catalogRef]))[catalogItem.catalogRef];
-    final freshMetadataItem =
-        cached == null ? catalogItem : LibraryAddCatalogItem.fromItem(cached);
+    final freshMetadataItem = cached == null
+        ? catalogItem
+        : LibraryAddCatalogTransport.fromItem(cached);
     OwnedItemSummary? owned = ownedItemOverride;
     final wishlistItems = _s.ref.read(wishlistProvider).maybeWhen(
           data: (value) => value,
@@ -244,7 +245,7 @@ class LibraryPageEditCoordinator {
     required OwnedItemSummary? owned,
     required WishlistItem? wishlist,
     required TrackingLifecycle? activeTrackingLifecycle,
-    required LibraryAddCatalogItem catalogItem,
+    required LibraryAddCatalogTransport catalogItem,
     required CustomFieldRepository customFieldRepo,
     required ItemImageRepository itemImageRepo,
   }) async {

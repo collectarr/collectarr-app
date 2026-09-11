@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -146,12 +146,12 @@ abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 
   List<CatalogEditionDto> buildReleaseEditions({
-    required LibraryAddCatalogItem item,
+    required LibraryAddCatalogTransport item,
   }) =>
       const [];
 
   List<TrailerLinkDto> buildLinks({
-    required LibraryAddCatalogItem item,
+    required LibraryAddCatalogTransport item,
   }) =>
       const [];
 
@@ -161,7 +161,7 @@ abstract class LibraryMediaPresentationBuilder {
       null;
 
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required LibraryAddCatalogItem item,
+    required LibraryAddCatalogTransport item,
   }) {
     return null;
   }
@@ -171,7 +171,7 @@ abstract class LibraryMediaPresentationBuilder {
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required LibraryAddCatalogItem? item,
+    required LibraryAddCatalogTransport? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,

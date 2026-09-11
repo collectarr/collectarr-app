@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -11,12 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('TV Add policy classifies and filters media scopes', () {
-    final series = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final series = LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'tv-series',
       'kind': 'tv',
       'title': 'Example Show',
     }));
-    final season = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final season = LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'tv-season',
       'kind': 'tv',
       'title': 'Example Show',
@@ -25,7 +25,8 @@ void main() {
         'season_number': 1,
       },
     }));
-    final release = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final release =
+        LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -49,18 +50,19 @@ void main() {
   });
 
   test('TV Add policy keeps all scopes visible by default', () {
-    final series = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final series = LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'tv-series',
       'kind': 'tv',
       'title': 'Example Show',
     }));
-    final season = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final season = LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'tv-season',
       'kind': 'tv',
       'title': 'Example Show',
       'series': {'season_number': 2},
     }));
-    final release = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final release =
+        LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -77,18 +79,20 @@ void main() {
   });
 
   test('Comic Add policy owns owned and variant visibility', () {
-    final owned = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final owned = LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'comic-owned',
       'kind': 'comic',
       'title': 'Owned Comic',
     }));
-    final variant = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final variant =
+        LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'comic-variant',
       'kind': 'comic',
       'title': 'Variant Comic',
       'variant': 'Foil',
     }));
-    final regular = LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    final regular =
+        LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'comic-regular',
       'kind': 'comic',
       'title': 'Regular Comic',

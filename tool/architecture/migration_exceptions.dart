@@ -711,7 +711,7 @@ const architectureMigrationExceptions = <ArchitectureMigrationException>[
   ),
   ArchitectureMigrationException(
     ruleId: 'TK006',
-    path: 'lib/features/catalog/transport/library_add_catalog_item.dart',
+    path: 'lib/features/catalog/transport/library_add_catalog_transport.dart',
     reason: 'generated Core/provider transport boundary',
     owner: 'core-dto-cutover',
     removeByPhase: 'Phase 1',

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/video/video_custom_tab_builder.dart';
@@ -14,7 +14,7 @@ Widget? buildTvCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryAddCatalogItem item,
+  required LibraryAddCatalogTransport item,
   required VoidCallback markDirty,
 }) {
   final tvDraft = draft.kindDetails;

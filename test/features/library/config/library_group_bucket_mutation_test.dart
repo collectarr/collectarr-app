@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -10,11 +10,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
 
-LibraryAddCatalogItem _metadata(
+LibraryAddCatalogTransport _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
-  return LibraryAddCatalogItem.fromItem(
+  return LibraryAddCatalogTransport.fromItem(
     testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: '$kind-1',
@@ -26,8 +26,8 @@ LibraryAddCatalogItem _metadata(
   );
 }
 
-LibraryAddCatalogItem _mutateGroup(
-  LibraryAddCatalogItem item,
+LibraryAddCatalogTransport _mutateGroup(
+  LibraryAddCatalogTransport item,
   CatalogMediaKind kind,
   String mode,
   String currentLabel, {

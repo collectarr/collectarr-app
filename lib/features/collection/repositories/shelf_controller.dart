@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -49,9 +49,10 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   // Library kind contributors receive transport snapshots only at this
   // explicit boundary. Joins are keyed by the complete catalog reference so
   // equal IDs across kinds cannot collide.
-  final catalogSnapshotsByRef = (await CatalogSnapshotRepository(db)
-          .findByRefs(catalogRefs))
-      .map((ref, item) => MapEntry(ref, LibraryAddCatalogItem.fromItem(item)));
+  final catalogSnapshotsByRef =
+      (await CatalogSnapshotRepository(db).findByRefs(catalogRefs)).map(
+          (ref, item) =>
+              MapEntry(ref, LibraryAddCatalogTransport.fromItem(item)));
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -101,13 +102,13 @@ class ShelfState {
         const <OwnedItemRef, Object>{},
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
-    Map<CatalogEntityRef, LibraryAddCatalogItem>? catalogSnapshotsByRef,
+    Map<CatalogEntityRef, LibraryAddCatalogTransport>? catalogSnapshotsByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
-    final catalogByRef = <CatalogEntityRef, LibraryAddCatalogItem>{
+    final catalogByRef = <CatalogEntityRef, LibraryAddCatalogTransport>{
       ...?catalogSnapshotsByRef,
     };
     final resolvedCatalogSummariesByRef =
@@ -327,7 +328,7 @@ class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
     this.typedOwnedItem,
   });
 
-  final LibraryAddCatalogItem? catalogItem;
+  final LibraryAddCatalogTransport? catalogItem;
 
   /// Concrete kind-owned aggregate available only after the Shelf has
   /// resolved the owning kind. Generic/global callers must use
@@ -405,7 +406,8 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   return ref;
 }
 
-CatalogDisplaySummary _catalogSummaryFromSnapshot(LibraryAddCatalogItem item) {
+CatalogDisplaySummary _catalogSummaryFromSnapshot(
+    LibraryAddCatalogTransport item) {
   final itemNumber = item.itemNumber?.trim();
   final title = item.resolvedDisplayTitle.trim();
   return CatalogDisplaySummary.work(

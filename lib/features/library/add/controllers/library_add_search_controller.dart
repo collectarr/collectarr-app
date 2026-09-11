@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:flutter/material.dart';
 
 class LibraryAddSearchController {
@@ -15,7 +15,7 @@ class LibraryAddSearchController {
   final queryController = TextEditingController();
   final identifierController = TextEditingController();
 
-  List<LibraryAddCatalogItem> results = const [];
+  List<LibraryAddCatalogTransport> results = const [];
   List<ProviderCandidate> providerResults = const [];
   String? error;
   String selectedProvider;
@@ -29,7 +29,7 @@ class LibraryAddSearchController {
   int coreSearchGeneration = 0;
   int providerSearchGeneration = 0;
   Timer? autocompleteTimer;
-  List<LibraryAddCatalogItem> suggestions = const [];
+  List<LibraryAddCatalogTransport> suggestions = const [];
   bool showSuggestions = false;
   final Map<LibraryAddFilterId, Object?> _advancedFilters;
 
@@ -110,11 +110,11 @@ class LibraryAddSearchState {
   final bool searchedProvider;
   final bool isScanningCover;
   final bool showAdvancedSearch;
-  final List<LibraryAddCatalogItem> results;
+  final List<LibraryAddCatalogTransport> results;
   final List<ProviderCandidate> providerResults;
   final String selectedProvider;
   final Map<LibraryAddFilterId, Object?> advancedFilters;
-  final List<LibraryAddCatalogItem> suggestions;
+  final List<LibraryAddCatalogTransport> suggestions;
   final bool showSuggestions;
   final String? error;
   final int coreSearchGeneration;
@@ -133,11 +133,11 @@ class LibraryAddSearchState {
     bool? searchedProvider,
     bool? isScanningCover,
     bool? showAdvancedSearch,
-    List<LibraryAddCatalogItem>? results,
+    List<LibraryAddCatalogTransport>? results,
     List<ProviderCandidate>? providerResults,
     String? selectedProvider,
     Map<LibraryAddFilterId, Object?>? advancedFilters,
-    List<LibraryAddCatalogItem>? suggestions,
+    List<LibraryAddCatalogTransport>? suggestions,
     bool? showSuggestions,
     String? error,
     bool clearError = false,

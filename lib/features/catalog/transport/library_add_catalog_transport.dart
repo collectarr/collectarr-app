@@ -8,15 +8,15 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 /// Core catalog DTO its application-domain model. The owning kind receives
 /// this boundary value through its Add capability and the transport DTO is
 /// unwrapped only when persistence or an HTTP mutation is required.
-final class LibraryAddCatalogItem {
-  const LibraryAddCatalogItem._(this._item);
+final class LibraryAddCatalogTransport {
+  const LibraryAddCatalogTransport._(this._item);
 
-  factory LibraryAddCatalogItem.fromItem(CatalogItemDto item) {
-    return LibraryAddCatalogItem._(item);
+  factory LibraryAddCatalogTransport.fromItem(CatalogItemDto item) {
+    return LibraryAddCatalogTransport._(item);
   }
 
-  factory LibraryAddCatalogItem.fromJson(Map<String, dynamic> json) {
-    return LibraryAddCatalogItem._(CatalogItemDto.fromJson(json));
+  factory LibraryAddCatalogTransport.fromJson(Map<String, dynamic> json) {
+    return LibraryAddCatalogTransport._(CatalogItemDto.fromJson(json));
   }
 
   final CatalogItemDto _item;
@@ -57,7 +57,7 @@ final class LibraryAddCatalogItem {
     return _item.catalogRefForTarget(targetRef);
   }
 
-  LibraryAddCatalogItem copyWith({
+  LibraryAddCatalogTransport copyWith({
     LibraryItemIdentity? identity,
     String? title,
     Object? displayTitle = _unset,
@@ -78,7 +78,7 @@ final class LibraryAddCatalogItem {
     Object? physicalFormatLabel = _unset,
     Object? kindMetadata,
   }) {
-    return LibraryAddCatalogItem._(
+    return LibraryAddCatalogTransport._(
       _item.copyWith(
         identity: identity,
         title: title,
@@ -103,8 +103,8 @@ final class LibraryAddCatalogItem {
     );
   }
 
-  LibraryAddCatalogItem withKindMetadata(Object? kindMetadata) {
-    return LibraryAddCatalogItem._(_item.withKindMetadata(kindMetadata));
+  LibraryAddCatalogTransport withKindMetadata(Object? kindMetadata) {
+    return LibraryAddCatalogTransport._(_item.withKindMetadata(kindMetadata));
   }
 
   CatalogItemDto toTransportItem() => _item;

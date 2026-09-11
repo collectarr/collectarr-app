@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_search_pan
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
@@ -333,6 +333,6 @@ class _MovieSearchGridEntry {
   const _MovieSearchGridEntry.core(this.item) : candidate = null;
   const _MovieSearchGridEntry.provider(this.candidate) : item = null;
 
-  final LibraryAddCatalogItem? item;
+  final LibraryAddCatalogTransport? item;
   final ProviderCandidate? candidate;
 }

@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 
 typedef LibraryAddMetadataSearchScore = int Function(
-  LibraryAddCatalogItem item,
+  LibraryAddCatalogTransport item,
   LibraryAddSearchContext context,
 );
 
@@ -25,7 +25,8 @@ class LibraryAddSearchRankField {
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
-  final Iterable<Object?> Function(LibraryAddCatalogItem item) metadataValues;
+  final Iterable<Object?> Function(LibraryAddCatalogTransport item)
+      metadataValues;
   final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
 }
 
@@ -40,8 +41,8 @@ class LibraryAddSearchRanking {
   final LibraryAddProviderSearchScore scoreProvider;
   final int Function(LibraryAddSearchContext context) maxScore;
 
-  List<LibraryAddCatalogItem> rankMetadata(
-    List<LibraryAddCatalogItem> items,
+  List<LibraryAddCatalogTransport> rankMetadata(
+    List<LibraryAddCatalogTransport> items,
     LibraryAddSearchContext context,
   ) {
     if (items.length < 2 || !context.hasAnyInput) {
@@ -61,7 +62,7 @@ class LibraryAddSearchRanking {
   }
 
   bool shouldSearchProviderForCoreResults(
-    List<LibraryAddCatalogItem> items,
+    List<LibraryAddCatalogTransport> items,
     LibraryAddSearchContext context, {
     double confidenceThreshold = libraryAddProviderFallbackConfidenceThreshold,
   }) {
@@ -83,7 +84,7 @@ LibraryAddSearchRanking buildLibraryAddSearchRanking({
   required List<LibraryAddSearchRankField> fields,
 }) {
   int scoreMetadata(
-    LibraryAddCatalogItem item,
+    LibraryAddCatalogTransport item,
     LibraryAddSearchContext context,
   ) {
     var score = _scoreText(
@@ -210,8 +211,8 @@ String _normalize(Object? value) {
       '';
 }
 
-List<LibraryAddCatalogItem> filterAndRankCatalogItems(
-  List<LibraryAddCatalogItem> items,
+List<LibraryAddCatalogTransport> filterAndRankCatalogItems(
+  List<LibraryAddCatalogTransport> items,
   LibraryAddSearchRanking ranking,
   LibraryAddSearchContext context, {
   int minimumScore = 1,

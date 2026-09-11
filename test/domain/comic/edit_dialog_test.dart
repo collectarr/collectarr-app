@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
@@ -170,7 +170,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogItem.fromItem(item),
+      item: LibraryAddCatalogTransport.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
       trackingLifecycle: trackingLifecycle,
       accent: Colors.red,
@@ -351,7 +351,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogItem.fromItem(item),
+      item: LibraryAddCatalogTransport.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
     );
@@ -444,7 +444,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: LibraryAddCatalogItem.fromItem(item),
+      item: LibraryAddCatalogTransport.fromItem(item),
       ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
       customFieldDefinitions: [customField],

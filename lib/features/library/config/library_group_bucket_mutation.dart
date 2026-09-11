@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 
-typedef LibraryGroupBucketValueMutator = LibraryAddCatalogItem? Function(
-  LibraryAddCatalogItem item,
+typedef LibraryGroupBucketValueMutator = LibraryAddCatalogTransport? Function(
+  LibraryAddCatalogTransport item,
   String currentLabel, {
   String? replacement,
 });
@@ -135,11 +135,11 @@ void _setOrRemoveStringValue(
   }
 }
 
-LibraryAddCatalogItem _libraryMetadataItemWithPayload(
-  LibraryAddCatalogItem item,
+LibraryAddCatalogTransport _libraryMetadataItemWithPayload(
+  LibraryAddCatalogTransport item,
   Map<String, dynamic> payload,
 ) {
-  return LibraryAddCatalogItem.fromJson({
+  return LibraryAddCatalogTransport.fromJson({
     'id': item.id,
     'kind': item.mediaKind.apiValue,
     ...payload,

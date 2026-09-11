@@ -13,7 +13,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -154,7 +154,7 @@ class LibraryAddPreviewPaneRequest {
 
   final LibraryKindModule type;
   final Color accent;
-  final LibraryAddCatalogItem? item;
+  final LibraryAddCatalogTransport? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
@@ -228,9 +228,9 @@ class LibraryAddModeBarRequest {
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
-  final List<LibraryAddCatalogItem> suggestions;
+  final List<LibraryAddCatalogTransport> suggestions;
   final bool showSuggestions;
-  final ValueChanged<LibraryAddCatalogItem> onSelectSuggestion;
+  final ValueChanged<LibraryAddCatalogTransport> onSelectSuggestion;
   final VoidCallback onDismissSuggestions;
   final bool canScanCover;
   final bool isScanningCover;
@@ -287,7 +287,7 @@ class LibraryAddSearchPaneRequest {
   final bool isBusy;
   final String? error;
   final Color accent;
-  final List<LibraryAddCatalogItem> results;
+  final List<LibraryAddCatalogTransport> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
@@ -297,7 +297,7 @@ class LibraryAddSearchPaneRequest {
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
   final Set<CatalogEntityRef> ownedCatalogRefs;
-  final String? Function(LibraryAddCatalogItem item)? coreMatchSummary;
+  final String? Function(LibraryAddCatalogTransport item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
@@ -346,7 +346,7 @@ class LibraryAddBottomBarRequest {
   final List<String> conditions;
   final String? defaultTags;
   final Color accent;
-  final LibraryAddCatalogItem? selectedItem;
+  final LibraryAddCatalogTransport? selectedItem;
   final ProviderCandidate? selectedCandidate;
   final LibraryQueuedProviderIngest? selectedQueuedIngest;
   final String providerLabel;

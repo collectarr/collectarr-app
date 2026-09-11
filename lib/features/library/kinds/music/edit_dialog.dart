@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:async';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -177,7 +177,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
   bool get _hasWishlistContext => widget.request.wishlistItem != null;
 
-  LibraryAddCatalogItem get _item => widget.request.item;
+  LibraryAddCatalogTransport get _item => widget.request.item;
   Color get _accent => widget.request.accent;
 
   LibraryEditPresentationContext get _editPresentationContext {
@@ -1905,7 +1905,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
 
     Navigator.of(context).pop(
       LibraryEditSelection(
-        item: LibraryAddCatalogItem.fromItem(updatedItem),
+        item: LibraryAddCatalogTransport.fromItem(updatedItem),
         personal: !_isOwned
             ? null
             : LibraryPersonalEditSelection(

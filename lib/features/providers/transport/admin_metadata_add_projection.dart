@@ -1,18 +1,18 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 
 /// Decodes the provider-ingest response into the Add transport wrapper.
 ///
 /// This is deliberately kept at the provider transport boundary.  The Add
-/// host receives an opaque [LibraryAddCatalogItem] and dispatches it to the
+/// host receives an opaque [LibraryAddCatalogTransport] and dispatches it to the
 /// owning kind before constructing any canonical domain object.
-LibraryAddCatalogItem libraryAddCatalogItemFromIngestResult(
+LibraryAddCatalogTransport libraryAddCatalogItemFromIngestResult(
   AdminMetadataItem item,
 ) {
   final primaryEdition = item.primaryEdition;
   final primaryVariant = item.primaryVariant;
   final releaseDate = primaryEdition?.releaseDate;
-  return LibraryAddCatalogItem.fromJson({
+  return LibraryAddCatalogTransport.fromJson({
     'id': item.id,
     'kind': item.kind,
     'title': item.title,

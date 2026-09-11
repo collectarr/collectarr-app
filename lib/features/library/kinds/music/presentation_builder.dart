@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
@@ -27,7 +27,7 @@ class MusicLibraryMediaPresentationBuilder
 
   @override
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required LibraryAddCatalogItem item,
+    required LibraryAddCatalogTransport item,
   }) {
     final metadata = _musicMetadataItem(item);
     final subtitle = _firstMeaningfulMusicValue([
@@ -72,7 +72,7 @@ class MusicLibraryMediaPresentationBuilder
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required LibraryAddCatalogItem? item,
+    required LibraryAddCatalogTransport? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
@@ -287,7 +287,7 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
   return _musicMetadataItem(item.source.catalogItem);
 }
 
-MusicCatalogMetadata? _musicMetadataItem(LibraryAddCatalogItem? item) {
+MusicCatalogMetadata? _musicMetadataItem(LibraryAddCatalogTransport? item) {
   if (item == null) return null;
   final metadata = item.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
@@ -838,7 +838,7 @@ class _MusicPreviewTrackData {
 
 String? _musicReleaseLine({
   required String albumTitle,
-  required LibraryAddCatalogItem? item,
+  required LibraryAddCatalogTransport? item,
   required AdminProviderPreview? preview,
 }) {
   final releaseYear = item?.releaseYear ??
@@ -852,7 +852,7 @@ String? _musicReleaseLine({
 }
 
 String? _musicLabelCatalogLine({
-  required LibraryAddCatalogItem? item,
+  required LibraryAddCatalogTransport? item,
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
@@ -880,7 +880,7 @@ String? _musicLabelCatalogLine({
 }
 
 String? _musicSupportingLine({
-  required LibraryAddCatalogItem? item,
+  required LibraryAddCatalogTransport? item,
   required AdminProviderPreview? preview,
   required ProviderCandidate? candidate,
 }) {
@@ -903,7 +903,7 @@ String? _musicSupportingLine({
 }
 
 String? _musicAlbumSubtitle({
-  required LibraryAddCatalogItem? item,
+  required LibraryAddCatalogTransport? item,
   required AdminProviderPreview? preview,
 }) {
   final meta = _musicMetadataItem(item);
@@ -935,7 +935,7 @@ String? _musicAlbumSubtitle({
 }
 
 List<_MusicPreviewTrackData> _musicPreviewTracks({
-  required LibraryAddCatalogItem? item,
+  required LibraryAddCatalogTransport? item,
   required AdminProviderPreview? preview,
 }) {
   final itemTracks = _musicMetadataItem(item)?.tracks;

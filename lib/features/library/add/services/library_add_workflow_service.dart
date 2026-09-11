@@ -20,7 +20,7 @@ import 'package:collectarr_app/features/library/add/services/library_provider_ac
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -31,7 +31,7 @@ import 'package:uuid/uuid.dart';
 class LibraryAddWorkflowService {
   const LibraryAddWorkflowService();
 
-  LibraryAddCatalogItem metadataItemFromPreview(
+  LibraryAddCatalogTransport metadataItemFromPreview(
     AdminProviderPreview preview, {
     String? itemId,
   }) {
@@ -46,7 +46,7 @@ class LibraryAddWorkflowService {
     if (mapper == null) {
       throw StateError('No provider mapper registered for ${preview.kind}');
     }
-    return LibraryAddCatalogItem.fromItem(
+    return LibraryAddCatalogTransport.fromItem(
       mapper(
         ProviderMetadataEnvelope.fromAdminPreview(
           preview,
@@ -65,7 +65,7 @@ class LibraryAddWorkflowService {
     return 'preview-$kind-${const Uuid().v5(Namespace.url.value, previewKey)}';
   }
 
-  Future<LibraryAddCatalogItem> providerAddItemForCandidate({
+  Future<LibraryAddCatalogTransport> providerAddItemForCandidate({
     required ApiClient? api,
     required ProviderCandidate candidate,
     required bool mounted,
@@ -97,7 +97,7 @@ class LibraryAddWorkflowService {
     required OwnedItemMutations ownedMutations,
     required WishlistMutations wishlistMutations,
     required TrackingMutations trackingMutations,
-    required Iterable<LibraryAddCatalogItem> items,
+    required Iterable<LibraryAddCatalogTransport> items,
     required LibraryAddTarget target,
     LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
     LibraryAddDefaults defaults = const LibraryAddDefaults(),

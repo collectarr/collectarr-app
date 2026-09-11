@@ -33,7 +33,7 @@ import 'package:collectarr_app/features/library/add/services/library_cover_scan_
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -149,7 +149,7 @@ class LibraryAddSessionController
   LibraryAddSessionState get state => value;
   set state(LibraryAddSessionState newState) => value = newState;
 
-  CatalogEntityRef _selectedWishlistRef(LibraryAddCatalogItem item) {
+  CatalogEntityRef _selectedWishlistRef(LibraryAddCatalogTransport item) {
     final selection = state.selection;
     return catalogRefForLibrarySelection(
       item.catalogRef,
@@ -159,7 +159,7 @@ class LibraryAddSessionController
     );
   }
 
-  CatalogEntityRef _selectedTargetRef(LibraryAddCatalogItem item) {
+  CatalogEntityRef _selectedTargetRef(LibraryAddCatalogTransport item) {
     final selection = state.selection;
     return catalogRefForLibrarySelection(
       item.catalogRef,
@@ -281,7 +281,7 @@ class LibraryAddSessionController
     }
   }
 
-  void selectSuggestion(LibraryAddCatalogItem item) {
+  void selectSuggestion(LibraryAddCatalogTransport item) {
     state = state.copyWith(
       search: state.search.copyWith(
         query: item.title,
@@ -948,7 +948,7 @@ class LibraryAddSessionController
       return;
     }
 
-    LibraryAddCatalogItem? selected;
+    LibraryAddCatalogTransport? selected;
     for (final item in state.search.results) {
       if (item.id == itemId) {
         selected = item;
@@ -965,12 +965,12 @@ class LibraryAddSessionController
     );
 
     try {
-      final LibraryAddCatalogItem hydrated = await api!
+      final LibraryAddCatalogTransport hydrated = await api!
           .getTypedMetadataItem(
         kind: selected.mediaKind,
         id: itemId,
       )
-          .then<LibraryAddCatalogItem>((dto) {
+          .then<LibraryAddCatalogTransport>((dto) {
         final raw = mergeHydratedProviderAddResultRaw(
           raw: <String, dynamic>{
             ...dto.raw,
@@ -980,7 +980,7 @@ class LibraryAddSessionController
           },
           sourceSelection: selected!,
         );
-        final item = LibraryAddCatalogItem.fromJson(raw);
+        final item = LibraryAddCatalogTransport.fromJson(raw);
         final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
         return decoder == null
             ? item
@@ -1010,13 +1010,13 @@ class LibraryAddSessionController
             selectedEditionsPayload.isNotEmpty)
           'editions': selectedEditionsPayload,
       };
-      final mergedItem = LibraryAddCatalogItem.fromJson({
+      final mergedItem = LibraryAddCatalogTransport.fromJson({
         'id': hydratedItem.id,
         'kind': hydratedItem.mediaKind.apiValue,
         ...mergedPayload,
       });
 
-      final hydratedMap = Map<String, LibraryAddCatalogItem>.from(
+      final hydratedMap = Map<String, LibraryAddCatalogTransport>.from(
         state.preview.hydratedResults,
       );
       hydratedMap[itemId] = mergedItem;
@@ -1288,7 +1288,7 @@ class LibraryAddSessionController
     );
   }
 
-  Future<bool> submitSelectedItem(LibraryAddCatalogItem item) async {
+  Future<bool> submitSelectedItem(LibraryAddCatalogTransport item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     state = state.copyWith(
       isAdding: true,
@@ -1580,8 +1580,8 @@ class LibraryAddSessionController
 }
 
 Map<String, Object?> _emptyProviderCorrections({
-  required LibraryAddCatalogItem edited,
-  required LibraryAddCatalogItem preview,
+  required LibraryAddCatalogTransport edited,
+  required LibraryAddCatalogTransport preview,
 }) =>
     const <String, Object?>{};
 
@@ -1589,8 +1589,8 @@ BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
   final builder = libraryKindProviderCorrectionBuilderForKind(kind);
   if (builder == null) return _emptyProviderCorrections;
   return ({
-    required LibraryAddCatalogItem edited,
-    required LibraryAddCatalogItem preview,
+    required LibraryAddCatalogTransport edited,
+    required LibraryAddCatalogTransport preview,
   }) =>
       builder(
         preview: preview.toTransportItem(),

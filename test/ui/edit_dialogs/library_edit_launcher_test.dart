@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
@@ -67,7 +67,7 @@ void main() {
 LibraryEditDialogRequest _bookEditRequest() {
   return LibraryEditDialogRequest(
     type: bookKindModule,
-    item: LibraryAddCatalogItem.fromItem(testCatalogItemFromJson({
+    item: LibraryAddCatalogTransport.fromItem(testCatalogItemFromJson({
       'id': 'book-1',
       'kind': 'book',
       'title': 'The Return of the King',

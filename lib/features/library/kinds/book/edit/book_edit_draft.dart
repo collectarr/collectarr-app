@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -246,7 +246,7 @@ class BookEditDraft extends LibraryEditKindDraft {
 }
 
 LibraryEditKindDraft createBookEditDraft({
-  required LibraryAddCatalogItem item,
+  required LibraryAddCatalogTransport item,
   Object? typedOwnedItem,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,

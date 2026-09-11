@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 
 class LibraryAddCoreSearchResult {
@@ -14,7 +14,7 @@ class LibraryAddCoreSearchResult {
     required this.shouldSearchProvider,
   });
 
-  final List<LibraryAddCatalogItem> items;
+  final List<LibraryAddCatalogTransport> items;
   final bool shouldSearchProvider;
 }
 
@@ -69,7 +69,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   final rankedItems = ranking.rankMetadata(
     [
       for (final item in items)
-        LibraryAddCatalogItem.fromItem(item.toTransportItem()),
+        LibraryAddCatalogTransport.fromItem(item.toTransportItem()),
     ],
     searchContext,
   );
@@ -80,7 +80,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   );
 }
 
-Future<List<LibraryAddCatalogItem>> fetchLibraryAddSuggestions({
+Future<List<LibraryAddCatalogTransport>> fetchLibraryAddSuggestions({
   required ApiClient api,
   required LibraryKindModule type,
   required CatalogTransportRepository catalog,
@@ -98,7 +98,7 @@ Future<List<LibraryAddCatalogItem>> fetchLibraryAddSuggestions({
   return filterAndRankCatalogItems(
     [
       for (final item in items)
-        LibraryAddCatalogItem.fromItem(item.toTransportItem()),
+        LibraryAddCatalogTransport.fromItem(item.toTransportItem()),
     ],
     ranking,
     searchContext,
@@ -119,10 +119,10 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
     catalog: catalog,
     codes: [identifierCode],
   ).timeout(timeout);
-  final foundItems = <LibraryAddCatalogItem>[
+  final foundItems = <LibraryAddCatalogTransport>[
     for (final result in results)
       if (result.item != null)
-        LibraryAddCatalogItem.fromItem(result.item!.toTransportItem()),
+        LibraryAddCatalogTransport.fromItem(result.item!.toTransportItem()),
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

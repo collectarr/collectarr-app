@@ -2,13 +2,13 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
 typedef BuildProviderCorrections = Map<String, Object?> Function({
-  required LibraryAddCatalogItem preview,
-  required LibraryAddCatalogItem edited,
+  required LibraryAddCatalogTransport preview,
+  required LibraryAddCatalogTransport edited,
 });
 
 class LibraryProviderOrchestrationService {
@@ -16,7 +16,7 @@ class LibraryProviderOrchestrationService {
 
   static const _workflow = LibraryAddWorkflowService();
 
-  LibraryAddCatalogItem proposalDraftFromCandidate({
+  LibraryAddCatalogTransport proposalDraftFromCandidate({
     required LibraryKindModule type,
     required ProviderCandidate candidate,
   }) {
@@ -26,7 +26,7 @@ class LibraryProviderOrchestrationService {
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
     );
-    return LibraryAddCatalogItem.fromJson({
+    return LibraryAddCatalogTransport.fromJson({
       'id': id,
       'kind': mediaKind.apiValue,
       'title': candidate.title,
@@ -40,8 +40,8 @@ class LibraryProviderOrchestrationService {
     required BuildProviderCorrections providerMapper,
     required String kind,
     required String itemId,
-    required LibraryAddCatalogItem preview,
-    required LibraryAddCatalogItem edited,
+    required LibraryAddCatalogTransport preview,
+    required LibraryAddCatalogTransport edited,
   }) async {
     final corrections = providerMapper(
       preview: preview,

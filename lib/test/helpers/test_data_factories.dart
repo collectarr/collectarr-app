@@ -41,7 +41,7 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -145,8 +145,8 @@ CatalogItemDto testCatalogItem({
 }
 
 extension ShelfCatalogFixture on CatalogItemDto {
-  LibraryAddCatalogItem get asShelfCatalogItem =>
-      LibraryAddCatalogItem.fromItem(this);
+  LibraryAddCatalogTransport get asShelfCatalogItem =>
+      LibraryAddCatalogTransport.fromItem(this);
 }
 
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
@@ -203,7 +203,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
     catalogRef.mediaKind,
   ).add;
   return add.buildCommandFromDetails(
-    LibraryAddCatalogItem.fromItem(
+    LibraryAddCatalogTransport.fromItem(
       testCatalogItem(
         id: catalogRef.id,
         kind: catalogRef.kind.apiValue,
@@ -555,7 +555,7 @@ ShelfEntry testShelfEntry({
   };
   return ShelfEntry(
     itemId: itemId,
-    catalogItem: LibraryAddCatalogItem.fromItem(
+    catalogItem: LibraryAddCatalogTransport.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),

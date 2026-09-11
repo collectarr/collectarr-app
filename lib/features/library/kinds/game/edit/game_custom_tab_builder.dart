@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
@@ -18,7 +18,7 @@ Widget? buildGameCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryAddCatalogItem item,
+  required LibraryAddCatalogTransport item,
   required VoidCallback markDirty,
 }) {
   if (tabId == 'owned') {

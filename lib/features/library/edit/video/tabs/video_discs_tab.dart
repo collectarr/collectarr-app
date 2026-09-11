@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ class VideoEditDiscsTab extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryAddCatalogItem item;
+  final LibraryAddCatalogTransport item;
   final Color accent;
 
   @override

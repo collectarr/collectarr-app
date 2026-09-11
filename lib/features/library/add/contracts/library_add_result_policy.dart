@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 
 typedef LibraryAddCoreResultVisibilityPredicate = bool Function(
-  LibraryAddCatalogItem item,
+  LibraryAddCatalogTransport item,
   LibraryAddResultPolicyContext context,
 );
 
@@ -17,7 +17,7 @@ typedef LibraryAddProviderCandidateGroupPredicate = bool Function(
 );
 
 typedef LibraryAddCoreGroupTitleBuilder = String Function(
-  LibraryAddCatalogItem item,
+  LibraryAddCatalogTransport item,
 );
 
 typedef LibraryAddProviderGroupTitleBuilder = String Function(
@@ -113,8 +113,8 @@ class LibraryAddResultPolicy {
     );
   }
 
-  List<LibraryAddCatalogItem> filterCoreResults({
-    required List<LibraryAddCatalogItem> items,
+  List<LibraryAddCatalogTransport> filterCoreResults({
+    required List<LibraryAddCatalogTransport> items,
     required LibraryAddResultPolicyState state,
     Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
@@ -154,7 +154,7 @@ class LibraryAddResultPolicy {
     return predicate == null ? false : predicate(candidate);
   }
 
-  String coreGroupTitle(LibraryAddCatalogItem item) {
+  String coreGroupTitle(LibraryAddCatalogTransport item) {
     final builder = coreGroupTitleBuilder;
     final title = builder == null ? null : builder(item).trim();
     return title == null || title.isEmpty ? item.title : title;

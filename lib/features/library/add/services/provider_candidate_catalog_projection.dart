@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 
 /// Projects a provider candidate into a provisional catalog transport item.
 ///
 /// Provider candidates are transport data. The kind registry is consulted only
 /// here, at the Library Add composition boundary, to attach the owning kind's
 /// typed metadata decoder. Provider transport code must not depend on kinds.
-LibraryAddCatalogItem catalogItemFromProviderCandidate(
+LibraryAddCatalogTransport catalogItemFromProviderCandidate(
   ProviderCandidate candidate,
 ) {
   final item = CatalogItemDto.fromJson({
@@ -28,7 +28,7 @@ LibraryAddCatalogItem catalogItemFromProviderCandidate(
       'release_year': candidate.series!.volumeStartYear,
   });
   final decoder = libraryKindCatalogMetadataDecoderForKind(candidate.kind);
-  return LibraryAddCatalogItem.fromItem(
+  return LibraryAddCatalogTransport.fromItem(
     decoder == null ? item : item.withKindMetadata(decoder(item.payload)),
   );
 }

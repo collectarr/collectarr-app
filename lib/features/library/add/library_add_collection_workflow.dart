@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 
 class LibraryAddDefaults {
   const LibraryAddDefaults({
@@ -55,7 +55,7 @@ Future<void> addLibraryItemsToTarget({
   required OwnedItemMutations ownedMutations,
   required WishlistMutations wishlistMutations,
   required TrackingMutations trackingMutations,
-  required Iterable<LibraryAddCatalogItem> items,
+  required Iterable<LibraryAddCatalogTransport> items,
   required LibraryAddTarget target,
   LibraryAddReferenceType referenceType = LibraryAddReferenceType.media,
   LibraryAddDefaults defaults = const LibraryAddDefaults(),
@@ -146,7 +146,7 @@ Future<void> addLibraryItemsToTarget({
   }
 }
 
-bool? _digitalOwnedItemFlag(LibraryAddCatalogItem item) {
+bool? _digitalOwnedItemFlag(LibraryAddCatalogTransport item) {
   final payload = item.payload;
   if (payload['is_digital'] is bool) {
     return payload['is_digital'] as bool;
@@ -172,7 +172,7 @@ bool? _digitalOwnedItemFlag(LibraryAddCatalogItem item) {
 }
 
 _ResolvedAddReference _resolveReferenceForItem(
-  LibraryAddCatalogItem item, {
+  LibraryAddCatalogTransport item, {
   required LibraryAddReferenceType referenceType,
   LibraryAddEditionSelection? editionSelection,
   String? bundleReleaseId,

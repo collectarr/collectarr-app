@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_unsupporte
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
@@ -64,7 +64,7 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
 
 typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
     = OwnedItemCreatePayload Function(
-  LibraryAddCatalogItem item,
+  LibraryAddCatalogTransport item,
   LibraryAddCommonDraft common,
   TDraft draft,
   JsonEncodable details,
@@ -100,7 +100,7 @@ class LibraryAddSearchCapability {
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
-  final LibraryAddMatchSummaryBuilder<LibraryAddCatalogItem>?
+  final LibraryAddMatchSummaryBuilder<LibraryAddCatalogTransport>?
       coreMatchSummaryBuilder;
   final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
       providerMatchSummaryBuilder;
@@ -148,7 +148,7 @@ class LibraryAddSearchCapability {
       coverScanFilterValuesBuilder?.call(result) ?? const {};
 
   String? coreMatchSummary(
-    LibraryAddCatalogItem item,
+    LibraryAddCatalogTransport item,
     LibraryAddSearchContext context,
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
@@ -202,13 +202,13 @@ abstract interface class LibraryAddCapability<
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddOwnedItemCommand buildCommand(LibraryAddCatalogItem item,
+  AddOwnedItemCommand buildCommand(LibraryAddCatalogTransport item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {CatalogEntityRef? targetRef,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
 
   AddOwnedItemCommand buildCommandFromDetails(
-    LibraryAddCatalogItem item,
+    LibraryAddCatalogTransport item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
     LibraryAddKindDraft? draft,
@@ -296,7 +296,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   OwnedItemCreatePayload _buildOwnedPayload(
-    LibraryAddCatalogItem item,
+    LibraryAddCatalogTransport item,
     LibraryAddCommonDraft common,
     TDraft draft,
     JsonEncodable details,
@@ -318,7 +318,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   }
 
   @override
-  AddOwnedItemCommand buildCommand(LibraryAddCatalogItem item,
+  AddOwnedItemCommand buildCommand(LibraryAddCatalogTransport item,
       LibraryAddCommonDraft common, LibraryAddKindDraft draft,
       {CatalogEntityRef? targetRef,
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
@@ -346,7 +346,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
 
   @override
   AddOwnedItemCommand buildCommandFromDetails(
-    LibraryAddCatalogItem item,
+    LibraryAddCatalogTransport item,
     LibraryAddCommonDraft common,
     JsonEncodable details, {
     LibraryAddKindDraft? draft,

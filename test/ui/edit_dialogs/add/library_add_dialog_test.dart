@@ -24,7 +24,7 @@ import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/catalog/transport/library_add_catalog_item.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -164,8 +164,8 @@ void main() {
     );
 
     final merged = mergeProviderAddResult(
-      ingested: LibraryAddCatalogItem.fromItem(ingested),
-      edited: LibraryAddCatalogItem.fromItem(edited),
+      ingested: LibraryAddCatalogTransport.fromItem(ingested),
+      edited: LibraryAddCatalogTransport.fromItem(edited),
     );
 
     final creators = jsonObjectList(merged.payload['creators']);
