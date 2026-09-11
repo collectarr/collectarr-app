@@ -128,7 +128,7 @@ void main() {
     final nodes = MusicHierarchyMapper.toLibraryNodes(release);
     expect(nodes, hasLength(1));
     expect(nodes.single.level, LibraryHierarchyLevel.container);
-    expect(nodes.single.secondaryLabel, 'Vinyl Â· 2 tracks');
+    expect(nodes.single.secondaryLabel, 'Vinyl ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· 2 tracks');
     expect(nodes.single.children, hasLength(2));
     expect(nodes.single.children.first.level, LibraryHierarchyLevel.leaf);
     expect(nodes.single.children.first.secondaryLabel, '1:01');

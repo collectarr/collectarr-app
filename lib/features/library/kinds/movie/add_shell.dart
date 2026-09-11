@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
@@ -167,14 +168,14 @@ Widget buildMovieAddSearchPane(
                                 if (publisher != null &&
                                     publisher.trim().isNotEmpty)
                                   publisher.trim(),
-                              ].whereType<String>().join(' · ')
+                              ].whereType<String>().join(' Ãƒâ€šÃ‚Â· ')
                             : [
                                 request.type.metadata
                                     .providerLabel(candidate!.provider),
                                 if (candidate.summary?.trim().isNotEmpty ==
                                     true)
                                   candidate.summary,
-                              ].whereType<String>().join(' · ');
+                              ].whereType<String>().join(' Ãƒâ€šÃ‚Â· ');
                         final matchSummary = isCore
                             ? request.coreMatchSummary?.call(item)
                             : request.providerMatchSummary?.call(candidate!);

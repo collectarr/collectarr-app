@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -728,7 +729,7 @@ class _InspectorReadingQueueActionButtonState
     final tooltip = _loading
         ? 'Reading queue'
         : _inQueue
-            ? 'Reading queue · position #$_position'
+            ? 'Reading queue Ãƒâ€šÃ‚Â· position #$_position'
             : 'Add to reading queue';
     return InspectorToolIconButton(
       tooltip: tooltip,

@@ -83,8 +83,8 @@ void main() {
 
     test('AnimeMetadata serialization and deserialization roundtrip', () {
       final metadata = AnimeMetadata(
-        nativeTitle: 'カウボーイビバップ',
-        romajiTitle: 'Kaubōi Bibappu',
+        nativeTitle: 'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”',
+        romajiTitle: 'KaubÃ…Âi Bibappu',
         englishTitle: 'Cowboy Bebop',
         alternateTitles: const ['COWBOY BEBOP'],
         format: AnimeFormat.tv,
@@ -115,8 +115,8 @@ void main() {
       final json = metadata.toJson();
       final fromJson = AnimeMetadata.fromJson(json);
 
-      expect(fromJson.nativeTitle, 'カウボーイビバップ');
-      expect(fromJson.romajiTitle, 'Kaubōi Bibappu');
+      expect(fromJson.nativeTitle, 'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”');
+      expect(fromJson.romajiTitle, 'KaubÃ…Âi Bibappu');
       expect(fromJson.englishTitle, 'Cowboy Bebop');
       expect(fromJson.format, AnimeFormat.tv);
       expect(fromJson.season, AnimeSeason.spring);

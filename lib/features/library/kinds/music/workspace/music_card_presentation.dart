@@ -74,7 +74,7 @@ Widget _buildMusicHorizontalCard({
   final metaLine = [
     if (format != null && format.isNotEmpty) format,
     if (year.isNotEmpty) year,
-  ].join(' – ');
+  ].join(' Ã¢â‚¬â€œ ');
 
   return RepaintBoundary(
     child: AnimatedContainer(
@@ -344,7 +344,7 @@ Widget _buildMusicVerticalCard({
                           [
                             if (artist != null) artist,
                             if (year.isNotEmpty) year,
-                          ].join(' – '),
+                          ].join(' Ã¢â‚¬â€œ '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:

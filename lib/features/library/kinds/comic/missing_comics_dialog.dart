@@ -215,7 +215,7 @@ class _MissingComicsSeriesCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          '${report.missingIssueCount} missing · ${report.ownedIssueCount} owned',
+          '${report.missingIssueCount} missing Ã‚Â· ${report.ownedIssueCount} owned',
         ),
         children: [
           Padding(
@@ -313,7 +313,7 @@ class _VerboseIssueRow extends StatelessWidget {
         .toSet()
         .toList(growable: false);
     final label = includeVariants && variantLabels.isNotEmpty
-        ? '${formatComicIssueLabel(group.issueNumber)} · ${variantLabels.join(' / ')}'
+        ? '${formatComicIssueLabel(group.issueNumber)} Ã‚Â· ${variantLabels.join(' / ')}'
         : formatComicIssueLabel(group.issueNumber);
     return ListTile(
       contentPadding: EdgeInsets.zero,

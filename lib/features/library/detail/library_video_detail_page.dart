@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -467,7 +468,7 @@ class _ResolvedVideoRelease {
     if (totalQuantity == ownedCopies.length) {
       return '${ownedCopies.length} copies in collection';
     }
-    return '${ownedCopies.length} copies in collection · Qty $totalQuantity';
+    return '${ownedCopies.length} copies in collection Ãƒâ€šÃ‚Â· Qty $totalQuantity';
   }
 }
 
@@ -768,7 +769,7 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${release.edition.title} · ${release.ownershipLabel}',
+              '${release.edition.title} Ãƒâ€šÃ‚Â· ${release.ownershipLabel}',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: palette.textPrimary,
                     fontWeight: FontWeight.w700,

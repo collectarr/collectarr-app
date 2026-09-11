@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'dart:typed_data';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 

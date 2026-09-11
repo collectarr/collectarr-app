@@ -70,7 +70,7 @@ void main() {
 
     test('MangaMetadata serialization and deserialization roundtrip', () {
       final metadata = MangaMetadata(
-        nativeTitle: 'バガボンド',
+        nativeTitle: 'Ã£Æ’ÂÃ£â€šÂ¬Ã£Æ’Å“Ã£Æ’Â³Ã£Æ’â€°',
         romajiTitle: 'Bagabondo',
         englishTitle: 'Vagabond',
         alternateTitles: const ['Takehiko Inoue Vagabond'],
@@ -100,7 +100,7 @@ void main() {
       final json = metadata.toJson();
       final fromJson = MangaMetadata.fromJson(json);
 
-      expect(fromJson.nativeTitle, 'バガボンド');
+      expect(fromJson.nativeTitle, 'Ã£Æ’ÂÃ£â€šÂ¬Ã£Æ’Å“Ã£Æ’Â³Ã£Æ’â€°');
       expect(fromJson.romajiTitle, 'Bagabondo');
       expect(fromJson.englishTitle, 'Vagabond');
       expect(fromJson.demographic, MangaDemographic.seinen);

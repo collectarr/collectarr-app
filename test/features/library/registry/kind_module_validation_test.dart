@@ -16,6 +16,41 @@ void main() {
       }
     });
 
+    test('feature capability registries cover every active kind', () {
+      final activeKinds = collectarrKindModules.map((module) => module.kind);
+
+      expect(collectarrKindPhysicalMediaFormats.keys, containsAll(activeKinds));
+      expect(collectarrKindPresentations.keys, containsAll(activeKinds));
+      expect(collectarrKindMetadata.keys, containsAll(activeKinds));
+      expect(collectarrKindTrackingProfiles.keys, containsAll(activeKinds));
+      expect(collectarrKindHierarchies.keys, containsAll(activeKinds));
+      expect(collectarrKindInspectors.keys, containsAll(activeKinds));
+      expect(collectarrKindEdits.keys, containsAll(activeKinds));
+      expect(collectarrKindTransfers.keys, containsAll(activeKinds));
+      expect(collectarrKindStats.keys, containsAll(activeKinds));
+      expect(collectarrKindUiPolicies.keys, containsAll(activeKinds));
+      expect(collectarrKindLinkedMetadata.keys, containsAll(activeKinds));
+      expect(collectarrKindAdds.keys, containsAll(activeKinds));
+      expect(collectarrKindTitleCapabilities.keys, containsAll(activeKinds));
+      expect(collectarrKindReleaseCapabilities.keys, containsAll(activeKinds));
+      expect(collectarrKindSearchTargetOptions.keys, containsAll(activeKinds));
+      expect(collectarrKindViewProfiles.keys, containsAll(activeKinds));
+    });
+
+    test('module capability access resolves through the matching feature map',
+        () {
+      for (final module in collectarrKindModules) {
+        expect(module.presentation,
+            same(collectarrKindPresentations[module.kind]));
+        expect(module.metadata, same(collectarrKindMetadata[module.kind]));
+        expect(module.hierarchy, same(collectarrKindHierarchies[module.kind]));
+        expect(module.edit, same(collectarrKindEdits[module.kind]));
+        expect(module.add, same(collectarrKindAdds[module.kind]));
+        expect(
+            module.viewProfile, same(collectarrKindViewProfiles[module.kind]));
+      }
+    });
+
     test(
         'field IDs across different kinds are distinctly namespaced (no collision)',
         () {

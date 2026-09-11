@@ -84,7 +84,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   }
 
   /// Build sorted [FacetBuckets] from a bucket map.
-  /// When [allBucketLabel] is non-null an "All …" entry is prepended.
+  /// When [allBucketLabel] is non-null an "All Ã¢â‚¬Â¦" entry is prepended.
   static FacetBuckets buildFacetBuckets({
     required String signature,
     required Map<String, Set<String>> byBucket,

@@ -63,7 +63,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
   final sourceSets = <String, Set<String>>{};
 
   // -- index used to merge Core items into existing Provider groups ----------
-  // Maps lowercase title → first key that uses that title.
+  // Maps lowercase title Ã¢â€ â€™ first key that uses that title.
   final titleIndex = <String, String>{};
 
   void ensureKey(String key, String title) {
@@ -94,7 +94,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     }
   }
 
-  // 2. Process Core results — merge into a matching Provider group when the
+  // 2. Process Core results Ã¢â‚¬â€ merge into a matching Provider group when the
   //    titles match, otherwise create a Core-only group at the front.
   final coreOnlyKeys = <String>[];
   for (final item in coreResults) {
@@ -233,7 +233,7 @@ class LibraryAddUnifiedGroupNodeState
     final palette = appPalette(context);
     final group = widget.group;
 
-    // Singleton groups (one item, no series candidate) — show inline.
+    // Singleton groups (one item, no series candidate) Ã¢â‚¬â€ show inline.
     if (group.isSingleton) {
       if (group.coreItems.length == 1) {
         return SearchResultTile(
@@ -290,7 +290,7 @@ class LibraryAddUnifiedGroupNodeState
       }
     }
 
-    // Multi-item group — collapsed by default.
+    // Multi-item group Ã¢â‚¬â€ collapsed by default.
     final highlighted = _hasSelectedChild;
     final subtitleParts = <String>[
       for (final src in group.sources)
@@ -354,7 +354,7 @@ class LibraryAddUnifiedGroupNodeState
                         if (subtitleParts.isNotEmpty) ...[
                           const SizedBox(height: 3),
                           Text(
-                            subtitleParts.join(' · '),
+                            subtitleParts.join(' Ã‚Â· '),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -641,7 +641,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                           ],
                           Expanded(
                             child: Text(
-                              subtitleParts.join(' · '),
+                              subtitleParts.join(' Ã‚Â· '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -744,7 +744,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                             '${queuedIngest!.shortId}',
                           ),
                         Text(
-                          subtitleParts.skip(1).join(' · '),
+                          subtitleParts.skip(1).join(' Ã‚Â· '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

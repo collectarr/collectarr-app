@@ -139,7 +139,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Detail pages (outside shell — full-screen push).
+      // Detail pages (outside shell Ã¢â‚¬â€ full-screen push).
       GoRoute(
         path: AppRoutes.detail,
         redirect: (context, state) {
@@ -222,7 +222,7 @@ Widget _buildDefaultDetailPage(
 }
 
 // ---------------------------------------------------------------------------
-// Auth-state → ChangeNotifier bridge for GoRouter.refreshListenable
+// Auth-state Ã¢â€ â€™ ChangeNotifier bridge for GoRouter.refreshListenable
 // ---------------------------------------------------------------------------
 
 class _AuthChangeNotifier extends ChangeNotifier {

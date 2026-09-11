@@ -887,7 +887,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
-        matching: find.text('Rotation: 0°'),
+        matching: find.text('Rotation: 0Ã‚Â°'),
       ),
       findsOneWidget,
     );
@@ -903,7 +903,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
-        matching: find.text('Rotation: 90°'),
+        matching: find.text('Rotation: 90Ã‚Â°'),
       ),
       findsOneWidget,
     );

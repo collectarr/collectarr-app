@@ -92,7 +92,7 @@ void main() {
       'provider_item_id': '2665653',
       'title': 'Absolute Batman #1 [Jim Lee Cardstock Variant Cover]',
       'kind': 'comic',
-      'summary': 'December 2024 · 5.99 USD · variant',
+      'summary': 'December 2024 Ã‚Â· 5.99 USD Ã‚Â· variant',
       'candidate_type': 'variant',
       'is_variant': true,
     });

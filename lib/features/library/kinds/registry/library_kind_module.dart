@@ -40,34 +40,15 @@ export 'package:collectarr_app/features/library/config/library_linked_metadata_c
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 
-/// Typed capability surface used by generic navigation and orchestration.
+/// Narrow identity boundary used by generic navigation and orchestration.
 ///
-/// Do not add members here. New dispatch contracts belong in
-/// [LibraryKindRegistration] or in the concrete kind module that owns them.
+/// Semantic capabilities are deliberately not exposed here. They are
+/// dispatched through the feature-specific generated maps below, so a generic
+/// feature cannot accidentally treat this object as a semantic service
+/// locator.
 abstract interface class LibraryKindModule {
   CatalogMediaKind get kind;
   LibraryKindIdentity get identity;
-  List<PhysicalMediaFormat> get physicalMediaFormats;
-  LibraryMediaPresentation get presentation;
-  LibraryMetadataCapability get metadata;
-  MediaTrackingProfile get trackingProfile;
-  LibraryHierarchyCapability get hierarchy;
-  LibraryInspectorCapability get inspector;
-  LibraryEditCapability get edit;
-  LibraryTransferCapability get transfer;
-  LibraryStatsCapability get stats;
-  LibraryValueCapability? get value;
-  LibraryRelationCapability? get relations;
-  LibraryUiPolicy get uiPolicy;
-  LibraryLinkedMetadataCapability get linkedMetadata;
-  LibraryAddCapability get add;
-  LibraryAddChromeConfig get addChrome => add.chrome;
-  TitleProjectionCapability<LibraryWorkspaceDto> get titleCapability;
-  ReleaseProjectionCapability<LibraryWorkspaceDto>? get releaseCapability;
-  LibraryKindToolbarModule? get toolbar;
-  List<LibrarySearchTarget> get searchTargetOptions;
-
-  LibraryWorkspaceViewProfile get viewProfile;
 }
 
 class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
@@ -98,39 +79,23 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
   @override
   final LibraryKindIdentity identity;
 
-  @override
   final List<PhysicalMediaFormat> physicalMediaFormats;
 
-  @override
   final LibraryMediaPresentation presentation;
-  @override
   final LibraryMetadataCapability metadata;
-  @override
   final LibraryHierarchyCapability hierarchy;
-  @override
   final LibraryInspectorCapability inspector;
-  @override
   final LibraryLinkedMetadataCapability linkedMetadata;
-  @override
   final LibraryTransferCapability transfer;
-  @override
   final LibraryStatsCapability stats;
-  @override
   final LibraryValueCapability? value;
-  @override
   final LibraryRelationCapability? relations;
-  @override
   final LibraryEditCapability edit;
-  @override
   final MediaTrackingProfile trackingProfile;
-  @override
   final LibraryUiPolicy uiPolicy;
-  @override
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;
-  @override
   final ReleaseProjectionCapability<LibraryWorkspaceDto>? releaseCapability;
 
-  @override
   LibraryAddChromeConfig get addChrome => add.chrome;
 
   @override
@@ -138,14 +103,10 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
 
   final LibraryWorkspaceViewProfile? _viewProfile;
 
-  @override
   LibraryWorkspaceViewProfile get viewProfile =>
       _viewProfile ?? plannedMediaWorkspaceViewProfile(this);
 
-  @override
   final LibraryAddCapability add;
-  @override
   final LibraryKindToolbarModule? toolbar;
-  @override
   final List<LibrarySearchTarget> searchTargetOptions;
 }

@@ -572,12 +572,12 @@ class _SearchResultsGrid extends StatelessWidget {
                 if ((item.releaseYear ?? item.releaseDate?.year) != null)
                   (item.releaseYear ?? item.releaseDate?.year).toString(),
                 if (corePublisher != null) corePublisher,
-              ].whereType<String>().join(' · ')
+              ].whereType<String>().join(' Ã‚Â· ')
             : [
                 if (candidate != null) providerLabel(candidate.provider),
                 if (candidate?.summary?.trim().isNotEmpty == true)
                   candidate?.summary,
-              ].whereType<String>().join(' · ');
+              ].whereType<String>().join(' Ã‚Â· ');
         final matchSummary = isCore
             ? coreMatchSummary?.call(item)
             : providerMatchSummary?.call(candidate!);

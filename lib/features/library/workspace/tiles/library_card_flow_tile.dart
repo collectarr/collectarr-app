@@ -101,7 +101,7 @@ class LibraryCardFlowTile extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Large cover ──
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ Large cover Ã¢â€â‚¬Ã¢â€â‚¬
                   SizedBox(
                     width: 120,
                     height: 184,
@@ -147,7 +147,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // ── Metadata ──
+                  // Ã¢â€â‚¬Ã¢â€â‚¬ Metadata Ã¢â€â‚¬Ã¢â€â‚¬
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +203,7 @@ class LibraryCardFlowTile extends StatelessWidget {
                             if (adapter?.format != null &&
                                 adapter!.format!.isNotEmpty)
                               adapter.format,
-                          ].whereType<String>().join('  ·  '),
+                          ].whereType<String>().join('  Ã‚Â·  '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(

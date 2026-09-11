@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dar
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../helpers/test_data_factories.dart';
 
 import '../../contracts/owned_edit_contract.dart';
 

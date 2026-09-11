@@ -450,7 +450,7 @@ class _BundleReleaseDetailCard extends StatelessWidget {
             if (summaryParts.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
-                summaryParts.join(' • '),
+                summaryParts.join(' Ã¢â‚¬Â¢ '),
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: 12,
@@ -584,7 +584,7 @@ String _bundleMemberSubtitle(BundleReleaseMember member) {
     if (member.discNumber != null) 'Disc ${member.discNumber}',
     if (member.quantity > 1) 'x${member.quantity}',
   ];
-  return parts.join(' • ');
+  return parts.join(' Ã¢â‚¬Â¢ ');
 }
 
 class _BundleReleaseDiscSection extends StatelessWidget {
@@ -627,7 +627,7 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                     SizedBox(
                       width: 28,
                       child: Text(
-                        member.sequenceNumber?.toString() ?? '•',
+                        member.sequenceNumber?.toString() ?? 'Ã¢â‚¬Â¢',
                         style: TextStyle(
                           color: palette.textMuted,
                           fontWeight: FontWeight.w700,
@@ -1038,7 +1038,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                       if (subtitleParts.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
-                          subtitleParts.join(' • '),
+                          subtitleParts.join(' Ã¢â‚¬Â¢ '),
                           style: TextStyle(
                             color: palette.textMuted,
                             fontSize: 12,
@@ -1085,7 +1085,7 @@ String _editionSummaryForSelection(
     if (edition.releaseDate != null)
       '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
   ];
-  return parts.join(' • ');
+  return parts.join(' Ã¢â‚¬Â¢ ');
 }
 
 CatalogEditionDto? previewEditionForItem(

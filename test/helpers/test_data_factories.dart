@@ -541,49 +541,53 @@ TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
     TvOwnedItem.fromJson(item.toJson());
 
 LibraryOwnedItemDispatch testOwnedItemDispatchFrom(TestOwnedItem item) {
-  return switch (item.catalogRef.mediaKind) {
-    CatalogMediaKind.anime => AnimeOwnedItemDispatch(
-        ref: item.ref,
-        value: testAnimeOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.boardgame => BoardGameOwnedItemDispatch(
-        ref: item.ref,
-        value: testBoardGameOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.book => BookOwnedItemDispatch(
-        ref: item.ref,
-        value: testBookOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.comic => ComicOwnedItemDispatch(
-        ref: item.ref,
-        value: testComicOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.game => GameOwnedItemDispatch(
-        ref: item.ref,
-        value: testGameOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.manga => MangaOwnedItemDispatch(
-        ref: item.ref,
-        value: testMangaOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.movie => MovieOwnedItemDispatch(
-        ref: item.ref,
-        value: testMovieOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.music => MusicOwnedItemDispatch(
-        ref: item.ref,
-        value: testMusicOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.tv => TvOwnedItemDispatch(
-        ref: item.ref,
-        value: testTvOwnedItemFrom(item),
-      ),
-    CatalogMediaKind.unknown => throw ArgumentError.value(
-        item.catalogRef.mediaKind,
-        'item',
-        'Test Owned fixture requires an active kind',
-      ),
+  final factories = <CatalogMediaKind, LibraryOwnedItemDispatch Function()>{
+    CatalogMediaKind.anime: () => AnimeOwnedItemDispatch(
+          ref: item.ref,
+          value: testAnimeOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.boardgame: () => BoardGameOwnedItemDispatch(
+          ref: item.ref,
+          value: testBoardGameOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.book: () => BookOwnedItemDispatch(
+          ref: item.ref,
+          value: testBookOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.comic: () => ComicOwnedItemDispatch(
+          ref: item.ref,
+          value: testComicOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.game: () => GameOwnedItemDispatch(
+          ref: item.ref,
+          value: testGameOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.manga: () => MangaOwnedItemDispatch(
+          ref: item.ref,
+          value: testMangaOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.movie: () => MovieOwnedItemDispatch(
+          ref: item.ref,
+          value: testMovieOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.music: () => MusicOwnedItemDispatch(
+          ref: item.ref,
+          value: testMusicOwnedItemFrom(item),
+        ),
+    CatalogMediaKind.tv: () => TvOwnedItemDispatch(
+          ref: item.ref,
+          value: testTvOwnedItemFrom(item),
+        ),
   };
+  final factory = factories[item.catalogRef.mediaKind];
+  if (factory == null) {
+    throw ArgumentError.value(
+      item.catalogRef.mediaKind,
+      'item',
+      'Test Owned fixture requires an active kind',
+    );
+  }
+  return factory();
 }
 
 OwnedItemRef _testOwnedItemRef(CatalogEntityRef catalogRef, String id) =>

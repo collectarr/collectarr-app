@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -183,7 +184,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                   for (var i = 1; i <= 5; i++)
                     DropdownMenuItem(
                       value: i,
-                      child: Text('${'★' * i}${'☆' * (5 - i)}'),
+                      child: Text('${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦' * i}${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â ' * (5 - i)}'),
                     ),
                 ],
                 onChanged: (value) {

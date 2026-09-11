@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -177,7 +178,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
         }
       });
       final lists = await Future.wait(futures);
-      candidates = lists.expand((l) => l).toList();
+      candidates = lists
+          .expand<ProviderCandidate>(
+            (list) => list,
+          )
+          .toList();
     }
   }
 

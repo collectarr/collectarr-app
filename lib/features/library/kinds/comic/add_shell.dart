@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
@@ -416,7 +417,7 @@ class _ComicSearchRow extends StatelessWidget {
                   border: Border.all(color: palette.divider),
                 ),
                 child: Text(
-                  _issueText.isNotEmpty ? _issueText : '—',
+                  _issueText.isNotEmpty ? _issueText : 'ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

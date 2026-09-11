@@ -256,7 +256,7 @@ class LibraryRouteState {
     if (trimmed == null) {
       return null;
     }
-    // Sort column IDs are plain snake_case strings — return the token directly
+    // Sort column IDs are plain snake_case strings Ã¢â‚¬â€ return the token directly
     return trimmed;
   }
 

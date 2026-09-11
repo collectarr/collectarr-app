@@ -502,7 +502,7 @@ void main() {
             providerItemId: '2663120',
             title: 'Absolute Batman #1',
             kind: CatalogMediaKind.comic,
-            summary: 'December 2024 · 4.99 USD',
+            summary: 'December 2024 Ã‚Â· 4.99 USD',
             candidateType: 'issue',
             seriesTitle: 'Absolute Batman',
             issueNumber: '1',

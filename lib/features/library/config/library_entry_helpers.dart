@@ -308,7 +308,7 @@ String buildOwnedCopySummaryLabel(OwnedItemSummary item, int index) {
   if (purchaseLabel != null) {
     parts.add(purchaseLabel);
   }
-  return parts.join('  ·  ');
+  return parts.join('  Ã‚Â·  ');
 }
 
 String? _libraryReferenceLabel(
@@ -362,7 +362,7 @@ String buildOwnedCopyLabel(
   if (purchaseLabel != null) {
     parts.add(purchaseLabel);
   }
-  return parts.join('  ·  ');
+  return parts.join('  Ã‚Â·  ');
 }
 
 String? libraryOwnedCopyTypeLabel(

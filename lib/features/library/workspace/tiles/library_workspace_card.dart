@@ -583,7 +583,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       if (_metadataFactValue(_metadataPresentationForEntry(item), 'Runtime')
           case final runtime?)
         runtime,
-    ].whereType<String>().join('  ·  ');
+    ].whereType<String>().join('  Ã‚Â·  ');
     return RepaintBoundary(
       child: AnimatedContainer(
         duration: kAppAnimFast,

@@ -247,7 +247,7 @@ Widget _manualEpisodeFallbackSection(
                     if (episode.airDate != null &&
                         episode.airDate!.trim().isNotEmpty)
                       episode.airDate!,
-                  ].join(' • '),
+                  ].join(' Ã¢â‚¬Â¢ '),
                 ),
                 trailing: IconButton(
                   tooltip: 'Delete episode',

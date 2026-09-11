@@ -485,11 +485,31 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_contribu
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
+import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
+import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
+import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
+import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
+import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
+import 'package:collectarr_app/features/library/config/library_value_capability.dart';
+import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
+import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
+import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -618,6 +638,120 @@ import 'package:go_router/go_router.dart';
   }
   buffer.writeln('});');
   buffer.writeln();
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindPhysicalMediaFormats',
+    field: 'physicalMediaFormats',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindPresentations',
+    field: 'presentation',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindMetadata',
+    field: 'metadata',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindTrackingProfiles',
+    field: 'trackingProfile',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindHierarchies',
+    field: 'hierarchy',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindInspectors',
+    field: 'inspector',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindEdits',
+    field: 'edit',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindTransfers',
+    field: 'transfer',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindStats',
+    field: 'stats',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindValues',
+    field: 'value',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindRelations',
+    field: 'relations',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindUiPolicies',
+    field: 'uiPolicy',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindLinkedMetadata',
+    field: 'linkedMetadata',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindAdds',
+    field: 'add',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindTitleCapabilities',
+    field: 'titleCapability',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindReleaseCapabilities',
+    field: 'releaseCapability',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindToolbars',
+    field: 'toolbar',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindSearchTargetOptions',
+    field: 'searchTargetOptions',
+  );
+  _renderModuleCapabilityMap(
+    buffer,
+    descriptors,
+    name: 'collectarrKindViewProfiles',
+    field: 'viewProfile',
+  );
   buffer.writeln(
     'final Map<CatalogMediaKind, LibraryKindWorkspace> '
     'collectarrKindWorkspaces = {',
@@ -744,6 +878,48 @@ import 'package:go_router/go_router.dart';
   buffer.writeln('  );');
   buffer.writeln('}');
   return buffer.toString();
+}
+
+void _renderModuleCapabilityMap(
+  StringBuffer buffer,
+  List<_KindDescriptor> descriptors, {
+  required String name,
+  required String field,
+}) {
+  final type = switch (field) {
+    'physicalMediaFormats' => 'List<PhysicalMediaFormat>',
+    'presentation' => 'LibraryMediaPresentation',
+    'metadata' => 'LibraryMetadataCapability',
+    'trackingProfile' => 'MediaTrackingProfile',
+    'hierarchy' => 'LibraryHierarchyCapability',
+    'inspector' => 'LibraryInspectorCapability',
+    'edit' => 'LibraryEditCapability',
+    'transfer' => 'LibraryTransferCapability',
+    'stats' => 'LibraryStatsCapability',
+    'value' => 'LibraryValueCapability?',
+    'relations' => 'LibraryRelationCapability?',
+    'uiPolicy' => 'LibraryUiPolicy',
+    'linkedMetadata' => 'LibraryLinkedMetadataCapability',
+    'add' => 'LibraryAddCapability',
+    'titleCapability' => 'TitleProjectionCapability<LibraryWorkspaceDto>',
+    'releaseCapability' => 'ReleaseProjectionCapability<LibraryWorkspaceDto>?',
+    'toolbar' => 'LibraryKindToolbarModule?',
+    'searchTargetOptions' => 'List<LibrarySearchTarget>',
+    'viewProfile' => 'LibraryWorkspaceViewProfile',
+    _ => throw StateError('Unknown module capability field: $field'),
+  };
+  buffer.writeln(
+    'final Map<CatalogMediaKind, $type> $name = '
+    'Map.unmodifiable(<CatalogMediaKind, $type>{',
+  );
+  for (final descriptor in descriptors) {
+    buffer.writeln(
+      '  CatalogMediaKind.${descriptor.folder}: '
+      '${descriptor.moduleName}.$field,',
+    );
+  }
+  buffer.writeln('});');
+  buffer.writeln();
 }
 
 String _renderDatabaseTables(List<_KindDescriptor> descriptors) {
