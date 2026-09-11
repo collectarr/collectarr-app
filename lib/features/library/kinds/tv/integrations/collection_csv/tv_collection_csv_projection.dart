@@ -101,10 +101,6 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
-      TvOwnedItem.fromJson(payload);
-
-  @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != libraryCollectionCsvCatalogCellCount ||
         cells[0].trim().isEmpty) {

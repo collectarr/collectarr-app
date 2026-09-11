@@ -33,9 +33,14 @@ abstract interface class LibraryCollectionCsvProjection {
 
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> catalogCells);
 
-  /// Builds the concrete Owned aggregate after the CSV row is dispatched to
-  /// this kind. The collection host must not inspect the returned object.
-  Object ownedItemFromImport(LibraryCollectionCsvOwnedImport input);
+  /// Builds the kind-owned JSON payload at the CSV serialization boundary.
+  ///
+  /// Collection does not inspect this map. It passes it immediately to the
+  /// generated kind persistence dispatcher, which decodes it into the
+  /// concrete Owned aggregate and returns only a structural mutation result.
+  JsonMap ownedItemImportPayload(
+    LibraryCollectionCsvOwnedImport input,
+  );
 
   /// Creates the universal lifecycle record at the CSV serialization
   /// boundary. The host supplies only structural refs and decoded lifecycle
@@ -128,7 +133,7 @@ final class LibraryCollectionCsvOwnedImport {
   final String id;
   final CatalogEntityRef catalogRef;
   final DateTime now;
-  final Map<String, dynamic>? existingPayload;
+  final JsonMap? existingPayload;
   final String? condition;
   final DateTime? purchaseDate;
   final int? pricePaidCents;
@@ -159,16 +164,16 @@ abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
 /// The helper writes only schema-v1 personal columns. Concrete projections
 /// still choose the final Owned type and decode their own kind cells.
 mixin LibraryCollectionCsvOwnedImportSupport {
-  Object ownedItemFromImport(LibraryCollectionCsvOwnedImport input) {
+  JsonMap ownedItemImportPayload(
+    LibraryCollectionCsvOwnedImport input,
+  ) {
     final payload = collectionCsvOwnedImportPayload(input);
     final details = decodeOwnedDetails(input.kindOwnedCells);
     if (details != null) {
       payload.addAll(details.toJson());
     }
-    return ownedItemFromImportPayload(payload);
+    return payload;
   }
-
-  Object ownedItemFromImportPayload(Map<String, dynamic> payload);
 
   JsonEncodable? decodeOwnedDetails(List<String> cells);
 }

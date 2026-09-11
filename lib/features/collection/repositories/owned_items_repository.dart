@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -56,6 +57,21 @@ final class OwnedItemsRepository {
       fallbackOwnerUserId: fallbackOwnerUserId,
       fallbackOwnerLabel: fallbackOwnerLabel,
     );
+  }
+
+  Future<OwnedItemCreatePayload?> createPayloadByRef(OwnedItemRef ref) {
+    return _persistence.createPayloadByRef(ref);
+  }
+
+  Future<JsonMap?> payloadByRef(OwnedItemRef ref) {
+    return _persistence.payloadByRef(ref);
+  }
+
+  Future<OwnedItemMutationResult> replaceFromPayload(
+    CatalogMediaKind kind,
+    JsonMap payload,
+  ) {
+    return _persistence.replaceFromPayload(kind, payload);
   }
 
   SyncChange syncChangeForMutation(

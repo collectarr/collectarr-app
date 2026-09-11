@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
@@ -15,7 +17,7 @@ import 'package:collectarr_app/features/collection/repositories/owned_items_repo
 import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -105,7 +107,7 @@ final class CollectionImportOrchestrator {
 
     final activeWishlistRefs = existingWishlist.keys.toSet();
     final ownedItemRefs = <OwnedItemRef>[];
-    final ownedWrites = <Future<void> Function()>[];
+    final ownedWrites = <Future<OwnedItemMutationResult> Function()>[];
     final trackingLifecycles = <TrackingLifecycle>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
@@ -142,46 +144,39 @@ final class CollectionImportOrchestrator {
       final existingWishlistItem = existingWishlist[rowRef];
       if (row.isOwned) {
         final existingOwnedSummary = existingOwned[rowRef];
-        final existingTypedOwned = existingOwnedSummary == null
+        final existingOwnedPayload = existingOwnedSummary == null
             ? null
-            : await ownedItems.findTypedByRef(existingOwnedSummary.ref);
-        final typedImport = _typedOwnedItemFromCsvRow(
+            : await ownedItems.payloadByRef(existingOwnedSummary.ref);
+        final ownedImport = _ownedItemImportFromCsvRow(
           row,
           now,
           existingSummary: existingOwnedSummary,
-          existingTyped: existingTypedOwned,
+          existingPayload: existingOwnedPayload,
           catalogKind: catalogKind,
         );
-        final mediaKind = typedImport.kind;
-        final typedOwnedItem = typedImport.item;
+        final mediaKind = ownedImport.kind;
+        final ownedRef = ownedImport.ref;
         ownedWrites.add(
-          () => ownedItems.upsertTyped(mediaKind, typedOwnedItem),
-        );
-        final ownedRef = collectarrTypedOwnedItemRef(typedOwnedItem);
-        ownedItemRefs.add(ownedRef);
-        syncChanges.add(
-          ownedItems.syncChangeForTyped(
+          () => ownedItems.replaceFromPayload(
             mediaKind,
-            typedOwnedItem,
-            id: ownedRef.id.value,
-            action: 'upsert',
-            changedAt: now,
+            ownedImport.payload,
           ),
         );
+        ownedItemRefs.add(ownedRef);
 
         final trackingLifecycle = row.tracking.isEmpty
             ? null
             : libraryCollectionCsvProjectionForKind(mediaKind)
                 ?.trackingLifecycleFromImport(
                 entryId: idGenerator(),
-                catalogRef: typedImport.catalogRef,
+                catalogRef: ownedImport.catalogRef,
                 ownedRef: ownedRef,
                 now: now,
                 rating: row.tracking.rating,
                 status: row.tracking.status,
                 startedAt: row.tracking.startedAt,
                 finishedAt: row.tracking.finishedAt,
-                existing: existingLifecycles[typedImport.catalogRef],
+                existing: existingLifecycles[ownedImport.catalogRef],
               );
         if (trackingLifecycle != null) {
           trackingLifecycles.add(trackingLifecycle);
@@ -251,7 +246,14 @@ final class CollectionImportOrchestrator {
           await catalogCache.upsertImportSnapshots(importedCatalogSnapshots);
         }
         for (final write in ownedWrites) {
-          await write();
+          final persisted = await write();
+          syncChanges.add(
+            ownedItems.syncChangeForMutation(
+              persisted,
+              action: 'upsert',
+              changedAt: now,
+            ),
+          );
         }
         if (trackingLifecycles.isNotEmpty) {
           await this.trackingLifecycles.upsertAll(trackingLifecycles);
@@ -433,17 +435,14 @@ final class CollectionImportOrchestrator {
     );
   }
 
-  _TypedOwnedImport _typedOwnedItemFromCsvRow(
+  _OwnedImport _ownedItemImportFromCsvRow(
     CollectionImportRow row,
     DateTime now, {
     OwnedItemSummary? existingSummary,
-    (CatalogMediaKind kind, Object item)? existingTyped,
+    JsonMap? existingPayload,
     CatalogMediaKind? catalogKind,
   }) {
-    final kind = existingSummary?.ref.kind ??
-        existingTyped?.$1 ??
-        catalogKind ??
-        row.mediaKind;
+    final kind = existingSummary?.ref.kind ?? catalogKind ?? row.mediaKind;
     final catalogRef = existingSummary?.catalogRef ??
         CatalogEntityRef(
           kind: kind,
@@ -453,16 +452,14 @@ final class CollectionImportOrchestrator {
     final personal = row.personal;
     final projection = libraryCollectionCsvProjectionForKind(kind);
     if (projection != null) {
-      final item = projection.ownedItemFromImport(
+      final ownedRef = existingSummary?.ref ??
+          OwnedItemRef(kind: kind, id: OwnedItemId(idGenerator()));
+      final payload = projection.ownedItemImportPayload(
         LibraryCollectionCsvOwnedImport(
-          id: existingTyped == null
-              ? idGenerator()
-              : existingSummary!.ref.id.value,
+          id: ownedRef.id.value,
           catalogRef: catalogRef,
           now: now,
-          existingPayload: existingTyped == null
-              ? null
-              : collectarrTypedOwnedItemJson(existingTyped.$2),
+          existingPayload: existingPayload,
           condition: personal.condition,
           purchaseDate: personal.purchaseDate,
           pricePaidCents: personal.pricePaidCents,
@@ -480,18 +477,20 @@ final class CollectionImportOrchestrator {
       );
       return (
         kind: kind,
-        item: item,
+        ref: ownedRef,
         catalogRef: catalogRef,
+        payload: payload,
       );
     }
     throw StateError('No CSV projection registered for ${kind.apiValue}.');
   }
 }
 
-typedef _TypedOwnedImport = ({
+typedef _OwnedImport = ({
   CatalogMediaKind kind,
-  Object item,
+  OwnedItemRef ref,
   CatalogEntityRef catalogRef,
+  JsonMap payload,
 });
 
 class CollectionImportPreview {

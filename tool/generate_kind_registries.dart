@@ -473,6 +473,7 @@ String _renderRegistry(List<_KindDescriptor> descriptors) {
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
@@ -1154,6 +1155,62 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
+    'Future<JsonMap?> collectarrOwnedItemJsonByRef('
+    'LocalDatabase database, OwnedItemRef ref) async {',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedId = persistence.ownedId.className;
+    buffer.writeln(
+      '  if (ref.kind == CatalogMediaKind.${descriptor.folder}) {',
+    );
+    buffer.writeln(
+      '    final item = await $repository(database)'
+      '.findById($ownedId(ref.id.value));',
+    );
+    buffer.writeln('    return item?.toJson();');
+    buffer.writeln('  }');
+  }
+  buffer.writeln('  return null;');
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
+    'Future<OwnedItemMutationResult> collectarrReplaceOwnedFromJson('
+    'LocalDatabase database, CatalogMediaKind kind, '
+    'JsonMap payload) async {',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedModel = persistence.ownedModel.className;
+    buffer.writeln(
+      '  if (kind == CatalogMediaKind.${descriptor.folder}) {',
+    );
+    buffer.writeln('    final item = $ownedModel.fromJson(payload);');
+    buffer.writeln('    await $repository(database).upsert(item);');
+    buffer.writeln(
+      '    final serialized = collectarrTypedOwnedItemSyncPayload('
+      'CatalogMediaKind.${descriptor.folder}, item);',
+    );
+    buffer.writeln(
+      '    return OwnedItemMutationResult('
+      'ref: OwnedItemRef(kind: CatalogMediaKind.${descriptor.folder}, '
+      'id: OwnedItemId(item.id.value)), '
+      'syncPayload: serialized.payload, isDeleted: serialized.isDeleted);',
+    );
+    buffer.writeln('  }');
+  }
+  buffer.writeln(
+    "  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');",
+  );
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
     'Future<OwnedItemMutationResult?> collectarrMarkTypedOwnedItemDeleted('
     'LocalDatabase database, CatalogMediaKind kind, Object item, '
     'DateTime deletedAt) async {',
@@ -1186,6 +1243,33 @@ void _renderOwnedPersistenceMaps(
       'ref: OwnedItemRef(kind: CatalogMediaKind.${descriptor.folder}, '
       'id: OwnedItemId(deleted.id.value)), '
       'syncPayload: serialized.payload, isDeleted: true);',
+    );
+    buffer.writeln('  }');
+  }
+  buffer.writeln('  return null;');
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
+    'Future<OwnedItemCreatePayload?> collectarrOwnedCreatePayloadByRef('
+    'LocalDatabase database, OwnedItemRef ref) async {',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedId = persistence.ownedId.className;
+    final createPayload = persistence.createPayload.className;
+    buffer.writeln(
+      '  if (ref.kind == CatalogMediaKind.${descriptor.folder}) {',
+    );
+    buffer.writeln(
+      '    final item = await $repository(database).findById('
+      '$ownedId(ref.id.value));',
+    );
+    buffer.writeln('    if (item == null) return null;');
+    buffer.writeln(
+      '    return $createPayload.fromTypedItem(item);',
     );
     buffer.writeln('  }');
   }

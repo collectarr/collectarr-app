@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_tracking_
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
 class LibraryBulkActions {
@@ -55,9 +54,7 @@ class LibraryBulkActions {
         await trackingMutations.syncOwnedTrackingLifecycle(
           ownedItem.ref,
           catalogRef: catalogRef,
-          isDigital: entry.typedOwnedItem == null
-              ? null
-              : collectarrTypedOwnedItemIsDigital(entry.typedOwnedItem!),
+          isDigital: ownedItem.isDigital,
           targetRef: catalogRefForLibrarySelection(
             catalogRef,
             editionId: catalogRefEditionId(ownedItem.targetRef),

@@ -124,10 +124,6 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
-      ComicOwnedItem.fromJson(payload);
-
-  @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogTransport;
     final comic = catalog == null

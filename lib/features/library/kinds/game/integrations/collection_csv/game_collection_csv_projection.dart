@@ -97,10 +97,6 @@ final class GameCollectionCsvProjection
   }
 
   @override
-  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
-      GameOwnedItem.fromJson(payload);
-
-  @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != libraryCollectionCsvCatalogCellCount ||
         cells[0].trim().isEmpty) {

@@ -48,7 +48,7 @@ void main() {
         allOf(greaterThanOrEqualTo(9), lessThanOrEqualTo(10)),
         reason: kind.apiValue,
       );
-      final importedOwned = projection.ownedItemFromImport(
+      final importedOwnedPayload = projection.ownedItemImportPayload(
         LibraryCollectionCsvOwnedImport(
           id: 'owned-${kind.apiValue}',
           catalogRef: CatalogEntityRef(
@@ -60,7 +60,7 @@ void main() {
           kindOwnedCells: importedOwnedCells,
         ),
       );
-      expect(importedOwned, isNotNull, reason: kind.apiValue);
+      expect(importedOwnedPayload, isNotEmpty, reason: kind.apiValue);
 
       expect(
         projection.importDisplayTitle([

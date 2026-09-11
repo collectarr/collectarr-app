@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/collection/repositories/tracking_lifecyc
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -239,10 +238,7 @@ final class TrackingMutations {
       );
     }
     final resolvedCatalogRef = baseCatalogRef;
-    final typedOwned = await ownedItems?.findTypedByRef(ownedRef);
-    final resolvedIsDigital = typedOwned == null
-        ? isDigital
-        : collectarrTypedOwnedItemIsDigital(typedOwned.$2);
+    final resolvedIsDigital = ownedSummary?.isDigital ?? isDigital;
     final existingEntries =
         await trackingLifecycles.findActiveByCatalogRoots([resolvedCatalogRef]);
     final existing = existingEntries.isEmpty

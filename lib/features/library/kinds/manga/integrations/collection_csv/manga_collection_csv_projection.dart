@@ -97,10 +97,6 @@ final class MangaCollectionCsvProjection
   }
 
   @override
-  Object ownedItemFromImportPayload(Map<String, dynamic> payload) =>
-      MangaOwnedItem.fromJson(payload);
-
-  @override
   CatalogImportSnapshot? catalogItemFromImportCells(List<String> cells) {
     if (cells.length != libraryCollectionCsvCatalogCellCount ||
         cells[0].trim().isEmpty) {

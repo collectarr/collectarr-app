@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -51,14 +50,12 @@ final class OwnedItemMutations {
     CatalogEntityRef? targetRef,
     OwnedItemTrackingDraft? tracking,
   }) async {
-    final typed = await ownedItems.findTypedByRef(sourceRef);
-    if (typed == null) return null;
-
-    final payload = collectarrOwnedCreatePayloadFromTyped(typed.$1, typed.$2);
+    final payload = await ownedItems.createPayloadByRef(sourceRef);
+    if (payload == null) return null;
     return addOwnedItem(
       AddOwnedItemCommand(
         catalogRef: CatalogEntityRef(
-          kind: typed.$1,
+          kind: sourceRef.kind,
           entityType: const CatalogEntityTypeId('owned_copy'),
           id: sourceRef.id.value,
         ),
@@ -158,19 +155,6 @@ final class OwnedItemMutations {
 
     final updated = await mutationRunner.run(
       action: () async {
-        final typedExistingResult =
-            await ownedItems.findTypedByRef(command.ownedRef);
-        if (typedExistingResult == null) {
-          throw StateError('OwnedItem not found: ${command.ownedRef.key}');
-        }
-
-        final mediaKind = typedExistingResult.$1;
-        if (command.ownedRef.kind != mediaKind) {
-          throw StateError(
-            'Owned update reference kind ${command.ownedRef.kind.apiValue} '
-            'does not match persisted kind ${mediaKind.apiValue}.',
-          );
-        }
         final persisted = await ownedItems.updateOwned(
           ref: command.ownedRef,
           payload: typedCommand.payload,

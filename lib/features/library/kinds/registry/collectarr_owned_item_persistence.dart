@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
@@ -61,6 +62,21 @@ final class CollectarrOwnedItemPersistence {
       fallbackOwnerUserId: fallbackOwnerUserId,
       fallbackOwnerLabel: fallbackOwnerLabel,
     );
+  }
+
+  Future<OwnedItemCreatePayload?> createPayloadByRef(OwnedItemRef ref) {
+    return collectarrOwnedCreatePayloadByRef(_database, ref);
+  }
+
+  Future<JsonMap?> payloadByRef(OwnedItemRef ref) {
+    return collectarrOwnedItemJsonByRef(_database, ref);
+  }
+
+  Future<OwnedItemMutationResult> replaceFromPayload(
+    CatalogMediaKind kind,
+    JsonMap payload,
+  ) {
+    return collectarrReplaceOwnedFromJson(_database, kind, payload);
   }
 
   Future<void> upsertTyped(CatalogMediaKind kind, Object item) =>
