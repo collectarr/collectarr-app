@@ -70,6 +70,10 @@ typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
   JsonEncodable details,
 );
 
+typedef LibraryAddDigitalCopyFlagBuilder = bool? Function(
+  LibraryAddCatalogTransport item,
+);
+
 class LibraryAddSearchCapability {
   const LibraryAddSearchCapability({
     this.initialAdvancedFilters = const {},
@@ -197,6 +201,8 @@ abstract interface class LibraryAddCapability<
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
+  bool? digitalCopyFlag(LibraryAddCatalogTransport item) => null;
+
   Widget? buildPreviewPane(
     BuildContext context,
     LibraryAddPreviewPaneRequest request,
@@ -239,6 +245,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.chrome = const LibraryAddChromeConfig(),
     required this.search,
     this.ownedPayloadBuilder,
+    this.digitalCopyFlagBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
 
@@ -266,11 +273,16 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   @override
   final LibraryAddSearchCapability search;
   final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
+  final LibraryAddDigitalCopyFlagBuilder? digitalCopyFlagBuilder;
   @override
   final LibraryAddResultPolicy resultPolicy;
 
   @override
   TDraft createInitialDraft() => initialDraftBuilder();
+
+  @override
+  bool? digitalCopyFlag(LibraryAddCatalogTransport item) =>
+      digitalCopyFlagBuilder?.call(item);
 
   @override
   LibraryKindAddDraft createManualDraft() =>

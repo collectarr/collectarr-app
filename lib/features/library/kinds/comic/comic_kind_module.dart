@@ -275,6 +275,27 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       collectionStatus: common.collectionStatus,
       isDigital: common.isDigital,
     ),
+    digitalCopyFlagBuilder: (item) {
+      final payload = item.toTransportItem().payload;
+      final direct = payload['is_digital'];
+      if (direct is bool) return direct;
+      final format =
+          (payload['physical_format'] ?? payload['physical_format_label'])
+              ?.toString()
+              .toLowerCase();
+      if (format == 'digital' || format == 'ebook' || format == 'web') {
+        return true;
+      }
+      final series = payload['series'];
+      if (series is Map && series['is_digital'] is bool) {
+        return series['is_digital'] as bool;
+      }
+      final publishing = payload['publishing'];
+      if (publishing is Map && publishing['is_digital'] is bool) {
+        return publishing['is_digital'] as bool;
+      }
+      return null;
+    },
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildComicAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildComicCoreSearchInput,

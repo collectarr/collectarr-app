@@ -78,7 +78,8 @@ Future<void> addLibraryItemsToTarget({
   final baseTracking = trackingDraft ?? defaults.toTrackingDraft();
 
   for (final item in values) {
-    final digitalOwnedItem = _digitalOwnedItemFlag(item);
+    final digitalOwnedItem =
+        libraryKindModuleForKind(item.mediaKind).add.digitalCopyFlag(item);
     final isDigitalOwnedItem = digitalOwnedItem == true;
     final reference = _resolveReferenceForItem(
       item,
@@ -144,31 +145,6 @@ Future<void> addLibraryItemsToTarget({
         break;
     }
   }
-}
-
-bool? _digitalOwnedItemFlag(LibraryAddCatalogTransport item) {
-  final payload = item.payload;
-  if (payload['is_digital'] is bool) {
-    return payload['is_digital'] as bool;
-  }
-  final physicalFormat =
-      (payload['physical_format'] ?? payload['physical_format_label'])
-          ?.toString()
-          .toLowerCase();
-  if (physicalFormat == 'digital' ||
-      physicalFormat == 'ebook' ||
-      physicalFormat == 'web') {
-    return true;
-  }
-  final dynamic series = payload['series'];
-  if (series is Map && series['is_digital'] is bool) {
-    return series['is_digital'] as bool;
-  }
-  final dynamic publishing = payload['publishing'];
-  if (publishing is Map && publishing['is_digital'] is bool) {
-    return publishing['is_digital'] as bool;
-  }
-  return null;
 }
 
 _ResolvedAddReference _resolveReferenceForItem(
