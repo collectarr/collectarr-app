@@ -308,9 +308,9 @@ final bookLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['original_publisher'],
+    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+      ['publisher', 'original_publisher'],
+      nestedContainerKey: 'publishing',
       nestedValueKey: 'original_publisher',
     ),
   ),
@@ -448,8 +448,8 @@ final bookLibraryColumnDefinitions = [
   ),
   columnFromField<BookKind, BookWorkspaceDto, int?>(
     BookKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

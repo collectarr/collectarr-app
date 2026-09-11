@@ -15,9 +15,9 @@ typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
   String? replacement,
 });
 
-LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
-  String payloadKey, {
-  Iterable<String> mirrorKeys = const [],
+LibraryGroupBucketValueMutator libraryCatalogStringBucketValueMutator(
+  Iterable<String> payloadKeys, {
+  String? nestedContainerKey,
   String? nestedValueKey,
 }) {
   return (source, currentLabel, {String? replacement}) {
@@ -26,10 +26,7 @@ LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
     final payload = Map<String, dynamic>.from(
       item.payload,
     );
-    final keys = <String>{payloadKey, ...mirrorKeys};
-    if (nestedValueKey != null) {
-      keys.add(nestedValueKey);
-    }
+    final keys = payloadKeys.toSet();
     final next = replacement?.trim();
     var changed = false;
     for (final key in keys) {
@@ -40,18 +37,18 @@ LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
       _setOrRemoveStringValue(payload, key, next);
     }
 
-    if (nestedValueKey != null) {
-      final rawPub = payload['publishing'];
-      if (rawPub is Map) {
-        final publishing = Map<String, dynamic>.from(rawPub);
-        if (publishing[nestedValueKey]?.toString().trim() ==
-            currentLabel.trim()) {
+    final nestedKey = nestedContainerKey;
+    if (nestedValueKey != null && nestedKey != null) {
+      final rawNested = payload[nestedKey];
+      if (rawNested is Map) {
+        final nested = Map<String, dynamic>.from(rawNested);
+        if (nested[nestedValueKey]?.toString().trim() == currentLabel.trim()) {
           changed = true;
-          _setOrRemoveStringValue(publishing, nestedValueKey, next);
-          if (publishing.isEmpty) {
-            payload.remove('publishing');
+          _setOrRemoveStringValue(nested, nestedValueKey, next);
+          if (nested.isEmpty) {
+            payload.remove(nestedKey);
           } else {
-            payload['publishing'] = publishing;
+            payload[nestedKey] = nested;
           }
         }
       }
@@ -64,7 +61,7 @@ LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
   };
 }
 
-LibraryGroupBucketValueMutator libraryStringListBucketValueMutator(
+LibraryGroupBucketValueMutator libraryCatalogStringListBucketValueMutator(
   String payloadKey, {
   Iterable<String> scalarMirrorKeys = const [],
 }) {

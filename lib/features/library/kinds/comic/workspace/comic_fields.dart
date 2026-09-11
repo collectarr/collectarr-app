@@ -368,9 +368,9 @@ final comicLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['original_publisher'],
+    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+      ['publisher', 'original_publisher'],
+      nestedContainerKey: 'publishing',
       nestedValueKey: 'original_publisher',
     ),
   ),

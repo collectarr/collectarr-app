@@ -219,7 +219,7 @@ final animeLibraryGroupDefinitions = [
     sidebarTitle: 'Studios',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringListBucketValueMutator(
+    bucketValueMutator: libraryCatalogStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     ),
@@ -378,8 +378,8 @@ final animeLibraryColumnDefinitions = [
   ),
   columnFromField<AnimeKind, AnimeWorkspaceDto, int?>(
     AnimeKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

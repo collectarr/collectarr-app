@@ -364,9 +364,8 @@ final mangaLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['original_publisher', 'localized_publisher'],
+    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+      ['publisher', 'original_publisher', 'localized_publisher'],
     ),
   ),
   groupFromField<MangaKind, MangaWorkspaceDto, String?>(
@@ -525,8 +524,8 @@ final mangaLibraryColumnDefinitions = [
   ),
   columnFromField<MangaKind, MangaWorkspaceDto, int?>(
     MangaKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

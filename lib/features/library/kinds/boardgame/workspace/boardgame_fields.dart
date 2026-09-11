@@ -287,7 +287,7 @@ final boardGamesLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers / Designers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringListBucketValueMutator(
+    bucketValueMutator: libraryCatalogStringListBucketValueMutator(
       'publishers',
       scalarMirrorKeys: ['publisher'],
     ),
@@ -430,8 +430,8 @@ final boardgameLibraryColumnDefinitions = [
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, int?>(
     BoardGameKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

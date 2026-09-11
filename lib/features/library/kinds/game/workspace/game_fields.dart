@@ -300,7 +300,7 @@ final gameLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringListBucketValueMutator(
+    bucketValueMutator: libraryCatalogStringListBucketValueMutator(
       'publishers',
       scalarMirrorKeys: ['publisher'],
     ),
@@ -443,8 +443,8 @@ final gameLibraryColumnDefinitions = [
   ),
   columnFromField<GameKind, GameWorkspaceDto, int?>(
     GameKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

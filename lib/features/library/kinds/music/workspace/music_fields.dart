@@ -197,9 +197,8 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Artists',
     icon: Icons.person_outline,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'artist',
-      mirrorKeys: ['series_title'],
+    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+      ['artist', 'series_title'],
     ),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
@@ -207,9 +206,8 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Labels',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['record_label'],
+    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+      ['publisher', 'record_label'],
     ),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(

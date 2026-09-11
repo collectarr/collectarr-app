@@ -206,9 +206,8 @@ final tvLibraryGroupDefinitions = [
     sidebarTitle: 'Networks',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['network', 'studio'],
+    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+      ['publisher', 'network', 'studio'],
     ),
   ),
   groupFromField<TvKind, TvWorkspaceDto, String?>(
@@ -353,8 +352,8 @@ final tvLibraryColumnDefinitions = [
   ),
   columnFromField<TvKind, TvWorkspaceDto, int?>(
     TvKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

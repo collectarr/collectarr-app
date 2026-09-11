@@ -249,9 +249,8 @@ final movieLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['studio'],
+    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+      ['publisher', 'studio'],
     ),
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
@@ -260,7 +259,7 @@ final movieLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.category_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringListBucketValueMutator('genres'),
+    bucketValueMutator: libraryCatalogStringListBucketValueMutator('genres'),
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, num?>(
     MovieKindSchema.releaseYear,
@@ -426,8 +425,8 @@ final movieLibraryColumnDefinitions = [
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, int?>(
     MovieKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

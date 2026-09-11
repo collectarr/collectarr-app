@@ -140,7 +140,7 @@ void main() {
         'publisher': 'Explicit publisher',
       },
     );
-    final updated = libraryStringListBucketValueMutator(
+    final updated = libraryCatalogStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
@@ -165,7 +165,7 @@ void main() {
         'publisher': 'Old studio',
       },
     );
-    final updated = libraryStringListBucketValueMutator(
+    final updated = libraryCatalogStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
@@ -190,7 +190,7 @@ void main() {
       },
     );
 
-    final updated = libraryStringBucketValueMutator('artist')(
+    final updated = libraryCatalogStringBucketValueMutator(['artist'])(
       LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
       'Different artist',
       replacement: 'New artist',
