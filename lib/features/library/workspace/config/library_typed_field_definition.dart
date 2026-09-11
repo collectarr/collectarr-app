@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
+
+typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
+  Object item,
+  String currentLabel, {
+  String? replacement,
+});
 
 abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
@@ -122,7 +129,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final String? folderSetLabel;
   final String? Function(LibraryProjectionContext<TDto> context)? subgroupKey;
   final String? category;
-  final LibraryGroupBucketValueMutator? bucketValueMutator;
+  final CatalogTransportBucketValueMutator? bucketValueMutator;
   final LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
@@ -146,7 +153,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     String? folderSetLabel,
     String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
     String? category,
-    LibraryGroupBucketValueMutator? bucketValueMutator,
+    CatalogTransportBucketValueMutator? bucketValueMutator,
     LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator,
   }) {
     return LibraryGroupDefinition<TKind, TDto, TValue>(

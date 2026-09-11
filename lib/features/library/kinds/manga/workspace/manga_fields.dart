@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -364,7 +364,7 @@ final mangaLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
       ['publisher', 'original_publisher', 'localized_publisher'],
     ),
   ),

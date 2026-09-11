@@ -1,12 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -41,7 +39,7 @@ LibraryAddCatalogTransport _mutateGroup(
   );
   expect(definition, isNotNull);
   final updated = definition!.bucketValueMutator?.call(
-    LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
+    item,
     currentLabel,
     replacement: replacement,
   );
@@ -145,11 +143,11 @@ void main() {
         'publisher': 'Explicit publisher',
       },
     );
-    final updated = libraryCatalogStringListBucketValueMutator(
+    final updated = catalogTransportStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
+      item,
       'Old studio',
       replacement: 'New studio',
     );
@@ -171,11 +169,11 @@ void main() {
         'publisher': 'Old studio',
       },
     );
-    final updated = libraryCatalogStringListBucketValueMutator(
+    final updated = catalogTransportStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
+      item,
       'Old studio',
       replacement: 'New studio',
     );
@@ -197,8 +195,8 @@ void main() {
       },
     );
 
-    final updated = libraryCatalogStringBucketValueMutator(['artist'])(
-      LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
+    final updated = catalogTransportStringBucketValueMutator(['artist'])(
+      item,
       'Different artist',
       replacement: 'New artist',
     );
@@ -220,7 +218,7 @@ void main() {
     final update = mutator(item, 'Very Good', replacement: 'Mint');
     expect(update, isNotNull);
     expect(update!.ownedRef.id.value, 'owned-music-1');
-    final payload = update!.payload as MusicOwnedItemUpdatePayload;
+    final payload = update.payload as MusicOwnedItemUpdatePayload;
     expect(payload.condition, isA<SetValue<String?>>());
     expect((payload.condition as SetValue<String?>).value, 'Mint');
 

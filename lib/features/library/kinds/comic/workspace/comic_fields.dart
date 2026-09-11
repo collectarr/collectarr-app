@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -368,7 +368,7 @@ final comicLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
       ['publisher', 'original_publisher'],
       nestedContainerKey: 'publishing',
       nestedValueKey: 'original_publisher',

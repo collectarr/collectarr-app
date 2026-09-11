@@ -35,7 +35,6 @@ class SharedMetadataFieldDescriptor {
     this.hintText,
     this.minLines = 1,
     this.maxLines = 1,
-    this.compactWidth,
     this.normalizedValueType,
   });
 
@@ -47,7 +46,6 @@ class SharedMetadataFieldDescriptor {
   final String? hintText;
   final int minLines;
   final int maxLines;
-  final double? compactWidth;
   final String? normalizedValueType;
 }
 
@@ -133,62 +131,6 @@ final List<String> kLibraryEditableFieldKeys = [
 
 final List<String> _kAdminMetadataScalarFieldKeys = [
   for (final field in kAdminMetadataScalarFields) field.key
-];
-
-const List<SharedMetadataFieldDescriptor> kProposalCorrectionFields = [
-  SharedMetadataFieldDescriptor(
-    key: 'title',
-    label: 'Series / title',
-    tab: SharedMetadataEditTab.item,
-    compactWidth: 340,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'item_number',
-    label: 'Issue #',
-    tab: SharedMetadataEditTab.item,
-    compactWidth: 120,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'publisher',
-    label: 'Publisher',
-    tab: SharedMetadataEditTab.publishing,
-    compactWidth: 220,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'release_year',
-    label: 'Year',
-    tab: SharedMetadataEditTab.publishing,
-    inputType: SharedMetadataFieldInputType.number,
-    compactWidth: 100,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'barcode',
-    label: 'Barcode / UPC',
-    tab: SharedMetadataEditTab.publishing,
-    inputType: SharedMetadataFieldInputType.number,
-    compactWidth: 220,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'variant',
-    label: 'Variant',
-    tab: SharedMetadataEditTab.publishing,
-    compactWidth: 220,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'source_url',
-    label: 'Source URL',
-    tab: SharedMetadataEditTab.relations,
-    compactWidth: 540,
-  ),
-  SharedMetadataFieldDescriptor(
-    key: 'notes',
-    label: 'What should change?',
-    tab: SharedMetadataEditTab.relations,
-    inputType: SharedMetadataFieldInputType.multiline,
-    minLines: 5,
-    maxLines: 5,
-    compactWidth: 540,
-  ),
 ];
 
 SharedMetadataFieldDescriptor? sharedMetadataFieldByKey(String key) {

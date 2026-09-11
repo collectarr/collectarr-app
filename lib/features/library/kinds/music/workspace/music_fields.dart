@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
@@ -197,7 +197,7 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Artists',
     icon: Icons.person_outline,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
       ['artist', 'series_title'],
     ),
   ),
@@ -206,7 +206,7 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Labels',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
       ['publisher', 'record_label'],
     ),
   ),

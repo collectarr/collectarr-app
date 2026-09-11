@@ -1,28 +1,23 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
-typedef LibraryGroupBucketValueMutator = CatalogImportSnapshot? Function(
-  LibraryWorkspaceSource source,
+/// Structural mutation contract for editing a bucket-backed catalog value.
+///
+/// The caller supplies an already selected schema-v1 catalog transport. The
+/// implementation only performs payload mechanics; field meaning and the
+/// payload keys remain owned by the kind that registers the mutator.
+typedef CatalogTransportBucketValueMutator = CatalogImportSnapshot? Function(
+  LibraryAddCatalogTransport source,
   String currentLabel, {
   String? replacement,
 });
 
-typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
-  Object item,
-  String currentLabel, {
-  String? replacement,
-});
-
-LibraryGroupBucketValueMutator libraryCatalogStringBucketValueMutator(
+CatalogTransportBucketValueMutator catalogTransportStringBucketValueMutator(
   Iterable<String> payloadKeys, {
   String? nestedContainerKey,
   String? nestedValueKey,
 }) {
-  return (source, currentLabel, {String? replacement}) {
-    final item = source.catalogTransport;
-    if (item == null) return null;
+  return (item, currentLabel, {String? replacement}) {
     final payload = item.mapTransport(
       (transport) => Map<String, dynamic>.from(transport.payload),
     );
@@ -61,13 +56,11 @@ LibraryGroupBucketValueMutator libraryCatalogStringBucketValueMutator(
   };
 }
 
-LibraryGroupBucketValueMutator libraryCatalogStringListBucketValueMutator(
+CatalogTransportBucketValueMutator catalogTransportStringListBucketValueMutator(
   String payloadKey, {
   Iterable<String> scalarMirrorKeys = const [],
 }) {
-  return (source, currentLabel, {String? replacement}) {
-    final item = source.catalogTransport;
-    if (item == null) return null;
+  return (item, currentLabel, {String? replacement}) {
     final payload = item.mapTransport(
       (transport) => Map<String, dynamic>.from(transport.payload),
     );

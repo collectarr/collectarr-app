@@ -8,23 +8,6 @@ void main() {
     expect(keys.toSet().length, keys.length);
   });
 
-  test('proposal correction fields expose expected shared keys', () {
-    final keys = kProposalCorrectionFields.map((field) => field.key).toSet();
-    expect(
-      keys,
-      containsAll(<String>{
-        'title',
-        'item_number',
-        'publisher',
-        'release_year',
-        'barcode',
-        'variant',
-        'source_url',
-        'notes',
-      }),
-    );
-  });
-
   test('shared tabs stay represented in admin field contract', () {
     final tabs = kAdminMetadataScalarFields.map((field) => field.tab).toSet();
     expect(tabs, containsAll(SharedMetadataEditTab.values));

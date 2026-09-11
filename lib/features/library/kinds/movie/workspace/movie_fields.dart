@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -249,7 +249,7 @@ final movieLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryCatalogStringBucketValueMutator(
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
       ['publisher', 'studio'],
     ),
   ),
@@ -259,7 +259,7 @@ final movieLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.category_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryCatalogStringListBucketValueMutator('genres'),
+    bucketValueMutator: catalogTransportStringListBucketValueMutator('genres'),
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, num?>(
     MovieKindSchema.releaseYear,

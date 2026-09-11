@@ -79,13 +79,6 @@ const architectureMigrationExceptions = <ArchitectureMigrationException>[
   ),
   ArchitectureMigrationException(
     ruleId: 'TK003',
-    path: 'lib/features/library/config/library_group_bucket_mutation.dart',
-    reason: 'generic serialization boundary',
-    owner: 'catalog-cutover',
-    removeByPhase: 'Phase 3',
-  ),
-  ArchitectureMigrationException(
-    ruleId: 'TK003',
     path: 'lib/features/library/config/library_collection_csv_projection.dart',
     reason: 'generic serialization boundary',
     owner: 'catalog-cutover',
@@ -286,13 +279,6 @@ const architectureMigrationExceptions = <ArchitectureMigrationException>[
   ArchitectureMigrationException(
     ruleId: 'TK009',
     path: 'lib/features/library/config/library_entry_helpers.dart',
-    reason: 'typed catalog migration boundary',
-    owner: 'catalog-cutover',
-    removeByPhase: 'Phase 3',
-  ),
-  ArchitectureMigrationException(
-    ruleId: 'TK009',
-    path: 'lib/features/library/config/library_group_bucket_mutation.dart',
     reason: 'typed catalog migration boundary',
     owner: 'catalog-cutover',
     removeByPhase: 'Phase 3',
