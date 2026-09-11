@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../../helpers/secure_storage_mock.dart';
 
@@ -39,7 +40,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               searchController: searchController,
               viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -219,27 +220,27 @@ void main() {
     }
 
     await expectScanCover(
-      type: movieKindModule,
+      type: const MovieRegistration(),
       viewState: movieKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: bookKindModule,
+      type: const BookRegistration(),
       viewState: bookKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: gameKindModule,
+      type: const GameRegistration(),
       viewState: gameKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: boardGameKindModule,
+      type: const BoardgameRegistration(),
       viewState: boardGameKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       viewState: comicKindModule.viewProfile.defaults(),
       expected: true,
     );
@@ -260,7 +261,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               searchController: searchController,
               viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -298,7 +299,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: bookKindModule,
+              type: const BookRegistration(),
               searchController: searchController,
               viewState: bookKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -346,7 +347,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               searchController: searchController,
               viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -383,7 +384,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -430,7 +431,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -481,7 +482,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -537,7 +538,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -675,7 +676,7 @@ void main() {
     final action = descriptor.buildAction(
       _FakeBuildContext(),
       LibraryToolbarActionContext(
-        type: comicKindModule,
+        type: const ComicRegistration(),
         projection: null,
         onJumpToNumberSubmitted: (_) {},
         onMissingSequenceReport: (_) {},

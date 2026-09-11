@@ -142,7 +142,7 @@ double comicTableWidthForColumns(
   Set<LibraryFieldIdRuntime> columns,
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
-  return plannedMediaTableWidthForColumns(
+  return standardMediaTableWidthForColumns(
     fields: libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
     columns: columns,
     customWidths: customWidths,
@@ -153,7 +153,7 @@ double comicTableColumnWidth(
   LibraryFieldIdRuntime column,
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
-  return plannedMediaTableColumnWidth(
+  return standardMediaTableColumnWidth(
       libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
       column,
       customWidths);

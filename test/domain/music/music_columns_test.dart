@@ -10,37 +10,37 @@ void main() {
 
   test('music workspace exposes album-specific columns', () {
     expect(
-      plannedMediaTableColumnLabelForType(
+      standardMediaTableColumnLabelForType(
           musicWorkspace.fields, field('artist')),
       'Artist',
     );
     expect(
-      plannedMediaTableColumnLabelForType(
+      standardMediaTableColumnLabelForType(
         musicWorkspace.fields,
         field('front_cover'),
       ),
       'Front Cover',
     );
     expect(
-      plannedMediaTableColumnLabelForType(
+      standardMediaTableColumnLabelForType(
         musicWorkspace.fields,
         field('back_cover'),
       ),
       'Back Cover',
     );
     expect(
-        plannedMediaTableColumnLabelForType(
+        standardMediaTableColumnLabelForType(
             musicWorkspace.fields, field('album')),
         'Album');
     expect(
-      plannedMediaTableColumnLabelForType(
+      standardMediaTableColumnLabelForType(
         musicWorkspace.fields,
         field('catalog_number'),
       ),
       'Catalog Number',
     );
     expect(
-        plannedMediaTableColumnLabelForType(
+        standardMediaTableColumnLabelForType(
             musicWorkspace.fields, field('disc_count')),
         'Disc Count');
     expect(

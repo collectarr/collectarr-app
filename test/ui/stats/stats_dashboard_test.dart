@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_kind_module.da
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -44,7 +45,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: musicKindModule,
+                  type: const MusicRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -133,7 +134,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: gameKindModule,
+                  type: const GameRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -197,7 +198,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -254,7 +255,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -311,7 +312,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: movieKindModule,
+                  type: const MovieRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
@@ -86,7 +87,7 @@ void main() {
 
     final rows = csv.parse(exported);
     expect(rows.single.itemId, 'comic-1');
-    expect(rows.single.kind, 'comic');
+    expect(rows.single.mediaKind, CatalogMediaKind.comic);
     expect(rows.single.title, 'Spider-Man, "Vol. 1"');
     expect(rows.single.kindCatalogCells, [
       'comic-1',
@@ -299,7 +300,7 @@ void main() {
     expect(exported, contains('Physical Format'));
 
     final rows = CollectionCsvCodec().parse(exported);
-    expect(rows.single.kind, 'movie');
+    expect(rows.single.mediaKind, CatalogMediaKind.movie);
     expect(rows.single.title, 'Blade Runner');
     expect(rows.single.kindCatalogCells, [
       'movie-1',
@@ -397,7 +398,7 @@ void main() {
     );
 
     expect(rows.single.itemId, 'comic-1');
-    expect(rows.single.kind, 'comic');
+    expect(rows.single.mediaKind, CatalogMediaKind.comic);
     expect(rows.single.kindCatalogCells[3], '1');
     expect(rows.single.kindOwnedCells[2], 'Slabbed');
     expect(rows.single.kindOwnedCells[3], 'CGC');

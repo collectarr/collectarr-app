@@ -978,7 +978,11 @@ LibraryCollectionCsvProjection? _importProjection(CollectionImportRow row) {
 CatalogMediaKind _kindForImportRow(CollectionImportRow row) {
   final kind = row.mediaKind;
   if (kind.isUnknown) {
-    throw ArgumentError.value(row.kind, 'row.kind', 'Unsupported kind');
+    throw ArgumentError.value(
+      row.mediaKind,
+      'row.mediaKind',
+      'Unsupported kind',
+    );
   }
   return kind;
 }

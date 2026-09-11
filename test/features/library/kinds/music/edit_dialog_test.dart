@@ -25,7 +25,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = musicKindModule;
+    final type = const MusicRegistration();
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-1',
@@ -91,7 +91,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = musicKindModule;
+    final type = const MusicRegistration();
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-vinyl',

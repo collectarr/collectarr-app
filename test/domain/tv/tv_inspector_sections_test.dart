@@ -15,10 +15,11 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   testWidgets('tv inspector builds tv-specific sections', (tester) async {
-    final type = tvKindModule;
+    const type = TvRegistration();
     late List<Widget> sections;
     final source = LibraryWorkspaceSource(
       itemId: 'series-1',

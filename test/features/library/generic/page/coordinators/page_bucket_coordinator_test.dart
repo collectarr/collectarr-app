@@ -30,6 +30,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -41,7 +42,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = bookKindModule;
+    final type = const BookRegistration();
     final firstCatalog = testCatalogItem(
       id: 'book-1',
       kind: 'book',
@@ -95,7 +96,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = bookKindModule;
+    final type = const BookRegistration();
     final catalog = testCatalogItem(
       id: 'book-delete-1',
       kind: 'book',
@@ -134,7 +135,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = musicKindModule;
+    final type = const MusicRegistration();
     final owned = testOwnedItem(
       id: 'owned-music-1',
       itemId: 'music-1',
@@ -150,20 +151,21 @@ void main() {
     await ownedRepository.upsert(MusicOwnedItem.fromJson(owned.toJson()));
     harness.selectedBucket = 'Very Good';
 
+    final projection = _projection(
+      type,
+      [
+        testLibraryWorkspaceSource(
+          itemId: catalog.id,
+          kind: catalog.kind,
+          catalogTransport: catalog,
+          ownedItem: owned,
+        ),
+      ],
+    );
     final affected =
         await LibraryPageBucketCoordinator(harness.contextFor(type))
             .mutateBucketValues(
-      _projection(
-        type,
-        [
-          testLibraryWorkspaceSource(
-            itemId: catalog.id,
-            kind: catalog.kind,
-            catalogTransport: catalog,
-            ownedItem: owned,
-          ),
-        ],
-      ),
+      projection,
       'music.condition',
       'Very Good',
       replacement: 'Mint',
@@ -180,7 +182,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = bookKindModule;
+    final type = const BookRegistration();
     final catalog = testCatalogItem(
       id: 'book-noop-1',
       kind: 'book',

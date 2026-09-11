@@ -11,6 +11,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   test('boardgame workspace projector builds typed boardgame dto', () {
@@ -113,7 +114,7 @@ void main() {
       node: const LibraryTitleNodeRef(titleItemId: 'boardgame-1'),
     );
     final inspector = LibraryInspectorRequest(
-      type: boardGameKindModule,
+      type: const BoardgameRegistration(),
       item: item,
       ownedItem: null,
       trackingLifecycle: null,

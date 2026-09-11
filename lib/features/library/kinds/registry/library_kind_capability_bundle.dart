@@ -94,7 +94,8 @@ class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
   final LibraryWorkspaceViewProfile? _viewProfile;
 
   LibraryWorkspaceViewProfile get viewProfile =>
-      _viewProfile ?? plannedMediaWorkspaceViewProfile(identity.kind, uiPolicy);
+      _viewProfile ??
+      standardMediaWorkspaceViewProfile(identity.kind, uiPolicy);
 
   final LibraryAddCapability add;
   final LibraryKindToolbarModule? toolbar;

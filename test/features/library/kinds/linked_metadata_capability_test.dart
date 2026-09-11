@@ -83,14 +83,14 @@ void main() {
           publisher: 'Typed Publisher',
         ),
       ),
-      comicKindModule,
+      const ComicRegistration(),
     );
 
     expect(
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'typed publisher',
-        comicKindModule,
+        const ComicRegistration(),
       ),
       isTrue,
     );
@@ -98,7 +98,7 @@ void main() {
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'missing publisher',
-        comicKindModule,
+        const ComicRegistration(),
       ),
       isFalse,
     );
@@ -118,12 +118,15 @@ void main() {
 
     expect(candidates, containsAll(['Madhouse', 'Aniplex']));
 
-    final item = LibraryProjectionItem.fromShelf(entry, animeKindModule);
+    final item = LibraryProjectionItem.fromShelf(
+      entry,
+      const AnimeRegistration(),
+    );
     expect(
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'madhouse',
-        animeKindModule,
+        const AnimeRegistration(),
       ),
       isTrue,
     );

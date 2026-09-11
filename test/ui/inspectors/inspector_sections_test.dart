@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   group('LibraryDetailSectionSpec', () {
@@ -83,7 +84,7 @@ void main() {
 
   group('InspectorMetadataSection', () {
     testWidgets('renders metadata section title', (tester) async {
-      final type = comicKindModule;
+      const type = ComicRegistration();
       final source1 = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogTransport: testCatalogItem(
@@ -114,7 +115,7 @@ void main() {
     });
 
     testWidgets('triggers onFilterByValue callback', (tester) async {
-      final type = comicKindModule;
+      const type = ComicRegistration();
       final source2 = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogTransport: testCatalogItem(
@@ -166,7 +167,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
-              type: bookKindModule,
+              type: const BookRegistration(),
               item: bookItem,
               ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
@@ -212,7 +213,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
-              type: bookKindModule,
+              type: const BookRegistration(),
               item: bookItem,
               ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
@@ -248,7 +249,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
-              type: bookKindModule,
+              type: const BookRegistration(),
               item: bookItem,
               ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
@@ -289,7 +290,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
-              type: bookKindModule,
+              type: const BookRegistration(),
               item: bookItem,
               ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
@@ -310,7 +311,7 @@ void main() {
 
   group('EmptyInspector', () {
     testWidgets('renders placeholder text', (tester) async {
-      final type = comicKindModule;
+      const type = ComicRegistration();
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

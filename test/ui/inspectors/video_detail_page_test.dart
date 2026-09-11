@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_workspac
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../helpers/test_constants.dart';
@@ -48,7 +49,7 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = movieKindModule;
+    const type = MovieRegistration();
     final source1 = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogTransport: testCatalogItem(
@@ -170,7 +171,7 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = movieKindModule;
+    const type = MovieRegistration();
     final source2 = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogTransport: testCatalogItem(
@@ -298,7 +299,7 @@ void main() {
 
   testWidgets('release browser explains when core has no releases yet',
       (tester) async {
-    final type = movieKindModule;
+    const type = MovieRegistration();
     final source3 = LibraryWorkspaceSource(
       itemId: 'movie-2',
       catalogTransport: testCatalogItem(

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -45,7 +46,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorHero(
-              type: bookKindModule,
+              type: const BookRegistration(),
               item: testProjectionItem(
                 id: 'book-hero-1',
                 kind: 'book',
@@ -82,7 +83,7 @@ void main() {
           home: Scaffold(
             body: ComicInspectorHero(
               request: LibraryInspectorRequest(
-                type: comicKindModule,
+                type: const ComicRegistration(),
                 item: testProjectionItem(
                   id: 'comic-hero-1',
                   kind: 'comic',
@@ -130,7 +131,7 @@ void main() {
                   width: 664,
                   child: ComicInspectorHero(
                     request: LibraryInspectorRequest(
-                      type: comicKindModule,
+                      type: const ComicRegistration(),
                       item: testProjectionItem(
                         id: 'comic-hero-narrow-1',
                         kind: 'comic',
@@ -195,7 +196,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryInspector(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               item: testProjectionItem(
                 id: 'comic-hero-2',
                 kind: 'comic',
@@ -277,7 +278,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryInspector(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               item: testProjectionItem(
                 id: 'comic-multi-1',
                 kind: 'comic',
@@ -333,7 +334,7 @@ void main() {
             body: BookInspectorPanel(
               request: LibraryInspectorPanelRequest(
                 inspector: LibraryInspectorRequest(
-                  type: bookKindModule,
+                  type: const BookRegistration(),
                   item: testProjectionItem(
                     id: 'book-1',
                     kind: 'book',
@@ -433,7 +434,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
-            type: comicKindModule,
+            type: const ComicRegistration(),
             item: testProjectionItem(
               id: 'comic-1',
               kind: 'comic',
@@ -463,7 +464,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             item: testProjectionItem(
               id: 'movie-1',
               kind: 'movie',
@@ -493,7 +494,7 @@ void main() {
   testWidgets('inspector action bar avoids overflow on narrow widths', (
     tester,
   ) async {
-    final type = bookKindModule;
+    const type = BookRegistration();
 
     await tester.pumpWidget(
       MaterialApp(
@@ -548,7 +549,7 @@ void main() {
   testWidgets('book inspector hides the item images section', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    const type = BookRegistration();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -639,7 +640,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    const type = BookRegistration();
     await BookOwnedRepository(db).upsertAll([
       testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
@@ -712,7 +713,7 @@ void main() {
   testWidgets('inspector edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    const type = BookRegistration();
     await BookOwnedRepository(db).upsertAll([
       testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
@@ -803,7 +804,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    const type = BookRegistration();
 
     await BookOwnedRepository(db).upsertAll([
       testBookOwnedItemFrom(testOwnedItem(

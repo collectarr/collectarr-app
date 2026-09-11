@@ -28,7 +28,7 @@ void main() {
     );
 
     final draft = LibraryEditDraft.fromFields(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       wishlistItem: null,
@@ -77,7 +77,7 @@ void main() {
     );
 
     final draft = LibraryEditDraft.fromFields(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       wishlistItem: null,

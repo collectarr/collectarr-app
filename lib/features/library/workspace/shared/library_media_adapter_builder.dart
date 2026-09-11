@@ -8,24 +8,24 @@ import 'package:collectarr_app/features/library/workspace/table/media_table_colu
 
 export 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
-const double kPlannedMediaMinCoverSize = 96;
-const double kPlannedMediaDefaultCoverSize = 128;
-const double kPlannedMediaMaxCoverSize = 188;
-const double kPlannedMediaTableColumnSpacing = 10;
-const double kPlannedMediaTableHorizontalMargin = 8;
+const double kStandardMediaMinCoverSize = 96;
+const double kStandardMediaDefaultCoverSize = 128;
+const double kStandardMediaMaxCoverSize = 188;
+const double kStandardMediaTableColumnSpacing = 10;
+const double kStandardMediaTableHorizontalMargin = 8;
 
-LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
+LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
   CatalogMediaKind kind,
   LibraryUiPolicy uiPolicy,
 ) {
   final coverGridHeightFactor = uiPolicy.coverAspectRatio;
   return LibraryWorkspaceViewProfile(
     kindModuleResolver: () => libraryKindRegistrationForKind(kind),
-    defaultCoverSize: kPlannedMediaDefaultCoverSize,
-    minCoverSize: kPlannedMediaMinCoverSize,
-    maxCoverSize: kPlannedMediaMaxCoverSize,
+    defaultCoverSize: kStandardMediaDefaultCoverSize,
+    minCoverSize: kStandardMediaMinCoverSize,
+    maxCoverSize: kStandardMediaMaxCoverSize,
     coverGridHeightFactor: coverGridHeightFactor,
-    presetConfig: (preset) => plannedMediaViewPresetConfig(kind, preset),
+    presetConfig: (preset) => standardMediaViewPresetConfig(kind, preset),
     clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
       libraryKindWorkspaceForKind(kind).fields,
       column,
@@ -43,7 +43,7 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   );
 }
 
-LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
+LibraryWorkspaceViewPresetConfig standardMediaViewPresetConfig(
   CatalogMediaKind kind,
   LibraryWorkspacePreset preset,
 ) {
@@ -53,7 +53,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.bottom,
-        coverSize: kPlannedMediaDefaultCoverSize,
+        coverSize: kStandardMediaDefaultCoverSize,
         visibleColumns: defaultCols,
       ),
     LibraryWorkspacePreset.card => LibraryWorkspaceViewPresetConfig(
@@ -77,7 +77,7 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   };
 }
 
-String? plannedMediaSubgroupKeyForEntry(
+String? standardMediaSubgroupKeyForEntry(
   LibraryKindRegistration type,
   LibraryProjectionView item,
   LibraryGroupIdRuntime groupId,
@@ -86,7 +86,7 @@ String? plannedMediaSubgroupKeyForEntry(
       .subgroupKeyForEntry(item, groupId);
 }
 
-int plannedMediaCompareSubgroupKeys(
+int standardMediaCompareSubgroupKeys(
   String left,
   String right,
 ) {

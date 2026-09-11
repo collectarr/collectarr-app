@@ -124,7 +124,7 @@ void main() {
       ),
     );
     final request = LibraryEditDialogRequest(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.blue,
@@ -167,7 +167,7 @@ void main() {
       ),
     );
     final request = LibraryEditDialogRequest(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.blue,
@@ -203,7 +203,7 @@ void main() {
       ),
     );
     final request = LibraryEditDialogRequest(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
       ownedItem: testOwnedSummary(testOwnedItem(
         itemId: item.identity.id,

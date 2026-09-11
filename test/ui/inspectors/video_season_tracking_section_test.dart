@@ -17,6 +17,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
@@ -35,7 +36,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final api = _VideoSeasonApiClient();
-    final type = tvKindModule;
+    const type = TvRegistration();
     const itemId = '00000000-0000-0000-0000-000000000001';
 
     final source = LibraryWorkspaceSource(

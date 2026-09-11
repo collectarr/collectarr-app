@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 
@@ -72,7 +73,7 @@ void main() {
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final inspectorRequest = LibraryInspectorRequest(
-      type: musicKindModule,
+      type: const MusicRegistration(),
       item: item,
       ownedItem: testOwnedSummary(ownedItem),
       ownedCopies: [testOwnedSummary(ownedItem)],
@@ -162,7 +163,7 @@ void main() {
     final item = LibraryProjectionItem(source: source, node: node, dto: dto);
 
     final inspectorRequest = LibraryInspectorRequest(
-      type: musicKindModule,
+      type: const MusicRegistration(),
       item: item,
       ownedItem: testOwnedSummary(ownedItem),
       ownedCopies: [testOwnedSummary(ownedItem)],

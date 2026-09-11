@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../helpers/test_data_factories.dart';
 
@@ -40,7 +41,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryDetailContextSection(
-            type: musicKindModule,
+            type: const MusicRegistration(),
             accent: Colors.cyan,
             item: musicItem,
           ),
@@ -83,7 +84,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryDetailCreditsSection(
-            type: comicKindModule,
+            type: const ComicRegistration(),
             accent: Colors.purple,
             item: comicItem,
           ),

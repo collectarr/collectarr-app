@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/workspace/layout/library_grouped
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../../../helpers/test_data_factories.dart';
 
@@ -72,7 +73,7 @@ void main() {
           home: StatefulBuilder(
             builder: (context, setState) {
               return LibraryGroupedShelfView(
-                type: movieKindModule,
+                type: const MovieRegistration(),
                 groups: [
                   _group(
                     bucket: 'Batman',
@@ -147,7 +148,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryGroupedShelfView(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               groups: [group],
               viewState: comicKindModule.viewProfile.defaults(),
               selectedId: null,

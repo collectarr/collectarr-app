@@ -24,12 +24,9 @@ class CollectionImportRow {
   final String status;
 
   /// Typed immediately after the CSV wire boundary. The raw API value is
-  /// available only through [kind] for compatibility with the v1 serializer
-  /// and display tests.
+  /// serialized only when writing the schema-v1 wire format.
   final CatalogMediaKind mediaKind;
   final String? title;
-
-  String? get kind => mediaKind.isUnknown ? null : mediaKind.apiValue;
 
   /// Values decoded from the shared personal columns at the file boundary.
   ///

@@ -66,7 +66,7 @@ void main() {
 
 LibraryEditDialogRequest _bookEditRequest() {
   return LibraryEditDialogRequest(
-    type: bookKindModule,
+    type: const BookRegistration(),
     item: CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
       'id': 'book-1',
       'kind': 'book',

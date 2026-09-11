@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 LibraryProjectionItem _itemFixture() {
   final cat = testCatalogItem(
@@ -32,7 +33,7 @@ LibraryProjectionItem _itemFixture() {
   );
   final source = LibraryWorkspaceSource(
       itemId: 'comic-hero-fixture', catalogTransport: cat.asShelfCatalogItem);
-  return LibraryProjectionItem.fromShelf(source, comicKindModule);
+  return LibraryProjectionItem.fromShelf(source, const ComicRegistration());
 }
 
 Widget _heroHost(TestOwnedItem ownedItem) {
@@ -45,7 +46,7 @@ Widget _heroHost(TestOwnedItem ownedItem) {
       home: Scaffold(
         body: ComicInspectorHero(
           request: LibraryInspectorRequest(
-            type: comicKindModule,
+            type: const ComicRegistration(),
             item: _itemFixture(),
             ownedItem: testOwnedSummary(ownedItem),
             ownedItemDispatch: testComicOwnedItemDispatchFrom(

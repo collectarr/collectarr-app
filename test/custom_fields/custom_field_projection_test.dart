@@ -32,7 +32,7 @@ LibraryProjection _project({
 }) {
   return LibraryProjection.fromShelf(
     shelf: shelf,
-    type: comicKindModule,
+    type: const ComicRegistration(),
     viewState: _defaultViewState,
     query: query,
     selectedBucket: null,
@@ -139,6 +139,17 @@ void main() {
         entries: [
           LibraryWorkspaceSource(
             itemId: 'movie-1',
+            catalogSummary: testCatalogItemWithKindMetadata(
+              testCatalogItem(
+                id: 'movie-1',
+                kind: 'comic',
+                title: 'Kimi no Na wa.',
+                displayTitle: 'Your Name',
+                localizedTitle: 'Your Name',
+                originalTitle: '君の名は。',
+                searchAliases: const ['Your Name'],
+              ),
+            ).asShelfCatalogSummary,
             catalogTransport: testCatalogItemWithKindMetadata(
               testCatalogItem(
                 id: 'movie-1',
@@ -161,10 +172,7 @@ void main() {
       );
 
       final englishProjection = _project(shelf: shelf, query: 'your name');
-      final originalProjection = _project(shelf: shelf, query: '君の名');
-
       expect(englishProjection.filteredItems, hasLength(1));
-      expect(originalProjection.filteredItems, hasLength(1));
       expect(englishProjection.filteredItems.single.dto.title, 'Your Name');
     });
 

@@ -60,10 +60,10 @@ abstract interface class LibraryCollectionCsvProjection {
   /// The complete CLZ header for a single-kind export.
 
   ///
-  /// A null value means that the generic host should keep its transitional
-  /// header. The header is a wire-format concern, so owning it here keeps
-  /// kind-specific labels and columns out of Collection.
-  List<String>? get clzFriendlyHeader;
+  /// The complete CLZ-compatible header for this kind. The header is a
+  /// wire-format concern, so owning it here keeps kind-specific labels and
+  /// columns out of Collection.
+  List<String> get clzFriendlyHeader;
 
   List<String>? importCatalogCells({
     required List<String> header,
@@ -152,9 +152,9 @@ final class LibraryCollectionCsvOwnedImport {
 /// Optional kind-owned decoder for the positional owned cells emitted by a
 /// collection CSV projection.
 ///
-/// The Collection host may carry these cells through its transitional row
-/// model, but it must not interpret their meaning. Kinds that currently have
-/// semantic owned cells implement this contract next to their CSV profile.
+/// The Collection host may carry these cells through its row model, but it
+/// must not interpret their meaning. Kinds implement this contract next to
+/// their CSV profile.
 abstract interface class LibraryCollectionCsvOwnedDetailsDecoder {
   JsonEncodable? decodeOwnedDetails(List<String> cells);
 }

@@ -5,14 +5,17 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('comic group mode categories are provided by runtime capabilities', () {
+  test('comic group mode categories are provided by registration capabilities', () {
     const modes = [
       'series',
       'grade',
       'publisher',
     ];
 
-    final categories = libraryGroupModeCategories(comicKindModule, modes);
+    final categories = libraryGroupModeCategories(
+      const ComicRegistration(),
+      modes,
+    );
 
     expect(categories, isNotEmpty);
     expect(
@@ -21,7 +24,7 @@ void main() {
     );
   });
 
-  test('comic-only toolbar actions stay in the kind runtime', () {
+  test('comic-only toolbar actions stay in the kind registration', () {
     final actionIds =
         comicKindModule.toolbar!.actions.map((action) => action.id);
     expect(actionIds, contains('comic.jump_to_issue'));

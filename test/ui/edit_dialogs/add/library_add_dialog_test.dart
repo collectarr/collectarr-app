@@ -195,7 +195,7 @@ void main() {
     );
 
     final prepared = await const LocalLibraryCoverImagePreprocessor()
-        .prepareImage(type: comicKindModule, image: reviewed);
+        .prepareImage(type: const ComicRegistration(), image: reviewed);
 
     expect(prepared.transformsApplied, isTrue);
     expect(prepared.preparedBytes, isNotNull);
@@ -221,7 +221,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: gameKindModule,
+              type: const GameRegistration(),
               initialIdentifier: '759606083060',
               autoLookupInitialIdentifier: false,
             ),
@@ -281,7 +281,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -319,7 +319,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final api = _FakeLibraryAddApiClient();
-    final providerSearchType = comicKindModule;
+    const providerSearchType = ComicRegistration();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -377,7 +377,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
@@ -461,7 +461,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
               coverScanService: const LocalLibraryCoverScanService(
                 sourcePrompt: _FakeCoverScanSourcePrompt(action: null),
@@ -517,7 +517,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
@@ -574,7 +574,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
@@ -649,7 +649,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
@@ -716,7 +716,7 @@ void main() {
                     ),
                   ).reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -800,7 +800,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
@@ -868,7 +868,7 @@ void main() {
                   reviewedImage =
                       await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -936,7 +936,7 @@ void main() {
                   reviewedImage =
                       await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -997,7 +997,7 @@ void main() {
                   reviewedImage =
                       await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -1046,7 +1046,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1088,7 +1088,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1128,7 +1128,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open comic add'),
@@ -1169,7 +1169,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1217,7 +1217,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open comic add'),
@@ -1272,7 +1272,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open comic add'),
@@ -1328,7 +1328,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: movieKindModule,
+                    type: const MovieRegistration(),
                   );
                 },
                 child: const Text('Open movie add'),
@@ -1376,7 +1376,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: movieKindModule,
+                    type: const MovieRegistration(),
                   );
                 },
                 child: const Text('Open movie add'),
@@ -1431,7 +1431,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: movieKindModule,
+                    type: const MovieRegistration(),
                   );
                 },
                 child: const Text('Open movie add'),
@@ -1480,7 +1480,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1528,7 +1528,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1594,7 +1594,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1665,7 +1665,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1713,7 +1713,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1766,7 +1766,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1830,7 +1830,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1903,7 +1903,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
+              type: const MusicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1956,7 +1956,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
+              type: const MusicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -1998,7 +1998,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
+              type: const MusicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -2047,7 +2047,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
+              type: const MusicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -2076,7 +2076,7 @@ void main() {
       rows.single.catalogRef,
     );
     final music = music_details.MusicCatalogDetailsDto.fromJson(
-      Map<String, dynamic>.from(cached!.payload['music'] as Map),
+      Map<String, dynamic>.from(cached!.payload),
     );
     expect(music.trackCount, 2);
     expect(music.tracks, hasLength(2));
@@ -2105,7 +2105,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),
@@ -2176,7 +2176,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open compact add'),

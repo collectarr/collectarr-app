@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../../helpers/test_constants.dart';
 import '../../../helpers/test_data_factories.dart';
@@ -24,7 +25,7 @@ void main() {
               onPressed: () {
                 showLibraryFilterDialog(
                   context: context,
-                  type: musicKindModule,
+                  type: const MusicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {
@@ -62,7 +63,7 @@ void main() {
               onPressed: () {
                 showLibraryFilterDialog(
                   context: context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {
@@ -184,7 +185,7 @@ void main() {
 
     final sanitizedMusic = sanitizeLibraryFilterSelectionForType(
       selection,
-      musicKindModule,
+      const MusicRegistration(),
     );
     expect(sanitizedMusic.ownershipFilter, LibraryOwnershipFilter.all);
     expect(sanitizedMusic.fieldValue('grade'), isNull);
@@ -194,7 +195,7 @@ void main() {
 
     final sanitizedComics = sanitizeLibraryFilterSelectionForType(
       selection,
-      comicKindModule,
+      const ComicRegistration(),
     );
     expect(sanitizedComics.ownershipFilter, LibraryOwnershipFilter.all);
     expect(
@@ -268,7 +269,7 @@ void main() {
               onPressed: () async {
                 selection = await showLibraryFilterDialog(
                   context: context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: LibraryFilterOptions.fromEntries(
                     const [],
@@ -327,7 +328,7 @@ void main() {
               onPressed: () async {
                 selection = await showLibraryFilterDialog(
                   context: context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {

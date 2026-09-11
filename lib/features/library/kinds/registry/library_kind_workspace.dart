@@ -170,7 +170,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     Set<LibraryFieldIdRuntime> columns,
     Map<LibraryFieldIdRuntime, double> customWidths,
   ) {
-    return plannedMediaTableWidthForColumns(
+    return standardMediaTableWidthForColumns(
       fields: fields,
       columns: columns,
       customWidths: customWidths,
@@ -182,7 +182,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryFieldIdRuntime column,
     Map<LibraryFieldIdRuntime, double> customWidths,
   ) {
-    return plannedMediaTableColumnWidth(fields, column, customWidths);
+    return standardMediaTableColumnWidth(fields, column, customWidths);
   }
 
   @override
@@ -192,32 +192,32 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   String columnLabel(LibraryFieldIdRuntime column) {
-    return plannedMediaTableColumnLabelForType(fields, column);
+    return standardMediaTableColumnLabelForType(fields, column);
   }
 
   @override
   String columnDisplayName(LibraryFieldIdRuntime column) {
-    return plannedMediaTableColumnDisplayNameForType(fields, column);
+    return standardMediaTableColumnDisplayNameForType(fields, column);
   }
 
   @override
   LibraryTableColumnGroup columnGroup(LibraryFieldIdRuntime column) {
-    return plannedMediaTableColumnGroup(fields, column);
+    return standardMediaTableColumnGroup(fields, column);
   }
 
   @override
   String columnGroupLabel(LibraryTableColumnGroup group) {
-    return plannedMediaTableColumnGroupLabel(group);
+    return standardMediaTableColumnGroupLabel(group);
   }
 
   @override
   bool columnIsNumeric(LibraryFieldIdRuntime column) {
-    return plannedMediaTableColumnIsNumeric(fields, column);
+    return standardMediaTableColumnIsNumeric(fields, column);
   }
 
   @override
   LibrarySortIdRuntime? columnSort(LibraryFieldIdRuntime column) {
-    return plannedMediaTableColumnSort(fields, column);
+    return standardMediaTableColumnSort(fields, column);
   }
 
   @override
@@ -226,7 +226,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryFieldIdRuntime column,
   ) {
     validateProjection(item);
-    return plannedMediaTableCellTyped(fields, item, column);
+    return standardMediaTableCellTyped(fields, item, column);
   }
 
   @override
@@ -279,7 +279,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   int compareSubgroupKeys(String left, String right) {
-    return plannedMediaCompareSubgroupKeys(left, right);
+    return standardMediaCompareSubgroupKeys(left, right);
   }
 
   @override

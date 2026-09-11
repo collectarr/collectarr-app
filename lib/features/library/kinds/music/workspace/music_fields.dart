@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_transport_buck
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -239,13 +240,14 @@ final musicLibraryGroupDefinitions = [
 
 LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
   return (item, currentLabel, {String? replacement}) {
-    if (item is! MusicOwnedItem) return null;
-    if (item.condition?.trim() != currentLabel.trim()) return null;
+    if (item is! MusicOwnedItemDispatch) return null;
+    final owned = item.value;
+    if (owned.condition?.trim() != currentLabel.trim()) return null;
     final next = replacement?.trim();
     return UpdateOwnedItemCommand(
       ownedRef: OwnedItemRef(
         kind: CatalogMediaKind.music,
-        id: OwnedItemId(item.id.value),
+        id: OwnedItemId(owned.id.value),
       ),
       payload: MusicOwnedItemUpdatePayload(
         targetRef: const Patch<CatalogEntityRef?>.unchanged(),

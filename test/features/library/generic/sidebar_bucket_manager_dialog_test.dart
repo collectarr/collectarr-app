@@ -8,14 +8,14 @@ void main() {
       () {
     expect(
       () => libraryGroupModeSupportsBucketManagement(
-        movieKindModule,
+        const MovieRegistration(),
         'story_arc',
       ),
       returnsNormally,
     );
     expect(
       libraryGroupModeSupportsBucketManagement(
-        movieKindModule,
+        const MovieRegistration(),
         'story_arc',
       ),
       isFalse,
@@ -24,14 +24,14 @@ void main() {
     expect(
       () => libraryBucketManagerListLabel(
         'audience_rating',
-        musicKindModule,
+        const MusicRegistration(),
       ),
       returnsNormally,
     );
     expect(
       libraryBucketManagerListLabel(
         'audience_rating',
-        musicKindModule,
+        const MusicRegistration(),
       ),
       isNotEmpty,
     );
@@ -49,7 +49,7 @@ void main() {
               child: ElevatedButton(
                 onPressed: () => showLibraryBucketManagerDialog(
                   context: context,
-                  type: movieKindModule,
+                  type: const MovieRegistration(),
                   groupMode: 'genre',
                   accent: Colors.cyan,
                   entries: const [

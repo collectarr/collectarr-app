@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   testWidgets('movie inspector composes movie-specific sections',
@@ -37,7 +38,7 @@ void main() {
     );
 
     final request = LibraryInspectorRequest(
-      type: movieKindModule,
+      type: const MovieRegistration(),
       item: item,
       ownedItem: null,
       trackingLifecycle: null,

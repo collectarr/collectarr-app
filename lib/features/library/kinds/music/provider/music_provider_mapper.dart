@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
@@ -32,10 +33,20 @@ class MusicLibraryKindProviderMapper
     ProviderMetadataEnvelope envelope,
   ) {
     final catalog = catalogFromEnvelope(envelope);
+    final metadata = MusicCatalogMetadata.fromJson({
+      ...envelope.normalized,
+      'id': envelope.providerItemId,
+      'title': catalog.title,
+      if (catalog.coverImageUrl != null)
+        'cover_image_url': catalog.coverImageUrl,
+      if (catalog.thumbnailImageUrl != null)
+        'thumbnail_image_url': catalog.thumbnailImageUrl,
+    });
     return providerCandidateFromTypedPayload(
       kind: CatalogMediaKind.music,
       id: envelope.providerItemId,
-      payload: catalog.toJson(),
+      payload: metadata.toJson(),
+      typedMetadata: metadata,
     );
   }
 
