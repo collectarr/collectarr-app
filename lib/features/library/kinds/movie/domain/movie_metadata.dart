@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
 class MoviePersonCredit {
@@ -34,7 +35,7 @@ class MoviePersonCredit {
 
 
 @immutable
-class MovieCatalogMetadata {
+class MovieCatalogMetadata implements JsonEncodable {
   const MovieCatalogMetadata({
     required this.title,
     this.originalTitle,
@@ -142,6 +143,7 @@ class MovieCatalogMetadata {
       _movieIntValue(rawPayload['market_value_cents']) ??
       _movieIntValue(rawPayload['value_cents']);
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,

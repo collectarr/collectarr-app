@@ -1,13 +1,14 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 import 'music_ids.dart';
 import 'music_media.dart';
 import 'music_track.dart';
 
 @immutable
-final class MusicRelease {
+final class MusicRelease implements JsonEncodable {
   const MusicRelease({
     required this.id,
     required this.title,
@@ -123,6 +124,7 @@ final class MusicRelease {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'id': id.value,

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -115,7 +116,8 @@ void main() {
 
     final item = comicKindModule.add
         .catalogTransportFromProviderCandidate(candidate);
-    final payload = item.toTransportItem().kindMetadata.toSyncPayload();
+    final payload =
+        (item.toTransportItem().kindMetadata as JsonEncodable).toJson();
 
     expect(payload['item_number'], '1');
     expect(item.releaseYear, 2024);

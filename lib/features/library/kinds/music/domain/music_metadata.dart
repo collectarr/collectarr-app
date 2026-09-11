@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
 class MusicTrackMetadata {
@@ -134,7 +135,7 @@ class MusicReleaseMetadata {
 
 
 @immutable
-class MusicCatalogMetadata {
+class MusicCatalogMetadata implements JsonEncodable {
   const MusicCatalogMetadata({
     required this.title,
     this.artist,
@@ -199,6 +200,7 @@ class MusicCatalogMetadata {
   final String? language;
   final Map<String, dynamic> rawPayload;
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 import 'tv_ids.dart';
 
@@ -488,7 +489,7 @@ class TvRelease {
 }
 
 @immutable
-class TvSeries {
+class TvSeries implements JsonEncodable {
   const TvSeries({
     required this.id,
     required this.title,
@@ -572,6 +573,7 @@ class TvSeries {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'id': id,

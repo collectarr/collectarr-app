@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 import 'boardgame_edition.dart';
 import 'boardgame_ids.dart';
 
 @immutable
-final class BoardGameMedia {
+final class BoardGameMedia implements JsonEncodable {
   const BoardGameMedia({
     required this.id,
     required this.title,
@@ -59,6 +60,7 @@ final class BoardGameMedia {
 
   Map<String, dynamic> toSyncPayload() => toJson();
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'id': id.value,

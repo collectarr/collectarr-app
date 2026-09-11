@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 import 'anime_episode.dart';
 import 'anime_ids.dart';
@@ -107,7 +108,7 @@ final class AnimeIdentifier {
 }
 
 @immutable
-final class AnimeMedia {
+final class AnimeMedia implements JsonEncodable {
   const AnimeMedia({
     required this.id,
     required this.title,
@@ -180,6 +181,7 @@ final class AnimeMedia {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'id': id.value,

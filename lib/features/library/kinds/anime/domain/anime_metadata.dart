@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 enum AnimeFormat {
   tv('TV'),
@@ -134,7 +135,7 @@ class AnimeRelation {
 }
 
 @immutable
-class AnimeMetadata {
+class AnimeMetadata implements JsonEncodable {
   const AnimeMetadata({
     this.title = '',
     this.nativeTitle,
@@ -213,6 +214,7 @@ class AnimeMetadata {
   final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,

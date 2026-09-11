@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
 class AudiobookDetails {
@@ -292,7 +293,7 @@ class BookEditionMetadata {
 
 
 @immutable
-class BookCatalogMetadata {
+class BookCatalogMetadata implements JsonEncodable {
   const BookCatalogMetadata({
     required this.title,
     this.subtitle,
@@ -373,6 +374,7 @@ class BookCatalogMetadata {
   final String? seriesTitle;
   final Map<String, dynamic> rawPayload;
 
+  @override
   Map<String, dynamic> toJson() {
     final base = Map<String, dynamic>.from(rawPayload);
     if (links.isNotEmpty) {

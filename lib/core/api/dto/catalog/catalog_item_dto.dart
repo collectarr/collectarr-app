@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -97,7 +97,7 @@ class MusicCatalogDetailsDto {
 final class CatalogItemDto {
   factory CatalogItemDto({
     required LibraryItemIdentity identity,
-    required dynamic kindMetadata,
+    required Object? kindMetadata,
   }) =>
       CatalogItemDto._raw(
         id: identity.id,
@@ -111,7 +111,7 @@ final class CatalogItemDto {
     required CatalogMediaKind mediaKind,
     required CatalogCommonDto common,
     Map<String, dynamic> payload = const <String, dynamic>{},
-    dynamic kindMetadata,
+    Object? kindMetadata,
   }) {
     return CatalogItemDto._raw(
       id: id,
@@ -128,37 +128,30 @@ final class CatalogItemDto {
     required this.id,
     required this.mediaKind,
     required Map<String, dynamic> payload,
-    dynamic kindMetadata,
+    Object? kindMetadata,
   })  : _payload = payload,
         _kindMetadata = kindMetadata;
 
   final String id;
   final CatalogMediaKind mediaKind;
   final Map<String, dynamic> _payload;
-  final dynamic _kindMetadata;
+  final Object? _kindMetadata;
 
   Map<String, dynamic> get payload {
     final metadata = _kindMetadata;
     if (metadata is Map) {
       return Map<String, dynamic>.from(metadata);
     }
-    if (metadata != null) {
-      try {
-        final raw = (metadata as dynamic).toSyncPayload();
-        if (raw is Map) {
-          return {
-            ..._payload,
-            ...Map<String, dynamic>.from(raw),
-          };
-        }
-      } on Object {
-        // Unsupported metadata falls back to the transport payload.
-      }
+    if (metadata is JsonEncodable) {
+      return {
+        ..._payload,
+        ...metadata.toJson(),
+      };
     }
     return Map<String, dynamic>.from(_payload);
   }
 
-  dynamic get kindMetadata => _kindMetadata ?? payload;
+  Object? get kindMetadata => _kindMetadata ?? payload;
 
   LibraryItemIdentity get identity =>
       LibraryItemIdentity(id: id, mediaKind: mediaKind);
@@ -277,7 +270,7 @@ final class CatalogItemDto {
     List<TrailerLinkDto>? trailerUrls,
     Object? physicalFormat = _unset,
     Object? physicalFormatLabel = _unset,
-    dynamic kindMetadata,
+    Object? kindMetadata,
   }) {
     final json = <String, dynamic>{
       ...payload,
@@ -332,7 +325,7 @@ final class CatalogItemDto {
     );
   }
 
-  CatalogItemDto withKindMetadata(dynamic kindMetadata) {
+  CatalogItemDto withKindMetadata(Object? kindMetadata) {
     return CatalogItemDto._raw(
       id: id,
       mediaKind: mediaKind,

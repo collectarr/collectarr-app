@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 enum ComicKeyEventType {
   firstAppearance,
@@ -70,7 +71,7 @@ class ComicCreatorCredit {
 }
 
 @immutable
-class ComicMedia {
+class ComicMedia implements JsonEncodable {
   const ComicMedia({
     this.id,
     required this.title,
@@ -167,6 +168,7 @@ class ComicMedia {
   final List<ComicRelease> releases;
   final Map<String, dynamic> rawPayload;
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         if (id != null) 'id': id!.value,

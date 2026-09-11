@@ -2,9 +2,10 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_domain.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
-final class BookMedia {
+final class BookMedia implements JsonEncodable {
   const BookMedia({
     required this.id,
     required this.title,
@@ -48,6 +49,7 @@ final class BookMedia {
 
   Map<String, dynamic> toSyncPayload() => toJson();
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'id': id.value,
