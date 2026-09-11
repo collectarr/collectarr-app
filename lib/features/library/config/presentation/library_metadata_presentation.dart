@@ -172,6 +172,13 @@ abstract class LibraryMediaPresentationBuilder {
   }) =>
       null;
 
+  /// Returns only the structural format badges that the generic Add shell
+  /// should render. Physical-format meaning stays in the owning kind.
+  List<(String id, String label)> buildAddPreviewFormatBadges({
+    required LibraryAddCatalogTransport item,
+  }) =>
+      const [];
+
   List<(String, String?)> buildAddPreviewMetadataRows({
     required LibraryAddCatalogTransport item,
     required LibraryMediaPreviewLabels previewLabels,

@@ -222,7 +222,10 @@ _ResolvedAddReference _resolveReferenceForItem(
           ),
         );
       }
-      final editions = item.editions;
+      final editions = libraryKindModuleForKind(item.mediaKind)
+          .presentation
+          .builder
+          .buildReleaseEditions(item: item);
       if (editions.isEmpty) {
         return _ResolvedAddReference(catalogRef: item.catalogRef);
       }

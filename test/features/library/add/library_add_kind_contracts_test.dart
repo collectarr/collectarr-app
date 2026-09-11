@@ -39,6 +39,7 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_i
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -265,6 +266,43 @@ void main() {
         final runtime = testKindModule(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
+      }
+    });
+
+    test('all kinds own Add release and format presentation', () {
+      for (final kind in activeKinds) {
+        final module = testKindModule(kind);
+        final item = LibraryAddCatalogTransport.fromItem(
+          testCatalogItem(
+            id: '${kind.apiValue}-format-test',
+            kind: kind.apiValue,
+            editions: const [
+              CatalogEditionDto(
+                id: 'edition-1',
+                title: 'Primary edition',
+                physicalFormat: 'format-one',
+                physicalFormatLabel: 'Format One',
+              ),
+              CatalogEditionDto(
+                id: 'edition-2',
+                title: 'Duplicate format edition',
+                physicalFormat: 'format-one',
+                physicalFormatLabel: 'Format One',
+              ),
+            ],
+          ),
+        );
+
+        expect(
+          module.presentation.builder.buildReleaseEditions(item: item),
+          hasLength(2),
+          reason: '$kind must own Add release selection data',
+        );
+        expect(
+          module.presentation.builder.buildAddPreviewFormatBadges(item: item),
+          [("format-one", "Format One")],
+          reason: '$kind must own Add format badge semantics',
+        );
       }
     });
 

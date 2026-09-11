@@ -226,7 +226,14 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                             : 'Collectarr Core metadata',
                         style: const TextStyle(fontSize: 16),
                       ),
-                      _buildPreviewFormatBadges(selectedItem),
+                      _buildPreviewFormatBadges(
+                        selectedItem == null
+                            ? const []
+                            : type.presentation.builder
+                                .buildAddPreviewFormatBadges(
+                                item: selectedItem,
+                              ),
+                      ),
                     ],
                   ),
                 ),
@@ -756,11 +763,11 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final editions = item.editions;
+    final editions = type.presentation.builder.buildReleaseEditions(item: item);
     final editionAvailable = editions.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
-    final selectedEdition = previewEditionForItem(item, selectedEditionId);
+    final selectedEdition = previewEditionForItem(editions, selectedEditionId);
     final selectedVariant = selectedVariantForEdition(
       selectedEdition,
       selectedVariantId,
@@ -1082,10 +1089,9 @@ String _editionSummaryForSelection(
 }
 
 CatalogEditionDto? previewEditionForItem(
-  LibraryAddCatalogTransport item,
+  List<CatalogEditionDto> editions,
   String? editionId,
 ) {
-  final editions = item.editions;
   final normalizedEditionId = editionId?.trim();
   if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
     for (final edition in editions) {
@@ -1094,7 +1100,7 @@ CatalogEditionDto? previewEditionForItem(
       }
     }
   }
-  return _previewPrimaryEditionForItem(item);
+  return _previewPrimaryEditionForEditions(editions);
 }
 
 CatalogVariantDto? selectedVariantForEdition(
@@ -1114,9 +1120,9 @@ CatalogVariantDto? selectedVariantForEdition(
   return null;
 }
 
-CatalogEditionDto? _previewPrimaryEditionForItem(
-    LibraryAddCatalogTransport item) {
-  final editions = item.editions;
+CatalogEditionDto? _previewPrimaryEditionForEditions(
+  List<CatalogEditionDto> editions,
+) {
   if (editions.isEmpty) {
     return null;
   }
@@ -1141,18 +1147,18 @@ CatalogVariantDto? _previewPrimaryVariantForEdition(
   return edition.variants.first;
 }
 
-Widget _buildPreviewFormatBadges(LibraryAddCatalogTransport? item) {
-  final editions = item == null ? const <CatalogEditionDto>[] : item.editions;
-  if (editions.isEmpty) return const SizedBox.shrink();
+Widget _buildPreviewFormatBadges(
+  List<(String id, String label)> formatValues,
+) {
+  if (formatValues.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
-  for (final edition in editions) {
-    final id = edition.physicalFormat;
-    if (id == null || !seen.add(id)) continue;
+  for (final format in formatValues) {
+    if (!seen.add(format.$1)) continue;
     badges.add(
       FormatBadge.fromFormat(
-        id: id,
-        label: edition.physicalFormatLabel ?? id,
+        id: format.$1,
+        label: format.$2,
       ),
     );
   }

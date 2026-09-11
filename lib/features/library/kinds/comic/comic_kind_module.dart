@@ -353,7 +353,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
           ),
         ],
       ),
-      coverScanQueryBuilder: (result) => result.query,
+      coverScanQueryBuilder: _comicCoverScanQuery,
       coverScanFilterValuesBuilder: _comicCoverScanFilterValues,
       providerSearchBuilder: searchComicProvider,
     ),
@@ -652,6 +652,13 @@ Map<LibraryAddFilterId, Object?> _comicCoverScanFilterValues(
       _comicPublisherFilterId: hints.publisher!.trim(),
     if (hints.year != null) _comicYearFilterId: hints.year.toString(),
   };
+}
+
+String? _comicCoverScanQuery(LibraryCoverScanResult result) {
+  final hints = parseComicCoverScanHints(result);
+  return hints.series?.trim().isNotEmpty == true
+      ? hints.series!.trim()
+      : result.query;
 }
 
 String? _optionalText(String value) {

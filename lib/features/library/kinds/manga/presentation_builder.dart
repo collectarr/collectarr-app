@@ -41,6 +41,21 @@ class MangaLibraryMediaPresentationBuilder
       item.itemNumber;
 
   @override
+  List<(String id, String label)> buildAddPreviewFormatBadges({
+    required LibraryAddCatalogTransport item,
+  }) {
+    final seen = <String>{};
+    final result = <(String, String)>[];
+    for (final edition in item.editions) {
+      final id = edition.physicalFormat;
+      if (id == null || !seen.add(id)) continue;
+      final label = edition.physicalFormatLabel?.trim();
+      result.add((id, label == null || label.isEmpty ? id : label));
+    }
+    return result;
+  }
+
+  @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {
