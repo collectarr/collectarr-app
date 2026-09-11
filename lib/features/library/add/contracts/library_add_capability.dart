@@ -77,6 +77,10 @@ typedef LibraryAddDigitalCopyFlagBuilder = bool? Function(
 typedef LibraryAddProviderCandidateProjection = LibraryAddCatalogTransport
     Function(ProviderCandidate candidate);
 
+typedef LibraryAddCoreCatalogProjection = LibraryAddCatalogTransport Function(
+  LibraryAddCatalogTransport item,
+);
+
 class LibraryAddSearchCapability {
   const LibraryAddSearchCapability({
     this.initialAdvancedFilters = const {},
@@ -208,6 +212,10 @@ abstract interface class LibraryAddCapability<
     ProviderCandidate candidate,
   );
 
+  LibraryAddCatalogTransport catalogTransportFromCoreItem(
+    LibraryAddCatalogTransport item,
+  );
+
   bool? digitalCopyFlag(LibraryAddCatalogTransport item) => null;
 
   Widget? buildPreviewPane(
@@ -255,6 +263,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.ownedPayloadBuilder,
     this.digitalCopyFlagBuilder,
     required this.providerCandidateProjectionBuilder,
+    required this.coreCatalogProjectionBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
 
@@ -285,6 +294,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddDigitalCopyFlagBuilder? digitalCopyFlagBuilder;
   final LibraryAddProviderCandidateProjection
       providerCandidateProjectionBuilder;
+  final LibraryAddCoreCatalogProjection coreCatalogProjectionBuilder;
   @override
   final LibraryAddResultPolicy resultPolicy;
 
@@ -300,6 +310,12 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     ProviderCandidate candidate,
   ) =>
       providerCandidateProjectionBuilder(candidate);
+
+  @override
+  LibraryAddCatalogTransport catalogTransportFromCoreItem(
+    LibraryAddCatalogTransport item,
+  ) =>
+      coreCatalogProjectionBuilder(item);
 
   @override
   LibraryKindAddDraft createManualDraft() =>

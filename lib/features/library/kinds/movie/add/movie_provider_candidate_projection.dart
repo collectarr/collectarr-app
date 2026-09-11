@@ -3,6 +3,18 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
+LibraryAddCatalogTransport movieCatalogTransportFromCoreItem(
+  LibraryAddCatalogTransport item,
+) {
+  return item.mapTransport(
+    (transport) => LibraryAddCatalogTransport.fromItem(
+      transport.withKindMetadata(
+        MovieCatalogMetadata.fromJson(transport.payload),
+      ),
+    ),
+  );
+}
+
 LibraryAddCatalogTransport movieCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {

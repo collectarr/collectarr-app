@@ -310,6 +310,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     initialDraftBuilder: MovieAddDraft.new,
     providerCandidateProjectionBuilder:
         movieCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: movieCatalogTransportFromCoreItem,
     manualDraftBuilder: MovieAddManualDraft.new,
     manualPaneBuilder: buildMovieAddManualPane,
     chrome: _movieAddChrome,

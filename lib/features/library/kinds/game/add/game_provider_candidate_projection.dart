@@ -3,6 +3,18 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
+LibraryAddCatalogTransport gameCatalogTransportFromCoreItem(
+  LibraryAddCatalogTransport item,
+) {
+  return item.mapTransport(
+    (transport) => LibraryAddCatalogTransport.fromItem(
+      transport.withKindMetadata(
+        GameCatalogMetadata.fromJson(transport.payload),
+      ),
+    ),
+  );
+}
+
 LibraryAddCatalogTransport gameCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {

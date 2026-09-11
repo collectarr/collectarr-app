@@ -272,6 +272,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     initialDraftBuilder: AnimeAddDraft.new,
     providerCandidateProjectionBuilder:
         animeCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: animeCatalogTransportFromCoreItem,
     manualDraftBuilder: AnimeAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         AnimeOwnedItemCreatePayload(

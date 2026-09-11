@@ -320,6 +320,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     initialDraftBuilder: BookAddDraft.new,
     providerCandidateProjectionBuilder:
         bookCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: bookCatalogTransportFromCoreItem,
     manualDraftBuilder: BookAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         BookOwnedItemCreatePayload(

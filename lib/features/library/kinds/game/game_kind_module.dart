@@ -215,6 +215,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     initialDraftBuilder: GameAddDraft.new,
     providerCandidateProjectionBuilder:
         gameCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: gameCatalogTransportFromCoreItem,
     manualDraftBuilder: GameAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         GameOwnedItemCreatePayload(

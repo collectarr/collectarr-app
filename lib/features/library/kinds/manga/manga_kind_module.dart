@@ -307,6 +307,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     initialDraftBuilder: MangaAddDraft.new,
     providerCandidateProjectionBuilder:
         mangaCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: mangaCatalogTransportFromCoreItem,
     manualDraftBuilder: MangaAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         MangaOwnedItemCreatePayload(

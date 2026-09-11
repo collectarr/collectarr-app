@@ -985,8 +985,7 @@ class LibraryAddSessionController
           }),
           sourceSelection: selected!,
         );
-        final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
-        return decoder == null ? item : item.withDecodedKindMetadata(decoder);
+        return type.add.catalogTransportFromCoreItem(item);
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;

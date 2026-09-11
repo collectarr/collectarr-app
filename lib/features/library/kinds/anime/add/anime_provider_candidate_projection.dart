@@ -3,6 +3,16 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadat
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
+LibraryAddCatalogTransport animeCatalogTransportFromCoreItem(
+  LibraryAddCatalogTransport item,
+) {
+  return item.mapTransport(
+    (transport) => LibraryAddCatalogTransport.fromItem(
+      transport.withKindMetadata(AnimeMetadata.fromJson(transport.payload)),
+    ),
+  );
+}
+
 LibraryAddCatalogTransport animeCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {

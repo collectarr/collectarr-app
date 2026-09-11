@@ -253,6 +253,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     initialDraftBuilder: ComicAddDraft.new,
     providerCandidateProjectionBuilder:
         comicCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: comicCatalogTransportFromCoreItem,
     manualDraftBuilder: ComicAddManualDraft.new,
     manualPaneBuilder: buildComicAddManualPane,
     headerBuilder: buildComicAddHeader,

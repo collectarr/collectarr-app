@@ -3,6 +3,16 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
+LibraryAddCatalogTransport tvCatalogTransportFromCoreItem(
+  LibraryAddCatalogTransport item,
+) {
+  return item.mapTransport(
+    (transport) => LibraryAddCatalogTransport.fromItem(
+      transport.withKindMetadata(TvSeriesMetadata.fromJson(transport.payload)),
+    ),
+  );
+}
+
 LibraryAddCatalogTransport tvCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {

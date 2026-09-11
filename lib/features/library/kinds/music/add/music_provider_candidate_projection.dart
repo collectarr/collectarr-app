@@ -3,6 +3,18 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
+LibraryAddCatalogTransport musicCatalogTransportFromCoreItem(
+  LibraryAddCatalogTransport item,
+) {
+  return item.mapTransport(
+    (transport) => LibraryAddCatalogTransport.fromItem(
+      transport.withKindMetadata(
+        MusicCatalogMetadata.fromJson(transport.payload),
+      ),
+    ),
+  );
+}
+
 LibraryAddCatalogTransport musicCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {

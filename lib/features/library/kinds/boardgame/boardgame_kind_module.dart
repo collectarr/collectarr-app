@@ -240,6 +240,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     initialDraftBuilder: BoardgameAddDraft.new,
     providerCandidateProjectionBuilder:
         boardGameCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: boardGameCatalogTransportFromCoreItem,
     manualDraftBuilder: BoardgameAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         BoardgameOwnedItemCreatePayload(

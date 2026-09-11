@@ -236,6 +236,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     initialDraftBuilder: MusicAddDraft.new,
     providerCandidateProjectionBuilder:
         musicCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: musicCatalogTransportFromCoreItem,
     manualDraftBuilder: MusicAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         MusicOwnedItemCreatePayload(

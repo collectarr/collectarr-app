@@ -279,6 +279,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     initialDraftBuilder: TvAddDraft.new,
     providerCandidateProjectionBuilder:
         tvCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
     manualDraftBuilder: TvAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         TvOwnedItemCreatePayload(

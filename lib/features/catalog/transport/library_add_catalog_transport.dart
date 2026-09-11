@@ -113,12 +113,6 @@ final class LibraryAddCatalogTransport {
     return LibraryAddCatalogTransport._(_item.withKindMetadata(kindMetadata));
   }
 
-  LibraryAddCatalogTransport withDecodedKindMetadata(
-    Object? Function(Map<String, dynamic> payload) decoder,
-  ) {
-    return withKindMetadata(decoder(_item.payload));
-  }
-
   LibraryAddCatalogTransport withKindMetadataFrom(
     LibraryAddCatalogTransport source,
   ) {
