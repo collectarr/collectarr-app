@@ -10,8 +10,7 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 /// The common-looking personal fields intentionally live in this Comic
 /// payload. This keeps Comic detail validation and persistence reconstruction
 /// in the Comic vertical.
-final class ComicOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<ComicOwnedItem> {
+final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const ComicOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,

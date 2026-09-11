@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 
-final class BookOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<BookOwnedItem> {
+final class BookOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const BookOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,

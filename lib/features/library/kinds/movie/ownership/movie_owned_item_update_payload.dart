@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
-final class MovieOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<MovieOwnedItem> {
+final class MovieOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const MovieOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,

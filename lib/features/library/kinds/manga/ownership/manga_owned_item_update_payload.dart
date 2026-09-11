@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owne
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
-final class MangaOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<MangaOwnedItem> {
+final class MangaOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const MangaOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,

@@ -45,7 +45,7 @@ final class OwnedItemsRepository {
 
   Future<OwnedItemMutationResult> updateOwned({
     required OwnedItemRef ref,
-    required OwnedItemUpdatePayload<Object?> payload,
+    required OwnedItemUpdatePayload payload,
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,

@@ -11,18 +11,4 @@ abstract interface class OwnedItemCreatePayload {
   CatalogEntityRef get catalogRef;
   JsonEncodable get detailsDraft;
   bool? get isDigital;
-
-  /// Builds the complete kind-owned aggregate.
-  ///
-  /// The structural command layer intentionally does not name the concrete
-  /// return type. The generated kind persistence registry consumes this value
-  /// immediately at the serialization boundary.
-  Object toOwnedItem({
-    required CatalogEntityRef resolvedCatalogRef,
-    required String id,
-    required DateTime createdAt,
-    required bool? existingIsDigital,
-    required String? ownerUserId,
-    required String? ownerLabel,
-  });
 }

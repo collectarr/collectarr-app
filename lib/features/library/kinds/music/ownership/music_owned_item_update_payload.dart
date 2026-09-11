@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/ownership/music_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 
-final class MusicOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<MusicOwnedItem> {
+final class MusicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const MusicOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,

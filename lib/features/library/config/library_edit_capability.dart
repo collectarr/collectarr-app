@@ -26,12 +26,11 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required TextControllerGroup textControllers,
 });
 
-typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
-    Function(String ownedItemId, int indexNumber);
+typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
+    String ownedItemId, int indexNumber);
 
-typedef LibraryOwnedConditionValueUpdatePayloadBuilder
-    = OwnedItemUpdatePayload<Object?> Function(
-        String ownedItemId, String? condition, String? collectionValue);
+typedef LibraryOwnedConditionValueUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(String ownedItemId, String? condition, String? collectionValue);
 
 typedef LibraryOwnedCollectionValueReader = String? Function(
   OwnedItemSummary? ownedItem,
@@ -43,8 +42,7 @@ typedef LibraryOwnedFormatHintResolver = LibraryOwnedFormatHint Function(
   CatalogSearchCandidate item,
 );
 
-typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
-    Function(
+typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
   String ownedItemId,
   String? condition,
   String? collectionValue,
@@ -52,8 +50,8 @@ typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
   String? tags,
 );
 
-typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder
-    = OwnedItemUpdatePayload<Object?> Function(
+typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(
   String ownedItemId,
   DateTime? purchaseDate,
   int? pricePaidCents,
@@ -64,13 +62,13 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder
   String? locationId,
 );
 
-typedef LibraryOwnedTransferUpdatePayloadBuilder
-    = OwnedItemUpdatePayload<Object?> Function(
+typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(
   String ownedItemId,
   Object updated,
 );
 
-typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload<Object?>
+typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
     Function();
 
 /// Encapsulates edit dialogs, edit chrome, field config, condition/value options,

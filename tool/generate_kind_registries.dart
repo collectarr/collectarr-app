@@ -1015,7 +1015,7 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln(
     'Future<OwnedItemMutationResult> collectarrUpdateOwnedItem('
     'LocalDatabase database, OwnedItemRef ref, '
-    'OwnedItemUpdatePayload<Object?> payload, {',
+    'OwnedItemUpdatePayload payload, {',
   );
   buffer.writeln('  required DateTime updatedAt,');
   buffer.writeln('  required String? fallbackOwnerUserId,');

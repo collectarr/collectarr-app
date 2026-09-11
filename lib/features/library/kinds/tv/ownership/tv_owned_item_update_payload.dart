@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_deta
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 
-final class TvOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<TvOwnedItem> {
+final class TvOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const TvOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,

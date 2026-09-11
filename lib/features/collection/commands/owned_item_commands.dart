@@ -107,5 +107,5 @@ final class UpdateOwnedItemCommand implements OwnedItemUpdateRequest {
 
   @override
   final OwnedItemRef ownedRef;
-  final OwnedItemUpdatePayload<Object?> payload;
+  final OwnedItemUpdatePayload payload;
 }

@@ -39,6 +39,16 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_i
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,6 +86,92 @@ void _expectDuplicatedOwnedFields(Object owned) {
     default:
       fail('Unexpected non-kind Owned value: ${owned.runtimeType}');
   }
+}
+
+Object _buildOwnedFromCreatePayload(
+  OwnedItemCreatePayload payload, {
+  required CatalogEntityRef resolvedCatalogRef,
+  required String id,
+  required DateTime createdAt,
+  required bool? existingIsDigital,
+}) {
+  return switch (payload) {
+    AnimeOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    BoardgameOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    BookOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    ComicOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    GameOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    MangaOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    MovieOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    MusicOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    TvOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    _ => throw StateError(
+        'Unsupported Owned create payload: ${payload.runtimeType}',
+      ),
+  };
 }
 
 void _expectOwnedFields(
@@ -220,13 +316,12 @@ void main() {
         expect(runtime.edit.ownedTransferUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned transfer payload');
 
-        final existing = command.typedPayload.toOwnedItem(
+        final existing = _buildOwnedFromCreatePayload(
+          command.typedPayload,
           resolvedCatalogRef: command.catalogRef,
           id: 'existing-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 1),
           existingIsDigital: metadataItem.physicalFormat == 'digital',
-          ownerUserId: null,
-          ownerLabel: null,
         );
         final duplicatePayload = collectarrOwnedCreatePayloadFromTyped(
           kind,
@@ -238,13 +333,12 @@ void main() {
         expect(
             duplicatePayload.catalogRef.id, command.typedPayload.catalogRef.id,
             reason: '$kind duplication must preserve its catalog target');
-        final duplicatedOwned = duplicatePayload.toOwnedItem(
+        final duplicatedOwned = _buildOwnedFromCreatePayload(
+          duplicatePayload,
           resolvedCatalogRef: duplicatePayload.catalogRef,
           id: 'duplicate-${kind.apiValue}',
           createdAt: DateTime.utc(2026, 1, 2),
           existingIsDigital: metadataItem.physicalFormat == 'digital',
-          ownerUserId: null,
-          ownerLabel: null,
         );
         _expectDuplicatedOwnedFields(duplicatedOwned);
         expect(command.typedPayload.detailsDraft,

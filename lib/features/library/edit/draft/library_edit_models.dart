@@ -38,7 +38,7 @@ class LibraryEditSelection {
   final LibraryWishlistEditSelection? wishlist;
   final LibraryTrackingEditSelection? tracking;
   final LibraryTrackingLifecycleMutation? trackingLifecycleMutation;
-  final OwnedItemUpdatePayload<Object?>? ownedUpdatePayload;
+  final OwnedItemUpdatePayload? ownedUpdatePayload;
   final Map<String, String?> customFieldEdits;
   final List<ItemImageEdit> itemImageEdits;
   final LibraryEditSubmitAction submitAction;
@@ -50,7 +50,7 @@ class LibraryEditSelection {
     LibraryWishlistEditSelection? wishlist,
     LibraryTrackingEditSelection? tracking,
     LibraryTrackingLifecycleMutation? trackingLifecycleMutation,
-    OwnedItemUpdatePayload<Object?>? ownedUpdatePayload,
+    OwnedItemUpdatePayload? ownedUpdatePayload,
     Map<String, String?>? customFieldEdits,
     List<ItemImageEdit>? itemImageEdits,
     LibraryEditSubmitAction? submitAction,

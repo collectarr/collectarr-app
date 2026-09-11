@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owne
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 
-final class AnimeOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<AnimeOwnedItem> {
+final class AnimeOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const AnimeOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,

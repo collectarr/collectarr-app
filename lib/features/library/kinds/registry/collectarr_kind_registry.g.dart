@@ -617,7 +617,7 @@ Future<OwnedItemMutationResult> collectarrCreateOwnedItem(
 Future<OwnedItemMutationResult> collectarrUpdateOwnedItem(
   LocalDatabase database,
   OwnedItemRef ref,
-  OwnedItemUpdatePayload<Object?> payload, {
+  OwnedItemUpdatePayload payload, {
   required DateTime updatedAt,
   required String? fallbackOwnerUserId,
   required String? fallbackOwnerLabel,

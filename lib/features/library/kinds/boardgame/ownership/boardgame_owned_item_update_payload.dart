@@ -5,8 +5,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 
-final class BoardgameOwnedItemUpdatePayload
-    implements OwnedItemUpdatePayload<BoardGameOwnedItem> {
+final class BoardgameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   const BoardgameOwnedItemUpdatePayload({
     required this.targetRef,
     required this.quantity,
