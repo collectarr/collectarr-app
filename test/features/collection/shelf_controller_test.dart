@@ -90,7 +90,7 @@ void main() {
     expect(state.totalPaidCents, 2000);
     expect(state.primaryCurrency, 'USD');
     expect(state.missingMetadataCount, 2);
-    expect(state.entries.first.title, 'Saga #1');
+    expect(state.entries.first.title, 'Saga');
     expect(state.entries.first.watchSessions.single.sourceType,
         TrackingSourceType.streaming);
     expect(state.entries.first.itemImages.single.imageType, 'back_cover');

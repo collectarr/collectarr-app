@@ -14,6 +14,13 @@ final class CatalogImportSnapshot {
     return CatalogImportSnapshot._(item);
   }
 
+  /// Decodes a transport payload at the catalog serialization boundary.
+  /// Library hosts should carry this opaque snapshot instead of rebuilding a
+  /// Core DTO in application code.
+  factory CatalogImportSnapshot.fromJson(Map<String, dynamic> json) {
+    return CatalogImportSnapshot.fromItem(CatalogItemDto.fromJson(json));
+  }
+
   factory CatalogImportSnapshot.synthetic({
     required String id,
     required CatalogMediaKind kind,

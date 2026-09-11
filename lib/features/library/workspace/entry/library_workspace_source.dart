@@ -26,6 +26,7 @@ final class LibraryWorkspaceSource {
     this.watchSessions = const <WatchSession>[],
     this.itemImages = const <ItemImage>[],
     this.fallbackOwnerLabel,
+    this.catalogSearchTokens = const <String>[],
     this.catalogTransport,
     this.typedOwnedItem,
   });
@@ -47,18 +48,9 @@ final class LibraryWorkspaceSource {
   /// callers must use [ownedSummary] instead.
   final Object? typedOwnedItem;
 
-  /// Structural search aliases captured at the catalog boundary. Generic
+  /// Structural search tokens captured at the catalog boundary. Generic
   /// search may index these values but never inspects the transport payload.
-  Iterable<String> get catalogSearchTokens sync* {
-    final transport = catalogTransport;
-    if (transport == null) return;
-    yield* [
-      if (transport.displayTitle case final value?) value,
-      if (transport.localizedTitle case final value?) value,
-      if (transport.originalTitle case final value?) value,
-      ...?transport.searchAliases,
-    ];
-  }
+  final List<String> catalogSearchTokens;
 
   CatalogEntityRef? get catalogRef =>
       catalogSummary?.ref ??

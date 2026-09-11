@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
@@ -146,11 +145,9 @@ CatalogImportSnapshot _catalogSnapshotWithPayload(
   LibraryAddCatalogTransport item,
   Map<String, dynamic> payload,
 ) {
-  return CatalogImportSnapshot.fromItem(
-    CatalogItemDto.fromJson({
-      'id': item.id,
-      'kind': item.mediaKind.apiValue,
-      ...payload,
-    }),
-  );
+  return CatalogImportSnapshot.fromJson({
+    'id': item.id,
+    'kind': item.mediaKind.apiValue,
+    ...payload,
+  });
 }

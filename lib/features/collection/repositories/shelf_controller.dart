@@ -173,6 +173,7 @@ class ShelfState {
           itemId: ref.id,
           catalogSummary: resolvedCatalogSummariesByRef[ref] ??
               catalogByRef[ref]?.displaySummary,
+          catalogSearchTokens: _catalogSearchTokens(catalogByRef[ref]),
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
           // Transport snapshots remain available only to the typed Library
@@ -291,14 +292,23 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
 
 CatalogDisplaySummary _catalogSummaryFromSnapshot(
     LibraryAddCatalogTransport item) {
-  final itemNumber = item.itemNumber?.trim();
   final title = item.resolvedDisplayTitle.trim();
   return CatalogDisplaySummary.work(
     kind: item.mediaKind,
     id: item.id,
-    title: itemNumber == null || itemNumber.isEmpty
-        ? title
-        : '$title #$itemNumber',
+    title: title,
     imageUrl: item.displayCoverUrl,
   );
+}
+
+List<String> _catalogSearchTokens(LibraryAddCatalogTransport? item) {
+  if (item == null) {
+    return const <String>[];
+  }
+  return [
+    if (item.displayTitle case final value?) value,
+    if (item.localizedTitle case final value?) value,
+    if (item.originalTitle case final value?) value,
+    ...?item.searchAliases,
+  ];
 }

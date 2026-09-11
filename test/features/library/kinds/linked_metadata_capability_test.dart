@@ -144,6 +144,10 @@ LibraryWorkspaceSource _shelfEntry(
   Object? metadata, {
   String? title,
 }) {
+  final transport = CatalogItemDto(
+    identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
+    kindMetadata: metadata,
+  ).asShelfCatalogItem;
   return LibraryWorkspaceSource(
     itemId: 'item-1',
     catalogSummary: title == null
@@ -153,9 +157,10 @@ LibraryWorkspaceSource _shelfEntry(
             id: 'item-1',
             title: title,
           ),
-    catalogTransport: CatalogItemDto(
-      identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
-      kindMetadata: metadata,
-    ).asShelfCatalogItem,
+    catalogSearchTokens: [
+      transport.title,
+      ...?transport.searchAliases,
+    ],
+    catalogTransport: transport,
   );
 }

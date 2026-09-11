@@ -44,7 +44,6 @@ import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snaps
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
@@ -971,14 +970,14 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     try {
-      final item = await ref
+      final snapshot = await ref
           .read(apiClientProvider)
           .getTypedMetadataItem(
             kind: widget.type.kind,
             id: itemId,
           )
           .then(
-            (dto) => CatalogItemDto.fromJson({
+            (dto) => CatalogImportSnapshot.fromJson({
               ...dto.raw,
               'id': dto.id,
               'title': dto.title,
@@ -986,9 +985,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
             }),
           );
       await CatalogTransportRepository(ref.read(localDatabaseProvider))
-          .upsertAll([
-        item,
-      ]);
+          .upsertImportSnapshots([snapshot]);
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'library_page',
