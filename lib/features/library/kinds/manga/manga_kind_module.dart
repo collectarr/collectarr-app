@@ -250,7 +250,7 @@ MangaOwnedItem _mangaTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MangaOwnedItem');
 }
 
-final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
+final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
   presentation: mangaLibraryMediaPresentation,
   physicalMediaFormats: mangaPhysicalMediaFormats,
   trackingProfile: mangaTrackingProfile,

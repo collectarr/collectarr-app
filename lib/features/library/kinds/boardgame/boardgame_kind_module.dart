@@ -194,7 +194,7 @@ BoardGameOwnedItem _boardGameTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected BoardGameOwnedItem');
 }
 
-final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
+final boardGameKindModule = LibraryKindCapabilityBundle<BoardGameWorkspaceDto>(
   presentation: boardGamesLibraryMediaPresentation,
   physicalMediaFormats: boardGamePhysicalMediaFormats,
   trackingProfile: boardGameTrackingProfile,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -14,24 +15,25 @@ const double kPlannedMediaTableColumnSpacing = 10;
 const double kPlannedMediaTableHorizontalMargin = 8;
 
 LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
-  LibraryKindRegistration type,
+  CatalogMediaKind kind,
+  LibraryUiPolicy uiPolicy,
 ) {
-  final coverGridHeightFactor = type.uiPolicy.coverAspectRatio;
+  final coverGridHeightFactor = uiPolicy.coverAspectRatio;
   return LibraryWorkspaceViewProfile(
-    kindModuleResolver: () => type,
+    kindModuleResolver: () => libraryKindRegistrationForKind(kind),
     defaultCoverSize: kPlannedMediaDefaultCoverSize,
     minCoverSize: kPlannedMediaMinCoverSize,
     maxCoverSize: kPlannedMediaMaxCoverSize,
     coverGridHeightFactor: coverGridHeightFactor,
-    presetConfig: (preset) => plannedMediaViewPresetConfig(type, preset),
+    presetConfig: (preset) => plannedMediaViewPresetConfig(kind, preset),
     clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
-      libraryKindWorkspaceForKind(type.kind).fields,
+      libraryKindWorkspaceForKind(kind).fields,
       column,
       width,
     ),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
-        libraryKindWorkspaceForKind(type.kind)
+        libraryKindWorkspaceForKind(kind)
             .fields
             .findSortDefinition(
               column,
@@ -42,11 +44,11 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
 }
 
 LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
-  LibraryKindRegistration type,
+  CatalogMediaKind kind,
   LibraryWorkspacePreset preset,
 ) {
   final defaultCols =
-      libraryKindWorkspaceForKind(type.kind).fields.defaultVisibleColumns;
+      libraryKindWorkspaceForKind(kind).fields.defaultVisibleColumns;
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,

@@ -253,7 +253,7 @@ MovieOwnedItem _movieTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MovieOwnedItem');
 }
 
-final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
+final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
   presentation: moviesLibraryMediaPresentation,
   physicalMediaFormats: moviePhysicalMediaFormats,
   trackingProfile: movieTrackingProfile,

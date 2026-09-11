@@ -152,7 +152,7 @@ void main() {
 void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   required String name,
   required CatalogMediaKind kind,
-  required LibraryKindSpec<TDto> spec,
+  required LibraryKindCapabilityBundle<TDto> spec,
   required LibraryKindWorkspace workspace,
   required List<String> contractFiles,
 }) {

@@ -178,7 +178,7 @@ MusicOwnedItem _musicTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MusicOwnedItem');
 }
 
-final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
+final musicKindModule = LibraryKindCapabilityBundle<MusicWorkspaceDto>(
   presentation: musicLibraryMediaPresentation,
   physicalMediaFormats: musicPhysicalMediaFormats,
   searchTargetOptions: const [

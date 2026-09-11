@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_field_r
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('LibraryKindSpec Contract & Capability Tests', () {
+  group('LibraryKind capability contract tests', () {
     test('all 9 active kind specs expose validated field registries', () {
       expect(collectarrKindRegistrationsList.length, 9);
       for (final spec in collectarrKindRegistrationsList) {

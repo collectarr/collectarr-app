@@ -39,7 +39,7 @@ final class LibraryKindRegistry {
     for (final spec in specs) {
       if (map.containsKey(spec.kind)) {
         throw StateError(
-          'Duplicate LibraryKindSpec registration for kind: ${spec.kind}',
+          'Duplicate kind registration for kind: ${spec.kind}',
         );
       }
       map[spec.kind] = spec;

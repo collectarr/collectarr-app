@@ -217,7 +217,7 @@ AnimeOwnedItem _animeTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected AnimeOwnedItem');
 }
 
-final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
+final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
   presentation: animeLibraryMediaPresentation,
   physicalMediaFormats: animePhysicalMediaFormats,
   trackingProfile: animeTrackingProfile,

@@ -27,7 +27,7 @@ void main() {
       contains('abstract interface class LibraryKindNavigationRegistration'),
     );
     expect(source, isNot(contains('LibraryKindModule')));
-    expect(source, isNot(contains('LibraryKindSpec')));
+    expect(source, isNot(contains('LibraryKindCapabilityBundle')));
     expect(source, contains('CatalogMediaKind get kind'));
     expect(source, contains('LibraryKindIdentity get identity'));
     expect(source, contains('buildLibraryPage'));

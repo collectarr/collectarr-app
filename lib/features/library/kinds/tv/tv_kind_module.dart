@@ -221,7 +221,7 @@ TvOwnedItem _tvTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected TvOwnedItem');
 }
 
-final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
+final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
   presentation: tvLibraryMediaPresentation,
   physicalMediaFormats: tvPhysicalMediaFormats,
   trackingProfile: tvTrackingProfile,

@@ -1,5 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
@@ -42,20 +40,14 @@ export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 
-/// Narrow identity boundary used by generic navigation and orchestration.
+/// Internal composition bundle for one kind's feature capabilities.
 ///
-/// Semantic capabilities are deliberately not exposed here. They are
-/// dispatched through the feature-specific generated maps below, so a generic
-/// feature cannot accidentally treat this object as a semantic service
-/// locator.
-abstract interface class LibraryKindModule {
-  CatalogMediaKind get kind;
-  LibraryKindIdentity get identity;
-}
-
-class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
-    implements LibraryKindRegistration {
-  const LibraryKindSpec({
+/// This is not a runtime registration and is never returned by the public
+/// registry. The generated feature maps read these concrete bundles at the
+/// composition root, while application code receives only a registration or
+/// a feature-specific capability.
+class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
+  const LibraryKindCapabilityBundle({
     required this.add,
     required this.edit,
     required this.identity,
@@ -78,7 +70,6 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
     LibraryWorkspaceViewProfile? viewProfile,
   }) : _viewProfile = viewProfile;
 
-  @override
   final LibraryKindIdentity identity;
 
   final List<PhysicalMediaFormat> physicalMediaFormats;
@@ -100,13 +91,10 @@ class LibraryKindSpec<TDto extends LibraryWorkspaceDto>
 
   LibraryAddChromeConfig get addChrome => add.chrome;
 
-  @override
-  CatalogMediaKind get kind => identity.kind;
-
   final LibraryWorkspaceViewProfile? _viewProfile;
 
   LibraryWorkspaceViewProfile get viewProfile =>
-      _viewProfile ?? plannedMediaWorkspaceViewProfile(this);
+      _viewProfile ?? plannedMediaWorkspaceViewProfile(identity.kind, uiPolicy);
 
   final LibraryAddCapability add;
   final LibraryKindToolbarModule? toolbar;

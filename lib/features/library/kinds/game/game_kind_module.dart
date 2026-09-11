@@ -169,7 +169,7 @@ GameOwnedItem _gameTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
 }
 
-final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
+final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
   presentation: gamesLibraryMediaPresentation,
   physicalMediaFormats: gamePhysicalMediaFormats,
   trackingProfile: gameTrackingProfile,

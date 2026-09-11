@@ -260,7 +260,7 @@ BookOwnedItem _bookTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected BookOwnedItem');
 }
 
-final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
+final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
   presentation: bookLibraryMediaPresentation,
   physicalMediaFormats: bookPhysicalMediaFormats,
   trackingProfile: bookTrackingProfile,

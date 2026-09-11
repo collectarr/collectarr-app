@@ -188,7 +188,7 @@ ComicOwnedItem _comicTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected ComicOwnedItem');
 }
 
-final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
+final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
   presentation: comicLibraryMediaPresentation,
   physicalMediaFormats: comicPhysicalMediaFormats,
   trackingProfile: comicTrackingProfile,
