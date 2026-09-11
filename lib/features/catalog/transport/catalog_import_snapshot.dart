@@ -50,4 +50,6 @@ final class CatalogImportSnapshot {
   String? get coverImageData => _item.coverImageData;
 
   CatalogItemDto toTransportItem() => _item;
+
+  Map<String, dynamic> toSyncPayload() => _item.toSyncPayload();
 }

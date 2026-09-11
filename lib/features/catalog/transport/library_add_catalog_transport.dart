@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
+import 'catalog_import_snapshot.dart';
+
 /// Opaque catalog transport item used by the Add host.
 ///
 /// Add UI and orchestration can carry a selected result without making the
@@ -115,6 +117,9 @@ final class LibraryAddCatalogTransport {
   }
 
   CatalogItemDto toTransportItem() => _item;
+
+  CatalogImportSnapshot toImportSnapshot() =>
+      CatalogImportSnapshot.fromItem(_item);
 }
 
 const _unset = Object();

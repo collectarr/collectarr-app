@@ -254,7 +254,7 @@ class LibraryPageEditCoordinator {
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
 
     await _s.ref.read(catalogItemMutationsProvider).updateSnapshot(
-          CatalogImportSnapshot.fromItem(result.item.toTransportItem()),
+          result.item.toImportSnapshot(),
         );
     final personal = result.personal;
     if (owned != null && personal != null) {

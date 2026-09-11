@@ -114,8 +114,8 @@ final class LibraryAddCoordinator {
       return;
     }
 
-    await catalog.upsertMetadataItems(
-      values.map((item) => item.toTransportItem()).toList(growable: false),
+    await catalog.upsertImportSnapshots(
+      values.map((item) => item.toImportSnapshot()).toList(growable: false),
     );
 
     final baseCommon = commonDraft ?? defaults.toCommonDraft();

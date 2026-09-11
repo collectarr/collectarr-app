@@ -50,9 +50,6 @@ final class CatalogTransportRepository {
     );
   }
 
-  Future<void> upsertMetadataItems(List<CatalogItemDto> items) =>
-      upsertAll(items);
-
   Future<void> upsertAll(
     Iterable<CatalogItemDto> items, {
     bool captureDerivedData = true,

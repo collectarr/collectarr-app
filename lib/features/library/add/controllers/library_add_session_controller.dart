@@ -1401,8 +1401,8 @@ class LibraryAddSessionController
               : catalogItemFromProviderCandidate(selectedCandidate);
 
           if (catalog != null) {
-            await catalog!.upsertMetadataItems(
-              [metadataItem.toTransportItem()],
+            await catalog!.upsertImportSnapshots(
+              [metadataItem.toImportSnapshot()],
             );
           }
 

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -85,7 +84,7 @@ final class WishlistMutations {
     final now = DateTime.now().toUtc();
     final itemId = snapshot.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
-    final localRef = catalogRef ?? snapshot.toTransportItem().catalogRef;
+    final localRef = catalogRef ?? snapshot.catalogRef;
     await mutationRunner.run(
       origin: origin,
       localRef: localRef,

@@ -78,7 +78,7 @@ final class CatalogItemMutations {
     final wishlistEntries = await wishlist.findActiveByCatalogRefs([localRef]);
     final trackingList =
         await trackingLifecycles.findActiveByCatalogRefs([localRef]);
-    final targetRef = snapshot.toTransportItem().catalogRef;
+    final targetRef = snapshot.catalogRef;
 
     return mutationRunner.run(
       action: () async {
@@ -129,13 +129,12 @@ final class CatalogItemMutations {
   SyncChange _syncChangeForSnapshot(
       CatalogImportSnapshot snapshot, DateTime now,
       {String entityType = 'catalog_item'}) {
-    final item = snapshot.toTransportItem();
     return SyncChange(
       id: 'catalog:${snapshot.id}:upsert:${now.millisecondsSinceEpoch}',
       entityType: entityType,
       entityId: snapshot.id,
       action: 'upsert',
-      payload: item.toSyncPayload(),
+      payload: snapshot.toSyncPayload(),
       clientChangedAt: now,
     );
   }
