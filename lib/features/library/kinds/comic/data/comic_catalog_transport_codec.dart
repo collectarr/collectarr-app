@@ -11,11 +11,27 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 
-final class ComicCatalogTransportCodec implements CatalogKindTransportCodec {
+final class ComicCatalogTransportCodec
+    implements CatalogKindTransportCodec<ComicMedia> {
   const ComicCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
+
+  @override
+  ComicMedia decode(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is ComicMedia) return metadata;
+    return ComicMedia.fromJson(catalogTransportPayloadFor(item));
+  }
+
+  @override
+  Future<void> upsert(LocalDatabase db, ComicMedia item) {
+    return ComicRepository(db).updateMedia(item);
+  }
+
+  @override
+  CatalogDisplaySummary summarize(ComicMedia item) => _comicSummary(item);
 
   @override
   Future<int> countCatalogValue(
@@ -46,12 +62,6 @@ final class ComicCatalogTransportCodec implements CatalogKindTransportCodec {
     return result;
   }
 
-  Object? _typedMetadataFromDto(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is ComicMedia) return metadata;
-    return metadata is Map ? ComicMedia.fromJson(item.payload) : null;
-  }
-
   @override
   Future<void> captureDerivedData(
     PickListRepository pickLists,
@@ -69,16 +79,14 @@ final class ComicCatalogTransportCodec implements CatalogKindTransportCodec {
   CatalogKindDerivedData? _derivedDataFromDto(CatalogItemDto item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: _typedMetadataFromDto(item),
+        metadata: decode(item),
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return ComicRepository(db).updateMedia(
-      ComicMedia.fromJson(catalogTransportPayloadFor(item)),
-    );
+    return upsert(db, decode(item));
   }
 
   @override
@@ -93,7 +101,7 @@ final class ComicCatalogTransportCodec implements CatalogKindTransportCodec {
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final media = await ComicRepository(db).search();
     return [
-      for (final item in media) _comicSummary(item),
+      for (final item in media) summarize(item),
     ];
   }
 }

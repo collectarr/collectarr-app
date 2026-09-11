@@ -1214,7 +1214,7 @@ void _renderCatalogTransportCodecs(
   List<_KindDescriptor> descriptors,
 ) {
   buffer.writeln(
-    'const List<CatalogKindTransportCodec> '
+    'const List<CatalogKindTransportCodec<Object?>> '
     'collectarrKindCatalogTransportCodecs = [',
   );
   for (final descriptor in descriptors) {

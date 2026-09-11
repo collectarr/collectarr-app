@@ -12,11 +12,31 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_r
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
 
 final class BoardGameCatalogTransportCodec
-    implements CatalogKindTransportCodec {
+    implements CatalogKindTransportCodec<BoardGameMedia> {
   const BoardGameCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
+
+  @override
+  BoardGameMedia decode(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is BoardGameMedia) return metadata;
+    return BoardGameMedia.fromJson(catalogTransportPayloadFor(item));
+  }
+
+  @override
+  Future<void> upsert(LocalDatabase db, BoardGameMedia item) {
+    return BoardGameRepository(db).updateMedia(item);
+  }
+
+  @override
+  CatalogDisplaySummary summarize(BoardGameMedia item) =>
+      CatalogDisplaySummary.work(
+        kind: kind,
+        id: item.id.value,
+        title: item.title,
+      );
 
   @override
   Future<int> countCatalogValue(
@@ -47,12 +67,6 @@ final class BoardGameCatalogTransportCodec
     return result;
   }
 
-  Object? _typedMetadataFromDto(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is BoardGameMedia) return metadata;
-    return metadata is Map ? BoardGameMedia.fromJson(item.payload) : null;
-  }
-
   @override
   Future<void> captureDerivedData(
     PickListRepository pickLists,
@@ -70,16 +84,14 @@ final class BoardGameCatalogTransportCodec
   CatalogKindDerivedData? _derivedDataFromDto(CatalogItemDto item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: _typedMetadataFromDto(item),
+        metadata: decode(item),
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return BoardGameRepository(db).updateMedia(
-      BoardGameMedia.fromJson(catalogTransportPayloadFor(item)),
-    );
+    return upsert(db, decode(item));
   }
 
   @override
@@ -94,12 +106,7 @@ final class BoardGameCatalogTransportCodec
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final media = await BoardGameRepository(db).search();
     return [
-      for (final item in media)
-        CatalogDisplaySummary.work(
-          kind: kind,
-          id: item.id.value,
-          title: item.title,
-        ),
+      for (final item in media) summarize(item),
     ];
   }
 }

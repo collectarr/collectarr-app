@@ -9,11 +9,11 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 final class CatalogReplacementValueRepository {
   CatalogReplacementValueRepository(
     this._db, {
-    Iterable<CatalogKindTransportCodec>? codecs,
+    Iterable<CatalogKindTransportCodec<Object?>>? codecs,
   }) : _codecs = codecs ?? collectarrKindCatalogTransportCodecs;
 
   final LocalDatabase _db;
-  final Iterable<CatalogKindTransportCodec> _codecs;
+  final Iterable<CatalogKindTransportCodec<Object?>> _codecs;
 
   Future<Map<CatalogEntityRef, int>> findByRefs(
     Iterable<CatalogEntityRef> refs,

@@ -11,11 +11,31 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 
-final class TvCatalogTransportCodec implements CatalogKindTransportCodec {
+final class TvCatalogTransportCodec
+    implements CatalogKindTransportCodec<TvSeries> {
   const TvCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
+
+  @override
+  TvSeries decode(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is TvSeries) return metadata;
+    return TvSeries.fromJson(catalogTransportPayloadFor(item));
+  }
+
+  @override
+  Future<void> upsert(LocalDatabase db, TvSeries item) {
+    return TvRepository(db).updateSeries(item);
+  }
+
+  @override
+  CatalogDisplaySummary summarize(TvSeries item) => CatalogDisplaySummary.work(
+        kind: kind,
+        id: item.id,
+        title: item.title,
+      );
 
   @override
   Future<int> countCatalogValue(
@@ -46,12 +66,6 @@ final class TvCatalogTransportCodec implements CatalogKindTransportCodec {
     return result;
   }
 
-  Object? _typedMetadataFromDto(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is TvSeries) return metadata;
-    return metadata is Map ? TvSeries.fromJson(item.payload) : null;
-  }
-
   @override
   Future<void> captureDerivedData(
     PickListRepository pickLists,
@@ -69,16 +83,14 @@ final class TvCatalogTransportCodec implements CatalogKindTransportCodec {
   CatalogKindDerivedData? _derivedDataFromDto(CatalogItemDto item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: _typedMetadataFromDto(item),
+        metadata: decode(item),
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return TvRepository(db).updateSeries(
-      TvSeries.fromJson(catalogTransportPayloadFor(item)),
-    );
+    return upsert(db, decode(item));
   }
 
   @override
@@ -93,12 +105,7 @@ final class TvCatalogTransportCodec implements CatalogKindTransportCodec {
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final series = await TvRepository(db).search();
     return [
-      for (final item in series)
-        CatalogDisplaySummary.work(
-          kind: kind,
-          id: item.id,
-          title: item.title,
-        ),
+      for (final item in series) summarize(item),
     ];
   }
 }

@@ -11,11 +11,31 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial
 import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
 
-final class BookCatalogTransportCodec implements CatalogKindTransportCodec {
+final class BookCatalogTransportCodec
+    implements CatalogKindTransportCodec<BookMedia> {
   const BookCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.book;
+
+  @override
+  BookMedia decode(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is BookMedia) return metadata;
+    return BookMedia.fromJson(catalogTransportPayloadFor(item));
+  }
+
+  @override
+  Future<void> upsert(LocalDatabase db, BookMedia item) {
+    return BookRepository(db).updateMedia(item);
+  }
+
+  @override
+  CatalogDisplaySummary summarize(BookMedia item) => CatalogDisplaySummary.work(
+        kind: kind,
+        id: item.id.value,
+        title: item.title,
+      );
 
   @override
   Future<int> countCatalogValue(
@@ -46,12 +66,6 @@ final class BookCatalogTransportCodec implements CatalogKindTransportCodec {
     return result;
   }
 
-  Object? _typedMetadataFromDto(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is BookMedia) return metadata;
-    return metadata is Map ? BookMedia.fromJson(item.payload) : null;
-  }
-
   @override
   Future<void> captureDerivedData(
     PickListRepository pickLists,
@@ -69,16 +83,14 @@ final class BookCatalogTransportCodec implements CatalogKindTransportCodec {
   CatalogKindDerivedData? _derivedDataFromDto(CatalogItemDto item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: _typedMetadataFromDto(item),
+        metadata: decode(item),
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return BookRepository(db).updateMedia(
-      BookMedia.fromJson(catalogTransportPayloadFor(item)),
-    );
+    return upsert(db, decode(item));
   }
 
   @override
@@ -93,12 +105,7 @@ final class BookCatalogTransportCodec implements CatalogKindTransportCodec {
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final media = await BookRepository(db).search();
     return [
-      for (final item in media)
-        CatalogDisplaySummary.work(
-          kind: kind,
-          id: item.id.value,
-          title: item.title,
-        ),
+      for (final item in media) summarize(item),
     ];
   }
 }

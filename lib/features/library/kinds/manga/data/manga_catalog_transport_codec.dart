@@ -11,11 +11,32 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 
-final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
+final class MangaCatalogTransportCodec
+    implements CatalogKindTransportCodec<MangaMedia> {
   const MangaCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.manga;
+
+  @override
+  MangaMedia decode(CatalogItemDto item) {
+    final metadata = item.kindMetadata;
+    if (metadata is MangaMedia) return metadata;
+    return MangaMedia.fromJson(catalogTransportPayloadFor(item));
+  }
+
+  @override
+  Future<void> upsert(LocalDatabase db, MangaMedia item) {
+    return MangaRepository(db).updateMedia(item);
+  }
+
+  @override
+  CatalogDisplaySummary summarize(MangaMedia item) =>
+      CatalogDisplaySummary.work(
+        kind: kind,
+        id: item.id,
+        title: item.title,
+      );
 
   @override
   Future<int> countCatalogValue(
@@ -46,12 +67,6 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
     return result;
   }
 
-  Object? _typedMetadataFromDto(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MangaMedia) return metadata;
-    return metadata is Map ? MangaMedia.fromJson(item.payload) : null;
-  }
-
   @override
   Future<void> captureDerivedData(
     PickListRepository pickLists,
@@ -69,16 +84,14 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
   CatalogKindDerivedData? _derivedDataFromDto(CatalogItemDto item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: _typedMetadataFromDto(item),
+        metadata: decode(item),
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );
 
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return MangaRepository(db).updateMedia(
-      MangaMedia.fromJson(catalogTransportPayloadFor(item)),
-    );
+    return upsert(db, decode(item));
   }
 
   @override
@@ -93,12 +106,7 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
     final media = await MangaRepository(db).search();
     return [
-      for (final item in media)
-        CatalogDisplaySummary.work(
-          kind: kind,
-          id: item.id,
-          title: item.title,
-        ),
+      for (final item in media) summarize(item),
     ];
   }
 }

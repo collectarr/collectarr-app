@@ -119,7 +119,7 @@ void main() {
     final syncDecoderSection = _sourceSection(
       source,
       'Object collectarrTypedOwnedItemFromSyncPayload',
-      'const List<CatalogKindTransportCodec>',
+      'const List<CatalogKindTransportCodec<Object?>>',
     );
 
     for (final entry in ownedTypes.entries) {
