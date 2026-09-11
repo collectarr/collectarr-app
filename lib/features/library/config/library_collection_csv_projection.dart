@@ -215,51 +215,6 @@ Map<String, dynamic> collectionCsvOwnedImportPayload(
   return payload;
 }
 
-/// Structural presentation helpers for the collection CSV boundary.
-///
-/// The helpers intentionally consume the positional cells produced by the
-/// owning projection. This keeps the common import UI independent of kind
-/// payload keys while allowing every projection to share the same wire-level
-/// presentation rules.
-mixin LibraryCollectionCsvProjectionPresentation {
-  List<String> catalogCells(LibraryWorkspaceSource entry);
-
-  String importDisplayTitle(List<String> catalogCells) {
-    final title = catalogCells.elementAtOrNull(2) ?? '';
-    final itemNumber = catalogCells.elementAtOrNull(3) ?? '';
-    if (title.trim().isEmpty) {
-      return 'Unknown title';
-    }
-    if (itemNumber.trim().isEmpty) {
-      return title;
-    }
-    return '$title #$itemNumber';
-  }
-
-  String importDisplaySubtitle(List<String> catalogCells) {
-    return [
-      if ((catalogCells.elementAtOrNull(4) ?? '').trim().isNotEmpty)
-        catalogCells.elementAtOrNull(4),
-      if ((catalogCells.elementAtOrNull(8) ?? '').trim().isNotEmpty)
-        catalogCells.elementAtOrNull(8),
-      if ((catalogCells.elementAtOrNull(9) ?? '').trim().isNotEmpty)
-        catalogCells.elementAtOrNull(9),
-      if ((catalogCells.elementAtOrNull(10) ?? '').trim().isNotEmpty)
-        catalogCells.elementAtOrNull(10),
-    ].join(' | ');
-  }
-
-  String? importPrimaryLookupValue(List<String> catalogCells) {
-    final value = catalogCells.elementAtOrNull(3)?.trim();
-    return value == null || value.isEmpty ? null : value;
-  }
-
-  String? importBarcode(List<String> catalogCells) {
-    final value = catalogCells.elementAtOrNull(10)?.trim();
-    return value == null || value.isEmpty ? null : value;
-  }
-}
-
 /// Shared structural lifecycle import mechanics used by each kind-owned CSV
 /// projection. Kind projections opt into this behavior explicitly; the
 /// Collection import host does not construct or interpret tracking records.

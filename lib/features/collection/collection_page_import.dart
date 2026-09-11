@@ -35,7 +35,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Paste Collectarr CSV or CLZ-style CSV. Rows with no item ID are matched locally by barcode, then by title + item number.',
+                'Paste Collectarr CSV or CLZ-style CSV. Rows with no item ID are resolved by the selected kind through Collectarr Core.',
               ),
               const SizedBox(height: 10),
               TextField(
@@ -197,7 +197,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
           row,
           limit: 5,
         );
-        final match = _confidentImportMatch(row, results);
+        final match = _confidentImportMatch(results);
         if (match == null) {
           unresolvedRows.add(row);
           continue;
@@ -1026,23 +1026,10 @@ String? _searchQueryForRow(CollectionImportRow row, {String? queryOverride}) {
 }
 
 CatalogSearchCandidate? _confidentImportMatch(
-  CollectionImportRow row,
   List<CatalogSearchCandidate> results,
 ) {
   if (results.isEmpty) {
     return null;
-  }
-  final rawBarcode = _importRowBarcode(row);
-  final barcode = rawBarcode == null
-      ? null
-      : MetadataSearchQuery.normalizeBarcode(rawBarcode);
-  if (barcode != null && barcode.isNotEmpty) {
-    final barcodeMatches = results
-        .where((item) => item.normalizedBarcode == barcode)
-        .toList(growable: false);
-    if (barcodeMatches.length == 1) {
-      return barcodeMatches.single;
-    }
   }
   if (results.length == 1) {
     return results.single;

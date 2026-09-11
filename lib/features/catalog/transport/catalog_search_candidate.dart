@@ -10,18 +10,15 @@ final class CatalogSearchCandidate {
   const CatalogSearchCandidate._({
     required CatalogItemDto item,
     required this.summary,
-    this.normalizedBarcode,
   }) : _item = item;
 
   factory CatalogSearchCandidate.fromTransport({
     required CatalogItemDto item,
     required CatalogDisplaySummary summary,
-    String? normalizedBarcode,
   }) {
     return CatalogSearchCandidate._(
       item: item,
       summary: summary,
-      normalizedBarcode: normalizedBarcode,
     );
   }
 
@@ -37,11 +34,6 @@ final class CatalogSearchCandidate {
     if (metadataDecoder != null) {
       item = item.withKindMetadata(metadataDecoder(item.payload));
     }
-    final rawBarcode = item.payload['barcode'] ?? item.payload['upc'];
-    final normalizedBarcode =
-        rawBarcode is String && rawBarcode.trim().isNotEmpty
-            ? rawBarcode.replaceAll(RegExp(r'[^0-9A-Za-z]'), '').toUpperCase()
-            : null;
     return CatalogSearchCandidate._(
       item: item,
       summary: CatalogDisplaySummary.work(
@@ -50,13 +42,11 @@ final class CatalogSearchCandidate {
         title: item.title,
         imageUrl: item.displayCoverUrl,
       ),
-      normalizedBarcode: normalizedBarcode,
     );
   }
 
   final CatalogItemDto _item;
   final CatalogDisplaySummary summary;
-  final String? normalizedBarcode;
 
   String get id => summary.id;
   CatalogMediaKind get kind => summary.kind;
