@@ -996,25 +996,15 @@ class LibraryAddSessionController
       final mergedThumbnailImageUrl = hydratedItem.displayCoverUrl != null
           ? hydratedItem.thumbnailImageUrl
           : selected.thumbnailImageUrl ?? selected.coverImageUrl;
-      final hydratedPayload = hydratedItem.payload;
-      final hydratedEditionsPayload = hydratedPayload['editions'] as List?;
-      final selectedEditionsPayload = selected.payload['editions'] as List?;
-      final mergedPayload = {
-        ...hydratedPayload,
-        if (mergedCoverImageUrl != null) 'cover_image_url': mergedCoverImageUrl,
-        if (mergedThumbnailImageUrl != null)
-          'thumbnail_image_url': mergedThumbnailImageUrl,
-        if ((hydratedEditionsPayload == null ||
-                hydratedEditionsPayload.isEmpty) &&
-            selectedEditionsPayload != null &&
-            selectedEditionsPayload.isNotEmpty)
-          'editions': selectedEditionsPayload,
-      };
-      final mergedItem = LibraryAddCatalogTransport.fromJson({
-        'id': hydratedItem.id,
-        'kind': hydratedItem.mediaKind.apiValue,
-        ...mergedPayload,
-      });
+      final mergedEditions = hydratedItem.editions.isEmpty
+          ? selected.editions
+          : hydratedItem.editions;
+      final mergedItem = hydratedItem.copyWith(
+        coverImageUrl: mergedCoverImageUrl ?? hydratedItem.coverImageUrl,
+        thumbnailImageUrl:
+            mergedThumbnailImageUrl ?? hydratedItem.thumbnailImageUrl,
+        editions: mergedEditions,
+      );
 
       final hydratedMap = Map<String, LibraryAddCatalogTransport>.from(
         state.preview.hydratedResults,

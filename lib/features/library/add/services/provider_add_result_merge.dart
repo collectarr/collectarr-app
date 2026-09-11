@@ -39,15 +39,12 @@ Map<String, dynamic> mergeHydratedProviderAddResultRaw({
   required Map<String, dynamic> raw,
   required LibraryAddCatalogTransport sourceSelection,
 }) {
-  final payload = sourceSelection.payload;
   final merged = <String, dynamic>{
     ...raw,
-    if (!raw.containsKey('editions') && payload['editions'] != null)
-      'editions': payload['editions'],
-    if (!raw.containsKey('track_count') && payload['track_count'] != null)
-      'track_count': payload['track_count'],
-    if (!raw.containsKey('tracks') && payload['tracks'] != null)
-      'tracks': payload['tracks'],
+    if (!raw.containsKey('editions') && sourceSelection.editions.isNotEmpty)
+      'editions': [
+        for (final edition in sourceSelection.editions) edition.toJson(),
+      ],
   };
   return merged;
 }

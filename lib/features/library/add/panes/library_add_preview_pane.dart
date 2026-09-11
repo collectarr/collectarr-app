@@ -1159,38 +1159,11 @@ Widget _buildPreviewFormatBadges(LibraryAddCatalogTransport? item) {
 List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
   LibraryKindModule type,
-) {
-  final previewLabels = type.presentation.previewLabels;
-  return [
-    if (candidate.series?.seriesTitle != null)
-      (
-        previewLabels.labelFor('series', fallback: 'Series'),
-        candidate.series!.seriesTitle
-      ),
-    if (candidate.issueNumber != null)
-      (
-        previewLabels.labelFor('item_number', fallback: 'Number'),
-        candidate.issueNumber
-      ),
-    if (candidate.publisher != null)
-      (
-        previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        candidate.publisher
-      ),
-    if (candidate.series?.volumeStartYear != null)
-      ('Year', candidate.series!.volumeStartYear.toString()),
-    if (candidate.variantName != null)
-      (
-        previewLabels.labelFor('variant', fallback: 'Variant'),
-        candidate.variantName
-      ),
-    if (candidate.issueCount != null)
-      (
-        previewLabels.labelFor('item_count', fallback: 'Items'),
-        candidate.issueCount.toString()
-      ),
-  ];
-}
+) =>
+    type.presentation.builder.buildAddPreviewMetadataRowsForCandidate(
+      candidate: candidate,
+      previewLabels: type.presentation.previewLabels,
+    );
 
 List<(String, String?)> _metadataRowsForItem(
   LibraryAddCatalogTransport item,
@@ -1243,71 +1216,11 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
 List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
   LibraryKindModule type,
-) {
-  final previewLabels = type.presentation.previewLabels;
-  final series = preview.series;
-  final publishing = preview.publishing;
-  final music = preview.music;
-  final video = preview.video;
-  final game = preview.game;
-  final releaseDateStr = preview.releaseDate != null
-      ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
-      : null;
-  final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
-  final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
-  final gamePlatforms = (game?['platforms'] as List<dynamic>?)
-      ?.map((e) => e.toString().trim())
-      .where((e) => e.isNotEmpty)
-      .toList();
-  final videoRuntime = (video?['runtime_minutes'] as num?)?.toInt();
-  final publishingPages = publishing?.pageCount?.toString();
-  final publishingSeriesGroup = publishing?.seriesGroup?.trim();
-  return [
-    if (series?.seriesTitle != null)
-      (
-        previewLabels.labelFor('series', fallback: 'Series'),
-        series!.seriesTitle
-      ),
-    if (preview.publisher != null)
-      (
-        previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        preview.publisher
-      ),
-    if (releaseDateStr != null) ('Released', releaseDateStr),
-    if (series?.volumeStartYear != null)
-      ('Year', series!.volumeStartYear.toString()),
-    if (preview.itemNumber != null)
-      (
-        previewLabels.labelFor('item_number', fallback: 'Number'),
-        preview.itemNumber
-      ),
-    if (preview.identifierCode != null)
-      (
-        previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        preview.identifierCode,
-      ),
-    if (preview.isbn != null) ('ISBN', preview.isbn),
-    if (preview.country != null) ('Country', preview.country),
-    if (preview.language != null) ('Language', preview.language),
-    if (preview.physicalFormatLabel != null)
-      ('Format', preview.physicalFormatLabel),
-    if (preview.variantName != null)
-      (
-        previewLabels.labelFor('variant', fallback: 'Variant'),
-        preview.variantName
-      ),
-    if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
-      ('Catalog No.', musicCatalogNo),
-    if (gamePlatforms != null && gamePlatforms.isNotEmpty)
-      ('Platforms', gamePlatforms.join(', ')),
-    if (videoRuntime != null) ('Runtime', '$videoRuntime min'),
-    if (publishingPages != null) ('Pages', publishingPages),
-    if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
-      ('Release Status', musicReleaseStatus),
-    if (publishingSeriesGroup != null && publishingSeriesGroup.isNotEmpty)
-      ('Series Group', publishingSeriesGroup),
-  ];
-}
+) =>
+    type.presentation.builder.buildAddPreviewMetadataRowsForFullPreview(
+      preview: preview,
+      previewLabels: type.presentation.previewLabels,
+    );
 
 List<_PreviewDiscoverySectionData> _discoverySections({
   required LibraryAddCatalogTransport? item,

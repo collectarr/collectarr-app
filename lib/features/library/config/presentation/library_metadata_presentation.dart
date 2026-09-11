@@ -167,6 +167,18 @@ abstract class LibraryMediaPresentationBuilder {
   }) =>
       const [];
 
+  List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
+    required ProviderCandidate candidate,
+    required LibraryMediaPreviewLabels previewLabels,
+  }) =>
+      const [];
+
+  List<(String, String?)> buildAddPreviewMetadataRowsForFullPreview({
+    required AdminProviderPreview preview,
+    required LibraryMediaPreviewLabels previewLabels,
+  }) =>
+      const [];
+
   List<TrailerLinkDto> buildLinks({
     required LibraryAddCatalogTransport item,
   }) =>
