@@ -15,19 +15,19 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 final class CatalogTransportRepository {
   CatalogTransportRepository(
     this._db, {
-    Iterable<CatalogKindTransportCodec<Object?>> codecs =
+    Iterable<CatalogKindTransportBoundary> codecs =
         collectarrKindCatalogTransportCodecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, CatalogKindTransportCodec<Object?>> _codecs;
+  final Map<CatalogMediaKind, CatalogKindTransportBoundary> _codecs;
 
   Future<void> upsertImportSnapshots(
     Iterable<CatalogImportSnapshot> snapshots,
   ) {
-    return upsertAll(
+    return upsertTransportItems(
       snapshots
           .map((snapshot) => snapshot.mapTransport((transport) => transport)),
     );
@@ -36,7 +36,7 @@ final class CatalogTransportRepository {
   Future<void> upsertSearchCandidates(
     Iterable<CatalogSearchCandidate> candidates,
   ) {
-    return upsertAll(
+    return upsertTransportItems(
       candidates.map(
         (candidate) =>
             candidate.toImportSnapshot().mapTransport((transport) => transport),
@@ -53,7 +53,7 @@ final class CatalogTransportRepository {
     );
   }
 
-  Future<void> upsertAll(
+  Future<void> upsertTransportItems(
     Iterable<CatalogItemDto> items, {
     bool captureDerivedData = true,
   }) async {

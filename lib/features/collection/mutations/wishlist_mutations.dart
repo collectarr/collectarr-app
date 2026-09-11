@@ -19,7 +19,7 @@ String _defaultIdGenerator() => const Uuid().v4();
 final class WishlistMutations {
   const WishlistMutations({
     required this.wishlist,
-    required this.catalogCache,
+    required this.catalogTransport,
     required this.trackingLifecycles,
     required this.trackingUnits,
     required this.syncQueue,
@@ -28,7 +28,7 @@ final class WishlistMutations {
   });
 
   final WishlistItemsCacheRepository wishlist;
-  final CatalogTransportRepository catalogCache;
+  final CatalogTransportRepository catalogTransport;
   final TrackingLifecycleRepository trackingLifecycles;
   final TrackingUnitRepository trackingUnits;
   final SyncQueueRepository syncQueue;
@@ -89,7 +89,7 @@ final class WishlistMutations {
       origin: origin,
       localRef: localRef,
       action: () async {
-        await catalogCache.upsertImportSnapshots([snapshot]);
+        await catalogTransport.upsertImportSnapshots([snapshot]);
         final existing = await wishlist.findActiveByCatalogRef(localRef);
         if (existing == null) {
           final wishlistItem = WishlistItem(

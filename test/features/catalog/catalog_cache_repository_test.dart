@@ -24,7 +24,7 @@ void main() {
 
   test('upsertAll captures single-value catalog vocabulary and comic series',
       () async {
-    await catalog.upsertAll([
+    await catalog.upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -113,7 +113,7 @@ void main() {
   });
 
   test('upsertAll preserves the complete typed TV graph payload', () async {
-    await catalog.upsertAll([
+    await catalog.upsertTransportItems([
       testCatalogItem(
         id: 'tv-graph-1',
         kind: 'tv',

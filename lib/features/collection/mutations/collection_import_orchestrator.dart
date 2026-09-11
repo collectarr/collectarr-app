@@ -30,7 +30,7 @@ final class CollectionImportOrchestrator {
   const CollectionImportOrchestrator({
     required this.ownedItems,
     required this.wishlist,
-    required this.catalogCache,
+    required this.catalogTransport,
     required this.catalogSummaries,
     required this.catalogLookup,
     required this.trackingLifecycles,
@@ -41,7 +41,7 @@ final class CollectionImportOrchestrator {
 
   final OwnedItemsRepository ownedItems;
   final WishlistItemsCacheRepository wishlist;
-  final CatalogTransportRepository catalogCache;
+  final CatalogTransportRepository catalogTransport;
   final CatalogDisplaySummaryRepository catalogSummaries;
   final CatalogLookupRepository catalogLookup;
   final TrackingLifecycleRepository trackingLifecycles;
@@ -243,7 +243,8 @@ final class CollectionImportOrchestrator {
       origin: origin,
       action: () async {
         if (importedCatalogSnapshots.isNotEmpty) {
-          await catalogCache.upsertImportSnapshots(importedCatalogSnapshots);
+          await catalogTransport
+              .upsertImportSnapshots(importedCatalogSnapshots);
         }
         for (final write in ownedWrites) {
           final persisted = await write();

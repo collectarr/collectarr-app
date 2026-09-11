@@ -53,7 +53,7 @@ final wishlistItemsCacheRepositoryProvider =
   return WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final catalogCacheRepositoryProvider =
+final catalogTransportRepositoryProvider =
     Provider<CatalogTransportRepository>((ref) {
   return CatalogTransportRepository(ref.watch(localDatabaseProvider));
 });
@@ -177,7 +177,7 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
 
 final catalogItemMutationsProvider = Provider<CatalogItemMutations>((ref) {
   return CatalogItemMutations(
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
     trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
@@ -188,7 +188,7 @@ final catalogItemMutationsProvider = Provider<CatalogItemMutations>((ref) {
 final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
   return WishlistMutations(
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     trackingLifecycles: ref.watch(trackingLifecycleRepositoryProvider),
     trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
@@ -237,7 +237,7 @@ final collectionImportOrchestratorProvider =
   return CollectionImportOrchestrator(
     ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
+    catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     catalogSummaries: CatalogDisplaySummaryRepository(
       ref.watch(localDatabaseProvider),
     ),

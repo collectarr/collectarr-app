@@ -22,7 +22,7 @@ void main() {
 
   test('aggregates replacement values through kind-owned catalog codecs',
       () async {
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
         id: 'comic-value-1',
         kind: 'comic',

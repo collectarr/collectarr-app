@@ -112,7 +112,7 @@ void main() {
         details: const BookOwnedDetails(),
         updatedAt: DateTime.now().toUtc(),
       );
-      await catalogCache.upsertAll([
+      await catalogCache.upsertTransportItems([
         testCatalogItem(id: 'book-77', kind: 'book', title: 'Test Book'),
       ]);
       await ownedItems.replaceFromPayload(
@@ -338,7 +338,7 @@ void main() {
         details: const TvOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),
       );
-      await catalogCache.upsertAll([
+      await catalogCache.upsertTransportItems([
         testCatalogItem(
           id: ref.id,
           kind: ref.kind.apiValue,
@@ -404,7 +404,7 @@ void main() {
         details: const BookOwnedDetails(),
         updatedAt: DateTime.utc(2026, 6, 1),
       );
-      await catalogCache.upsertAll([
+      await catalogCache.upsertTransportItems([
         testCatalogItem(
           id: ref.id,
           kind: ref.kind.apiValue,

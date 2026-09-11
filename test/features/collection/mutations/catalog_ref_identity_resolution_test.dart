@@ -40,7 +40,7 @@ void main() {
 
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
-      catalogCache: catalogCache,
+      catalogTransport: catalogCache,
       trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,
@@ -74,7 +74,7 @@ void main() {
     test(
         'resolved catalog item in cache retains its own kind on wishlist mutation',
         () async {
-      await catalogCache.upsertAll([
+      await catalogCache.upsertTransportItems([
         testCatalogItem(
           id: 'movie-100',
           kind: 'movie',

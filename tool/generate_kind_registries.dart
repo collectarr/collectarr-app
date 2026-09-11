@@ -1629,7 +1629,7 @@ void _renderCatalogTransportCodecs(
   List<_KindDescriptor> descriptors,
 ) {
   buffer.writeln(
-    'const List<CatalogKindTransportCodec<Object?>> '
+    'const List<CatalogKindTransportBoundary> '
     'collectarrKindCatalogTransportCodecs = [',
   );
   for (final descriptor in descriptors) {

@@ -31,7 +31,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItemFromJson({
         'id': 'comic-1',
         'kind': 'comic',
@@ -92,7 +92,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItemFromJson({
         'id': 'comic-2',
         'kind': 'comic',

@@ -46,7 +46,7 @@ void main() {
 
     final result = await runner.run(
       action: () async {
-        await CatalogTransportRepository(db).upsertAll([
+        await CatalogTransportRepository(db).upsertTransportItems([
           testCatalogItemFromJson({
             'id': 'cat-1',
             'kind': 'comic',
@@ -97,7 +97,7 @@ void main() {
     expect(
       () => runner.run(
         action: () async {
-          await CatalogTransportRepository(db).upsertAll([
+          await CatalogTransportRepository(db).upsertTransportItems([
             testCatalogItemFromJson({
               'id': 'cat-fail',
               'kind': 'comic',
@@ -165,7 +165,7 @@ void main() {
 
     await runner.run(
       action: () async {
-        await CatalogTransportRepository(db).upsertAll([
+        await CatalogTransportRepository(db).upsertTransportItems([
           testCatalogItemFromJson({
             'id': localRef.id,
             'kind': localRef.kind.apiValue,

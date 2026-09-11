@@ -13,14 +13,14 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 final class CatalogSnapshotRepository {
   CatalogSnapshotRepository(
     this._db, {
-    Iterable<CatalogKindTransportCodec<Object?>> codecs =
+    Iterable<CatalogKindTransportBoundary> codecs =
         collectarrKindCatalogTransportCodecs,
   }) : _codecs = {
           for (final codec in codecs) codec.kind: codec,
         };
 
   final LocalDatabase _db;
-  final Map<CatalogMediaKind, CatalogKindTransportCodec<Object?>> _codecs;
+  final Map<CatalogMediaKind, CatalogKindTransportBoundary> _codecs;
 
   Future<Map<CatalogEntityRef, CatalogItemDto>> findByRefs(
     Iterable<CatalogEntityRef> refs,

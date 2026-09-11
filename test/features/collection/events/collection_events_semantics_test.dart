@@ -75,7 +75,7 @@ void main() {
 
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
-      catalogCache: catalogRepo,
+      catalogTransport: catalogRepo,
       trackingLifecycles: trackingRepo,
       trackingUnits: trackingUnitsRepo,
       syncQueue: syncQueueRepo,

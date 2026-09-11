@@ -2048,8 +2048,8 @@ OwnedItemCreatePayload collectarrOwnedCreatePayloadFromTyped(
   throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
 }
 
-const List<CatalogKindTransportCodec<Object?>>
-    collectarrKindCatalogTransportCodecs = [
+const List<CatalogKindTransportBoundary> collectarrKindCatalogTransportCodecs =
+    [
   AnimeCatalogTransportCodec(),
   BoardGameCatalogTransportCodec(),
   BookCatalogTransportCodec(),

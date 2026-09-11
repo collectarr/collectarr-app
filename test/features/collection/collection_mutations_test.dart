@@ -190,7 +190,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(id: 'comic-1', kind: 'comic', title: 'Original'),
     ]);
     await container.read(collectionCommandCoordinatorProvider).addOwnedItem(
@@ -282,7 +282,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
         id: 'movie-digital-1',
         kind: 'movie',
@@ -378,7 +378,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
           id: 'music-1', kind: 'music', title: 'Blessed & Possessed'),
     ]);
@@ -417,7 +417,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(id: 'movie-1', kind: 'movie', title: 'Dune'),
     ]);
 
@@ -454,7 +454,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(id: 'book-1', kind: 'book', title: 'Project Hail Mary'),
     ]);
 
@@ -476,7 +476,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -897,7 +897,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -1119,7 +1119,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -1210,7 +1210,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',

@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
@@ -9,11 +8,11 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 final class CatalogReplacementValueRepository {
   CatalogReplacementValueRepository(
     this._db, {
-    Iterable<CatalogKindTransportCodec<Object?>>? codecs,
+    Iterable<CatalogKindTransportBoundary>? codecs,
   }) : _codecs = codecs ?? collectarrKindCatalogTransportCodecs;
 
   final LocalDatabase _db;
-  final Iterable<CatalogKindTransportCodec<Object?>> _codecs;
+  final Iterable<CatalogKindTransportBoundary> _codecs;
 
   Future<Map<CatalogEntityRef, int>> findByRefs(
     Iterable<CatalogEntityRef> refs,

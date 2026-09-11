@@ -23,7 +23,7 @@ void main() {
   tearDown(() => db.close());
 
   test('renameEntry updates matching catalog cache rows', () async {
-    await catalog.upsertAll([
+    await catalog.upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -56,7 +56,7 @@ void main() {
   test(
       'mergeEntries moves catalog rows onto the target series and removes the source entry',
       () async {
-    await catalog.upsertAll([
+    await catalog.upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',

@@ -134,7 +134,7 @@ void main() {
             sortOrder: const Value(0),
           ),
         );
-    await CatalogTransportRepository(db).upsertAll([
+    await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItemFromJson({
         'id': 'catalog-1',
         'kind': 'comic',

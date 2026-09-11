@@ -71,6 +71,23 @@ void main() {
     );
   });
 
+  test(
+      'catalog transport registry stores behavior boundaries, not erased values',
+      () {
+    final source = File(registrationsPath).readAsStringSync();
+
+    expect(
+      source,
+      contains('const List<CatalogKindTransportBoundary>'),
+    );
+    expect(source, isNot(contains('CatalogKindTransportCodec<Object?>')));
+    expect(collectarrKindCatalogTransportCodecs, hasLength(9));
+    expect(
+      collectarrKindCatalogTransportCodecs,
+      everyElement(isNotNull),
+    );
+  });
+
   test('generated registrations dispatch through concrete kind types', () {
     final source = File(registrationsPath).readAsStringSync();
     const registrations = <String, String>{
@@ -114,7 +131,7 @@ void main() {
     final syncPayloadSection = _sourceSection(
       source,
       'collectarrOwnedItemSyncPayloadByRef',
-      'const List<CatalogKindTransportCodec<Object?>>',
+      'const List<CatalogKindTransportBoundary>',
     );
 
     for (final entry in ownedTypes.entries) {

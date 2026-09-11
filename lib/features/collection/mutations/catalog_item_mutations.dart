@@ -18,14 +18,14 @@ import 'package:collectarr_app/features/providers/domain/models/mutation_origin.
 /// DTO merely to update catalog metadata.
 final class CatalogItemMutations {
   const CatalogItemMutations({
-    required this.catalogCache,
+    required this.catalogTransport,
     required this.wishlist,
     required this.trackingLifecycles,
     required this.syncQueue,
     required this.mutationRunner,
   });
 
-  final CatalogTransportRepository catalogCache;
+  final CatalogTransportRepository catalogTransport;
   final WishlistItemsCacheRepository wishlist;
   final TrackingLifecycleRepository trackingLifecycles;
   final SyncQueueRepository syncQueue;
@@ -39,7 +39,7 @@ final class CatalogItemMutations {
     await mutationRunner.run(
       origin: origin,
       action: () async {
-        await catalogCache.upsertImportSnapshots([snapshot]);
+        await catalogTransport.upsertImportSnapshots([snapshot]);
         await syncQueue.enqueue(_syncChangeForSnapshot(snapshot, now));
       },
       eventsToEmit: [CatalogItemChanged(snapshot.catalogRef)],
@@ -54,7 +54,7 @@ final class CatalogItemMutations {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
       action: () async {
-        await catalogCache.upsertImportSnapshots(pending);
+        await catalogTransport.upsertImportSnapshots(pending);
         await syncQueue.enqueueAll([
           for (final snapshot in pending) _syncChangeForSnapshot(snapshot, now),
         ]);
@@ -82,7 +82,7 @@ final class CatalogItemMutations {
 
     return mutationRunner.run(
       action: () async {
-        await catalogCache.upsertImportSnapshots([snapshot]);
+        await catalogTransport.upsertImportSnapshots([snapshot]);
         var count = 0;
 
         for (final item in wishlistEntries) {

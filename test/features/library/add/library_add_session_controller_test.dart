@@ -78,7 +78,7 @@ void main() {
 
     wishlistMutations = WishlistMutations(
       wishlist: WishlistItemsCacheRepository(db),
-      catalogCache: catalogCache,
+      catalogTransport: catalogCache,
       trackingLifecycles: TrackingLifecycleRepository(
         db,
         codecs: collectarrTrackingLifecycleCodecs,

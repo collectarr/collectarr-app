@@ -995,7 +995,7 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   );
 
   // upsertAll also auto-populates SerialAuthority & PickLists from catalog data
-  await catalogRepo.upsertAll(allItems);
+  await catalogRepo.upsertTransportItems(allItems);
   for (final ownedItem in ownedItems) {
     final ref = collectarrTypedOwnedItemRef(ownedItem);
     await ownedRepo.replaceFromPayload(

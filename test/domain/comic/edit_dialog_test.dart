@@ -64,7 +64,7 @@ void main() {
         ),
       ),
     ];
-    await catalog.upsertAll(catalogItems);
+    await catalog.upsertTransportItems(catalogItems);
     await seriesRegistry.captureCandidatesWithoutTransaction([
       const SerialAuthorityCandidate(
         mediaKind: CatalogMediaKind.comic,

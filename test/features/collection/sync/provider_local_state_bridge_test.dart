@@ -31,7 +31,7 @@ void main() {
       kind: 'movie',
       title: 'A Movie',
     );
-    await catalog.upsertAll([item]);
+    await catalog.upsertTransportItems([item]);
     const localRef = CatalogEntityRef(
       id: 'movie-1',
       kind: CatalogMediaKind.movie,
