@@ -189,24 +189,30 @@ class AnimeEditDraft extends LibraryEditKindDraft
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        item: result.item.withKindMetadata(
-          metadata.copyWith(
-            episodeRuntimeMinutes:
-                int.tryParse(videoEdit.runtimeController.text),
-            genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
-            editionTitle: emptyToNull(videoEdit.editionTitleController.text),
-            variant: emptyToNull(videoEdit.variantController.text),
-            barcode: emptyToNull(videoEdit.barcodeController.text),
-            physicalFormat: videoEdit.physicalFormatId,
-            physicalFormatLabel:
-                emptyToNull(videoEdit.physicalFormatLabelController.text),
-            publisher: emptyToNull(videoEdit.publisherController.text),
-            country: emptyToNull(videoEdit.countryController.text) ??
-                metadata.country,
-            language: emptyToNull(videoEdit.languageController.text) ??
-                metadata.language,
-            startDate: parseDate(videoEdit.releaseDateController.text),
-            links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
+        item: result.item.mapTransport(
+          (transport) => LibraryAddCatalogTransport.fromItem(
+            transport.withKindMetadata(
+              metadata.copyWith(
+                episodeRuntimeMinutes:
+                    int.tryParse(videoEdit.runtimeController.text),
+                genres:
+                    parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+                editionTitle:
+                    emptyToNull(videoEdit.editionTitleController.text),
+                variant: emptyToNull(videoEdit.variantController.text),
+                barcode: emptyToNull(videoEdit.barcodeController.text),
+                physicalFormat: videoEdit.physicalFormatId,
+                physicalFormatLabel:
+                    emptyToNull(videoEdit.physicalFormatLabelController.text),
+                publisher: emptyToNull(videoEdit.publisherController.text),
+                country: emptyToNull(videoEdit.countryController.text) ??
+                    metadata.country,
+                language: emptyToNull(videoEdit.languageController.text) ??
+                    metadata.language,
+                startDate: parseDate(videoEdit.releaseDateController.text),
+                links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
+              ),
+            ),
           ),
         ),
       );

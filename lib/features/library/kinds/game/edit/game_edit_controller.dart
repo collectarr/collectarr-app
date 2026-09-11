@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
@@ -137,7 +138,11 @@ class GameEditController {
         ) ??
         selection.item.mapTransport((transport) => transport).kindMetadata;
 
-    final updatedItem = selection.item.withKindMetadata(updatedMetadata);
+    final updatedItem = selection.item.mapTransport(
+      (transport) => LibraryAddCatalogTransport.fromItem(
+        transport.withKindMetadata(updatedMetadata),
+      ),
+    );
 
     return LibraryEditSelection(
       scope: selection.scope,

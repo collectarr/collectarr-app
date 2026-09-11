@@ -97,6 +97,11 @@ void main() {
         payload: const {'episode_count': 1},
       ),
     );
-    expect(entry.catalogTransport!.kindMetadata, isA<AnimeMetadata>());
+    expect(
+      entry.catalogTransport!.mapTransport(
+        (transport) => transport.kindMetadata,
+      ),
+      isA<AnimeMetadata>(),
+    );
   });
 }

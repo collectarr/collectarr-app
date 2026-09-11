@@ -220,7 +220,11 @@ class MovieEditDraft extends LibraryEditKindDraft
         nrDiscs: int.tryParse(nrDiscsController.text),
       );
       result = result.copyWith(
-        item: result.item.withKindMetadata(updatedMeta),
+        item: result.item.mapTransport(
+          (transport) => LibraryAddCatalogTransport.fromItem(
+            transport.withKindMetadata(updatedMeta),
+          ),
+        ),
       );
     }
     return result;

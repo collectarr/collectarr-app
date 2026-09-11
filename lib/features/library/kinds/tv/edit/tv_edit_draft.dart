@@ -194,40 +194,46 @@ class TvEditDraft extends LibraryEditKindDraft
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        item: result.item.withKindMetadata(
-          metadata.copyWith(
-            episodeRuntimeMinutes:
-                int.tryParse(videoEdit.runtimeController.text),
-            genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
-            cast: videoEdit.castCredits
-                .map((credit) => TvPersonCredit(
-                      name: credit.nameController.text.trim(),
-                      role: emptyToNull(credit.roleController.text.trim()),
-                    ))
-                .where((credit) => credit.name.isNotEmpty)
-                .toList(),
-            crew: videoEdit.crewCredits
-                .map((credit) => TvPersonCredit(
-                      name: credit.nameController.text.trim(),
-                      role: emptyToNull(credit.roleController.text.trim()),
-                    ))
-                .where((credit) => credit.name.isNotEmpty)
-                .toList(),
-            contentRating: emptyToNull(videoEdit.ageRatingController.text),
-            variant: emptyToNull(videoEdit.variantController.text),
-            barcode: emptyToNull(videoEdit.barcodeController.text),
-            physicalFormat: videoEdit.physicalFormatId,
-            physicalFormatLabel:
-                emptyToNull(videoEdit.physicalFormatLabelController.text),
-            publisher: emptyToNull(videoEdit.publisherController.text),
-            country: emptyToNull(videoEdit.countryController.text) ??
-                metadata.country,
-            originalLanguage: emptyToNull(videoEdit.languageController.text) ??
-                metadata.originalLanguage,
-            firstAirDate: parseDate(videoEdit.releaseDateController.text),
-            links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
-            seasonNumber: seasonNumber ?? metadata.seasonNumber,
-            episodeNumber: episodeNumber ?? metadata.episodeNumber,
+        item: result.item.mapTransport(
+          (transport) => LibraryAddCatalogTransport.fromItem(
+            transport.withKindMetadata(
+              metadata.copyWith(
+                episodeRuntimeMinutes:
+                    int.tryParse(videoEdit.runtimeController.text),
+                genres:
+                    parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+                cast: videoEdit.castCredits
+                    .map((credit) => TvPersonCredit(
+                          name: credit.nameController.text.trim(),
+                          role: emptyToNull(credit.roleController.text.trim()),
+                        ))
+                    .where((credit) => credit.name.isNotEmpty)
+                    .toList(),
+                crew: videoEdit.crewCredits
+                    .map((credit) => TvPersonCredit(
+                          name: credit.nameController.text.trim(),
+                          role: emptyToNull(credit.roleController.text.trim()),
+                        ))
+                    .where((credit) => credit.name.isNotEmpty)
+                    .toList(),
+                contentRating: emptyToNull(videoEdit.ageRatingController.text),
+                variant: emptyToNull(videoEdit.variantController.text),
+                barcode: emptyToNull(videoEdit.barcodeController.text),
+                physicalFormat: videoEdit.physicalFormatId,
+                physicalFormatLabel:
+                    emptyToNull(videoEdit.physicalFormatLabelController.text),
+                publisher: emptyToNull(videoEdit.publisherController.text),
+                country: emptyToNull(videoEdit.countryController.text) ??
+                    metadata.country,
+                originalLanguage:
+                    emptyToNull(videoEdit.languageController.text) ??
+                        metadata.originalLanguage,
+                firstAirDate: parseDate(videoEdit.releaseDateController.text),
+                links: videoEdit.buildUpdatedTrailerUrls(metadata.links),
+                seasonNumber: seasonNumber ?? metadata.seasonNumber,
+                episodeNumber: episodeNumber ?? metadata.episodeNumber,
+              ),
+            ),
           ),
         ),
       );

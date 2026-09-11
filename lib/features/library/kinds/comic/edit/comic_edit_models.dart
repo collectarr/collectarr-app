@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
@@ -219,6 +220,10 @@ LibraryEditSelection applyComicSelectionEdits(
     links: newComicLinks,
   );
 
-  final updatedItem = selection.item.withKindMetadata(updatedMetadata);
+  final updatedItem = selection.item.mapTransport(
+    (transport) => LibraryAddCatalogTransport.fromItem(
+      transport.withKindMetadata(updatedMetadata),
+    ),
+  );
   return selection.copyWith(item: updatedItem);
 }

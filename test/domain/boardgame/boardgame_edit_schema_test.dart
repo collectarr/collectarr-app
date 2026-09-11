@@ -113,7 +113,9 @@ void main() {
     final selection = draft.applySelectionEdits(
       LibraryEditSelection(item: _item(metadata), personal: null),
     );
-    final updated = selection.item.kindMetadata as BoardGameMetadata;
+    final updated = selection.item.mapTransport(
+      (transport) => transport.kindMetadata,
+    ) as BoardGameMetadata;
 
     expect(updated.originalTitle, 'Brass Birmingham Revised');
     expect(updated.yearPublished, 2019);

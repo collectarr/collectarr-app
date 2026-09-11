@@ -94,7 +94,9 @@ void main() {
         personal: null,
       ),
     );
-    final metadata = updated.item.kindMetadata as BookCatalogMetadata;
+    final metadata = updated.item.mapTransport(
+      (transport) => transport.kindMetadata,
+    ) as BookCatalogMetadata;
     expect(metadata.physicalFormatLabel, 'Trade Paperback');
     expect(metadata.publisher, 'Penguin Random House');
     expect(metadata.authors, ['Ursula K. Le Guin', 'Octavia E. Butler']);

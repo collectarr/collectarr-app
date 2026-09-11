@@ -105,10 +105,6 @@ final class LibraryAddCatalogTransport {
     );
   }
 
-  LibraryAddCatalogTransport withKindMetadata(Object? kindMetadata) {
-    return LibraryAddCatalogTransport._(_item.withKindMetadata(kindMetadata));
-  }
-
   CatalogImportSnapshot toImportSnapshot() =>
       CatalogImportSnapshot.fromItem(_item);
 }

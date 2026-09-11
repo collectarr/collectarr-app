@@ -19,7 +19,12 @@ LibraryAddCatalogTransport mergeProviderAddResult({
     coverImageData: edited.coverImageData ?? ingested.coverImageData,
   );
   return edited.mapTransport(
-    (transport) => merged.withKindMetadata(transport.kindMetadata),
+    (transport) => LibraryAddCatalogTransport.fromItem(
+      merged.mapTransport(
+        (mergedTransport) =>
+            mergedTransport.withKindMetadata(transport.kindMetadata),
+      ),
+    ),
   );
 }
 

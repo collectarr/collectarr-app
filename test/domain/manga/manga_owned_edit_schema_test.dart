@@ -134,7 +134,9 @@ void main() {
     );
 
     final updated = draft.applySelectionEdits(selection);
-    final metadata = updated.item.kindMetadata as MangaMetadata;
+    final metadata = updated.item.mapTransport(
+      (transport) => transport.kindMetadata,
+    ) as MangaMetadata;
     expect(metadata.pageCount, 224);
     expect(metadata.publisher, 'VIZ Media');
     expect(

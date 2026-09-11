@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_edition_edit_schema.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:flutter/material.dart';
 
 Widget buildBoardGameReleaseLibraryEditDialog(
@@ -82,7 +83,11 @@ class _BoardGameReleaseSchemaEditDialogState
         final updatedMetadata = _replaceRelease(_metadata, updatedRelease);
         Navigator.of(context).pop(
           selection.copyWith(
-            item: selection.item.withKindMetadata(updatedMetadata),
+            item: selection.item.mapTransport(
+              (transport) => LibraryAddCatalogTransport.fromItem(
+                transport.withKindMetadata(updatedMetadata),
+              ),
+            ),
             scope: LibraryEditScope.release,
           ),
         );

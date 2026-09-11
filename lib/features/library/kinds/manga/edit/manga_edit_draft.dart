@@ -294,7 +294,11 @@ class MangaEditDraft extends LibraryEditKindDraft {
         ) ??
         selection.item.mapTransport((transport) => transport).kindMetadata;
 
-    final updatedItem = selection.item.withKindMetadata(updatedMetadata);
+    final updatedItem = selection.item.mapTransport(
+      (transport) => LibraryAddCatalogTransport.fromItem(
+        transport.withKindMetadata(updatedMetadata),
+      ),
+    );
     return selection.copyWith(item: updatedItem);
   }
 }

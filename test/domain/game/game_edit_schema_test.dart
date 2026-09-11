@@ -96,7 +96,9 @@ void main() {
         personal: null,
       ),
     );
-    final updatedMetadata = updated.item.kindMetadata as GameCatalogMetadata;
+    final updatedMetadata = updated.item.mapTransport(
+      (transport) => transport.kindMetadata,
+    ) as GameCatalogMetadata;
     expect(updatedMetadata.publishers, ['New Publisher']);
     expect(updatedMetadata.developers, ['Studio A', 'Studio B']);
     expect(updatedMetadata.franchise, 'Chrono');

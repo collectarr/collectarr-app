@@ -335,7 +335,11 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
         rawPayload: rawPayload,
       );
       return selection.copyWith(
-        item: selection.item.withKindMetadata(updatedMeta),
+        item: selection.item.mapTransport(
+          (transport) => LibraryAddCatalogTransport.fromItem(
+            transport.withKindMetadata(updatedMeta),
+          ),
+        ),
       );
     }
     return selection;
