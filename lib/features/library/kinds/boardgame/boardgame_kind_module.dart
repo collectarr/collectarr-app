@@ -173,8 +173,8 @@ MetadataSearchQuery _boardGameMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -335,6 +335,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     defaultCollectionValue: 'Ungraded',
     createDraft: createBoardGameEditDraft,
     ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveBoardGameOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         BoardgameOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

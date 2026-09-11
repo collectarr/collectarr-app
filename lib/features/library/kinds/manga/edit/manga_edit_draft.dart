@@ -291,9 +291,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
         ) ??
         selection.item.toTransportItem().kindMetadata;
 
-    final updatedItem = selection.item.copyWith(
-      kindMetadata: updatedMetadata,
-    );
+    final updatedItem = selection.item.withKindMetadata(updatedMetadata);
     return selection.copyWith(item: updatedItem);
   }
 }

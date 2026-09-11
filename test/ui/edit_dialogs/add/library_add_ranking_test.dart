@@ -17,7 +17,7 @@ final _ranking = buildLibraryAddSearchRanking(
       id: _publisherFilterId,
       exactWeight: 60,
       containsWeight: 24,
-      metadataValues: (item) => [item.payload['publisher']],
+      metadataValues: (item) => [item.toTransportItem().payload['publisher']],
       providerValues: (candidate) => [candidate.publisher],
     ),
     LibraryAddSearchRankField(
@@ -31,7 +31,7 @@ final _ranking = buildLibraryAddSearchRanking(
       id: _issueFilterId,
       exactWeight: 75,
       containsWeight: 36,
-      metadataValues: (item) => [item.payload['item_number']],
+      metadataValues: (item) => [item.toTransportItem().payload['item_number']],
       providerValues: (candidate) => [candidate.issueNumber],
     ),
   ],
@@ -103,7 +103,7 @@ void main() {
           advancedFilters: {_publisherFilterId: 'DC Comics'},
         ),
       );
-      expect(result.first.payload['publisher'], 'DC Comics');
+      expect(result.first.toTransportItem().payload['publisher'], 'DC Comics');
     });
 
     test('ranks matching year higher', () {
@@ -133,7 +133,7 @@ void main() {
           advancedFilters: {_issueFilterId: '1'},
         ),
       );
-      expect(result.first.payload['item_number'], '1');
+      expect(result.first.toTransportItem().payload['item_number'], '1');
     });
 
     test('ranks provider candidates using the same kind-owned fields', () {

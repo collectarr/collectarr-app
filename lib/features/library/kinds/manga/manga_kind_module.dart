@@ -225,9 +225,9 @@ MetadataSearchQuery _mangaMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    issueNumber: item?.itemNumber,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    issueNumber: item?.toTransportItem().itemNumber,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -426,6 +426,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     ),
     createDraft: createMangaEditDraft,
     ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveMangaOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         MangaOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

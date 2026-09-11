@@ -239,9 +239,7 @@ class BookEditDraft extends LibraryEditKindDraft {
       links: _externalLinks.isNotEmpty ? _externalLinks : meta.links,
     );
 
-    final updatedItem = selection.item.copyWith(
-      kindMetadata: updatedMetadata,
-    );
+    final updatedItem = selection.item.withKindMetadata(updatedMetadata);
     return selection.copyWith(item: updatedItem);
   }
 }

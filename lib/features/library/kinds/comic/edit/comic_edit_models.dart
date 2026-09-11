@@ -215,8 +215,6 @@ LibraryEditSelection applyComicSelectionEdits(
     links: newComicLinks,
   );
 
-  final updatedItem = selection.item.copyWith(
-    kindMetadata: updatedMetadata,
-  );
+  final updatedItem = selection.item.withKindMetadata(updatedMetadata);
   return selection.copyWith(item: updatedItem);
 }

@@ -152,7 +152,8 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
-    final editionTitle = (item.titleExtension ?? item.editionTitle)?.trim();
+    final editionTitle =
+        (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim();
 
     final titleController = create(item.title);
     final coverController = create(item.coverImageUrl ?? '');
@@ -221,7 +222,7 @@ class LibraryEditDraft {
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
 
-    final editions = item.editions;
+    final editions = item.toTransportItem().editions;
 
     final editionSelection = resolveLibraryEditionSelection(
       editions,
@@ -365,16 +366,12 @@ class LibraryEditDraft {
 
   bool get isDigitalFormat {
     final existingOwnedItem = ownedItem;
-    final physicalFormatLabel = item.physicalFormatLabel;
-    final physicalFormat = item.physicalFormat;
-    final format = physicalFormatLabel ??
-        physicalFormat ??
-        (item.titleExtension ?? item.editionTitle)?.trim() ??
-        '';
+    final formatHint = type.edit.resolveOwnedFormatHint(item);
+    final format = formatHint.label ?? '';
     return type.edit.resolveOwnedDigitalFlag(
           existingOwnedItem == null ? null : existingOwnedItem,
-          item.editions,
-          fallbackFormat: physicalFormat,
+          item.toTransportItem().editions,
+          fallbackFormat: formatHint.format,
           fallbackLabel: format,
           formats: physicalFormats,
         ) ??
@@ -393,12 +390,13 @@ class LibraryEditDraft {
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final editions = item.editions;
+    final editions = item.toTransportItem().editions;
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: catalogRefEditionId(ownedItem?.targetRef) ??
           catalogRefEditionId(trackingLifecycle?.catalogRef),
-      editionTitle: (item.titleExtension ?? item.editionTitle)?.trim(),
+      editionTitle:
+          (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim(),
       variantId: catalogRefVariantId(ownedItem?.targetRef) ??
           catalogRefVariantId(trackingLifecycle?.catalogRef),
     );

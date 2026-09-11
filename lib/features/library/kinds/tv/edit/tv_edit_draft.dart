@@ -193,8 +193,8 @@ class TvEditDraft extends LibraryEditKindDraft
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        item: result.item.copyWith(
-          kindMetadata: metadata.copyWith(
+        item: result.item.withKindMetadata(
+          metadata.copyWith(
             episodeRuntimeMinutes:
                 int.tryParse(videoEdit.runtimeController.text),
             genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
@@ -282,7 +282,8 @@ LibraryEditKindDraft createTvEditDraft({
     initialAgeRating: tv?.contentRating ?? '',
     initialGenres: tv?.genres.join(', ') ?? '',
     initialEditionTitle:
-        (item.titleExtension ?? item.editionTitle)?.trim() ?? '',
+        (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim() ??
+            '',
     initialVariant: tv?.variant ?? '',
     initialBarcode: tv?.barcode ?? '',
     initialPhysicalFormatLabel: tv?.physicalFormatLabel ?? tv?.variant ?? '',

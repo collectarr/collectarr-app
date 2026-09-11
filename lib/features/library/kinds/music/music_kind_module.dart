@@ -159,8 +159,8 @@ MetadataSearchQuery _musicMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -333,6 +333,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     defaultCollectionValue: 'Ungraded',
     createDraft: createMusicEditDraft,
     ownedDigitalFlagResolver: resolveMusicOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveMusicOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         MusicOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

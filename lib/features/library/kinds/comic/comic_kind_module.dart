@@ -163,9 +163,9 @@ MetadataSearchQuery _comicMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    issueNumber: item?.itemNumber,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    issueNumber: item?.toTransportItem().itemNumber,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -378,6 +378,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     ),
     createDraft: createComicEditDraft,
     ownedDigitalFlagResolver: resolveComicOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveComicOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         ComicOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

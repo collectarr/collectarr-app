@@ -999,9 +999,9 @@ class LibraryAddSessionController
       final mergedThumbnailImageUrl = hydratedItem.displayCoverUrl != null
           ? hydratedItem.thumbnailImageUrl
           : selected.thumbnailImageUrl ?? selected.coverImageUrl;
-      final mergedEditions = hydratedItem.editions.isEmpty
-          ? selected.editions
-          : hydratedItem.editions;
+      final mergedEditions = hydratedItem.toTransportItem().editions.isEmpty
+          ? selected.toTransportItem().editions
+          : hydratedItem.toTransportItem().editions;
       final mergedItem = hydratedItem.copyWith(
         coverImageUrl: mergedCoverImageUrl ?? hydratedItem.coverImageUrl,
         thumbnailImageUrl:

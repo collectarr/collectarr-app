@@ -50,15 +50,6 @@ final class LibraryAddCatalogTransport {
   String? get coverImageData => _item.coverImageData;
   DateTime? get releaseDate => _item.releaseDate;
   int? get releaseYear => _item.releaseYear;
-  List<TrailerLinkDto> get trailerUrls => _item.trailerUrls;
-  List<CatalogEditionDto> get editions => _item.editions;
-  String? get itemNumber => _item.itemNumber;
-  String? get variant => _item.variant;
-  String? get publisher => _item.publisher;
-  String? get identifierCode => _item.barcode;
-  String? get physicalFormat => _item.physicalFormat;
-  String? get physicalFormatLabel => _item.physicalFormatLabel;
-  String? get editionTitle => _item.editionTitle;
   String get resolvedDisplayTitle => _item.resolvedDisplayTitle;
   String? get displayCoverUrl => _item.displayCoverUrl;
   CatalogEntityRef get catalogRef => _item.catalogRef;
@@ -93,7 +84,6 @@ final class LibraryAddCatalogTransport {
     List<TrailerLinkDto>? trailerUrls,
     Object? physicalFormat = _unset,
     Object? physicalFormatLabel = _unset,
-    Object? kindMetadata,
   }) {
     return LibraryAddCatalogTransport._(
       _item.copyWith(
@@ -115,7 +105,6 @@ final class LibraryAddCatalogTransport {
         trailerUrls: trailerUrls,
         physicalFormat: physicalFormat,
         physicalFormatLabel: physicalFormatLabel,
-        kindMetadata: kindMetadata,
       ),
     );
   }

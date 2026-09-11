@@ -310,7 +310,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        editions: selected.source.catalogTransport?.editions ?? const [],
+        editions:
+            selected.source.catalogTransport?.toTransportItem().editions ??
+                const [],
         digitalFlagResolver: widget.type.edit.resolveOwnedDigitalFlag,
         collectionValueReader: widget.type.edit.readOwnedCollectionValue,
         selectedOwnedItemId: activeOwnedItem?.ref.id.value,

@@ -49,8 +49,10 @@ Widget? buildGameCustomTabView({
             children: [
               LibraryReleaseIdentityFields(
                 editionTitleController: TextEditingController(
-                  text:
-                      (item.titleExtension ?? item.editionTitle)?.trim() ?? '',
+                  text: (item.titleExtension ??
+                              item.toTransportItem().editionTitle)
+                          ?.trim() ??
+                      '',
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),

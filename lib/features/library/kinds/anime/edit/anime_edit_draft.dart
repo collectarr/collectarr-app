@@ -188,8 +188,8 @@ class AnimeEditDraft extends LibraryEditKindDraft
           .where((value) => value.isNotEmpty)
           .toList();
       result = result.copyWith(
-        item: result.item.copyWith(
-          kindMetadata: metadata.copyWith(
+        item: result.item.withKindMetadata(
+          metadata.copyWith(
             episodeRuntimeMinutes:
                 int.tryParse(videoEdit.runtimeController.text),
             genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
@@ -262,7 +262,7 @@ LibraryEditKindDraft createAnimeEditDraft({
     initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
     initialGenres: anime?.genres.join(', ') ?? '',
     initialEditionTitle: anime?.editionTitle ??
-        (item.titleExtension ?? item.editionTitle)?.trim() ??
+        (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim() ??
         '',
     initialVariant: anime?.variant ?? '',
     initialBarcode: anime?.barcode ?? '',

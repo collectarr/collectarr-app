@@ -185,7 +185,8 @@ void main() {
 
     // Verify the dialog returned the edited values
     expect(selection!.item.title, 'Blade Runner: Final Cut');
-    expect(selection!.item.payload['barcode'], '883929087129');
+    expect(
+        selection!.item.toTransportItem().payload['barcode'], '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
     expect(selection?.personal?.pricePaidCents, 999);
@@ -694,7 +695,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = selection?.item.payload;
+    final payload = selection?.item.toTransportItem().payload;
     expect(payload?['edition_title'], 'Deluxe Edition');
     expect(selection?.item.titleExtension, isNull);
     final seriesMap = payload?['series'] as Map?;
@@ -1601,7 +1602,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = selection?.item.payload;
+    final payload = selection?.item.toTransportItem().payload;
     final seriesMap = payload?['series'] as Map?;
     final musicMap = payload?['music'] as Map?;
     expect(seriesMap?['series_title'], 'cAd');
@@ -1684,7 +1685,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final itemPayload = selection?.item.payload;
+    final itemPayload = selection?.item.toTransportItem().payload;
     final gameMap = itemPayload?['game'] as Map?;
     expect(
         gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);

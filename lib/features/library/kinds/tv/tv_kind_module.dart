@@ -202,8 +202,8 @@ MetadataSearchQuery _tvMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -396,6 +396,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     defaultCollectionValue: 'Ungraded',
     createDraft: createTvEditDraft,
     ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveTvOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         TvOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

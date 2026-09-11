@@ -36,7 +36,7 @@ class TvLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required LibraryAddCatalogTransport item,
   }) =>
-      item.itemNumber;
+      item.toTransportItem().itemNumber;
 
   @override
   List<(String id, String label)> buildAddPreviewFormatBadges({
@@ -44,7 +44,7 @@ class TvLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <(String, String)>[];
-    for (final edition in item.editions) {
+    for (final edition in item.toTransportItem().editions) {
       final id = edition.physicalFormat;
       if (id == null || !seen.add(id)) continue;
       final label = edition.physicalFormatLabel?.trim();
@@ -58,13 +58,13 @@ class TvLibraryMediaPresentationBuilder
     LibraryWorkspaceSource entry,
   ) {
     final item = entry.catalogTransport;
-    final identifier =
-        normalizeLibraryDuplicateIdentifier(item?.identifierCode);
+    final identifier = normalizeLibraryDuplicateIdentifier(
+        item?.toTransportItem().identifierCode);
     if (item == null || identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.identifierCode!.trim()}',
+        label: 'Identifier ${item.toTransportItem().identifierCode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -75,7 +75,7 @@ class TvLibraryMediaPresentationBuilder
   List<CatalogEditionDto> buildReleaseEditions({
     required LibraryAddCatalogTransport item,
   }) {
-    return item.editions;
+    return item.toTransportItem().editions;
   }
 
   @override
@@ -93,7 +93,7 @@ class TvLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.publisher
+        item.toTransportItem().publisher
       ),
       (
         'Released',
@@ -101,16 +101,19 @@ class TvLibraryMediaPresentationBuilder
             ? item.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.itemNumber != null)
+      if (item.toTransportItem().itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.itemNumber
+          item.toTransportItem().itemNumber
         ),
-      if (item.variant != null)
-        (previewLabels.labelFor('variant', fallback: 'Variant'), item.variant),
+      if (item.toTransportItem().variant != null)
+        (
+          previewLabels.labelFor('variant', fallback: 'Variant'),
+          item.toTransportItem().variant
+        ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.identifierCode
+        item.toTransportItem().identifierCode
       ),
     ];
   }
@@ -376,15 +379,18 @@ class TvLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildTvSearchResultDisplay(
   LibraryAddCatalogTransport item,
 ) {
-  final itemNumber = item.itemNumber?.trim();
+  final itemNumber = item.toTransportItem().itemNumber?.trim();
   final subtitle = [
-    if (item.publisher?.trim() case final value? when value.isNotEmpty) value,
-    if ((item.releaseYear ?? item.releaseDate?.year) case final year?)
-      year.toString(),
-    if (item.physicalFormatLabel?.trim() case final value?
+    if (item.toTransportItem().publisher?.trim() case final value?
         when value.isNotEmpty)
       value,
-    if (item.identifierCode?.trim() case final value? when value.isNotEmpty)
+    if ((item.releaseYear ?? item.releaseDate?.year) case final year?)
+      year.toString(),
+    if (item.toTransportItem().physicalFormatLabel?.trim() case final value?
+        when value.isNotEmpty)
+      value,
+    if (item.toTransportItem().identifierCode?.trim() case final value?
+        when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(

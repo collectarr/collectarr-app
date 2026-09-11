@@ -22,7 +22,7 @@ class VideoEditLinksTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final providerLinks = item.trailerUrls;
+    final providerLinks = item.toTransportItem().trailerUrls;
     return EditTabShell(
       children: [
         if (providerLinks.isNotEmpty)

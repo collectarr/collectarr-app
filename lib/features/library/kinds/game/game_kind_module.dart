@@ -145,8 +145,8 @@ MetadataSearchQuery _gameMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -298,6 +298,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     presentation: gameLibraryEditPresentation,
     createDraft: createGameEditDraft,
     ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveGameOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         GameOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

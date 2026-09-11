@@ -236,8 +236,8 @@ MetadataSearchQuery _bookMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -431,6 +431,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     defaultCollectionValue: 'Ungraded',
     createDraft: createBookEditDraft,
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveBookOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         BookOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

@@ -76,8 +76,8 @@ class _ComicReleaseSchemaEditDialogState
           for (final release in metadata.releases)
             release.id == _release.id ? updatedRelease : release,
         ];
-        final updatedItem = selection.item.copyWith(
-          kindMetadata: metadata.copyWith(releases: updatedReleases),
+        final updatedItem = selection.item.withKindMetadata(
+          metadata.copyWith(releases: updatedReleases),
         );
         Navigator.of(context).pop(
           selection.copyWith(

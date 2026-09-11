@@ -234,8 +234,8 @@ MetadataSearchQuery _movieMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -412,6 +412,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     defaultCollectionValue: 'Ungraded',
     createDraft: createMovieEditDraft,
     ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveMovieOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         MovieOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

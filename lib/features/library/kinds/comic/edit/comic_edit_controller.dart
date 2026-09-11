@@ -238,9 +238,7 @@ class ComicEditController {
           : null,
     );
 
-    final updatedItem = selection.item.copyWith(
-      kindMetadata: updatedMeta,
-    );
+    final updatedItem = selection.item.withKindMetadata(updatedMeta);
     final withMetadata = selection.copyWith(item: updatedItem);
     return applyComicSelectionEdits(
       withMetadata,

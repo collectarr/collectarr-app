@@ -1968,7 +1968,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<CatalogEditionDto> get _itemEditions => _item.editions;
+  List<CatalogEditionDto> get _itemEditions => _item.toTransportItem().editions;
 
   List<TrailerLinkDto> get _itemLinks => _musicMetadata.links;
 

@@ -198,8 +198,8 @@ MetadataSearchQuery _animeMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.identifierCode,
-    publisher: item?.publisher,
+    barcode: item?.toTransportItem().identifierCode,
+    publisher: item?.toTransportItem().publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -382,6 +382,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
     createDraft: createAnimeEditDraft,
     ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveAnimeOwnedFormatHint,
     ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
         AnimeOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),

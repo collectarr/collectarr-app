@@ -81,7 +81,7 @@ class _BoardGameReleaseSchemaEditDialogState
         final updatedMetadata = _replaceRelease(_metadata, updatedRelease);
         Navigator.of(context).pop(
           selection.copyWith(
-            item: selection.item.copyWith(kindMetadata: updatedMetadata),
+            item: selection.item.withKindMetadata(updatedMetadata),
             scope: LibraryEditScope.release,
           ),
         );

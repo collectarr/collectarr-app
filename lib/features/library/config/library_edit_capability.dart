@@ -36,6 +36,12 @@ typedef LibraryOwnedCollectionValueReader = String? Function(
   OwnedItemSummary? ownedItem,
 );
 
+typedef LibraryOwnedFormatHint = ({String? format, String? label});
+
+typedef LibraryOwnedFormatHintResolver = LibraryOwnedFormatHint Function(
+  LibraryAddCatalogTransport item,
+);
+
 typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload<Object?>
     Function(
   String ownedItemId,
@@ -83,6 +89,7 @@ class LibraryEditCapability {
     required this.defaultCollectionValue,
     required this.createDraft,
     required this.ownedDigitalFlagResolver,
+    required this.ownedFormatHintResolver,
     this.ownedIndexUpdatePayloadBuilder,
     this.ownedConditionValueUpdatePayloadBuilder,
     this.ownedBulkUpdatePayloadBuilder,
@@ -104,6 +111,7 @@ class LibraryEditCapability {
   final String defaultCollectionValue;
   final LibraryEditKindDraftFactory createDraft;
   final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
+  final LibraryOwnedFormatHintResolver ownedFormatHintResolver;
   final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
   final LibraryOwnedConditionValueUpdatePayloadBuilder?
       ownedConditionValueUpdatePayloadBuilder;
@@ -119,6 +127,11 @@ class LibraryEditCapability {
 
   String? readOwnedCollectionValue(OwnedItemSummary? ownedItem) =>
       ownedCollectionValueReader(ownedItem);
+
+  LibraryOwnedFormatHint resolveOwnedFormatHint(
+    LibraryAddCatalogTransport item,
+  ) =>
+      ownedFormatHintResolver(item);
 
   bool? resolveOwnedDigitalFlag(
     OwnedItemSummary? ownedItem,

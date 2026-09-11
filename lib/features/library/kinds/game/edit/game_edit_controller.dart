@@ -135,9 +135,7 @@ class GameEditController {
         ) ??
         selection.item.toTransportItem().kindMetadata;
 
-    final updatedItem = selection.item.copyWith(
-      kindMetadata: updatedMetadata,
-    );
+    final updatedItem = selection.item.withKindMetadata(updatedMetadata);
 
     return LibraryEditSelection(
       scope: selection.scope,

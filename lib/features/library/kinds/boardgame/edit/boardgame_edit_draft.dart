@@ -333,7 +333,7 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
         rawPayload: rawPayload,
       );
       return selection.copyWith(
-        item: selection.item.copyWith(kindMetadata: updatedMeta),
+        item: selection.item.withKindMetadata(updatedMeta),
       );
     }
     return selection;
@@ -454,7 +454,9 @@ LibraryEditKindDraft createBoardGameEditDraft({
     hasPaintedMiniatures: bg?.hasPaintedMiniatures ?? false,
     storageNotes: bg?.storageNotes,
     editionTitleController: textControllers.create(
-      text: (item.titleExtension ?? item.editionTitle)?.trim() ?? '',
+      text: (item.titleExtension ?? item.toTransportItem().editionTitle)
+              ?.trim() ??
+          '',
     ),
     originalTitleController: textControllers.create(
       text: meta?.originalTitle ?? item.originalTitle ?? '',

@@ -219,7 +219,7 @@ class MovieEditDraft extends LibraryEditKindDraft
         nrDiscs: int.tryParse(nrDiscsController.text),
       );
       result = result.copyWith(
-        item: result.item.copyWith(kindMetadata: updatedMeta),
+        item: result.item.withKindMetadata(updatedMeta),
       );
     }
     return result;
@@ -257,7 +257,7 @@ LibraryEditKindDraft createMovieEditDraft({
     initialAudienceRating: movie?.audienceRating ?? '',
     initialGenres: movie?.genres.join(', ') ?? '',
     initialEditionTitle: movie?.editionTitle ??
-        (item.titleExtension ?? item.editionTitle)?.trim() ??
+        (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim() ??
         '',
     initialVariant: movie?.variant ?? '',
     initialBarcode: movie?.barcode ?? '',
