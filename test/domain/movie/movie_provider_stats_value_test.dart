@@ -63,7 +63,7 @@ void main() {
 
   test('Movie stats use typed metadata for runtime, ratings, and facets', () {
     final entries = [
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'movie-1',
         kind: 'movie',
         catalogItem: testCatalogItem(
@@ -81,7 +81,7 @@ void main() {
           },
         ),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'movie-2',
         kind: 'movie',
         catalogItem: testCatalogItem(
@@ -118,7 +118,7 @@ void main() {
   test('Movie value capability summarizes market values and provider values',
       () {
     final entries = [
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'movie-1',
         kind: 'movie',
         ownedItem: testOwnedItem(
@@ -128,7 +128,7 @@ void main() {
           currency: 'USD',
         ),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'movie-2',
         kind: 'movie',
         ownedItem: testOwnedItem(
@@ -147,7 +147,7 @@ void main() {
     expect(summary?.currency, 'USD');
     expect(summary?.hasMixedCurrencies, isFalse);
 
-    final source = testShelfEntry(
+    final source = testLibraryWorkspaceSource(
       itemId: 'movie-provider-value',
       kind: 'movie',
       catalogItem: testCatalogItem(

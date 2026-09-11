@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 abstract interface class LibraryLinkedMetadataCapability {
   const LibraryLinkedMetadataCapability();
 
-  Iterable<String> candidatesForEntry(ShelfEntry source);
+  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source);
 }
 
 class DefaultLibraryLinkedMetadataCapability
@@ -11,20 +11,19 @@ class DefaultLibraryLinkedMetadataCapability
   const DefaultLibraryLinkedMetadataCapability();
 
   @override
-  Iterable<String> candidatesForEntry(ShelfEntry source) sync* {
+  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
     yield* _commonCandidates(source);
   }
 }
 
-class TypedLibraryLinkedMetadataCapability<
-        TMetadata>
+class TypedLibraryLinkedMetadataCapability<TMetadata>
     extends LibraryLinkedMetadataCapability {
   const TypedLibraryLinkedMetadataCapability(this._metadataValues);
 
   final Iterable<String?> Function(TMetadata metadata) _metadataValues;
 
   @override
-  Iterable<String> candidatesForEntry(ShelfEntry source) sync* {
+  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
     yield* _commonCandidates(source);
     final metadata = source.catalogItem?.kindMetadata;
     if (metadata is TMetadata) {
@@ -33,7 +32,7 @@ class TypedLibraryLinkedMetadataCapability<
   }
 }
 
-Iterable<String> _commonCandidates(ShelfEntry source) sync* {
+Iterable<String> _commonCandidates(LibraryWorkspaceSource source) sync* {
   final item = source.catalogItem;
   if (item == null) return;
   yield* _nonEmptyStrings([

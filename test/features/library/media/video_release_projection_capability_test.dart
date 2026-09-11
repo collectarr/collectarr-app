@@ -25,7 +25,7 @@ void main() {
         kind: 'movie',
         title: 'Empty Movie',
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
@@ -61,7 +61,7 @@ void main() {
           ),
         ],
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
@@ -90,7 +90,7 @@ void main() {
           CatalogEditionDto(id: 'ed_2', title: '4K Blu-ray'),
         ],
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
@@ -126,7 +126,7 @@ void main() {
           rootId: 'movie_1',
         ),
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
           catalogItem: catalogItem.asShelfCatalogItem,
           ownedSummary: owned);
@@ -164,7 +164,7 @@ void main() {
           rootId: 'movie_1',
         ),
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
           catalogItem: catalogItem.asShelfCatalogItem,
           wishlistItem: wishlist);
@@ -206,7 +206,7 @@ void main() {
           rootId: 'movie_1',
         ),
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
           catalogItem: catalogItem.asShelfCatalogItem,
           ownedSummary: owned);
@@ -241,7 +241,7 @@ void main() {
           rootId: 'movie_1',
         ),
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
           catalogItem: catalogItem.asShelfCatalogItem,
           ownedSummary: owned);
@@ -281,7 +281,7 @@ void main() {
           ),
         ],
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
@@ -310,7 +310,7 @@ void main() {
           CatalogEditionDto(id: 'ed_cf', title: 'CF Edition'),
         ],
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
       final releaseNode = const LibraryReleaseNodeRef(
         titleItemId: 'movie_1',
@@ -332,7 +332,7 @@ void main() {
           CatalogEditionDto(id: 'ed_1', title: 'Nav Edition'),
         ],
       );
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
           itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
 
       final match = capability.projectReleases(
@@ -363,8 +363,9 @@ void main() {
       expect(comicConfig.releaseCapability, isNull);
 
       final shelf = ShelfState(
-        entries: [
-          ShelfEntry(
+        entries: const [],
+        workspaceEntries: [
+          LibraryWorkspaceSource(
             itemId: 'comic_1',
             catalogItem: testCatalogItem(
               id: 'comic_1',

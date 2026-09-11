@@ -116,7 +116,7 @@ void main() {
         signedBy: 'Stan Lee',
         updatedAt: DateTime.now(),
       );
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'comic_1',
         catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(

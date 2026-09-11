@@ -148,7 +148,7 @@ void main() {
 }
 
 LibraryProjectionItem _item(String id, String title, {int? year}) {
-  final source = ShelfEntry(
+  final source = LibraryWorkspaceSource(
     itemId: id,
     catalogItem: testCatalogItem(
       id: id,

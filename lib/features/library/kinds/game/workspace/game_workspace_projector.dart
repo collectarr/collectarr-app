@@ -12,7 +12,7 @@ final class GameWorkspaceProjector
 
   @override
   GameWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final game = GameCatalogMapper.mapMetadataItemToGame(
@@ -35,7 +35,7 @@ final class GameWorkspaceProjector
 
   @override
   GameWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -60,7 +60,7 @@ final class GameWorkspaceProjector
 
   @override
   GameWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(

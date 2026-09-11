@@ -561,11 +561,11 @@ Object testTypedOwnedItemFrom(TestOwnedItem item) {
   return factory();
 }
 
-/// Builds a [ShelfEntry] with sensible defaults for testing.
+/// Builds a [LibraryWorkspaceSource] with sensible defaults for testing.
 ///
 /// If [catalogItem] is omitted, a default one is created from [itemId] and
 /// [kind].
-ShelfEntry testShelfEntry({
+LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
@@ -594,7 +594,7 @@ ShelfEntry testShelfEntry({
           CatalogMediaKind.tv: () => testTvOwnedItemFrom(ownedItem),
         }[catalogMediaKindFromApiValue(kind)]
           ?.call();
-  return ShelfEntry(
+  return LibraryWorkspaceSource(
     itemId: itemId,
     catalogItem: LibraryAddCatalogTransport.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
@@ -616,7 +616,7 @@ LibraryProjectionView testProjectionItem({
   String? locationPath,
 }) {
   final resolvedId = id ?? itemId;
-  final shelf = testShelfEntry(
+  final shelf = testLibraryWorkspaceSource(
     itemId: resolvedId,
     kind: kind,
     title: title,

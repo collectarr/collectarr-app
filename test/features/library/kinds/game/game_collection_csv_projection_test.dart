@@ -54,7 +54,7 @@ void main() {
 
   test('projects Game catalog cells with platform and edition semantics', () {
     final projection = const GameCollectionCsvProjection();
-    final entry = ShelfEntry(
+    final entry = LibraryWorkspaceSource(
       itemId: 'game-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'game-1',

@@ -13,7 +13,7 @@ final class MovieWorkspaceProjector
 
   @override
   MovieWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(
@@ -38,7 +38,7 @@ final class MovieWorkspaceProjector
 
   @override
   MovieWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -64,7 +64,7 @@ final class MovieWorkspaceProjector
 
   @override
   MovieWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(

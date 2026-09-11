@@ -124,7 +124,7 @@ void main() {
         updatedAt: DateTime.now(),
         obiStripPresent: true,
       );
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'manga_1',
         catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(
@@ -289,7 +289,7 @@ void main() {
       expect(restored.artists, contains('Tsukasa Abe'));
       expect(restored.totalVolumes, 13);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'manga_frieren',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

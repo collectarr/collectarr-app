@@ -31,7 +31,8 @@ final class ComicCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  TrackingLifecycleCodec get trackingLifecycleCodec => const ComicTrackingLifecycleCodec();
+  TrackingLifecycleCodec get trackingLifecycleCodec =>
+      const ComicTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>
@@ -96,7 +97,7 @@ final class ComicCollectionCsvProjection
       ComicOwnedItem.fromJson(payload);
 
   @override
-  List<String> catalogCells(ShelfEntry entry) {
+  List<String> catalogCells(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final comic = catalog == null
         ? null
@@ -117,24 +118,24 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(ShelfEntry entry) =>
+  String? ownedCollectionValue(LibraryWorkspaceSource entry) =>
       ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.grade;
 
   @override
-  String? ownedCondition(ShelfEntry entry) =>
+  String? ownedCondition(LibraryWorkspaceSource entry) =>
       ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.condition;
 
   @override
-  int? ownedIndexNumber(ShelfEntry entry) =>
+  int? ownedIndexNumber(LibraryWorkspaceSource entry) =>
       ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.indexNumber;
 
   @override
-  String? ownedTags(ShelfEntry entry) =>
+  String? ownedTags(LibraryWorkspaceSource entry) =>
       ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.tags;
 
   @override
   List<String> ownedCellsBeforeQuantity(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
@@ -145,7 +146,7 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> ownedCellsAfterIndex(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);

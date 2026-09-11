@@ -12,7 +12,8 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   const BoardGameStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -21,7 +22,8 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
@@ -92,7 +94,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static double? averageBggRating(Iterable<ShelfEntry> entries) {
+  static double? averageBggRating(Iterable<LibraryWorkspaceSource> entries) {
     var total = 0.0;
     var count = 0;
     for (final entry in entries) {
@@ -104,7 +106,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
     return count == 0 ? null : total / count;
   }
 
-  static int? bestBggRank(Iterable<ShelfEntry> entries) {
+  static int? bestBggRank(Iterable<LibraryWorkspaceSource> entries) {
     int? best;
     for (final entry in entries) {
       final rank = _metadata(entry)?.bggRank;
@@ -114,25 +116,28 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
     return best;
   }
 
-  static Map<String, int> countMechanics(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countMechanics(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => metadata.mechanics);
   }
 
-  static Map<String, int> countCategories(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countCategories(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => metadata.categories);
   }
 
-  static Map<String, int> countDesigners(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countDesigners(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => metadata.designers);
   }
 
-  static BoardGameMetadata? _metadata(ShelfEntry entry) {
+  static BoardGameMetadata? _metadata(LibraryWorkspaceSource entry) {
     final metadata = entry.catalogItem?.kindMetadata;
     return metadata is BoardGameMetadata ? metadata : null;
   }
 
   static Map<String, int> _countMany(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
     Iterable<String> Function(BoardGameMetadata metadata) valuesFor,
   ) {
     final counts = <String, int>{};

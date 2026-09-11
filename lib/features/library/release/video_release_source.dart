@@ -70,7 +70,7 @@ List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
 }
 
 List<CatalogEditionDto> resolveVideoCatalogEditionsForShelf(
-  ShelfEntry source, {
+  LibraryWorkspaceSource source, {
   Iterable<OwnedItemSummary> ownedItems = const <OwnedItemSummary>[],
   Iterable<WishlistItem> wishlistItems = const <WishlistItem>[],
 }) {

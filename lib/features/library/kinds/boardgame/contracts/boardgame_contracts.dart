@@ -224,7 +224,7 @@ final class BoardGameEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory BoardGameEntry.fromShelf(ShelfEntry shelf) {
+  factory BoardGameEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogItem != null
         ? BoardGameCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
         : BoardGameCatalog(

@@ -9,7 +9,7 @@ import '../../helpers/test_data_factories.dart';
 void main() {
   test('ComicInfo export is contributed from a typed Comic boundary', () {
     final previews = comicInfoExportPreviews([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
           id: 'comic-1',

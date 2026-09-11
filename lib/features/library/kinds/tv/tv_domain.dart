@@ -56,7 +56,7 @@ final class TvPersonalOverlay {
     this.isWishlistedOverride,
   });
 
-  factory TvPersonalOverlay.fromShelf(ShelfEntry source) {
+  factory TvPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
     return TvPersonalOverlay(
       ownedItem: source.typedOwnedItem is TvOwnedItem
           ? source.typedOwnedItem as TvOwnedItem

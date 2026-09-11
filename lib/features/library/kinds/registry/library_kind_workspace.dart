@@ -64,7 +64,7 @@ abstract interface class LibraryKindWorkspace {
   int compareSubgroupKeys(String left, String right);
 
   LibraryProjectionView project({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryNodeRef node,
   });
 
@@ -93,7 +93,7 @@ abstract interface class LibraryKindWorkspace {
   );
   void validateProjection(LibraryProjectionView item);
   LibraryWorkspaceDto createWorkspaceDto({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryNodeRef node,
   });
 }
@@ -284,7 +284,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   LibraryProjectionView project({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryNodeRef node,
   }) {
     return LibraryProjectionItem<TDto>(
@@ -361,7 +361,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   LibraryWorkspaceDto createWorkspaceDto({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryNodeRef node,
   }) {
     return switch (node) {

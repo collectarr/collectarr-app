@@ -76,11 +76,14 @@ void main() {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
-        entries: [
-          testShelfEntry(itemId: '1', kind: 'comic', title: 'Batman #1'),
-          testShelfEntry(
+        entries: const [],
+        workspaceEntries: [
+          testLibraryWorkspaceSource(
+              itemId: '1', kind: 'comic', title: 'Batman #1'),
+          testLibraryWorkspaceSource(
               itemId: '2', kind: 'comic', title: 'Amazing Spider-Man #1'),
-          testShelfEntry(itemId: '3', kind: 'music', title: 'Random Album'),
+          testLibraryWorkspaceSource(
+              itemId: '3', kind: 'music', title: 'Random Album'),
         ],
         ownedCount: 3,
         wishlistCount: 0,
@@ -134,10 +137,13 @@ void main() {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
-        entries: [
-          testShelfEntry(itemId: '1', kind: 'comic', title: 'Batman #1'),
-          testShelfEntry(itemId: '2', kind: 'comic', title: 'Batman #2'),
-          testShelfEntry(
+        entries: const [],
+        workspaceEntries: [
+          testLibraryWorkspaceSource(
+              itemId: '1', kind: 'comic', title: 'Batman #1'),
+          testLibraryWorkspaceSource(
+              itemId: '2', kind: 'comic', title: 'Batman #2'),
+          testLibraryWorkspaceSource(
               itemId: '3', kind: 'comic', title: 'Amazing Spider-Man #1'),
         ],
         ownedCount: 3,
@@ -187,22 +193,23 @@ void main() {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
-        entries: [
-          testShelfEntry(
+        entries: const [],
+        workspaceEntries: [
+          testLibraryWorkspaceSource(
             itemId: '1',
             kind: 'comic',
             title: 'Batman #1',
             catalogItem:
                 testCatalogItem(id: '1', kind: 'comic', publisher: 'DC Comics'),
           ),
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: '2',
             kind: 'comic',
             title: 'Spider-Man #1',
             catalogItem:
                 testCatalogItem(id: '2', kind: 'comic', publisher: 'Marvel'),
           ),
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: '3',
             kind: 'comic',
             title: 'Batman #2',

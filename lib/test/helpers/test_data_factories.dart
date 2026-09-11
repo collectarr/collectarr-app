@@ -517,7 +517,7 @@ Object testTypedOwnedItemFrom(TestOwnedItem item) {
   };
 }
 
-ShelfEntry testShelfEntry({
+LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
@@ -553,7 +553,7 @@ ShelfEntry testShelfEntry({
       testTvOwnedItemFrom(ownedItem),
     _ => null,
   };
-  return ShelfEntry(
+  return LibraryWorkspaceSource(
     itemId: itemId,
     catalogItem: LibraryAddCatalogTransport.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),

@@ -117,8 +117,8 @@ ProviderMetadataEnvelope _envelope({
   );
 }
 
-ShelfEntry _mangaEntry(String id, int volume, {bool owned = true}) {
-  return ShelfEntry(
+LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {
+  return LibraryWorkspaceSource(
     itemId: id,
     catalogItem: CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.manga),

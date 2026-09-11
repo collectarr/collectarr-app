@@ -12,7 +12,7 @@ final class BoardGameWorkspaceProjector
 
   @override
   BoardGameWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
@@ -33,7 +33,7 @@ final class BoardGameWorkspaceProjector
 
   @override
   BoardGameWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -52,7 +52,7 @@ final class BoardGameWorkspaceProjector
 
   @override
   BoardGameWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(
@@ -61,7 +61,7 @@ final class BoardGameWorkspaceProjector
     );
   }
 
-  static BoardGameMetadata? _metadataFor(ShelfEntry source) {
+  static BoardGameMetadata? _metadataFor(LibraryWorkspaceSource source) {
     final metadata = source.catalogItem?.kindMetadata;
     if (metadata is BoardGameMetadata) {
       return metadata;

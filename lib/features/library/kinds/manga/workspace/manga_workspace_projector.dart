@@ -12,7 +12,7 @@ final class MangaWorkspaceProjector
 
   @override
   MangaWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     MangaMetadata? metadata;
@@ -33,7 +33,7 @@ final class MangaWorkspaceProjector
 
   @override
   MangaWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -43,7 +43,7 @@ final class MangaWorkspaceProjector
 
   @override
   MangaWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     throw UnsupportedError(

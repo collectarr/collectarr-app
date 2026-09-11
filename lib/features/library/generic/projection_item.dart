@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 
 abstract interface class LibraryProjectionView<
     TDto extends LibraryWorkspaceDto> {
-  ShelfEntry get source;
+  LibraryWorkspaceSource get source;
   LibraryNodeRef get node;
   List<String> get customFieldBadges;
   TDto get dto;
@@ -23,7 +23,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
   });
 
   static LibraryProjectionItem<LibraryWorkspaceDto> fromShelf(
-    ShelfEntry source,
+    LibraryWorkspaceSource source,
     LibraryKindModule type, {
     List<String> customFieldBadges = const <String>[],
   }) {
@@ -43,7 +43,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  final ShelfEntry source;
+  final LibraryWorkspaceSource source;
   @override
   final LibraryNodeRef node;
   @override
@@ -53,7 +53,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
 }
 
 Set<String> customFieldTargetIds({
-  required ShelfEntry source,
+  required LibraryWorkspaceSource source,
   required LibraryNodeRef node,
 }) {
   return {
@@ -131,7 +131,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
 }
 
 List<String> customFieldBadgesForNode({
-  required ShelfEntry source,
+  required LibraryWorkspaceSource source,
   required LibraryNodeRef node,
   required List<CustomFieldDefinition> customFieldDefinitions,
   required Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,

@@ -8,7 +8,7 @@ void main() {
   test(
       'GameWorkspaceProjector produces a typed GameWorkspaceDto with correct title',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'game-1',
       catalogItem: testCatalogItem(
         id: 'game-1',

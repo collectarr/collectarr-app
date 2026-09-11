@@ -21,7 +21,7 @@ class WorkspaceCommonProjection {
   });
 
   factory WorkspaceCommonProjection.fromShelf(
-    ShelfEntry source,
+    LibraryWorkspaceSource source,
     LibraryNodeRef node, {
     String? overrideTitle,
     String? overrideSeriesTitle,
@@ -114,7 +114,7 @@ class PersonalCopyProjection {
   }) : updatedAt = updatedAt ?? DateTime.utc(1970);
 
   factory PersonalCopyProjection.fromShelf(
-    ShelfEntry source, {
+    LibraryWorkspaceSource source, {
     LibraryReleaseState? releaseState,
   }) {
     return PersonalCopyProjection(

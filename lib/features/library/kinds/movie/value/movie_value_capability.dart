@@ -10,7 +10,7 @@ class MovieValueCapability implements LibraryValueCapability {
 
   @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
   ) {
     final valuedEntries = entries
         .where(

@@ -48,7 +48,7 @@ void main() {
       gameCoreRegion: 'NTSC-U',
       gameValueIsLocked: true,
     );
-    final shelf = ShelfEntry(
+    final shelf = LibraryWorkspaceSource(
       itemId: 'game-10',
       catalogItem: catalogItem.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(owned),

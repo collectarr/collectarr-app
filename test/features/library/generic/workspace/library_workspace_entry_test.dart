@@ -54,12 +54,12 @@ void main() {
       kind: 'book',
       rating: 3,
     );
-    final catalog = testShelfEntry(
+    final catalog = testLibraryWorkspaceSource(
       itemId: 'book-1',
       kind: 'book',
       ownedItem: owned,
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: catalog.itemId,
       catalogItem: catalog.catalogItem,
       ownedSummary: testOwnedSummary(owned),

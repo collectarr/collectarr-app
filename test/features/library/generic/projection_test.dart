@@ -23,7 +23,7 @@ void main() {
   });
 
   test('music grouping fallbacks use unknown artist and label buckets', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem:
           testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1')
@@ -44,7 +44,7 @@ void main() {
   });
 
   test('comic series group definition extracts series title', () {
-    final source1 = ShelfEntry(
+    final source1 = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItem(
         id: 'comic-1',
@@ -52,7 +52,8 @@ void main() {
         title: 'Saga #1',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
       ).asShelfCatalogItem,
-      ownedSummary: testOwnedSummary(testOwnedItem(id: 'o1', itemId: 'comic-1')),
+      ownedSummary:
+          testOwnedSummary(testOwnedItem(id: 'o1', itemId: 'comic-1')),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final dto1 = const ComicWorkspaceProjector().projectTitle(

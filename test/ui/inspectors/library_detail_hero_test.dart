@@ -44,7 +44,7 @@ void main() {
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',
@@ -118,7 +118,7 @@ void main() {
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',
@@ -164,7 +164,7 @@ void main() {
     tester,
   ) async {
     final type = bookKindModule;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',
@@ -231,7 +231,7 @@ void main() {
       currency: 'USD',
       updatedAt: DateTime.utc(2026, 5, 22),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',

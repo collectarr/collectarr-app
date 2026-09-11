@@ -84,7 +84,7 @@ void main() {
   group('InspectorMetadataSection', () {
     testWidgets('renders metadata section title', (tester) async {
       final type = comicKindModule;
-      final source1 = ShelfEntry(
+      final source1 = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
           id: 'comic-1',
@@ -115,7 +115,7 @@ void main() {
 
     testWidgets('triggers onFilterByValue callback', (tester) async {
       final type = comicKindModule;
-      final source2 = ShelfEntry(
+      final source2 = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
           id: 'comic-1',
@@ -149,7 +149,7 @@ void main() {
 
   group('InspectorPersonalSection', () {
     testWidgets('shows tracking status and rating', (tester) async {
-      final source0a = ShelfEntry(
+      final source0a = LibraryWorkspaceSource(
         itemId: 'book-1',
         catalogItem: testCatalogItem(
           id: 'book-1',
@@ -195,7 +195,7 @@ void main() {
     });
 
     testWidgets('shows quantity when more than 1', (tester) async {
-      final source0b = ShelfEntry(
+      final source0b = LibraryWorkspaceSource(
         itemId: 'book-1',
         catalogItem: testCatalogItem(
           id: 'book-1',
@@ -231,7 +231,7 @@ void main() {
     });
 
     testWidgets('shows sold information when soldAt is set', (tester) async {
-      final source1 = ShelfEntry(
+      final source1 = LibraryWorkspaceSource(
         itemId: 'book-1',
         catalogItem: testCatalogItem(
           id: 'book-1',
@@ -272,7 +272,7 @@ void main() {
 
     testWidgets('leaves kind-owned tags to the typed contributor',
         (tester) async {
-      final source2 = ShelfEntry(
+      final source2 = LibraryWorkspaceSource(
         itemId: 'book-1',
         catalogItem: testCatalogItem(
           id: 'book-1',

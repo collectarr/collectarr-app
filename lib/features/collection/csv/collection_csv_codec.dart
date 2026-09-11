@@ -152,7 +152,7 @@ final class CollectionImportTrackingValues {
 
 class CollectionCsvCodec {
   String exportShelf(
-    List<ShelfEntry> entries, {
+    List<LibraryWorkspaceSource> entries, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
@@ -172,7 +172,7 @@ class CollectionCsvCodec {
   }
 
   String exportClzFriendlyShelf(
-    List<ShelfEntry> entries, {
+    List<LibraryWorkspaceSource> entries, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
@@ -195,7 +195,7 @@ class CollectionCsvCodec {
     return const CsvWriter(lineDelimiter: '\n').write(rows);
   }
 
-  List<String> _catalogFields(ShelfEntry entry) {
+  List<String> _catalogFields(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final projection = libraryCollectionCsvProjectionForKind(
       catalog?.mediaKind ?? CatalogMediaKind.unknown,
@@ -232,7 +232,7 @@ class CollectionCsvCodec {
   }
 
   List<String> _kindOwnedCellsBeforeQuantity(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     final projection = libraryCollectionCsvProjectionForKind(
@@ -248,28 +248,28 @@ class CollectionCsvCodec {
     return cells;
   }
 
-  String _ownedCollectionValue(ShelfEntry entry) {
+  String _ownedCollectionValue(LibraryWorkspaceSource entry) {
     final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
     return projection?.ownedCollectionValue(entry) ?? '';
   }
 
-  String _ownedCondition(ShelfEntry entry) {
+  String _ownedCondition(LibraryWorkspaceSource entry) {
     final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
     return projection?.ownedCondition(entry) ?? '';
   }
 
-  String _ownedIndexNumber(ShelfEntry entry) {
+  String _ownedIndexNumber(LibraryWorkspaceSource entry) {
     final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
     return projection?.ownedIndexNumber(entry)?.toString() ?? '';
   }
 
-  String _ownedTags(ShelfEntry entry) {
+  String _ownedTags(LibraryWorkspaceSource entry) {
     final projection = libraryCollectionCsvProjectionForKind(entry.mediaKind);
     return projection?.ownedTags(entry) ?? '';
   }
 
   List<String> _kindOwnedCellsAfterIndex(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     final projection = libraryCollectionCsvProjectionForKind(
@@ -303,7 +303,7 @@ class CollectionCsvCodec {
   }
 
   List<String> _entryToRow(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
@@ -340,7 +340,7 @@ class CollectionCsvCodec {
   }
 
   List<String> _entryToClzRow(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
   }) {
@@ -377,7 +377,7 @@ class CollectionCsvCodec {
     ];
   }
 
-  String _locationCell(ShelfEntry entry) {
+  String _locationCell(LibraryWorkspaceSource entry) {
     return entry.locationPath ?? entry.ownedSummary?.locationLabel ?? '';
   }
 
@@ -417,7 +417,7 @@ class CollectionCsvCodec {
     ].where(_isMeaningfulRow).toList(growable: false);
   }
 
-  String _status(ShelfEntry entry) {
+  String _status(LibraryWorkspaceSource entry) {
     if (entry.isOwned && entry.isWishlisted) {
       return 'both';
     }
@@ -427,7 +427,7 @@ class CollectionCsvCodec {
     return 'wishlist';
   }
 
-  String _clzStatus(ShelfEntry entry) {
+  String _clzStatus(LibraryWorkspaceSource entry) {
     if (entry.isOwned && entry.isWishlisted) {
       return 'In Collection + Wishlist';
     }
@@ -437,7 +437,8 @@ class CollectionCsvCodec {
     return 'Wishlist';
   }
 
-  List<String> _clzFriendlyHeaderForEntries(List<ShelfEntry> entries) {
+  List<String> _clzFriendlyHeaderForEntries(
+      List<LibraryWorkspaceSource> entries) {
     final kinds = {
       for (final entry in entries)
         if (!entry.mediaKind.isUnknown) entry.mediaKind.apiValue,

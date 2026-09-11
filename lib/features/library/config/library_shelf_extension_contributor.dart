@@ -10,7 +10,7 @@ abstract interface class LibraryShelfExtensionContributor {
   CatalogMediaKind get kind;
 
   Widget? build(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool expanded,
     required VoidCallback onToggle,
   });

@@ -14,7 +14,7 @@ void main() {
   testWidgets('cover tile renders cover overlays and remains tappable',
       (tester) async {
     var tapped = false;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItem(
         id: 'comic-1',
@@ -68,7 +68,7 @@ void main() {
 
   testWidgets('cover tile hides secondary metadata labels in covers mode',
       (tester) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',
@@ -113,7 +113,7 @@ void main() {
   testWidgets('cover tile shows hover selection affordance and edit action',
       (tester) async {
     var editTapped = false;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',
@@ -171,7 +171,7 @@ void main() {
 
   testWidgets('active inspection state does not show checked selection',
       (tester) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem: testCatalogItem(
         id: 'music-1',
@@ -215,7 +215,7 @@ void main() {
   testWidgets('selection toggle tap does not trigger tile tap', (tester) async {
     var tileTapped = false;
     var toggleTapped = false;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-2',
       catalogItem: testCatalogItem(
         id: 'music-2',
@@ -263,7 +263,7 @@ void main() {
   testWidgets('selection toggle activates on mouse down even if pointer leaves',
       (tester) async {
     var toggleTapped = false;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-3',
       catalogItem: testCatalogItem(
         id: 'music-3',
@@ -316,7 +316,7 @@ void main() {
   testWidgets('edit action fires on mouse down even when pointer leaves button',
       (tester) async {
     var editTapped = false;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-3',
       catalogItem: testCatalogItem(
         id: 'movie-3',

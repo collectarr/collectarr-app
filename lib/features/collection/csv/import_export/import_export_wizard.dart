@@ -20,7 +20,7 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
     this.additionalExports = const [],
   });
 
-  final List<ShelfEntry> entries;
+  final List<LibraryWorkspaceSource> entries;
   final int initialIndex;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
@@ -174,7 +174,7 @@ class _ExportWizardPane extends StatelessWidget {
     this.additionalExports = const [],
   });
 
-  final List<ShelfEntry> entries;
+  final List<LibraryWorkspaceSource> entries;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
   final List<ExportPreviewArtifact> additionalExports;

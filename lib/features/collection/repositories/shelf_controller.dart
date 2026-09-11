@@ -14,10 +14,13 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/models/library_entry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final ownedSummaries = await ref.watch(collectionSummariesProvider.future);
@@ -166,7 +169,7 @@ class ShelfState {
     };
     final workspaceEntries = [
       for (final ref in refs) ...[
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: ref.id,
           catalogSummary: resolvedCatalogSummariesByRef[ref],
           ownedSummary: ownedByCatalogRef[ref],
@@ -261,22 +264,22 @@ class ShelfState {
   /// Full source entries used only after a kind-specific Library workspace is
   /// selected. The fallback keeps existing fixture construction source
   /// compatible while production state supplies this list explicitly.
-  final List<ShelfEntry>? workspaceEntries;
+  final List<LibraryWorkspaceSource>? workspaceEntries;
 
   /// Production callers provide the post-dispatch sources explicitly. The
-  /// runtime fallback only recognizes concrete [ShelfEntry] values that may
+  /// runtime fallback only recognizes concrete [LibraryWorkspaceSource] values that may
   /// still be supplied by lightweight fixtures; structural [LibraryEntry]
   /// values are never widened back into workspace sources.
-  List<ShelfEntry> get resolvedWorkspaceEntries {
+  List<LibraryWorkspaceSource> get resolvedWorkspaceEntries {
     final sources = workspaceEntries;
     if (sources != null) return sources;
     return [
       for (final entry in entries)
-        if (entry case final ShelfEntry source) source,
+        if (entry case final LibraryWorkspaceSource source) source,
     ];
   }
 
-  ShelfEntry? workspaceEntryFor(String itemId) {
+  LibraryWorkspaceSource? workspaceEntryFor(String itemId) {
     for (final entry in resolvedWorkspaceEntries) {
       if (entry.itemId == itemId) return entry;
     }
@@ -313,82 +316,6 @@ class ShelfState {
 /// kind-specific Library projectors. Mixed Shelf state remains represented by
 /// [LibraryEntry]; this source is only created after the workspace selects a
 /// concrete library kind.
-class ShelfEntry extends LibraryWorkspaceSource implements LibraryEntry {
-  const ShelfEntry({
-    required super.itemId,
-    super.catalogSummary,
-    super.ownedSummary,
-    super.trackingSummary,
-    super.wishlistItem,
-    super.locationPath,
-    super.watchSessions = const <WatchSession>[],
-    super.itemImages = const <ItemImage>[],
-    super.fallbackOwnerLabel,
-    this.catalogItem,
-    this.typedOwnedItem,
-  });
-
-  final LibraryAddCatalogTransport? catalogItem;
-
-  /// Concrete kind-owned aggregate available only after the Shelf has
-  /// resolved the owning kind. Generic/global callers must use
-  /// [ownedSummary] instead.
-  final Object? typedOwnedItem;
-
-  @override
-  CatalogEntityRef? get catalogRef =>
-      super.catalogRef ?? catalogItem?.catalogRef;
-
-  @override
-  CatalogMediaKind get mediaKind =>
-      catalogSummary?.kind ??
-      catalogItem?.mediaKind ??
-      CatalogMediaKind.unknown;
-
-  @override
-  OwnedItemRef? get ownedRef => super.ownedRef;
-
-  @override
-  bool get isOwned => super.isOwned;
-
-  @override
-  bool get hasNotes => super.hasNotes;
-
-  @override
-  DateTime get updatedAt => super.updatedAt;
-
-  @override
-  DateTime? get addedAt => super.addedAt;
-
-  @override
-  String get title {
-    final base = super.title;
-    if (!base.startsWith('Catalog item ')) return base;
-    final snapshotTitle = catalogItem?.resolvedDisplayTitle.trim();
-    return snapshotTitle == null || snapshotTitle.isEmpty
-        ? base
-        : snapshotTitle;
-  }
-
-  @override
-  String? get ownerLabel => super.ownerLabel;
-
-  @override
-  int get quantity => super.quantity;
-
-  Object? get kindMetadata => catalogItem?.kindMetadata;
-
-  int? get pricePaidCents => ownedSummary?.pricePaidCents;
-  int? get sellPriceCents => ownedSummary?.sellPriceCents;
-  int? get marketValueCents => ownedSummary?.marketValueCents;
-  String? get soldTo => ownedSummary?.soldTo;
-  String? get currency => ownedSummary?.currency;
-  String? get purchaseStore => ownedSummary?.purchaseStore;
-  DateTime? get purchaseDate => ownedSummary?.purchaseDate;
-  DateTime? get soldAt => ownedSummary?.soldAt;
-  String? get personalNotes => ownedSummary?.notes;
-}
-
 CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   final rootId = ref.rootId;
   if (rootId != null && rootId.isNotEmpty) {

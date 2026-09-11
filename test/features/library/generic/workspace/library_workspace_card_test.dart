@@ -16,7 +16,7 @@ void main() {
   testWidgets('workspace card renders catalog and personal state',
       (tester) async {
     var tapped = false;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItem(
         id: 'comic-1',
@@ -77,7 +77,7 @@ void main() {
   });
 
   testWidgets('workspace card renders music release details', (tester) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem: testCatalogItem(
         id: 'music-1',
@@ -127,7 +127,7 @@ void main() {
 
   testWidgets('workspace card renders video runtime and game platforms',
       (tester) async {
-    final sourceMovie = ShelfEntry(
+    final sourceMovie = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',
@@ -148,7 +148,7 @@ void main() {
       dto: dtoMovie,
     );
 
-    final sourceGame = ShelfEntry(
+    final sourceGame = LibraryWorkspaceSource(
       itemId: 'game-1',
       catalogItem: testCatalogItem(
         id: 'game-1',

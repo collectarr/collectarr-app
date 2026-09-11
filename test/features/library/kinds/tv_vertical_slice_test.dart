@@ -88,7 +88,7 @@ void main() {
         episodeRuntimeMinutes: 47,
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'tv_1',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
@@ -235,7 +235,7 @@ void main() {
       expect(restored.seasonCount, 5);
       expect(restored.network, 'AMC');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'tv_breaking_bad',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

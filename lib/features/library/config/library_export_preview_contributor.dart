@@ -9,5 +9,5 @@ import 'package:collectarr_app/features/library/actions/import_export_actions.da
 abstract interface class LibraryExportPreviewContributor {
   CatalogMediaKind get kind;
 
-  List<ExportPreviewArtifact> build(Iterable<ShelfEntry> entries);
+  List<ExportPreviewArtifact> build(Iterable<LibraryWorkspaceSource> entries);
 }

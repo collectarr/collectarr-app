@@ -56,7 +56,7 @@ void main() {
       condition: 'Near Mint',
       updatedAt: DateTime.utc(2026, 5, 23, 10),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',
@@ -133,7 +133,7 @@ void main() {
       condition: 'Near Mint',
       updatedAt: DateTime.utc(2026, 5, 23, 10),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',
@@ -233,7 +233,7 @@ void main() {
       ),
     );
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',

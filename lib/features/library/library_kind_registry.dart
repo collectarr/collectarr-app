@@ -201,7 +201,7 @@ LibraryCollectionCsvProjection? libraryCollectionCsvProjectionForKind(
 /// The Collection feature owns the slot and row lifecycle. The kind registry
 /// only looks up a structural contributor; it does not encode kind branches.
 Widget? libraryShelfExtensionForEntry(
-  ShelfEntry entry, {
+  LibraryWorkspaceSource entry, {
   required bool expanded,
   required VoidCallback onToggle,
 }) {
@@ -288,7 +288,7 @@ bool libraryGroupModeSupportsCompletion(
 /// The registry may assemble kind implementations; callers receive only the
 /// structural artifact contract and never import a concrete kind.
 List<ExportPreviewArtifact> libraryExportPreviewArtifacts(
-  Iterable<ShelfEntry> entries,
+  Iterable<LibraryWorkspaceSource> entries,
 ) {
   return [
     for (final contributor in _exportPreviewContributors.values)

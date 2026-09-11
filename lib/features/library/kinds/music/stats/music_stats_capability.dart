@@ -9,7 +9,8 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   const MusicStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -18,7 +19,8 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
@@ -77,7 +79,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static int totalTracks(Iterable<ShelfEntry> entries) {
+  static int totalTracks(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
       (total, entry) =>
@@ -86,7 +88,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     );
   }
 
-  static int totalMedia(Iterable<ShelfEntry> entries) {
+  static int totalMedia(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
       (total, entry) =>
@@ -95,7 +97,8 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     );
   }
 
-  static Map<String, int> countArtists(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countArtists(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
         entries,
         (metadata) => [
@@ -103,11 +106,13 @@ final class MusicStatsCapability implements LibraryStatsCapability {
             ]);
   }
 
-  static Map<String, int> countGenres(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countGenres(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => metadata.genres);
   }
 
-  static Map<String, int> countFormats(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countFormats(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
         entries,
         (metadata) => [
@@ -119,7 +124,8 @@ final class MusicStatsCapability implements LibraryStatsCapability {
             ]);
   }
 
-  static Map<String, int> countLabels(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countLabels(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
         entries,
         (metadata) => [
@@ -130,7 +136,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
             ]);
   }
 
-  static MusicCatalogMetadata? _metadata(ShelfEntry entry) {
+  static MusicCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
     final metadata = entry.catalogItem?.kindMetadata;
     return metadata is MusicCatalogMetadata ? metadata : null;
   }
@@ -154,7 +160,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> _countMany(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
     Iterable<String> Function(MusicCatalogMetadata metadata) valuesFor,
   ) {
     final counts = <String, int>{};

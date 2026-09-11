@@ -164,7 +164,7 @@ void main() {
     );
 
     final entries = [
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'music-1',
         kind: 'music',
         catalogItem: testCatalogItem(
@@ -180,7 +180,7 @@ void main() {
           },
         ),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'music-2',
         kind: 'music',
         catalogItem: testCatalogItem(

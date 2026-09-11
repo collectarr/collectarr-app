@@ -61,7 +61,7 @@ void main() {
 
   test('projects TV catalog cells without flattening episodes', () {
     final projection = const TvCollectionCsvProjection();
-    final entry = ShelfEntry(
+    final entry = LibraryWorkspaceSource(
       itemId: 'tv-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'tv-1',

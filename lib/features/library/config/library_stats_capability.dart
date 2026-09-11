@@ -56,11 +56,13 @@ class LibraryStatsMetadataProjection {
 }
 
 abstract interface class LibraryStatsCapability {
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry);
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry);
 
   /// Projects kind-owned metadata into structural facts for the generic stats
   /// renderer. No kind field names or domain objects cross this boundary.
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry);
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry);
 
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
@@ -78,7 +80,8 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   const DefaultLibraryStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -87,7 +90,8 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final summary = entry.catalogSummary;
     if (summary == null) return null;
     return LibraryStatsMetadataProjection(

@@ -20,7 +20,7 @@ void main() {
   testWidgets('tv inspector builds tv-specific sections', (tester) async {
     final type = tvKindModule;
     late List<Widget> sections;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'series-1',
       catalogItem: testCatalogItem(
         id: 'series-1',

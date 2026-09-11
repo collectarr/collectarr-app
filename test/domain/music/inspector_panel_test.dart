@@ -59,7 +59,7 @@ void main() {
         ],
       },
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem: cat.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(ownedItem),
@@ -149,7 +149,7 @@ void main() {
         ],
       },
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-2',
       catalogItem: cat.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(ownedItem),

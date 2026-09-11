@@ -23,7 +23,7 @@ void main() {
       currency: 'USD',
       updatedAt: DateTime.utc(2026, 5, 22),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',

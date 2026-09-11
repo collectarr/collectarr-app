@@ -12,7 +12,7 @@ final class BookWorkspaceProjector
 
   @override
   BookWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final book = BookCatalogMapper.mapMetadataItemToBook(
@@ -33,7 +33,7 @@ final class BookWorkspaceProjector
 
   @override
   BookWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -56,7 +56,7 @@ final class BookWorkspaceProjector
 
   @override
   BookWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(

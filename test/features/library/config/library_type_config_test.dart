@@ -160,7 +160,7 @@ void main() {
   });
 
   test('books do not create series subgroups for volume metadata', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',

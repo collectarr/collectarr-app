@@ -90,7 +90,7 @@ void main() {
   });
 
   test('location filter matches exact location path', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItem(
         id: 'comic-1',
@@ -133,7 +133,7 @@ void main() {
   });
 
   test('tag filter matches exact tag case-insensitively', () {
-    final source = testShelfEntry(
+    final source = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
@@ -204,7 +204,7 @@ void main() {
   });
 
   test('filter options extract normalized tags from entries', () {
-    final source1 = testShelfEntry(
+    final source1 = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
@@ -225,7 +225,7 @@ void main() {
       dto: dto1,
     );
 
-    final source2 = testShelfEntry(
+    final source2 = testLibraryWorkspaceSource(
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Robin',

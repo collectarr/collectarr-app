@@ -127,11 +127,11 @@ Iterable<String?> _comicPublisher(ComicMedia metadata) => [
       metadata.publisher,
     ];
 
-ShelfEntry _shelfEntry(
+LibraryWorkspaceSource _shelfEntry(
   CatalogMediaKind kind,
   Object? metadata,
 ) {
-  return ShelfEntry(
+  return LibraryWorkspaceSource(
     itemId: 'item-1',
     catalogItem: CatalogItemDto(
       identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),

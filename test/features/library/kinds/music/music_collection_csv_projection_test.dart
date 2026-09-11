@@ -61,7 +61,7 @@ void main() {
 
   test('projects Music release cells without flattening tracks', () {
     final projection = const MusicCollectionCsvProjection();
-    final entry = ShelfEntry(
+    final entry = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'music-1',

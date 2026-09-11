@@ -20,7 +20,7 @@ void main() {
     addTearDown(db.close);
     final type = comicKindModule;
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItem(
         id: 'comic-1',

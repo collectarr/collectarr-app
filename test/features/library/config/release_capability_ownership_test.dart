@@ -42,8 +42,9 @@ void main() {
         'asking for release projection on unsupported kind throws UnsupportedError',
         () {
       final shelf = ShelfState(
-        entries: [
-          ShelfEntry(
+        entries: const [],
+        workspaceEntries: [
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogItem: testCatalogItem(
               id: 'comic-1',
@@ -74,8 +75,9 @@ void main() {
         'supported kind projects releases successfully with VideoReleaseProjectionCapability',
         () {
       final shelf = ShelfState(
-        entries: [
-          ShelfEntry(
+        entries: const [],
+        workspaceEntries: [
+          LibraryWorkspaceSource(
             itemId: 'movie-1',
             catalogItem: testCatalogItem(
               id: 'movie-1',

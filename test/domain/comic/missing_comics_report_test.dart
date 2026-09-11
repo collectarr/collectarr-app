@@ -17,7 +17,7 @@ void main() {
     );
 
     final owned = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-1',
         title: 'Amazing Spider-Man',
         catalogItem: testCatalogItem(
@@ -32,7 +32,7 @@ void main() {
       comicKindModule,
     );
     final variantA = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-2a',
         title: 'Amazing Spider-Man',
         catalogItem: testCatalogItem(
@@ -47,7 +47,7 @@ void main() {
       comicKindModule,
     );
     final variantB = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-2b',
         title: 'Amazing Spider-Man',
         catalogItem: testCatalogItem(
@@ -62,7 +62,7 @@ void main() {
       comicKindModule,
     );
     final unreleased = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-3',
         title: 'Amazing Spider-Man',
         catalogItem: testCatalogItem(

@@ -126,7 +126,7 @@ void main() {
         ),
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_1',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
@@ -292,7 +292,7 @@ void main() {
       expect(restored.developers, contains('Nintendo EAD'));
       expect(restored.valuations?.cib?.amountCents, 12000);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_zelda_oot',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

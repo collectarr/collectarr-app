@@ -12,7 +12,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   const ComicStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -21,7 +22,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = _comicMetadata(entry);
     if (catalog == null || metadata == null) return null;
@@ -59,7 +61,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static int countKeyComics(Iterable<ShelfEntry> entries) {
+  static int countKeyComics(Iterable<LibraryWorkspaceSource> entries) {
     return entries.where((entry) => entry.isOwned).where((entry) {
       return _comicOwnedItem(entry)?.details.keyComic == true;
     }).length;
@@ -114,14 +116,16 @@ class ComicStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static Map<String, int> _topCreatorCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topCreatorCounts(
+      List<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
       _creatorNames,
     );
   }
 
-  static Map<String, int> _topCharacterCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topCharacterCounts(
+      List<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
       (entry) =>
@@ -132,7 +136,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
     );
   }
 
-  static Map<String, int> _topStoryArcCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topStoryArcCounts(
+      List<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
       (entry) =>
@@ -143,7 +148,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     );
   }
 
-  static Iterable<String> _creatorNames(ShelfEntry entry) {
+  static Iterable<String> _creatorNames(LibraryWorkspaceSource entry) {
     final meta = _comicMetadata(entry);
     if (meta == null) {
       return const <String>[];
@@ -155,8 +160,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> _countMany(
-    Iterable<ShelfEntry> entries,
-    Iterable<String> Function(ShelfEntry entry) valuesFor,
+    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<String> Function(LibraryWorkspaceSource entry) valuesFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -176,7 +181,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return counts;
   }
 
-  static _SeriesGapSummary? _seriesGapSummary(List<ShelfEntry> entries) {
+  static _SeriesGapSummary? _seriesGapSummary(
+      List<LibraryWorkspaceSource> entries) {
     _SeriesGapSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
@@ -216,8 +222,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _numberedGapSummary(
-    List<ShelfEntry> entries,
-    int? Function(ShelfEntry entry) numberFor,
+    List<LibraryWorkspaceSource> entries,
+    int? Function(LibraryWorkspaceSource entry) numberFor,
   ) {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
@@ -265,11 +271,11 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return match == null ? null : int.tryParse(match.group(1)!);
   }
 
-  static ComicOwnedItem? _comicOwnedItem(ShelfEntry entry) {
+  static ComicOwnedItem? _comicOwnedItem(LibraryWorkspaceSource entry) {
     return ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
   }
 
-  static ComicMedia? _comicMetadata(ShelfEntry entry) {
+  static ComicMedia? _comicMetadata(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     if (catalog == null || catalog.mediaKind != CatalogMediaKind.comic) {
       return null;

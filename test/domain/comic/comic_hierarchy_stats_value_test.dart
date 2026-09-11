@@ -21,7 +21,7 @@ import '../../helpers/test_data_factories.dart';
 void main() {
   test('Comic stats count only owned key comics', () {
     final entries = [
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'comic-1',
         ownedItem: testOwnedItem(
           itemId: 'comic-1',
@@ -29,11 +29,11 @@ void main() {
           kind: 'comic',
         ),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'comic-2',
         ownedItem: testOwnedItem(itemId: 'comic-2', kind: 'comic'),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'comic-3',
         ownedItem: null,
       ),
@@ -44,7 +44,7 @@ void main() {
 
   test('Comic value capability summarizes cover prices and currencies', () {
     final entries = [
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'comic-1',
         ownedItem: testOwnedItem(
           itemId: 'comic-1',
@@ -53,7 +53,7 @@ void main() {
           currency: 'USD',
         ),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'comic-2',
         ownedItem: testOwnedItem(
           itemId: 'comic-2',
@@ -62,7 +62,7 @@ void main() {
           currency: 'USD',
         ),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'comic-3',
         ownedItem: testOwnedItem(
           itemId: 'comic-3',
@@ -270,7 +270,7 @@ LibraryProjectionItem<ComicWorkspaceDto> _comicProjection({
   String? variant,
   LibraryNodeRef? node,
 }) {
-  final source = testShelfEntry(
+  final source = testLibraryWorkspaceSource(
     itemId: id,
     catalogItem: testCatalogItem(
       id: id,

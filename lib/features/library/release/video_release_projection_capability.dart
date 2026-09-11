@@ -17,7 +17,7 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
 
   @override
   List<LibraryProjectionItem<TDto>> projectReleases({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryKindModule type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,

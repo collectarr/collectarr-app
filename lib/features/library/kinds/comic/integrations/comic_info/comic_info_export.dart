@@ -15,7 +15,7 @@ final class ComicExportPreviewContributor
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  List<ExportPreviewArtifact> build(Iterable<ShelfEntry> entries) {
+  List<ExportPreviewArtifact> build(Iterable<LibraryWorkspaceSource> entries) {
     return comicInfoExportPreviews(entries);
   }
 }
@@ -23,7 +23,7 @@ final class ComicExportPreviewContributor
 /// Builds the Comic-owned export contribution consumed by a generic preview
 /// host. The generic host receives only a structural artifact.
 List<ExportPreviewArtifact> comicInfoExportPreviews(
-  Iterable<ShelfEntry> entries,
+  Iterable<LibraryWorkspaceSource> entries,
 ) {
   final comicEntries = entries
       .where((entry) => entry.catalogItem?.mediaKind == CatalogMediaKind.comic)

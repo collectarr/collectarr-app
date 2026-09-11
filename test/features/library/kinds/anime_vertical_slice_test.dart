@@ -85,7 +85,7 @@ void main() {
         sourceMaterial: AnimeSource.manga,
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'anime_1',
         catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(
@@ -236,7 +236,7 @@ void main() {
       expect(restored.studios, contains('Madhouse'));
       expect(restored.seasonYear, 2023);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'anime_frieren',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

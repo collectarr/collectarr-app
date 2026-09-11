@@ -212,7 +212,7 @@ final class MovieEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory MovieEntry.fromShelf(ShelfEntry shelf) {
+  factory MovieEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogItem != null
         ? MovieCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
         : MovieCatalog(

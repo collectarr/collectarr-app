@@ -22,7 +22,7 @@ import '../../helpers/test_data_factories.dart';
 void main() {
   test('music metadata presentation exposes track count without track list',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem: testCatalogItem(
         id: 'music-1',
@@ -65,7 +65,7 @@ void main() {
       ),
     );
 
-    final sourceMusic = ShelfEntry(
+    final sourceMusic = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem: testCatalogItem(
         id: 'music-1',
@@ -85,7 +85,7 @@ void main() {
       dto: dtoMusic,
     );
 
-    final sourceMovie = ShelfEntry(
+    final sourceMovie = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',
@@ -143,7 +143,7 @@ void main() {
       ),
     );
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',

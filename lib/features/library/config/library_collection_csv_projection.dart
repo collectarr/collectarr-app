@@ -72,29 +72,29 @@ abstract interface class LibraryCollectionCsvProjection {
 
   Map<String, List<String>> get columnAliases;
 
-  List<String> catalogCells(ShelfEntry entry);
+  List<String> catalogCells(LibraryWorkspaceSource entry);
 
   /// Serializes the owning kind's collection-value column at the CSV boundary.
   ///
   /// The collection row intentionally has no canonical grade field. A kind
   /// decides whether and how its Owned aggregate contributes this column.
-  String? ownedCollectionValue(ShelfEntry entry);
+  String? ownedCollectionValue(LibraryWorkspaceSource entry);
 
   /// Schema-v1 personal cells whose meaning is owned by the selected kind.
   /// The Collection host only places these values in the wire row.
-  String? ownedCondition(ShelfEntry entry);
+  String? ownedCondition(LibraryWorkspaceSource entry);
 
-  int? ownedIndexNumber(ShelfEntry entry);
+  int? ownedIndexNumber(LibraryWorkspaceSource entry);
 
-  String? ownedTags(ShelfEntry entry);
+  String? ownedTags(LibraryWorkspaceSource entry);
 
   List<String> ownedCellsBeforeQuantity(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   });
 
   List<String> ownedCellsAfterIndex(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   });
 }
@@ -222,7 +222,7 @@ Map<String, dynamic> collectionCsvOwnedImportPayload(
 /// payload keys while allowing every projection to share the same wire-level
 /// presentation rules.
 mixin LibraryCollectionCsvProjectionPresentation {
-  List<String> catalogCells(ShelfEntry entry);
+  List<String> catalogCells(LibraryWorkspaceSource entry);
 
   String importDisplayTitle(List<String> catalogCells) {
     final title = catalogCells.elementAtOrNull(2) ?? '';

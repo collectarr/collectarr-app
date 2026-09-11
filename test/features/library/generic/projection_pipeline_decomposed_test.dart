@@ -82,7 +82,7 @@ void main() {
         releaseDate: releaseDate,
       );
 
-      final shelf = ShelfEntry(
+      final shelf = LibraryWorkspaceSource(
         itemId: id,
         catalogItem:
             testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem,

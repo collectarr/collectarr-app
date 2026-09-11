@@ -12,7 +12,7 @@ final class ComicWorkspaceProjector
 
   @override
   ComicWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final catalog = source.catalogItem;
@@ -37,7 +37,7 @@ final class ComicWorkspaceProjector
 
   @override
   ComicWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -47,7 +47,7 @@ final class ComicWorkspaceProjector
 
   @override
   ComicWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     throw UnsupportedError(

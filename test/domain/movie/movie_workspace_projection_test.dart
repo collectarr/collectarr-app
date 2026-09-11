@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('movie work and release project into workspace dtos', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',

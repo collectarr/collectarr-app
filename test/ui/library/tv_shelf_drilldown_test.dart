@@ -17,7 +17,7 @@ void main() {
   testWidgets('tv shelf drilldown shows seasons and episode details', (
     tester,
   ) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'series-1',
       catalogItem: testCatalogItem(
         id: 'series-1',

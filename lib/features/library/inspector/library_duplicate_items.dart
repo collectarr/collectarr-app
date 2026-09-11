@@ -17,13 +17,13 @@ class LibraryDuplicateGroup {
   final String label;
   final String reason;
   final int confidenceScore;
-  final List<ShelfEntry> entries;
+  final List<LibraryWorkspaceSource> entries;
 
   int get count => entries.length;
 }
 
 List<LibraryDuplicateGroup> findDuplicateShelfGroups(
-  List<ShelfEntry> entries,
+  List<LibraryWorkspaceSource> entries,
 ) {
   final barcodeBuckets = <String, _DuplicateBucket>{};
   for (final entry in entries) {
@@ -300,7 +300,7 @@ class _DuplicateInfoChip extends StatelessWidget {
 class _DuplicateEntryRow extends StatelessWidget {
   const _DuplicateEntryRow({required this.entry});
 
-  final ShelfEntry entry;
+  final LibraryWorkspaceSource entry;
 
   @override
   Widget build(BuildContext context) {
@@ -377,7 +377,7 @@ class _DuplicateBucket {
 
   final String label;
   final String reason;
-  final List<ShelfEntry> entries = [];
+  final List<LibraryWorkspaceSource> entries = [];
 }
 
 void _addToBucket(
@@ -385,7 +385,7 @@ void _addToBucket(
   required String key,
   required String label,
   required String reason,
-  required ShelfEntry entry,
+  required LibraryWorkspaceSource entry,
 }) {
   final bucket = buckets.putIfAbsent(
     key,
@@ -475,7 +475,8 @@ String? _releaseYearToken(LibraryAddCatalogTransport item) {
   return (item.releaseYear ?? item.releaseDate?.year)?.toString();
 }
 
-List<ShelfEntry> _sortedEntries(List<ShelfEntry> entries) {
+List<LibraryWorkspaceSource> _sortedEntries(
+    List<LibraryWorkspaceSource> entries) {
   return entries.toList(growable: false)
     ..sort((a, b) {
       final title = a.title.toLowerCase().compareTo(b.title.toLowerCase());
@@ -486,7 +487,7 @@ List<ShelfEntry> _sortedEntries(List<ShelfEntry> entries) {
     });
 }
 
-String _issueDuplicateLabel(ShelfEntry entry) {
+String _issueDuplicateLabel(LibraryWorkspaceSource entry) {
   final catalogItem = entry.catalogItem;
   if (catalogItem == null) {
     return entry.title;
@@ -507,7 +508,7 @@ String _issueDuplicateLabel(ShelfEntry entry) {
   return pieces.join(' - ');
 }
 
-String _entrySubtitle(ShelfEntry entry) {
+String _entrySubtitle(LibraryWorkspaceSource entry) {
   final catalogItem = entry.catalogItem;
   final payload = catalogItem?.payload ?? const {};
   final publisher = payload['publisher']?.toString();

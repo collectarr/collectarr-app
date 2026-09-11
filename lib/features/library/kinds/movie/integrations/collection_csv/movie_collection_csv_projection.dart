@@ -28,7 +28,8 @@ final class MovieCollectionCsvProjection
   CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
-  TrackingLifecycleCodec get trackingLifecycleCodec => const MovieTrackingLifecycleCodec();
+  TrackingLifecycleCodec get trackingLifecycleCodec =>
+      const MovieTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>
@@ -92,7 +93,7 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(ShelfEntry entry) {
+  List<String> catalogCells(LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = catalog == null
         ? null
@@ -117,32 +118,32 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  String? ownedCollectionValue(ShelfEntry entry) {
+  String? ownedCollectionValue(LibraryWorkspaceSource entry) {
     final owned = entry.typedOwnedItem;
     return owned is MovieOwnedItem ? owned.grade : null;
   }
 
   @override
-  String? ownedCondition(ShelfEntry entry) {
+  String? ownedCondition(LibraryWorkspaceSource entry) {
     final owned = entry.typedOwnedItem;
     return owned is MovieOwnedItem ? owned.condition : null;
   }
 
   @override
-  int? ownedIndexNumber(ShelfEntry entry) {
+  int? ownedIndexNumber(LibraryWorkspaceSource entry) {
     final owned = entry.typedOwnedItem;
     return owned is MovieOwnedItem ? owned.indexNumber : null;
   }
 
   @override
-  String? ownedTags(ShelfEntry entry) {
+  String? ownedTags(LibraryWorkspaceSource entry) {
     final owned = entry.typedOwnedItem;
     return owned is MovieOwnedItem ? owned.tags : null;
   }
 
   @override
   List<String> ownedCellsBeforeQuantity(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return clzFriendly ? const [''] : const [];
@@ -150,7 +151,7 @@ final class MovieCollectionCsvProjection
 
   @override
   List<String> ownedCellsAfterIndex(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

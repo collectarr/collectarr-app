@@ -32,7 +32,7 @@ final class BookPersonalOverlay {
     this.updatedAt,
   });
 
-  factory BookPersonalOverlay.fromShelf(ShelfEntry source) {
+  factory BookPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
     return BookPersonalOverlay(
       ownedItem: source.typedOwnedItem is BookOwnedItem
           ? source.typedOwnedItem as BookOwnedItem

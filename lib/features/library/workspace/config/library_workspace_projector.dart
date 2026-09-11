@@ -23,18 +23,18 @@ final class LibraryReleaseState {
 abstract interface class LibraryWorkspaceProjector<
     TDto extends LibraryWorkspaceDto> {
   TDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   });
 
   TDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   });
 
   TDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   });
 }

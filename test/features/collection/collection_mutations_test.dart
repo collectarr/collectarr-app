@@ -1071,7 +1071,7 @@ void main() {
     );
     final rows = csv.parse(
       csv.exportShelf([
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'comic-owned-details',
           catalogItem: testCatalogItemWithKindMetadata(
             testCatalogItem(

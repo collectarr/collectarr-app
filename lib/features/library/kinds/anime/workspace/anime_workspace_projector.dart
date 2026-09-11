@@ -13,7 +13,7 @@ final class AnimeWorkspaceProjector
 
   @override
   AnimeWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final video = AnimeCatalogMapper.mapMetadataItemToAnime(
@@ -39,7 +39,7 @@ final class AnimeWorkspaceProjector
 
   @override
   AnimeWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -66,7 +66,7 @@ final class AnimeWorkspaceProjector
 
   @override
   AnimeWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     final video = AnimeCatalogMapper.mapMetadataItemToAnime(

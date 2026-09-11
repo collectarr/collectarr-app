@@ -17,7 +17,7 @@ void main() {
   ) async {
     final state = ShelfState(
       entries: [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'music-1',
           catalogItem: testCatalogItemWithKindMetadata(
             testCatalogItem(
@@ -75,7 +75,7 @@ void main() {
   ) async {
     final state = ShelfState(
       entries: [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'game-1',
           locationPath: 'Office › Shelf A',
           catalogItem: testCatalogItem(
@@ -93,7 +93,7 @@ void main() {
             updatedAt: DateTime.utc(2026, 5, 1),
           )),
         ),
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'game-2',
           locationPath: 'Office › Shelf B',
           catalogItem: testCatalogItem(
@@ -165,7 +165,7 @@ void main() {
     final state = ShelfState(
       entries: [
         for (final itemNumber in ['1', '2', '4'])
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-$itemNumber',
             catalogItem: testCatalogItem(
               id: 'comic-$itemNumber',
@@ -220,7 +220,7 @@ void main() {
     final state = ShelfState(
       entries: [
         for (final volume in [1, 3])
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-volume-$volume',
             catalogItem: testCatalogItem(
               id: 'comic-volume-$volume',
@@ -277,7 +277,7 @@ void main() {
     final state = ShelfState(
       entries: [
         for (final season in [1, 3])
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'movie-season-$season',
             catalogItem: testCatalogItem(
               id: 'movie-season-$season',

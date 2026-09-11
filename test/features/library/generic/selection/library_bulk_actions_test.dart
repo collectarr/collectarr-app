@@ -78,7 +78,7 @@ void main() {
 
     await actions.editSelected(
       entries: [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'movie-1',
           ownedSummary: MovieOwnedItemProjection.toSummary(row),
           typedOwnedItem: row,
@@ -126,7 +126,7 @@ void main() {
     final actions = buildActions();
 
     await actions.moveSelectedToWishlist([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-1',
         ownedSummary: MovieOwnedItemProjection.toSummary(row),
         typedOwnedItem: row,
@@ -191,12 +191,12 @@ void main() {
     final actions = buildActions();
 
     await actions.removeSelected([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-1',
         ownedSummary: MovieOwnedItemProjection.toSummary(ownedRow),
         typedOwnedItem: ownedRow,
       ),
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-2',
         wishlistItem: WishlistItem(
           id: wishlistRow.id,
@@ -207,7 +207,7 @@ void main() {
           updatedAt: wishlistRow.updatedAt,
         ),
       ),
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-3',
         trackingSummary: TrackingSummary(
           id: trackingRow.id,
@@ -291,7 +291,7 @@ void main() {
     final actions = buildActions();
 
     await actions.moveSelectedToOwned([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-1',
         catalogItem:
             testCatalogItem(id: 'movie-1', kind: 'movie').asShelfCatalogItem,

@@ -23,7 +23,7 @@ void main() {
           home: Scaffold(
             body: ImportExportWizardDialog(
               entries: [
-                ShelfEntry(
+                LibraryWorkspaceSource(
                   itemId: 'comic-1',
                   catalogItem: testCatalogItem(
                     id: 'comic-1',

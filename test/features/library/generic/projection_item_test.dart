@@ -12,7 +12,7 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   test('library projection prefers structured location path', () {
-    final source = testShelfEntry(
+    final source = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
@@ -45,7 +45,7 @@ void main() {
   });
 
   test('library projection exposes bundle and release reference labels', () {
-    final source1 = testShelfEntry(
+    final source1 = testLibraryWorkspaceSource(
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Batman',
@@ -67,7 +67,7 @@ void main() {
       dto: dto1,
     );
 
-    final source2 = ShelfEntry(
+    final source2 = LibraryWorkspaceSource(
       itemId: 'comic-3',
       catalogItem: testCatalogItemWithKindMetadata(
         testCatalogItem(

@@ -8,7 +8,8 @@ class MangaStatsCapability implements LibraryStatsCapability {
   const MangaStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -17,7 +18,8 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = _mangaMetadata(entry);
     if (catalog == null || metadata == null) return null;
@@ -72,7 +74,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, List<int>> missingVolumeNumbers(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
   ) {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
@@ -99,7 +101,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _bestMissingVolumeSummary(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
   ) {
     final missingBySeries = missingVolumeNumbers(entries);
     _MissingNumberSummary? best;
@@ -113,7 +115,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
     return best;
   }
 
-  static MangaMetadata? _mangaMetadata(ShelfEntry entry) {
+  static MangaMetadata? _mangaMetadata(LibraryWorkspaceSource entry) {
     final metadata = entry.catalogItem?.kindMetadata;
     return metadata is MangaMetadata ? metadata : null;
   }

@@ -13,7 +13,7 @@ final class MangaShelfExtensionContributor
 
   @override
   Widget? build(
-    ShelfEntry entry, {
+    LibraryWorkspaceSource entry, {
     required bool expanded,
     required VoidCallback onToggle,
   }) {

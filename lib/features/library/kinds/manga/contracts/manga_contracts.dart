@@ -227,7 +227,7 @@ final class MangaEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory MangaEntry.fromShelf(ShelfEntry shelf) {
+  factory MangaEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogItem != null
         ? MangaCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
         : MangaCatalog(

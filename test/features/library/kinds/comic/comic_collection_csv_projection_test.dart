@@ -57,7 +57,7 @@ void main() {
       keyComic: true,
       updatedAt: DateTime.utc(2026, 5, 12),
     );
-    final entry = ShelfEntry(
+    final entry = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'comic-1',

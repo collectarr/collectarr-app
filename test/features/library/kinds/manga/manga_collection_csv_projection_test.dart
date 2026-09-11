@@ -61,7 +61,7 @@ void main() {
 
   test('projects Manga catalog cells with volume semantics', () {
     final projection = const MangaCollectionCsvProjection();
-    final entry = ShelfEntry(
+    final entry = LibraryWorkspaceSource(
       itemId: 'manga-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'manga-1',

@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   test('boardgame workspace projector builds typed boardgame dto', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
       catalogItem: testCatalogItem(
         id: 'boardgame-1',
@@ -42,7 +42,7 @@ void main() {
       language: 'English',
       releaseDate: DateTime.utc(2026, 2, 3),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
       catalogItem: testCatalogItem(
         id: 'boardgame-1',
@@ -93,7 +93,7 @@ void main() {
 
   testWidgets('boardgame module exposes typed inspector sections',
       (tester) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
       catalogItem: testCatalogItem(
         id: 'boardgame-1',

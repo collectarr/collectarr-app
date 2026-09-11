@@ -44,7 +44,7 @@ void main() {
       ),
     );
 
-    final shelf = ShelfEntry(
+    final shelf = LibraryWorkspaceSource(
       itemId: 'comic-2',
       catalogItem: catalogItem.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(testOwnedItem(
@@ -100,7 +100,7 @@ void main() {
       coverPriceCents: 12,
       lastBagBoardDate: DateTime.utc(2025, 6, 1),
     );
-    final shelf = ShelfEntry(
+    final shelf = LibraryWorkspaceSource(
       itemId: 'comic-key-1',
       catalogItem: catalogItem.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(owned),

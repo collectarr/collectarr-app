@@ -122,7 +122,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                     itemCount: entries.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
-                      return _ShelfEntryRow(
+                      return _LibraryWorkspaceSourceRow(
                         entry: entries[index],
                         workspaceEntry:
                             state.workspaceEntryFor(entries[index].itemId),
@@ -183,7 +183,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   }
 
   Future<void> _showImportExportWizard(
-    List<ShelfEntry> entries, {
+    List<LibraryWorkspaceSource> entries, {
     required int initialIndex,
   }) async {
     final db = ref.read(localDatabaseProvider);

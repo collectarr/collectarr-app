@@ -26,7 +26,7 @@ class LibraryBulkActions {
   final TrackingMutations trackingMutations;
 
   Future<void> editSelected({
-    required List<ShelfEntry> entries,
+    required List<LibraryWorkspaceSource> entries,
     required LibraryBulkEditSelection selection,
   }) async {
     final ownedEntries = [
@@ -72,7 +72,7 @@ class LibraryBulkActions {
   }
 
   Future<void> moveSelectedToOwned(
-    List<ShelfEntry> entries, {
+    List<LibraryWorkspaceSource> entries, {
     String? defaultCondition,
     String? defaultLocationId,
     String? defaultReadStatus,
@@ -125,7 +125,8 @@ class LibraryBulkActions {
     }
   }
 
-  Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
+  Future<void> moveSelectedToWishlist(
+      List<LibraryWorkspaceSource> entries) async {
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
       final catalogRef = entry.catalogItem?.catalogRef ??
@@ -151,7 +152,7 @@ class LibraryBulkActions {
     }
   }
 
-  Future<int> duplicateSelected(List<ShelfEntry> entries) async {
+  Future<int> duplicateSelected(List<LibraryWorkspaceSource> entries) async {
     final ownedEntries = [
       for (final entry in entries)
         if (entry.ownedSummary != null) entry,
@@ -182,7 +183,7 @@ class LibraryBulkActions {
     return ownedEntries.length;
   }
 
-  Future<void> removeSelected(List<ShelfEntry> entries) async {
+  Future<void> removeSelected(List<LibraryWorkspaceSource> entries) async {
     final ownedEntries = [
       for (final entry in entries)
         if (entry.ownedSummary != null) entry,
@@ -212,7 +213,7 @@ class LibraryBulkActions {
   }
 }
 
-List<ShelfEntry> selectedShelfEntries(
+List<LibraryWorkspaceSource> selectedShelfEntries(
   List<LibraryProjectionItem> visibleItems,
   Set<String> selectedItemIds,
 ) {

@@ -120,7 +120,7 @@ void main() {
       'kind': 'movie',
     });
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: dto.asShelfCatalogItem,
     );

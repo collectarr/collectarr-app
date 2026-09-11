@@ -26,7 +26,7 @@ void main() {
       marketValueCents: 1800,
       currency: 'USD',
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItem(
         id: 'comic-1',

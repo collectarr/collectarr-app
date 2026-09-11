@@ -13,7 +13,7 @@ final class TvWorkspaceProjector
 
   @override
   TvWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(
@@ -38,7 +38,7 @@ final class TvWorkspaceProjector
 
   @override
   TvWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -64,7 +64,7 @@ final class TvWorkspaceProjector
 
   @override
   TvWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(

@@ -85,7 +85,7 @@ void main() {
         bggRank: 1,
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_1',
         catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(
@@ -227,7 +227,7 @@ void main() {
       expect(restored.yearPublished, 2018);
       expect(restored.complexityWeight, 3.9);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_brass_birmingham',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

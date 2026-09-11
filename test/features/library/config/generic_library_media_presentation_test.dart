@@ -24,7 +24,7 @@ LibraryProjectionView _makeItem(
     kind: 'comic',
     title: title ?? 'Batman #1',
   );
-  final source = ShelfEntry(
+  final source = LibraryWorkspaceSource(
     itemId: id,
     catalogItem: cat.asShelfCatalogItem,
     ownedSummary: ownedItem == null ? null : testOwnedSummary(ownedItem),

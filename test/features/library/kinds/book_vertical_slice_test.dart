@@ -97,7 +97,7 @@ void main() {
         ],
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'book_1',
         catalogItem: CatalogItemDto(
           identity: LibraryItemIdentity(
@@ -275,7 +275,7 @@ void main() {
       expect(restored.authors, contains('J. R. R. Tolkien'));
       expect(restored.editions.first.format, 'Hardcover');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'book_lotr',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

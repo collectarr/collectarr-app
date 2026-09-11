@@ -38,7 +38,7 @@ void main() {
     final type = tvKindModule;
     const itemId = '00000000-0000-0000-0000-000000000001';
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: itemId,
       catalogItem: testCatalogItem(
         id: itemId,

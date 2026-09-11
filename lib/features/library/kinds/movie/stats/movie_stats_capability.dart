@@ -8,7 +8,8 @@ class MovieStatsCapability implements LibraryStatsCapability {
   const MovieStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -17,7 +18,8 @@ class MovieStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
@@ -101,8 +103,8 @@ class MovieStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _numberedGapSummary(
-    List<ShelfEntry> entries,
-    int? Function(ShelfEntry entry) numberFor,
+    List<LibraryWorkspaceSource> entries,
+    int? Function(LibraryWorkspaceSource entry) numberFor,
   ) {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
@@ -135,14 +137,15 @@ class MovieStatsCapability implements LibraryStatsCapability {
     return best;
   }
 
-  static int totalRuntimeMinutes(Iterable<ShelfEntry> entries) {
+  static int totalRuntimeMinutes(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
       (total, entry) => total + (_metadata(entry)?.runtimeMinutes ?? 0),
     );
   }
 
-  static double? averageAudienceRating(Iterable<ShelfEntry> entries) {
+  static double? averageAudienceRating(
+      Iterable<LibraryWorkspaceSource> entries) {
     var total = 0.0;
     var count = 0;
     for (final entry in entries) {
@@ -155,18 +158,21 @@ class MovieStatsCapability implements LibraryStatsCapability {
     return count == 0 ? null : total / count;
   }
 
-  static Map<String, int> countGenres(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countGenres(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => metadata.genres);
   }
 
-  static Map<String, int> countDirectors(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countDirectors(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
       (metadata) => metadata.directors.map((credit) => credit.name),
     );
   }
 
-  static Map<String, int> countFormats(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countFormats(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
       (metadata) => [
@@ -186,13 +192,13 @@ class MovieStatsCapability implements LibraryStatsCapability {
     return remainder == 0 ? '${hours}h' : '${hours}h ${remainder}m';
   }
 
-  static MovieCatalogMetadata? _metadata(ShelfEntry entry) {
+  static MovieCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
     final metadata = entry.catalogItem?.kindMetadata;
     return metadata is MovieCatalogMetadata ? metadata : null;
   }
 
   static Map<String, int> _countMany(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
     Iterable<String> Function(MovieCatalogMetadata metadata) valuesFor,
   ) {
     final counts = <String, int>{};

@@ -7,8 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_data_factories.dart';
 
 void main() {
-  group('ShelfEntry Canonical Source Tests', () {
-    test('ShelfEntry delegates personal collection fields cleanly', () {
+  group('LibraryWorkspaceSource Canonical Source Tests', () {
+    test('LibraryWorkspaceSource delegates personal collection fields cleanly',
+        () {
       final now = DateTime.now();
       final owned = testOwnedItem(
         id: 'owned_1',
@@ -32,7 +33,7 @@ void main() {
         updatedAt: now,
       );
 
-      final entry = ShelfEntry(
+      final entry = LibraryWorkspaceSource(
         itemId: 'cat_1',
         ownedSummary: testOwnedItemSummary(owned),
         locationPath: 'Box A / Row 1',
@@ -52,7 +53,8 @@ void main() {
       expect(entry.locationPath, 'Box A / Row 1');
     });
 
-    test('ShelfEntry handles unowned / wishlisted items safely', () {
+    test('LibraryWorkspaceSource handles unowned / wishlisted items safely',
+        () {
       final now = DateTime.now();
       final wishlist = WishlistItem(
         id: 'wish_1',
@@ -66,7 +68,7 @@ void main() {
         updatedAt: now,
       );
 
-      final entry = ShelfEntry(
+      final entry = LibraryWorkspaceSource(
         itemId: 'cat_2',
         wishlistItem: wishlist,
         fallbackOwnerLabel: 'Bob',

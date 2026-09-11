@@ -82,7 +82,7 @@ void main() {
         producers: const [MoviePersonCredit(name: 'Emma Thomas')],
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_1',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
@@ -218,7 +218,7 @@ void main() {
       expect(restored.runtimeMinutes, 148);
       expect(restored.studio, 'Warner Bros. Pictures');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_inception',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

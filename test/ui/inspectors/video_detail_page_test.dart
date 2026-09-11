@@ -49,7 +49,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final type = movieKindModule;
-    final source1 = ShelfEntry(
+    final source1 = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',
@@ -171,7 +171,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final type = movieKindModule;
-    final source2 = ShelfEntry(
+    final source2 = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',
@@ -299,7 +299,7 @@ void main() {
   testWidgets('release browser explains when core has no releases yet',
       (tester) async {
     final type = movieKindModule;
-    final source3 = ShelfEntry(
+    final source3 = LibraryWorkspaceSource(
       itemId: 'movie-2',
       catalogItem: testCatalogItem(
         id: 'movie-2',

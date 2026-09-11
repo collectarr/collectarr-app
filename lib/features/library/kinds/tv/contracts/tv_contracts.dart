@@ -205,7 +205,7 @@ final class TvEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory TvEntry.fromShelf(ShelfEntry shelf) {
+  factory TvEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogItem != null
         ? TvCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
         : TvCatalog(

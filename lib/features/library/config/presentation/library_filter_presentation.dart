@@ -71,7 +71,7 @@ class LibraryBucketingContext {
     required this.groupId,
   });
 
-  final ShelfEntry source;
+  final LibraryWorkspaceSource source;
   final LibraryProjectionView item;
   final LibraryGroupIdRuntime groupId;
 }

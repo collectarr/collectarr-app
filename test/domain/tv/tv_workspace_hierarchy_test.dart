@@ -42,7 +42,7 @@ void main() {
         ),
       ],
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'tv-expanse',
       catalogItem: CatalogItemDto(
         identity: const LibraryItemIdentity(

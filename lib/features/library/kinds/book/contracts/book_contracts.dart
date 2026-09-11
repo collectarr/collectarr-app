@@ -272,7 +272,7 @@ final class BookEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory BookEntry.fromShelf(ShelfEntry shelf) {
+  factory BookEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogItem != null
         ? BookCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
         : BookCatalog(

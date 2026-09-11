@@ -142,7 +142,7 @@ void main() {
   });
 }
 
-ShelfEntry _entry({
+LibraryWorkspaceSource _entry({
   required String itemId,
   required String title,
   String? barcode,
@@ -153,7 +153,7 @@ ShelfEntry _entry({
   bool wishlisted = false,
 }) {
   final timestamp = DateTime.utc(2024, 1, 1);
-  return ShelfEntry(
+  return LibraryWorkspaceSource(
     itemId: itemId,
     catalogItem: testCatalogItemFromJson({
       'id': itemId,

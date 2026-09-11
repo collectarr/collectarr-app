@@ -13,7 +13,8 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   const AnimeStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -22,7 +23,8 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
@@ -82,36 +84,40 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static int totalEpisodes(Iterable<ShelfEntry> entries) {
+  static int totalEpisodes(Iterable<LibraryWorkspaceSource> entries) {
     return entries.fold<int>(
       0,
       (total, entry) => total + (_metadata(entry)?.episodeCount ?? 0),
     );
   }
 
-  static Map<String, int> countGenres(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countGenres(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => metadata.genres);
   }
 
-  static Map<String, int> countStudios(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countStudios(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => metadata.studios);
   }
 
-  static Map<String, int> countFormats(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countFormats(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => [metadata.format.label]);
   }
 
-  static Map<String, int> countSourceMaterial(Iterable<ShelfEntry> entries) {
+  static Map<String, int> countSourceMaterial(
+      Iterable<LibraryWorkspaceSource> entries) {
     return _countMany(entries, (metadata) => [metadata.sourceMaterial.label]);
   }
 
-  static AnimeMetadata? _metadata(ShelfEntry entry) {
+  static AnimeMetadata? _metadata(LibraryWorkspaceSource entry) {
     final metadata = entry.catalogItem?.kindMetadata;
     return metadata is AnimeMetadata ? metadata : null;
   }
 
   static Map<String, int> _countMany(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
     Iterable<String> Function(AnimeMetadata metadata) valuesFor,
   ) {
     final counts = <String, int>{};

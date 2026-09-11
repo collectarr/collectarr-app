@@ -36,7 +36,7 @@ final class ComicPersonalOverlay {
     this.updatedAt,
   });
 
-  factory ComicPersonalOverlay.fromShelf(ShelfEntry source) {
+  factory ComicPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
     final ownedItem =
         ComicOwnedItemProjection.tryFromTyped(source.typedOwnedItem);
     return ComicPersonalOverlay(

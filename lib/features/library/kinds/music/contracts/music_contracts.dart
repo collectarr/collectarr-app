@@ -153,7 +153,7 @@ final class MusicEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory MusicEntry.fromShelf(ShelfEntry shelf) {
+  factory MusicEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogItem != null
         ? MusicCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
         : MusicCatalog(

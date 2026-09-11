@@ -28,7 +28,7 @@ void main() {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final type = comicKindModule;
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
           id: 'comic-1',
@@ -80,7 +80,7 @@ void main() {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final type = musicKindModule;
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
         itemId: 'music-1',
         catalogItem: testCatalogItem(
           id: 'music-1',
@@ -131,7 +131,7 @@ void main() {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final type = gameKindModule;
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
         itemId: 'game-1',
         catalogItem: testCatalogItem(
           id: 'game-1',
@@ -185,7 +185,7 @@ void main() {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final type = bookKindModule;
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
         itemId: 'book-1',
         catalogItem: testCatalogItem(
           id: 'book-1',
@@ -240,7 +240,7 @@ void main() {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
       final type = comicKindModule;
-      final source = ShelfEntry(
+      final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogItem: testCatalogItem(
           id: 'comic-1',

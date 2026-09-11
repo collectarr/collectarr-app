@@ -13,7 +13,7 @@ void main() {
   testWidgets('context menu shows bulk actions for multi-selection', (
     tester,
   ) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',

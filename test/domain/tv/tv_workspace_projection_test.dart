@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('tv workspace projections build series season episode and release nodes',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'series-1',
       catalogItem: testCatalogItem(
         id: 'series-1',

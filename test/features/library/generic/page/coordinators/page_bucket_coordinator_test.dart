@@ -55,12 +55,12 @@ void main() {
     final projection = _projection(
       type,
       [
-        testShelfEntry(
+        testLibraryWorkspaceSource(
           itemId: firstCatalog.id,
           kind: firstCatalog.kind,
           catalogItem: firstCatalog,
         ),
-        testShelfEntry(
+        testLibraryWorkspaceSource(
           itemId: secondCatalog.id,
           kind: secondCatalog.kind,
           catalogItem: secondCatalog,
@@ -109,7 +109,7 @@ void main() {
       _projection(
         type,
         [
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: catalog.id,
             kind: catalog.kind,
             catalogItem: catalog,
@@ -156,7 +156,7 @@ void main() {
       _projection(
         type,
         [
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: catalog.id,
             kind: catalog.kind,
             catalogItem: catalog,
@@ -189,7 +189,7 @@ void main() {
     final projection = _projection(
       type,
       [
-        testShelfEntry(
+        testLibraryWorkspaceSource(
           itemId: catalog.id,
           kind: catalog.kind,
           catalogItem: catalog,
@@ -233,7 +233,7 @@ void main() {
 
 LibraryProjection _projection(
   LibraryKindModule type,
-  List<ShelfEntry> sources,
+  List<LibraryWorkspaceSource> sources,
 ) {
   final items = [
     for (final source in sources) LibraryProjectionItem.fromShelf(source, type),

@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('book workspace projector builds typed book dto', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItem(
         id: 'book-1',

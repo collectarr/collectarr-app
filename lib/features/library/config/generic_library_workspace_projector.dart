@@ -21,7 +21,7 @@ final class GenericWorkspaceProjector
 
   @override
   GenericWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     return GenericWorkspaceDto(
@@ -32,7 +32,7 @@ final class GenericWorkspaceProjector
 
   @override
   GenericWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -45,7 +45,7 @@ final class GenericWorkspaceProjector
 
   @override
   GenericWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(

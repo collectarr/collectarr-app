@@ -300,7 +300,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topSeriesCounts(
-    List<ShelfEntry> entries,
+    List<LibraryWorkspaceSource> entries,
     LibraryKindModule module,
   ) {
     return _countBy(
@@ -310,7 +310,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topPublisherCounts(
-    List<ShelfEntry> entries,
+    List<LibraryWorkspaceSource> entries,
     LibraryKindModule module,
   ) {
     return _countBy(
@@ -321,7 +321,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static int _missingMetadataCount(
-    List<ShelfEntry> entries,
+    List<LibraryWorkspaceSource> entries,
     LibraryKindModule module,
   ) {
     var count = 0;
@@ -338,7 +338,8 @@ class _GenericStatsDashboard extends StatelessWidget {
     return count;
   }
 
-  static Map<String, int> _topInvestedLocations(List<ShelfEntry> entries) {
+  static Map<String, int> _topInvestedLocations(
+      List<LibraryWorkspaceSource> entries) {
     return _sumBy(
       entries,
       (entry) => entry.locationPath ?? 'No location',
@@ -347,7 +348,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topInvestedSeries(
-    List<ShelfEntry> entries,
+    List<LibraryWorkspaceSource> entries,
     LibraryKindModule module,
   ) {
     return _sumBy(
@@ -359,7 +360,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
-  static Map<String, int> _topBuyerSales(List<ShelfEntry> entries) {
+  static Map<String, int> _topBuyerSales(List<LibraryWorkspaceSource> entries) {
     return _sumBy(
       entries,
       (entry) => entry.soldTo ?? 'Unknown buyer',
@@ -368,7 +369,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topSalesSeries(
-    List<ShelfEntry> entries,
+    List<LibraryWorkspaceSource> entries,
     LibraryKindModule module,
   ) {
     return _sumBy(
@@ -381,7 +382,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _metadataQualityBands(
-    List<ShelfEntry> entries,
+    List<LibraryWorkspaceSource> entries,
     LibraryKindModule module,
   ) {
     final counts = <String, int>{
@@ -398,7 +399,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _metadataAlertCounts(
-    List<ShelfEntry> entries,
+    List<LibraryWorkspaceSource> entries,
     LibraryKindModule type,
     LibraryKindModule module,
   ) {
@@ -437,7 +438,8 @@ class _GenericStatsDashboard extends StatelessWidget {
     return counts;
   }
 
-  static String _metadataBand(ShelfEntry entry, LibraryKindModule module) {
+  static String _metadataBand(
+      LibraryWorkspaceSource entry, LibraryKindModule module) {
     final projection = module.stats.buildMetadataProjection(entry);
     if (projection == null) {
       return 'Needs work';
@@ -472,8 +474,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _countBy(
-    Iterable<ShelfEntry> entries,
-    String Function(ShelfEntry entry) keyFor,
+    Iterable<LibraryWorkspaceSource> entries,
+    String Function(LibraryWorkspaceSource entry) keyFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -485,9 +487,9 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _sumBy(
-    Iterable<ShelfEntry> entries,
-    String Function(ShelfEntry entry) keyFor,
-    int? Function(ShelfEntry entry) amountFor,
+    Iterable<LibraryWorkspaceSource> entries,
+    String Function(LibraryWorkspaceSource entry) keyFor,
+    int? Function(LibraryWorkspaceSource entry) amountFor,
   ) {
     final totals = <String, int>{};
     for (final entry in entries) {
@@ -507,7 +509,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 class _TrackingStatusCard extends StatelessWidget {
   const _TrackingStatusCard({required this.entries});
 
-  final List<ShelfEntry> entries;
+  final List<LibraryWorkspaceSource> entries;
 
   @override
   Widget build(BuildContext context) {

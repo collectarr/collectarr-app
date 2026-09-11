@@ -38,7 +38,7 @@ void main() {
           CatalogEditionDto(id: 'edition-1', title: 'Volume 1'),
         ],
       );
-      final shelf = ShelfEntry(
+      final shelf = LibraryWorkspaceSource(
         itemId: 'manga-1',
         catalogItem: catalogItem.asShelfCatalogItem,
         ownedSummary: testOwnedSummary(testOwnedItem(

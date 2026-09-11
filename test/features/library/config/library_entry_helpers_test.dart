@@ -88,7 +88,7 @@ void main() {
 
   test('libraryHierarchyContractDiagnosticLabel flags missing series title',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-5',
       catalogItem: testCatalogItem(
         id: 'comic-5',
@@ -109,7 +109,7 @@ void main() {
 
   test('libraryHierarchyContractDiagnosticLabel flags missing release variant',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-2',
       catalogItem: testCatalogItem(
         id: 'comic-2',
@@ -137,7 +137,7 @@ void main() {
   test(
       'resolveLibraryMutationTarget prefers explicit owned or wishlist targets',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',

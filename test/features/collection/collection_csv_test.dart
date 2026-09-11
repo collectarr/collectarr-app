@@ -13,7 +13,7 @@ void main() {
   test('collection csv exports and parses owned shelf rows', () {
     final csv = CollectionCsvCodec();
     final exported = csv.exportShelf([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
@@ -144,7 +144,7 @@ void main() {
     ];
     final exported = csv.exportShelf(
       [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'book-1',
           catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'book-1',
@@ -194,7 +194,7 @@ void main() {
 
   test('collection csv exports typed tracking values before collection columns',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
       catalogItem: testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
@@ -230,7 +230,7 @@ void main() {
 
   test('collection csv exports clz-friendly shelf rows', () {
     final exported = CollectionCsvCodec().exportClzFriendlyShelf([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
@@ -267,7 +267,7 @@ void main() {
 
   test('collection csv exports media-aware clz-friendly headers', () {
     final exported = CollectionCsvCodec().exportClzFriendlyShelf([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-1',
         catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'movie-1',
@@ -566,7 +566,7 @@ void main() {
     final csv = CollectionCsvCodec();
     final exported = csv.exportShelf(
       [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'comic-1',
           catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
@@ -630,7 +630,7 @@ void main() {
     final csv = CollectionCsvCodec();
     final exported = csv.exportShelf(
       [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'comic-1',
           catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',

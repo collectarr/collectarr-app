@@ -8,7 +8,8 @@ class BookStatsCapability implements LibraryStatsCapability {
   const BookStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(ShelfEntry entry) {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
     return LibraryOwnedFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -17,7 +18,8 @@ class BookStatsCapability implements LibraryStatsCapability {
   }
 
   @override
-  LibraryStatsMetadataProjection? buildMetadataProjection(ShelfEntry entry) {
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
     final catalog = entry.catalogItem;
     final metadata = entry.catalogItem?.kindMetadata;
     if (catalog == null || metadata is! BookCatalogMetadata) return null;
@@ -78,8 +80,8 @@ class BookStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _numberedGapSummary(
-    List<ShelfEntry> entries,
-    int? Function(ShelfEntry entry) numberFor,
+    List<LibraryWorkspaceSource> entries,
+    int? Function(LibraryWorkspaceSource entry) numberFor,
   ) {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};

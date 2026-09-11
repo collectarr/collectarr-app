@@ -22,7 +22,7 @@ void main() {
 
   test('Anime stats use typed metadata for episode and facet summaries', () {
     final entries = [
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'anime-1',
         kind: 'anime',
         catalogItem: testCatalogItem(
@@ -38,7 +38,7 @@ void main() {
           },
         ),
       ),
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'anime-2',
         kind: 'anime',
         catalogItem: testCatalogItem(
@@ -71,7 +71,7 @@ void main() {
   });
 
   test('Anime stats ignore metadata from another kind', () {
-    final entry = testShelfEntry(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'movie-1',
       kind: 'movie',
       catalogItem: testCatalogItem(
@@ -87,7 +87,7 @@ void main() {
   });
 
   test('Anime metadata remains the stats input type', () {
-    final entry = testShelfEntry(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'anime-1',
       kind: 'anime',
       catalogItem: testCatalogItem(

@@ -56,8 +56,8 @@ void main() {
   });
 }
 
-ShelfEntry _entry(String id, BoardGameMetadata metadata) {
-  return ShelfEntry(
+LibraryWorkspaceSource _entry(String id, BoardGameMetadata metadata) {
+  return LibraryWorkspaceSource(
     itemId: id,
     catalogItem: CatalogItemDto(
       identity: LibraryItemIdentity(

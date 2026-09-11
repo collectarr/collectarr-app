@@ -14,7 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('movie inspector composes movie-specific sections',
       (tester) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItem(
         id: 'movie-1',

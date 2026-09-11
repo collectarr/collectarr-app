@@ -10,7 +10,7 @@ class ComicValueCapability implements LibraryValueCapability {
 
   @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
   ) {
     final valuedEntries = [
       for (final entry in entries)
@@ -54,7 +54,7 @@ class ComicValueCapability implements LibraryValueCapability {
     return null;
   }
 
-  static ComicOwnedItem? _comicOwnedItem(ShelfEntry entry) {
+  static ComicOwnedItem? _comicOwnedItem(LibraryWorkspaceSource entry) {
     return ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
   }
 }

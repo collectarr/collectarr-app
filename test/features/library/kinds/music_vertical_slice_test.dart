@@ -115,7 +115,7 @@ void main() {
         ],
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_1',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(
@@ -264,7 +264,7 @@ void main() {
       expect(restored.studio, 'Abbey Road Studios');
       expect(restored.releases.first.catalogNumber, 'SHVL 804');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_dsotm',
         catalogItem: CatalogItemDto(
           identity: const LibraryItemIdentity(

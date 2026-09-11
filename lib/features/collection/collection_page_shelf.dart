@@ -300,8 +300,8 @@ class _ShelfStatCard extends StatelessWidget {
   }
 }
 
-class _ShelfEntryRow extends ConsumerStatefulWidget {
-  const _ShelfEntryRow({
+class _LibraryWorkspaceSourceRow extends ConsumerStatefulWidget {
+  const _LibraryWorkspaceSourceRow({
     required this.entry,
     this.workspaceEntry,
     required this.onRemoveOwned,
@@ -309,15 +309,17 @@ class _ShelfEntryRow extends ConsumerStatefulWidget {
   });
 
   final LibraryEntry entry;
-  final ShelfEntry? workspaceEntry;
+  final LibraryWorkspaceSource? workspaceEntry;
   final VoidCallback onRemoveOwned;
   final VoidCallback onRemoveWishlist;
 
   @override
-  ConsumerState<_ShelfEntryRow> createState() => _ShelfEntryRowState();
+  ConsumerState<_LibraryWorkspaceSourceRow> createState() =>
+      _LibraryWorkspaceSourceRowState();
 }
 
-class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
+class _LibraryWorkspaceSourceRowState
+    extends ConsumerState<_LibraryWorkspaceSourceRow> {
   bool _volumesExpanded = false;
 
   @override

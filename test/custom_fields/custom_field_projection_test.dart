@@ -48,7 +48,7 @@ void main() {
     test('matches custom field values', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogItem: testCatalogItem(
               id: 'comic-1',
@@ -67,7 +67,7 @@ void main() {
               updatedAt: DateTime.utc(2026, 1, 1),
             )),
           ),
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-2',
             catalogItem: testCatalogItem(
               id: 'comic-2',
@@ -111,7 +111,7 @@ void main() {
     test('matches standard fields', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogItem: testCatalogItem(
               id: 'comic-1',
@@ -137,7 +137,7 @@ void main() {
     test('matches original and display title aliases', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'movie-1',
             catalogItem: testCatalogItemWithKindMetadata(
               testCatalogItem(
@@ -171,7 +171,7 @@ void main() {
     test('empty query returns all', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogItem: testCatalogItem(
               id: 'comic-1',
@@ -179,7 +179,7 @@ void main() {
               title: 'Batman',
             ).asShelfCatalogItem,
           ),
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-2',
             catalogItem: testCatalogItem(
               id: 'comic-2',
@@ -204,7 +204,7 @@ void main() {
     test('projection includes custom field search', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogItem: testCatalogItem(
               id: 'comic-1',
@@ -218,7 +218,7 @@ void main() {
               updatedAt: DateTime.utc(2026, 1, 1),
             )),
           ),
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-2',
             catalogItem: testCatalogItem(
               id: 'comic-2',

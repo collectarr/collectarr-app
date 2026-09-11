@@ -15,7 +15,7 @@ void main() {
   testWidgets('detail context section renders metadata and genres', (
     tester,
   ) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogItem: testCatalogItem(
         id: 'music-1',
@@ -56,7 +56,7 @@ void main() {
   testWidgets('detail credits section renders discovery groups', (
     tester,
   ) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogItem: testCatalogItem(
         id: 'comic-1',

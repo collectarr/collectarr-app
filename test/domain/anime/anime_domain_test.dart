@@ -46,7 +46,7 @@ void main() {
         },
       );
 
-      final shelf = ShelfEntry(
+      final shelf = LibraryWorkspaceSource(
         itemId: 'anime-1',
         catalogItem: catalogItem.asShelfCatalogItem,
         ownedSummary: testOwnedSummary(testOwnedItem(

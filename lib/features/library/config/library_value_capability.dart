@@ -19,7 +19,7 @@ abstract interface class LibraryValueCapability {
   int? resolveProviderValueCents(LibraryProjectionView item);
 
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
   );
 }
 
@@ -31,7 +31,7 @@ class DefaultLibraryValueCapability implements LibraryValueCapability {
 
   @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<ShelfEntry> entries,
+    Iterable<LibraryWorkspaceSource> entries,
   ) =>
       null;
 }

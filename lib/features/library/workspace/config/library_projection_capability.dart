@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 abstract interface class TitleProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   LibraryProjectionItem<TDto> projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
     required LibraryWorkspaceProjector<TDto> projector,
     List<String> customFieldBadges = const [],
@@ -19,7 +19,7 @@ abstract interface class TitleProjectionCapability<
 abstract interface class ReleaseProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectReleases({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryKindModule type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
@@ -33,7 +33,7 @@ abstract interface class ReleaseProjectionCapability<
 abstract interface class CopyProjectionCapability<
     TDto extends LibraryWorkspaceDto> {
   List<LibraryProjectionItem<TDto>> projectCopies({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryKindModule type,
     required LibraryWorkspaceProjector<TDto> projector,
     required List<CustomFieldDefinition> customFieldDefinitions,
@@ -50,7 +50,7 @@ final class DefaultTitleProjectionCapability<TDto extends LibraryWorkspaceDto>
 
   @override
   LibraryProjectionItem<TDto> projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
     required LibraryWorkspaceProjector<TDto> projector,
     List<String> customFieldBadges = const [],

@@ -61,7 +61,7 @@ void main() {
 
   test('projects Anime catalog cells without video hierarchy erasure', () {
     final projection = const AnimeCollectionCsvProjection();
-    final entry = ShelfEntry(
+    final entry = LibraryWorkspaceSource(
       itemId: 'anime-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'anime-1',

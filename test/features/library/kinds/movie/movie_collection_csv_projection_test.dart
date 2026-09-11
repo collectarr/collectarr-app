@@ -52,7 +52,7 @@ void main() {
 
   test('projects Movie catalog cells without Comic-owned semantics', () {
     final projection = const MovieCollectionCsvProjection();
-    final entry = ShelfEntry(
+    final entry = LibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'movie-1',

@@ -13,7 +13,7 @@ final class MusicWorkspaceProjector
 
   @override
   MusicWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     final music = MusicCatalogMapper.mapMetadataItemToMusic(
@@ -38,7 +38,7 @@ final class MusicWorkspaceProjector
 
   @override
   MusicWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -67,7 +67,7 @@ final class MusicWorkspaceProjector
 
   @override
   MusicWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(
