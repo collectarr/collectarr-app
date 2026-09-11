@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/add/services/provider_add_result
 import 'package:collectarr_app/features/providers/transport/admin_metadata_add_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
 /// Coordinates the provider-candidate branch of Add.

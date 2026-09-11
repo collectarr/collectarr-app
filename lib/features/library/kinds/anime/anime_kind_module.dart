@@ -40,7 +40,7 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_provider_c
 import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_result_policy.dart';

@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_im
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-export 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 

@@ -24,7 +24,7 @@ void main() {
       'lib/features/pick_lists/vocabulary_repository.dart',
       'lib/features/library/generic/projection.dart',
       'lib/features/library/metadata/metadata_correction_schema.dart',
-      'lib/features/library/kinds/registry/library_kind_module.dart',
+      'lib/features/library/kinds/registry/library_kind_capability_bundle.dart',
     };
     const declarativeTokens = [
       'EditSchema<',
