@@ -6,6 +6,8 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:path/path.dart' as p;
 
+import 'migration_exceptions.dart';
+
 class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   ArchitectureRuleVisitor({
     required this.filePath,
@@ -145,172 +147,25 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'LibraryCatalogItemView',
   };
 
-  static const _genericMetadataMapAllowlist = {
-    'lib/features/library/add/controllers/library_add_comparisons.dart',
-    'lib/features/library/add/services/library_add_workflow_service.dart',
-    'lib/features/library/add/services/library_provider_orchestration_service.dart',
-    'lib/features/library/add/services/provider_add_result_merge.dart',
-    'lib/features/library/config/generic_library_media_presentation.dart',
-    'lib/features/library/config/library_entry_helpers.dart',
-    // Admin proposal payloads are an explicit provider serialization boundary;
-    // the owning kind supplies the field codec through this structural contract.
-    'lib/features/library/config/library_admin_contributor.dart',
-    // Admin proposal JSON is an explicit provider serialization boundary;
-    // semantic keys are supplied by the kind contributor.
-    'lib/features/admin/admin_shared_widgets.dart',
-    'lib/features/library/config/library_group_bucket_mutation.dart',
-    // Collection CSV Owned payloads are an explicit schema-v1 serialization
-    // boundary. The generic host assembles neutral transport fields and the
-    // dispatched kind decodes the opaque payload into its concrete aggregate.
-    'lib/features/library/config/library_collection_csv_projection.dart',
-    'lib/features/library/config/library_page_utilities.dart',
-    'lib/features/library/config/owned_details_codec.dart',
-    'lib/features/library/config/presentation/library_metadata_presentation.dart',
-    'lib/features/library/edit/draft/library_edit_draft.dart',
-    // These contracts cross the explicit sync serialization boundary; the
-    // owning TV/Anime codecs interpret the payload, not the generic host.
-    'lib/features/library/tracking/tracking_lifecycle_codec.dart',
-    'lib/features/library/tracking/watch_session_codec.dart',
-    'lib/features/library/tracking/custom_episode_codec.dart',
-    'lib/features/library/generic/library_sort_preset_store.dart',
-    'lib/features/library/generic/page/coordinators/page_cover_coordinator.dart',
-    'lib/features/library/metadata/library_metadata_compare_dialog.dart',
-    'lib/features/library/metadata/library_metadata_proposal.dart',
-    'lib/features/library/metadata/metadata_proposal_store.dart',
-    'lib/features/library/metadata/library_metadata_widgets.dart',
-    // Storage locations are a universal sync serialization boundary; they do
-    // not contain catalog-kind metadata.
-    'lib/core/models/storage_location.dart',
-    // Video release source reconstructs synthetic release editions from raw sync payloads.
-    'lib/features/library/release/video_release_source.dart',
-  };
+  static final _genericMetadataMapAllowlist =
+      architectureExceptionPaths('TK003');
 
-  static const _dynamicCatalogAllowlist = {
-    // Generic tracking fallback is a lifecycle-only sync serialization
-    // boundary; episodic fields are interpreted only by owning kind codecs.
-    'lib/core/models/tracking_lifecycle.dart',
-    'lib/features/collection/csv/collection_csv_codec.dart',
-    'lib/features/collection/mutations/collection_import_orchestrator.dart',
-    'lib/features/collection/mutations/owned_item_mutations.dart',
-    'lib/features/collection/mutations/tracking_mutations.dart',
-    'lib/features/collection/mutations/wishlist_mutations.dart',
-    'lib/features/collection/repositories/custom_field_repository.dart',
-    'lib/features/collection/repositories/shelf_controller.dart',
-    // The CSV Owned payload is opaque schema-v1 transport data; semantic
-    // decoding happens in the owning kind projection.
-    'lib/features/library/config/library_collection_csv_projection.dart',
-    'lib/features/library/add/controllers/library_add_comparisons.dart',
-    'lib/features/library/add/library_add_collection_workflow.dart',
-    'lib/features/library/add/services/library_add_workflow_service.dart',
-    'lib/features/library/config/library_entry_helpers.dart',
-    'lib/features/library/config/library_group_bucket_mutation.dart',
-    // The proposal field codecs cross the serialized provider payload boundary.
-    'lib/features/library/config/library_admin_contributor.dart',
-    // Admin proposal JSON is an explicit provider serialization boundary;
-    // semantic keys are supplied by the kind contributor.
-    'lib/features/admin/admin_shared_widgets.dart',
-    // Generic edit selection carries untyped item payload before kind-specific extraction.
-    'lib/features/library/edit/draft/library_edit_models.dart',
-    // Explicit sync serialization contracts; concrete codecs own payload
-    // interpretation after the generic host dispatches by kind.
-    'lib/features/library/tracking/tracking_lifecycle_codec.dart',
-    'lib/features/library/tracking/watch_session_codec.dart',
-    'lib/features/library/tracking/custom_episode_codec.dart',
-    'lib/features/library/detail/library_detail_hero.dart',
-    'lib/features/library/generic/library_route_state.dart',
-    'lib/features/library/hierarchy/domain/library_hierarchy_node.dart',
-    'lib/features/library/inspector/metadata_correction_dialog.dart',
-    'lib/features/library/inspector/sections/contributors_section.dart',
-    'lib/features/library/kinds/anime/domain/anime_metadata.dart',
-    'lib/features/library/kinds/boardgame/domain/boardgame_metadata.dart',
-    'lib/features/library/kinds/boardgame/presentation_builder.dart',
-    'lib/features/library/kinds/book/catalog/book_catalog_mapper.dart',
-    'lib/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart',
-    'lib/features/library/kinds/book/domain/book_metadata.dart',
-    'lib/features/library/kinds/book/presentation_builder.dart',
-    'lib/features/library/kinds/comic/detail/comic_series_detail_page.dart',
-    'lib/features/library/kinds/comic/edit/comic_edit_models.dart',
-    'lib/features/library/kinds/comic/inspector_sections.dart',
-    'lib/features/library/kinds/game/catalog/game_catalog_mapper.dart',
-    'lib/features/library/kinds/game/presentation_builder.dart',
-    'lib/features/library/kinds/manga/domain/manga_metadata.dart',
-    'lib/features/library/kinds/manga/presentation_builder.dart',
-    'lib/features/library/kinds/movie/domain/movie_metadata.dart',
-    'lib/features/library/kinds/movie/inspector_sections.dart',
-    'lib/features/library/kinds/music/catalog/music_catalog_mapper.dart',
-    'lib/features/library/kinds/music/domain/music_metadata.dart',
-    'lib/features/library/kinds/music/edit_dialog.dart',
-    'lib/features/library/kinds/music/presentation_builder.dart',
-    'lib/features/library/kinds/music/workspace/music_card_presentation.dart',
-    'lib/features/library/kinds/tv/domain/tv_metadata.dart',
-    'lib/features/library/kinds/tv/inspector_sections.dart',
-    'lib/features/library/kinds/boardgame/edit/release/boardgame_release_edit_dialog.dart',
-    'lib/features/library/metadata/library_metadata_compare_dialog.dart',
-    'lib/features/library/metadata/library_metadata_proposal.dart',
-    'lib/features/library/metadata/metadata_proposal_store.dart',
-    'lib/features/library/models/library_entry.dart',
-    'lib/features/library/workspace/data/library_workspace_repository.dart',
-    'lib/features/library/workspace/layout/library_flow_carousel.dart',
-    'lib/features/library/workspace/tiles/library_workspace_card.dart',
-    'lib/features/providers/transport/provider_preview_mapper.dart',
-    // Pull/push entities are the sync protocol boundary. Catalog snapshots
-    // are decoded by CatalogTransportRepository; the remaining maps are
-    // protocol envelopes and universal sync payloads.
-    'lib/features/sync/data/sync_apply_service.dart',
-    // Video release source reconstructs synthetic release editions from raw sync payloads.
-    'lib/features/library/release/video_release_source.dart',
-  };
+  static final _dynamicCatalogAllowlist = architectureExceptionPaths('TK009');
 
-  static const _generatedDtoAllowlist = {
-    // Generated protocol clients and their direct HTTP facade are transport
-    // boundaries. They are not application kind mappers.
-    'lib/core/api/api_client.dart',
-    'lib/core/api/api_client_admin.dart',
-    'lib/core/api/generated/collectarr_api.client.dart',
-    'lib/features/library/kinds/comic/data/remote/comic_core_mapper.dart',
-    'lib/features/library/kinds/manga/data/remote/manga_core_mapper.dart',
-    'lib/features/library/kinds/book/data/remote/book_core_mapper.dart',
-    'lib/features/library/kinds/game/data/remote/game_core_mapper.dart',
-    'lib/features/library/kinds/boardgame/data/remote/boardgame_core_mapper.dart',
-    'lib/features/library/kinds/movie/data/remote/movie_core_mapper.dart',
-    'lib/features/library/kinds/anime/data/remote/anime_core_mapper.dart',
-    'lib/features/library/kinds/music/data/remote/music_core_mapper.dart',
-    'lib/features/library/kinds/tv/data/remote/tv_core_mapper.dart',
-    'lib/features/library/kinds/tv/data/remote/tv_remote_source.dart',
-    // Add result wrapper is an explicit catalog transport boundary. It may
-    // decode/encode the generated DTO, while Add code carries its wrapper.
-    'lib/features/catalog/transport/library_add_catalog_item.dart',
-  };
+  static final _generatedDtoAllowlist = architectureExceptionPaths('TK006');
 
-  static const _structuralProjectionAllowlist = {
-    // Small cross-kind read projections may expose presentation labels such
-    // as subtitle; they do not carry canonical kind metadata.
-    'lib/core/models/catalog_display_summary.dart',
-    'lib/core/models/catalog_search_hit.dart',
-    'lib/core/models/calendar_event.dart',
-    'lib/core/models/owned_item_projection.dart',
-    // Admin metadata correction is a raw server catalog update payload projection.
-    'lib/features/admin/admin_shared_widgets.dart',
-  };
+  static final _structuralProjectionAllowlist =
+      architectureExceptionPaths('TK010');
 
   // The enum implementation itself may compare enum values while parsing its
   // serialized representation. This is not generic feature dispatch.
-  static const _structuralKindComparisonAllowlist = {
-    'lib/core/models/catalog_media_kind.dart',
-    // These hosts only validate/dispatch a structural kind value before
-    // handing semantics to a registered contributor or provider parser.
-    'lib/features/collection/csv/collection_csv_codec.dart',
-    'lib/features/collection/mutations/wishlist_mutations.dart',
-    'lib/features/imports/personal_lists/anime_list_import_service.dart',
-    'lib/features/library/selection/library_bulk_actions.dart',
-  };
+  static final _structuralKindComparisonAllowlist =
+      architectureExceptionPaths('TK005-comparison');
 
   // These models switch over their own structural event enum to provide
   // labels/icons/colors. They do not dispatch catalog semantics by kind.
-  static const _structuralKindSwitchAllowlist = {
-    'lib/core/models/activity_event.dart',
-    'lib/core/models/calendar_event.dart',
-  };
+  static final _structuralKindSwitchAllowlist =
+      architectureExceptionPaths('TK005-switch');
 
   @override
   void visitPropertyAccess(PropertyAccess node) {
@@ -705,6 +560,7 @@ List<String> architectureAllowlistIntegrityErrors(String repoRoot) {
         ArchitectureRuleVisitor._structuralKindComparisonAllowlist,
   };
   final errors = <String>[];
+  errors.addAll(architectureMigrationExceptionIntegrityErrors());
   for (final entry in allowlists.entries) {
     for (final relativePath in entry.value) {
       final file = File(p.join(repoRoot, relativePath));

@@ -1,0 +1,832 @@
+/// Auditable exceptions for the typed-kind architecture checker.
+///
+/// Each record is an explicit, reviewable boundary. Migration records carry
+/// an owner and removal phase; permanent records identify the structural or
+/// serialization boundary that must remain.
+final class ArchitectureMigrationException {
+  const ArchitectureMigrationException({
+    required this.ruleId,
+    required this.path,
+    required this.reason,
+    required this.owner,
+    required this.removeByPhase,
+  });
+
+  final String ruleId;
+  final String path;
+  final String reason;
+  final String owner;
+  final String removeByPhase;
+}
+
+const architectureMigrationExceptions = <ArchitectureMigrationException>[
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/add/controllers/library_add_comparisons.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/add/services/library_add_workflow_service.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path:
+        'lib/features/library/add/services/library_provider_orchestration_service.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/add/services/provider_add_result_merge.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/config/generic_library_media_presentation.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/config/library_entry_helpers.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/config/library_admin_contributor.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/admin/admin_shared_widgets.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/config/library_group_bucket_mutation.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/config/library_collection_csv_projection.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/config/library_page_utilities.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/config/owned_details_codec.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path:
+        'lib/features/library/config/presentation/library_metadata_presentation.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/edit/draft/library_edit_draft.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/tracking/tracking_lifecycle_codec.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/tracking/watch_session_codec.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/tracking/custom_episode_codec.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/generic/library_sort_preset_store.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path:
+        'lib/features/library/generic/page/coordinators/page_cover_coordinator.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/metadata/library_metadata_compare_dialog.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/metadata/library_metadata_proposal.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/metadata/metadata_proposal_store.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/metadata/library_metadata_widgets.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/core/models/storage_location.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK003',
+    path: 'lib/features/library/release/video_release_source.dart',
+    reason: 'generic serialization boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/core/models/tracking_lifecycle.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/collection/csv/collection_csv_codec.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path:
+        'lib/features/collection/mutations/collection_import_orchestrator.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/collection/mutations/owned_item_mutations.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/collection/mutations/tracking_mutations.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/collection/mutations/wishlist_mutations.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/collection/repositories/custom_field_repository.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/collection/repositories/shelf_controller.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/config/library_collection_csv_projection.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/add/controllers/library_add_comparisons.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/add/library_add_collection_workflow.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/add/services/library_add_workflow_service.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/config/library_entry_helpers.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/config/library_group_bucket_mutation.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/config/library_admin_contributor.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/admin/admin_shared_widgets.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/edit/draft/library_edit_models.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/tracking/tracking_lifecycle_codec.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/tracking/watch_session_codec.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/tracking/custom_episode_codec.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/detail/library_detail_hero.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/generic/library_route_state.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/hierarchy/domain/library_hierarchy_node.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/inspector/metadata_correction_dialog.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/inspector/sections/contributors_section.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/anime/domain/anime_metadata.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/boardgame/domain/boardgame_metadata.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/boardgame/presentation_builder.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/book/catalog/book_catalog_mapper.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path:
+        'lib/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/book/domain/book_metadata.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/book/presentation_builder.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path:
+        'lib/features/library/kinds/comic/detail/comic_series_detail_page.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/comic/edit/comic_edit_models.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/comic/inspector_sections.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/game/catalog/game_catalog_mapper.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/game/presentation_builder.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/manga/domain/manga_metadata.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/manga/presentation_builder.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/movie/domain/movie_metadata.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/movie/inspector_sections.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/music/catalog/music_catalog_mapper.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/music/domain/music_metadata.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/music/edit_dialog.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/music/presentation_builder.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path:
+        'lib/features/library/kinds/music/workspace/music_card_presentation.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/tv/domain/tv_metadata.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/kinds/tv/inspector_sections.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path:
+        'lib/features/library/kinds/boardgame/edit/release/boardgame_release_edit_dialog.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/metadata/library_metadata_compare_dialog.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/metadata/library_metadata_proposal.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/metadata/metadata_proposal_store.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/models/library_entry.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path:
+        'lib/features/library/workspace/data/library_workspace_repository.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/workspace/layout/library_flow_carousel.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/workspace/tiles/library_workspace_card.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/providers/transport/provider_preview_mapper.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/sync/data/sync_apply_service.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK009',
+    path: 'lib/features/library/release/video_release_source.dart',
+    reason: 'typed catalog migration boundary',
+    owner: 'catalog-cutover',
+    removeByPhase: 'Phase 3',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/core/api/api_client.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/core/api/api_client_admin.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/core/api/generated/collectarr_api.client.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/comic/data/remote/comic_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/manga/data/remote/manga_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/book/data/remote/book_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/game/data/remote/game_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path:
+        'lib/features/library/kinds/boardgame/data/remote/boardgame_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/movie/data/remote/movie_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/anime/data/remote/anime_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/music/data/remote/music_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/tv/data/remote/tv_core_mapper.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/library/kinds/tv/data/remote/tv_remote_source.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK006',
+    path: 'lib/features/catalog/transport/library_add_catalog_item.dart',
+    reason: 'generated Core/provider transport boundary',
+    owner: 'core-dto-cutover',
+    removeByPhase: 'Phase 1',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK010',
+    path: 'lib/core/models/catalog_display_summary.dart',
+    reason: 'small structural read projection',
+    owner: 'structural-projections',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK010',
+    path: 'lib/core/models/catalog_search_hit.dart',
+    reason: 'small structural read projection',
+    owner: 'structural-projections',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK010',
+    path: 'lib/core/models/calendar_event.dart',
+    reason: 'small structural read projection',
+    owner: 'structural-projections',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK010',
+    path: 'lib/core/models/owned_item_projection.dart',
+    reason: 'small structural read projection',
+    owner: 'structural-projections',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK010',
+    path: 'lib/features/admin/admin_shared_widgets.dart',
+    reason: 'small structural read projection',
+    owner: 'structural-projections',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK005-comparison',
+    path: 'lib/core/models/catalog_media_kind.dart',
+    reason: 'structural kind comparison before contributor dispatch',
+    owner: 'structural-dispatch',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK005-comparison',
+    path: 'lib/features/collection/csv/collection_csv_codec.dart',
+    reason: 'structural kind comparison before contributor dispatch',
+    owner: 'structural-dispatch',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK005-comparison',
+    path: 'lib/features/collection/mutations/wishlist_mutations.dart',
+    reason: 'structural kind comparison before contributor dispatch',
+    owner: 'structural-dispatch',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK005-comparison',
+    path: 'lib/features/imports/personal_lists/anime_list_import_service.dart',
+    reason: 'structural kind comparison before contributor dispatch',
+    owner: 'structural-dispatch',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK005-comparison',
+    path: 'lib/features/library/selection/library_bulk_actions.dart',
+    reason: 'structural kind comparison before contributor dispatch',
+    owner: 'structural-dispatch',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK005-switch',
+    path: 'lib/core/models/activity_event.dart',
+    reason: 'structural event switch for labels/icons',
+    owner: 'structural-dispatch',
+    removeByPhase: 'permanent-boundary',
+  ),
+  ArchitectureMigrationException(
+    ruleId: 'TK005-switch',
+    path: 'lib/core/models/calendar_event.dart',
+    reason: 'structural event switch for labels/icons',
+    owner: 'structural-dispatch',
+    removeByPhase: 'permanent-boundary',
+  ),
+];
+
+Set<String> architectureExceptionPaths(String ruleId) {
+  return {
+    for (final exception in architectureMigrationExceptions)
+      if (exception.ruleId == ruleId) exception.path,
+  };
+}
+
+List<String> architectureMigrationExceptionIntegrityErrors() {
+  final errors = <String>[];
+  final keys = <String>{};
+  for (final exception in architectureMigrationExceptions) {
+    if (exception.ruleId.trim().isEmpty ||
+        exception.path.trim().isEmpty ||
+        exception.reason.trim().isEmpty ||
+        exception.owner.trim().isEmpty ||
+        exception.removeByPhase.trim().isEmpty) {
+      errors.add(
+        'migration exception has an empty ruleId/path/reason/owner/removeByPhase: '
+        '${exception.ruleId}:${exception.path}',
+      );
+    }
+    final key = '${exception.ruleId}:${exception.path}';
+    if (!keys.add(key)) {
+      errors.add('duplicate migration exception: $key');
+    }
+  }
+  return errors;
+}

@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
+import '../../tool/architecture/migration_exceptions.dart';
 
 void main() {
   test('source tree does not import obsolete catalog_item_types.dart', () {
@@ -363,6 +364,31 @@ String label(CatalogMediaKind mediaType) {
   test('architecture allowlists contain only live boundary files', () {
     final errors = architectureAllowlistIntegrityErrors(Directory.current.path);
     expect(errors, isEmpty, reason: errors.join('\n'));
+  });
+
+  test('architecture migration exceptions are explicit and scoped', () {
+    expect(architectureMigrationExceptions, isNotEmpty);
+    expect(
+      architectureMigrationExceptionIntegrityErrors(),
+      isEmpty,
+    );
+    expect(
+      architectureMigrationExceptions.map((exception) => exception.ruleId),
+      containsAll(<String>[
+        'TK003',
+        'TK005-comparison',
+        'TK005-switch',
+        'TK006',
+        'TK009',
+        'TK010',
+      ]),
+    );
+    for (final exception in architectureMigrationExceptions) {
+      expect(exception.path, startsWith('lib/'));
+      expect(exception.reason, isNotEmpty);
+      expect(exception.owner, isNotEmpty);
+      expect(exception.removeByPhase, isNotEmpty);
+    }
   });
 
   test(
