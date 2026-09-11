@@ -28,6 +28,7 @@ import 'package:collectarr_app/features/library/add/services/library_add_proposa
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_provider_add_coordinator.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
@@ -57,6 +58,7 @@ class LibraryAddSessionController
     this.providerRegistry,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.workflowService = const LibraryAddWorkflowService(),
+    this.providerAddCoordinator = const LibraryProviderAddCoordinator(),
     this.providerActionService = const LibraryProviderActionService(),
     this.providerOrchestrationService =
         const LibraryProviderOrchestrationService(),
@@ -130,6 +132,7 @@ class LibraryAddSessionController
   final ProviderConnectorRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
   final LibraryAddWorkflowService workflowService;
+  final LibraryProviderAddCoordinator providerAddCoordinator;
   final LibraryProviderActionService providerActionService;
   final LibraryProviderOrchestrationService providerOrchestrationService;
   final LibraryAddProviderFlowService providerFlowService;
@@ -1353,7 +1356,7 @@ class LibraryAddSessionController
             kind,
           );
 
-          await workflowService.addProviderCandidate(
+          await providerAddCoordinator.addProviderCandidate(
             LibraryProviderAddRequest(
               api: api!,
               isAdmin: isAdmin,
