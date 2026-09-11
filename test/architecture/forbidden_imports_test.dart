@@ -135,6 +135,7 @@ class TestStats {}
     );
     parseResult.unit.accept(visitor);
     expect(visitor.violations, isNotEmpty);
+    expect(visitor.violations.first, contains('TK001'));
     expect(
       visitor.violations.first,
       contains('Forbidden import of kind-specific module'),
