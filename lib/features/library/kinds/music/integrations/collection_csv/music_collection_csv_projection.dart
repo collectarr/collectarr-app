@@ -131,7 +131,7 @@ final class MusicCollectionCsvProjection
     final metadata = catalog == null
         ? null
         : MusicCatalogMetadata.fromJson({
-            ...catalog.toSyncPayload(),
+            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
             'id': catalog.id,
             'kind': CatalogMediaKind.music.apiValue,
           });

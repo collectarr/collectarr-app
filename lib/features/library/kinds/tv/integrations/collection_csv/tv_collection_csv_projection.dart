@@ -131,7 +131,7 @@ final class TvCollectionCsvProjection
     final metadata = catalog == null
         ? null
         : TvSeriesMetadata.fromJson({
-            ...catalog.toSyncPayload(),
+            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
             'id': catalog.id,
             'kind': CatalogMediaKind.tv.apiValue,
           });

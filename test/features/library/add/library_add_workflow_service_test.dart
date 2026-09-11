@@ -62,9 +62,10 @@ void main() {
 
     final item = service.metadataItemFromPreview(preview);
 
-    expect(item.toSyncPayload()['item_number'], '1');
-    expect(item.toSyncPayload()['publisher'], 'Example Comics');
-    expect(item.toSyncPayload()['series_title'], 'Example Series');
-    expect(item.toSyncPayload()['genres'], ['superhero']);
+    final payload = item.mapTransport((transport) => transport.toSyncPayload());
+    expect(payload['item_number'], '1');
+    expect(payload['publisher'], 'Example Comics');
+    expect(payload['series_title'], 'Example Series');
+    expect(payload['genres'], ['superhero']);
   });
 }

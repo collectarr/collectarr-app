@@ -232,7 +232,11 @@ final class GameEntry {
 
   factory GameEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? GameCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? GameCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : GameCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

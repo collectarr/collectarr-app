@@ -339,7 +339,11 @@ final class ComicEntry {
 
   factory ComicEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? ComicCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? ComicCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : ComicCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

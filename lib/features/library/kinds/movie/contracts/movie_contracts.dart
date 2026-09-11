@@ -213,7 +213,11 @@ final class MovieEntry {
 
   factory MovieEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? MovieCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? MovieCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : MovieCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

@@ -228,7 +228,11 @@ final class MangaEntry {
 
   factory MangaEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? MangaCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? MangaCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : MangaCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

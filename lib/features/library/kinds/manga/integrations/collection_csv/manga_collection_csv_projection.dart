@@ -127,7 +127,7 @@ final class MangaCollectionCsvProjection
     final metadata = catalog == null
         ? null
         : MangaMetadata.fromJson({
-            ...catalog.toSyncPayload(),
+            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
             'id': catalog.id,
             'kind': CatalogMediaKind.manga.apiValue,
           });

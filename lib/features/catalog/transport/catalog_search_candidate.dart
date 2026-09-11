@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 import 'catalog_import_snapshot.dart';
 
@@ -28,7 +29,7 @@ final class CatalogSearchCandidate {
   /// transport object unless the user selects the candidate.
   factory CatalogSearchCandidate.fromApiJson({
     required Map<String, dynamic> json,
-    Object? Function(Map<String, dynamic> payload)? metadataDecoder,
+    JsonEncodable Function(JsonMap payload)? metadataDecoder,
   }) {
     var item = CatalogItemDto.fromJson(json);
     if (metadataDecoder != null) {

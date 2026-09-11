@@ -59,12 +59,6 @@ final class LibraryAddCatalogTransport {
         title: resolvedDisplayTitle,
         imageUrl: displayCoverUrl,
       );
-  Map<String, dynamic> toSyncPayload() => _item.toSyncPayload();
-
-  CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {
-    return _item.catalogRefForTarget(targetRef);
-  }
-
   LibraryAddCatalogTransport copyWith({
     LibraryItemIdentity? identity,
     String? title,
@@ -111,12 +105,6 @@ final class LibraryAddCatalogTransport {
 
   LibraryAddCatalogTransport withKindMetadata(Object? kindMetadata) {
     return LibraryAddCatalogTransport._(_item.withKindMetadata(kindMetadata));
-  }
-
-  LibraryAddCatalogTransport withKindMetadataFrom(
-    LibraryAddCatalogTransport source,
-  ) {
-    return withKindMetadata(source.toTransportItem().kindMetadata);
   }
 
   CatalogItemDto toTransportItem() => _item;

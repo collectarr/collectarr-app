@@ -10,7 +10,7 @@ typedef LibraryMetadataSearchQueryBuilder = MetadataSearchQuery Function({
   required String title,
 });
 
-typedef LibraryMetadataCatalogDecoder = Object? Function(
+typedef LibraryMetadataCatalogDecoder = JsonEncodable Function(
   JsonMap payload,
 );
 

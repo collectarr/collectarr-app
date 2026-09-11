@@ -128,7 +128,9 @@ class LibraryPageMetadataCoordinator {
       itemId: targetItem.node.titleItemId,
       itemTitle: targetItem.source.catalogSummary?.title ?? localItem.title,
       kind: _page.type.kind,
-      localPayload: localItem.toSyncPayload(),
+      localPayload: localItem.mapTransport(
+        (transport) => transport.toSyncPayload(),
+      ),
       compareBuilder: compareBuilder,
       accent: _page.accent,
     );

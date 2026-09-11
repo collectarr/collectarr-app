@@ -167,7 +167,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               source: LibraryMetadataCorrectionSource(
                 title: selected.source.catalogTransport!.title,
                 values: LibraryMetadataCorrectionValues.fromSerialized(
-                  selected.source.catalogTransport!.toSyncPayload(),
+                  selected.source.catalogTransport!.mapTransport(
+                    (transport) => transport.toSyncPayload(),
+                  ),
                 ),
               ),
               type: widget.type,

@@ -206,7 +206,11 @@ final class TvEntry {
 
   factory TvEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? TvCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? TvCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : TvCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

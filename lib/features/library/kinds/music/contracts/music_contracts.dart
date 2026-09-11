@@ -154,7 +154,11 @@ final class MusicEntry {
 
   factory MusicEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? MusicCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? MusicCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : MusicCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

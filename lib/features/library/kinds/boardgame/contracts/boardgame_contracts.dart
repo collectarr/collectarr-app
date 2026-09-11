@@ -225,7 +225,11 @@ final class BoardGameEntry {
 
   factory BoardGameEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? BoardGameCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? BoardGameCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : BoardGameCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

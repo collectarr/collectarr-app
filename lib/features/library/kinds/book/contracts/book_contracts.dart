@@ -273,7 +273,11 @@ final class BookEntry {
 
   factory BookEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? BookCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? BookCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : BookCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,

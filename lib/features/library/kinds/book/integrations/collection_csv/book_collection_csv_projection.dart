@@ -127,7 +127,7 @@ final class BookCollectionCsvProjection
     final metadata = catalog == null
         ? null
         : BookCatalogMetadata.fromJson({
-            ...catalog.toSyncPayload(),
+            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
             'id': catalog.id,
             'kind': CatalogMediaKind.book.apiValue,
           });

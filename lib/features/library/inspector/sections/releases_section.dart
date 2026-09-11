@@ -14,8 +14,10 @@ class InspectorReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final payload =
-        request.item.source.catalogTransport?.toSyncPayload() ?? const {};
+    final payload = request.item.source.catalogTransport?.mapTransport(
+          (transport) => transport.toSyncPayload(),
+        ) ??
+        const <String, dynamic>{};
     final video = (payload['video'] as Map?) ?? payload;
     final nrDiscs =
         video['nr_discs'] is num ? (video['nr_discs'] as num).toInt() : null;

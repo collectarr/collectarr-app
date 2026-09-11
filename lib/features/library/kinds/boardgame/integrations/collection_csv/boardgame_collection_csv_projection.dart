@@ -127,7 +127,7 @@ final class BoardGameCollectionCsvProjection
     final metadata = catalog == null
         ? null
         : BoardGameMetadata.fromJson({
-            ...catalog.toSyncPayload(),
+            ...catalog.mapTransport((transport) => transport.toSyncPayload()),
             'id': catalog.id,
             'kind': CatalogMediaKind.boardgame.apiValue,
           });

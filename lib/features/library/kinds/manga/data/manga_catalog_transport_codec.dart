@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_codec_support.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
@@ -62,7 +62,7 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
   @override
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
     return MangaRepository(db).updateMedia(
-      MangaMedia.fromJson(catalogPayloadFor(item)),
+      MangaMedia.fromJson(catalogTransportPayloadFor(item)),
     );
   }
 

@@ -214,7 +214,11 @@ final class AnimeEntry {
 
   factory AnimeEntry.fromShelf(LibraryWorkspaceSource shelf) {
     final catalog = shelf.catalogTransport != null
-        ? AnimeCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
+        ? AnimeCatalog.fromJson(
+            shelf.catalogTransport!.mapTransport(
+              (transport) => transport.toSyncPayload(),
+            ),
+          )
         : AnimeCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
