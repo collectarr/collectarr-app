@@ -535,8 +535,7 @@ String? _optionalAnimeText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _animeAddResultScope(
-    CatalogSearchCandidate item) {
+LibraryAddVideoResultScope _animeAddResultScope(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is AnimeMetadata) {
     if (metadata.series?.seasonNumber != null) {

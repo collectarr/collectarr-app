@@ -34,7 +34,6 @@ final class BookReleaseId {
   String toString() => value;
 }
 
-
 @immutable
 final class BookOwnedItemId {
   const BookOwnedItemId(this.value);

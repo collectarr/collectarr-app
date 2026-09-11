@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -8,7 +9,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_controller.dart';
 import 'package:collectarr_app/features/library/edit/video/video_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
@@ -255,11 +256,11 @@ class AnimeEditDraft extends LibraryEditKindDraft
 
 LibraryEditKindDraft createAnimeEditDraft({
   required CatalogSearchCandidate item,
-  Object? typedOwnedItem,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
-  final owned = AnimeOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final owned = AnimeOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final video = owned?.details;
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   final anime = metadata is AnimeMetadata ? metadata : null;

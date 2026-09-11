@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 /// Projects TV's typed owned model into structural collection summaries.
 final class TvOwnedItemProjection {
   const TvOwnedItemProjection._();
 
-  static TvOwnedItem? tryFromTyped(Object? item) {
-    return item is TvOwnedItem ? item : null;
-  }
+  static TvOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
+      dispatch?.map<TvOwnedItem>(tv: (item) => item);
 
   static OwnedItemSummary toSummary(TvOwnedItem item) {
     return OwnedItemSummary(

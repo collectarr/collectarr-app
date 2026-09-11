@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
@@ -61,7 +62,8 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = MusicOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is MusicOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,
@@ -167,7 +169,8 @@ abstract final class MusicKindSchema {
     id: MusicFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = MusicOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is MusicOwnedItem ? owned.details.signedBy : null;
     },
     scope: LibraryFieldScope.copy,

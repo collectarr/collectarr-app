@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -6,7 +7,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
@@ -175,11 +176,11 @@ class MusicEditDraft extends LibraryEditKindDraft {
 
 LibraryEditKindDraft createMusicEditDraft({
   required CatalogSearchCandidate item,
-  Object? typedOwnedItem,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
-  final owned = MusicOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final owned = MusicOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final music = owned?.details;
   final meta = item.mapTransport((transport) => transport).kindMetadata
           is MusicCatalogMetadata

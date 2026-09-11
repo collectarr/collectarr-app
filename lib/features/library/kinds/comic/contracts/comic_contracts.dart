@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -354,9 +355,9 @@ final class ComicEntry {
 
     return ComicEntry(
       catalog: catalog,
-      ownedItem: shelf.typedOwnedItem is ComicOwnedItem
-          ? shelf.typedOwnedItem! as ComicOwnedItem
-          : null,
+      ownedItem: ComicOwnedItemProjection.fromDispatch(
+        shelf.ownedItemDispatch,
+      ),
       trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

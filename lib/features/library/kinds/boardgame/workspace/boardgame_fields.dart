@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
@@ -43,7 +44,8 @@ abstract final class BoardGameKindSchema {
     id: BoardGameFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = BoardGameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is BoardGameOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,

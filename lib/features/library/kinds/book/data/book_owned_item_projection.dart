@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 /// Projects Book's typed owned model into structural collection summaries.
 final class BookOwnedItemProjection {
   const BookOwnedItemProjection._();
 
-  static BookOwnedItem? tryFromTyped(Object? item) {
-    return item is BookOwnedItem ? item : null;
-  }
+  static BookOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
+      dispatch?.map<BookOwnedItem>(book: (item) => item);
 
   static OwnedItemSummary toSummary(BookOwnedItem item) {
     return OwnedItemSummary(

@@ -21,6 +21,8 @@ import 'package:collectarr_app/features/library/workspace/shared/library_media_a
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 
+export 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';

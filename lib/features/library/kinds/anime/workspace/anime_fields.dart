@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
@@ -42,7 +43,8 @@ abstract final class AnimeKindSchema {
     id: AnimeFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = AnimeOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is AnimeOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,

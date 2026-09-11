@@ -203,7 +203,9 @@ void main() {
                 ownedItem: ownedItem,
               ),
               ownedItem: testOwnedSummary(ownedItem),
-              typedOwnedItem: testComicOwnedItemFrom(ownedItem),
+              ownedItemDispatch: testComicOwnedItemDispatchFrom(
+                testComicOwnedItemFrom(ownedItem),
+              ),
               ownedCopies: [
                 testOwnedSummary(testOwnedItem(
                   id: 'owned-comic-hero-2',
@@ -439,7 +441,9 @@ void main() {
               ownedItem: ownedItem,
             ),
             ownedItem: testOwnedSummary(ownedItem),
-            typedOwnedItem: testComicOwnedItemFrom(ownedItem),
+            ownedItemDispatch: testComicOwnedItemDispatchFrom(
+              testComicOwnedItemFrom(ownedItem),
+            ),
             accent: Colors.orange,
           ),
         ),

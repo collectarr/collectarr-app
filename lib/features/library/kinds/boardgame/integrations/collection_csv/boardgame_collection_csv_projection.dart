@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
@@ -144,25 +145,29 @@ final class BoardGameCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        BoardGameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is BoardGameOwnedItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        BoardGameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is BoardGameOwnedItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        BoardGameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is BoardGameOwnedItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        BoardGameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is BoardGameOwnedItem ? owned.tags : null;
   }
 

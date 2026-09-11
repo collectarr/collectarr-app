@@ -34,7 +34,6 @@ final class BoardGameEditionId {
   String toString() => value;
 }
 
-
 @immutable
 final class BoardGameOwnedItemId {
   const BoardGameOwnedItemId(this.value);

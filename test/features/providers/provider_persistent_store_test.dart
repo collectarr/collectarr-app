@@ -116,7 +116,8 @@ void main() {
     await store.saveLink(link);
     final persisted = await store.getLinkByRemoteId('acc-1', 'remote-21');
 
-    expect(persisted?.localEntityRef.entityType, const CatalogEntityTypeId('work'));
+    expect(persisted?.localEntityRef.entityType,
+        const CatalogEntityTypeId('work'));
     expect(persisted?.baseSnapshot?.progress, 4);
     expect(persisted?.baseSnapshot?.rawPayload['source'], 'anilist');
     expect(persisted?.remoteRevision, 'rev-1');

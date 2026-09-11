@@ -160,15 +160,17 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
   final item = _mangaItem();
   return createMangaEditDraft(
     item: item,
-    typedOwnedItem: MangaOwnedItem(
-      id: const MangaOwnedItemId('owned-1'),
-      catalogRef: const CatalogEntityRef(
-        id: 'manga-1',
-        kind: CatalogMediaKind.manga,
-        entityType: const CatalogEntityTypeId('work'),
+    ownedItemDispatch: testMangaOwnedItemDispatchFrom(
+      MangaOwnedItem(
+        id: const MangaOwnedItemId('owned-1'),
+        catalogRef: const CatalogEntityRef(
+          id: 'manga-1',
+          kind: CatalogMediaKind.manga,
+          entityType: const CatalogEntityTypeId('work'),
+        ),
+        updatedAt: DateTime(2026),
+        details: details,
       ),
-      updatedAt: DateTime(2026),
-      details: details,
     ),
     textControllers: TextControllerGroup(),
   ) as MangaEditDraft;

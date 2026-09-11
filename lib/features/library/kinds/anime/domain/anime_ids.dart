@@ -17,7 +17,6 @@ final class AnimeMediaId {
   String toString() => value;
 }
 
-
 @immutable
 final class AnimeEpisodeId {
   const AnimeEpisodeId(this.value);

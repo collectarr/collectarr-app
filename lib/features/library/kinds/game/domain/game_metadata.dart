@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
-
 @immutable
 class GameCatalogMetadata implements JsonEncodable {
   const GameCatalogMetadata({
@@ -187,11 +186,13 @@ class GameCatalogMetadata implements JsonEncodable {
     final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
     ];
 

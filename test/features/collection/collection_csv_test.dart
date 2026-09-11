@@ -51,7 +51,8 @@ void main() {
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
         )),
-        typedOwnedItem: testComicOwnedItemFrom(testOwnedItem(
+        ownedItemDispatch:
+            testComicOwnedItemDispatchFrom(testComicOwnedItemFrom(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -66,7 +67,7 @@ void main() {
           keyReason: 'First appearance',
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
-        )),
+        ))),
         trackingSummary: TrackingSummary(
           id: 'tracking-1',
           catalogRef: testCatalogRef('comic-1', kind: 'comic'),

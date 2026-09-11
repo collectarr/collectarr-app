@@ -73,7 +73,9 @@ void main() {
         barcode: '071486024576',
       )).asShelfCatalogItem,
       ownedSummary: testOwnedSummary(owned),
-      typedOwnedItem: testComicOwnedItemFrom(owned),
+      ownedItemDispatch: testComicOwnedItemDispatchFrom(
+        testComicOwnedItemFrom(owned),
+      ),
     );
 
     expect(projection.catalogCells(entry), [

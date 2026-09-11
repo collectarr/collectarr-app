@@ -52,8 +52,9 @@ final class ComicTrackingLifecycle extends TrackingLifecycle {
           ? this.sourceType
           : sourceType,
       status: identical(status, trackingLifecycleUnset) ? this.status : status,
-      rating:
-          identical(rating, trackingLifecycleUnset) ? this.rating : rating as int?,
+      rating: identical(rating, trackingLifecycleUnset)
+          ? this.rating
+          : rating as int?,
       startedAt: identical(startedAt, trackingLifecycleUnset)
           ? this.startedAt
           : startedAt as DateTime?,
@@ -69,13 +70,13 @@ final class ComicTrackingLifecycle extends TrackingLifecycle {
       timesCompleted: identical(timesCompleted, trackingLifecycleUnset)
           ? this.timesCompleted
           : timesCompleted as int?,
-      notes:
-          identical(notes, trackingLifecycleUnset) ? this.notes : notes as String?,
+      notes: identical(notes, trackingLifecycleUnset)
+          ? this.notes
+          : notes as String?,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: identical(deletedAt, trackingLifecycleUnset)
           ? this.deletedAt
           : deletedAt as DateTime?,
     );
   }
-
 }

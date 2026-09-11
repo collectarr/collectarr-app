@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 /// Projects Anime's typed owned model into structural collection summaries.
 final class AnimeOwnedItemProjection {
   const AnimeOwnedItemProjection._();
 
-  static AnimeOwnedItem? tryFromTyped(Object? item) {
-    return item is AnimeOwnedItem ? item : null;
-  }
+  static AnimeOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
+      dispatch?.map<AnimeOwnedItem>(anime: (item) => item);
 
   static OwnedItemSummary toSummary(AnimeOwnedItem item) {
     return OwnedItemSummary(

@@ -26,7 +26,8 @@ class GameCatalogMapper {
     final editions = editionsPayload != null
         ? editionsPayload
             .whereType<Map<String, dynamic>>()
-            .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+                (e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
             .toList()
         : const <CatalogEditionDto>[];
 

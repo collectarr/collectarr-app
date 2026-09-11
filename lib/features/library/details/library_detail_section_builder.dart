@@ -46,7 +46,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           LibraryDetailPersonalSection(
             type: type,
             item: item,
-            typedOwnedItem: item.source.typedOwnedItem,
+            ownedItemDispatch: item.source.ownedItemDispatch,
             ownedSummary: ownedSummary,
             ownedCopies: ownedCopies,
             trackingLifecycle: trackingLifecycle,

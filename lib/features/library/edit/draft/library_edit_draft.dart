@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +39,7 @@ class LibraryEditDraft {
     required this.type,
     required this.item,
     required this.ownedItem,
-    required this.typedOwnedItem,
+    required this.ownedItemDispatch,
     required this.wishlistItem,
     required this.trackingLifecycle,
     required this.accent,
@@ -60,7 +61,7 @@ class LibraryEditDraft {
   final LibraryKindModule type;
   final CatalogSearchCandidate item;
   final OwnedItemSummary? ownedItem;
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
   final TrackingLifecycle? trackingLifecycle;
   final Color accent;
@@ -92,7 +93,7 @@ class LibraryEditDraft {
       type: request.type,
       item: request.item,
       ownedItem: request.ownedItem,
-      typedOwnedItem: request.typedOwnedItem,
+      ownedItemDispatch: request.ownedItemDispatch,
       wishlistItem: request.wishlistItem,
       trackingLifecycle: request.trackingLifecycle,
       accent: request.accent,
@@ -108,7 +109,7 @@ class LibraryEditDraft {
     required LibraryKindModule type,
     required CatalogSearchCandidate item,
     OwnedItemSummary? ownedItem,
-    Object? typedOwnedItem,
+    LibraryOwnedItemDispatch? ownedItemDispatch,
     WishlistItem? wishlistItem,
     TrackingLifecycle? trackingLifecycle,
     required Color accent,
@@ -122,7 +123,7 @@ class LibraryEditDraft {
       type: type,
       item: item,
       ownedItem: ownedItem,
-      typedOwnedItem: typedOwnedItem,
+      ownedItemDispatch: ownedItemDispatch,
       wishlistItem: wishlistItem,
       trackingLifecycle: trackingLifecycle,
       accent: accent,
@@ -138,7 +139,7 @@ class LibraryEditDraft {
     required LibraryKindModule type,
     required CatalogSearchCandidate item,
     required OwnedItemSummary? ownedItem,
-    Object? typedOwnedItem,
+    LibraryOwnedItemDispatch? ownedItemDispatch,
     required WishlistItem? wishlistItem,
     required TrackingLifecycle? trackingLifecycle,
     required Color accent,
@@ -301,7 +302,7 @@ class LibraryEditDraft {
       // Kind edit schemas consume only the concrete aggregate supplied by the
       // typed Library boundary. The generic request value is never decoded by
       // a kind schema.
-      typedOwnedItem: typedOwnedItem,
+      ownedItemDispatch: ownedItemDispatch,
       trackingLifecycle: trackingLifecycle,
       textControllers: textControllers,
     );
@@ -312,7 +313,7 @@ class LibraryEditDraft {
       type: type,
       item: item,
       ownedItem: ownedItem,
-      typedOwnedItem: typedOwnedItem,
+      ownedItemDispatch: ownedItemDispatch,
       wishlistItem: wishlistItem,
       trackingLifecycle: trackingLifecycle,
       accent: accent,
@@ -396,10 +397,9 @@ class LibraryEditDraft {
       editions,
       editionId: catalogRefEditionId(ownedItem?.targetRef) ??
           catalogRefEditionId(trackingLifecycle?.catalogRef),
-      editionTitle:
-          item.mapTransport(
-            (transport) => (item.titleExtension ?? transport.editionTitle)?.trim(),
-          ),
+      editionTitle: item.mapTransport(
+        (transport) => (item.titleExtension ?? transport.editionTitle)?.trim(),
+      ),
       variantId: catalogRefVariantId(ownedItem?.targetRef) ??
           catalogRefVariantId(trackingLifecycle?.catalogRef),
     );

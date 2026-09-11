@@ -74,8 +74,8 @@ typedef LibraryAddDigitalCopyFlagBuilder = bool? Function(
   CatalogSearchCandidate item,
 );
 
-typedef LibraryAddProviderCandidateProjection = CatalogSearchCandidate
-    Function(ProviderCandidate candidate);
+typedef LibraryAddProviderCandidateProjection = CatalogSearchCandidate Function(
+    ProviderCandidate candidate);
 
 typedef LibraryAddCoreCatalogProjection = CatalogSearchCandidate Function(
   CatalogSearchCandidate item,

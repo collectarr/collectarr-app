@@ -25,8 +25,7 @@ void main() {
         'season_number': 1,
       },
     }));
-    final release =
-        CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
+    final release = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -61,8 +60,7 @@ void main() {
       'title': 'Example Show',
       'series': {'season_number': 2},
     }));
-    final release =
-        CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
+    final release = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
       'id': 'tv-release',
       'kind': 'tv',
       'title': 'Example Show',
@@ -84,15 +82,13 @@ void main() {
       'kind': 'comic',
       'title': 'Owned Comic',
     }));
-    final variant =
-        CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
+    final variant = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
       'id': 'comic-variant',
       'kind': 'comic',
       'title': 'Variant Comic',
       'variant': 'Foil',
     }));
-    final regular =
-        CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
+    final regular = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
       'id': 'comic-regular',
       'kind': 'comic',
       'title': 'Regular Comic',

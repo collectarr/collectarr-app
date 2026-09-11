@@ -1001,9 +1001,8 @@ class LibraryAddSessionController
           hydratedItem.mapTransport((transport) => transport.editions);
       final selectedEditions =
           selected.mapTransport((transport) => transport.editions);
-      final mergedEditions = hydratedEditions.isEmpty
-          ? selectedEditions
-          : hydratedEditions;
+      final mergedEditions =
+          hydratedEditions.isEmpty ? selectedEditions : hydratedEditions;
       final mergedItem = hydratedItem.copyWith(
         coverImageUrl: mergedCoverImageUrl ?? hydratedItem.coverImageUrl,
         thumbnailImageUrl:

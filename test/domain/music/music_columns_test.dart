@@ -10,7 +10,8 @@ void main() {
 
   test('music workspace exposes album-specific columns', () {
     expect(
-      plannedMediaTableColumnLabelForType(musicWorkspace.fields, field('artist')),
+      plannedMediaTableColumnLabelForType(
+          musicWorkspace.fields, field('artist')),
       'Artist',
     );
     expect(

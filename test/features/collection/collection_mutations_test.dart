@@ -1087,7 +1087,9 @@ void main() {
             ),
           ).asShelfCatalogItem,
           ownedSummary: testOwnedSummary(ownedFixture),
-          typedOwnedItem: testComicOwnedItemFrom(ownedFixture),
+          ownedItemDispatch: testComicOwnedItemDispatchFrom(
+            testComicOwnedItemFrom(ownedFixture),
+          ),
         ),
       ]),
     );

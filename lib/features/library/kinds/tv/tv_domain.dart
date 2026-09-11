@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -57,9 +58,9 @@ final class TvPersonalOverlay {
 
   factory TvPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
     return TvPersonalOverlay(
-      ownedItem: source.typedOwnedItem is TvOwnedItem
-          ? source.typedOwnedItem as TvOwnedItem
-          : null,
+      ownedItem: TvOwnedItemProjection.fromDispatch(
+        source.ownedItemDispatch,
+      ),
       trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
       locationPath: source.locationPath,

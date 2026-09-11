@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:flutter/material.dart';
 
 abstract interface class LibraryItemActionRunner {
@@ -129,7 +130,7 @@ class LibraryEditDialogRequest {
     required this.type,
     required this.item,
     required this.ownedItem,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
     required this.accent,
     this.scope,
     this.wishlistItem,
@@ -150,7 +151,7 @@ class LibraryEditDialogRequest {
 
   /// Concrete kind-owned aggregate, present only after kind dispatch.
   /// Generic edit infrastructure must not decode or inspect this value.
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final Color accent;
   final LibraryEditScope? scope;
 
@@ -171,7 +172,7 @@ class LibraryEditDialogRequest {
     LibraryKindModule? type,
     CatalogSearchCandidate? item,
     OwnedItemSummary? ownedItem,
-    Object? typedOwnedItem,
+    LibraryOwnedItemDispatch? ownedItemDispatch,
     Color? accent,
     LibraryEditScope? scope,
     WishlistItem? wishlistItem,
@@ -189,7 +190,7 @@ class LibraryEditDialogRequest {
       type: type ?? this.type,
       item: item ?? this.item,
       ownedItem: ownedItem ?? this.ownedItem,
-      typedOwnedItem: typedOwnedItem ?? this.typedOwnedItem,
+      ownedItemDispatch: ownedItemDispatch ?? this.ownedItemDispatch,
       accent: accent ?? this.accent,
       scope: scope ?? this.scope,
       wishlistItem: wishlistItem ?? this.wishlistItem,
@@ -219,7 +220,7 @@ class LibraryDetailPageRequest {
     required this.type,
     required this.item,
     required this.ownedSummary,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
     required this.accent,
     this.actions = const LibraryItemActions(),
     VoidCallback? onAddOwned,
@@ -239,7 +240,7 @@ class LibraryDetailPageRequest {
   final OwnedItemSummary? ownedSummary;
 
   /// Concrete kind-owned aggregate available after Library kind dispatch.
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final Color accent;
   final LibraryItemActions actions;
   final ValueChanged<String>? onFilterByValue;
@@ -278,7 +279,7 @@ class LibraryInspectorRequest {
     required this.type,
     required this.item,
     required this.ownedItem,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
     this.onEdit,
     this.ownedCopies = const [],
     required this.trackingLifecycle,
@@ -294,7 +295,7 @@ class LibraryInspectorRequest {
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate for kind-owned inspector contributions.
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final VoidCallback? onEdit;
   final List<OwnedItemSummary> ownedCopies;
   final TrackingLifecycle? trackingLifecycle;

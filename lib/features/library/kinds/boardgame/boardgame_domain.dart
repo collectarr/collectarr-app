@@ -1,4 +1,3 @@
-
 export 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
@@ -18,4 +17,3 @@ export 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgam
 export 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_release.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-

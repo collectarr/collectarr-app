@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
@@ -48,7 +49,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,
@@ -132,7 +134,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.completionStatus,
     label: 'Completion',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.collectionStatus : null;
     },
     scope: LibraryFieldScope.copy,
@@ -143,7 +146,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.completeness,
     label: 'Completeness',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.completeness : null;
     },
     scope: LibraryFieldScope.copy,
@@ -154,7 +158,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.hasBox,
     label: 'Has Box',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.hasBox : null;
     },
     scope: LibraryFieldScope.copy,
@@ -165,7 +170,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.hasManual,
     label: 'Has Manual',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.hasManual : null;
     },
     scope: LibraryFieldScope.copy,
@@ -176,7 +182,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.priceChartingId,
     label: 'PriceCharting ID',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.priceChartingId : null;
     },
     scope: LibraryFieldScope.release,
@@ -187,7 +194,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.coreRegion,
     label: 'Region',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return context.dto.region ??
           (owned is GameOwnedItem ? owned.details.coreRegion : null);
     },
@@ -199,7 +207,8 @@ abstract final class GameKindSchema {
     id: GameFieldIds.valueLocked,
     label: 'Value Locked',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = GameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is GameOwnedItem ? owned.details.valueIsLocked : null;
     },
     scope: LibraryFieldScope.copy,

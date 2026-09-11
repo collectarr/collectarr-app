@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 
 import 'dart:async';
 
@@ -23,7 +24,6 @@ import 'package:collectarr_app/features/library/edit/edition_selection_helpers.d
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_diff_panel.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_tabs/music_links_tab.dart';
@@ -318,7 +318,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     _currencyController = _draft.personal.currencyController;
     _quantityController = _draft.personal.quantityController;
     final typedOwned =
-        MusicOwnedItemProjection.tryFromTyped(widget.request.typedOwnedItem);
+        MusicOwnedItemProjection.fromDispatch(widget.request.ownedItemDispatch);
     _indexNumberController = TextEditingController(
       text: typedOwned?.indexNumber?.toString() ?? '',
     );

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -54,8 +54,8 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => TvOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => TvOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
@@ -78,8 +78,8 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => TvOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => TvOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(

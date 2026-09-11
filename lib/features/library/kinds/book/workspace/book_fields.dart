@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
@@ -50,7 +51,8 @@ abstract final class BookKindSchema {
     id: BookFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = BookOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is BookOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,
@@ -216,7 +218,8 @@ abstract final class BookKindSchema {
     id: BookFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = BookOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is BookOwnedItem ? owned.details.signedBy : null;
     },
     scope: LibraryFieldScope.copy,

@@ -90,8 +90,8 @@ List<MetadataDiffEntry> _musicMetadataEntries(
     ),
     MetadataDiffEntry(
       label: 'Genres',
-      localValue: formatDiffList(
-          (localP['genres'] as List?)?.map((e) => e.toString())),
+      localValue:
+          formatDiffList((localP['genres'] as List?)?.map((e) => e.toString())),
       serverValue: formatDiffList(
           (serverP['genres'] as List?)?.map((e) => e.toString())),
     ),
@@ -128,7 +128,8 @@ List<MetadataDiffEntry> _musicMetadataEntries(
     ),
     MetadataDiffEntry(
       label: 'Original release date',
-      localValue: formatDiffDate(_parseDate(localMusic['original_release_date'])),
+      localValue:
+          formatDiffDate(_parseDate(localMusic['original_release_date'])),
       serverValue:
           formatDiffDate(_parseDate(serverMusic['original_release_date'])),
     ),
@@ -253,7 +254,8 @@ List<MetadataDiffEntry> _discEntries(
   final all = <int>{
     ...localDiscs.keys,
     ...serverDiscs.keys,
-  }.toList()..sort();
+  }.toList()
+    ..sort();
 
   return [
     for (final discNumber in all)

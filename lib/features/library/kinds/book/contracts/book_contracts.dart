@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -288,9 +289,9 @@ final class BookEntry {
 
     return BookEntry(
       catalog: catalog,
-      ownedDetails: shelf.typedOwnedItem is BookOwnedItem
-          ? (shelf.typedOwnedItem! as BookOwnedItem).details
-          : null,
+      ownedDetails:
+          BookOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
       trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

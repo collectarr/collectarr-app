@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -504,9 +505,9 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final source = inspector.item.source;
-    final owned = inspector.typedOwnedItem is MusicOwnedItem
-        ? inspector.typedOwnedItem as MusicOwnedItem
-        : null;
+    final owned = MusicOwnedItemProjection.fromDispatch(
+      inspector.ownedItemDispatch,
+    );
     final personalRows = <(String, String)>[
       ('Index', owned?.indexNumber?.toString() ?? '-'),
       if (owned?.condition?.trim().isNotEmpty == true)

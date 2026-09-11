@@ -48,7 +48,9 @@ Widget _heroHost(TestOwnedItem ownedItem) {
             type: comicKindModule,
             item: _itemFixture(),
             ownedItem: testOwnedSummary(ownedItem),
-            typedOwnedItem: testComicOwnedItemFrom(ownedItem),
+            ownedItemDispatch: testComicOwnedItemDispatchFrom(
+              testComicOwnedItemFrom(ownedItem),
+            ),
             trackingLifecycle: null,
             accent: Colors.red,
           ),

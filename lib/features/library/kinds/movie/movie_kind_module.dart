@@ -544,8 +544,7 @@ String? _optionalMovieText(String value) {
   return trimmed.isEmpty ? null : trimmed;
 }
 
-LibraryAddVideoResultScope _movieAddResultScope(
-    CatalogSearchCandidate item) {
+LibraryAddVideoResultScope _movieAddResultScope(CatalogSearchCandidate item) {
   final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [

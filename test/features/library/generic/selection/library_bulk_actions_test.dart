@@ -80,7 +80,7 @@ void main() {
         LibraryWorkspaceSource(
           itemId: 'movie-1',
           ownedSummary: MovieOwnedItemProjection.toSummary(row),
-          typedOwnedItem: row,
+          ownedItemDispatch: testMovieOwnedItemDispatchFrom(row),
         ),
       ],
       selection: const LibraryBulkEditSelection(
@@ -128,7 +128,7 @@ void main() {
       LibraryWorkspaceSource(
         itemId: 'movie-1',
         ownedSummary: MovieOwnedItemProjection.toSummary(row),
-        typedOwnedItem: row,
+        ownedItemDispatch: testMovieOwnedItemDispatchFrom(row),
       ),
     ]);
 
@@ -193,7 +193,7 @@ void main() {
       LibraryWorkspaceSource(
         itemId: 'movie-1',
         ownedSummary: MovieOwnedItemProjection.toSummary(ownedRow),
-        typedOwnedItem: ownedRow,
+        ownedItemDispatch: testMovieOwnedItemDispatchFrom(ownedRow),
       ),
       LibraryWorkspaceSource(
         itemId: 'movie-2',

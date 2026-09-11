@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/config/owned_item_create_payload
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 typedef _OwnedItemSummaryReader = Future<List<OwnedItemSummary>> Function(
   LocalDatabase database,
@@ -85,7 +86,7 @@ final class CollectarrOwnedItemPersistence {
     return collectarrReplaceOwnedFromJson(_database, kind, payload);
   }
 
-  Future<(CatalogMediaKind kind, Object item)?> ownedItemForLibraryByRef(
+  Future<LibraryOwnedItemDispatch?> ownedItemForLibraryByRef(
     OwnedItemRef ref,
   ) async {
     return collectarrOwnedItemForLibraryByRef(_database, ref);

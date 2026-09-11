@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/config/library_owned_copy_semant
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
@@ -20,7 +21,7 @@ export 'package:collectarr_app/features/library/config/library_owned_copy_semant
 
 typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
   required CatalogSearchCandidate item,
-  Object? typedOwnedItem,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 });

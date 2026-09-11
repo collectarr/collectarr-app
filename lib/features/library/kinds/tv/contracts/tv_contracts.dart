@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -221,9 +222,8 @@ final class TvEntry {
 
     return TvEntry(
       catalog: catalog,
-      ownedDetails: shelf.typedOwnedItem is TvOwnedItem
-          ? (shelf.typedOwnedItem! as TvOwnedItem).details
-          : null,
+      ownedDetails:
+          TvOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)?.details,
       trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -8,7 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
@@ -154,11 +155,11 @@ class GameEditDraft extends LibraryEditKindDraft {
 
 LibraryEditKindDraft createGameEditDraft({
   required CatalogSearchCandidate item,
-  Object? typedOwnedItem,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
-  final owned = GameOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final game = owned?.details;
   final meta = item.mapTransport((transport) => transport).kindMetadata
           is GameCatalogMetadata

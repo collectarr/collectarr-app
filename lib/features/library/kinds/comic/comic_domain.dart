@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 export 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
@@ -37,7 +37,7 @@ final class ComicPersonalOverlay {
 
   factory ComicPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
     final ownedItem =
-        ComicOwnedItemProjection.tryFromTyped(source.typedOwnedItem);
+        ComicOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     return ComicPersonalOverlay(
       ownedItem: ownedItem,
       trackingSummary: source.trackingSummary,

@@ -34,7 +34,6 @@ final class GameReleaseId {
   String toString() => value;
 }
 
-
 @immutable
 final class GameOwnedItemId {
   const GameOwnedItemId(this.value);

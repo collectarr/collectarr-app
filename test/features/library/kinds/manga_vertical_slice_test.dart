@@ -134,7 +134,9 @@ void main() {
           kindMetadata: mangaMeta,
         ).asShelfCatalogItem,
         ownedSummary: testOwnedSummary(owned),
-        typedOwnedItem: MangaOwnedItem.fromJson(owned.toJson()),
+        ownedItemDispatch: testMangaOwnedItemDispatchFrom(
+          MangaOwnedItem.fromJson(owned.toJson()),
+        ),
       );
 
       const projector = MangaWorkspaceProjector();
@@ -203,19 +205,21 @@ void main() {
 
       final draft = createMangaEditDraft(
         item: CatalogSearchCandidate.fromItem(metaItem),
-        typedOwnedItem: MangaOwnedItem(
-          id: const MangaOwnedItemId('owned_1'),
-          catalogRef: const CatalogEntityRef(
-            id: 'manga_1',
-            kind: CatalogMediaKind.manga,
-            entityType: const CatalogEntityTypeId('work'),
-          ),
-          updatedAt: DateTime.now(),
-          details: const MangaOwnedDetails(
-            obiStripPresent: true,
-            slipcoverPresent: true,
-            printing: '1st Print',
-            localizedEdition: 'VIZ Signature',
+        ownedItemDispatch: testMangaOwnedItemDispatchFrom(
+          MangaOwnedItem(
+            id: const MangaOwnedItemId('owned_1'),
+            catalogRef: const CatalogEntityRef(
+              id: 'manga_1',
+              kind: CatalogMediaKind.manga,
+              entityType: const CatalogEntityTypeId('work'),
+            ),
+            updatedAt: DateTime.now(),
+            details: const MangaOwnedDetails(
+              obiStripPresent: true,
+              slipcoverPresent: true,
+              printing: '1st Print',
+              localizedEdition: 'VIZ Signature',
+            ),
           ),
         ),
         textControllers: textControllers,

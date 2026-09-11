@@ -88,8 +88,8 @@ List<MetadataDiffEntry> _comicMetadataEntries(
     ),
     MetadataDiffEntry(
       label: 'Genres',
-      localValue: formatDiffList(
-          (localP['genres'] as List?)?.map((e) => e.toString())),
+      localValue:
+          formatDiffList((localP['genres'] as List?)?.map((e) => e.toString())),
       serverValue: formatDiffList(
           (serverP['genres'] as List?)?.map((e) => e.toString())),
     ),

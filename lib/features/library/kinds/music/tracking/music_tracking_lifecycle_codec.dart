@@ -52,7 +52,8 @@ final class MusicTrackingLifecycleCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry) async {
+  Future<void> writeStorageRecord(
+      LocalDatabase db, TrackingLifecycle entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.musicTrackingRows).insertOnConflictUpdate(
           MusicTrackingRowsCompanion.insert(

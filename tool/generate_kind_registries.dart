@@ -485,6 +485,7 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_contribu
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -1099,7 +1100,7 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
-    'Future<(CatalogMediaKind kind, Object item)?> '
+    'Future<LibraryOwnedItemDispatch?> '
     'collectarrOwnedItemForLibraryByRef('
     'LocalDatabase database, OwnedItemRef ref) async {',
   );
@@ -1116,8 +1117,21 @@ void _renderOwnedPersistenceMaps(
       '.findById($ownedId(ref.id.value));',
     );
     buffer.writeln('    if (item == null) return null;');
+    final dispatch = switch (descriptor.folder) {
+      'anime' => 'AnimeOwnedItemDispatch',
+      'boardgame' => 'BoardGameOwnedItemDispatch',
+      'book' => 'BookOwnedItemDispatch',
+      'comic' => 'ComicOwnedItemDispatch',
+      'game' => 'GameOwnedItemDispatch',
+      'manga' => 'MangaOwnedItemDispatch',
+      'movie' => 'MovieOwnedItemDispatch',
+      'music' => 'MusicOwnedItemDispatch',
+      'tv' => 'TvOwnedItemDispatch',
+      _ => throw StateError(
+          'Unsupported owned dispatch kind ${descriptor.folder}'),
+    };
     buffer.writeln(
-      '    return (CatalogMediaKind.${descriptor.folder}, item);',
+      '    return $dispatch(ref: ref, value: item);',
     );
     buffer.writeln('  }');
   }

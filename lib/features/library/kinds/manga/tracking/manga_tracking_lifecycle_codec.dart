@@ -52,7 +52,8 @@ final class MangaTrackingLifecycleCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry) async {
+  Future<void> writeStorageRecord(
+      LocalDatabase db, TrackingLifecycle entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.mangaTrackingRows).insertOnConflictUpdate(
           MangaTrackingRowsCompanion.insert(

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
@@ -29,7 +29,7 @@ final class ComicWorkspaceProjector
       throw StateError('Expected ComicMedia for comic workspace');
     }
     final ownedItem =
-        ComicOwnedItemProjection.tryFromTyped(source.typedOwnedItem);
+        ComicOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     return ComicWorkspaceDto(
       common: _comicCommonProjection(source, node),
       personal: PersonalCopyProjection.fromShelf(source),

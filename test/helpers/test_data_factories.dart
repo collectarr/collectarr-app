@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
 
 export 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
@@ -53,6 +54,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 export 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 
@@ -538,28 +540,81 @@ MusicOwnedItem testMusicOwnedItemFrom(TestOwnedItem item) =>
 TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
     TvOwnedItem.fromJson(item.toJson());
 
-Object testTypedOwnedItemFrom(TestOwnedItem item) {
-  final factories = <CatalogMediaKind, Object Function()>{
-    CatalogMediaKind.anime: () => testAnimeOwnedItemFrom(item),
-    CatalogMediaKind.boardgame: () => testBoardGameOwnedItemFrom(item),
-    CatalogMediaKind.book: () => testBookOwnedItemFrom(item),
-    CatalogMediaKind.comic: () => testComicOwnedItemFrom(item),
-    CatalogMediaKind.game: () => testGameOwnedItemFrom(item),
-    CatalogMediaKind.manga: () => testMangaOwnedItemFrom(item),
-    CatalogMediaKind.movie: () => testMovieOwnedItemFrom(item),
-    CatalogMediaKind.music: () => testMusicOwnedItemFrom(item),
-    CatalogMediaKind.tv: () => testTvOwnedItemFrom(item),
+LibraryOwnedItemDispatch testOwnedItemDispatchFrom(TestOwnedItem item) {
+  return switch (item.catalogRef.mediaKind) {
+    CatalogMediaKind.anime => AnimeOwnedItemDispatch(
+        ref: item.ref,
+        value: testAnimeOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.boardgame => BoardGameOwnedItemDispatch(
+        ref: item.ref,
+        value: testBoardGameOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.book => BookOwnedItemDispatch(
+        ref: item.ref,
+        value: testBookOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.comic => ComicOwnedItemDispatch(
+        ref: item.ref,
+        value: testComicOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.game => GameOwnedItemDispatch(
+        ref: item.ref,
+        value: testGameOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.manga => MangaOwnedItemDispatch(
+        ref: item.ref,
+        value: testMangaOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.movie => MovieOwnedItemDispatch(
+        ref: item.ref,
+        value: testMovieOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.music => MusicOwnedItemDispatch(
+        ref: item.ref,
+        value: testMusicOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.tv => TvOwnedItemDispatch(
+        ref: item.ref,
+        value: testTvOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.unknown => throw ArgumentError.value(
+        item.catalogRef.mediaKind,
+        'item',
+        'Test Owned fixture requires an active kind',
+      ),
   };
-  final factory = factories[item.catalogRef.mediaKind];
-  if (factory == null) {
-    throw ArgumentError.value(
-      item.catalogRef.mediaKind,
-      'item',
-      'Test Owned fixture requires an active kind',
-    );
-  }
-  return factory();
 }
+
+OwnedItemRef _testOwnedItemRef(CatalogEntityRef catalogRef, String id) =>
+    OwnedItemRef(
+      kind: catalogRef.mediaKind,
+      id: OwnedItemId(id),
+    );
+
+ComicOwnedItemDispatch testComicOwnedItemDispatchFrom(ComicOwnedItem item) =>
+    ComicOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
+
+GameOwnedItemDispatch testGameOwnedItemDispatchFrom(GameOwnedItem item) =>
+    GameOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
+
+MangaOwnedItemDispatch testMangaOwnedItemDispatchFrom(MangaOwnedItem item) =>
+    MangaOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
+
+MovieOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
+    MovieOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
 
 /// Builds a [LibraryWorkspaceSource] with sensible defaults for testing.
 ///
@@ -579,21 +634,8 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
         kind: kind,
         title: title,
       );
-  final typedOwnedItem = ownedItem == null
-      ? null
-      : <CatalogMediaKind, Object Function()>{
-          CatalogMediaKind.comic: () => testComicOwnedItemFrom(ownedItem),
-          CatalogMediaKind.book: () => testBookOwnedItemFrom(ownedItem),
-          CatalogMediaKind.movie: () => testMovieOwnedItemFrom(ownedItem),
-          CatalogMediaKind.anime: () => testAnimeOwnedItemFrom(ownedItem),
-          CatalogMediaKind.boardgame: () =>
-              testBoardGameOwnedItemFrom(ownedItem),
-          CatalogMediaKind.game: () => testGameOwnedItemFrom(ownedItem),
-          CatalogMediaKind.manga: () => testMangaOwnedItemFrom(ownedItem),
-          CatalogMediaKind.music: () => testMusicOwnedItemFrom(ownedItem),
-          CatalogMediaKind.tv: () => testTvOwnedItemFrom(ownedItem),
-        }[catalogMediaKindFromApiValue(kind)]
-          ?.call();
+  final ownedItemDispatch =
+      ownedItem == null ? null : testOwnedItemDispatchFrom(ownedItem);
   return LibraryWorkspaceSource(
     itemId: itemId,
     catalogSummary: CatalogSearchCandidate.fromItem(
@@ -603,7 +645,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
-    typedOwnedItem: typedOwnedItem,
+    ownedItemDispatch: ownedItemDispatch,
     locationPath: locationPath,
   );
 }

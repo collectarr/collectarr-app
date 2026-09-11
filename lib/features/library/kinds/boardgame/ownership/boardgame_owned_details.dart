@@ -107,4 +107,3 @@ class BoardgameOwnedDetails implements JsonEncodable {
         storageNotes,
       );
 }
-

@@ -52,7 +52,8 @@ final class MovieTrackingLifecycleCodec
   }
 
   @override
-  Future<void> writeStorageRecord(LocalDatabase db, TrackingLifecycle entry) async {
+  Future<void> writeStorageRecord(
+      LocalDatabase db, TrackingLifecycle entry) async {
     _validateKind(entry.catalogRef);
     await db.into(db.movieTrackingRows).insertOnConflictUpdate(
           MovieTrackingRowsCompanion.insert(

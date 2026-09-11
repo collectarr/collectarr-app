@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
@@ -147,26 +147,28 @@ final class ComicCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.grade;
+      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.grade;
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.condition;
+      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.condition;
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.indexNumber;
+      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)
+          ?.indexNumber;
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) =>
-      ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem)?.tags;
+      ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch)?.tags;
 
   @override
   List<String> ownedCellsBeforeQuantity(
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
+    final owned =
+        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     final details = owned?.details;
     if (!clzFriendly) return const [];
     return [_formatMoney(details?.coverPriceCents, clzFriendly: true)];
@@ -177,7 +179,8 @@ final class ComicCollectionCsvProjection
     LibraryWorkspaceSource entry, {
     required bool clzFriendly,
   }) {
-    final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
+    final owned =
+        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     final details = owned?.details;
     return [
       if (!clzFriendly)

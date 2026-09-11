@@ -122,8 +122,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   final foundItems = <CatalogSearchCandidate>[
     for (final result in results)
       if (result.item != null)
-        CatalogSearchCandidate.fromSnapshot(
-            result.item!.toImportSnapshot()),
+        CatalogSearchCandidate.fromSnapshot(result.item!.toImportSnapshot()),
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

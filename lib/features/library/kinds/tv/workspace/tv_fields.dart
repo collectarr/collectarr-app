@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_display_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
@@ -49,7 +50,8 @@ abstract final class TvKindSchema {
     id: TvFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned =
+          TvOwnedItemProjection.fromDispatch(context.source.ownedItemDispatch);
       return owned is TvOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,

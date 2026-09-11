@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -87,8 +87,8 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => ComicOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => ComicOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
@@ -112,20 +112,21 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Grade',
     anyLabel: 'Any grade',
     missingValueLabel: 'Missing grade',
-    value: (item) => ComicOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => ComicOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.grade,
     matches: (item, value) => value == LibraryFilterDefinition.missingValue
         ? item.source.isOwned &&
-            (ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)
+            (ComicOwnedItemProjection.fromDispatch(
+                            item.source.ownedItemDispatch)
                         ?.grade ==
                     null ||
-                ComicOwnedItemProjection.tryFromTyped(
-                        item.source.typedOwnedItem)!
+                ComicOwnedItemProjection.fromDispatch(
+                        item.source.ownedItemDispatch)!
                     .grade!
                     .trim()
                     .isEmpty)
-        : ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)
+        : ComicOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch)
                 ?.grade
                 ?.trim() ==
             value,
@@ -134,8 +135,8 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => ComicOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => ComicOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(
@@ -238,10 +239,11 @@ bool? comicQuickViewMatcher(
 ) {
   return switch (view) {
     LibraryQuickView.missingGrade => item.source.isOwned &&
-        (ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)
+        (ComicOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch)
                     ?.grade ==
                 null ||
-            ComicOwnedItemProjection.tryFromTyped(item.source.typedOwnedItem)!
+            ComicOwnedItemProjection.fromDispatch(
+                    item.source.ownedItemDispatch)!
                 .grade!
                 .trim()
                 .isEmpty),

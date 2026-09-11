@@ -5,6 +5,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -44,7 +45,7 @@ class InspectorPersonalSection extends StatelessWidget {
     required this.type,
     required this.item,
     this.ownedItem,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
     this.trackingLifecycle,
     required this.accent,
     this.valueSnapshot,
@@ -54,7 +55,7 @@ class InspectorPersonalSection extends StatelessWidget {
   final LibraryKindModule type;
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final TrackingLifecycle? trackingLifecycle;
   final Color accent;
   final LibraryValueSnapshot? valueSnapshot;
@@ -97,7 +98,7 @@ class InspectorPersonalSection extends StatelessWidget {
       context: context,
       item: item,
       ownedItem: item.source.ownedSummary,
-      typedOwnedItem: typedOwnedItem ?? item.source.typedOwnedItem,
+      ownedItemDispatch: ownedItemDispatch ?? item.source.ownedItemDispatch,
       currency: ownedItem?.currency ?? adapter?.currency,
     );
     return LibraryDetailSection(

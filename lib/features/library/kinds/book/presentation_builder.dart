@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
@@ -486,7 +487,8 @@ class BookLibraryMediaPresentationBuilder
     }
 
     final source = item.source;
-    final typedOwned = source.typedOwnedItem;
+    final typedOwned =
+        BookOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     final owned = typedOwned is BookOwnedItem ? typedOwned : null;
     final rating = source.trackingSummary?.rating;
     final personalFacts = <LibraryDetailField>[

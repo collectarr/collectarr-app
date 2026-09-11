@@ -226,7 +226,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       // Clear source for custom fields when mode is Move.
       if (_mode == TransferMode.move) {
         if (src.isCustomField) {
-        final existing = (allCfValues?[item.ref.id.value] ?? [])
+          final existing = (allCfValues?[item.ref.id.value] ?? [])
               .where((v) => v.fieldDefinitionId == src.customFieldId)
               .firstOrNull;
           if (existing != null) {

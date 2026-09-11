@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
@@ -49,7 +50,8 @@ abstract final class MangaKindSchema {
     id: MangaFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = MangaOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is MangaOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,

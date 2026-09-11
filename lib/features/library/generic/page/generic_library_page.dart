@@ -923,7 +923,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
           type: widget.type,
           item: selectedItem,
           ownedSummary: selectedItem.source.ownedSummary,
-          typedOwnedItem: selectedItem.source.typedOwnedItem,
+          ownedItemDispatch: selectedItem.source.ownedItemDispatch,
           accent: widget.accent,
           onAddOwned: () => _collectionActionCoordinator.runCollectionAction(
             (actions) => actions.addOwned(selectedItem),

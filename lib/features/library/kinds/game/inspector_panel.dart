@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -279,7 +280,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final gameDto = dto is GameWorkspaceDto ? dto : null;
     final metadata = _gameMetadata(item);
-    final typedOwned = item.source.typedOwnedItem;
+    final typedOwned =
+        GameOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
     final owned = typedOwned is GameOwnedItem ? typedOwned : null;
     final releaseYear = adapter?.releaseDate?.year;
     final detailRows = <(String, String)>[

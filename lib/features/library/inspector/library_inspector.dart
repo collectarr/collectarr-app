@@ -25,6 +25,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -40,7 +41,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.item,
     required this.ownedItem,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
     this.ownedCopies,
     this.detailsLayout = LibraryDetailsLayout.hidden,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
@@ -61,7 +62,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final LibraryKindModule type;
   final LibraryProjectionView? item;
   final OwnedItemSummary? ownedItem;
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final List<OwnedItemSummary>? ownedCopies;
   final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
@@ -113,10 +114,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
-    final typedOwnedItem =
-        widget.typedOwnedItem ?? selected.source.typedOwnedItem;
+    final ownedItemDispatch =
+        widget.ownedItemDispatch ?? selected.source.ownedItemDispatch;
     // Mixed inspector state carries only the structural summary. Concrete
-    // kind-owned data remains available through typedOwnedItem after dispatch.
+    // kind-owned data remains available through ownedItemDispatch after dispatch.
     final ownedCopies = widget.ownedCopies ??
         (widget.ownedItem == null
             ? const <OwnedItemSummary>[]
@@ -201,7 +202,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           type: widget.type,
           item: selected,
           ownedSummary: ownedSummaryResolution.ownedItem,
-          typedOwnedItem: typedOwnedItem,
+          ownedItemDispatch: ownedItemDispatch,
           accent: widget.accent,
           onAddOwned: selected.source.isOwned
               ? () => _addOwnedCopy(
@@ -233,7 +234,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         type: widget.type,
         item: selected,
         ownedItem: activeOwnedItem,
-        typedOwnedItem: typedOwnedItem,
+        ownedItemDispatch: ownedItemDispatch,
         onEdit: widget.onEdit == null
             ? null
             : () => widget.onEdit!(activeOwnedItem),
@@ -349,7 +350,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           type: widget.type,
           item: selected,
           ownedItem: activeOwnedItem,
-          typedOwnedItem: inspectorRequest.typedOwnedItem,
+          ownedItemDispatch: inspectorRequest.ownedItemDispatch,
           trackingLifecycle: activeTrackingLifecycle,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,

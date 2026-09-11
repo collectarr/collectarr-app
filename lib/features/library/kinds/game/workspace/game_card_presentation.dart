@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -27,7 +28,8 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
           ?.mapTransport((transport) => transport)
           .payload['age_rating'] as String?)
       ?.trim();
-  final owned = item.source.typedOwnedItem;
+  final owned =
+      GameOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
   final completion = owned is GameOwnedItem
       ? owned.collectionStatus?.trim() ?? (item.source.isOwned ? 'Owned' : null)
       : (item.source.isOwned ? 'Owned' : null);

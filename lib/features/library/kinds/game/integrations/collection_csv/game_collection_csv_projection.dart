@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
@@ -144,25 +145,25 @@ final class GameCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = GameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is GameOwnedItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = GameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is GameOwnedItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = GameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is GameOwnedItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = GameOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is GameOwnedItem ? owned.tags : null;
   }
 

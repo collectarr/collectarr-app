@@ -19,8 +19,7 @@ LibraryAddResultPolicy buildLibraryAddVideoResultPolicy({
   required bool supportsSeasonScope,
   required LibraryAddVideoCoreScopeResolver coreScopeForItem,
   required LibraryAddVideoProviderScopeResolver providerScopeForCandidate,
-  required String Function(CatalogSearchCandidate item)
-      coreGroupTitleBuilder,
+  required String Function(CatalogSearchCandidate item) coreGroupTitleBuilder,
   required bool Function(ProviderCandidate candidate) providerCandidateIsGroup,
   int Function(ProviderCandidate left, ProviderCandidate right)?
       providerCandidateComparator,

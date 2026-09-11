@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
 
 export 'test_owned_item_fixture.dart';
@@ -28,6 +29,7 @@ import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_deta
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -498,17 +500,44 @@ MusicOwnedItem testMusicOwnedItemFrom(TestOwnedItem item) =>
 TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
     TvOwnedItem.fromJson(item.toJson());
 
-Object testTypedOwnedItemFrom(TestOwnedItem item) {
+LibraryOwnedItemDispatch testOwnedItemDispatchFrom(TestOwnedItem item) {
   return switch (item.catalogRef.mediaKind) {
-    CatalogMediaKind.anime => testAnimeOwnedItemFrom(item),
-    CatalogMediaKind.boardgame => testBoardGameOwnedItemFrom(item),
-    CatalogMediaKind.book => testBookOwnedItemFrom(item),
-    CatalogMediaKind.comic => testComicOwnedItemFrom(item),
-    CatalogMediaKind.game => testGameOwnedItemFrom(item),
-    CatalogMediaKind.manga => testMangaOwnedItemFrom(item),
-    CatalogMediaKind.movie => testMovieOwnedItemFrom(item),
-    CatalogMediaKind.music => testMusicOwnedItemFrom(item),
-    CatalogMediaKind.tv => testTvOwnedItemFrom(item),
+    CatalogMediaKind.anime => AnimeOwnedItemDispatch(
+        ref: item.ref,
+        value: testAnimeOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.boardgame => BoardGameOwnedItemDispatch(
+        ref: item.ref,
+        value: testBoardGameOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.book => BookOwnedItemDispatch(
+        ref: item.ref,
+        value: testBookOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.comic => ComicOwnedItemDispatch(
+        ref: item.ref,
+        value: testComicOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.game => GameOwnedItemDispatch(
+        ref: item.ref,
+        value: testGameOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.manga => MangaOwnedItemDispatch(
+        ref: item.ref,
+        value: testMangaOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.movie => MovieOwnedItemDispatch(
+        ref: item.ref,
+        value: testMovieOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.music => MusicOwnedItemDispatch(
+        ref: item.ref,
+        value: testMusicOwnedItemFrom(item),
+      ),
+    CatalogMediaKind.tv => TvOwnedItemDispatch(
+        ref: item.ref,
+        value: testTvOwnedItemFrom(item),
+      ),
     CatalogMediaKind.unknown => throw ArgumentError.value(
         item.catalogRef.mediaKind,
         'item',
@@ -516,6 +545,36 @@ Object testTypedOwnedItemFrom(TestOwnedItem item) {
       ),
   };
 }
+
+OwnedItemRef _testOwnedItemRef(CatalogEntityRef catalogRef, String id) =>
+    OwnedItemRef(
+      kind: catalogRef.mediaKind,
+      id: OwnedItemId(id),
+    );
+
+ComicOwnedItemDispatch testComicOwnedItemDispatchFrom(ComicOwnedItem item) =>
+    ComicOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
+
+GameOwnedItemDispatch testGameOwnedItemDispatchFrom(GameOwnedItem item) =>
+    GameOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
+
+MangaOwnedItemDispatch testMangaOwnedItemDispatchFrom(MangaOwnedItem item) =>
+    MangaOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
+
+MovieOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
+    MovieOwnedItemDispatch(
+      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      value: item,
+    );
 
 LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
@@ -532,27 +591,8 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
         kind: kind,
         title: title,
       );
-  final typedOwnedItem = switch (catalogMediaKindFromApiValue(kind)) {
-    CatalogMediaKind.comic when ownedItem != null =>
-      testComicOwnedItemFrom(ownedItem),
-    CatalogMediaKind.book when ownedItem != null =>
-      testBookOwnedItemFrom(ownedItem),
-    CatalogMediaKind.movie when ownedItem != null =>
-      testMovieOwnedItemFrom(ownedItem),
-    CatalogMediaKind.anime when ownedItem != null =>
-      testAnimeOwnedItemFrom(ownedItem),
-    CatalogMediaKind.boardgame when ownedItem != null =>
-      testBoardGameOwnedItemFrom(ownedItem),
-    CatalogMediaKind.game when ownedItem != null =>
-      testGameOwnedItemFrom(ownedItem),
-    CatalogMediaKind.manga when ownedItem != null =>
-      testMangaOwnedItemFrom(ownedItem),
-    CatalogMediaKind.music when ownedItem != null =>
-      testMusicOwnedItemFrom(ownedItem),
-    CatalogMediaKind.tv when ownedItem != null =>
-      testTvOwnedItemFrom(ownedItem),
-    _ => null,
-  };
+  final ownedItemDispatch =
+      ownedItem == null ? null : testOwnedItemDispatchFrom(ownedItem);
   return LibraryWorkspaceSource(
     itemId: itemId,
     catalogSummary: CatalogSearchCandidate.fromItem(
@@ -562,7 +602,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
-    typedOwnedItem: typedOwnedItem,
+    ownedItemDispatch: ownedItemDispatch,
     wishlistItem: wishlistItem,
     locationPath: locationPath,
   );

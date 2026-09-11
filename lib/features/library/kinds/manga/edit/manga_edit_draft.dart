@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
@@ -9,7 +10,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
@@ -305,11 +306,11 @@ class MangaEditDraft extends LibraryEditKindDraft {
 
 LibraryEditKindDraft createMangaEditDraft({
   required CatalogSearchCandidate item,
-  Object? typedOwnedItem,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
   TrackingLifecycle? trackingLifecycle,
   required TextControllerGroup textControllers,
 }) {
-  final owned = MangaOwnedItemProjection.tryFromTyped(typedOwnedItem);
+  final owned = MangaOwnedItemProjection.fromDispatch(ownedItemDispatch);
   final manga = owned?.details;
   final rawMetadata = item.mapTransport((transport) => transport).kindMetadata;
   final MangaMetadata? metadata =

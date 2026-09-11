@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -71,8 +71,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => MusicOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => MusicOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
@@ -95,8 +95,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => MusicOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => MusicOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(

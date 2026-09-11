@@ -86,7 +86,9 @@ void main() {
         catalogTransport:
             testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem,
         ownedSummary: owned == null ? null : testOwnedSummary(owned),
-        typedOwnedItem: owned == null ? null : testComicOwnedItemFrom(owned),
+        ownedItemDispatch: owned == null
+            ? null
+            : testComicOwnedItemDispatchFrom(testComicOwnedItemFrom(owned)),
         wishlistItem: wishlist,
       );
 

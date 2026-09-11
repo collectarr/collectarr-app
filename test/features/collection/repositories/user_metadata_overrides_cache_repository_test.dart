@@ -42,7 +42,8 @@ void main() {
       ),
     );
     expect(restored?.targetRef.kind, CatalogMediaKind.book);
-    expect(restored?.targetRef.entityType, const CatalogEntityTypeId('edition'));
+    expect(
+        restored?.targetRef.entityType, const CatalogEntityTypeId('edition'));
     expect(restored?.targetRef.id, 'edition-1');
     expect(restored?.overrideValue, 'Corrected');
     expect(

@@ -25,8 +25,7 @@ class LibraryAddSearchRankField {
   final LibraryAddFilterId id;
   final int exactWeight;
   final int containsWeight;
-  final Iterable<Object?> Function(CatalogSearchCandidate item)
-      metadataValues;
+  final Iterable<Object?> Function(CatalogSearchCandidate item) metadataValues;
   final Iterable<Object?> Function(ProviderCandidate candidate) providerValues;
 }
 

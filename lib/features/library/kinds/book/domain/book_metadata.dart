@@ -291,7 +291,6 @@ class BookEditionMetadata {
   }
 }
 
-
 @immutable
 class BookCatalogMetadata implements JsonEncodable {
   const BookCatalogMetadata({

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
@@ -50,8 +50,8 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => BoardGameOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => BoardGameOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
@@ -74,8 +74,8 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => BoardGameOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => BoardGameOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(

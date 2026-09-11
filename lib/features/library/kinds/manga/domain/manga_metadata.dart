@@ -353,11 +353,13 @@ class MangaMetadata implements JsonEncodable {
     final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
     ];
 

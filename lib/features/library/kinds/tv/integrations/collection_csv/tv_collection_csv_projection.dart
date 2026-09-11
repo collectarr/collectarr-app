@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
@@ -152,25 +153,25 @@ final class TvCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = TvOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is TvOwnedItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = TvOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is TvOwnedItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = TvOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is TvOwnedItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned = TvOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is TvOwnedItem ? owned.tags : null;
   }
 

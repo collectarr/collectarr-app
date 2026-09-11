@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -35,11 +36,11 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
       (summary) => ownedRepository.ownedItemForLibraryByRef(summary.ref),
     ),
   );
-  final typedOwnedItemsByRef = <OwnedItemRef, Object>{};
+  final ownedItemDispatchesByRef = <OwnedItemRef, LibraryOwnedItemDispatch>{};
   for (var index = 0; index < typedOwnedResults.length; index++) {
     final result = typedOwnedResults[index];
     if (result != null) {
-      typedOwnedItemsByRef[ownedSummaries[index].ref] = result.$2;
+      ownedItemDispatchesByRef[ownedSummaries[index].ref] = result;
     }
   }
   final catalogRefs = <CatalogEntityRef>{
@@ -53,10 +54,9 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   // Library kind contributors receive transport snapshots only at this
   // explicit boundary. Joins are keyed by the complete catalog reference so
   // equal IDs across kinds cannot collide.
-  final catalogSnapshotsByRef =
-      (await CatalogSnapshotRepository(db).findByRefs(catalogRefs)).map(
-          (ref, item) =>
-              MapEntry(ref, CatalogSearchCandidate.fromItem(item)));
+  final catalogSnapshotsByRef = (await CatalogSnapshotRepository(db)
+          .findByRefs(catalogRefs))
+      .map((ref, item) => MapEntry(ref, CatalogSearchCandidate.fromItem(item)));
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -74,7 +74,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     catalogSnapshotsByRef: catalogSnapshotsByRef,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
-    typedOwnedItemsByRef: typedOwnedItemsByRef,
+    ownedItemDispatchesByRef: ownedItemDispatchesByRef,
     fallbackOwnerLabel: auth.email,
   );
 });
@@ -101,8 +101,8 @@ class ShelfState {
     Iterable<OwnedItemSummary>? ownedSummaries,
     required List<WishlistItem> wishlistItems,
     Iterable<TrackingSummary>? trackingSummaries,
-    Map<OwnedItemRef, Object> typedOwnedItemsByRef =
-        const <OwnedItemRef, Object>{},
+    Map<OwnedItemRef, LibraryOwnedItemDispatch> ownedItemDispatchesByRef =
+        const <OwnedItemRef, LibraryOwnedItemDispatch>{},
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
     Map<CatalogEntityRef, CatalogSearchCandidate>? catalogSnapshotsByRef,
@@ -179,9 +179,9 @@ class ShelfState {
           // Transport snapshots remain available only to the typed Library
           // contributors that have not yet moved to their domain repository.
           catalogTransport: catalogByRef[ref],
-          typedOwnedItem: ownedByCatalogRef[ref] == null
+          ownedItemDispatch: ownedByCatalogRef[ref] == null
               ? null
-              : typedOwnedItemsByRef[ownedByCatalogRef[ref]!.ref],
+              : ownedItemDispatchesByRef[ownedByCatalogRef[ref]!.ref],
           wishlistItem: wishlistByCatalogRef[ref],
           locationPath:
               locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
@@ -290,8 +290,7 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   return ref;
 }
 
-CatalogDisplaySummary _catalogSummaryFromSnapshot(
-    CatalogSearchCandidate item) {
+CatalogDisplaySummary _catalogSummaryFromSnapshot(CatalogSearchCandidate item) {
   final title = item.resolvedDisplayTitle.trim();
   return CatalogDisplaySummary.work(
     kind: item.mediaKind,

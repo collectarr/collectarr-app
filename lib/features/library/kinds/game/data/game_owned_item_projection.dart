@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 /// Projects Game's typed owned model into structural collection summaries.
 final class GameOwnedItemProjection {
   const GameOwnedItemProjection._();
 
-  static GameOwnedItem? tryFromTyped(Object? item) {
-    return item is GameOwnedItem ? item : null;
-  }
+  static GameOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
+      dispatch?.map<GameOwnedItem>(game: (item) => item);
 
   static OwnedItemSummary toSummary(GameOwnedItem item) {
     return OwnedItemSummary(

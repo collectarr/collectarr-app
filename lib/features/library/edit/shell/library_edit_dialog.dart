@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
@@ -37,7 +38,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     required this.type,
     required this.item,
     required this.ownedItem,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
     this.wishlistItem,
     this.trackingLifecycle,
     required this.accent,
@@ -61,7 +62,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         type = draft.type,
         item = draft.item,
         ownedItem = draft.ownedItem,
-        typedOwnedItem = draft.typedOwnedItem,
+        ownedItemDispatch = draft.ownedItemDispatch,
         wishlistItem = draft.wishlistItem,
         trackingLifecycle = draft.trackingLifecycle,
         accent = draft.accent,
@@ -76,7 +77,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final OwnedItemSummary? ownedItem;
 
   /// Concrete kind-owned aggregate passed through the typed edit boundary.
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
   final TrackingLifecycle? trackingLifecycle;
   final Color accent;
@@ -146,7 +147,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           type: widget.type,
           item: widget.item,
           ownedItem: widget.ownedItem,
-          typedOwnedItem: widget.typedOwnedItem,
+          ownedItemDispatch: widget.ownedItemDispatch,
           wishlistItem: widget.wishlistItem,
           trackingLifecycle: widget.trackingLifecycle,
           accent: widget.accent,

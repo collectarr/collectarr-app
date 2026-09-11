@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_contribu
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -899,62 +900,61 @@ Future<void> collectarrUpdateTypedOwnedLocation(LocalDatabase database,
   throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
 }
 
-Future<(CatalogMediaKind kind, Object item)?>
-    collectarrOwnedItemForLibraryByRef(
-        LocalDatabase database, OwnedItemRef ref) async {
+Future<LibraryOwnedItemDispatch?> collectarrOwnedItemForLibraryByRef(
+    LocalDatabase database, OwnedItemRef ref) async {
   if (ref.kind == CatalogMediaKind.anime) {
     final item = await AnimeOwnedRepository(database)
         .findById(AnimeOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.anime, item);
+    return AnimeOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.boardgame) {
     final item = await BoardGameOwnedRepository(database)
         .findById(BoardGameOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.boardgame, item);
+    return BoardGameOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.book) {
     final item = await BookOwnedRepository(database)
         .findById(BookOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.book, item);
+    return BookOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.comic) {
     final item = await ComicOwnedRepository(database)
         .findById(ComicOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.comic, item);
+    return ComicOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.game) {
     final item = await GameOwnedRepository(database)
         .findById(GameOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.game, item);
+    return GameOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.manga) {
     final item = await MangaOwnedRepository(database)
         .findById(MangaOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.manga, item);
+    return MangaOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.movie) {
     final item = await MovieOwnedRepository(database)
         .findById(MovieOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.movie, item);
+    return MovieOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.music) {
     final item = await MusicOwnedRepository(database)
         .findById(MusicOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.music, item);
+    return MusicOwnedItemDispatch(ref: ref, value: item);
   }
   if (ref.kind == CatalogMediaKind.tv) {
     final item =
         await TvOwnedRepository(database).findById(TvOwnedItemId(ref.id.value));
     if (item == null) return null;
-    return (CatalogMediaKind.tv, item);
+    return TvOwnedItemDispatch(ref: ref, value: item);
   }
   return null;
 }

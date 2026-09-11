@@ -7,6 +7,7 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 /// Concrete workspace source used after kind dispatch.
 ///
@@ -28,7 +29,7 @@ final class LibraryWorkspaceSource {
     this.fallbackOwnerLabel,
     this.catalogSearchTokens = const <String>[],
     this.catalogTransport,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
   });
 
   final String itemId;
@@ -44,9 +45,9 @@ final class LibraryWorkspaceSource {
   /// Opaque catalog transport kept only for typed kind workspace code.
   final CatalogSearchCandidate? catalogTransport;
 
-  /// Concrete kind-owned aggregate available after dispatch. Mixed/global
-  /// callers must use [ownedSummary] instead.
-  final Object? typedOwnedItem;
+  /// Concrete kind-owned aggregate behind an explicit typed dispatch
+  /// boundary. Mixed/global callers must use [ownedSummary] instead.
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
 
   /// Structural search tokens captured at the catalog boundary. Generic
   /// search may index these values but never inspects the transport payload.

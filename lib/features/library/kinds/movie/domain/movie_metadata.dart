@@ -33,7 +33,6 @@ class MoviePersonCredit {
   }
 }
 
-
 @immutable
 class MovieCatalogMetadata implements JsonEncodable {
   const MovieCatalogMetadata({
@@ -322,11 +321,13 @@ class MovieCatalogMetadata implements JsonEncodable {
     final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
           const <TrailerLinkDto>[]),
     ];
 

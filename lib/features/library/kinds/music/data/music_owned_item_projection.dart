@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/money.dart' show OwnedItemId;
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 /// Projects Music's typed owned model into structural collection summaries.
 final class MusicOwnedItemProjection {
   const MusicOwnedItemProjection._();
 
-  static MusicOwnedItem? tryFromTyped(Object? item) {
-    return item is MusicOwnedItem ? item : null;
-  }
+  static MusicOwnedItem? fromDispatch(LibraryOwnedItemDispatch? dispatch) =>
+      dispatch?.map<MusicOwnedItem>(music: (item) => item);
 
   static OwnedItemSummary toSummary(MusicOwnedItem item) {
     return OwnedItemSummary(

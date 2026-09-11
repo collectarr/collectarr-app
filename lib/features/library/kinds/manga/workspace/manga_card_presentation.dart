@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
@@ -9,7 +10,8 @@ LibraryCardPresentation buildMangaCardPresentation(
   LibraryProjectionView item, {
   required bool musicVertical,
 }) {
-  final owned = item.source.typedOwnedItem;
+  final owned =
+      MangaOwnedItemProjection.fromDispatch(item.source.ownedItemDispatch);
   final mangaDetails = owned is MangaOwnedItem ? owned.details : null;
   final badges = <LibraryCardBadge>[];
 
@@ -42,7 +44,8 @@ LibraryCardPresentation buildMangaCardPresentation(
 
   Widget Function(Widget child)? overlay;
   if (mangaDetails?.gradingCompany != null &&
-      owned is MangaOwnedItem && owned.grade != null) {
+      owned is MangaOwnedItem &&
+      owned.grade != null) {
     overlay = (child) => SlabFrameOverlay.maybeWrap(
           rawOrSlabbed: 'slabbed',
           companyName: mangaDetails?.gradingCompany,

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -9,7 +10,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_preview_seasons_section.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
@@ -415,8 +415,8 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => AnimeOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => AnimeOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.tags?.split(','),
   ),
   LibraryFilterDefinition<dynamic>(
@@ -439,8 +439,8 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => AnimeOwnedItemProjection.tryFromTyped(
-      item.source.typedOwnedItem,
+    value: (item) => AnimeOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
     )?.condition,
   ),
   LibraryFilterDefinition<dynamic>(

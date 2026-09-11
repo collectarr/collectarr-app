@@ -45,7 +45,7 @@ class LibraryPageDialogCoordinator {
 
   TransferableOwnedItem? _transferItem(LibraryProjectionItem item) {
     final source = item.source;
-    final value = source.typedOwnedItem;
+    final value = source.ownedItemDispatch;
     final ref = source.ownedRef;
     final catalogRef = source.catalogRef;
     if (value == null || ref == null || catalogRef == null) {

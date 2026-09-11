@@ -104,7 +104,9 @@ void main() {
       itemId: 'comic-key-1',
       catalogTransport: catalogItem.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(owned),
-      typedOwnedItem: testComicOwnedItemFrom(owned),
+      ownedItemDispatch: testComicOwnedItemDispatchFrom(
+        testComicOwnedItemFrom(owned),
+      ),
     );
 
     final workspaceDto = const ComicWorkspaceProjector().projectTitle(

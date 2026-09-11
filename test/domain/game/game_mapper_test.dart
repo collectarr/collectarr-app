@@ -52,7 +52,9 @@ void main() {
       itemId: 'game-10',
       catalogTransport: catalogItem.asShelfCatalogItem,
       ownedSummary: testOwnedSummary(owned),
-      typedOwnedItem: GameOwnedItem.fromJson(owned.toJson()),
+      ownedItemDispatch: testGameOwnedItemDispatchFrom(
+        GameOwnedItem.fromJson(owned.toJson()),
+      ),
     );
 
     final workspaceDto = const GameWorkspaceProjector().projectTitle(

@@ -85,10 +85,10 @@ class LibraryPageBucketCoordinator {
         }
       }
 
-      final typedOwnedItem = item.source.typedOwnedItem;
-      if (typedOwnedItem != null) {
+      final ownedItemDispatch = item.source.ownedItemDispatch;
+      if (ownedItemDispatch != null) {
         final ownedUpdate = groupDefinition.ownedBucketValueMutator?.call(
-          typedOwnedItem,
+          ownedItemDispatch,
           currentLabel,
           replacement: replacement,
         );

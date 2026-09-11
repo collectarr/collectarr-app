@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
@@ -149,25 +150,29 @@ final class MangaCollectionCsvProjection
 
   @override
   String? ownedCollectionValue(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is MangaOwnedItem ? owned.grade : null;
   }
 
   @override
   String? ownedCondition(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is MangaOwnedItem ? owned.condition : null;
   }
 
   @override
   int? ownedIndexNumber(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is MangaOwnedItem ? owned.indexNumber : null;
   }
 
   @override
   String? ownedTags(LibraryWorkspaceSource entry) {
-    final owned = entry.typedOwnedItem;
+    final owned =
+        MangaOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     return owned is MangaOwnedItem ? owned.tags : null;
   }
 

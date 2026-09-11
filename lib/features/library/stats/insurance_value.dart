@@ -58,10 +58,13 @@ class InsuranceValueRepository {
     );
 
     final replacementValues = await CatalogReplacementValueRepository(_db)
-        .findByRefs(filteredRows.map((row) => row.catalogRef).whereType<CatalogEntityRef>());
+        .findByRefs(filteredRows
+            .map((row) => row.catalogRef)
+            .whereType<CatalogEntityRef>());
     final totalCoverPrice = filteredRows.fold<int>(0, (total, row) {
       final catalogRef = row.catalogRef;
-      return total + (catalogRef == null ? 0 : replacementValues[catalogRef] ?? 0);
+      return total +
+          (catalogRef == null ? 0 : replacementValues[catalogRef] ?? 0);
     });
 
     return InsuranceValueSummary(

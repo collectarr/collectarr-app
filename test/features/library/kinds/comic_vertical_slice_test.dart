@@ -126,7 +126,9 @@ void main() {
           kindMetadata: comicMeta,
         ).asShelfCatalogItem,
         ownedSummary: testOwnedSummary(owned),
-        typedOwnedItem: ComicOwnedItem.fromJson(owned.toJson()),
+        ownedItemDispatch: testComicOwnedItemDispatchFrom(
+          ComicOwnedItem.fromJson(owned.toJson()),
+        ),
       );
 
       const projector = ComicWorkspaceProjector();

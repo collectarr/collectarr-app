@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
@@ -42,7 +43,8 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.condition,
     label: 'Condition',
     getValue: (context) {
-      final owned = context.source.typedOwnedItem;
+      final owned = MovieOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
       return owned is MovieOwnedItem ? owned.condition : null;
     },
     scope: LibraryFieldScope.copy,

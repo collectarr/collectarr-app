@@ -3,13 +3,14 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
   required BuildContext context,
   required LibraryProjectionView item,
   required OwnedItemSummary? ownedItem,
-  required Object? typedOwnedItem,
+  required LibraryOwnedItemDispatch? ownedItemDispatch,
   required String? currency,
 });
 
@@ -41,14 +42,14 @@ class LibraryInspectorCapability {
     required BuildContext context,
     required LibraryProjectionView item,
     required OwnedItemSummary? ownedItem,
-    required Object? typedOwnedItem,
+    required LibraryOwnedItemDispatch? ownedItemDispatch,
     required String? currency,
   }) {
     return personalDetailFieldsBuilder?.call(
           context: context,
           item: item,
           ownedItem: ownedItem,
-          typedOwnedItem: typedOwnedItem,
+          ownedItemDispatch: ownedItemDispatch,
           currency: currency,
         ) ??
         const [];

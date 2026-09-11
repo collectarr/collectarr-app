@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -247,9 +248,9 @@ final class GameEntry {
 
     return GameEntry(
       catalog: catalog,
-      ownedDetails: shelf.typedOwnedItem is GameOwnedItem
-          ? (shelf.typedOwnedItem! as GameOwnedItem).details
-          : null,
+      ownedDetails:
+          GameOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
       trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},

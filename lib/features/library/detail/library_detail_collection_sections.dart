@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     super.key,
     this.type,
     required this.item,
-    this.typedOwnedItem,
+    this.ownedItemDispatch,
     this.ownedSummary,
     this.ownedCopies = const [],
     this.trackingLifecycle,
@@ -27,7 +28,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
 
   final LibraryKindModule? type;
   final LibraryProjectionView item;
-  final Object? typedOwnedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final OwnedItemSummary? ownedSummary;
   final List<OwnedItemSummary> ownedCopies;
   final TrackingLifecycle? trackingLifecycle;
@@ -57,7 +58,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
           context: context,
           item: item,
           ownedItem: ownedSummary,
-          typedOwnedItem: typedOwnedItem ?? item.source.typedOwnedItem,
+          ownedItemDispatch: ownedItemDispatch ?? item.source.ownedItemDispatch,
           currency: currency,
         ) ??
         const [];

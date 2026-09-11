@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,8 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
 
     final comic = ComicCoreMapper.fromCatalogItem(
         catalog.mapTransport((transport) => transport));
-    final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
+    final owned =
+        ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
     if (exportedCount > 0) {
       buffer.writeln();
       buffer.writeln('<!-- --- next issue --- -->');

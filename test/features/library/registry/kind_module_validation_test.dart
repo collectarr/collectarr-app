@@ -19,7 +19,8 @@ void main() {
     test(
         'field IDs across different kinds are distinctly namespaced (no collision)',
         () {
-      final movieWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.movie);
+      final movieWorkspace =
+          libraryKindWorkspaceForKind(CatalogMediaKind.movie);
       final gameWorkspace = libraryKindWorkspaceForKind(CatalogMediaKind.game);
 
       final movieReleaseSort = movieWorkspace.fields.sortDefinitionForId(

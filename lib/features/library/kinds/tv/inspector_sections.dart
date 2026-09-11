@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
@@ -7,7 +8,6 @@ import 'package:collectarr_app/features/library/inspector/sections/metadata_fact
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
@@ -80,7 +80,8 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
               .toList()) ??
       const <TrailerLinkDto>[];
 
-  final ownedItem = TvOwnedItemProjection.tryFromTyped(request.typedOwnedItem);
+  final ownedItem =
+      TvOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
   final trackingLifecycle = request.trackingLifecycle;
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
