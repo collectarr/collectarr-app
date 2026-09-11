@@ -72,18 +72,27 @@ final class TvCatalogTransportCodec
     SerialAuthorityRepository serialAuthority,
     CatalogItemDto item,
   ) async {
+    await captureDerivedDataTyped(pickLists, serialAuthority, decode(item));
+  }
+
+  @override
+  Future<void> captureDerivedDataTyped(
+    PickListRepository pickLists,
+    SerialAuthorityRepository serialAuthority,
+    TvSeries item,
+  ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
-      derived: _derivedDataFromDto(item),
+      derived: _derivedDataFromTyped(item),
       pickLists: pickLists,
       serialAuthority: serialAuthority,
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromDto(CatalogItemDto item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(TvSeries item) =>
       catalogDerivedDataFor(
         kind: kind,
-        metadata: decode(item),
+        metadata: item,
         pickListContributors: defaultPickListDefinitionContributors,
         serialAuthorityContributors: collectarrSerialAuthorityContributors,
       );

@@ -50,6 +50,17 @@ abstract interface class CatalogKindTransportCodec<TCatalog>
   /// the concrete codec owns all interpretation of the DTO.
   TCatalog decode(CatalogItemDto item);
 
+  /// Captures derived values from the already decoded kind aggregate.
+  ///
+  /// Implementations may keep the transport adapter below as a very small
+  /// boundary method, but all semantic extraction happens through this typed
+  /// operation.
+  Future<void> captureDerivedDataTyped(
+    PickListRepository pickLists,
+    SerialAuthorityRepository serialAuthority,
+    TCatalog item,
+  );
+
   /// Persists a value that has already been decoded by this kind.
   Future<void> upsert(LocalDatabase db, TCatalog item);
 
