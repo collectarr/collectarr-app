@@ -141,7 +141,7 @@ void main() {
         'MovieLibraryKindProviderMapper parses TMDb envelope into MovieCatalogMetadata',
         () {
       const mapper = MovieLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '872585',
@@ -164,12 +164,10 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<MovieCatalogMetadata>());
-      final meta = item.kindMetadata as MovieCatalogMetadata;
-      expect(meta.title, 'Oppenheimer');
-      expect(meta.runtimeMinutes, 180);
-      expect(meta.ageRating, 'R');
-      expect(meta.directors.first.name, 'Christopher Nolan');
+      expect(item.title, 'Oppenheimer');
+      expect(item.runtimeMinutes, 180);
+      expect(item.ageRating, 'R');
+      expect(item.directors.first.name, 'Christopher Nolan');
     });
 
     test('MovieCatalog and MovieEntry round-trip and preserve all kind fields',

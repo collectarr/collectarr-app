@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
@@ -30,30 +28,14 @@ class ComicLibraryKindProviderMapper
     });
   }
 
-  CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
-    validateLibraryKindProviderEnvelope(
-      envelope: envelope,
-      expectedKind: CatalogMediaKind.comic,
-    );
-    final norm = envelope.normalized;
-    final title = norm['title']?.toString() ?? 'Unknown';
-    final coverImageUrl = norm['cover_image_url']?.toString() ??
-        (envelope.images.isNotEmpty ? envelope.images.first.url : null);
-
-    final comicMetadata = ComicMedia.fromJson({
-      ...norm,
-      'id': envelope.providerItemId,
-      'title': title,
-      if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-      if (coverImageUrl != null) 'thumbnail_image_url': coverImageUrl,
-    });
-
-    return CatalogItemDto(
-      identity: LibraryItemIdentity(
-        id: envelope.providerItemId,
-        mediaKind: CatalogMediaKind.comic,
-      ),
-      kindMetadata: comicMetadata,
+  CatalogSearchCandidate catalogCandidateFromEnvelope(
+    ProviderMetadataEnvelope envelope,
+  ) {
+    final catalog = catalogFromEnvelope(envelope);
+    return providerCandidateFromTypedPayload(
+      kind: CatalogMediaKind.comic,
+      id: envelope.providerItemId,
+      payload: catalog.toJson(),
     );
   }
 

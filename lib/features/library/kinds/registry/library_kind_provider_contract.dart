@@ -1,4 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
@@ -27,9 +29,31 @@ abstract interface class TypedLibraryKindProviderMapper<TCatalog> {
   TCatalog catalogFromEnvelope(ProviderMetadataEnvelope envelope);
 }
 
-typedef ProviderMetadataItemMapper = CatalogItemDto Function(
+typedef ProviderMetadataCandidateMapper = CatalogSearchCandidate Function(
   ProviderMetadataEnvelope envelope,
 );
+
+/// Re-enters the generic search transport only after a kind has completed its
+/// typed provider mapping. The payload is serialized once at this boundary;
+/// generic Add code receives a structural candidate and never a Core DTO.
+CatalogSearchCandidate providerCandidateFromTypedPayload({
+  required CatalogMediaKind kind,
+  required String id,
+  required Map<String, dynamic> payload,
+  JsonEncodable? typedMetadata,
+}) {
+  final candidate = CatalogSearchCandidate.fromJson({
+    ...payload,
+    'id': id,
+    'kind': kind.apiValue,
+  });
+  if (typedMetadata == null) return candidate;
+  return candidate.mapTransport(
+    (transport) => CatalogSearchCandidate.fromItem(
+      transport.withKindMetadata(typedMetadata),
+    ),
+  );
+}
 
 typedef ProviderCorrectionBuilder = ProviderCorrectionPatch Function({
   required CatalogSearchCandidate preview,

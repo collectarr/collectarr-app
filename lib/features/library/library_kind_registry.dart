@@ -15,7 +15,6 @@ import 'package:collectarr_app/features/library/config/library_shelf_extension_c
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
@@ -254,7 +253,7 @@ LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
 /// The selected kind still owns the mapper implementation. The registry only
 /// exposes the function needed to cross the API/transport projection boundary
 /// and does not leak an erased mapper object into feature code.
-ProviderMetadataItemMapper? libraryKindProviderMetadataMapperForKind(
+ProviderMetadataCandidateMapper? libraryKindProviderMetadataMapperForKind(
   CatalogMediaKind kind,
 ) {
   return collectarrKindProviderMetadataMappers[kind];

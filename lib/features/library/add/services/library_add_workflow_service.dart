@@ -23,12 +23,10 @@ class LibraryAddWorkflowService {
     if (mapper == null) {
       throw StateError('No provider mapper registered for ${preview.kind}');
     }
-    return CatalogSearchCandidate.fromItem(
-      mapper(
-        ProviderMetadataEnvelope.fromAdminPreview(
-          preview,
-          itemId: id,
-        ),
+    return mapper(
+      ProviderMetadataEnvelope.fromAdminPreview(
+        preview,
+        itemId: id,
       ),
     );
   }

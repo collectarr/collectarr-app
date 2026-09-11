@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
@@ -41,9 +39,9 @@ void main() {
       ],
     );
 
-    final item = mapper.metadataItemFromEnvelope(envelope);
-    final metadata = item.kindMetadata as MovieCatalogMetadata;
     final catalog = mapper.catalogFromEnvelope(envelope);
+    final item = mapper.catalogCandidateFromEnvelope(envelope);
+    final metadata = catalog;
 
     expect(item.mediaKind, CatalogMediaKind.movie);
     expect(metadata.title, 'Arrival');
@@ -57,7 +55,8 @@ void main() {
     const mapper = MovieLibraryKindProviderMapper();
     final envelope = _movieEnvelope(kind: 'tv');
 
-    expect(() => mapper.metadataItemFromEnvelope(envelope), throwsStateError);
+    expect(
+        () => mapper.catalogCandidateFromEnvelope(envelope), throwsStateError);
     expect(() => mapper.catalogFromEnvelope(envelope), throwsStateError);
   });
 

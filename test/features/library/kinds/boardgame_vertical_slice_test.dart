@@ -142,7 +142,7 @@ void main() {
         'BoardGameLibraryKindProviderMapper parses BGG envelope into BoardGameMetadata',
         () {
       const mapper = BoardGameLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'bgg',
           providerItemId: '224517',
@@ -168,15 +168,13 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<BoardGameMetadata>());
-      final meta = item.kindMetadata as BoardGameMetadata;
-      expect(meta.title, 'Brass: Birmingham');
-      expect(meta.yearPublished, 2018);
-      expect(meta.minPlayers, 2);
-      expect(meta.maxPlayers, 4);
-      expect(meta.bestPlayers, '3-4');
-      expect(meta.bggRank, 1);
-      expect(meta.designers, contains('Martin Wallace'));
+      expect(item.title, 'Brass: Birmingham');
+      expect(item.yearPublished, 2018);
+      expect(item.minPlayers, 2);
+      expect(item.maxPlayers, 4);
+      expect(item.bestPlayers, '3-4');
+      expect(item.bggRank, 1);
+      expect(item.designers, contains('Martin Wallace'));
     });
 
     test(

@@ -176,7 +176,7 @@ void main() {
         'ComicLibraryKindProviderMapper parses ComicVine/GCD envelope into ComicMedia',
         () {
       const mapper = ComicLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'comicvine',
           providerItemId: '4000-12345',
@@ -203,14 +203,12 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<ComicMedia>());
-      final meta = item.kindMetadata as ComicMedia;
-      expect(meta.title, 'Amazing Fantasy #15');
-      expect(meta.seriesTitle, 'Amazing Fantasy');
-      expect(meta.issueNumber, '15');
-      expect(meta.writers, contains('Stan Lee'));
-      expect(meta.artists, contains('Steve Ditko'));
-      expect(meta.isKeyComic, isTrue);
+      expect(item.title, 'Amazing Fantasy #15');
+      expect(item.seriesTitle, 'Amazing Fantasy');
+      expect(item.issueNumber, '15');
+      expect(item.characters, contains('Peter Parker'));
+      expect(item.characters, contains('Spider-Man'));
+      expect(item.isKeyComic, isTrue);
     });
 
     test('ComicCatalog and ComicEntry round-trip and preserve all kind fields',

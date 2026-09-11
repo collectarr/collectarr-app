@@ -1,25 +1,32 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
 CatalogSearchCandidate tvCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport(
-    (transport) => CatalogSearchCandidate.fromItem(
-      transport.withKindMetadata(TvSeriesMetadata.fromJson(transport.payload)),
-    ),
-  );
+  return item.mapTransport((transport) {
+    final metadata = TvSeriesMetadata.fromJson(transport.payload);
+    return providerCandidateFromTypedPayload(
+      kind: item.mediaKind,
+      id: item.id,
+      payload: metadata.toJson(),
+      typedMetadata: metadata,
+    );
+  });
 }
 
 CatalogSearchCandidate tvCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
-  final item = CatalogItemDto.fromJson(payload);
-  return CatalogSearchCandidate.fromItem(
-    item.withKindMetadata(TvSeriesMetadata.fromJson(payload)),
+  final metadata = TvSeriesMetadata.fromJson(payload);
+  return providerCandidateFromTypedPayload(
+    kind: candidate.kind,
+    id: candidate.localCatalogId,
+    payload: metadata.toJson(),
+    typedMetadata: metadata,
   );
 }
 

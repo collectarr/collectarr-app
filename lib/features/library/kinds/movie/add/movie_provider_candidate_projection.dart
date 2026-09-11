@@ -1,27 +1,32 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
 CatalogSearchCandidate movieCatalogTransportFromCoreItem(
   CatalogSearchCandidate item,
 ) {
-  return item.mapTransport(
-    (transport) => CatalogSearchCandidate.fromItem(
-      transport.withKindMetadata(
-        MovieCatalogMetadata.fromJson(transport.payload),
-      ),
-    ),
-  );
+  return item.mapTransport((transport) {
+    final metadata = MovieCatalogMetadata.fromJson(transport.payload);
+    return providerCandidateFromTypedPayload(
+      kind: item.mediaKind,
+      id: item.id,
+      payload: metadata.toJson(),
+      typedMetadata: metadata,
+    );
+  });
 }
 
 CatalogSearchCandidate movieCatalogTransportFromProviderCandidate(
   ProviderCandidate candidate,
 ) {
   final payload = _candidatePayload(candidate);
-  final item = CatalogItemDto.fromJson(payload);
-  return CatalogSearchCandidate.fromItem(
-    item.withKindMetadata(MovieCatalogMetadata.fromJson(payload)),
+  final metadata = MovieCatalogMetadata.fromJson(payload);
+  return providerCandidateFromTypedPayload(
+    kind: candidate.kind,
+    id: candidate.localCatalogId,
+    payload: metadata.toJson(),
+    typedMetadata: metadata,
   );
 }
 

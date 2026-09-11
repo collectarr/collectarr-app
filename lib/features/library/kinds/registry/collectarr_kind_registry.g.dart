@@ -647,25 +647,25 @@ const List<CustomEpisodeCodec> collectarrCustomEpisodeCodecs = [
 ];
 
 final collectarrKindProviderMetadataMappers =
-    <CatalogMediaKind, ProviderMetadataItemMapper>{
+    <CatalogMediaKind, ProviderMetadataCandidateMapper>{
   CatalogMediaKind.anime:
-      const AnimeLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const AnimeLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.boardgame:
-      const BoardGameLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const BoardGameLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.book:
-      const BookLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const BookLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.comic:
-      const ComicLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const ComicLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.game:
-      const GameLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const GameLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.manga:
-      const MangaLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const MangaLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.movie:
-      const MovieLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const MovieLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.music:
-      const MusicLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const MusicLibraryKindProviderMapper().catalogCandidateFromEnvelope,
   CatalogMediaKind.tv:
-      const TvLibraryKindProviderMapper().metadataItemFromEnvelope,
+      const TvLibraryKindProviderMapper().catalogCandidateFromEnvelope,
 };
 
 final collectarrKindProviderCorrectionBuilders =

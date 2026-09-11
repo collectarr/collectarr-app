@@ -144,7 +144,7 @@ void main() {
         'TvLibraryKindProviderMapper parses TMDb envelope into TvSeriesMetadata',
         () {
       const mapper = TvLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '1396',
@@ -167,13 +167,11 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<TvSeriesMetadata>());
-      final meta = item.kindMetadata as TvSeriesMetadata;
-      expect(meta.title, 'Breaking Bad');
-      expect(meta.status, 'Ended');
-      expect(meta.network, 'AMC');
-      expect(meta.seasonCount, 5);
-      expect(meta.episodeCount, 62);
+      expect(item.title, 'Breaking Bad');
+      expect(item.status, 'Ended');
+      expect(item.network, 'AMC');
+      expect(item.seasonCount, 5);
+      expect(item.episodeCount, 62);
     });
 
     test('TvCatalog and TvEntry round-trip and preserve all kind fields', () {

@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'tv_provider_typed_mapper.dart';
@@ -18,17 +16,14 @@ class TvLibraryKindProviderMapper
     );
   }
 
-  CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
-    final tvMetadata = TvSeriesMetadata.fromJson(
-      TvProviderTypedMapper.payloadFromEnvelope(envelope),
-    );
-
-    return CatalogItemDto(
-      identity: LibraryItemIdentity(
-        id: envelope.providerItemId,
-        mediaKind: CatalogMediaKind.tv,
-      ),
-      kindMetadata: tvMetadata,
+  CatalogSearchCandidate catalogCandidateFromEnvelope(
+    ProviderMetadataEnvelope envelope,
+  ) {
+    final catalog = catalogFromEnvelope(envelope);
+    return providerCandidateFromTypedPayload(
+      kind: CatalogMediaKind.tv,
+      id: envelope.providerItemId,
+      payload: catalog.toJson(),
     );
   }
 

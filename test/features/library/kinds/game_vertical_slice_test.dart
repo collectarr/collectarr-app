@@ -187,7 +187,7 @@ void main() {
         'GameLibraryKindProviderMapper parses IGDB envelope into GameCatalogMetadata',
         () {
       const mapper = GameLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'igdb',
           providerItemId: '1234',
@@ -230,12 +230,10 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<GameCatalogMetadata>());
-      final meta = item.kindMetadata as GameCatalogMetadata;
-      expect(meta.title, 'Super Mario 64');
-      expect(meta.franchise, 'Super Mario');
-      expect(meta.ageRating, 'ESRB: E');
-      expect(meta.valuations?.cib?.amountCents, 9000);
+      expect(item.title, 'Super Mario 64');
+      expect(item.franchise, 'Super Mario');
+      expect(item.ageRating, 'ESRB: E');
+      expect(item.valuations?.cib?.amountCents, 9000);
     });
 
     test('GameCatalog and GameEntry round-trip and preserve all kind fields',

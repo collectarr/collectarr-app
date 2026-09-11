@@ -172,7 +172,7 @@ void main() {
         'MusicLibraryKindProviderMapper parses MusicBrainz envelope into MusicCatalogMetadata',
         () {
       const mapper = MusicLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'musicbrainz',
           providerItemId: 'mb_123',
@@ -200,12 +200,10 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<MusicCatalogMetadata>());
-      final meta = item.kindMetadata as MusicCatalogMetadata;
-      expect(meta.title, 'Abbey Road');
-      expect(meta.artist, 'The Beatles');
-      expect(meta.releases.first.catalogNumber, 'PCS 7088');
-      expect(meta.releases.first.format, 'Vinyl');
+      expect(item.title, 'Abbey Road');
+      expect(item.artist, 'The Beatles');
+      expect(item.releases.first.catalogNumber, 'PCS 7088');
+      expect(item.releases.first.format, 'Vinyl');
     });
 
     test('MusicCatalog and MusicEntry round-trip and preserve all kind fields',

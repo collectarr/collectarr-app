@@ -156,7 +156,7 @@ void main() {
         'BookLibraryKindProviderMapper parses OpenLibrary/Hardcover envelope into BookCatalogMetadata',
         () {
       const mapper = BookLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'openlibrary',
           providerItemId: 'OL12345M',
@@ -185,14 +185,12 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<BookCatalogMetadata>());
-      final meta = item.kindMetadata as BookCatalogMetadata;
-      expect(meta.title, 'Dune');
-      expect(meta.subtitle, 'Part One');
-      expect(meta.authors, contains('Frank Herbert'));
-      expect(meta.editions.first.isbn, '9780441013593');
-      expect(meta.editions.first.pageCount, 896);
-      expect(meta.editions.first.firstEdition, isTrue);
+      expect(item.title, 'Dune');
+      expect(item.subtitle, 'Part One');
+      expect(item.authors, contains('Frank Herbert'));
+      expect(item.editions.first.isbn, '9780441013593');
+      expect(item.editions.first.pageCount, 896);
+      expect(item.editions.first.firstEdition, isTrue);
     });
 
     test('BookLibraryKindProviderMapper rejects a non-Book envelope', () {
@@ -208,7 +206,7 @@ void main() {
       );
 
       expect(
-        () => mapper.metadataItemFromEnvelope(envelope),
+        () => mapper.catalogCandidateFromEnvelope(envelope),
         throwsA(isA<StateError>()),
       );
       expect(

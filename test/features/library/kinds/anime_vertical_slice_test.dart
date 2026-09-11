@@ -143,7 +143,7 @@ void main() {
         'AnimeLibraryKindProviderMapper parses full envelope into AnimeMetadata',
         () {
       const mapper = AnimeLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
+      final item = mapper.catalogFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: '154587',
@@ -169,15 +169,13 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<AnimeMetadata>());
-      final meta = item.kindMetadata as AnimeMetadata;
-      expect(meta.nativeTitle,
+      expect(item.nativeTitle,
           'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
-      expect(meta.format, AnimeFormat.tv);
-      expect(meta.season, AnimeSeason.fall);
-      expect(meta.seasonYear, 2023);
-      expect(meta.episodeCount, 28);
-      expect(meta.studios, contains('Madhouse'));
+      expect(item.format, AnimeFormat.tv);
+      expect(item.season, AnimeSeason.fall);
+      expect(item.seasonYear, 2023);
+      expect(item.episodeCount, 28);
+      expect(item.studios, contains('Madhouse'));
     });
 
     test('AnimeCatalog and AnimeEntry round-trip and preserve all kind fields',

@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_work
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -186,7 +185,7 @@ void main() {
     test('MangaEditDraft builds complete MangaOwnedDetailsDraft', () {
       final textControllers = TextControllerGroup();
       const mapper = MangaLibraryKindProviderMapper();
-      final metaItem = mapper.metadataItemFromEnvelope(
+      final metaItem = mapper.catalogCandidateFromEnvelope(
         ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: '123',
@@ -204,7 +203,7 @@ void main() {
       );
 
       final draft = createMangaEditDraft(
-        item: CatalogSearchCandidate.fromItem(metaItem),
+        item: metaItem,
         ownedItemDispatch: testMangaOwnedItemDispatchFrom(
           MangaOwnedItem(
             id: const MangaOwnedItemId('owned_1'),

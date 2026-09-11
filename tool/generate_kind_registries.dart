@@ -1067,14 +1067,14 @@ void _renderProviderMetadataMapperMap(
 ) {
   buffer.writeln(
     'final collectarrKindProviderMetadataMappers = '
-    '<CatalogMediaKind, ProviderMetadataItemMapper>{',
+    '<CatalogMediaKind, ProviderMetadataCandidateMapper>{',
   );
   for (final descriptor in descriptors) {
     final contributor = descriptor.providerMapper;
     if (contributor == null) continue;
     buffer.writeln(
       '  CatalogMediaKind.${descriptor.folder}: '
-      'const ${contributor.className}().metadataItemFromEnvelope,',
+      'const ${contributor.className}().catalogCandidateFromEnvelope,',
     );
   }
   buffer.writeln('};');
