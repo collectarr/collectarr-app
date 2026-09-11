@@ -983,9 +983,7 @@ class LibraryAddSessionController
           sourceSelection: selected!,
         );
         final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
-        return decoder == null
-            ? item
-            : item.withKindMetadata(decoder(item.payload));
+        return decoder == null ? item : item.withDecodedKindMetadata(decoder);
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;

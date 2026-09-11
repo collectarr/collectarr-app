@@ -18,11 +18,21 @@ final class LibraryAddCatalogTransport {
     return LibraryAddCatalogTransport._(item);
   }
 
+  factory LibraryAddCatalogTransport.fromSnapshot(
+    CatalogImportSnapshot snapshot,
+  ) {
+    return LibraryAddCatalogTransport._(snapshot.toTransportItem());
+  }
+
   factory LibraryAddCatalogTransport.fromJson(Map<String, dynamic> json) {
     return LibraryAddCatalogTransport._(CatalogItemDto.fromJson(json));
   }
 
   final CatalogItemDto _item;
+
+  /// Lets an owning kind decode this transport boundary into its concrete
+  /// domain without exposing the Core DTO to generic Library hosts.
+  T mapTransport<T>(T Function(CatalogItemDto item) decoder) => decoder(_item);
 
   String get id => _item.id;
   CatalogMediaKind get mediaKind => _item.mediaKind;
@@ -114,6 +124,18 @@ final class LibraryAddCatalogTransport {
 
   LibraryAddCatalogTransport withKindMetadata(Object? kindMetadata) {
     return LibraryAddCatalogTransport._(_item.withKindMetadata(kindMetadata));
+  }
+
+  LibraryAddCatalogTransport withDecodedKindMetadata(
+    Object? Function(Map<String, dynamic> payload) decoder,
+  ) {
+    return withKindMetadata(decoder(_item.payload));
+  }
+
+  LibraryAddCatalogTransport withKindMetadataFrom(
+    LibraryAddCatalogTransport source,
+  ) {
+    return withKindMetadata(source.kindMetadata);
   }
 
   CatalogItemDto toTransportItem() => _item;

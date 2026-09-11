@@ -75,6 +75,11 @@ class LibraryEditPresentationState {
 abstract class LibraryEditPresentationBuilder {
   const LibraryEditPresentationBuilder();
 
+  String buildDialogTitle({required LibraryAddCatalogTransport item}) {
+    final yearSuffix = item.releaseYear == null ? '' : ' (${item.releaseYear})';
+    return item.displayTitle ?? '${item.title}$yearSuffix';
+  }
+
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   });

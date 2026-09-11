@@ -69,7 +69,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   final rankedItems = ranking.rankMetadata(
     [
       for (final item in items)
-        LibraryAddCatalogTransport.fromItem(item.toTransportItem()),
+        LibraryAddCatalogTransport.fromSnapshot(item.toImportSnapshot()),
     ],
     searchContext,
   );
@@ -98,7 +98,7 @@ Future<List<LibraryAddCatalogTransport>> fetchLibraryAddSuggestions({
   return filterAndRankCatalogItems(
     [
       for (final item in items)
-        LibraryAddCatalogTransport.fromItem(item.toTransportItem()),
+        LibraryAddCatalogTransport.fromSnapshot(item.toImportSnapshot()),
     ],
     ranking,
     searchContext,
@@ -122,7 +122,8 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   final foundItems = <LibraryAddCatalogTransport>[
     for (final result in results)
       if (result.item != null)
-        LibraryAddCatalogTransport.fromItem(result.item!.toTransportItem()),
+        LibraryAddCatalogTransport.fromSnapshot(
+            result.item!.toImportSnapshot()),
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,

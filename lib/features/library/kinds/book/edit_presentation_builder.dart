@@ -1,7 +1,26 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
+
+String _bookEditDialogTitle(LibraryAddCatalogTransport item) {
+  final payload = item.mapTransport<Map<String, dynamic>>(
+    (CatalogItemDto dto) => dto.payload,
+  );
+  final creators = (payload['creators'] as List?)
+      ?.whereType<Map<Object?, Object?>>()
+      .toList();
+  final firstCreator = (creators != null && creators.isNotEmpty)
+      ? creators.first['name']?.toString()
+      : ((payload['authors'] as List?)?.firstOrNull?.toString());
+  final yearSuffix = item.releaseYear != null ? ' (${item.releaseYear})' : '';
+  return item.displayTitle ??
+      (firstCreator != null && firstCreator.trim().isNotEmpty
+          ? '${item.title} / $firstCreator'
+          : '${item.title}$yearSuffix');
+}
 
 List<String> _bookReleasePersonalSections(
   LibraryEditPresentationContext context,
@@ -207,6 +226,10 @@ class BookLibraryMediaEditPresentationBuilder
         ),
     ];
   }
+
+  @override
+  String buildDialogTitle({required LibraryAddCatalogTransport item}) =>
+      _bookEditDialogTitle(item);
 }
 
 class BookLibraryReleaseEditPresentationBuilder

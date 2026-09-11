@@ -644,7 +644,9 @@ class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
       final candidate = match.catalogItem;
       final item = candidate == null
           ? null
-          : catalogCandidatesById[candidate.id]?.toTransportItem();
+          : catalogCandidatesById[candidate.id]
+              ?.toImportSnapshot()
+              .toTransportItem();
       if (item != null) {
         final enrichedEntry = _enrichFromCache(
           match.entry,

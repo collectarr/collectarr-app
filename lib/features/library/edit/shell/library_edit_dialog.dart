@@ -258,19 +258,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final payload = widget.item.payload;
-    final creators = (payload['creators'] as List?)
-        ?.whereType<Map<Object?, Object?>>()
-        .toList();
-    final firstCreator = (creators != null && creators.isNotEmpty)
-        ? creators.first['name']?.toString()
-        : ((payload['authors'] as List?)?.firstOrNull?.toString());
-    final yearSuffix =
-        widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';
-    final title = widget.item.displayTitle ??
-        (firstCreator != null && firstCreator.trim().isNotEmpty
-            ? '${widget.item.title} / $firstCreator'
-            : '${widget.item.title}$yearSuffix');
+    final title = widget.type.edit.presentation
+        .builderForScope(widget.scope)
+        .buildDialogTitle(item: widget.item);
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
@@ -496,12 +486,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                       const InputDecoration(labelText: 'Wishlist target'),
                   items: [
                     const DropdownMenuItem(
-                      value: const CatalogEntityTypeId('work'),
+                      value: CatalogEntityTypeId('work'),
                       child: Text('Item / Work'),
                     ),
                     if (widget.availableBundleReleases.isNotEmpty)
                       const DropdownMenuItem(
-                        value: const CatalogEntityTypeId('bundle_release'),
+                        value: CatalogEntityTypeId('bundle_release'),
                         child: Text('Bundle release'),
                       ),
                   ],

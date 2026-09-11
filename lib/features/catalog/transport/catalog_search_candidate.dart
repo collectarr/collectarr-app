@@ -66,8 +66,6 @@ final class CatalogSearchCandidate {
   int? get releaseYear => _item.releaseYear;
   List<String> get searchAliases => _item.searchAliases ?? const [];
 
-  CatalogItemDto toTransportItem() => _item;
-
   CatalogImportSnapshot toImportSnapshot() =>
       CatalogImportSnapshot.fromItem(_item);
 }

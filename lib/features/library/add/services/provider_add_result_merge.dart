@@ -6,19 +6,21 @@ LibraryAddCatalogTransport mergeProviderAddResult({
   required LibraryAddCatalogTransport ingested,
   required LibraryAddCatalogTransport edited,
 }) {
-  return ingested.copyWith(
-    title: edited.title,
-    displayTitle: edited.displayTitle ?? ingested.displayTitle,
-    localizedTitle: edited.localizedTitle ?? ingested.localizedTitle,
-    originalTitle: edited.originalTitle ?? ingested.originalTitle,
-    searchAliases: edited.searchAliases ?? ingested.searchAliases,
-    sortKey: edited.sortKey ?? ingested.sortKey,
-    synopsis: edited.synopsis ?? ingested.synopsis,
-    coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
-    thumbnailImageUrl: edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
-    coverImageData: edited.coverImageData ?? ingested.coverImageData,
-    kindMetadata: edited.kindMetadata,
-  );
+  return ingested
+      .copyWith(
+        title: edited.title,
+        displayTitle: edited.displayTitle ?? ingested.displayTitle,
+        localizedTitle: edited.localizedTitle ?? ingested.localizedTitle,
+        originalTitle: edited.originalTitle ?? ingested.originalTitle,
+        searchAliases: edited.searchAliases ?? ingested.searchAliases,
+        sortKey: edited.sortKey ?? ingested.sortKey,
+        synopsis: edited.synopsis ?? ingested.synopsis,
+        coverImageUrl: edited.coverImageUrl ?? ingested.coverImageUrl,
+        thumbnailImageUrl:
+            edited.thumbnailImageUrl ?? ingested.thumbnailImageUrl,
+        coverImageData: edited.coverImageData ?? ingested.coverImageData,
+      )
+      .withKindMetadataFrom(edited);
 }
 
 LibraryAddCatalogTransport mergeResolvedProviderAddItem({

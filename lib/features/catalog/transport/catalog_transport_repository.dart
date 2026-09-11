@@ -37,7 +37,9 @@ final class CatalogTransportRepository {
     Iterable<CatalogSearchCandidate> candidates,
   ) {
     return upsertAll(
-      candidates.map((candidate) => candidate.toTransportItem()),
+      candidates.map(
+        (candidate) => candidate.toImportSnapshot().toTransportItem(),
+      ),
     );
   }
 
