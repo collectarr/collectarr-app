@@ -32,6 +32,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
@@ -237,6 +238,8 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   add: StandardLibraryAddCapability<BoardgameAddDraft>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
+    providerCandidateProjectionBuilder:
+        boardGameCatalogTransportFromProviderCandidate,
     manualDraftBuilder: BoardgameAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         BoardgameOwnedItemCreatePayload(

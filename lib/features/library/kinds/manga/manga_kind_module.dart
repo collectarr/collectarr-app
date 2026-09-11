@@ -24,6 +24,7 @@ import 'package:collectarr_app/features/library/metadata/library_metadata_provid
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/add/manga_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/remote/manga_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
@@ -304,6 +305,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
   add: StandardLibraryAddCapability<MangaAddDraft>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
+    providerCandidateProjectionBuilder:
+        mangaCatalogTransportFromProviderCandidate,
     manualDraftBuilder: MangaAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         MangaOwnedItemCreatePayload(

@@ -42,6 +42,7 @@ import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarc
 
 import 'package:collectarr_app/features/library/kinds/tv/stats/tv_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/remote/tv_core_mapper.dart';
 import 'package:collectarr_app/features/library/add/library_add_video_kind_filters.dart';
@@ -276,6 +277,8 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   add: StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
+    providerCandidateProjectionBuilder:
+        tvCatalogTransportFromProviderCandidate,
     manualDraftBuilder: TvAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         TvOwnedItemCreatePayload(

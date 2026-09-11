@@ -44,6 +44,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_provider_candidate_projection.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _musicArtistFilterId = LibraryAddFilterId('music.artist');
@@ -233,6 +234,8 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   add: StandardLibraryAddCapability<MusicAddDraft>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
+    providerCandidateProjectionBuilder:
+        musicCatalogTransportFromProviderCandidate,
     manualDraftBuilder: MusicAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         MusicOwnedItemCreatePayload(

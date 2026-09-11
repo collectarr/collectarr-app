@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
@@ -250,6 +251,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     kind: CatalogMediaKind.comic,
     dialogLauncher: showComicLibraryAddDialog,
     initialDraftBuilder: ComicAddDraft.new,
+    providerCandidateProjectionBuilder:
+        comicCatalogTransportFromProviderCandidate,
     manualDraftBuilder: ComicAddManualDraft.new,
     manualPaneBuilder: buildComicAddManualPane,
     headerBuilder: buildComicAddHeader,

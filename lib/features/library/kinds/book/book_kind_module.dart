@@ -46,6 +46,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/add/book_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
 
@@ -317,6 +318,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   add: StandardLibraryAddCapability<BookAddDraft>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
+    providerCandidateProjectionBuilder:
+        bookCatalogTransportFromProviderCandidate,
     manualDraftBuilder: BookAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         BookOwnedItemCreatePayload(

@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_collection_workflow.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/library/add/services/provider_candidate_catalog_projection.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
@@ -53,11 +52,12 @@ class LibraryAddWorkflowService {
   }
 
   Future<LibraryAddCatalogTransport> providerAddItemForCandidate({
+    required LibraryKindModule type,
     required ProviderCandidate candidate,
     required LibraryAddPreviewController previewState,
   }) async {
     if (candidate.isStub) {
-      return catalogItemFromProviderCandidate(candidate);
+      return type.add.catalogTransportFromProviderCandidate(candidate);
     }
     final cachedPreview =
         previewState.providerPreviewFor(candidate.localCatalogId);
@@ -65,7 +65,7 @@ class LibraryAddWorkflowService {
       return metadataItemFromPreview(cachedPreview,
           itemId: candidate.localCatalogId);
     }
-    return catalogItemFromProviderCandidate(candidate);
+    return type.add.catalogTransportFromProviderCandidate(candidate);
   }
 
   Future<void> addProviderCandidate(LibraryProviderAddRequest request) async {
@@ -75,6 +75,7 @@ class LibraryAddWorkflowService {
     final type = request.type;
     if (!request.isAdmin || candidate.isStub) {
       final previewItem = await providerAddItemForCandidate(
+        type: type,
         candidate: candidate,
         previewState: dependencies.previewState,
       );
@@ -103,7 +104,7 @@ class LibraryAddWorkflowService {
         );
         final previewItem = cached != null
             ? metadataItemFromPreview(cached)
-            : catalogItemFromProviderCandidate(currentCandidate);
+            : type.add.catalogTransportFromProviderCandidate(currentCandidate);
 
         final visibleCandidates = dependencies.visibleProviderResults();
         final currentIndex = visibleCandidates.indexWhere(

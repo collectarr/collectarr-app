@@ -30,7 +30,6 @@ import 'package:collectarr_app/features/library/add/services/library_add_search_
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:collectarr_app/features/library/add/services/provider_candidate_catalog_projection.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
@@ -1400,7 +1399,9 @@ class LibraryAddSessionController
                   preview,
                   itemId: selectedCandidate.localCatalogId,
                 )
-              : catalogItemFromProviderCandidate(selectedCandidate);
+              : type.add.catalogTransportFromProviderCandidate(
+                  selectedCandidate,
+                );
 
           if (catalog != null) {
             await catalog!.upsertImportSnapshots(

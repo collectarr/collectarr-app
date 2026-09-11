@@ -1,5 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/add/services/provider_candidate_catalog_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
@@ -7,9 +6,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  setUpAll(() {
-    collectarrKindModules;
-  });
   test('parses provider candidate wire format', () {
     final candidate = ProviderCandidate.fromJson(const {
       'provider': 'comicvine',
@@ -117,8 +113,9 @@ void main() {
       'is_variant': false,
     });
 
-    final item = catalogItemFromProviderCandidate(candidate);
-    final payload = item.kindMetadata.toSyncPayload();
+    final item = comicKindModule.add
+        .catalogTransportFromProviderCandidate(candidate);
+    final payload = item.toTransportItem().kindMetadata.toSyncPayload();
 
     expect(payload['item_number'], '1');
     expect(item.releaseYear, 2024);

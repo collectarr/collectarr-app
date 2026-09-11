@@ -43,6 +43,7 @@ import 'package:collectarr_app/features/library/config/library_kind_browser_dele
 
 import 'package:collectarr_app/features/library/kinds/game/stats/game_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/game_provider_candidate_projection.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _gamePlatformFilterId = LibraryAddFilterId('game.platform');
@@ -212,6 +213,8 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   add: StandardLibraryAddCapability<GameAddDraft>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
+    providerCandidateProjectionBuilder:
+        gameCatalogTransportFromProviderCandidate,
     manualDraftBuilder: GameAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         GameOwnedItemCreatePayload(

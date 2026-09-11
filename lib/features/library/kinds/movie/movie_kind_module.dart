@@ -48,6 +48,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/add/movie_provider_candidate_projection.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 
 const _movieCollectionFilterId = LibraryAddFilterId('movie.collection');
@@ -307,6 +308,8 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     kind: CatalogMediaKind.movie,
     dialogLauncher: showMovieLibraryAddDialog,
     initialDraftBuilder: MovieAddDraft.new,
+    providerCandidateProjectionBuilder:
+        movieCatalogTransportFromProviderCandidate,
     manualDraftBuilder: MovieAddManualDraft.new,
     manualPaneBuilder: buildMovieAddManualPane,
     chrome: _movieAddChrome,

@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_provider_candidate_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -269,6 +270,8 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
   add: StandardLibraryAddCapability<AnimeAddDraft>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
+    providerCandidateProjectionBuilder:
+        animeCatalogTransportFromProviderCandidate,
     manualDraftBuilder: AnimeAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         AnimeOwnedItemCreatePayload(
