@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -20,66 +19,23 @@ class WorkspaceCommonProjection {
     this.coverImageUrl,
   });
 
-  factory WorkspaceCommonProjection.fromShelf(
+  factory WorkspaceCommonProjection.fromStructuralShelf(
     LibraryWorkspaceSource source,
     LibraryNodeRef node, {
     String? overrideTitle,
-    String? overrideSeriesTitle,
     DateTime? overrideReleaseDate,
-    String? overrideVariant,
     String? overrideCoverImageUrl,
   }) {
     final catalog = source.catalogTransport;
     final edition = node is LibraryReleaseNodeRef ? node.edition : null;
-    CatalogVariantDto? primaryVariant;
-    if (edition != null) {
-      for (final v in edition.variants) {
-        if (v.isPrimary) {
-          primaryVariant = v;
-          break;
-        }
-      }
-      primaryVariant ??=
-          edition.variants.isEmpty ? null : edition.variants.first;
-    }
-
-    final payload = catalog?.payload ?? const {};
-    final rawSeries = payload['series'];
-    final seriesMap = rawSeries is Map ? rawSeries : null;
 
     return WorkspaceCommonProjection(
       title: overrideTitle ?? catalog?.displayTitle ?? catalog?.title ?? '',
       synopsis: catalog?.synopsis,
-      seriesTitle: overrideSeriesTitle ??
-          (seriesMap?['series_title'] ??
-                  seriesMap?['seriesTitle'] ??
-                  (rawSeries is String ? rawSeries : null) ??
-                  payload['series_title'] ??
-                  payload['seriesTitle'])
-              ?.toString(),
-      itemNumber: (payload['item_number'] ?? payload['itemNumber'])?.toString(),
       releaseDate:
           overrideReleaseDate ?? edition?.releaseDate ?? catalog?.releaseDate,
-      variant: overrideVariant ??
-          primaryVariant?.name ??
-          edition?.title ??
-          payload['variant']?.toString(),
-      country: (payload['country'] ??
-              (payload['publishing'] as Map?)?['original_country'])
-          ?.toString(),
-      language: edition?.language ??
-          (payload['language'] ??
-                  (payload['publishing'] as Map?)?['original_language'])
-              ?.toString(),
       currency: source.ownedSummary?.currency,
-      referenceFormatLabel: primaryVariant?.physicalFormat ??
-          edition?.format ??
-          (payload['physical_format_label'] ?? payload['physical_format'])
-              ?.toString(),
-      coverImageUrl: overrideCoverImageUrl ??
-          primaryVariant?.coverImageUrl ??
-          primaryVariant?.thumbnailImageUrl ??
-          catalog?.coverImageUrl,
+      coverImageUrl: overrideCoverImageUrl ?? catalog?.coverImageUrl,
     );
   }
 

@@ -25,7 +25,7 @@ final class GenericWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     return GenericWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: WorkspaceCommonProjection.fromStructuralShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
     );
   }
@@ -37,7 +37,7 @@ final class GenericWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     return GenericWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: WorkspaceCommonProjection.fromStructuralShelf(source, node),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
     );
