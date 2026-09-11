@@ -345,14 +345,14 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         children: [
                           for (final suggestion in request.suggestions)
                             () {
-                              final itemNumber =
-                                  suggestion.payload['item_number'] as String?;
+                              final display = request.type.presentation.builder
+                                  .buildSearchResultDisplay(item: suggestion);
                               return ListTile(
                                 dense: true,
-                                title: Text(suggestion.title),
-                                subtitle: itemNumber?.trim().isNotEmpty == true
-                                    ? Text('Issue $itemNumber')
-                                    : null,
+                                title: Text(display?.title ?? suggestion.title),
+                                subtitle: display?.secondaryLine == null
+                                    ? null
+                                    : Text(display!.secondaryLine!),
                                 onTap: () =>
                                     request.onSelectSuggestion(suggestion),
                               );

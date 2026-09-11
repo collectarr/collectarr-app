@@ -577,14 +577,14 @@ class _UnifiedCoreChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final displayTitle = _coreChildDisplayTitle(item);
-    final publisher = item.publisher;
-    final physicalFormatLabel = item.physicalFormatLabel;
+    final display = type.presentation.builder.buildSearchResultDisplay(
+      item: item,
+    );
+    final displayTitle = display?.title ?? item.title;
     final subtitleParts = <String>[
-      if (publisher != null) publisher,
-      if ((item.releaseYear ?? item.releaseDate?.year) != null)
-        (item.releaseYear ?? item.releaseDate?.year).toString(),
-      if (physicalFormatLabel != null) physicalFormatLabel,
+      if (display?.secondaryLine case final subtitle?
+          when subtitle.trim().isNotEmpty)
+        subtitle,
     ];
     return Material(
       color: selected ? palette.selection : Colors.transparent,
@@ -666,14 +666,6 @@ class _UnifiedCoreChildTile extends StatelessWidget {
       ),
     );
   }
-}
-
-String _coreChildDisplayTitle(LibraryAddCatalogTransport item) {
-  final itemNumber = item.itemNumber;
-  if (itemNumber != null && itemNumber.trim().isNotEmpty) {
-    return '${item.title} #$itemNumber';
-  }
-  return item.title;
 }
 
 class _UnifiedProviderChildTile extends StatelessWidget {

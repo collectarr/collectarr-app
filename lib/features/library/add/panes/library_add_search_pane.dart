@@ -560,9 +560,13 @@ class _SearchResultsGrid extends StatelessWidget {
             ? item.id == selectedResultId
             : candidate!.localCatalogId == selectedProviderCandidateId;
         final checked = isCore && checkedResultIds.contains(item.id);
-        final title = isCore ? item.title : candidate!.title;
+        final coreDisplay = isCore
+            ? type.presentation.builder.buildSearchResultDisplay(item: item)
+            : null;
+        final title =
+            isCore ? coreDisplay?.title ?? item.title : candidate!.title;
         final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
-        final corePublisher = isCore ? item.publisher : null;
+        final corePublisher = coreDisplay?.secondaryLine;
         final subtitle = isCore
             ? [
                 if ((item.releaseYear ?? item.releaseDate?.year) != null)
@@ -935,18 +939,7 @@ class SearchResultTile extends StatelessWidget {
     final resultDisplay = type.presentation.builder.buildSearchResultDisplay(
       item: item,
     );
-    final publisher = item.publisher;
-    final physicalFormatLabel = item.physicalFormatLabel;
-    final identifierCode = item.identifierCode;
-    final itemNumber = item.itemNumber;
-    final subtitle = resultDisplay?.secondaryLine ??
-        [
-          if (publisher != null) publisher,
-          if ((item.releaseYear ?? item.releaseDate?.year) != null)
-            (item.releaseYear ?? item.releaseDate?.year).toString(),
-          if (physicalFormatLabel != null) physicalFormatLabel,
-          if (identifierCode != null) identifierCode,
-        ].whereType<String>().join(' | ');
+    final subtitle = resultDisplay?.secondaryLine ?? '';
     final detailLine = resultDisplay?.detailLine;
     final ownedTone = Theme.of(context).colorScheme.tertiary;
     final ownedFill = Color.alphaBlend(
@@ -1007,7 +1000,7 @@ class SearchResultTile extends StatelessWidget {
                 height: 56,
                 child: LibraryCoverImage(
                   title: item.title,
-                  itemNumber: itemNumber,
+                  itemNumber: null,
                   imageUrl: item.displayCoverUrl,
                 ),
               ),
@@ -1035,10 +1028,7 @@ class SearchResultTile extends StatelessWidget {
                           const SizedBox(height: 4),
                         ],
                         Text(
-                          resultDisplay?.title ??
-                              (itemNumber == null
-                                  ? item.title
-                                  : '${item.title} #$itemNumber'),
+                          resultDisplay?.title ?? item.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

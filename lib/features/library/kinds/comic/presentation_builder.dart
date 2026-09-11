@@ -85,6 +85,12 @@ class ComicLibraryMediaPresentationBuilder
   }
 
   @override
+  LibraryAddSearchResultDisplay? buildSearchResultDisplay({
+    required LibraryAddCatalogTransport item,
+  }) =>
+      _buildComicSearchResultDisplay(item);
+
+  @override
   List<LibraryGroupModeCategory> buildGroupModeCategories(
     List<String> modes,
   ) {
@@ -258,4 +264,27 @@ class ComicLibraryMediaPresentationBuilder
       ),
     ];
   }
+}
+
+LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
+  LibraryAddCatalogTransport item,
+) {
+  final itemNumber = item.itemNumber?.trim();
+  final subtitle = [
+    if (item.publisher?.trim() case final value? when value.isNotEmpty) value,
+    if ((item.releaseYear ?? item.releaseDate?.year) case final year?)
+      year.toString(),
+    if (item.physicalFormatLabel?.trim() case final value?
+        when value.isNotEmpty)
+      value,
+    if (item.identifierCode?.trim() case final value? when value.isNotEmpty)
+      value,
+  ].join(' | ');
+  return LibraryAddSearchResultDisplay(
+    title: itemNumber == null || itemNumber.isEmpty
+        ? item.title
+        : '${item.title} #$itemNumber',
+    secondaryLine: subtitle.isEmpty ? null : subtitle,
+    detailLine: null,
+  );
 }
