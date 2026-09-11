@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -271,12 +270,12 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     kind: CatalogMediaKind.anime,
     initialDraftBuilder: AnimeAddDraft.new,
     manualDraftBuilder: AnimeAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         AnimeOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as AnimeOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.collectionValue ?? draft.grade,
+      grade: kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/movie/add_shell.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -316,14 +315,12 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     previewPaneBuilder: buildMovieAddPreviewPane,
     searchPaneBuilder: buildMovieAddSearchPane,
     bottomBarBuilder: buildMovieAddBottomBar,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         MovieOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as MovieOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.isDigital == true
-          ? null
-          : common.collectionValue ?? draft.grade,
+      grade: common.isDigital == true ? null : kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

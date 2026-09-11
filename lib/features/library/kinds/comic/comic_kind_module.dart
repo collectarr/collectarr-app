@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadat
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
@@ -258,12 +257,12 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     previewPaneBuilder: buildComicAddPreviewPane,
     searchPaneBuilder: buildComicAddSearchPane,
     bottomBarBuilder: buildComicAddBottomBar,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         ComicOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as ComicOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.collectionValue ?? draft.grade,
+      grade: kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

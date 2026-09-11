@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -306,12 +305,12 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     kind: CatalogMediaKind.manga,
     initialDraftBuilder: MangaAddDraft.new,
     manualDraftBuilder: MangaAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         MangaOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as MangaOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.collectionValue ?? draft.grade,
+      grade: kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

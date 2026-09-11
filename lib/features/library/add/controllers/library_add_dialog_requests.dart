@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_modu
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 

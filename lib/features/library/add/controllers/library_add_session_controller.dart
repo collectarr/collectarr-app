@@ -973,16 +973,15 @@ class LibraryAddSessionController
         id: itemId,
       )
           .then<LibraryAddCatalogTransport>((dto) {
-        final raw = mergeHydratedProviderAddResultRaw(
-          raw: <String, dynamic>{
+        final item = mergeHydratedProviderAddResult(
+          hydrated: LibraryAddCatalogTransport.fromJson({
             ...dto.raw,
             'id': dto.id,
             'title': dto.title,
             'kind': dto.kind,
-          },
+          }),
           sourceSelection: selected!,
         );
-        final item = LibraryAddCatalogTransport.fromJson(raw);
         final decoder = libraryKindCatalogMetadataDecoderForKind(type.kind);
         return decoder == null
             ? item

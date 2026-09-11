@@ -35,18 +35,14 @@ LibraryAddCatalogTransport mergeResolvedProviderAddItem({
         );
 }
 
-Map<String, dynamic> mergeHydratedProviderAddResultRaw({
-  required Map<String, dynamic> raw,
+LibraryAddCatalogTransport mergeHydratedProviderAddResult({
+  required LibraryAddCatalogTransport hydrated,
   required LibraryAddCatalogTransport sourceSelection,
 }) {
-  final merged = <String, dynamic>{
-    ...raw,
-    if (!raw.containsKey('editions') && sourceSelection.editions.isNotEmpty)
-      'editions': [
-        for (final edition in sourceSelection.editions) edition.toJson(),
-      ],
-  };
-  return merged;
+  if (hydrated.editions.isNotEmpty || sourceSelection.editions.isEmpty) {
+    return hydrated;
+  }
+  return hydrated.copyWith(editions: sourceSelection.editions);
 }
 
 Future<void> applyProviderIngestCorrections({

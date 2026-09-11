@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/media/board
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/release/boardgame_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/inspector_panel.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -239,12 +238,12 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     kind: CatalogMediaKind.boardgame,
     initialDraftBuilder: BoardgameAddDraft.new,
     manualDraftBuilder: BoardgameAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         BoardgameOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as BoardgameOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.collectionValue ?? draft.grade,
+      grade: kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

@@ -14,7 +14,6 @@ class LibraryAddCommonDraft {
     this.purchaseStore,
     this.collectionStatus,
     this.isDigital,
-    this.collectionValue,
   });
 
   final String? condition;
@@ -28,7 +27,6 @@ class LibraryAddCommonDraft {
   final String? purchaseStore;
   final String? collectionStatus;
   final bool? isDigital;
-  final String? collectionValue;
 
   LibraryAddCommonDraft copyWith({
     String? condition,
@@ -42,7 +40,6 @@ class LibraryAddCommonDraft {
     String? purchaseStore,
     String? collectionStatus,
     bool? isDigital,
-    String? collectionValue,
   }) {
     return LibraryAddCommonDraft(
       condition: condition ?? this.condition,
@@ -56,7 +53,6 @@ class LibraryAddCommonDraft {
       purchaseStore: purchaseStore ?? this.purchaseStore,
       collectionStatus: collectionStatus ?? this.collectionStatus,
       isDigital: isDigital ?? this.isDigital,
-      collectionValue: collectionValue ?? this.collectionValue,
     );
   }
 }

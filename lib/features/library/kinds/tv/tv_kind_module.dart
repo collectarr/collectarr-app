@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/config/library_page_utilities.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_codec.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -278,12 +277,12 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
     manualDraftBuilder: TvAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         TvOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as TvOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.collectionValue ?? draft.grade,
+      grade: kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

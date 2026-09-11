@@ -6,7 +6,6 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
@@ -565,7 +564,6 @@ class LibraryEditDraft {
       purchaseStore: emptyToNull(personal.purchaseStoreController.text),
       collectionStatus: personal.collectionStatus,
       tags: emptyToNull(personal.tagsController.text),
-      collectionValue: emptyToNull(personal.gradeController.text),
     );
   }
 
@@ -584,6 +582,7 @@ class LibraryEditDraft {
         variantId: personal.selectedVariantId,
         bundleReleaseId: personal.selectedBundleReleaseId,
       ),
+      kindValue: emptyToNull(personal.gradeController.text),
       tracking: LibraryAddTrackingDraft(
         readStatus: emptyToNull(tracking.trackingController.text),
         notes: emptyToNull(tracking.trackingNotesController.text),

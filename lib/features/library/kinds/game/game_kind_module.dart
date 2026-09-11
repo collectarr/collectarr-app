@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_p
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_copy_semantics.dart';
@@ -214,12 +213,12 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     kind: CatalogMediaKind.game,
     initialDraftBuilder: GameAddDraft.new,
     manualDraftBuilder: GameAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         GameOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as GameOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.collectionValue ?? draft.grade,
+      grade: kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,

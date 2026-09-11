@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -67,8 +66,9 @@ typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
   LibraryAddCatalogTransport item,
   LibraryAddCommonDraft common,
   TDraft draft,
-  JsonEncodable details,
-);
+  JsonEncodable details, {
+  String? kindValue,
+});
 
 typedef LibraryAddDigitalCopyFlagBuilder = bool? Function(
   LibraryAddCatalogTransport item,
@@ -220,6 +220,7 @@ abstract interface class LibraryAddCapability<
     LibraryAddKindDraft? draft,
     CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+    String? kindValue,
   });
 }
 
@@ -307,14 +308,17 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     return previewPaneBuilder?.call(context, request);
   }
 
-  OwnedItemCreatePayload _buildOwnedPayload(
-    LibraryAddCatalogTransport item,
-    LibraryAddCommonDraft common,
-    TDraft draft,
-    JsonEncodable details,
-  ) {
+  OwnedItemCreatePayload _buildOwnedPayload(LibraryAddCatalogTransport item,
+      LibraryAddCommonDraft common, TDraft draft, JsonEncodable details,
+      {String? kindValue}) {
     try {
-      final payload = ownedPayloadBuilder?.call(item, common, draft, details);
+      final payload = ownedPayloadBuilder?.call(
+        item,
+        common,
+        draft,
+        details,
+        kindValue: kindValue,
+      );
       if (payload == null) {
         throw StateError(
           'Kind ${kind.apiValue} must provide an owned create payload.',
@@ -336,8 +340,12 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     final details = effectiveDraft.toOwnedDetailsDraft();
-    final typedPayload =
-        _buildOwnedPayload(item, common, effectiveDraft, details);
+    final typedPayload = _buildOwnedPayload(
+      item,
+      common,
+      effectiveDraft,
+      details,
+    );
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(
         kind: kind,
@@ -364,6 +372,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     LibraryAddKindDraft? draft,
     CatalogEntityRef? targetRef,
     LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+    String? kindValue,
   }) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
     final typedPayload = _buildOwnedPayload(
@@ -371,6 +380,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       common,
       effectiveDraft,
       details,
+      kindValue: kindValue,
     );
     return AddOwnedItemCommand(
       catalogRef: CatalogEntityRef(

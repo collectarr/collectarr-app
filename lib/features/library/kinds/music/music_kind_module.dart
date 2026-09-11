@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_copy_semantics.dart';
@@ -235,12 +234,12 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     kind: CatalogMediaKind.music,
     initialDraftBuilder: MusicAddDraft.new,
     manualDraftBuilder: MusicAddManualDraft.new,
-    ownedPayloadBuilder: (item, common, draft, details) =>
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
         MusicOwnedItemCreatePayload(
       catalogRef: item.catalogRef,
       details: details as MusicOwnedDetailsDraft,
       condition: common.condition,
-      grade: common.collectionValue ?? draft.grade,
+      grade: kindValue ?? draft.grade,
       purchaseDate: common.purchaseDate,
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,
