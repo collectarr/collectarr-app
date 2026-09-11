@@ -199,6 +199,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'musicbrainz',
+    catalogMetadataDecoder: MusicCatalogMetadata.fromJson,
     searchQueryBuilder: _musicMetadataSearchQuery,
     supportsServerCompare: true,
     compareBuilder: buildMusicMetadataComparePanels,

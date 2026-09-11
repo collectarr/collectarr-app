@@ -241,14 +241,6 @@ LibraryKindWorkspace libraryKindWorkspaceForKind(CatalogMediaKind kind) {
   return workspace;
 }
 
-/// Decodes metadata at the API serialization boundary and immediately
-/// attaches the owning kind value. The decoder is a composition-root concern;
-/// it is not part of the erased kind module contract.
-Object? Function(Map<String, dynamic>)?
-    libraryKindCatalogMetadataDecoderForKind(CatalogMediaKind kind) {
-  return collectarrKindMetadataDecoders[kind];
-}
-
 /// Composition-root dispatch for kind-owned facet extraction and remote facet
 /// loading. The generic library only receives the structural facet module;
 /// it does not read facet semantics from [LibraryKindModule].

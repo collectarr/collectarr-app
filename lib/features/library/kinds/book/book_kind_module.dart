@@ -279,6 +279,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
+    catalogMetadataDecoder: BookCatalogMetadata.fromJson,
     searchQueryBuilder: _bookMetadataSearchQuery,
     providers: [
       hardcoverMetadataProvider,

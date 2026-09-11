@@ -209,6 +209,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'gcd',
+    catalogMetadataDecoder: ComicMedia.fromJson,
     searchQueryBuilder: _comicMetadataSearchQuery,
     supportsServerCompare: true,
     usesTreeProviderCandidates: true,

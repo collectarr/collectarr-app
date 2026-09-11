@@ -155,7 +155,6 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
     final facetModule = RegExp(
       r'(?:const|final)\s+(\w+LibraryFacetModule)\s*=',
     ).firstMatch(moduleSource)?.group(1);
-    final metadataDecoder = _discoverMetadataDecoder(entity);
     final localTables = _discoverLocalTables(entity);
 
     descriptors.add(
@@ -236,7 +235,6 @@ Future<List<_KindDescriptor>> _discoverKinds() async {
           '${folder}_provider_mapper.dart',
           'TypedLibraryKindProviderMapper',
         ),
-        metadataDecoder: metadataDecoder,
         facetModule: facetModule,
         ownedPersistence: _discoverOwnedPersistence(entity),
         catalogRepositoryCodec: _discoverContributor(
@@ -368,35 +366,6 @@ String? _findClass(File file, RegExp pattern) {
   return pattern.firstMatch(file.readAsStringSync())?.group(1);
 }
 
-_MetadataDecoder? _discoverMetadataDecoder(Directory kindDirectory) {
-  final folder = kindDirectory.path.split(Platform.pathSeparator).last;
-  final file = File('${kindDirectory.path}/domain/${folder}_metadata.dart');
-  if (!file.existsSync()) return null;
-  final source = file.readAsStringSync();
-  final classNames = RegExp(
-    r'(?:final\s+class|class)\s+(\w+)',
-  ).allMatches(source).map((match) => match.group(1)!).toList();
-  final candidates = [
-    for (final className in classNames)
-      if ((className.endsWith('Metadata') || className.endsWith('Media')) &&
-          RegExp('factory\\s+$className\\.fromJson').hasMatch(source))
-        className,
-  ];
-  candidates.sort((left, right) {
-    final rightScore = _metadataClassScore(folder, right);
-    final leftScore = _metadataClassScore(folder, left);
-    return rightScore.compareTo(leftScore);
-  });
-  if (candidates.isNotEmpty) {
-    final className = candidates.first;
-    return _MetadataDecoder(
-      importPath: _packageImportPath(file),
-      expression: '$className.fromJson',
-    );
-  }
-  return null;
-}
-
 _VocabularyModule? _discoverVocabularyModule(Directory kindDirectory) {
   final folder = kindDirectory.path.split(Platform.pathSeparator).last;
   final file = File(
@@ -415,18 +384,6 @@ _VocabularyModule? _discoverVocabularyModule(Directory kindDirectory) {
     importPath: _packageImportPath(file),
     className: className,
   );
-}
-
-int _metadataClassScore(String folder, String className) {
-  final normalizedFolder = folder.replaceAll('_', '').toLowerCase();
-  final normalizedClass = className.toLowerCase();
-  if (normalizedClass == '$normalizedFolder metadata'.replaceAll(' ', '')) {
-    return 100;
-  }
-  if (normalizedClass.endsWith('catalogmetadata')) return 95;
-  if (normalizedClass.endsWith('seriesmetadata')) return 90;
-  if (normalizedClass.endsWith('media')) return 85;
-  return 10;
 }
 
 _Contributor? _discoverContributor(
@@ -502,7 +459,6 @@ String _renderRegistry(List<_KindDescriptor> descriptors) {
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
@@ -628,13 +584,6 @@ import 'package:go_router/go_router.dart';
   buffer.writeln(
     "import 'package:collectarr_app/features/library/config/owned_details_codec.dart';",
   );
-  for (final descriptor in descriptors) {
-    final metadataDecoder = descriptor.metadataDecoder;
-    if (metadataDecoder == null) continue;
-    buffer.writeln(
-      "import 'package:collectarr_app/${metadataDecoder.importPath}';",
-    );
-  }
   buffer.writeln();
   buffer.writeln('final List<LibraryKindModule> collectarrKindModules = [');
   for (final descriptor in descriptors) {
@@ -747,7 +696,6 @@ import 'package:go_router/go_router.dart';
   _renderProviderMetadataMapperMap(buffer, descriptors);
   _renderProviderCorrectionBuilderMap(buffer, descriptors);
   _renderFacetMap(buffer, descriptors);
-  _renderMetadataDecoderMap(buffer, descriptors);
   _renderOwnedPersistenceMaps(buffer, descriptors);
   _renderCatalogTransportCodecs(buffer, descriptors);
   _renderSerialAuthorityContributors(buffer, descriptors);
@@ -990,23 +938,6 @@ void _renderFacetMap(
     if (variable == null) continue;
     buffer.writeln(
       '  CatalogMediaKind.${descriptor.folder}: $variable,',
-    );
-  }
-  buffer.writeln('};');
-}
-
-void _renderMetadataDecoderMap(
-  StringBuffer buffer,
-  List<_KindDescriptor> descriptors,
-) {
-  buffer.writeln(
-    'final collectarrKindMetadataDecoders = <CatalogMediaKind, Object? Function(Map<String, dynamic>)>{',
-  );
-  for (final descriptor in descriptors) {
-    final decoder = descriptor.metadataDecoder;
-    if (decoder == null) continue;
-    buffer.writeln(
-      '  CatalogMediaKind.${descriptor.folder}: ${decoder.expression},',
     );
   }
   buffer.writeln('};');
@@ -1383,7 +1314,6 @@ final class _KindDescriptor {
     this.watchSessionCodec,
     this.customEpisodeCodec,
     this.providerMapper,
-    this.metadataDecoder,
     this.facetModule,
     this.ownedPersistence,
     this.catalogRepositoryCodec,
@@ -1409,7 +1339,6 @@ final class _KindDescriptor {
   final _Contributor? watchSessionCodec;
   final _Contributor? customEpisodeCodec;
   final _Contributor? providerMapper;
-  final _MetadataDecoder? metadataDecoder;
   final String? facetModule;
   final _OwnedPersistence? ownedPersistence;
   final _Contributor? catalogRepositoryCodec;
@@ -1444,13 +1373,6 @@ final class _Contributor {
 
   final String importPath;
   final String className;
-}
-
-final class _MetadataDecoder {
-  const _MetadataDecoder({required this.importPath, required this.expression});
-
-  final String importPath;
-  final String expression;
 }
 
 final class _OwnedPersistence {

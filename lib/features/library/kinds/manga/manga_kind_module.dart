@@ -269,6 +269,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
+    catalogMetadataDecoder: MangaMetadata.fromJson,
     searchQueryBuilder: _mangaMetadataSearchQuery,
     usesTreeProviderCandidates: true,
     providers: [

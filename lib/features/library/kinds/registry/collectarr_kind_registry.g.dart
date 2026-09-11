@@ -4,7 +4,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
@@ -204,15 +203,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dar
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
 final List<LibraryKindModule> collectarrKindModules = [
   animeKindModule,
@@ -416,18 +406,6 @@ final collectarrKindFacetModules = <CatalogMediaKind, LibraryFacetModule>{
   CatalogMediaKind.movie: movieLibraryFacetModule,
   CatalogMediaKind.music: musicLibraryFacetModule,
   CatalogMediaKind.tv: tvLibraryFacetModule,
-};
-final collectarrKindMetadataDecoders =
-    <CatalogMediaKind, Object? Function(Map<String, dynamic>)>{
-  CatalogMediaKind.anime: AnimeMetadata.fromJson,
-  CatalogMediaKind.boardgame: BoardGameMetadata.fromJson,
-  CatalogMediaKind.book: BookCatalogMetadata.fromJson,
-  CatalogMediaKind.comic: ComicMedia.fromJson,
-  CatalogMediaKind.game: GameCatalogMetadata.fromJson,
-  CatalogMediaKind.manga: MangaMetadata.fromJson,
-  CatalogMediaKind.movie: MovieCatalogMetadata.fromJson,
-  CatalogMediaKind.music: MusicCatalogMetadata.fromJson,
-  CatalogMediaKind.tv: TvSeriesMetadata.fromJson,
 };
 Future<void> collectarrUpsertTypedOwnedItem(
     LocalDatabase database, CatalogMediaKind kind, Object item) async {

@@ -239,6 +239,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'tmdb',
+    catalogMetadataDecoder: TvSeriesMetadata.fromJson,
     searchQueryBuilder: _tvMetadataSearchQuery,
     providers: [tmdbMetadataProvider],
   ),

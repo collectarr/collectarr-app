@@ -210,6 +210,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'bgg',
+    catalogMetadataDecoder: BoardGameMetadata.fromJson,
     searchQueryBuilder: _boardGameMetadataSearchQuery,
     providers: [bggMetadataProvider],
   ),

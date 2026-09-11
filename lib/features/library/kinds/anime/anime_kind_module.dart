@@ -234,6 +234,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'anilist',
+    catalogMetadataDecoder: AnimeMetadata.fromJson,
     searchQueryBuilder: _animeMetadataSearchQuery,
     usesTreeProviderCandidates: true,
     providers: [anilistMetadataProvider],

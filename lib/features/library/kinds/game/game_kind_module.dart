@@ -184,6 +184,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'igdb',
+    catalogMetadataDecoder: GameCatalogMetadata.fromJson,
     searchQueryBuilder: _gameMetadataSearchQuery,
     providers: [igdbMetadataProvider],
   ),

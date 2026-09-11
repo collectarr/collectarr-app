@@ -270,6 +270,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'tmdb',
+    catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
     searchQueryBuilder: _movieMetadataSearchQuery,
     providers: [tmdbMetadataProvider],
   ),
