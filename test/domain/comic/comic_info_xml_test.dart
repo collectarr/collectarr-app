@@ -11,7 +11,7 @@ void main() {
     final previews = comicInfoExportPreviews([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Fantasy',

@@ -160,7 +160,8 @@ class LibraryDetailStatsBar extends StatelessWidget {
       ),
       (
         label: 'Metadata',
-        value: (item.source.catalogItem?.synopsis?.trim().isNotEmpty == true) ||
+        value: (item.source.catalogTransport?.synopsis?.trim().isNotEmpty ==
+                    true) ||
                 (adapter?.format?.trim().isNotEmpty == true)
             ? 'Ready'
             : 'Missing'

@@ -51,7 +51,7 @@ void main() {
     final type = movieKindModule;
     final source1 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -173,7 +173,7 @@ void main() {
     final type = movieKindModule;
     final source2 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -301,7 +301,7 @@ void main() {
     final type = movieKindModule;
     final source3 = LibraryWorkspaceSource(
       itemId: 'movie-2',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-2',
         kind: 'movie',
         title: 'Castle in the Sky',

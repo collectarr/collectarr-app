@@ -44,7 +44,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'tv-expanse',
-      catalogItem: CatalogItemDto(
+      catalogTransport: CatalogItemDto(
         identity: const LibraryItemIdentity(
           id: 'tv-expanse',
           mediaKind: CatalogMediaKind.tv,

@@ -118,7 +118,7 @@ void main() {
       );
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'comic_1',
-        catalogItem: CatalogItemDto(
+        catalogTransport: CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'comic_1',
             mediaKind: CatalogMediaKind.comic,

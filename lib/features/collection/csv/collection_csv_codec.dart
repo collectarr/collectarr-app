@@ -196,7 +196,7 @@ class CollectionCsvCodec {
   }
 
   List<String> _catalogFields(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final projection = libraryCollectionCsvProjectionForKind(
       catalog?.mediaKind ?? CatalogMediaKind.unknown,
     );

@@ -16,10 +16,10 @@ final class BoardGameWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     BoardGameMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is BoardGameMetadata) {
       metadata = km;
     }
@@ -38,7 +38,7 @@ final class BoardGameWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final boardgame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     final metadata = _metadataFor(source);
     return BoardGameWorkspaceDto(
@@ -62,12 +62,12 @@ final class BoardGameWorkspaceProjector
   }
 
   static BoardGameMetadata? _metadataFor(LibraryWorkspaceSource source) {
-    final metadata = source.catalogItem?.kindMetadata;
+    final metadata = source.catalogTransport?.kindMetadata;
     if (metadata is BoardGameMetadata) {
       return metadata;
     }
     return metadata == null
         ? null
-        : BoardGameMetadata.fromJson(source.catalogItem!.payload);
+        : BoardGameMetadata.fromJson(source.catalogTransport!.payload);
   }
 }

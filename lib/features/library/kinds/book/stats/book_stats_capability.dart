@@ -20,8 +20,8 @@ class BookStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
-    final metadata = entry.catalogItem?.kindMetadata;
+    final catalog = entry.catalogTransport;
+    final metadata = entry.catalogTransport?.kindMetadata;
     if (catalog == null || metadata is! BookCatalogMetadata) return null;
     final primary =
         (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
@@ -58,7 +58,7 @@ class BookStatsCapability implements LibraryStatsCapability {
     final volumeGap = _numberedGapSummary(
       state.resolvedWorkspaceEntries,
       (entry) {
-        final payload = entry.catalogItem?.payload;
+        final payload = entry.catalogTransport?.payload;
         final rawVolume = payload?['volume_number'] ??
             (payload?['series'] as Map?)?['volume_number'];
         if (rawVolume == null) return null;
@@ -87,7 +87,7 @@ class BookStatsCapability implements LibraryStatsCapability {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogItem?.payload;
+      final payload = entry.catalogTransport?.payload;
       final seriesTitle = ((payload?['series_title'] ??
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();

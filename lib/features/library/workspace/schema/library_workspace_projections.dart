@@ -29,7 +29,7 @@ class WorkspaceCommonProjection {
     String? overrideVariant,
     String? overrideCoverImageUrl,
   }) {
-    final catalog = source.catalogItem;
+    final catalog = source.catalogTransport;
     final edition = node is LibraryReleaseNodeRef ? node.edition : null;
     CatalogVariantDto? primaryVariant;
     if (edition != null) {

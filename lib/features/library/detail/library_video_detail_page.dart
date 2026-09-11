@@ -66,7 +66,7 @@ class _LibraryVideoDetailPageState
 
   Future<void> _addCopyForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
-    final catalogItem = widget.request.item.source.catalogItem;
+    final catalogItem = widget.request.item.source.catalogTransport;
     if (catalogItem == null) {
       return;
     }
@@ -95,7 +95,7 @@ class _LibraryVideoDetailPageState
 
   Future<void> _addWishlistForRelease(_ResolvedVideoRelease release) async {
     final anchor = videoReleaseAnchorForEdition(release.edition);
-    final catalogItem = widget.request.item.source.catalogItem;
+    final catalogItem = widget.request.item.source.catalogTransport;
     if (catalogItem == null) {
       return;
     }
@@ -166,8 +166,8 @@ class _LibraryVideoDetailPageState
     final watchHistoryTargets = <WatchHistoryTargetOption>[
       WatchHistoryTargetOption(
         ref: itemRef,
-        label: request.item.source.catalogItem?.title ?? 'Item',
-        subtitle: request.item.source.catalogItem?.title ?? '',
+        label: request.item.source.catalogTransport?.title ?? 'Item',
+        subtitle: request.item.source.catalogTransport?.title ?? '',
       ),
       ...releases.map(
         (release) => WatchHistoryTargetOption(
@@ -207,7 +207,7 @@ class _LibraryVideoDetailPageState
         appBar: AppBar(
           backgroundColor: request.accent,
           foregroundColor: appBarForeground,
-          title: Text(request.item.source.catalogItem?.title ?? ''),
+          title: Text(request.item.source.catalogTransport?.title ?? ''),
           actions: [
             IconButton(
               tooltip: 'Edit metadata and collection fields',
@@ -332,7 +332,7 @@ class _LibraryVideoDetailPageState
 List<LibraryNodeRef> _releaseNodesFor(
   LibraryProjectionView item,
 ) {
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogTransport;
   if (catalogItem == null) return const [];
   final resolvedEditions =
       resolveVideoCatalogEditionsForCatalogItem(catalogItem);
@@ -354,7 +354,7 @@ List<_ResolvedVideoRelease> _resolvedReleasesFor(
   required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
 }) {
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogTransport;
   if (catalogItem == null) return const [];
   final resolvedEditions = resolveVideoCatalogEditionsForCatalogItem(
     catalogItem,

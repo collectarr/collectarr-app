@@ -94,7 +94,7 @@ class LibraryBulkActions {
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
       final entry = entriesToOwn[index];
-      final resolvedKind = entry.catalogItem?.mediaKind ??
+      final resolvedKind = entry.catalogTransport?.mediaKind ??
           entry.wishlistItem?.catalogRef.mediaKind ??
           entry.trackingSummary?.catalogRef.mediaKind ??
           CatalogMediaKind.unknown;
@@ -103,7 +103,7 @@ class LibraryBulkActions {
         locationId: defaultLocationId,
         tags: defaultTags,
       );
-      final catalogItem = entry.catalogItem;
+      final catalogItem = entry.catalogTransport;
       if (catalogItem == null || resolvedKind == CatalogMediaKind.unknown) {
         throw StateError(
           'Cannot add selected item without a typed catalog kind: '
@@ -116,7 +116,7 @@ class LibraryBulkActions {
             libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
             targetRef: entry.ownedSummary?.catalogRef ??
                 entry.wishlistItem?.catalogRef ??
-                entry.catalogItem?.catalogRef,
+                entry.catalogTransport?.catalogRef,
             tracking: LibraryAddTrackingDraft(
               readStatus: defaultReadStatus,
             ),
@@ -129,7 +129,7 @@ class LibraryBulkActions {
       List<LibraryWorkspaceSource> entries) async {
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
-      final catalogRef = entry.catalogItem?.catalogRef ??
+      final catalogRef = entry.catalogTransport?.catalogRef ??
           entry.ownedSummary?.catalogRef ??
           entry.wishlistItem?.catalogRef ??
           entry.trackingSummary?.catalogRef;

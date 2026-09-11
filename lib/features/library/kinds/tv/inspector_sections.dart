@@ -38,7 +38,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 ) {
   final item = request.item;
   final dto = item.dto;
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogTransport;
   final seriesRef = CatalogEntityRef(
     kind: request.type.kind,
     entityType: const CatalogEntityTypeId('work'),

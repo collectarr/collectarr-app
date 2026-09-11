@@ -45,7 +45,7 @@ class MangaLibraryMediaPresentationBuilder
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;
-    final catalogItem = item.source.catalogItem;
+    final catalogItem = item.source.catalogTransport;
     final payload = catalogItem?.payload;
     final seriesRaw = payload?['series'];
     final series = seriesRaw is Map
@@ -220,7 +220,7 @@ class MangaLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.source.catalogItem?.synopsis;
+    final synopsis = item.source.catalogTransport?.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

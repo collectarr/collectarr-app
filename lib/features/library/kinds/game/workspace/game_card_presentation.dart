@@ -24,11 +24,10 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final releasePlatform = adapter?.referenceFormatLabel?.trim();
   final developer = gameDto?.publisher?.trim();
   final ageRating =
-      (item.source.catalogItem?.payload['age_rating'] as String?)?.trim();
+      (item.source.catalogTransport?.payload['age_rating'] as String?)?.trim();
   final owned = item.source.typedOwnedItem;
   final completion = owned is GameOwnedItem
-      ? owned.collectionStatus?.trim() ??
-          (item.source.isOwned ? 'Owned' : null)
+      ? owned.collectionStatus?.trim() ?? (item.source.isOwned ? 'Owned' : null)
       : (item.source.isOwned ? 'Owned' : null);
 
   if (releasePlatform != null && releasePlatform.isNotEmpty) {

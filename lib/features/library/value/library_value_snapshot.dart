@@ -49,7 +49,8 @@ class LibraryValueSnapshot {
     final providerVal = providerValueCents ??
         defaultLibraryKindRegistry
             .tryGet(
-              item.source.catalogItem?.mediaKind ?? CatalogMediaKind.unknown,
+              item.source.catalogTransport?.mediaKind ??
+                  CatalogMediaKind.unknown,
             )
             ?.value
             ?.resolveProviderValueCents(item);
@@ -60,8 +61,7 @@ class LibraryValueSnapshot {
       soldPriceCents: soldPriceCents,
       manualEstimatedValueCents: manualValue,
       providerValueCents: providerVal,
-      insuranceValueCents:
-          currentValue ?? manualValue ?? purchasePriceCents,
+      insuranceValueCents: currentValue ?? manualValue ?? purchasePriceCents,
       currency: currency,
       providerName: providerName,
       providerUpdatedAt: providerUpdatedAt,

@@ -94,7 +94,7 @@ final class MovieCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = catalog == null
         ? null
         : MovieCatalogMetadata.fromJson({

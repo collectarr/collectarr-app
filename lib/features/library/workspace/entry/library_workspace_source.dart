@@ -25,7 +25,7 @@ final class LibraryWorkspaceSource {
     this.watchSessions = const <WatchSession>[],
     this.itemImages = const <ItemImage>[],
     this.fallbackOwnerLabel,
-    this.catalogItem,
+    this.catalogTransport,
     this.typedOwnedItem,
   });
 
@@ -40,7 +40,7 @@ final class LibraryWorkspaceSource {
   final String? fallbackOwnerLabel;
 
   /// Opaque catalog transport kept only for typed kind workspace code.
-  final LibraryAddCatalogTransport? catalogItem;
+  final LibraryAddCatalogTransport? catalogTransport;
 
   /// Concrete kind-owned aggregate available after dispatch. Mixed/global
   /// callers must use [ownedSummary] instead.
@@ -50,11 +50,11 @@ final class LibraryWorkspaceSource {
       catalogSummary?.ref ??
       ownedSummary?.catalogRef ??
       wishlistItem?.catalogRef ??
-      catalogItem?.catalogRef;
+      catalogTransport?.catalogRef;
 
   CatalogMediaKind get mediaKind =>
       catalogSummary?.kind ??
-      catalogItem?.mediaKind ??
+      catalogTransport?.mediaKind ??
       CatalogMediaKind.unknown;
 
   OwnedItemRef? get ownedRef => ownedSummary?.ref;
@@ -90,7 +90,7 @@ final class LibraryWorkspaceSource {
   String get title {
     final value = catalogSummary?.title.trim();
     if (value != null && value.isNotEmpty) return value;
-    final snapshotTitle = catalogItem?.resolvedDisplayTitle.trim();
+    final snapshotTitle = catalogTransport?.resolvedDisplayTitle.trim();
     if (snapshotTitle != null && snapshotTitle.isNotEmpty) {
       return snapshotTitle;
     }
@@ -110,7 +110,7 @@ final class LibraryWorkspaceSource {
 
   int get quantity => ownedSummary?.quantity ?? 0;
 
-  Object? get kindMetadata => catalogItem?.kindMetadata;
+  Object? get kindMetadata => catalogTransport?.kindMetadata;
 
   int? get pricePaidCents => ownedSummary?.pricePaidCents;
   int? get sellPriceCents => ownedSummary?.sellPriceCents;

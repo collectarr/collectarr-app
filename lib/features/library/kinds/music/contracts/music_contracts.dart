@@ -154,14 +154,14 @@ final class MusicEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory MusicEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogItem != null
-        ? MusicCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
+    final catalog = shelf.catalogTransport != null
+        ? MusicCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
         : MusicCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.music,
             ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
+            title: shelf.catalogTransport?.title ?? shelf.itemId,
           );
 
     return MusicEntry(

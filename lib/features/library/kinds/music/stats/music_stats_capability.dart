@@ -21,7 +21,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
     final secondary = (metadata.publisher ?? metadata.recordLabel)?.trim();
@@ -137,7 +137,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static MusicCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
+    final metadata = entry.catalogTransport?.kindMetadata;
     return metadata is MusicCatalogMetadata ? metadata : null;
   }
 

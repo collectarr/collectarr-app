@@ -25,7 +25,7 @@ class TypedLibraryLinkedMetadataCapability<TMetadata>
   @override
   Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
     yield* _commonCandidates(source);
-    final metadata = source.catalogItem?.kindMetadata;
+    final metadata = source.catalogTransport?.kindMetadata;
     if (metadata is TMetadata) {
       yield* _nonEmptyStrings(_metadataValues(metadata));
     }
@@ -33,7 +33,7 @@ class TypedLibraryLinkedMetadataCapability<TMetadata>
 }
 
 Iterable<String> _commonCandidates(LibraryWorkspaceSource source) sync* {
-  final item = source.catalogItem;
+  final item = source.catalogTransport;
   if (item == null) return;
   yield* _nonEmptyStrings([
     item.title,

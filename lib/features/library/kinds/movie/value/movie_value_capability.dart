@@ -43,7 +43,7 @@ class MovieValueCapability implements LibraryValueCapability {
     if (item.dto case MovieWorkspaceDto dto) {
       return dto.media.providerValueCents ?? dto.metadata?.providerValueCents;
     }
-    final metadata = item.source.catalogItem?.kindMetadata;
+    final metadata = item.source.catalogTransport?.kindMetadata;
     if (metadata is MovieCatalogMetadata) {
       return metadata.providerValueCents;
     }

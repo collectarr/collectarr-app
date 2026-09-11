@@ -521,12 +521,12 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
-  CatalogItemDto? catalogItem,
+  CatalogItemDto? catalogTransport,
   TestOwnedItem? ownedItem,
   WishlistItem? wishlistItem,
   String? locationPath,
 }) {
-  final resolvedCatalogItem = catalogItem ??
+  final resolvedCatalogItem = catalogTransport ??
       testCatalogItem(
         id: itemId,
         kind: kind,
@@ -555,7 +555,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
   };
   return LibraryWorkspaceSource(
     itemId: itemId,
-    catalogItem: LibraryAddCatalogTransport.fromItem(
+    catalogTransport: LibraryAddCatalogTransport.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),

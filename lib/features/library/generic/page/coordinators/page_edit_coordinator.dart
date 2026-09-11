@@ -58,7 +58,7 @@ class LibraryPageEditCoordinator {
     if (_s._isEditDialogInFlight) {
       return;
     }
-    final catalogSource = item.source.catalogItem;
+    final catalogSource = item.source.catalogTransport;
     if (catalogSource == null) {
       return;
     }
@@ -114,7 +114,7 @@ class LibraryPageEditCoordinator {
     );
     if (currentIndex < 0) {
       currentIndex = viewItems.indexWhere(
-        (candidate) => candidate.source.catalogItem?.id == catalogItem.id,
+        (candidate) => candidate.source.catalogTransport?.id == catalogItem.id,
       );
     }
     final previousItem = currentIndex > 0 ? viewItems[currentIndex - 1] : null;

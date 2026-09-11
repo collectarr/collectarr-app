@@ -16,7 +16,7 @@ void main() {
     var tapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Superman, Vol. 4',
@@ -70,7 +70,7 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -115,7 +115,7 @@ void main() {
     var editTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Spirited Away',
@@ -173,7 +173,7 @@ void main() {
       (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Lupus Dei',
@@ -217,7 +217,7 @@ void main() {
     var toggleTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'music-2',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'music-2',
         kind: 'music',
         title: 'Bible of the Beast',
@@ -265,7 +265,7 @@ void main() {
     var toggleTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'music-3',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'music-3',
         kind: 'music',
         title: 'Gods of War',
@@ -318,7 +318,7 @@ void main() {
     var editTapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'movie-3',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-3',
         kind: 'movie',
         title: 'Interstellar',

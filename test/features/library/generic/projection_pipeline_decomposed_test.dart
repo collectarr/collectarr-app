@@ -84,7 +84,7 @@ void main() {
 
       final shelf = LibraryWorkspaceSource(
         itemId: id,
-        catalogItem:
+        catalogTransport:
             testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem,
         ownedSummary: owned == null ? null : testOwnedSummary(owned),
         typedOwnedItem: owned == null ? null : testComicOwnedItemFrom(owned),

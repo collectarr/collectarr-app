@@ -155,7 +155,7 @@ LibraryWorkspaceSource _entry({
   final timestamp = DateTime.utc(2024, 1, 1);
   return LibraryWorkspaceSource(
     itemId: itemId,
-    catalogItem: testCatalogItemFromJson({
+    catalogTransport: testCatalogItemFromJson({
       'id': itemId,
       'kind': 'comic',
       'title': title,

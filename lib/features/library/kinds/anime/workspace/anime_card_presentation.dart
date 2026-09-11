@@ -19,7 +19,8 @@ List<LibraryCardBadge> _animeCompactBadges(LibraryProjectionView item) {
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final badges = <LibraryCardBadge>[];
-  final editionsPayload = item.source.catalogItem?.payload['editions'] as List?;
+  final editionsPayload =
+      item.source.catalogTransport?.payload['editions'] as List?;
   final firstEdition = editionsPayload != null &&
           editionsPayload.isNotEmpty &&
           editionsPayload.first is Map

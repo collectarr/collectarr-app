@@ -21,7 +21,7 @@ List<Widget> buildMovieInspectorSections(
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final movieDto = dto is MovieWorkspaceDto ? dto : null;
-  final kindMetadata = item.source.catalogItem?.kindMetadata;
+  final kindMetadata = item.source.catalogTransport?.kindMetadata;
   final metadata = kindMetadata is MovieCatalogMetadata ? kindMetadata : null;
   final editionCount = metadata?.releases.length ?? 0;
   final facts = <LibraryDetailField>[

@@ -20,7 +20,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = _mangaMetadata(entry);
     if (catalog == null || metadata == null) return null;
     final primary =
@@ -116,7 +116,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static MangaMetadata? _mangaMetadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
+    final metadata = entry.catalogTransport?.kindMetadata;
     return metadata is MangaMetadata ? metadata : null;
   }
 

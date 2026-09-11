@@ -15,14 +15,14 @@ class InspectorReleasesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final payload =
-        request.item.source.catalogItem?.toSyncPayload() ?? const {};
+        request.item.source.catalogTransport?.toSyncPayload() ?? const {};
     final video = (payload['video'] as Map?) ?? payload;
     final nrDiscs =
         video['nr_discs'] is num ? (video['nr_discs'] as num).toInt() : null;
     final runtimeMinutes = video['runtime_minutes'] is num
         ? (video['runtime_minutes'] as num).toInt()
         : null;
-    final editions = request.item.source.catalogItem?.editions ?? const [];
+    final editions = request.item.source.catalogTransport?.editions ?? const [];
     final discCount = nrDiscs ??
         editions.fold<int>(
           0,

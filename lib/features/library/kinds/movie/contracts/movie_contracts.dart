@@ -213,14 +213,14 @@ final class MovieEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory MovieEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogItem != null
-        ? MovieCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
+    final catalog = shelf.catalogTransport != null
+        ? MovieCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
         : MovieCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.movie,
             ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
+            title: shelf.catalogTransport?.title ?? shelf.itemId,
           );
 
     return MovieEntry(

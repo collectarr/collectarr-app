@@ -225,14 +225,14 @@ final class BoardGameEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory BoardGameEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogItem != null
-        ? BoardGameCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
+    final catalog = shelf.catalogTransport != null
+        ? BoardGameCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
         : BoardGameCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.boardgame,
             ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
+            title: shelf.catalogTransport?.title ?? shelf.itemId,
           );
 
     return BoardGameEntry(

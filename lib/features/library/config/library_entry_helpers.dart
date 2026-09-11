@@ -19,7 +19,7 @@ const _variantAnchor = 'variant';
 const _bundleReleaseAnchor = 'bundle_release';
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
-  final kind = item.source.catalogItem?.mediaKind;
+  final kind = item.source.catalogTransport?.mediaKind;
   if (kind == null) {
     return null;
   }
@@ -142,7 +142,7 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
   final releaseNode = item.node is LibraryReleaseNodeRef
       ? (item.node as LibraryReleaseNodeRef)
       : null;
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogTransport;
   return resolveLibraryReferenceRelease(
     editionId: releaseNode?.releaseId,
     variantId: releaseNode != null

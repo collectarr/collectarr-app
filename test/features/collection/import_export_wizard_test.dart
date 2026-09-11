@@ -25,7 +25,7 @@ void main() {
               entries: [
                 LibraryWorkspaceSource(
                   itemId: 'comic-1',
-                  catalogItem: testCatalogItem(
+                  catalogTransport: testCatalogItem(
                     id: 'comic-1',
                     kind: 'comic',
                     title: 'The Amazing Spider-Man',

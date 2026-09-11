@@ -63,7 +63,7 @@ void main() {
     final projection = const BookCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Hobbit',

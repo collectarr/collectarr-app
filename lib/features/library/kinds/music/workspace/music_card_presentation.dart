@@ -529,15 +529,15 @@ int? musicCardTrackCount(LibraryProjectionView item) {
 }
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
+  final metadata = item.source.catalogTransport?.kindMetadata;
   return metadata is MusicCatalogMetadata ? metadata : null;
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
   LibraryProjectionView item,
 ) {
-  final kindModule = defaultLibraryKindRegistry
-      .tryGet(item.source.catalogItem?.mediaKind ?? CatalogMediaKind.unknown);
+  final kindModule = defaultLibraryKindRegistry.tryGet(
+      item.source.catalogTransport?.mediaKind ?? CatalogMediaKind.unknown);
   if (kindModule == null) return null;
   return kindModule.presentation.builder.buildMetadataPresentation(
     singularLabel: kindModule.identity.singularLabel,

@@ -20,7 +20,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-1',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'issue-1',
           kind: 'comic',
           title: 'Amazing Spider-Man',
@@ -35,7 +35,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-2a',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'issue-2a',
           kind: 'comic',
           title: 'Amazing Spider-Man',
@@ -50,7 +50,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-2b',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'issue-2b',
           kind: 'comic',
           title: 'Amazing Spider-Man',
@@ -65,7 +65,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'issue-3',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'issue-3',
           kind: 'comic',
           title: 'Amazing Spider-Man',

@@ -59,7 +59,7 @@ void main() {
     );
     final entry = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Spider-Man',

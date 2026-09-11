@@ -106,10 +106,10 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       title: 'Series links',
       children: [
         LibraryDetailTrailersSection(
-          trailerUrls: item.source.catalogItem == null
+          trailerUrls: item.source.catalogTransport == null
               ? const []
               : type.presentation.builder.buildLinks(
-                  item: item.source.catalogItem!,
+                  item: item.source.catalogTransport!,
                 ),
           accent: accent,
         ),

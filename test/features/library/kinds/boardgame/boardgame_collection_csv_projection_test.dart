@@ -56,7 +56,7 @@ void main() {
     final projection = const BoardGameCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
         title: 'Catan',

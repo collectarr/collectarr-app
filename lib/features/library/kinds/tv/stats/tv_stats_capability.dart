@@ -20,7 +20,7 @@ class TvStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = catalog?.kindMetadata;
     if (catalog == null || metadata is! TvSeriesMetadata) return null;
     final secondary =
@@ -56,7 +56,7 @@ class TvStatsCapability implements LibraryStatsCapability {
     final seasonGap = _numberedGapSummary(
       state.resolvedWorkspaceEntries,
       (entry) {
-        final payload = entry.catalogItem?.payload;
+        final payload = entry.catalogTransport?.payload;
         final rawSeason = payload?['season_number'] ??
             (payload?['series'] as Map?)?['season_number'];
         if (rawSeason == null) return null;
@@ -84,7 +84,7 @@ class TvStatsCapability implements LibraryStatsCapability {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogItem?.payload;
+      final payload = entry.catalogTransport?.payload;
       final seriesTitle = ((payload?['series_title'] ??
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();

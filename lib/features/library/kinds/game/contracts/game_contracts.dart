@@ -232,14 +232,14 @@ final class GameEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory GameEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogItem != null
-        ? GameCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
+    final catalog = shelf.catalogTransport != null
+        ? GameCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
         : GameCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.game,
             ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
+            title: shelf.catalogTransport?.title ?? shelf.itemId,
           );
 
     return GameEntry(

@@ -46,21 +46,21 @@ enum ReportColumn {
       ReportColumn.grade =>
         collectionValueReader?.call(item.source.ownedSummary) ?? '',
       ReportColumn.publisher =>
-        (item.source.catalogItem?.toSyncPayload()['publisher'] ??
-                    (item.source.catalogItem?.toSyncPayload()['publishing']
+        (item.source.catalogTransport?.toSyncPayload()['publisher'] ??
+                    (item.source.catalogTransport?.toSyncPayload()['publishing']
                         as Map<String, dynamic>?)?['original_publisher'] ??
-                    item.source.catalogItem?.toSyncPayload()['studio'] ??
-                    item.source.catalogItem?.toSyncPayload()['network'])
+                    item.source.catalogTransport?.toSyncPayload()['studio'] ??
+                    item.source.catalogTransport?.toSyncPayload()['network'])
                 ?.toString() ??
             '',
       ReportColumn.barcode =>
-        (item.source.catalogItem?.toSyncPayload()['barcode'] ??
-                    item.source.catalogItem?.toSyncPayload()['upc'])
+        (item.source.catalogTransport?.toSyncPayload()['barcode'] ??
+                    item.source.catalogTransport?.toSyncPayload()['upc'])
                 ?.toString() ??
             '',
       ReportColumn.barcodeImage =>
-        (item.source.catalogItem?.toSyncPayload()['barcode'] ??
-                    item.source.catalogItem?.toSyncPayload()['upc'])
+        (item.source.catalogTransport?.toSyncPayload()['barcode'] ??
+                    item.source.catalogTransport?.toSyncPayload()['upc'])
                 ?.toString() ??
             '',
       ReportColumn.year => adapter?.releaseDate?.year.toString() ?? '',
@@ -69,7 +69,8 @@ enum ReportColumn {
           adapter?.variant ??
           '',
       ReportColumn.creator =>
-        item.source.catalogItem?.toSyncPayload()['creator']?.toString() ?? '',
+        item.source.catalogTransport?.toSyncPayload()['creator']?.toString() ??
+            '',
       // Tags are kind-owned and are intentionally not flattened here.
       ReportColumn.tags => '',
       ReportColumn.location => item.source.locationPath ?? '',

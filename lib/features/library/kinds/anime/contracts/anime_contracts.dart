@@ -214,14 +214,14 @@ final class AnimeEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory AnimeEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogItem != null
-        ? AnimeCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
+    final catalog = shelf.catalogTransport != null
+        ? AnimeCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
         : AnimeCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.anime,
             ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
+            title: shelf.catalogTransport?.title ?? shelf.itemId,
           );
 
     return AnimeEntry(

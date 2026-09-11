@@ -206,14 +206,14 @@ final class TvEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory TvEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogItem != null
-        ? TvCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
+    final catalog = shelf.catalogTransport != null
+        ? TvCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
         : TvCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.tv,
             ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
+            title: shelf.catalogTransport?.title ?? shelf.itemId,
           );
 
     return TvEntry(

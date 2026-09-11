@@ -273,14 +273,14 @@ final class BookEntry {
   bool get isWishlisted => wishlistItem != null;
 
   factory BookEntry.fromShelf(LibraryWorkspaceSource shelf) {
-    final catalog = shelf.catalogItem != null
-        ? BookCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
+    final catalog = shelf.catalogTransport != null
+        ? BookCatalog.fromJson(shelf.catalogTransport!.toSyncPayload())
         : BookCatalog(
             identity: LibraryItemIdentity(
               id: shelf.itemId,
               mediaKind: CatalogMediaKind.book,
             ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
+            title: shelf.catalogTransport?.title ?? shelf.itemId,
           );
 
     return BookEntry(

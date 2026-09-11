@@ -15,7 +15,7 @@ void main() {
   ) async {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Arrival',

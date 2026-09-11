@@ -25,7 +25,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'anime-1',
         kind: 'anime',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'anime-1',
           kind: 'anime',
           title: 'Frieren',
@@ -41,7 +41,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'anime-2',
         kind: 'anime',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'anime-2',
           kind: 'anime',
           title: 'A Place Further Than the Universe',
@@ -74,7 +74,7 @@ void main() {
     final entry = testLibraryWorkspaceSource(
       itemId: 'movie-1',
       kind: 'movie',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Wrong kind',
@@ -90,13 +90,13 @@ void main() {
     final entry = testLibraryWorkspaceSource(
       itemId: 'anime-1',
       kind: 'anime',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Typed anime',
         payload: const {'episode_count': 1},
       ),
     );
-    expect(entry.catalogItem!.kindMetadata, isA<AnimeMetadata>());
+    expect(entry.catalogTransport!.kindMetadata, isA<AnimeMetadata>());
   });
 }

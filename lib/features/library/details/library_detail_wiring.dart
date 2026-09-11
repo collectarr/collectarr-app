@@ -12,7 +12,7 @@ List<Widget> buildLibraryDetailEditorSections({
   OwnedItemSummary? ownedItem,
   TrackingLifecycle? trackingLifecycle,
 }) {
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogTransport;
   return [
     if (trackingLifecycle != null)
       InspectorTrackingDetailsEditor(

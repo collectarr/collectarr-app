@@ -24,7 +24,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
     final secondary =
@@ -132,7 +132,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   }
 
   static BoardGameMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
+    final metadata = entry.catalogTransport?.kindMetadata;
     return metadata is BoardGameMetadata ? metadata : null;
   }
 

@@ -133,7 +133,7 @@ LibraryWorkspaceSource _shelfEntry(
 ) {
   return LibraryWorkspaceSource(
     itemId: 'item-1',
-    catalogItem: CatalogItemDto(
+    catalogTransport: CatalogItemDto(
       identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
       kindMetadata: metadata,
     ).asShelfCatalogItem,

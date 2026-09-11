@@ -19,7 +19,7 @@ class GameStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = catalog?.kindMetadata;
     if (catalog == null || metadata is! GameCatalogMetadata) return null;
     final secondary =

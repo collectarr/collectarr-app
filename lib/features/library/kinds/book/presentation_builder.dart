@@ -870,9 +870,9 @@ List<String> _bookDiscoveryTagsForSelection({
 }
 
 BookCatalogMetadata? _bookMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
+  final metadata = item.source.catalogTransport?.kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
-  final payload = item.source.catalogItem?.payload;
+  final payload = item.source.catalogTransport?.payload;
   return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }
 

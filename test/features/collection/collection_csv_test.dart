@@ -15,7 +15,7 @@ void main() {
     final exported = csv.exportShelf([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
@@ -146,7 +146,7 @@ void main() {
       [
         LibraryWorkspaceSource(
           itemId: 'book-1',
-          catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'book-1',
             kind: 'book',
             title: 'Test Book',
@@ -196,7 +196,7 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItemWithKindMetadata(
+      catalogTransport: testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
       ).asShelfCatalogItem,
       ownedSummary: testOwnedSummary(testOwnedItem(
@@ -232,7 +232,7 @@ void main() {
     final exported = CollectionCsvCodec().exportClzFriendlyShelf([
       LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'The Amazing Spider-Man, Vol. 2',
@@ -269,7 +269,7 @@ void main() {
     final exported = CollectionCsvCodec().exportClzFriendlyShelf([
       LibraryWorkspaceSource(
         itemId: 'movie-1',
-        catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+        catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Blade Runner',
@@ -568,7 +568,7 @@ void main() {
       [
         LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
@@ -632,7 +632,7 @@ void main() {
       [
         LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+          catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',

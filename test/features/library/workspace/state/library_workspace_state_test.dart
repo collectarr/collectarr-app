@@ -199,21 +199,21 @@ void main() {
             itemId: '1',
             kind: 'comic',
             title: 'Batman #1',
-            catalogItem:
+            catalogTransport:
                 testCatalogItem(id: '1', kind: 'comic', publisher: 'DC Comics'),
           ),
           testLibraryWorkspaceSource(
             itemId: '2',
             kind: 'comic',
             title: 'Spider-Man #1',
-            catalogItem:
+            catalogTransport:
                 testCatalogItem(id: '2', kind: 'comic', publisher: 'Marvel'),
           ),
           testLibraryWorkspaceSource(
             itemId: '3',
             kind: 'comic',
             title: 'Batman #2',
-            catalogItem:
+            catalogTransport:
                 testCatalogItem(id: '3', kind: 'comic', publisher: 'DC Comics'),
           ),
         ],

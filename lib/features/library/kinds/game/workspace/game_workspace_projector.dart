@@ -16,14 +16,14 @@ final class GameWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final game = GameCatalogMapper.mapMetadataItemToGame(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     GameCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {
-      metadata = GameCatalogMetadata.fromJson(source.catalogItem!.payload);
+      metadata = GameCatalogMetadata.fromJson(source.catalogTransport!.payload);
     }
     return GameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),
@@ -40,14 +40,14 @@ final class GameWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final game = GameCatalogMapper.mapMetadataItemToGame(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     GameCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {
-      metadata = GameCatalogMetadata.fromJson(source.catalogItem!.payload);
+      metadata = GameCatalogMetadata.fromJson(source.catalogTransport!.payload);
     }
     return GameWorkspaceDto(
       common: WorkspaceCommonProjection.fromShelf(source, node),

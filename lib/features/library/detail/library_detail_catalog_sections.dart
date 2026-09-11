@@ -385,7 +385,7 @@ _MetadataHealth _buildMetadataHealth(
 
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final catalogItem = item.source.catalogItem;
+  final catalogItem = item.source.catalogTransport;
   addSignal(
     present: dto.coverImageUrl != null && dto.coverImageUrl!.isNotEmpty,
     weight: 18,

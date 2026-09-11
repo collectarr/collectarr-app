@@ -346,7 +346,7 @@ class _LibraryMetadataRefreshDialogState
   MetadataSearchQuery _inputForEntry(LibraryProjectionView item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
+    final payload = item.source.catalogTransport?.toSyncPayload() ?? const {};
     final barcodeVal =
         (payload['barcode'] ?? payload['upc'])?.toString().trim();
     if (barcodeVal != null && barcodeVal.isNotEmpty) {
@@ -374,7 +374,7 @@ class _LibraryMetadataRefreshDialogState
   String _describeSearch(LibraryProjectionView item) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
+    final payload = item.source.catalogTransport?.toSyncPayload() ?? const {};
     final barcodeVal =
         (payload['barcode'] ?? payload['upc'])?.toString().trim();
     if (barcodeVal != null && barcodeVal.isNotEmpty) {

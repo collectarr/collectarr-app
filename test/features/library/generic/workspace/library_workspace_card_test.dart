@@ -18,7 +18,7 @@ void main() {
     var tapped = false;
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Invincible Iron Man, Vol. 2',
@@ -79,7 +79,7 @@ void main() {
   testWidgets('workspace card renders music release details', (tester) async {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
@@ -129,7 +129,7 @@ void main() {
       (tester) async {
     final sourceMovie = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Dune',
@@ -150,7 +150,7 @@ void main() {
 
     final sourceGame = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'Mario Kart 8 Deluxe',

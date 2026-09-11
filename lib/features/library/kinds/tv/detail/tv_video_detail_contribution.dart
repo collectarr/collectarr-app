@@ -92,7 +92,7 @@ class _TvVideoDetailContributionState
           seasonsAsync: seasonsAsync,
           series: series,
         );
-        final payload = request.item.source.catalogItem?.payload;
+        final payload = request.item.source.catalogTransport?.payload;
         final links = ((payload?['trailer_urls'] as List?)
                 ?.whereType<Map<String, dynamic>>()
                 .map((entry) =>
@@ -125,7 +125,7 @@ class _TvVideoDetailContributionState
             ),
             const SizedBox(height: 16),
             LibraryDetailUserLinksSection(
-              catalogRef: request.item.source.catalogItem!.catalogRef,
+              catalogRef: request.item.source.catalogTransport!.catalogRef,
               accent: request.accent,
             ),
             const SizedBox(height: 16),
@@ -165,7 +165,7 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
     WatchHistoryTargetOption(
       ref: seriesRef,
       label: 'Series',
-      subtitle: request.item.source.catalogItem?.title ?? '',
+      subtitle: request.item.source.catalogTransport?.title ?? '',
     ),
     ...seasonsAsync.maybeWhen(
       data: (seasons) => [

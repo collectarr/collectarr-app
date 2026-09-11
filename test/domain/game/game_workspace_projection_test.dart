@@ -10,7 +10,7 @@ void main() {
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'game-1',
         title: 'Example Game',
         kind: 'game',

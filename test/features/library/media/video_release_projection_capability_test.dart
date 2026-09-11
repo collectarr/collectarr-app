@@ -26,7 +26,7 @@ void main() {
         title: 'Empty Movie',
       );
       final source = LibraryWorkspaceSource(
-          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
+          itemId: 'movie_1', catalogTransport: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -62,7 +62,7 @@ void main() {
         ],
       );
       final source = LibraryWorkspaceSource(
-          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
+          itemId: 'movie_1', catalogTransport: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -91,7 +91,7 @@ void main() {
         ],
       );
       final source = LibraryWorkspaceSource(
-          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
+          itemId: 'movie_1', catalogTransport: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -128,7 +128,7 @@ void main() {
       );
       final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
-          catalogItem: catalogItem.asShelfCatalogItem,
+          catalogTransport: catalogItem.asShelfCatalogItem,
           ownedSummary: owned);
 
       final items = capability.projectReleases(
@@ -166,7 +166,7 @@ void main() {
       );
       final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
-          catalogItem: catalogItem.asShelfCatalogItem,
+          catalogTransport: catalogItem.asShelfCatalogItem,
           wishlistItem: wishlist);
 
       final items = capability.projectReleases(
@@ -208,7 +208,7 @@ void main() {
       );
       final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
-          catalogItem: catalogItem.asShelfCatalogItem,
+          catalogTransport: catalogItem.asShelfCatalogItem,
           ownedSummary: owned);
 
       final items = capability.projectReleases(
@@ -243,7 +243,7 @@ void main() {
       );
       final source = LibraryWorkspaceSource(
           itemId: 'movie_1',
-          catalogItem: catalogItem.asShelfCatalogItem,
+          catalogTransport: catalogItem.asShelfCatalogItem,
           ownedSummary: owned);
 
       final items = capability.projectReleases(
@@ -282,7 +282,7 @@ void main() {
         ],
       );
       final source = LibraryWorkspaceSource(
-          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
+          itemId: 'movie_1', catalogTransport: catalogItem.asShelfCatalogItem);
 
       final items = capability.projectReleases(
         source: source,
@@ -311,7 +311,7 @@ void main() {
         ],
       );
       final source = LibraryWorkspaceSource(
-          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
+          itemId: 'movie_1', catalogTransport: catalogItem.asShelfCatalogItem);
       final releaseNode = const LibraryReleaseNodeRef(
         titleItemId: 'movie_1',
         releaseId: 'ed_cf',
@@ -333,7 +333,7 @@ void main() {
         ],
       );
       final source = LibraryWorkspaceSource(
-          itemId: 'movie_1', catalogItem: catalogItem.asShelfCatalogItem);
+          itemId: 'movie_1', catalogTransport: catalogItem.asShelfCatalogItem);
 
       final match = capability.projectReleases(
         source: source,
@@ -367,7 +367,7 @@ void main() {
         workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'comic_1',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic_1',
               kind: 'comic',
               title: 'Spider-Man #1',

@@ -114,12 +114,12 @@ class _IntegrationExportDialog extends StatelessWidget {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: e,
         node: LibraryTitleNodeRef(
-          titleItemId: e.catalogItem?.id ?? e.itemId,
+          titleItemId: e.catalogTransport?.id ?? e.itemId,
         ),
       );
       final dto = projection.dto;
       final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final cat = e.catalogItem;
+      final cat = e.catalogTransport;
       return {
         'id': e.itemId,
         'title': e.title,
@@ -147,7 +147,7 @@ class _IntegrationExportDialog extends StatelessWidget {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogItem?.id ?? entry.itemId,
+          titleItemId: entry.catalogTransport?.id ?? entry.itemId,
         ),
       );
       final dto = projection.dto;
@@ -185,7 +185,7 @@ class _IntegrationExportDialog extends StatelessWidget {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogItem?.id ?? entry.itemId,
+          titleItemId: entry.catalogTransport?.id ?? entry.itemId,
         ),
       );
       final dto = projection.dto;

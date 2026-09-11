@@ -84,7 +84,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_1',
-        catalogItem: CatalogItemDto(
+        catalogTransport: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_1',
             mediaKind: CatalogMediaKind.movie,
@@ -220,7 +220,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_inception',
-        catalogItem: CatalogItemDto(
+        catalogTransport: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_inception',
             mediaKind: CatalogMediaKind.movie,

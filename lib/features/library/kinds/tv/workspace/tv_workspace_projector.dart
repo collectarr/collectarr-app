@@ -17,13 +17,13 @@ final class TvWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }
@@ -43,13 +43,13 @@ final class TvWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }
@@ -68,13 +68,13 @@ final class TvWorkspaceProjector
     required LibraryCopyNodeRef node,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }

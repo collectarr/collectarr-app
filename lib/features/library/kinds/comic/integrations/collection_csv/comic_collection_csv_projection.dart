@@ -98,7 +98,7 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final comic = catalog == null
         ? null
         : ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());

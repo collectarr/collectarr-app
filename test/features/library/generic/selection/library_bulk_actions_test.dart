@@ -293,7 +293,7 @@ void main() {
     await actions.moveSelectedToOwned([
       LibraryWorkspaceSource(
         itemId: 'movie-1',
-        catalogItem:
+        catalogTransport:
             testCatalogItem(id: 'movie-1', kind: 'movie').asShelfCatalogItem,
         wishlistItem: WishlistItem(
           id: row4k.id,

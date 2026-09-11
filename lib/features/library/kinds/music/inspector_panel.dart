@@ -24,10 +24,10 @@ import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
+  final metadata = item.source.catalogTransport?.kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
   if (metadata != null) {
-    return MusicCatalogMetadata.fromJson(item.source.catalogItem!.payload);
+    return MusicCatalogMetadata.fromJson(item.source.catalogTransport!.payload);
   }
   return null;
 }

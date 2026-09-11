@@ -46,7 +46,7 @@ void main() {
         workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Comic 1',
@@ -79,7 +79,7 @@ void main() {
         workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'movie-1',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'movie-1',
               kind: 'movie',
               title: 'Inception',

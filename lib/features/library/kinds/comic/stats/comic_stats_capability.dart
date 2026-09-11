@@ -24,7 +24,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = _comicMetadata(entry);
     if (catalog == null || metadata == null) return null;
     final primary =
@@ -276,7 +276,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static ComicMedia? _comicMetadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     if (catalog == null || catalog.mediaKind != CatalogMediaKind.comic) {
       return null;
     }

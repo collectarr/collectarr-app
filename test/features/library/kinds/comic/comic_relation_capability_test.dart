@@ -12,7 +12,7 @@ void main() {
   test('comic relation capability exposes a typed serial target', () {
     final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga #1',

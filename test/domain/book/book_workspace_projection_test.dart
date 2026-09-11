@@ -8,7 +8,7 @@ void main() {
   test('book workspace projector builds typed book dto', () {
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         title: 'Guards! Guards!',
         publisher: 'Victor Gollancz Ltd',

@@ -29,7 +29,7 @@ class GameLibraryMediaPresentationBuilder
     final publisher = gameDto?.publisher;
     final releaseDate = adapter?.releaseDate;
 
-    final kindMetadata = item.source.catalogItem?.kindMetadata;
+    final kindMetadata = item.source.catalogTransport?.kindMetadata;
     final metadata = kindMetadata is GameCatalogMetadata ? kindMetadata : null;
     return LibraryMetadataPresentation(
       labels: metadataLabels,

@@ -26,7 +26,7 @@ final class VideoReleaseProjectionCapability<TDto extends LibraryWorkspaceDto>
     required Map<String, List<String>> customFieldValuesByItem,
     String? requestedTitleId,
   }) {
-    final catalogItem = source.catalogItem;
+    final catalogItem = source.catalogTransport;
     if (catalogItem == null) return const [];
     final requestedId = requestedTitleId?.trim();
     if (requestedId != null &&

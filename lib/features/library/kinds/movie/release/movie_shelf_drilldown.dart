@@ -37,7 +37,7 @@ bool canOpenMovieShelfDrilldown(
   if (item.node.scope != LibraryBrowserScope.title) {
     return false;
   }
-  final kind = item.source.catalogItem?.mediaKind;
+  final kind = item.source.catalogTransport?.mediaKind;
   if (kind == null) return false;
   final kindModule = type ?? libraryKindModuleForKind(kind);
   return kindModule.presentation.builder.canOpenKindDrilldown(item);
@@ -49,7 +49,7 @@ List<MovieShelfReleaseDrilldownItem> buildMovieShelfReleaseItems({
   required List<WishlistItem> wishlistItems,
   required LibraryWorkspaceProjector<LibraryWorkspaceDto> projector,
 }) {
-  final catalogItem = titleItem.source.catalogItem;
+  final catalogItem = titleItem.source.catalogTransport;
   if (catalogItem == null) {
     return const [];
   }

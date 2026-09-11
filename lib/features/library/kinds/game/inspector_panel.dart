@@ -362,7 +362,7 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
 }
 
 GameCatalogMetadata? _gameMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
+  final metadata = item.source.catalogTransport?.kindMetadata;
   return metadata is GameCatalogMetadata ? metadata : null;
 }
 

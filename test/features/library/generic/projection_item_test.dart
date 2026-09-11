@@ -69,7 +69,7 @@ void main() {
 
     final source2 = LibraryWorkspaceSource(
       itemId: 'comic-3',
-      catalogItem: testCatalogItemWithKindMetadata(
+      catalogTransport: testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-3',
           kind: 'comic',

@@ -33,7 +33,7 @@ class BoardGameLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
 
-    final kindMetadata = item.source.catalogItem?.kindMetadata;
+    final kindMetadata = item.source.catalogTransport?.kindMetadata;
     final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
     final series = metadata?.series;
 

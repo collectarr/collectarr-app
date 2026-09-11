@@ -31,7 +31,7 @@ LibraryProjectionItem _itemFixture() {
     genres: const ['Action', 'Dystopian'],
   );
   final source = LibraryWorkspaceSource(
-      itemId: 'comic-hero-fixture', catalogItem: cat.asShelfCatalogItem);
+      itemId: 'comic-hero-fixture', catalogTransport: cat.asShelfCatalogItem);
   return LibraryProjectionItem.fromShelf(source, comicKindModule);
 }
 

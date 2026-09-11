@@ -26,7 +26,7 @@ void main() {
     LibraryProjectionView createComicItem(String id, String title) {
       final source = LibraryWorkspaceSource(
         itemId: id,
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: id,
           kind: 'comic',
           title: title,
@@ -39,7 +39,7 @@ void main() {
     LibraryProjectionView createBookItem(String id, String title) {
       final source = LibraryWorkspaceSource(
         itemId: id,
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: id,
           kind: 'book',
           title: title,

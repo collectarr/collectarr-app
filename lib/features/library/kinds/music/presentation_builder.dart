@@ -284,7 +284,7 @@ class MusicLibraryMediaPresentationBuilder
 }
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  return _musicMetadataItem(item.source.catalogItem);
+  return _musicMetadataItem(item.source.catalogTransport);
 }
 
 MusicCatalogMetadata? _musicMetadataItem(LibraryAddCatalogTransport? item) {

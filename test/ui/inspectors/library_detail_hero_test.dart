@@ -46,7 +46,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Fellowship of the Ring',
@@ -120,7 +120,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Two Towers',
@@ -166,7 +166,7 @@ void main() {
     final type = bookKindModule;
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Return of the King',
@@ -233,7 +233,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Hobbit',

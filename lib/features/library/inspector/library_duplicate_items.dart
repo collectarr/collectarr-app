@@ -27,7 +27,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
 ) {
   final barcodeBuckets = <String, _DuplicateBucket>{};
   for (final entry in entries) {
-    final payload = entry.catalogItem?.payload ?? const {};
+    final payload = entry.catalogTransport?.payload ?? const {};
     final rawBarcode = payload['barcode']?.toString();
     final barcode = _normalizedBarcode(rawBarcode);
     if (barcode == null) {
@@ -53,7 +53,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
     if (barcodeDuplicateItemIds.contains(entry.itemId)) {
       continue;
     }
-    final item = entry.catalogItem;
+    final item = entry.catalogTransport;
     if (item == null) {
       continue;
     }
@@ -304,7 +304,7 @@ class _DuplicateEntryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final item = entry.catalogItem;
+    final item = entry.catalogTransport;
     final colorScheme = Theme.of(context).colorScheme;
     final palette = appPalette(context);
     return DecoratedBox(
@@ -413,7 +413,7 @@ List<LibraryDuplicateGroup> _duplicateGroups(
 int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   final catalogItems = [
     for (final entry in bucket.entries)
-      if (entry.catalogItem != null) entry.catalogItem!,
+      if (entry.catalogTransport != null) entry.catalogTransport!,
   ];
   if (catalogItems.length < 2) {
     return 0;
@@ -488,7 +488,7 @@ List<LibraryWorkspaceSource> _sortedEntries(
 }
 
 String _issueDuplicateLabel(LibraryWorkspaceSource entry) {
-  final catalogItem = entry.catalogItem;
+  final catalogItem = entry.catalogTransport;
   if (catalogItem == null) {
     return entry.title;
   }
@@ -509,7 +509,7 @@ String _issueDuplicateLabel(LibraryWorkspaceSource entry) {
 }
 
 String _entrySubtitle(LibraryWorkspaceSource entry) {
-  final catalogItem = entry.catalogItem;
+  final catalogItem = entry.catalogTransport;
   final payload = catalogItem?.payload ?? const {};
   final publisher = payload['publisher']?.toString();
   final barcode = payload['barcode']?.toString();

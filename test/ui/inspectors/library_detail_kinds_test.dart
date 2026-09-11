@@ -30,7 +30,7 @@ void main() {
       final type = comicKindModule;
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Spider-Man',
@@ -82,7 +82,7 @@ void main() {
       final type = musicKindModule;
       final source = LibraryWorkspaceSource(
         itemId: 'music-1',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'music-1',
           kind: 'music',
           title: 'Discovery',
@@ -133,7 +133,7 @@ void main() {
       final type = gameKindModule;
       final source = LibraryWorkspaceSource(
         itemId: 'game-1',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'game-1',
           kind: 'game',
           title: 'The Legend of Zelda: Tears of the Kingdom',
@@ -187,7 +187,7 @@ void main() {
       final type = bookKindModule;
       final source = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -242,7 +242,7 @@ void main() {
       final type = comicKindModule;
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItem(
+        catalogTransport: testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Saga #1',

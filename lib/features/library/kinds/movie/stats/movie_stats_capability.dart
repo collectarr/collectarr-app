@@ -20,7 +20,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogItem;
+    final catalog = entry.catalogTransport;
     final metadata = _metadata(entry);
     if (catalog == null || metadata == null) return null;
     final secondary = (metadata.publisher ?? metadata.studio)?.trim();
@@ -70,7 +70,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
     final seasonGap = _numberedGapSummary(
       state.resolvedWorkspaceEntries,
       (entry) {
-        final payload = entry.catalogItem?.payload;
+        final payload = entry.catalogTransport?.payload;
         final rawSeason = payload?['season_number'] ??
             (payload?['series'] as Map?)?['season_number'];
         if (rawSeason == null) return null;
@@ -110,7 +110,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogItem?.payload;
+      final payload = entry.catalogTransport?.payload;
       final seriesTitle = ((payload?['series_title'] ??
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();
@@ -193,7 +193,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
   }
 
   static MovieCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
+    final metadata = entry.catalogTransport?.kindMetadata;
     return metadata is MovieCatalogMetadata ? metadata : null;
   }
 

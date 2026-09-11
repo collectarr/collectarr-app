@@ -40,7 +40,7 @@ void main() {
       );
       final shelf = LibraryWorkspaceSource(
         itemId: 'manga-1',
-        catalogItem: catalogItem.asShelfCatalogItem,
+        catalogTransport: catalogItem.asShelfCatalogItem,
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-manga-1',
           itemId: 'manga-1',
@@ -60,7 +60,7 @@ void main() {
       );
 
       expect(dto.seriesTitle, 'Vagabond');
-      expect(shelf.catalogItem?.editions, hasLength(1));
+      expect(shelf.catalogTransport?.editions, hasLength(1));
     });
 
     test('MangaMetadata serialization and deserialization roundtrip', () {

@@ -17,13 +17,13 @@ final class MovieWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     final media = MovieWorkspaceMapper.fromCatalogItem(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }
@@ -43,13 +43,13 @@ final class MovieWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     final media = MovieWorkspaceMapper.fromCatalogItem(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }
@@ -68,13 +68,13 @@ final class MovieWorkspaceProjector
     required LibraryCopyNodeRef node,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     final media = MovieWorkspaceMapper.fromCatalogItem(
-      source.catalogItem!.toTransportItem(),
+      source.catalogTransport!.toTransportItem(),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
+    final km = source.catalogTransport?.kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }

@@ -87,7 +87,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'anime_1',
-        catalogItem: CatalogItemDto(
+        catalogTransport: CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'anime_1',
             mediaKind: CatalogMediaKind.anime,
@@ -238,7 +238,7 @@ void main() {
 
       final shelfEntry = LibraryWorkspaceSource(
         itemId: 'anime_frieren',
-        catalogItem: CatalogItemDto(
+        catalogTransport: CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'anime_frieren',
             mediaKind: CatalogMediaKind.anime,

@@ -272,7 +272,7 @@ LibraryProjectionItem<ComicWorkspaceDto> _comicProjection({
 }) {
   final source = testLibraryWorkspaceSource(
     itemId: id,
-    catalogItem: testCatalogItem(
+    catalogTransport: testCatalogItem(
       id: id,
       kind: 'comic',
       series: seriesTitle == null

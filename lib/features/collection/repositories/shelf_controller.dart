@@ -176,7 +176,7 @@ class ShelfState {
           trackingSummary: trackingByCatalogRef[ref],
           // Transport snapshots remain available only to the typed Library
           // contributors that have not yet moved to their domain repository.
-          catalogItem: catalogByRef[ref],
+          catalogTransport: catalogByRef[ref],
           typedOwnedItem: ownedByCatalogRef[ref] == null
               ? null
               : typedOwnedItemsByRef[ownedByCatalogRef[ref]!.ref],

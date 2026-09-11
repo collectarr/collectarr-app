@@ -72,7 +72,7 @@ class LibraryPageBucketCoordinator {
         continue;
       }
 
-      final catalogItem = item.source.catalogItem;
+      final catalogItem = item.source.catalogTransport;
       if (catalogItem != null) {
         final updatedCatalog = groupDefinition.bucketValueMutator?.call(
           catalogItem,

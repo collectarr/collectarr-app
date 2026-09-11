@@ -17,7 +17,7 @@ class LibraryCollectionActions {
   final WishlistMutations wishlistMutations;
 
   Future<void> addOwned(LibraryProjectionItem item) {
-    final catalogItem = item.source.catalogItem!;
+    final catalogItem = item.source.catalogTransport!;
     final kindModule = libraryKindModuleForKind(catalogItem.mediaKind);
     return coordinator.addOwnedItem(
       kindModule.add.buildCommand(
@@ -46,7 +46,7 @@ class LibraryCollectionActions {
       wishlistItem: item.source.wishlistItem,
     );
     return wishlistMutations.addToWishlist(
-      item.source.catalogItem!.catalogRefForTarget(targetRef),
+      item.source.catalogTransport!.catalogRefForTarget(targetRef),
     );
   }
 
@@ -58,7 +58,7 @@ class LibraryCollectionActions {
     );
     return wishlistMutations.removeFromWishlist(
       wishlistItemId: item.source.wishlistItem?.id,
-      catalogRef: item.source.catalogItem!.catalogRefForTarget(targetRef),
+      catalogRef: item.source.catalogTransport!.catalogRefForTarget(targetRef),
     );
   }
 }

@@ -830,7 +830,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
       if (formatLabel != null) formatLabel,
     ].whereType<String>().join('  ·  ');
 
-    final payload = widget.item.source.catalogItem?.payload;
+    final payload = widget.item.source.catalogTransport?.payload;
     final editions = (payload?['editions'] as List?)
             ?.whereType<Map<Object?, Object?>>()
             .map(

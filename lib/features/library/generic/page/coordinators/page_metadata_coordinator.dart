@@ -115,7 +115,7 @@ class LibraryPageMetadataCoordinator {
       );
       return;
     }
-    final localItem = targetItem.source.catalogItem;
+    final localItem = targetItem.source.catalogTransport;
     if (localItem == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(

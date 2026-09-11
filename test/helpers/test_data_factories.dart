@@ -563,17 +563,17 @@ Object testTypedOwnedItemFrom(TestOwnedItem item) {
 
 /// Builds a [LibraryWorkspaceSource] with sensible defaults for testing.
 ///
-/// If [catalogItem] is omitted, a default one is created from [itemId] and
+/// If [catalogTransport] is omitted, a default one is created from [itemId] and
 /// [kind].
 LibraryWorkspaceSource testLibraryWorkspaceSource({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
-  CatalogItemDto? catalogItem,
+  CatalogItemDto? catalogTransport,
   TestOwnedItem? ownedItem,
   String? locationPath,
 }) {
-  final resolvedCatalogItem = catalogItem ??
+  final resolvedCatalogItem = catalogTransport ??
       testCatalogItem(
         id: itemId,
         kind: kind,
@@ -596,7 +596,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
           ?.call();
   return LibraryWorkspaceSource(
     itemId: itemId,
-    catalogItem: LibraryAddCatalogTransport.fromItem(
+    catalogTransport: LibraryAddCatalogTransport.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
@@ -620,7 +620,7 @@ LibraryProjectionView testProjectionItem({
     itemId: resolvedId,
     kind: kind,
     title: title,
-    catalogItem: catalogItem ??
+    catalogTransport: catalogItem ??
         testCatalogItem(
             id: resolvedId, kind: kind, title: title, barcode: barcode),
     ownedItem: ownedItem,

@@ -54,7 +54,7 @@ void main() {
     final projection = const MovieCollectionCsvProjection();
     final entry = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogTransport: testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Blade Runner',

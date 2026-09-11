@@ -162,7 +162,7 @@ void main() {
   test('books do not create series subgroups for volume metadata', () {
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'Dune',

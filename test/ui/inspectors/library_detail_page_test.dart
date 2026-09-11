@@ -58,7 +58,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Return of the King',
@@ -135,7 +135,7 @@ void main() {
     );
     final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Return of the King',
@@ -235,7 +235,7 @@ void main() {
 
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Dune',

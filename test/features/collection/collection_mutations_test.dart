@@ -1073,7 +1073,7 @@ void main() {
       csv.exportShelf([
         LibraryWorkspaceSource(
           itemId: 'comic-owned-details',
-          catalogItem: testCatalogItemWithKindMetadata(
+          catalogTransport: testCatalogItemWithKindMetadata(
             testCatalogItem(
               id: 'comic-owned-details',
               kind: 'comic',

@@ -143,7 +143,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
         ? Colors.white
         : Theme.of(context).colorScheme.onSurface;
     final editionsPayload =
-        item.source.catalogItem?.payload['editions'] as List?;
+        item.source.catalogTransport?.payload['editions'] as List?;
     final rawEditions = editionsPayload != null
         ? editionsPayload
             .whereType<Map<String, dynamic>>()

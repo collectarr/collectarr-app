@@ -25,7 +25,7 @@ void main() {
   test('music grouping fallbacks use unknown artist and label buckets', () {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogItem:
+      catalogTransport:
           testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1')
               .asShelfCatalogItem,
     );
@@ -46,7 +46,7 @@ void main() {
   test('comic series group definition extracts series title', () {
     final source1 = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogTransport: testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga #1',

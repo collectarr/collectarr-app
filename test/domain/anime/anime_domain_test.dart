@@ -48,7 +48,7 @@ void main() {
 
       final shelf = LibraryWorkspaceSource(
         itemId: 'anime-1',
-        catalogItem: catalogItem.asShelfCatalogItem,
+        catalogTransport: catalogItem.asShelfCatalogItem,
         ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-anime-1',
           itemId: 'anime-1',
@@ -73,7 +73,7 @@ void main() {
       );
 
       expect(item.dto.seriesTitle, 'Cowboy Bebop');
-      expect(item.source.catalogItem?.editions, hasLength(1));
+      expect(item.source.catalogTransport?.editions, hasLength(1));
     });
 
     test('AnimeMetadata serialization and deserialization roundtrip', () {

@@ -44,7 +44,7 @@ class MovieLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
 
-    final movie = item.source.catalogItem?.kindMetadata;
+    final movie = item.source.catalogTransport?.kindMetadata;
     final metadata = movie is MovieCatalogMetadata ? movie : null;
     final series = metadata?.series;
     final video = metadata?.video;
@@ -171,7 +171,7 @@ class MovieLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = item.source.catalogItem?.synopsis;
+    final synopsis = item.source.catalogTransport?.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }
@@ -191,7 +191,7 @@ class MovieLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    final kind = item.source.catalogItem?.mediaKind;
+    final kind = item.source.catalogTransport?.mediaKind;
     return item.node.scope == LibraryBrowserScope.title &&
         kind != null &&
         const {

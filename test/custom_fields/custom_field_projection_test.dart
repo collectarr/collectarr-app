@@ -47,10 +47,11 @@ void main() {
   group('custom field search in generic projection', () {
     test('matches custom field values', () {
       final shelf = ShelfState(
-        entries: [
+        entries: const [],
+        workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -69,7 +70,7 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
@@ -110,10 +111,11 @@ void main() {
 
     test('matches standard fields', () {
       final shelf = ShelfState(
-        entries: [
+        entries: const [],
+        workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -136,10 +138,11 @@ void main() {
 
     test('matches original and display title aliases', () {
       final shelf = ShelfState(
-        entries: [
+        entries: const [],
+        workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'movie-1',
-            catalogItem: testCatalogItemWithKindMetadata(
+            catalogTransport: testCatalogItemWithKindMetadata(
               testCatalogItem(
                 id: 'movie-1',
                 kind: 'comic',
@@ -170,10 +173,11 @@ void main() {
 
     test('empty query returns all', () {
       final shelf = ShelfState(
-        entries: [
+        entries: const [],
+        workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -181,7 +185,7 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
@@ -203,10 +207,11 @@ void main() {
 
     test('projection includes custom field search', () {
       final shelf = ShelfState(
-        entries: [
+        entries: const [],
+        workspaceEntries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
@@ -220,7 +225,7 @@ void main() {
           ),
           LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogItem: testCatalogItem(
+            catalogTransport: testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
