@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
@@ -88,7 +89,7 @@ class SyncApplyService {
     final catalogSnapshots = <CatalogImportSnapshot>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
-    final typedOwned = <(CatalogMediaKind kind, Object item)>[];
+    final ownedPayloads = <_OwnedSyncPayload>[];
     final tracking = <TrackingLifecycle>[];
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
@@ -115,7 +116,7 @@ class SyncApplyService {
         }
       }
       if (type == 'owned_item') {
-        typedOwned.add(_typedOwnedItemFromEntity(entity));
+        ownedPayloads.add(_ownedPayloadFromEntity(entity));
       }
       if (type == 'tracking_entry') {
         tracking.add(_trackingLifecycleFromEntity(entity));
@@ -148,8 +149,8 @@ class SyncApplyService {
       for (final location in locationUpserts) {
         await locations.applySyncedUpsert(location);
       }
-      for (final item in typedOwned) {
-        await ownedPersistence.upsertTyped(item.$1, item.$2);
+      for (final item in ownedPayloads) {
+        await ownedPersistence.replaceFromPayload(item.kind, item.payload);
       }
       await trackingLifecycles.upsertAll(tracking);
       await wishlistItems.upsertAll(wishlist);
@@ -179,18 +180,16 @@ class SyncApplyService {
 
     // Store image bytes outside the main transaction so data sync completes
     // first and images are processed in the background.
-    if (imageDataByItemId.isNotEmpty && typedOwned.isNotEmpty) {
+    if (imageDataByItemId.isNotEmpty && ownedPayloads.isNotEmpty) {
       final imagesRepo = ItemImagesCacheRepository(db);
       final ownedByCatalogId = <String, OwnedItemRef>{};
-      for (final item in typedOwned) {
-        final json = collectarrTypedOwnedItemJson(item.$2);
-        final rawCatalogRef = json['catalog_ref'];
+      for (final item in ownedPayloads) {
+        final rawCatalogRef = item.payload['catalog_ref'];
         if (rawCatalogRef is! Map) continue;
         final catalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
         );
-        final ownedRef = collectarrTypedOwnedItemRef(item.$2);
-        ownedByCatalogId[catalogRef.id] = ownedRef;
+        ownedByCatalogId[catalogRef.id] = item.ref;
       }
       for (final entry in imageDataByItemId.entries) {
         final ownedRef = ownedByCatalogId[entry.key];
@@ -252,7 +251,7 @@ class SyncApplyService {
     );
   }
 
-  (CatalogMediaKind kind, Object item) _typedOwnedItemFromEntity(
+  _OwnedSyncPayload _ownedPayloadFromEntity(
     Map<String, dynamic> entity,
   ) {
     final type = entity['entity_type'] as String;
@@ -272,15 +271,20 @@ class SyncApplyService {
       Map<String, dynamic>.from(rawCatalogRef),
     );
     final kind = catalogRef.mediaKind;
+    final normalizedPayload = {
+      ...payload,
+      'id': entity['entity_id'],
+      'created_at': payload['created_at'] ?? entity['client_changed_at'],
+      'updated_at': entity['client_changed_at'],
+      'deleted_at': deletedAt,
+    };
     return (
-      kind,
-      collectarrTypedOwnedItemFromSyncPayload(kind, {
-        ...payload,
+      kind: kind,
+      ref: OwnedItemRef.fromJson({
+        'kind': kind.apiValue,
         'id': entity['entity_id'],
-        'created_at': payload['created_at'] ?? entity['client_changed_at'],
-        'updated_at': entity['client_changed_at'],
-        'deleted_at': deletedAt,
       }),
+      payload: normalizedPayload,
     );
   }
 
@@ -508,3 +512,9 @@ class SyncApplyService {
     return '${change.entityType}:${change.entityId}';
   }
 }
+
+typedef _OwnedSyncPayload = ({
+  CatalogMediaKind kind,
+  OwnedItemRef ref,
+  JsonMap payload,
+});

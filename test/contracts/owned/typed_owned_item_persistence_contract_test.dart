@@ -26,7 +26,10 @@ void main() {
 
     for (final item in items) {
       final ref = collectarrTypedOwnedItemRef(item);
-      await persistence.upsertTyped(ref.kind, item);
+      await persistence.replaceFromPayload(
+        ref.kind,
+        collectarrTypedOwnedItemJson(item),
+      );
     }
 
     expect(await db.select(db.comicOwnedItemsRows).get(), hasLength(1));
@@ -60,20 +63,24 @@ void main() {
 
     for (final item in items) {
       final ref = collectarrTypedOwnedItemRef(item);
-      await persistence.upsertTyped(ref.kind, item);
-      final roundTrip = await persistence.findTypedByRef(ref);
+      await persistence.replaceFromPayload(
+        ref.kind,
+        collectarrTypedOwnedItemJson(item),
+      );
+      final roundTrip = await persistence.payloadByRef(ref);
       expect(roundTrip, isNotNull, reason: ref.kind.apiValue);
-      final resolved = roundTrip!;
-      expect(resolved.$1, ref.kind);
       expect(
-        collectarrTypedOwnedItemJson(resolved.$2),
+        roundTrip,
         equals(collectarrTypedOwnedItemJson(item)),
         reason: 'owned payload was not lossless for ${ref.kind}',
       );
     }
   });
 
-  test('decodes sync payloads directly into each concrete Owned model', () {
+  test('round-trips sync payloads through each concrete Owned table', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final persistence = CollectarrOwnedItemPersistence(db);
     final now = DateTime.utc(2026, 9, 6, 12);
     final items = [
       comicSeedOwnedItems(now).first,
@@ -89,18 +96,14 @@ void main() {
 
     for (final item in items) {
       final ref = collectarrTypedOwnedItemRef(item);
-      final sync = collectarrTypedOwnedItemSyncPayload(ref.kind, item);
-      final decoded = collectarrTypedOwnedItemFromSyncPayload(ref.kind, {
-        ...sync.payload,
-        'id': ref.id.value,
-        'created_at': now.toIso8601String(),
-        'updated_at': now.toIso8601String(),
-        'deleted_at': null,
-      });
-
-      expect(decoded.runtimeType, item.runtimeType,
-          reason: 'sync decoder erased ${ref.kind.apiValue}');
-      expect(collectarrTypedOwnedItemRef(decoded), ref);
+      await persistence.replaceFromPayload(
+        ref.kind,
+        collectarrTypedOwnedItemJson(item),
+      );
+      final sync = await persistence.syncPayloadByRef(ref);
+      expect(sync, isNotNull, reason: ref.kind.apiValue);
+      expect(sync!.payload, isNotEmpty, reason: ref.kind.apiValue);
+      expect(sync.isDeleted, isFalse, reason: ref.kind.apiValue);
     }
   });
 }

@@ -72,6 +72,12 @@ final class CollectarrOwnedItemPersistence {
     return collectarrOwnedItemJsonByRef(_database, ref);
   }
 
+  Future<({JsonMap payload, bool isDeleted})?> syncPayloadByRef(
+    OwnedItemRef ref,
+  ) {
+    return collectarrOwnedItemSyncPayloadByRef(_database, ref);
+  }
+
   Future<OwnedItemMutationResult> replaceFromPayload(
     CatalogMediaKind kind,
     JsonMap payload,
@@ -86,13 +92,6 @@ final class CollectarrOwnedItemPersistence {
     OwnedItemRef ref,
   ) async {
     return collectarrFindTypedOwnedItemByRef(_database, ref);
-  }
-
-  ({Map<String, dynamic> payload, bool isDeleted}) syncPayloadForTyped(
-    CatalogMediaKind kind,
-    Object item,
-  ) {
-    return collectarrTypedOwnedItemSyncPayload(kind, item);
   }
 
   Future<OwnedItemMutationResult?> markDeletedByRef(

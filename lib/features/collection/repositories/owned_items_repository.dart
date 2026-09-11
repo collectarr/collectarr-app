@@ -107,24 +107,6 @@ final class OwnedItemsRepository {
     return _persistence.findTypedByRef(ref);
   }
 
-  SyncChange syncChangeForTyped(
-    CatalogMediaKind kind,
-    Object item, {
-    required String id,
-    required String action,
-    required DateTime changedAt,
-  }) {
-    final serialized = _persistence.syncPayloadForTyped(kind, item);
-    return SyncChange(
-      id: 'owned_item:$id:$action:${changedAt.millisecondsSinceEpoch}',
-      entityType: 'owned_item',
-      entityId: id,
-      action: action,
-      payload: serialized.payload,
-      clientChangedAt: changedAt,
-    );
-  }
-
   Future<void> upsertTyped(CatalogMediaKind kind, Object item) =>
       _persistence.upsertTyped(kind, item);
 

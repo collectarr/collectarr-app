@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/collection/repositories/tracking_lifecyc
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_episodes_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
@@ -30,20 +31,15 @@ class SyncRetryMapper {
         final catalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
         );
-        final typedItem = await collectarrFindTypedOwnedItemByRef(
-          db,
-          OwnedItemRef(
-            kind: catalogRef.mediaKind,
-            id: OwnedItemId(change.entityId),
-          ),
+        final ownedRef = OwnedItemRef(
+          kind: catalogRef.mediaKind,
+          id: OwnedItemId(change.entityId),
         );
-        if (typedItem == null) {
+        final serialized =
+            await CollectarrOwnedItemPersistence(db).syncPayloadByRef(ownedRef);
+        if (serialized == null) {
           return null;
         }
-        final serialized = collectarrTypedOwnedItemSyncPayload(
-          typedItem.$1,
-          typedItem.$2,
-        );
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,

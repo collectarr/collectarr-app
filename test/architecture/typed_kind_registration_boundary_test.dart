@@ -109,36 +109,29 @@ void main() {
     final jsonSection = _sourceSection(
       source,
       'Map<String, dynamic> collectarrTypedOwnedItemJson',
-      'bool? collectarrTypedOwnedItemIsDigital',
-    );
-    final digitalSection = _sourceSection(
-      source,
-      'bool? collectarrTypedOwnedItemIsDigital',
       'collectarrTypedOwnedItemSyncPayload',
     );
-    final syncDecoderSection = _sourceSection(
+    final syncPayloadSection = _sourceSection(
       source,
-      'Object collectarrTypedOwnedItemFromSyncPayload',
+      'collectarrOwnedItemSyncPayloadByRef',
       'const List<CatalogKindTransportCodec<Object?>>',
     );
 
     for (final entry in ownedTypes.entries) {
       expect(refSection, contains('if (item is ${entry.value})'));
       expect(jsonSection, contains('if (item is ${entry.value})'));
-      expect(digitalSection, contains('if (item is ${entry.value})'));
       expect(
-        syncDecoderSection,
+        syncPayloadSection,
         contains('if (kind == CatalogMediaKind.${entry.key})'),
       );
       expect(
-        syncDecoderSection,
-        contains('return ${entry.value}.fromJson(payload);'),
+        syncPayloadSection,
+        contains('collectarrTypedOwnedItemSyncPayload'),
       );
     }
     expect(refSection, isNot(contains('CatalogItemDto')));
     expect(jsonSection, isNot(contains('CatalogItemDto')));
     expect(jsonSection, isNot(contains('OwnedItemProjection')));
-    expect(digitalSection, isNot(contains('CatalogItemDto')));
   });
 
   test('application router consumes generated kind routes', () {

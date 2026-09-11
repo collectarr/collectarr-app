@@ -998,7 +998,10 @@ Future<void> seedLocalDatabase(LocalDatabase db, {bool force = false}) async {
   await catalogRepo.upsertAll(allItems);
   for (final ownedItem in ownedItems) {
     final ref = collectarrTypedOwnedItemRef(ownedItem);
-    await ownedRepo.upsertTyped(ref.kind, ownedItem);
+    await ownedRepo.replaceFromPayload(
+      ref.kind,
+      collectarrTypedOwnedItemJson(ownedItem),
+    );
   }
   for (final contributor in collectarrDevSeedContributors) {
     final databaseSeeder = contributor.seedDatabase;
