@@ -1579,7 +1579,7 @@ BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
     required LibraryAddCatalogTransport preview,
   }) =>
       builder(
-        preview: preview.toTransportItem(),
-        edited: edited.toTransportItem(),
+        preview: preview,
+        edited: edited,
       );
 }

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_metadat
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_provider_contract.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 class MusicLibraryKindProviderMapper
@@ -56,16 +57,16 @@ class MusicLibraryKindProviderMapper
   }
 
   ProviderCorrectionPatch buildCorrections({
-    required CatalogItemDto preview,
-    required CatalogItemDto edited,
+    required LibraryAddCatalogTransport preview,
+    required LibraryAddCatalogTransport edited,
   }) {
     final corrections = <String, Object?>{};
     if (edited.title != preview.title) corrections['title'] = edited.title;
     if (edited.synopsis != preview.synopsis) {
       corrections['synopsis'] = edited.synopsis;
     }
-    final previewPayload = preview.payload;
-    final editedPayload = edited.payload;
+    final previewPayload = preview.mapTransport((dto) => dto.payload);
+    final editedPayload = edited.mapTransport((dto) => dto.payload);
     for (final entry in editedPayload.entries) {
       if (previewPayload[entry.key] != entry.value) {
         corrections[entry.key] = entry.value;

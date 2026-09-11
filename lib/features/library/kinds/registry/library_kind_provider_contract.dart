@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
 /// Kind-owned correction values waiting to cross the admin HTTP boundary.
@@ -31,8 +32,8 @@ typedef ProviderMetadataItemMapper = CatalogItemDto Function(
 );
 
 typedef ProviderCorrectionBuilder = ProviderCorrectionPatch Function({
-  required CatalogItemDto preview,
-  required CatalogItemDto edited,
+  required LibraryAddCatalogTransport preview,
+  required LibraryAddCatalogTransport edited,
 });
 
 /// Validates the erased provider boundary before a kind-owned mapper runs.
