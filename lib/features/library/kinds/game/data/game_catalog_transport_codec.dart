@@ -49,13 +49,6 @@ final class GameCatalogTransportCodec implements CatalogKindTransportCodec {
   }
 
   @override
-  CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
-      switch (typedMetadataFromDto(item)) {
-        final metadata? => item.withKindMetadata(metadata),
-        _ => item,
-      };
-
-  @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
     return GameRepository(db).updateMedia(
       GameMedia.fromJson(catalogPayloadFor(item)),

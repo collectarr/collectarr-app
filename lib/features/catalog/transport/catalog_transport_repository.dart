@@ -66,10 +66,7 @@ final class CatalogTransportRepository {
       await _upsertItem(item);
     }
     if (captureDerivedData) {
-      await _captureDerivedData([
-        for (final item in catalogItems)
-          (_codecs[item.mediaKind]?.withTypedMetadata(item) ?? item),
-      ]);
+      await _captureDerivedData(catalogItems);
     }
   }
 
@@ -80,33 +77,28 @@ final class CatalogTransportRepository {
     final list = items.toList(growable: false);
     if (list.isEmpty) return;
 
-    final byKind = <CatalogMediaKind, List<Object>>{};
-    for (final item in list) {
-      final codec = _codecs[item.mediaKind];
-      final typedMetadata = codec?.typedMetadataFromDto(item);
-      if (typedMetadata != null) {
-        byKind.putIfAbsent(item.mediaKind, () => <Object>[]).add(typedMetadata);
-      }
-    }
-
     final pickLists = PickListRepository(_db);
     final serialAuthority = SerialAuthorityRepository(_db);
     final serialCandidates = <SerialAuthorityCandidate>[];
     await _db.transaction(() async {
-      for (final entry in byKind.entries) {
+      for (final item in list) {
+        final codec = _codecs[item.mediaKind];
+        final typedMetadata = codec?.typedMetadataFromDto(item);
+        if (typedMetadata == null) continue;
+
         for (final contributor in defaultPickListDefinitionContributors) {
-          if (contributor.kind != entry.key) continue;
-          for (final projected in contributor.catalogValues(entry.value)) {
+          if (contributor.kind != item.mediaKind) continue;
+          for (final projected in contributor.catalogValues([typedMetadata])) {
             await pickLists.captureValuesWithoutTransaction(
               projected.listName,
               projected.values,
-              mediaKind: entry.key.apiValue,
+              mediaKind: item.mediaKind.apiValue,
             );
           }
         }
         for (final contributor in collectarrSerialAuthorityContributors) {
-          if (contributor.kind != entry.key) continue;
-          serialCandidates.addAll(contributor.candidates(entry.value));
+          if (contributor.kind != item.mediaKind) continue;
+          serialCandidates.addAll(contributor.candidates([typedMetadata]));
         }
       }
       await serialAuthority

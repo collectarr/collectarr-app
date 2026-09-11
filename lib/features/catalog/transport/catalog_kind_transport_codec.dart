@@ -23,8 +23,6 @@ abstract interface class CatalogKindTransportCodec
 
   Object? typedMetadataFromDto(CatalogItemDto item);
 
-  CatalogItemDto withTypedMetadata(CatalogItemDto item);
-
   Future<void> upsert(LocalDatabase db, CatalogItemDto item);
 
   Future<List<CatalogItemDto>> list(LocalDatabase db);

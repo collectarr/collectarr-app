@@ -49,13 +49,6 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
   }
 
   @override
-  CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
-      switch (typedMetadataFromDto(item)) {
-        final metadata? => item.withKindMetadata(metadata),
-        _ => item,
-      };
-
-  @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
     return MangaRepository(db).updateMedia(
       MangaMedia.fromJson(catalogPayloadFor(item)),

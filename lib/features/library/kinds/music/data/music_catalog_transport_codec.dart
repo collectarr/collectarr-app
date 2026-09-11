@@ -49,13 +49,6 @@ final class MusicCatalogTransportCodec implements CatalogKindTransportCodec {
   }
 
   @override
-  CatalogItemDto withTypedMetadata(CatalogItemDto item) =>
-      switch (typedMetadataFromDto(item)) {
-        final metadata? => item.withKindMetadata(metadata),
-        _ => item,
-      };
-
-  @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {
     return MusicRepository(db).updateRelease(
       MusicRelease.fromJson(catalogPayloadFor(item)),
