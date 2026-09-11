@@ -161,6 +161,17 @@ abstract class LibraryMediaPresentationBuilder {
   }) =>
       const [];
 
+  /// Provides the kind-owned title used by the generic Add preview shell.
+  String buildAddPreviewTitle({required LibraryAddCatalogTransport item}) =>
+      item.title;
+
+  /// Keeps issue/number semantics inside the owning kind. The generic shell
+  /// only renders the returned structural label when one is applicable.
+  String? buildAddPreviewItemNumber({
+    required LibraryAddCatalogTransport item,
+  }) =>
+      null;
+
   List<(String, String?)> buildAddPreviewMetadataRows({
     required LibraryAddCatalogTransport item,
     required LibraryMediaPreviewLabels previewLabels,

@@ -29,7 +29,6 @@ class BookLibraryKindProviderMapper
     });
   }
 
-  @override
   CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
@@ -55,8 +54,7 @@ class BookLibraryKindProviderMapper
     );
   }
 
-  @override
-  Map<String, Object?> buildCorrections({
+  ProviderCorrectionPatch buildCorrections({
     required CatalogItemDto preview,
     required CatalogItemDto edited,
   }) {
@@ -72,6 +70,6 @@ class BookLibraryKindProviderMapper
         corrections[entry.key] = entry.value;
       }
     }
-    return corrections;
+    return ProviderCorrectionPatch(corrections);
   }
 }

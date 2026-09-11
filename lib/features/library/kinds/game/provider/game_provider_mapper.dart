@@ -29,7 +29,6 @@ class GameLibraryKindProviderMapper
     });
   }
 
-  @override
   CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
     validateLibraryKindProviderEnvelope(
       envelope: envelope,
@@ -56,8 +55,7 @@ class GameLibraryKindProviderMapper
     );
   }
 
-  @override
-  Map<String, Object?> buildCorrections({
+  ProviderCorrectionPatch buildCorrections({
     required CatalogItemDto preview,
     required CatalogItemDto edited,
   }) {
@@ -73,6 +71,6 @@ class GameLibraryKindProviderMapper
         corrections[entry.key] = entry.value;
       }
     }
-    return corrections;
+    return ProviderCorrectionPatch(corrections);
   }
 }

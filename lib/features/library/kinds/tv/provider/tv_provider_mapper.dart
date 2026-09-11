@@ -17,7 +17,6 @@ class TvLibraryKindProviderMapper
     );
   }
 
-  @override
   CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
     final tvMetadata = TvSeriesMetadata.fromJson(
       TvProviderTypedMapper.payloadFromEnvelope(envelope),
@@ -32,8 +31,7 @@ class TvLibraryKindProviderMapper
     );
   }
 
-  @override
-  Map<String, Object?> buildCorrections({
+  ProviderCorrectionPatch buildCorrections({
     required CatalogItemDto preview,
     required CatalogItemDto edited,
   }) {
@@ -49,6 +47,6 @@ class TvLibraryKindProviderMapper
         corrections[entry.key] = entry.value;
       }
     }
-    return corrections;
+    return ProviderCorrectionPatch(corrections);
   }
 }

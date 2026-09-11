@@ -47,7 +47,6 @@ class MangaLibraryKindProviderMapper
     });
   }
 
-  @override
   CatalogItemDto metadataItemFromEnvelope(ProviderMetadataEnvelope envelope) {
     return CatalogItemDto(
       identity: LibraryItemIdentity(
@@ -58,8 +57,7 @@ class MangaLibraryKindProviderMapper
     );
   }
 
-  @override
-  Map<String, Object?> buildCorrections({
+  ProviderCorrectionPatch buildCorrections({
     required CatalogItemDto preview,
     required CatalogItemDto edited,
   }) {
@@ -75,6 +73,6 @@ class MangaLibraryKindProviderMapper
         corrections[entry.key] = entry.value;
       }
     }
-    return corrections;
+    return ProviderCorrectionPatch(corrections);
   }
 }

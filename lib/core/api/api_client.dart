@@ -393,6 +393,20 @@ class ApiClient {
     );
   }
 
+  /// Sends a kind-owned correction patch without interpreting its fields in
+  /// the generic Library orchestration layer.
+  Future<AdminMetadataItem> adminUpdateCatalogItemFields({
+    required String kind,
+    required String id,
+    required Map<String, Object?> fields,
+  }) {
+    return _adminApi.adminUpdateCatalogItemFields(
+      kind: kind,
+      id: id,
+      fields: fields,
+    );
+  }
+
   Future<Map<String, dynamic>> adminUpdateSeriesTags({
     required String seriesId,
     required List<String> tags,

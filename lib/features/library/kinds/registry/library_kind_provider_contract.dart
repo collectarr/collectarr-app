@@ -1,6 +1,20 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 
+/// Kind-owned correction values waiting to cross the admin HTTP boundary.
+///
+/// The keys are interpreted only by the owning kind while constructing the
+/// patch. Generic orchestration treats the patch as opaque transport data.
+final class ProviderCorrectionPatch {
+  const ProviderCorrectionPatch(this.fields);
+
+  const ProviderCorrectionPatch.empty() : fields = const {};
+
+  final Map<String, Object?> fields;
+
+  bool get isEmpty => fields.isEmpty;
+}
+
 /// Typed kind-owned provider mapping contract.
 ///
 /// The provider layer owns transport and native DTOs. A kind owns the
@@ -16,7 +30,7 @@ typedef ProviderMetadataItemMapper = CatalogItemDto Function(
   ProviderMetadataEnvelope envelope,
 );
 
-typedef ProviderCorrectionBuilder = Map<String, Object?> Function({
+typedef ProviderCorrectionBuilder = ProviderCorrectionPatch Function({
   required CatalogItemDto preview,
   required CatalogItemDto edited,
 });

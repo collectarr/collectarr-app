@@ -297,6 +297,42 @@ class _AdminApiClient {
     return AdminMetadataItem.fromJson(_client._resolveImageUrls(body));
   }
 
+  Future<AdminMetadataItem> adminUpdateCatalogItemFields({
+    required String kind,
+    required String id,
+    required Map<String, Object?> fields,
+  }) async {
+    final response = await _client._dio.patch<Map<String, dynamic>>(
+      '/admin/catalog/items/$kind/$id',
+      data: {
+        for (final entry in fields.entries)
+          entry.key: _jsonSafeCatalogCorrectionValue(entry.value),
+      },
+    );
+    final body = response.data;
+    if (body == null) {
+      throw StateError(
+          '/admin/catalog/items/$kind/$id returned an empty response body');
+    }
+    return AdminMetadataItem.fromJson(_client._resolveImageUrls(body));
+  }
+
+  Object? _jsonSafeCatalogCorrectionValue(Object? value) {
+    if (value is DateTime) return value.toUtc().toIso8601String();
+    if (value is Map) {
+      return <String, Object?>{
+        for (final entry in value.entries)
+          entry.key.toString(): _jsonSafeCatalogCorrectionValue(entry.value),
+      };
+    }
+    if (value is Iterable) {
+      return [
+        for (final element in value) _jsonSafeCatalogCorrectionValue(element),
+      ];
+    }
+    return value;
+  }
+
   Future<Map<String, dynamic>> adminUpdateSeriesTags({
     required String seriesId,
     required List<String> tags,

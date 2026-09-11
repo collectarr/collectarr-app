@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
-typedef BuildProviderCorrections = Map<String, Object?> Function({
+typedef BuildProviderCorrections = ProviderCorrectionPatch Function({
   required LibraryAddCatalogTransport preview,
   required LibraryAddCatalogTransport edited,
 });
@@ -50,12 +50,11 @@ class LibraryProviderOrchestrationService {
     if (corrections.isEmpty) {
       return;
     }
-    await applyProviderIngestCorrections(
+    await submitProviderIngestCorrections(
       api: api,
       kind: kind,
       itemId: itemId,
       corrections: corrections,
-      edited: edited,
     );
   }
 

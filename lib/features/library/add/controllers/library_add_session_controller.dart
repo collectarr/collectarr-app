@@ -1567,11 +1567,11 @@ class LibraryAddSessionController
   }
 }
 
-Map<String, Object?> _emptyProviderCorrections({
+ProviderCorrectionPatch _emptyProviderCorrections({
   required LibraryAddCatalogTransport edited,
   required LibraryAddCatalogTransport preview,
 }) =>
-    const <String, Object?>{};
+    const ProviderCorrectionPatch.empty();
 
 BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
   final builder = libraryKindProviderCorrectionBuilderForKind(kind);

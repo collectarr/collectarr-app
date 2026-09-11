@@ -35,6 +35,12 @@ class MangaLibraryMediaPresentationBuilder
   final String barcodeLabel;
 
   @override
+  String? buildAddPreviewItemNumber({
+    required LibraryAddCatalogTransport item,
+  }) =>
+      item.itemNumber;
+
+  @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {

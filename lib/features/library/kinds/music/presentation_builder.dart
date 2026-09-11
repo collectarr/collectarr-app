@@ -29,6 +29,12 @@ class MusicLibraryMediaPresentationBuilder
   final LibraryMetadataLabels metadataLabels;
 
   @override
+  String? buildAddPreviewItemNumber({
+    required LibraryAddCatalogTransport item,
+  }) =>
+      item.itemNumber;
+
+  @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
     LibraryWorkspaceSource entry,
   ) {

@@ -107,9 +107,16 @@ class LibraryAddPreviewPane extends ConsumerWidget {
       );
     }
     final title = selectedBundle?.title ??
-        selectedItem?.title ??
-        selectedCandidate!.title;
-    final itemNumber = selectedBundle == null ? selectedItem?.itemNumber : null;
+        (selectedItem == null
+            ? selectedCandidate!.title
+            : type.presentation.builder.buildAddPreviewTitle(
+                item: selectedItem,
+              ));
+    final itemNumber = selectedBundle == null && selectedItem != null
+        ? type.presentation.builder.buildAddPreviewItemNumber(
+            item: selectedItem,
+          )
+        : null;
     final preview = candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
