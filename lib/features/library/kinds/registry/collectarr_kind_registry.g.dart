@@ -3,9 +3,12 @@
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
+import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
@@ -131,46 +134,55 @@ import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_ite
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_transport_codec.dart';
@@ -407,6 +419,410 @@ final collectarrKindFacetModules = <CatalogMediaKind, LibraryFacetModule>{
   CatalogMediaKind.music: musicLibraryFacetModule,
   CatalogMediaKind.tv: tvLibraryFacetModule,
 };
+Future<OwnedItemMutationResult> collectarrCreateOwnedItem(
+  LocalDatabase database,
+  CatalogMediaKind kind,
+  OwnedItemCreatePayload payload, {
+  required CatalogEntityRef resolvedCatalogRef,
+  required String id,
+  required DateTime createdAt,
+  required bool? existingIsDigital,
+  required String? ownerUserId,
+  required String? ownerLabel,
+}) async {
+  if (kind == CatalogMediaKind.anime) {
+    if (payload is! AnimeOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected AnimeOwnedItemCreatePayload for anime');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await AnimeOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.anime, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.anime, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.boardgame) {
+    if (payload is! BoardgameOwnedItemCreatePayload)
+      throw ArgumentError.value(payload, 'payload',
+          'Expected BoardgameOwnedItemCreatePayload for boardgame');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await BoardGameOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.boardgame, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.boardgame, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.book) {
+    if (payload is! BookOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected BookOwnedItemCreatePayload for book');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await BookOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.book, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.book, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.comic) {
+    if (payload is! ComicOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected ComicOwnedItemCreatePayload for comic');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await ComicOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.comic, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.comic, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.game) {
+    if (payload is! GameOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected GameOwnedItemCreatePayload for game');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await GameOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.game, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.game, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.manga) {
+    if (payload is! MangaOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected MangaOwnedItemCreatePayload for manga');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await MangaOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.manga, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.manga, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.movie) {
+    if (payload is! MovieOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected MovieOwnedItemCreatePayload for movie');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await MovieOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.movie, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.movie, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.music) {
+    if (payload is! MusicOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected MusicOwnedItemCreatePayload for music');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await MusicOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.music, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.music, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (kind == CatalogMediaKind.tv) {
+    if (payload is! TvOwnedItemCreatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected TvOwnedItemCreatePayload for tv');
+    final item = payload.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: ownerUserId,
+        ownerLabel: ownerLabel);
+    await TvOwnedRepository(database).upsert(item);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.tv, item);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.tv, id: OwnedItemId(item.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
+}
+
+Future<OwnedItemMutationResult> collectarrUpdateOwnedItem(
+  LocalDatabase database,
+  OwnedItemRef ref,
+  OwnedItemUpdatePayload<Object?> payload, {
+  required DateTime updatedAt,
+  required String? fallbackOwnerUserId,
+  required String? fallbackOwnerLabel,
+}) async {
+  if (ref.kind == CatalogMediaKind.anime) {
+    final existing = await AnimeOwnedRepository(database)
+        .findById(AnimeOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! AnimeOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected AnimeOwnedItemUpdatePayload for anime');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to anime');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await AnimeOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.anime, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.anime, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.boardgame) {
+    final existing = await BoardGameOwnedRepository(database)
+        .findById(BoardGameOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! BoardgameOwnedItemUpdatePayload)
+      throw ArgumentError.value(payload, 'payload',
+          'Expected BoardgameOwnedItemUpdatePayload for boardgame');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to boardgame');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await BoardGameOwnedRepository(database).upsert(updated);
+    final serialized = collectarrTypedOwnedItemSyncPayload(
+        CatalogMediaKind.boardgame, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.boardgame,
+            id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.book) {
+    final existing = await BookOwnedRepository(database)
+        .findById(BookOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! BookOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected BookOwnedItemUpdatePayload for book');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to book');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await BookOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.book, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.book, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.comic) {
+    final existing = await ComicOwnedRepository(database)
+        .findById(ComicOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! ComicOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected ComicOwnedItemUpdatePayload for comic');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to comic');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await ComicOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.comic, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.comic, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.game) {
+    final existing = await GameOwnedRepository(database)
+        .findById(GameOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! GameOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected GameOwnedItemUpdatePayload for game');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to game');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await GameOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.game, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.game, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.manga) {
+    final existing = await MangaOwnedRepository(database)
+        .findById(MangaOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! MangaOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected MangaOwnedItemUpdatePayload for manga');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to manga');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await MangaOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.manga, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.manga, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.movie) {
+    final existing = await MovieOwnedRepository(database)
+        .findById(MovieOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! MovieOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected MovieOwnedItemUpdatePayload for movie');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to movie');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await MovieOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.movie, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.movie, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.music) {
+    final existing = await MusicOwnedRepository(database)
+        .findById(MusicOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! MusicOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected MusicOwnedItemUpdatePayload for music');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to music');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await MusicOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.music, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.music, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  if (ref.kind == CatalogMediaKind.tv) {
+    final existing =
+        await TvOwnedRepository(database).findById(TvOwnedItemId(ref.id.value));
+    if (existing == null) throw StateError('Owned item not found');
+    if (payload is! TvOwnedItemUpdatePayload)
+      throw ArgumentError.value(
+          payload, 'payload', 'Expected TvOwnedItemUpdatePayload for tv');
+    if (!payload.canApplyTo(existing))
+      throw StateError('Owned update payload does not belong to tv');
+    final updated = payload.applyTo(existing,
+        updatedAt: updatedAt,
+        fallbackOwnerUserId: fallbackOwnerUserId,
+        fallbackOwnerLabel: fallbackOwnerLabel);
+    await TvOwnedRepository(database).upsert(updated);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.tv, updated);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.tv, id: OwnedItemId(updated.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: serialized.isDeleted);
+  }
+  throw ArgumentError.value(ref.kind, 'ref', 'Unsupported owned kind');
+}
+
 Future<void> collectarrUpsertTypedOwnedItem(
     LocalDatabase database, CatalogMediaKind kind, Object item) async {
   if (kind == CatalogMediaKind.anime) {
@@ -609,71 +1025,138 @@ Future<(CatalogMediaKind kind, Object item)?> collectarrFindTypedOwnedItemByRef(
   return null;
 }
 
-Future<void> collectarrMarkTypedOwnedItemDeleted(LocalDatabase database,
-    CatalogMediaKind kind, Object item, DateTime deletedAt) async {
+Future<OwnedItemMutationResult?> collectarrMarkTypedOwnedItemDeleted(
+    LocalDatabase database,
+    CatalogMediaKind kind,
+    Object item,
+    DateTime deletedAt) async {
   if (kind == CatalogMediaKind.anime) {
     if (item is! AnimeOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected AnimeOwnedItem for anime');
     await AnimeOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.anime, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.anime, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.boardgame) {
     if (item is! BoardGameOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected BoardGameOwnedItem for boardgame');
     await BoardGameOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized = collectarrTypedOwnedItemSyncPayload(
+        CatalogMediaKind.boardgame, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.boardgame,
+            id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.book) {
     if (item is! BookOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected BookOwnedItem for book');
     await BookOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.book, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.book, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.comic) {
     if (item is! ComicOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected ComicOwnedItem for comic');
     await ComicOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.comic, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.comic, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.game) {
     if (item is! GameOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected GameOwnedItem for game');
     await GameOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.game, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.game, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.manga) {
     if (item is! MangaOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected MangaOwnedItem for manga');
     await MangaOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.manga, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.manga, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.movie) {
     if (item is! MovieOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected MovieOwnedItem for movie');
     await MovieOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.movie, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.movie, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.music) {
     if (item is! MusicOwnedItem)
       throw ArgumentError.value(
           item, 'item', 'Expected MusicOwnedItem for music');
     await MusicOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.music, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.music, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
   if (kind == CatalogMediaKind.tv) {
     if (item is! TvOwnedItem)
       throw ArgumentError.value(item, 'item', 'Expected TvOwnedItem for tv');
     await TvOwnedRepository(database).markDeleted(item, deletedAt);
-    return;
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.tv, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.tv, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
   }
-  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
+  return null;
 }
 
 OwnedItemRef collectarrTypedOwnedItemRef(Object item) {

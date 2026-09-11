@@ -93,25 +93,21 @@ final class OwnedItemMutations {
         );
 
         final mediaKind = catalogRef.mediaKind;
-        final typedPayload = command.typedPayload;
-        final typedOwnedItem = typedPayload.toOwnedItem(
+        final persisted = await ownedItems.createOwned(
+          kind: mediaKind,
+          payload: command.typedPayload,
           resolvedCatalogRef: resolvedCatalogRef,
           id: newItemId,
           createdAt: now,
-          existingIsDigital: typedPayload.isDigital ?? false,
+          existingIsDigital: command.typedPayload.isDigital ?? false,
           ownerUserId: userId,
           ownerLabel: userEmail,
         );
-        final ownedRef = collectarrTypedOwnedItemRef(typedOwnedItem);
-
-        await ownedItems.upsertTyped(mediaKind, typedOwnedItem);
         await syncQueue.enqueue(
-          _syncChangeForTypedOwnedItem(
-            mediaKind,
-            typedOwnedItem,
-            newItemId,
-            'upsert',
-            now,
+          ownedItems.syncChangeForMutation(
+            persisted,
+            action: 'upsert',
+            changedAt: now,
           ),
         );
 
@@ -133,7 +129,7 @@ final class OwnedItemMutations {
           );
         }
 
-        return ownedRef;
+        return persisted.ref;
       },
       eventsToEmit: [
         OwnedItemAdded(
@@ -168,41 +164,28 @@ final class OwnedItemMutations {
           throw StateError('OwnedItem not found: ${command.ownedRef.key}');
         }
 
-        final typedPayload = typedCommand.payload;
         final mediaKind = typedExistingResult.$1;
-        final typedExisting = typedExistingResult.$2;
         if (command.ownedRef.kind != mediaKind) {
           throw StateError(
             'Owned update reference kind ${command.ownedRef.kind.apiValue} '
             'does not match persisted kind ${mediaKind.apiValue}.',
           );
         }
-        if (!typedPayload.canApplyTo(typedExisting)) {
-          throw StateError(
-            'Owned update payload does not belong to '
-            '${mediaKind.apiValue}: ${command.ownedRef.key}',
-          );
-        }
-        final typedUpdatedItem = typedPayload.applyTo(
-          typedExisting,
+        final persisted = await ownedItems.updateOwned(
+          ref: command.ownedRef,
+          payload: typedCommand.payload,
           updatedAt: now,
           fallbackOwnerUserId: userId,
           fallbackOwnerLabel: userEmail,
         );
-        final updatedRef =
-            collectarrTypedOwnedItemRef(typedUpdatedItem as Object);
-
-        await ownedItems.upsertTyped(mediaKind, typedUpdatedItem);
         await syncQueue.enqueue(
-          _syncChangeForTypedOwnedItem(
-            mediaKind,
-            typedUpdatedItem,
-            command.ownedRef.id.value,
-            'upsert',
-            now,
+          ownedItems.syncChangeForMutation(
+            persisted,
+            action: 'upsert',
+            changedAt: now,
           ),
         );
-        return updatedRef;
+        return persisted.ref;
       },
       eventsToEmit: [OwnedItemUpdated(command.ownedRef)],
     );
@@ -212,18 +195,15 @@ final class OwnedItemMutations {
 
   Future<void> removeItem(OwnedItemRef ref) async {
     final now = DateTime.now().toUtc();
-    final typedExisting = await ownedItems.findTypedByRef(ref);
-    if (typedExisting == null) return;
     await mutationRunner.run(
       action: () async {
-        await ownedItems.markDeletedByRef(ref, now);
+        final persisted = await ownedItems.markDeletedByRef(ref, now);
+        if (persisted == null) return;
         await syncQueue.enqueue(
-          _syncChangeForTypedOwnedItem(
-            typedExisting.$1,
-            typedExisting.$2,
-            ref.id.value,
-            'delete',
-            now,
+          ownedItems.syncChangeForMutation(
+            persisted,
+            action: 'delete',
+            changedAt: now,
           ),
         );
       },
@@ -265,22 +245,6 @@ final class OwnedItemMutations {
       );
     }
     return ref;
-  }
-
-  SyncChange _syncChangeForTypedOwnedItem(
-    CatalogMediaKind kind,
-    Object item,
-    String id,
-    String action,
-    DateTime now,
-  ) {
-    return ownedItems.syncChangeForTyped(
-      kind,
-      item,
-      id: id,
-      action: action,
-      changedAt: now,
-    );
   }
 
   SyncChange _syncChangeForCatalogRef(

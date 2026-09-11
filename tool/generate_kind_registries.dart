@@ -301,11 +301,15 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
   final createPayloadFile = File(
     '${kindDirectory.path}/ownership/${folder}_owned_item_create_payload.dart',
   );
+  final updatePayloadFile = File(
+    '${kindDirectory.path}/ownership/${folder}_owned_item_update_payload.dart',
+  );
   if (!repositoryFile.existsSync() ||
       !projectionFile.existsSync() ||
       !ownedModelFile.existsSync() ||
       !idsFile.existsSync() ||
-      !createPayloadFile.existsSync()) {
+      !createPayloadFile.existsSync() ||
+      !updatePayloadFile.existsSync()) {
     return null;
   }
 
@@ -329,11 +333,16 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
     createPayloadFile,
     RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemCreatePayload)'),
   );
+  final updatePayloadClass = _findClass(
+    updatePayloadFile,
+    RegExp(r'(?:final\s+class|class)\s+(\w+OwnedItemUpdatePayload)'),
+  );
   if (repositoryClass == null ||
       projectionClass == null ||
       ownedIdClass == null ||
       ownedModelClass == null ||
-      createPayloadClass == null) {
+      createPayloadClass == null ||
+      updatePayloadClass == null) {
     throw StateError(
       'Could not discover complete owned persistence for $folder',
     );
@@ -358,6 +367,10 @@ _OwnedPersistence? _discoverOwnedPersistence(Directory kindDirectory) {
     createPayload: _Contributor(
       importPath: _packageImportPath(createPayloadFile),
       className: createPayloadClass,
+    ),
+    updatePayload: _Contributor(
+      importPath: _packageImportPath(updatePayloadFile),
+      className: updatePayloadClass,
     ),
   );
 }
@@ -459,9 +472,12 @@ String _renderRegistry(List<_KindDescriptor> descriptors) {
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
+import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
@@ -511,6 +527,7 @@ import 'package:go_router/go_router.dart';
       persistence.ownedId,
       persistence.ownedModel,
       persistence.createPayload,
+      persistence.updatePayload,
     ]) {
       if (importedContributorPaths.add(contributor.importPath)) {
         buffer.writeln(
@@ -948,6 +965,112 @@ void _renderOwnedPersistenceMaps(
   List<_KindDescriptor> descriptors,
 ) {
   buffer.writeln(
+    'Future<OwnedItemMutationResult> collectarrCreateOwnedItem('
+    'LocalDatabase database, CatalogMediaKind kind, '
+    'OwnedItemCreatePayload payload, {',
+  );
+  buffer.writeln('  required CatalogEntityRef resolvedCatalogRef,');
+  buffer.writeln('  required String id,');
+  buffer.writeln('  required DateTime createdAt,');
+  buffer.writeln('  required bool? existingIsDigital,');
+  buffer.writeln('  required String? ownerUserId,');
+  buffer.writeln('  required String? ownerLabel,');
+  buffer.writeln('}) async {');
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final createPayload = persistence.createPayload.className;
+    buffer.writeln(
+      '  if (kind == CatalogMediaKind.${descriptor.folder}) {',
+    );
+    buffer.writeln(
+      '    if (payload is! $createPayload) throw ArgumentError.value('
+      "payload, 'payload', 'Expected $createPayload for ${descriptor.folder}');",
+    );
+    buffer.writeln(
+      '    final item = payload.toOwnedItem('
+      'resolvedCatalogRef: resolvedCatalogRef, id: id, createdAt: createdAt, '
+      'existingIsDigital: existingIsDigital, ownerUserId: ownerUserId, '
+      'ownerLabel: ownerLabel);',
+    );
+    buffer.writeln('    await $repository(database).upsert(item);');
+    buffer.writeln(
+      '    final serialized = collectarrTypedOwnedItemSyncPayload('
+      'CatalogMediaKind.${descriptor.folder}, item);',
+    );
+    buffer.writeln(
+      '    return OwnedItemMutationResult('
+      'ref: OwnedItemRef(kind: CatalogMediaKind.${descriptor.folder}, '
+      'id: OwnedItemId(item.id.value)), '
+      'syncPayload: serialized.payload, isDeleted: serialized.isDeleted);',
+    );
+    buffer.writeln('  }');
+  }
+  buffer.writeln(
+    "  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');",
+  );
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
+    'Future<OwnedItemMutationResult> collectarrUpdateOwnedItem('
+    'LocalDatabase database, OwnedItemRef ref, '
+    'OwnedItemUpdatePayload<Object?> payload, {',
+  );
+  buffer.writeln('  required DateTime updatedAt,');
+  buffer.writeln('  required String? fallbackOwnerUserId,');
+  buffer.writeln('  required String? fallbackOwnerLabel,');
+  buffer.writeln('}) async {');
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedId = persistence.ownedId.className;
+    final updatePayload = persistence.updatePayload.className;
+    buffer.writeln(
+      '  if (ref.kind == CatalogMediaKind.${descriptor.folder}) {',
+    );
+    buffer.writeln(
+      '    final existing = await $repository(database).findById('
+      '$ownedId(ref.id.value));',
+    );
+    buffer.writeln(
+      "    if (existing == null) throw StateError('Owned item not found');",
+    );
+    buffer.writeln(
+      '    if (payload is! $updatePayload) throw ArgumentError.value('
+      "payload, 'payload', 'Expected $updatePayload for ${descriptor.folder}');",
+    );
+    buffer.writeln(
+      "    if (!payload.canApplyTo(existing)) throw StateError('Owned update "
+      "payload does not belong to ${descriptor.folder}');",
+    );
+    buffer.writeln(
+      '    final updated = payload.applyTo(existing, updatedAt: updatedAt, '
+      'fallbackOwnerUserId: fallbackOwnerUserId, '
+      'fallbackOwnerLabel: fallbackOwnerLabel);',
+    );
+    buffer.writeln('    await $repository(database).upsert(updated);');
+    buffer.writeln(
+      '    final serialized = collectarrTypedOwnedItemSyncPayload('
+      'CatalogMediaKind.${descriptor.folder}, updated);',
+    );
+    buffer.writeln(
+      '    return OwnedItemMutationResult('
+      'ref: OwnedItemRef(kind: CatalogMediaKind.${descriptor.folder}, '
+      'id: OwnedItemId(updated.id.value)), '
+      'syncPayload: serialized.payload, isDeleted: serialized.isDeleted);',
+    );
+    buffer.writeln('  }');
+  }
+  buffer.writeln(
+    "  throw ArgumentError.value(ref.kind, 'ref', 'Unsupported owned kind');",
+  );
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
     'Future<void> collectarrUpsertTypedOwnedItem('
     'LocalDatabase database, CatalogMediaKind kind, Object item) async {',
   );
@@ -1031,7 +1154,7 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
-    'Future<void> collectarrMarkTypedOwnedItemDeleted('
+    'Future<OwnedItemMutationResult?> collectarrMarkTypedOwnedItemDeleted('
     'LocalDatabase database, CatalogMediaKind kind, Object item, '
     'DateTime deletedAt) async {',
   );
@@ -1050,12 +1173,23 @@ void _renderOwnedPersistenceMaps(
     buffer.writeln(
       '    await $repository(database).markDeleted(item, deletedAt);',
     );
-    buffer.writeln('    return;');
+    buffer.writeln(
+      '    final deleted = item.copyWith('
+      'updatedAt: deletedAt, deletedAt: deletedAt);',
+    );
+    buffer.writeln(
+      '    final serialized = collectarrTypedOwnedItemSyncPayload('
+      'CatalogMediaKind.${descriptor.folder}, deleted);',
+    );
+    buffer.writeln(
+      '    return OwnedItemMutationResult('
+      'ref: OwnedItemRef(kind: CatalogMediaKind.${descriptor.folder}, '
+      'id: OwnedItemId(deleted.id.value)), '
+      'syncPayload: serialized.payload, isDeleted: true);',
+    );
     buffer.writeln('  }');
   }
-  buffer.writeln(
-    "  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');",
-  );
+  buffer.writeln('  return null;');
   buffer.writeln('}');
   buffer.writeln();
 
@@ -1382,6 +1516,7 @@ final class _OwnedPersistence {
     required this.ownedId,
     required this.ownedModel,
     required this.createPayload,
+    required this.updatePayload,
   });
 
   final _Contributor repository;
@@ -1389,6 +1524,7 @@ final class _OwnedPersistence {
   final _Contributor ownedId;
   final _Contributor ownedModel;
   final _Contributor createPayload;
+  final _Contributor updatePayload;
 }
 
 final class _VocabularyModule {
