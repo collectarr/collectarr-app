@@ -2,7 +2,10 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_codec_support.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
 
@@ -47,6 +50,15 @@ final class MangaCatalogTransportCodec implements CatalogKindTransportCodec {
     if (metadata is MangaMedia) return metadata;
     return metadata is Map ? MangaMedia.fromJson(item.payload) : null;
   }
+
+  @override
+  CatalogKindDerivedData? derivedDataFromDto(CatalogItemDto item) =>
+      catalogDerivedDataFor(
+        kind: kind,
+        metadata: typedMetadataFromDto(item),
+        pickListContributors: defaultPickListDefinitionContributors,
+        serialAuthorityContributors: collectarrSerialAuthorityContributors,
+      );
 
   @override
   Future<void> upsert(LocalDatabase db, CatalogItemDto item) {

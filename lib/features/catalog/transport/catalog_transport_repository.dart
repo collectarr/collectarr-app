@@ -3,10 +3,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
-import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
@@ -83,23 +81,17 @@ final class CatalogTransportRepository {
     await _db.transaction(() async {
       for (final item in list) {
         final codec = _codecs[item.mediaKind];
-        final typedMetadata = codec?.typedMetadataFromDto(item);
-        if (typedMetadata == null) continue;
+        final derived = codec?.derivedDataFromDto(item);
+        if (derived == null) continue;
 
-        for (final contributor in defaultPickListDefinitionContributors) {
-          if (contributor.kind != item.mediaKind) continue;
-          for (final projected in contributor.catalogValues([typedMetadata])) {
-            await pickLists.captureValuesWithoutTransaction(
-              projected.listName,
-              projected.values,
-              mediaKind: item.mediaKind.apiValue,
-            );
-          }
+        for (final projected in derived.pickListValues) {
+          await pickLists.captureValuesWithoutTransaction(
+            projected.listName,
+            projected.values,
+            mediaKind: item.mediaKind.apiValue,
+          );
         }
-        for (final contributor in collectarrSerialAuthorityContributors) {
-          if (contributor.kind != item.mediaKind) continue;
-          serialCandidates.addAll(contributor.candidates([typedMetadata]));
-        }
+        serialCandidates.addAll(derived.serialCandidates);
       }
       await serialAuthority
           .captureCandidatesWithoutTransaction(serialCandidates);

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 
 /// Explicit schema-v1 transport adapter for one catalog kind.
 ///
@@ -22,6 +23,8 @@ abstract interface class CatalogKindTransportCodec
   );
 
   Object? typedMetadataFromDto(CatalogItemDto item);
+
+  CatalogKindDerivedData? derivedDataFromDto(CatalogItemDto item);
 
   Future<void> upsert(LocalDatabase db, CatalogItemDto item);
 
