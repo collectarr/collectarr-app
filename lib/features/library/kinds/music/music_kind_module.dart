@@ -153,6 +153,20 @@ MusicCatalogMetadata? _musicLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is MusicCatalogMetadata ? metadata : null;
 }
 
+MetadataSearchQuery _musicMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 const musicLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
@@ -185,6 +199,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'musicbrainz',
+    searchQueryBuilder: _musicMetadataSearchQuery,
     supportsServerCompare: true,
     compareBuilder: buildMusicMetadataComparePanels,
     providers: [musicBrainzMetadataProvider],

@@ -192,6 +192,20 @@ AnimeMetadata? _animeLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is AnimeMetadata ? metadata : null;
 }
 
+MetadataSearchQuery _animeMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 const animeLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
@@ -220,6 +234,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'anilist',
+    searchQueryBuilder: _animeMetadataSearchQuery,
     usesTreeProviderCandidates: true,
     providers: [anilistMetadataProvider],
   ),

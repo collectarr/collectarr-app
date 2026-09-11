@@ -139,6 +139,20 @@ GameCatalogMetadata? _gameLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is GameCatalogMetadata ? metadata : null;
 }
 
+MetadataSearchQuery _gameMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getGameFacetValues,
@@ -170,6 +184,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'igdb',
+    searchQueryBuilder: _gameMetadataSearchQuery,
     providers: [igdbMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(

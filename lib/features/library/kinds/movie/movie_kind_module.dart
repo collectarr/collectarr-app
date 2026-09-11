@@ -228,6 +228,20 @@ MovieCatalogMetadata? _movieLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is MovieCatalogMetadata ? metadata : null;
 }
 
+MetadataSearchQuery _movieMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 const movieLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
@@ -256,6 +270,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'tmdb',
+    searchQueryBuilder: _movieMetadataSearchQuery,
     providers: [tmdbMetadataProvider],
   ),
   uiPolicy: const LibraryUiPolicy(

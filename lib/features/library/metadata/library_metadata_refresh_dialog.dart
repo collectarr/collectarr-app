@@ -7,7 +7,6 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -329,13 +328,9 @@ class _LibraryMetadataRefreshDialogState
           if (widget.selectedEntry != null) widget.selectedEntry!,
         ],
       _RefreshScope.missing => widget.shownEntries.where((item) {
-          final adapter = item.dto is WorkspaceDtoAdapter
-              ? item.dto as WorkspaceDtoAdapter
-              : null;
           return item.dto.coverImageUrl == null ||
               item.dto.coverImageUrl!.isEmpty ||
-              adapter?.format == null ||
-              adapter!.format!.isEmpty;
+              item.dto.title.trim().isEmpty;
         }).toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
@@ -345,48 +340,18 @@ class _LibraryMetadataRefreshDialogState
 
   MetadataSearchQuery _inputForEntry(LibraryProjectionView item) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final payload = item.source.catalogTransport?.toSyncPayload() ?? const {};
-    final barcodeVal =
-        (payload['barcode'] ?? payload['upc'])?.toString().trim();
-    if (barcodeVal != null && barcodeVal.isNotEmpty) {
-      return MetadataSearchQuery(
-        query: dto.title,
-        barcode: barcodeVal,
-        limit: 5,
-      );
-    }
-    final publisherVal = (payload['publisher'] ??
-            payload['publishing']?['original_publisher'] ??
-            payload['studio'] ??
-            payload['network'])
-        ?.toString()
-        .trim();
-    return MetadataSearchQuery(
-      query: dto.title,
-      issueNumber: adapter?.itemNumber,
-      publisher: publisherVal,
-      year: adapter?.releaseDate?.year,
-      limit: 5,
+    return widget.type.metadata.searchQueryFor(
+      source: item.source,
+      title: dto.title,
     );
   }
 
   String _describeSearch(LibraryProjectionView item) {
-    final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final payload = item.source.catalogTransport?.toSyncPayload() ?? const {};
-    final barcodeVal =
-        (payload['barcode'] ?? payload['upc'])?.toString().trim();
-    if (barcodeVal != null && barcodeVal.isNotEmpty) {
-      return 'Barcode $barcodeVal';
-    }
-    final parts = [
-      dto.title,
-      if (adapter?.itemNumber != null && adapter!.itemNumber!.isNotEmpty)
-        '#${adapter.itemNumber}',
-      if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),
-    ];
-    return parts.join(' ');
+    final query = _inputForEntry(item);
+    final barcode = query.barcode?.trim();
+    return barcode == null || barcode.isEmpty
+        ? query.query ?? item.dto.title
+        : 'Barcode $barcode';
   }
 
   _RefreshSummary _summary() => _RefreshSummary.fromRows(_rows);

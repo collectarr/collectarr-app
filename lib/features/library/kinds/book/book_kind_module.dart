@@ -230,6 +230,20 @@ BookCatalogMetadata? _bookLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is BookCatalogMetadata ? metadata : null;
 }
 
+MetadataSearchQuery _bookMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getBookFacetValues,
@@ -265,6 +279,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
+    searchQueryBuilder: _bookMetadataSearchQuery,
     providers: [
       hardcoverMetadataProvider,
       openLibraryMetadataProvider,

@@ -1,6 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_provider_models.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+
+typedef LibraryMetadataSearchQueryBuilder = MetadataSearchQuery Function({
+  required LibraryWorkspaceSource source,
+  required String title,
+});
 
 typedef MetadataCompareBuilder = List<Widget> Function(
   BuildContext context, {
@@ -17,6 +24,7 @@ class LibraryMetadataCapability {
     this.supportsServerCompare = false,
     this.usesTreeProviderCandidates = false,
     this.compareBuilder,
+    this.searchQueryBuilder,
   });
 
   final String defaultProviderId;
@@ -24,6 +32,15 @@ class LibraryMetadataCapability {
   final bool supportsServerCompare;
   final bool usesTreeProviderCandidates;
   final MetadataCompareBuilder? compareBuilder;
+  final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;
+
+  MetadataSearchQuery searchQueryFor({
+    required LibraryWorkspaceSource source,
+    required String title,
+  }) {
+    return searchQueryBuilder?.call(source: source, title: title) ??
+        MetadataSearchQuery(query: title, limit: 5);
+  }
 
   List<LibraryMetadataProviderOption> supportedProvidersForKind(
       CatalogMediaKind kind) {

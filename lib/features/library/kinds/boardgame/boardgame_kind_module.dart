@@ -167,6 +167,20 @@ BoardGameMetadata? _boardGameLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is BoardGameMetadata ? metadata : null;
 }
 
+MetadataSearchQuery _boardGameMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 final boardGameLibraryFacetModule =
     TypedLibraryFacetModule<BoardGameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
@@ -196,6 +210,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'bgg',
+    searchQueryBuilder: _boardGameMetadataSearchQuery,
     providers: [bggMetadataProvider],
   ),
   hierarchy: const LibraryHierarchyCapability(

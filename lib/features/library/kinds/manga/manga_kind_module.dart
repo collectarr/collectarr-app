@@ -219,6 +219,21 @@ MangaMetadata? _mangaLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is MangaMetadata ? metadata : null;
 }
 
+MetadataSearchQuery _mangaMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    issueNumber: item?.itemNumber,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getFacetValues,
@@ -254,6 +269,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
+    searchQueryBuilder: _mangaMetadataSearchQuery,
     usesTreeProviderCandidates: true,
     providers: [
       hardcoverMetadataProvider,

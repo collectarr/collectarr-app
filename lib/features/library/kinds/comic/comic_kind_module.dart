@@ -157,6 +157,21 @@ ComicMedia? _comicLinkedMetadata(LibraryWorkspaceSource source) {
   return metadata is ComicMedia ? metadata : null;
 }
 
+MetadataSearchQuery _comicMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final item = source.catalogTransport;
+  return MetadataSearchQuery(
+    query: title,
+    barcode: item?.identifierCode,
+    issueNumber: item?.itemNumber,
+    publisher: item?.publisher,
+    year: item?.releaseYear,
+    limit: 5,
+  );
+}
+
 final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
   loadRows: _loadComicFacetRows,
   getFacetValues: _getFacetValues,
@@ -194,6 +209,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
   ),
   metadata: LibraryMetadataCapability(
     defaultProviderId: 'gcd',
+    searchQueryBuilder: _comicMetadataSearchQuery,
     supportsServerCompare: true,
     usesTreeProviderCandidates: true,
     compareBuilder: buildComicMetadataComparePanels,
