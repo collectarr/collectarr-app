@@ -152,8 +152,9 @@ class LibraryEditDraft {
     TextEditingController create([String text = '']) =>
         textControllers.create(text: text);
 
-    final editionTitle =
-        (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim();
+    final editionTitle = item.mapTransport(
+      (transport) => (item.titleExtension ?? transport.editionTitle)?.trim(),
+    );
 
     final titleController = create(item.title);
     final coverController = create(item.coverImageUrl ?? '');
@@ -222,7 +223,7 @@ class LibraryEditDraft {
           : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
     );
 
-    final editions = item.toTransportItem().editions;
+    final editions = item.mapTransport((transport) => transport.editions);
 
     final editionSelection = resolveLibraryEditionSelection(
       editions,
@@ -370,7 +371,7 @@ class LibraryEditDraft {
     final format = formatHint.label ?? '';
     return type.edit.resolveOwnedDigitalFlag(
           existingOwnedItem == null ? null : existingOwnedItem,
-          item.toTransportItem().editions,
+          item.mapTransport((transport) => transport.editions),
           fallbackFormat: formatHint.format,
           fallbackLabel: format,
           formats: physicalFormats,
@@ -390,13 +391,15 @@ class LibraryEditDraft {
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final editions = item.toTransportItem().editions;
+    final editions = item.mapTransport((transport) => transport.editions);
     final editionSelection = resolveLibraryEditionSelection(
       editions,
       editionId: catalogRefEditionId(ownedItem?.targetRef) ??
           catalogRefEditionId(trackingLifecycle?.catalogRef),
       editionTitle:
-          (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim(),
+          item.mapTransport(
+            (transport) => (item.titleExtension ?? transport.editionTitle)?.trim(),
+          ),
       variantId: catalogRefVariantId(ownedItem?.targetRef) ??
           catalogRefVariantId(trackingLifecycle?.catalogRef),
     );

@@ -22,9 +22,10 @@ class InspectorReleasesSection extends StatelessWidget {
     final runtimeMinutes = video['runtime_minutes'] is num
         ? (video['runtime_minutes'] as num).toInt()
         : null;
-    final editions =
-        request.item.source.catalogTransport?.toTransportItem().editions ??
-            const [];
+    final editions = request.item.source.catalogTransport?.mapTransport(
+          (transport) => transport.editions,
+        ) ??
+        const [];
     final discCount = nrDiscs ??
         editions.fold<int>(
           0,

@@ -40,12 +40,14 @@ LibraryAddCatalogTransport mergeHydratedProviderAddResult({
   required LibraryAddCatalogTransport hydrated,
   required LibraryAddCatalogTransport sourceSelection,
 }) {
-  if (hydrated.toTransportItem().editions.isNotEmpty ||
-      sourceSelection.toTransportItem().editions.isEmpty) {
+  final hydratedEditions =
+      hydrated.mapTransport((transport) => transport.editions);
+  final sourceEditions =
+      sourceSelection.mapTransport((transport) => transport.editions);
+  if (hydratedEditions.isNotEmpty || sourceEditions.isEmpty) {
     return hydrated;
   }
-  return hydrated.copyWith(
-      editions: sourceSelection.toTransportItem().editions);
+  return hydrated.copyWith(editions: sourceEditions);
 }
 
 Future<void> submitProviderIngestCorrections({

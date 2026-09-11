@@ -65,8 +65,10 @@ class InspectorPersonalSection extends StatelessWidget {
     final existingOwnedItem = ownedItem;
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final catalogEditions =
-        item.source.catalogTransport?.toTransportItem().editions ?? const [];
+    final catalogEditions = item.source.catalogTransport?.mapTransport(
+          (transport) => transport.editions,
+        ) ??
+        const [];
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
           item,

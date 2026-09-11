@@ -16,7 +16,7 @@ class VideoEditDiscsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final editions = item.toTransportItem().editions;
+    final editions = item.mapTransport((transport) => transport.editions);
     final allDiscs = <(String, CatalogDiscDto)>[];
     for (final edition in editions) {
       for (final disc in edition.discs) {

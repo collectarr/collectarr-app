@@ -146,8 +146,9 @@ String? preferredVideoEditionVariantId(CatalogEditionDto edition) {
     variantId: releaseNode != null
         ? preferredVideoEditionVariantId(releaseNode.edition)
         : null,
-    editions:
-        catalogItem == null ? const [] : catalogItem.toTransportItem().editions,
+    editions: catalogItem == null
+        ? const []
+        : catalogItem.mapTransport((transport) => transport.editions),
   );
 }
 
