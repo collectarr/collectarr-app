@@ -101,7 +101,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final catalogItemId = widget.item.source.catalogTransport?.id;
+    final catalogItemId = widget.item.source.catalogRef?.rootId ??
+        widget.item.source.catalogRef?.id;
     final loadedCopies = catalogItemId == null
         ? null
         : ref

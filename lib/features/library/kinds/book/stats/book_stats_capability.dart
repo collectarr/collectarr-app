@@ -56,7 +56,7 @@ class BookStatsCapability implements LibraryStatsCapability {
     LibraryKindModule type,
   ) {
     final volumeGap = _numberedGapSummary(
-      state.resolvedWorkspaceEntries,
+      state.entries,
       (entry) {
         final payload = entry.catalogTransport?.payload;
         final rawVolume = payload?['volume_number'] ??

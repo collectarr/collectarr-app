@@ -166,8 +166,8 @@ class _LibraryVideoDetailPageState
     final watchHistoryTargets = <WatchHistoryTargetOption>[
       WatchHistoryTargetOption(
         ref: itemRef,
-        label: request.item.source.catalogTransport?.title ?? 'Item',
-        subtitle: request.item.source.catalogTransport?.title ?? '',
+        label: request.item.source.title,
+        subtitle: request.item.source.catalogSummary?.subtitle ?? '',
       ),
       ...releases.map(
         (release) => WatchHistoryTargetOption(
@@ -207,7 +207,7 @@ class _LibraryVideoDetailPageState
         appBar: AppBar(
           backgroundColor: request.accent,
           foregroundColor: appBarForeground,
-          title: Text(request.item.source.catalogTransport?.title ?? ''),
+          title: Text(request.item.source.title),
           actions: [
             IconButton(
               tooltip: 'Edit metadata and collection fields',

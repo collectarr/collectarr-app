@@ -47,8 +47,7 @@ void main() {
   group('custom field search in generic projection', () {
     test('matches custom field values', () {
       final shelf = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogTransport: testCatalogItem(
@@ -111,8 +110,7 @@ void main() {
 
     test('matches standard fields', () {
       final shelf = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogTransport: testCatalogItem(
@@ -138,8 +136,7 @@ void main() {
 
     test('matches original and display title aliases', () {
       final shelf = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           LibraryWorkspaceSource(
             itemId: 'movie-1',
             catalogTransport: testCatalogItemWithKindMetadata(
@@ -173,8 +170,7 @@ void main() {
 
     test('empty query returns all', () {
       final shelf = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogTransport: testCatalogItem(
@@ -207,8 +203,7 @@ void main() {
 
     test('projection includes custom field search', () {
       final shelf = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           LibraryWorkspaceSource(
             itemId: 'comic-1',
             catalogTransport: testCatalogItem(

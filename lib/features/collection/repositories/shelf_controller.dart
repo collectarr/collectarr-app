@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -13,7 +14,6 @@ import 'package:collectarr_app/features/collection/repositories/item_image_repos
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -21,6 +21,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+export 'package:collectarr_app/core/models/tracking_summary.dart';
 
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final ownedSummaries = await ref.watch(collectionSummariesProvider.future);
@@ -81,7 +82,6 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
 class ShelfState {
   const ShelfState({
     required this.entries,
-    this.workspaceEntries,
     required this.ownedCount,
     required this.wishlistCount,
     required this.pricedCount,
@@ -167,11 +167,12 @@ class ShelfState {
       ...wishlistByCatalogRef.keys,
       ...trackingByCatalogRef.keys,
     };
-    final workspaceEntries = [
+    final entries = [
       for (final ref in refs) ...[
         LibraryWorkspaceSource(
           itemId: ref.id,
-          catalogSummary: resolvedCatalogSummariesByRef[ref],
+          catalogSummary: resolvedCatalogSummariesByRef[ref] ??
+              catalogByRef[ref]?.displaySummary,
           ownedSummary: ownedByCatalogRef[ref],
           trackingSummary: trackingByCatalogRef[ref],
           // Transport snapshots remain available only to the typed Library
@@ -191,24 +192,6 @@ class ShelfState {
         ),
       ],
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    final entries = [
-      for (final ref in refs)
-        LibraryEntry(
-          itemId: ref.id,
-          catalogSummary: resolvedCatalogSummariesByRef[ref],
-          ownedSummary: ownedByCatalogRef[ref],
-          trackingSummary: trackingByCatalogRef[ref],
-          wishlistItem: wishlistByCatalogRef[ref],
-          locationPath:
-              locationPathsById[ownedByCatalogRef[ref]?.locationLabel],
-          watchSessions:
-              watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
-          itemImages: itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref] ??
-              const <ItemImage>[],
-          fallbackOwnerLabel: fallbackOwnerLabel,
-        ),
-    ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-
     final pricedOwned = resolvedOwnedSummaries
         .where((item) => item.pricePaidCents != null && item.currency != null)
         .toList(growable: false);
@@ -219,7 +202,6 @@ class ShelfState {
     final activeOwned = ownedByCatalogRef.values.toList(growable: false);
     return ShelfState(
       entries: entries,
-      workspaceEntries: workspaceEntries,
       ownedCount: ownedByCatalogRef.length,
       wishlistCount: wishlistByCatalogRef.length,
       pricedCount: pricedOwned.length,
@@ -258,35 +240,11 @@ class ShelfState {
     );
   }
 
-  /// Structural mixed/global entries used by Collection and other hosts.
-  final List<LibraryEntry> entries;
-
-  /// Full source entries used only after a kind-specific Library workspace is
-  /// selected. The fallback keeps existing fixture construction source
-  /// compatible while production state supplies this list explicitly.
-  final List<LibraryWorkspaceSource>? workspaceEntries;
-
-  /// Production callers provide the post-dispatch sources explicitly. The
-  /// runtime fallback only recognizes concrete [LibraryWorkspaceSource] values that may
-  /// still be supplied by lightweight fixtures; structural [LibraryEntry]
-  /// values are never widened back into workspace sources.
-  List<LibraryWorkspaceSource> get resolvedWorkspaceEntries {
-    final sources = workspaceEntries;
-    if (sources != null) return sources;
-    return [
-      for (final entry in entries)
-        if (entry case final LibraryWorkspaceSource source) source,
-    ];
-  }
-
-  LibraryWorkspaceSource? workspaceEntryFor(String itemId) {
-    for (final entry in resolvedWorkspaceEntries) {
-      if (entry.itemId == itemId) return entry;
-    }
-    return null;
-  }
-
   final int ownedCount;
+
+  /// Structural workspace sources used by mixed Shelf hosts and by the
+  /// kind-specific Library projection pipeline.
+  final List<LibraryWorkspaceSource> entries;
 
   /// Aggregate projection for the Stats dashboard. Keep kind semantics in
   /// their contributors rather than exposing them as universal Shelf filters.
@@ -312,10 +270,8 @@ class ShelfState {
   }
 }
 
-/// Workspace source carrying the transport snapshot required by the current
-/// kind-specific Library projectors. Mixed Shelf state remains represented by
-/// [LibraryEntry]; this source is only created after the workspace selects a
-/// concrete library kind.
+/// Workspace source carrying the structural summary and the transport
+/// snapshot required by the current kind-specific Library projectors.
 CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   final rootId = ref.rootId;
   if (rootId != null && rootId.isNotEmpty) {

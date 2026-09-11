@@ -363,8 +363,7 @@ void main() {
       expect(comicConfig.releaseCapability, isNull);
 
       final shelf = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           LibraryWorkspaceSource(
             itemId: 'comic_1',
             catalogTransport: testCatalogItem(

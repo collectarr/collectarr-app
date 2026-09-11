@@ -10,7 +10,6 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
@@ -77,7 +76,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             tooltip: 'Import…',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
-                    state.resolvedWorkspaceEntries,
+                    state.entries,
                     initialIndex: 1,
                   ),
               orElse: () => null,
@@ -88,7 +87,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             tooltip: 'Export…',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
-                    state.resolvedWorkspaceEntries,
+                    state.entries,
                     initialIndex: 0,
                   ),
               orElse: () => null,
@@ -124,8 +123,6 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                     itemBuilder: (context, index) {
                       return _LibraryWorkspaceSourceRow(
                         entry: entries[index],
-                        workspaceEntry:
-                            state.workspaceEntryFor(entries[index].itemId),
                         onRemoveOwned: () => _removeOwned(entries[index]),
                         onRemoveWishlist: () => _removeWishlist(entries[index]),
                       );
@@ -143,8 +140,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     );
   }
 
-  List<LibraryEntry> _filteredEntries(
-    List<LibraryEntry> entries,
+  List<LibraryWorkspaceSource> _filteredEntries(
+    List<LibraryWorkspaceSource> entries,
     Set<OwnedItemRef> overdueOwnedRefs,
   ) {
     return switch (filter) {
@@ -162,7 +159,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     };
   }
 
-  Future<void> _removeOwned(LibraryEntry entry) async {
+  Future<void> _removeOwned(LibraryWorkspaceSource entry) async {
     final ownedRef = entry.ownedSummary?.ref;
     if (ownedRef == null) {
       return;
@@ -171,7 +168,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _removeWishlist(LibraryEntry entry) async {
+  Future<void> _removeWishlist(LibraryWorkspaceSource entry) async {
     final catalogRef = entry.catalogRef;
     if (!entry.isWishlisted || catalogRef == null) {
       return;

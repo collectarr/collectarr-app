@@ -16,8 +16,7 @@ void main() {
     tester,
   ) async {
     final state = ShelfState(
-      entries: const [],
-      workspaceEntries: [
+      entries: [
         LibraryWorkspaceSource(
           itemId: 'music-1',
           catalogTransport: testCatalogItemWithKindMetadata(
@@ -75,8 +74,7 @@ void main() {
     tester,
   ) async {
     final state = ShelfState(
-      entries: const [],
-      workspaceEntries: [
+      entries: [
         LibraryWorkspaceSource(
           itemId: 'game-1',
           locationPath: 'Office › Shelf A',
@@ -165,8 +163,7 @@ void main() {
   testWidgets('comic stats dashboard surfaces missing issue gaps',
       (tester) async {
     final state = ShelfState(
-      entries: const [],
-      workspaceEntries: [
+      entries: [
         for (final itemNumber in ['1', '2', '4'])
           LibraryWorkspaceSource(
             itemId: 'comic-$itemNumber',
@@ -221,8 +218,7 @@ void main() {
   testWidgets('comic stats dashboard surfaces missing volume gaps',
       (tester) async {
     final state = ShelfState(
-      entries: const [],
-      workspaceEntries: [
+      entries: [
         for (final volume in [1, 3])
           LibraryWorkspaceSource(
             itemId: 'comic-volume-$volume',
@@ -279,8 +275,7 @@ void main() {
   testWidgets('movie stats dashboard surfaces missing season gaps',
       (tester) async {
     final state = ShelfState(
-      entries: const [],
-      workspaceEntries: [
+      entries: [
         for (final season in [1, 3])
           LibraryWorkspaceSource(
             itemId: 'movie-season-$season',

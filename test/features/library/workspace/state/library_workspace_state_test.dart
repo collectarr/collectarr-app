@@ -76,8 +76,7 @@ void main() {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           testLibraryWorkspaceSource(
               itemId: '1', kind: 'comic', title: 'Batman #1'),
           testLibraryWorkspaceSource(
@@ -137,8 +136,7 @@ void main() {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           testLibraryWorkspaceSource(
               itemId: '1', kind: 'comic', title: 'Batman #1'),
           testLibraryWorkspaceSource(
@@ -193,8 +191,7 @@ void main() {
       final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
 
       final mockShelfState = ShelfState(
-        entries: const [],
-        workspaceEntries: [
+        entries: [
           testLibraryWorkspaceSource(
             itemId: '1',
             kind: 'comic',

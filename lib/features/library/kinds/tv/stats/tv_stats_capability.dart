@@ -54,7 +54,7 @@ class TvStatsCapability implements LibraryStatsCapability {
     LibraryKindModule type,
   ) {
     final seasonGap = _numberedGapSummary(
-      state.resolvedWorkspaceEntries,
+      state.entries,
       (entry) {
         final payload = entry.catalogTransport?.payload;
         final rawSeason = payload?['season_number'] ??

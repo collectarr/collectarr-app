@@ -13,7 +13,8 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 /// Mixed/global Shelf consumers use [CatalogDisplaySummary],
 /// [OwnedItemSummary] and refs. This source additionally carries the opaque
 /// selected catalog transport needed by the owning kind's workspace projector.
-/// It is deliberately not a subtype of the mixed [LibraryEntry] model.
+/// It is the concrete workspace source used by both mixed Shelf hosts and
+/// kind-dispatched Library pages.
 final class LibraryWorkspaceSource {
   const LibraryWorkspaceSource({
     required this.itemId,
@@ -45,6 +46,19 @@ final class LibraryWorkspaceSource {
   /// Concrete kind-owned aggregate available after dispatch. Mixed/global
   /// callers must use [ownedSummary] instead.
   final Object? typedOwnedItem;
+
+  /// Structural search aliases captured at the catalog boundary. Generic
+  /// search may index these values but never inspects the transport payload.
+  Iterable<String> get catalogSearchTokens sync* {
+    final transport = catalogTransport;
+    if (transport == null) return;
+    yield* [
+      if (transport.displayTitle case final value?) value,
+      if (transport.localizedTitle case final value?) value,
+      if (transport.originalTitle case final value?) value,
+      ...?transport.searchAliases,
+    ];
+  }
 
   CatalogEntityRef? get catalogRef =>
       catalogSummary?.ref ??
@@ -109,8 +123,6 @@ final class LibraryWorkspaceSource {
   String? get ownerLabel => ownedSummary?.ownerLabel ?? fallbackOwnerLabel;
 
   int get quantity => ownedSummary?.quantity ?? 0;
-
-  Object? get kindMetadata => catalogTransport?.kindMetadata;
 
   int? get pricePaidCents => ownedSummary?.pricePaidCents;
   int? get sellPriceCents => ownedSummary?.sellPriceCents;

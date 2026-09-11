@@ -385,14 +385,13 @@ _MetadataHealth _buildMetadataHealth(
 
   final dto = item.dto;
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final catalogItem = item.source.catalogTransport;
   addSignal(
     present: dto.coverImageUrl != null && dto.coverImageUrl!.isNotEmpty,
     weight: 18,
     missingLabel: 'Cover image',
   );
   addSignal(
-    present: catalogItem?.synopsis?.trim().isNotEmpty ?? false,
+    present: adapter?.synopsis?.trim().isNotEmpty ?? false,
     weight: 16,
     missingLabel: 'Synopsis',
   );

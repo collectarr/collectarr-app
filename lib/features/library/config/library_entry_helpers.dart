@@ -19,10 +19,8 @@ const _variantAnchor = 'variant';
 const _bundleReleaseAnchor = 'bundle_release';
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
-  final kind = item.source.catalogTransport?.mediaKind;
-  if (kind == null) {
-    return null;
-  }
+  final kind = item.source.mediaKind;
+  if (kind.isUnknown) return null;
   return libraryKindModuleForKind(kind).hierarchy.contractDiagnosticLabel(item);
 }
 

@@ -45,32 +45,17 @@ enum ReportColumn {
       ReportColumn.condition => '',
       ReportColumn.grade =>
         collectionValueReader?.call(item.source.ownedSummary) ?? '',
-      ReportColumn.publisher =>
-        (item.source.catalogTransport?.toSyncPayload()['publisher'] ??
-                    (item.source.catalogTransport?.toSyncPayload()['publishing']
-                        as Map<String, dynamic>?)?['original_publisher'] ??
-                    item.source.catalogTransport?.toSyncPayload()['studio'] ??
-                    item.source.catalogTransport?.toSyncPayload()['network'])
-                ?.toString() ??
-            '',
-      ReportColumn.barcode =>
-        (item.source.catalogTransport?.toSyncPayload()['barcode'] ??
-                    item.source.catalogTransport?.toSyncPayload()['upc'])
-                ?.toString() ??
-            '',
-      ReportColumn.barcodeImage =>
-        (item.source.catalogTransport?.toSyncPayload()['barcode'] ??
-                    item.source.catalogTransport?.toSyncPayload()['upc'])
-                ?.toString() ??
-            '',
+      // These fields are kind semantics. Mixed reports must not inspect
+      // transport payload keys; typed report contributors can provide them.
+      ReportColumn.publisher => '',
+      ReportColumn.barcode => '',
+      ReportColumn.barcodeImage => '',
       ReportColumn.year => adapter?.releaseDate?.year.toString() ?? '',
       ReportColumn.format => adapter?.referenceFormatLabel ??
           adapter?.format ??
           adapter?.variant ??
           '',
-      ReportColumn.creator =>
-        item.source.catalogTransport?.toSyncPayload()['creator']?.toString() ??
-            '',
+      ReportColumn.creator => '',
       // Tags are kind-owned and are intentionally not flattened here.
       ReportColumn.tags => '',
       ReportColumn.location => item.source.locationPath ?? '',

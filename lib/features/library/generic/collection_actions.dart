@@ -45,9 +45,9 @@ class LibraryCollectionActions {
       ownedItem: item.source.ownedSummary,
       wishlistItem: item.source.wishlistItem,
     );
-    return wishlistMutations.addToWishlist(
-      item.source.catalogTransport!.catalogRefForTarget(targetRef),
-    );
+    final catalogRef = targetRef ?? item.source.catalogRef;
+    if (catalogRef == null) return Future<void>.value();
+    return wishlistMutations.addToWishlist(catalogRef);
   }
 
   Future<void> removeWishlist(LibraryProjectionItem item) {
@@ -58,7 +58,7 @@ class LibraryCollectionActions {
     );
     return wishlistMutations.removeFromWishlist(
       wishlistItemId: item.source.wishlistItem?.id,
-      catalogRef: item.source.catalogTransport!.catalogRefForTarget(targetRef),
+      catalogRef: targetRef ?? item.source.catalogRef,
     );
   }
 }

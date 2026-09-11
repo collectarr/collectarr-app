@@ -48,12 +48,10 @@ class LibrarySearchIndex {
     }
 
     add(dto.title);
-    final catalogTransport = source.catalogTransport;
-    add(catalogTransport?.displayTitle);
-    add(catalogTransport?.localizedTitle);
-    add(catalogTransport?.originalTitle);
-    for (final alias in catalogTransport?.searchAliases ?? const <String>[]) {
-      add(alias);
+    add(source.catalogSummary?.title);
+    add(source.catalogSummary?.subtitle);
+    for (final token in source.catalogSearchTokens) {
+      add(token);
     }
     add(adapter?.seriesTitle);
     add(adapter?.itemNumber);

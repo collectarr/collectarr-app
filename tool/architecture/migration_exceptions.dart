@@ -569,13 +569,6 @@ const architectureMigrationExceptions = <ArchitectureMigrationException>[
   ),
   ArchitectureMigrationException(
     ruleId: 'TK009',
-    path: 'lib/features/library/models/library_entry.dart',
-    reason: 'typed catalog migration boundary',
-    owner: 'catalog-cutover',
-    removeByPhase: 'Phase 3',
-  ),
-  ArchitectureMigrationException(
-    ruleId: 'TK009',
     path:
         'lib/features/library/workspace/data/library_workspace_repository.dart',
     reason: 'typed catalog migration boundary',

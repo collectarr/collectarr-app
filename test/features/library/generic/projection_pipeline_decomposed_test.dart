@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -343,21 +342,7 @@ void main() {
       ];
 
       final shelf = ShelfState(
-        entries: [
-          for (final it in items)
-            LibraryEntry(
-              itemId: it.source.itemId,
-              catalogSummary: it.source.catalogSummary,
-              ownedSummary: it.source.ownedSummary,
-              trackingSummary: it.source.trackingSummary,
-              wishlistItem: it.source.wishlistItem,
-              locationPath: it.source.locationPath,
-              watchSessions: it.source.watchSessions,
-              itemImages: it.source.itemImages,
-              fallbackOwnerLabel: it.source.fallbackOwnerLabel,
-            ),
-        ],
-        workspaceEntries: [for (final it in items) it.source],
+        entries: [for (final it in items) it.source],
         ownedCount: 2,
         wishlistCount: 0,
         pricedCount: 0,

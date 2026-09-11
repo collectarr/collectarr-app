@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
 
 export 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';

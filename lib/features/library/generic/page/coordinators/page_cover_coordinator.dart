@@ -24,7 +24,7 @@ class LibraryPageCoverCoordinator {
     final service = ImageDownloadService(imagesRepo: imagesRepo);
 
     final itemsToCover = <OwnedItemRef, String?>{};
-    for (final entry in shelfState.resolvedWorkspaceEntries) {
+    for (final entry in shelfState.entries) {
       final ownedRef = entry.ownedRef;
       if (ownedRef == null) continue;
       itemsToCover[ownedRef] = entry.catalogSummary?.imageUrl;

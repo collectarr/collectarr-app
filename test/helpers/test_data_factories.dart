@@ -596,6 +596,9 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
           ?.call();
   return LibraryWorkspaceSource(
     itemId: itemId,
+    catalogSummary: LibraryAddCatalogTransport.fromItem(
+      testCatalogItemWithKindMetadata(resolvedCatalogItem),
+    ).displaySummary,
     catalogTransport: LibraryAddCatalogTransport.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),

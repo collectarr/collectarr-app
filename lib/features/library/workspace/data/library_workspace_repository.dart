@@ -24,7 +24,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
       (previous, next) {
         if (next is AsyncData<ShelfState>) {
           controller.add(
-            _processEntries(next.value.resolvedWorkspaceEntries, query),
+            _processEntries(next.value.entries, query),
           );
         } else if (next is AsyncError<ShelfState>) {
           controller.addError(next.error, next.stackTrace);

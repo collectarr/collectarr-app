@@ -43,8 +43,8 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindModule type,
   ) {
-    final tracks = totalTracks(state.resolvedWorkspaceEntries);
-    final media = totalMedia(state.resolvedWorkspaceEntries);
+    final tracks = totalTracks(state.entries);
+    final media = totalMedia(state.entries);
     return [
       if (tracks > 0)
         LibraryStatsTileDescriptor(
@@ -70,11 +70,11 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return [
       LibraryStatsRankedCard(
         title: 'Top Genres',
-        values: countGenres(state.resolvedWorkspaceEntries),
+        values: countGenres(state.entries),
       ),
       LibraryStatsDistributionCard(
         title: 'Formats',
-        values: countFormats(state.resolvedWorkspaceEntries),
+        values: countFormats(state.entries),
       ),
     ];
   }

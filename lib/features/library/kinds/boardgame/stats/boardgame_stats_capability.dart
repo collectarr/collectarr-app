@@ -48,8 +48,8 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindModule type,
   ) {
-    final averageRating = averageBggRating(state.resolvedWorkspaceEntries);
-    final bestRank = bestBggRank(state.resolvedWorkspaceEntries);
+    final averageRating = averageBggRating(state.entries);
+    final bestRank = bestBggRank(state.entries);
     return [
       if (averageRating != null)
         LibraryStatsTileDescriptor(
@@ -75,20 +75,19 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
     return [
       LibraryStatsRankedCard(
         title: 'Top Mechanics',
-        values: countMechanics(state.resolvedWorkspaceEntries),
+        values: countMechanics(state.entries),
       ),
       LibraryStatsRankedCard(
         title: 'Top Categories',
-        values: countCategories(state.resolvedWorkspaceEntries),
+        values: countCategories(state.entries),
       ),
       LibraryStatsRankedCard(
         title: 'Top Designers',
-        values: countDesigners(state.resolvedWorkspaceEntries),
+        values: countDesigners(state.entries),
       ),
       BoardGamePlayStatsCard(
         mediaIds: [
-          for (final entry in state.resolvedWorkspaceEntries)
-            BoardGameMediaId(entry.itemId),
+          for (final entry in state.entries) BoardGameMediaId(entry.itemId),
         ],
       ),
     ];

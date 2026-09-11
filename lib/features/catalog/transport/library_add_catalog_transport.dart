@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
@@ -51,6 +52,12 @@ final class LibraryAddCatalogTransport {
   String get resolvedDisplayTitle => _item.resolvedDisplayTitle;
   String? get displayCoverUrl => _item.displayCoverUrl;
   CatalogEntityRef get catalogRef => _item.catalogRef;
+  CatalogDisplaySummary get displaySummary => CatalogDisplaySummary(
+        ref: catalogRef,
+        kind: mediaKind,
+        title: resolvedDisplayTitle,
+        imageUrl: displayCoverUrl,
+      );
   Map<String, dynamic> toSyncPayload() => _item.toSyncPayload();
 
   CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {

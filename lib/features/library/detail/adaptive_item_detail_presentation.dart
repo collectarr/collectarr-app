@@ -25,7 +25,7 @@ Future<void> showAdaptiveItemDetail({
 }) {
   final windowClass = AppWindowClass.of(context);
   final title =
-      item.source.catalogTransport?.title ?? type.identity.singularLabel;
+      item.source.catalogSummary?.title ?? type.identity.singularLabel;
   final kind = LibraryAccentScope.of(context).kind;
 
   if (windowClass.isCompact) {
