@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_integration.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/providers/musicbrainz/music_musicbrainz_mapper.dart';
@@ -92,7 +93,9 @@ void main() {
 
   test('MusicBrainz mapper rejects non-Music envelopes', () {
     expect(
-      () => MusicMusicBrainzMapper.fromEnvelope(_envelope(kind: 'anime')),
+      () => MusicMusicBrainzMapper.fromEnvelope(
+        _envelope(kind: CatalogMediaKind.anime),
+      ),
       throwsA(isA<StateError>()),
     );
   });
@@ -128,7 +131,7 @@ void main() {
     final nodes = MusicHierarchyMapper.toLibraryNodes(release);
     expect(nodes, hasLength(1));
     expect(nodes.single.level, LibraryHierarchyLevel.container);
-    expect(nodes.single.secondaryLabel, 'Vinyl ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· 2 tracks');
+    expect(nodes.single.secondaryLabel, 'Vinyl · 2 tracks');
     expect(nodes.single.children, hasLength(2));
     expect(nodes.single.children.first.level, LibraryHierarchyLevel.leaf);
     expect(nodes.single.children.first.secondaryLabel, '1:01');
@@ -210,7 +213,7 @@ void main() {
 }
 
 ProviderMetadataEnvelope _envelope({
-  String kind = 'music',
+  CatalogMediaKind kind = CatalogMediaKind.music,
   Map<String, dynamic> normalized = const {},
 }) {
   return ProviderMetadataEnvelope(

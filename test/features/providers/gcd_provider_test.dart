@@ -154,7 +154,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'gcd');
       expect(envelope.providerItemId, '12345');
-      expect(envelope.kind, 'comic');
+      expect(envelope.kind, CatalogMediaKind.comic);
       expect(envelope.normalized['title'], 'The Amazing Spider-Man #300');
       expect(envelope.normalized['series_title'], 'The Amazing Spider-Man');
       expect(envelope.normalized['item_number'], '300');

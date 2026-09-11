@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import '../domain/models/provider_attribution.dart';
 import '../domain/models/provider_image_ref.dart';
 import '../domain/models/provider_provenance.dart';
@@ -21,7 +22,7 @@ class ProviderMetadataEnvelope {
   final String schemaVersion;
   final String provider;
   final String providerItemId;
-  final String kind;
+  final CatalogMediaKind kind;
   final Map<String, dynamic> normalized;
   final ProviderProvenance provenance;
   final List<ProviderImageRef> images;
@@ -34,7 +35,7 @@ class ProviderMetadataEnvelope {
     return ProviderMetadataEnvelope(
       provider: preview.provider,
       providerItemId: itemId,
-      kind: preview.kind,
+      kind: catalogMediaKindFromApiValue(preview.kind),
       normalized: {
         'title': preview.title,
         'item_number': preview.itemNumber,
@@ -127,7 +128,7 @@ class ProviderMetadataEnvelope {
       schemaVersion: json['schema_version']?.toString() ?? 'v1',
       provider: json['provider']?.toString() ?? '',
       providerItemId: json['provider_item_id']?.toString() ?? '',
-      kind: json['kind']?.toString() ?? '',
+      kind: catalogMediaKindFromApiValue(json['kind']?.toString()),
       normalized: normalized,
       provenance: provenance,
       images: images,
@@ -140,7 +141,7 @@ class ProviderMetadataEnvelope {
       'schema_version': schemaVersion,
       'provider': provider,
       'provider_item_id': providerItemId,
-      'kind': kind,
+      'kind': kind.apiValue,
       'normalized': normalized,
       'provenance': provenance.toJson(),
       'images': images.map((img) => img.toJson()).toList(growable: false),

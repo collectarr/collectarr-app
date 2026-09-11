@@ -196,7 +196,7 @@ void main() {
       final envelope = await provider.fetchItem('OL82563M');
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'openlibrary');
-      expect(envelope.kind, 'book');
+      expect(envelope.kind, CatalogMediaKind.book);
       expect(envelope.normalized['title'], 'The Fellowship of the Ring');
       expect(envelope.normalized['subtitle'],
           'Being the First Part of The Lord of the Rings');

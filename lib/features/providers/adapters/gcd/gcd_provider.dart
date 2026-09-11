@@ -155,7 +155,7 @@ class GCDProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: issueId,
-      kind: CatalogMediaKind.comic.apiValue,
+      kind: CatalogMediaKind.comic,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

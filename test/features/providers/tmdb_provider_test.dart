@@ -199,7 +199,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'tmdb');
       expect(envelope.providerItemId, '550');
-      expect(envelope.kind, 'movie');
+      expect(envelope.kind, CatalogMediaKind.movie);
       expect(envelope.normalized['title'], 'Fight Club');
       expect(envelope.normalized['runtime_minutes'], 139);
       expect(envelope.normalized['publisher'], '20th Century Fox');

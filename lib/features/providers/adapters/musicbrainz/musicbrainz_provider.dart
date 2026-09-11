@@ -168,7 +168,7 @@ class MusicBrainzProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: id,
-      kind: CatalogMediaKind.music.apiValue,
+      kind: CatalogMediaKind.music,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

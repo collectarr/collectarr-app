@@ -196,7 +196,7 @@ class BGGProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: cleanId,
-      kind: 'boardgame',
+      kind: CatalogMediaKind.boardgame,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

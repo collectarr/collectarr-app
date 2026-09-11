@@ -64,7 +64,7 @@ void main() {
   test('Manga provider mapper decodes only Manga envelopes', () {
     const mapper = MangaLibraryKindProviderMapper();
     final envelope = _envelope(
-      kind: 'manga',
+      kind: CatalogMediaKind.manga,
       normalized: {
         'title': 'Nausicaa',
         'series_title': 'Nausicaa',
@@ -80,7 +80,9 @@ void main() {
     expect(
         mapper.catalogFromEnvelope(envelope).mediaKind, CatalogMediaKind.manga);
     expect(
-      () => mapper.metadataFromEnvelope(_envelope(kind: 'anime')),
+      () => mapper.metadataFromEnvelope(
+        _envelope(kind: CatalogMediaKind.anime),
+      ),
       throwsA(isA<StateError>()),
     );
   });
@@ -103,7 +105,7 @@ void main() {
 }
 
 ProviderMetadataEnvelope _envelope({
-  required String kind,
+  required CatalogMediaKind kind,
   Map<String, dynamic> normalized = const {},
 }) {
   return ProviderMetadataEnvelope(

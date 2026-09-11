@@ -113,9 +113,9 @@ final class AnimeAniListMapper {
         'Anime AniList integration received ${envelope.provider} data',
       );
     }
-    if (catalogMediaKindFromApiValue(envelope.kind) != CatalogMediaKind.anime) {
+    if (envelope.kind != CatalogMediaKind.anime) {
       throw StateError(
-        'Anime AniList integration received ${envelope.kind} data',
+        'Anime AniList integration received ${envelope.kind.apiValue} data',
       );
     }
   }

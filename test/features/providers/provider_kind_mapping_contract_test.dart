@@ -266,7 +266,7 @@ ProviderMetadataEnvelope _envelopeFor(_ProviderKindCase testCase) {
   return ProviderMetadataEnvelope(
     provider: testCase.provider,
     providerItemId: testCase.providerItemId,
-    kind: testCase.kind.apiValue,
+    kind: testCase.kind,
     normalized: normalized,
     provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),
     images: [
@@ -337,7 +337,7 @@ void main() {
       final envelope = ProviderMetadataEnvelope(
         provider: 'contract-test',
         providerItemId: 'wrong-kind',
-        kind: wrongKind.apiValue,
+        kind: wrongKind,
         normalized: const {'title': 'Wrong kind'},
         provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),
         images: const [],

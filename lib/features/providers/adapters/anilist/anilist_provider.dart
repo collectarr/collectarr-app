@@ -287,7 +287,7 @@ class AniListProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
-      kind: resolvedKind,
+      kind: catalogMediaKindFromApiValue(resolvedKind),
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

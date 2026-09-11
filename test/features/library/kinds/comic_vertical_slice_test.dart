@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
@@ -180,7 +181,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'comicvine',
           providerItemId: '4000-12345',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           normalized: const {
             'title': 'Amazing Fantasy #15',
             'series_title': 'Amazing Fantasy',

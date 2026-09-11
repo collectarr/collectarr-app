@@ -96,7 +96,7 @@ void main() {
     final envelope = ProviderMetadataEnvelope(
       provider: 'tmdb',
       providerItemId: '1396',
-      kind: 'tv',
+      kind: CatalogMediaKind.tv,
       normalized: const {
         'title': 'Breaking Bad',
         'status': 'Ended',
@@ -120,7 +120,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '872585',
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           normalized: const {'title': 'Wrong kind'},
           images: const [],
           provenance: const ProviderProvenance(fetchedAt: ''),

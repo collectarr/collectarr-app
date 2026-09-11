@@ -304,9 +304,9 @@ final class MusicMusicBrainzMapper {
         'Music MusicBrainz integration received ${envelope.provider} data',
       );
     }
-    if (catalogMediaKindFromApiValue(envelope.kind) != CatalogMediaKind.music) {
+    if (envelope.kind != CatalogMediaKind.music) {
       throw StateError(
-        'Music MusicBrainz integration received ${envelope.kind} data',
+        'Music MusicBrainz integration received ${envelope.kind.apiValue} data',
       );
     }
   }

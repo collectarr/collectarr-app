@@ -209,7 +209,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'igdb');
       expect(envelope.providerItemId, '1942');
-      expect(envelope.kind, 'game');
+      expect(envelope.kind, CatalogMediaKind.game);
       expect(envelope.normalized['title'], 'The Witcher 3: Wild Hunt');
       expect(envelope.normalized['publisher'], 'CD PROJEKT RED');
       expect(envelope.normalized['audience_rating'], '92.0');

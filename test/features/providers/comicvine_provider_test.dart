@@ -185,7 +185,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'comicvine');
       expect(envelope.providerItemId, '4000-160294');
-      expect(envelope.kind, 'comic');
+      expect(envelope.kind, CatalogMediaKind.comic);
       expect(envelope.normalized['title'], 'Absolute Batman #1');
       expect(envelope.normalized['series_title'], 'Absolute Batman');
       expect(envelope.normalized['item_number'], '1');

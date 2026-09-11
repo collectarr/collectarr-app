@@ -191,7 +191,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'igdb',
           providerItemId: '1234',
-          kind: 'game',
+          kind: CatalogMediaKind.game,
           normalized: const {
             'title': 'Super Mario 64',
             'platform': 'Nintendo 64',

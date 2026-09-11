@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
@@ -15,7 +16,7 @@ void main() {
         schemaVersion: 'v1',
         provider: 'openlibrary',
         providerItemId: 'OL12345W',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         normalized: {
           'title': 'The Hobbit',
           'page_count': 310,
@@ -49,7 +50,7 @@ void main() {
       expect(restored, equals(envelope));
       expect(restored.provider, 'openlibrary');
       expect(restored.providerItemId, 'OL12345W');
-      expect(restored.kind, 'book');
+      expect(restored.kind, CatalogMediaKind.book);
       expect(restored.normalized['title'], 'The Hobbit');
       expect(restored.provenance.fetchedAt, '2026-08-17T12:00:00Z');
       expect(restored.images, hasLength(1));
@@ -93,7 +94,7 @@ void main() {
         expect(envelope.schemaVersion, 'v1');
         expect(envelope.provider, isNotEmpty);
         expect(envelope.providerItemId, isNotEmpty);
-        expect(envelope.kind, isNotEmpty);
+        expect(envelope.kind, isNot(CatalogMediaKind.unknown));
         expect(envelope.normalized, isNotEmpty);
         expect(envelope.normalized['title'], isNotNull);
         expect(envelope.provenance.fetchedAt, isNotEmpty);
@@ -106,7 +107,7 @@ void main() {
         final reSerialized = envelope.toJson();
         expect(reSerialized['provider'], envelope.provider);
         expect(reSerialized['provider_item_id'], envelope.providerItemId);
-        expect(reSerialized['kind'], envelope.kind);
+        expect(reSerialized['kind'], envelope.kind.apiValue);
         expect(reSerialized['schema_version'], 'v1');
       }
 
@@ -142,7 +143,7 @@ void main() {
       final comicEnvelope = ProviderMetadataEnvelope(
         provider: 'gcd',
         providerItemId: '123',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         normalized: {
           'title': 'Spider-Man',
           'item_number': '300',

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -148,7 +149,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '1396',
-          kind: 'tv',
+          kind: CatalogMediaKind.tv,
           normalized: const {
             'title': 'Breaking Bad',
             'status': 'Ended',

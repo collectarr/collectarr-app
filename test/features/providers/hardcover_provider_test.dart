@@ -212,7 +212,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'hardcover');
       expect(envelope.providerItemId, '1234');
-      expect(envelope.kind, 'book');
+      expect(envelope.kind, CatalogMediaKind.book);
       expect(envelope.normalized['title'], 'Dune');
       expect(envelope.normalized['synopsis'],
           contains('Set on the desert planet'));

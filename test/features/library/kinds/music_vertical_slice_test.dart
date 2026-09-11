@@ -176,7 +176,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'musicbrainz',
           providerItemId: 'mb_123',
-          kind: 'music',
+          kind: CatalogMediaKind.music,
           normalized: const {
             'title': 'Abbey Road',
             'artist': 'The Beatles',

@@ -189,7 +189,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: '123',
-          kind: 'manga',
+          kind: CatalogMediaKind.manga,
           normalized: const {
             'title': 'Frieren',
             'publisher': 'Shogakukan',

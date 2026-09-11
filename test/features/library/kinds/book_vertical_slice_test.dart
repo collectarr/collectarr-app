@@ -160,7 +160,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'openlibrary',
           providerItemId: 'OL12345M',
-          kind: 'book',
+          kind: CatalogMediaKind.book,
           normalized: const {
             'title': 'Dune',
             'subtitle': 'Part One',
@@ -198,7 +198,7 @@ void main() {
       final envelope = ProviderMetadataEnvelope(
         provider: 'comicvine',
         providerItemId: 'comic-1',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         normalized: const {'title': 'Wrong kind'},
         images: const [],
         provenance: ProviderProvenance(fetchedAt: ''),

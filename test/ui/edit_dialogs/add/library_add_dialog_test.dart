@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 import '../../../helpers/test_constants.dart';
 import '../../../helpers/json_test_helpers.dart';
@@ -2767,7 +2768,7 @@ class _FakeMetadataProvider implements MetadataCapability {
       return ProviderMetadataEnvelope(
         provider: name,
         providerItemId: providerItemId,
-        kind: 'music',
+        kind: CatalogMediaKind.music,
         normalized: {
           'title': 'Provider result Discovery',
           'series_title': 'Daft Punk',
@@ -2794,7 +2795,7 @@ class _FakeMetadataProvider implements MetadataCapability {
     return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: providerItemId,
-      kind: mediaKind.apiValue,
+      kind: mediaKind,
       normalized: {
         'title': 'Provider item $providerItemId',
       },
@@ -2811,7 +2812,7 @@ class _FakeMetadataProvider implements MetadataCapability {
     return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: '$name-$barcode',
-      kind: (kind ?? catalogMediaKindFromApiValue(defaultKind)).apiValue,
+      kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
       normalized: {
         'title': 'Barcode item $barcode',
       },

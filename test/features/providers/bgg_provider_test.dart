@@ -156,7 +156,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'bgg');
       expect(envelope.providerItemId, '174430');
-      expect(envelope.kind, 'boardgame');
+      expect(envelope.kind, CatalogMediaKind.boardgame);
       expect(envelope.normalized['title'], 'Gloomhaven');
       expect(envelope.normalized['publisher'], 'Cephalofair Games');
       expect(envelope.normalized['min_players'], 1);

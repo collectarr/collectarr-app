@@ -151,7 +151,7 @@ class IGDBProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: cleanId,
-      kind: CatalogMediaKind.game.apiValue,
+      kind: CatalogMediaKind.game,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

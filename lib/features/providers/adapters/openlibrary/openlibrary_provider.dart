@@ -199,7 +199,7 @@ class OpenLibraryProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
-      kind: CatalogMediaKind.book.apiValue,
+      kind: CatalogMediaKind.book,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

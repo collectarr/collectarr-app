@@ -68,10 +68,10 @@ void validateLibraryKindProviderEnvelope({
   required ProviderMetadataEnvelope envelope,
   required CatalogMediaKind expectedKind,
 }) {
-  final actualKind = catalogMediaKindFromApiValue(envelope.kind);
+  final actualKind = envelope.kind;
   if (actualKind != expectedKind) {
     throw StateError(
-      '${expectedKind.apiValue} provider integration received ${envelope.kind} data',
+      '${expectedKind.apiValue} provider integration received ${envelope.kind.apiValue} data',
     );
   }
   if (envelope.provider.trim().isEmpty) {

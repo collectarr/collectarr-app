@@ -156,7 +156,7 @@ class MangaDexProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: mangaId,
-      kind: CatalogMediaKind.manga.apiValue,
+      kind: CatalogMediaKind.manga,
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

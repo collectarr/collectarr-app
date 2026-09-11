@@ -146,7 +146,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'bgg',
           providerItemId: '224517',
-          kind: 'boardgame',
+          kind: CatalogMediaKind.boardgame,
           normalized: const {
             'title': 'Brass: Birmingham',
             'year_published': 2018,

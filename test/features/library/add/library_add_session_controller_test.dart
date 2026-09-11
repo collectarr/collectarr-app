@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
 import '../../../helpers/tracking_lifecycle_test_helpers.dart';
@@ -576,7 +577,7 @@ void main() {
           schemaVersion: 'v1',
           provider: 'test_prov',
           providerItemId: id,
-          kind: 'book',
+          kind: CatalogMediaKind.book,
           normalized: {
             'title': 'The Hitchhiker\'s Guide to the Galaxy',
             'publisher': 'Pan Books',
@@ -660,7 +661,7 @@ void main() {
           schemaVersion: 'v1',
           provider: 'comic_prov',
           providerItemId: id,
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           normalized: {
             'title': 'Action Comics #1',
             'publisher': 'DC Comics',

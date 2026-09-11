@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/providers/anilist/anime_anilist_integration.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/providers/anilist/anime_anilist_mapper.dart';
 import 'package:collectarr_app/features/providers/adapters/anilist/models/anilist_media.dart';
@@ -67,7 +68,7 @@ void main() {
     final envelope = ProviderMetadataEnvelope(
       provider: 'anilist',
       providerItemId: 'anime:999',
-      kind: 'anime',
+      kind: CatalogMediaKind.anime,
       normalized: const {
         'title': 'A Place Further Than the Universe',
         'anime_type': 'TV',
@@ -99,7 +100,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: 'manga:42',
-          kind: 'manga',
+          kind: CatalogMediaKind.manga,
           normalized: const {'title': 'Wrong kind'},
           images: const [],
           provenance: const ProviderProvenance(fetchedAt: ''),

@@ -220,7 +220,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'musicbrainz');
       expect(envelope.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
-      expect(envelope.kind, 'music');
+      expect(envelope.kind, CatalogMediaKind.music);
       expect(envelope.normalized['title'], 'The Dark Side of the Moon');
       expect(envelope.normalized['publisher'], 'Harvest');
       expect(envelope.normalized['track_count'], 3);

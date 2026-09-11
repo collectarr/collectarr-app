@@ -56,7 +56,7 @@ final class MusicHierarchyMapper {
       label: media.title?.trim().isNotEmpty == true
           ? media.title!.trim()
           : 'Disc $number',
-      secondaryLabel: details.isEmpty ? null : details.join(' Â· '),
+      secondaryLabel: details.isEmpty ? null : details.join(' · '),
       level: tracks.isEmpty
           ? LibraryHierarchyLevel.leaf
           : LibraryHierarchyLevel.container,
@@ -96,7 +96,7 @@ final class MusicHierarchyMapper {
           ? '${release.id.value}:track:$position'
           : track.id.value,
       label: '$position. ${track.title}',
-      secondaryLabel: details.isEmpty ? null : details.join(' Â· '),
+      secondaryLabel: details.isEmpty ? null : details.join(' · '),
       level: LibraryHierarchyLevel.leaf,
       imageUrl: release.coverImageUrl,
       extras: {

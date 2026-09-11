@@ -190,7 +190,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'mangadex');
       expect(envelope.providerItemId, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
-      expect(envelope.kind, 'manga');
+      expect(envelope.kind, CatalogMediaKind.manga);
       expect(envelope.normalized['title'], 'Chainsaw Man');
       expect(
           envelope.normalized['synopsis'], contains('Denji is a teenage boy'));

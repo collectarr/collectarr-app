@@ -253,7 +253,7 @@ class HardcoverProvider extends ProviderAdapter {
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
-      kind: targetKind,
+      kind: catalogMediaKindFromApiValue(targetKind),
       normalized: normalized,
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),

@@ -145,7 +145,7 @@ void main() {
         ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '872585',
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           normalized: const {
             'title': 'Oppenheimer',
             'original_title': 'Oppenheimer',

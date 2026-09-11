@@ -53,7 +53,7 @@ void main() {
 
   test('Movie provider mapper rejects a non-Movie envelope', () {
     const mapper = MovieLibraryKindProviderMapper();
-    final envelope = _movieEnvelope(kind: 'tv');
+    final envelope = _movieEnvelope(kind: CatalogMediaKind.tv);
 
     expect(
         () => mapper.catalogCandidateFromEnvelope(envelope), throwsStateError);
@@ -166,7 +166,7 @@ void main() {
 }
 
 ProviderMetadataEnvelope _movieEnvelope({
-  String kind = 'movie',
+  CatalogMediaKind kind = CatalogMediaKind.movie,
   Map<String, dynamic> normalized = const <String, dynamic>{},
   List<ProviderImageRef> images = const <ProviderImageRef>[],
 }) {

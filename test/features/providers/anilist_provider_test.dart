@@ -233,7 +233,7 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'anilist');
       expect(envelope.providerItemId, '30002');
-      expect(envelope.kind, 'manga');
+      expect(envelope.kind, CatalogMediaKind.manga);
       expect(envelope.normalized['title'], 'Berserk');
       expect(envelope.normalized['synopsis'],
           contains('Guts, a former mercenary'));

@@ -133,7 +133,7 @@ AdminProviderPreview providerPreviewFromEnvelope(
   return AdminProviderPreview(
     provider: envelope.provider,
     providerItemId: envelope.providerItemId,
-    kind: envelope.kind,
+    kind: envelope.kind.apiValue,
     title: title,
     itemNumber: norm['item_number']?.toString(),
     synopsis: synopsis,
