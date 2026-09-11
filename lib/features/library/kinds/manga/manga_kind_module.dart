@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_med
 import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -213,6 +214,11 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
       ...metadata.genres,
     ];
 
+MangaMetadata? _mangaLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is MangaMetadata ? metadata : null;
+}
+
 final mangaLibraryFacetModule = TypedLibraryFacetModule<MangaWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getFacetValues,
@@ -266,6 +272,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
     showsDefaultPersonalSection: false,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<MangaMetadata>(
+    _mangaLinkedMetadata,
     _mangaLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(

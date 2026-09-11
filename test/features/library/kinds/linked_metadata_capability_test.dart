@@ -1,9 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
@@ -30,7 +32,11 @@ void main() {
     final candidates = libraryKindModuleForKind(CatalogMediaKind.comic)
         .linkedMetadata
         .candidatesForEntry(
-          _shelfEntry(CatalogMediaKind.comic, metadata),
+          _shelfEntry(
+            CatalogMediaKind.comic,
+            metadata,
+            title: 'Common Title',
+          ),
         )
         .toList();
 
@@ -52,6 +58,7 @@ void main() {
 
   test('typed capability ignores invalid metadata runtimes', () {
     const capability = TypedLibraryLinkedMetadataCapability<ComicMedia>(
+      _comicMetadataReader,
       _comicPublisher,
     );
     final candidates = capability
@@ -127,12 +134,25 @@ Iterable<String?> _comicPublisher(ComicMedia metadata) => [
       metadata.publisher,
     ];
 
+ComicMedia? _comicMetadataReader(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is ComicMedia ? metadata : null;
+}
+
 LibraryWorkspaceSource _shelfEntry(
   CatalogMediaKind kind,
-  Object? metadata,
-) {
+  Object? metadata, {
+  String? title,
+}) {
   return LibraryWorkspaceSource(
     itemId: 'item-1',
+    catalogSummary: title == null
+        ? null
+        : CatalogDisplaySummary.work(
+            kind: kind,
+            id: 'item-1',
+            title: title,
+          ),
     catalogTransport: CatalogItemDto(
       identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
       kindMetadata: metadata,

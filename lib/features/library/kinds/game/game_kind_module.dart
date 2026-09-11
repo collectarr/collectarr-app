@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -133,6 +134,11 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+GameCatalogMetadata? _gameLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is GameCatalogMetadata ? metadata : null;
+}
+
 final gameLibraryFacetModule = TypedLibraryFacetModule<GameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getGameFacetValues,
@@ -175,6 +181,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
     showsDefaultPersonalSection: false,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<GameCatalogMetadata>(
+    _gameLinkedMetadata,
     _gameLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(

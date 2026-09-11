@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -40,12 +41,12 @@ LibraryAddCatalogTransport _mutateGroup(
   );
   expect(definition, isNotNull);
   final updated = definition!.bucketValueMutator?.call(
-    item,
+    LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
     currentLabel,
     replacement: replacement,
   );
   expect(updated, isNotNull);
-  return updated!;
+  return LibraryAddCatalogTransport.fromItem(updated!.toTransportItem());
 }
 
 void main() {
@@ -143,14 +144,17 @@ void main() {
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      item,
+      LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
       'Old studio',
       replacement: 'New studio',
     );
 
     expect(updated, isNotNull);
-    expect(updated!.payload['studios'], ['New studio']);
-    expect(updated.payload['publisher'], 'Explicit publisher');
+    final updatedItem = LibraryAddCatalogTransport.fromItem(
+      updated!.toTransportItem(),
+    );
+    expect(updatedItem.payload['studios'], ['New studio']);
+    expect(updatedItem.payload['publisher'], 'Explicit publisher');
   });
 
   test('updates a matching scalar alias with a list bucket', () {
@@ -165,14 +169,17 @@ void main() {
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      item,
+      LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
       'Old studio',
       replacement: 'New studio',
     );
 
     expect(updated, isNotNull);
-    expect(updated!.payload['studios'], ['New studio']);
-    expect(updated.payload['publisher'], 'New studio');
+    final updatedItem = LibraryAddCatalogTransport.fromItem(
+      updated!.toTransportItem(),
+    );
+    expect(updatedItem.payload['studios'], ['New studio']);
+    expect(updatedItem.payload['publisher'], 'New studio');
   });
 
   test('returns no update when the current label does not match', () {
@@ -184,7 +191,7 @@ void main() {
     );
 
     final updated = libraryStringBucketValueMutator('artist')(
-      item,
+      LibraryWorkspaceSource(itemId: item.id, catalogTransport: item),
       'Different artist',
       replacement: 'New artist',
     );

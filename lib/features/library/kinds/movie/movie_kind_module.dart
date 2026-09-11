@@ -35,6 +35,7 @@ import 'package:collectarr_app/features/providers/transport/provider_candidate.d
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -222,6 +223,11 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+MovieCatalogMetadata? _movieLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is MovieCatalogMetadata ? metadata : null;
+}
+
 const movieLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
@@ -268,6 +274,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
     detailPageBuilder: buildLibraryVideoDetailPage,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<MovieCatalogMetadata>(
+    _movieLinkedMetadata,
     _movieLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(

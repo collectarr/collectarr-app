@@ -94,10 +94,11 @@ class LibraryBulkActions {
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
       final entry = entriesToOwn[index];
-      final resolvedKind = entry.catalogTransport?.mediaKind ??
-          entry.wishlistItem?.catalogRef.mediaKind ??
-          entry.trackingSummary?.catalogRef.mediaKind ??
-          CatalogMediaKind.unknown;
+      final resolvedKind = entry.mediaKind == CatalogMediaKind.unknown
+          ? entry.wishlistItem?.catalogRef.mediaKind ??
+              entry.trackingSummary?.catalogRef.mediaKind ??
+              CatalogMediaKind.unknown
+          : entry.mediaKind;
       final common = LibraryAddCommonDraft(
         condition: defaultCondition,
         locationId: defaultLocationId,
@@ -116,7 +117,7 @@ class LibraryBulkActions {
             libraryKindModuleForKind(resolvedKind).add.createInitialDraft(),
             targetRef: entry.ownedSummary?.catalogRef ??
                 entry.wishlistItem?.catalogRef ??
-                entry.catalogTransport?.catalogRef,
+                entry.catalogRef,
             tracking: LibraryAddTrackingDraft(
               readStatus: defaultReadStatus,
             ),
@@ -129,7 +130,7 @@ class LibraryBulkActions {
       List<LibraryWorkspaceSource> entries) async {
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
-      final catalogRef = entry.catalogTransport?.catalogRef ??
+      final catalogRef = entry.catalogRef ??
           entry.ownedSummary?.catalogRef ??
           entry.wishlistItem?.catalogRef ??
           entry.trackingSummary?.catalogRef;

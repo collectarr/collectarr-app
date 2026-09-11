@@ -18,27 +18,30 @@ class DefaultLibraryLinkedMetadataCapability
 
 class TypedLibraryLinkedMetadataCapability<TMetadata>
     extends LibraryLinkedMetadataCapability {
-  const TypedLibraryLinkedMetadataCapability(this._metadataValues);
+  const TypedLibraryLinkedMetadataCapability(
+    this._metadataReader,
+    this._metadataValues,
+  );
 
+  final TMetadata? Function(LibraryWorkspaceSource source) _metadataReader;
   final Iterable<String?> Function(TMetadata metadata) _metadataValues;
 
   @override
   Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
     yield* _commonCandidates(source);
-    final metadata = source.catalogTransport?.kindMetadata;
-    if (metadata is TMetadata) {
+    final metadata = _metadataReader(source);
+    if (metadata != null) {
       yield* _nonEmptyStrings(_metadataValues(metadata));
     }
   }
 }
 
 Iterable<String> _commonCandidates(LibraryWorkspaceSource source) sync* {
-  final item = source.catalogTransport;
-  if (item == null) return;
-  yield* _nonEmptyStrings([
-    item.title,
-    ...(item.searchAliases ?? const <String>[]),
-  ]);
+  final summaryTitle = source.catalogSummary?.title;
+  if (summaryTitle != null) {
+    yield* _nonEmptyStrings([summaryTitle]);
+  }
+  yield* _nonEmptyStrings(source.catalogSearchTokens);
 }
 
 Iterable<String> _nonEmptyStrings(Iterable<String?> values) sync* {

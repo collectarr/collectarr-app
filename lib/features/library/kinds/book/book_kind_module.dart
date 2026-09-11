@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media
 import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
@@ -224,6 +225,11 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+BookCatalogMetadata? _bookLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is BookCatalogMetadata ? metadata : null;
+}
+
 final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
   getFacetValues: _getBookFacetValues,
@@ -280,6 +286,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
     supportsOwnedItemImages: false,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<BookCatalogMetadata>(
+    _bookLinkedMetadata,
     _bookLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(

@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owne
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_copy_semantics.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
@@ -151,6 +152,11 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
       ...metadata.genres,
     ];
 
+ComicMedia? _comicLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is ComicMedia ? metadata : null;
+}
+
 final comicLibraryFacetModule = TypedLibraryFacetModule<ComicWorkspaceDto>(
   loadRows: _loadComicFacetRows,
   getFacetValues: _getFacetValues,
@@ -212,6 +218,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
     personalDetailFieldsBuilder: buildComicPersonalDetailFields,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<ComicMedia>(
+    _comicLinkedMetadata,
     _comicLinkedMetadataValues,
   ),
   relations: comicRelationCapability,

@@ -89,12 +89,11 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   void _export(BuildContext context, ExportFormat format) {
-    final module = type;
     final data = switch (format) {
-      ExportFormat.csv => _toCsv(module),
-      ExportFormat.json => _toJson(module),
-      ExportFormat.xml => _toXml(module),
-      ExportFormat.markdown => _toMarkdown(module),
+      ExportFormat.csv => _toCsv(type),
+      ExportFormat.json => _toJson(),
+      ExportFormat.xml => _toXml(),
+      ExportFormat.markdown => _toMarkdown(type),
     };
     Clipboard.setData(ClipboardData(text: data));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -109,27 +108,19 @@ class _IntegrationExportDialog extends StatelessWidget {
     );
   }
 
-  String _toJson(LibraryKindModule module) {
-    final items = shelfState.entries.map((e) {
-      final projection = libraryKindWorkspaceForKind(module.kind).project(
-        source: e,
-        node: LibraryTitleNodeRef(
-          titleItemId: e.catalogTransport?.id ?? e.itemId,
-        ),
-      );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final cat = e.catalogTransport;
-      return {
-        'id': e.itemId,
-        'title': e.title,
-        if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
-        if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
-        if (adapter?.variant != null) 'variant': adapter!.variant,
-        if (adapter?.format != null) 'format': adapter!.format,
-        if (cat?.releaseYear != null) 'year': cat!.releaseYear,
-      };
-    }).toList();
+  String _toJson() {
+    final items = shelfState.entries
+        .map(
+          (entry) => {
+            'id': entry.catalogRef?.id ?? entry.itemId,
+            'kind': entry.mediaKind.apiValue,
+            'title': entry.title,
+            'owned': entry.isOwned,
+            'wishlist': entry.isWishlisted,
+            if (entry.isOwned) 'quantity': entry.quantity,
+          },
+        )
+        .toList();
     return const JsonEncoder.withIndent('  ').convert({
       'collection': type.identity.title,
       'exported_at': DateTime.now().toIso8601String(),
@@ -138,37 +129,17 @@ class _IntegrationExportDialog extends StatelessWidget {
     });
   }
 
-  String _toXml(LibraryKindModule module) {
+  String _toXml() {
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
         '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
-      final projection = libraryKindWorkspaceForKind(module.kind).project(
-        source: entry,
-        node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogTransport?.id ?? entry.itemId,
-        ),
-      );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      buffer.writeln('  <item>');
+      buffer.writeln(
+          '  <item id="${_escapeXml(entry.catalogRef?.id ?? entry.itemId)}" kind="${entry.mediaKind.apiValue}">');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
-      if (adapter?.itemNumber != null) {
-        buffer.writeln(
-            '    <number>${_escapeXml(adapter!.itemNumber!)}</number>');
-      }
-      if (adapter?.seriesTitle != null) {
-        buffer.writeln(
-            '    <series>${_escapeXml(adapter!.seriesTitle!)}</series>');
-      }
-      if (adapter?.variant != null) {
-        buffer
-            .writeln('    <variant>${_escapeXml(adapter!.variant!)}</variant>');
-      }
-      if (adapter?.format != null) {
-        buffer.writeln('    <format>${_escapeXml(adapter!.format!)}</format>');
-      }
+      buffer.writeln('    <owned>${entry.isOwned}</owned>');
+      buffer.writeln('    <wishlist>${entry.isWishlisted}</wishlist>');
       buffer.writeln('  </item>');
     }
     buffer.writeln('</collection>');
@@ -185,7 +156,7 @@ class _IntegrationExportDialog extends StatelessWidget {
       final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogTransport?.id ?? entry.itemId,
+          titleItemId: entry.catalogRef?.id ?? entry.itemId,
         ),
       );
       final dto = projection.dto;

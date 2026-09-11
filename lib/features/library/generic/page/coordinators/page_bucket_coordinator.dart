@@ -72,17 +72,14 @@ class LibraryPageBucketCoordinator {
         continue;
       }
 
-      final catalogItem = item.source.catalogTransport;
-      if (catalogItem != null) {
-        final updatedCatalog = groupDefinition.bucketValueMutator?.call(
-          catalogItem,
+      if (groupDefinition.bucketValueMutator != null) {
+        final updatedCatalog = groupDefinition.bucketValueMutator!.call(
+          item.source,
           currentLabel,
           replacement: replacement,
         );
         if (updatedCatalog != null) {
-          catalogUpdates[catalogItem.id] = CatalogImportSnapshot.fromItem(
-            updatedCatalog.toTransportItem(),
-          );
+          catalogUpdates[updatedCatalog.id] = updatedCatalog;
         }
       }
 

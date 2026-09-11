@@ -22,6 +22,7 @@ import 'package:collectarr_app/features/library/kinds/music/tracking/music_track
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/music/metadata/music_metadata_compare.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
@@ -147,6 +148,11 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
+MusicCatalogMetadata? _musicLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is MusicCatalogMetadata ? metadata : null;
+}
+
 const musicLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
@@ -196,6 +202,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
     personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<MusicCatalogMetadata>(
+    _musicLinkedMetadata,
     _musicLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(

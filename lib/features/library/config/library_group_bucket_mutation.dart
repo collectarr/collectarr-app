@@ -1,8 +1,11 @@
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/library_add_catalog_transport.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 
-typedef LibraryGroupBucketValueMutator = LibraryAddCatalogTransport? Function(
-  LibraryAddCatalogTransport item,
+typedef LibraryGroupBucketValueMutator = CatalogImportSnapshot? Function(
+  LibraryWorkspaceSource source,
   String currentLabel, {
   String? replacement,
 });
@@ -18,7 +21,9 @@ LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
   Iterable<String> mirrorKeys = const [],
   String? nestedValueKey,
 }) {
-  return (item, currentLabel, {String? replacement}) {
+  return (source, currentLabel, {String? replacement}) {
+    final item = source.catalogTransport;
+    if (item == null) return null;
     final payload = Map<String, dynamic>.from(
       item.payload,
     );
@@ -56,7 +61,7 @@ LibraryGroupBucketValueMutator libraryStringBucketValueMutator(
     if (!changed) {
       return null;
     }
-    return _libraryMetadataItemWithPayload(item, payload);
+    return _catalogSnapshotWithPayload(item, payload);
   };
 }
 
@@ -64,7 +69,9 @@ LibraryGroupBucketValueMutator libraryStringListBucketValueMutator(
   String payloadKey, {
   Iterable<String> scalarMirrorKeys = const [],
 }) {
-  return (item, currentLabel, {String? replacement}) {
+  return (source, currentLabel, {String? replacement}) {
+    final item = source.catalogTransport;
+    if (item == null) return null;
     final payload = Map<String, dynamic>.from(
       item.payload,
     );
@@ -119,7 +126,7 @@ LibraryGroupBucketValueMutator libraryStringListBucketValueMutator(
     if (!changed) {
       return null;
     }
-    return _libraryMetadataItemWithPayload(item, payload);
+    return _catalogSnapshotWithPayload(item, payload);
   };
 }
 
@@ -135,13 +142,15 @@ void _setOrRemoveStringValue(
   }
 }
 
-LibraryAddCatalogTransport _libraryMetadataItemWithPayload(
+CatalogImportSnapshot _catalogSnapshotWithPayload(
   LibraryAddCatalogTransport item,
   Map<String, dynamic> payload,
 ) {
-  return LibraryAddCatalogTransport.fromJson({
-    'id': item.id,
-    'kind': item.mediaKind.apiValue,
-    ...payload,
-  });
+  return CatalogImportSnapshot.fromItem(
+    CatalogItemDto.fromJson({
+      'id': item.id,
+      'kind': item.mediaKind.apiValue,
+      ...payload,
+    }),
+  );
 }

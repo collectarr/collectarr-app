@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/release/video_release_projection
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
@@ -186,6 +187,11 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
       ...metadata.genres,
     ];
 
+AnimeMetadata? _animeLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is AnimeMetadata ? metadata : null;
+}
+
 const animeLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
@@ -229,6 +235,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
     ),
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<AnimeMetadata>(
+    _animeLinkedMetadata,
     _animeLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(

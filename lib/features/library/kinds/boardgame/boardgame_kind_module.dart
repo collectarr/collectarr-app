@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
@@ -161,6 +162,11 @@ Iterable<String?> _boardGameLinkedMetadataValues(
       ...metadata.creators.map((credit) => credit['name']?.toString()),
     ];
 
+BoardGameMetadata? _boardGameLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is BoardGameMetadata ? metadata : null;
+}
+
 final boardGameLibraryFacetModule =
     TypedLibraryFacetModule<BoardGameWorkspaceDto>(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
@@ -201,6 +207,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
     showsDefaultPersonalSection: false,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<BoardGameMetadata>(
+    _boardGameLinkedMetadata,
     _boardGameLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(

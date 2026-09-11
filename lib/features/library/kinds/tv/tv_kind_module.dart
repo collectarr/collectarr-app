@@ -36,6 +36,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_ed
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -190,6 +191,11 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
       ...metadata.genres,
     ];
 
+TvSeriesMetadata? _tvLinkedMetadata(LibraryWorkspaceSource source) {
+  final metadata = source.catalogTransport?.kindMetadata;
+  return metadata is TvSeriesMetadata ? metadata : null;
+}
+
 const tvLibraryFacetModule = LibraryFacetModule(
   loadRows: LibraryPageUtilities.libraryFacetRowsForId,
 );
@@ -239,6 +245,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
     ),
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<TvSeriesMetadata>(
+    _tvLinkedMetadata,
     _tvLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
