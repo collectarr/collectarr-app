@@ -32,7 +32,7 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
         date: date,
         title: game.title,
         eventId: 'game-release:${game.releases.firstOrNull?.id ?? id}',
-        itemId: id,
+        catalogRef: ref,
       ));
     }
     return events;

@@ -97,8 +97,9 @@ class SyncApplyService {
     final customEpisodes = <CustomEpisode>[];
     final pickListUpserts = <Map<String, dynamic>>[];
     final pickListDeletes = <String>[];
-    // Collect image data from snapshots keyed by item ID.
-    final imageDataByItemId = <String, String>{};
+    // Collect image data from snapshots keyed by the complete catalog ref.
+    // Equal IDs are valid across kinds and must never overwrite one another.
+    final imageDataByCatalogRef = <CatalogEntityRef, String>{};
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
       if (type == 'location') {
@@ -112,7 +113,7 @@ class SyncApplyService {
         final snapshot = _catalogSnapshotFromEntity(entity);
         catalogSnapshots.add(snapshot);
         if (snapshot.coverImageData != null) {
-          imageDataByItemId[snapshot.id] = snapshot.coverImageData!;
+          imageDataByCatalogRef[snapshot.catalogRef] = snapshot.coverImageData!;
         }
       }
       if (type == 'owned_item') {
@@ -180,19 +181,19 @@ class SyncApplyService {
 
     // Store image bytes outside the main transaction so data sync completes
     // first and images are processed in the background.
-    if (imageDataByItemId.isNotEmpty && ownedPayloads.isNotEmpty) {
+    if (imageDataByCatalogRef.isNotEmpty && ownedPayloads.isNotEmpty) {
       final imagesRepo = ItemImagesCacheRepository(db);
-      final ownedByCatalogId = <String, OwnedItemRef>{};
+      final ownedByCatalogRef = <CatalogEntityRef, OwnedItemRef>{};
       for (final item in ownedPayloads) {
         final rawCatalogRef = item.payload['catalog_ref'];
         if (rawCatalogRef is! Map) continue;
         final catalogRef = CatalogEntityRef.fromJson(
           Map<String, dynamic>.from(rawCatalogRef),
         );
-        ownedByCatalogId[catalogRef.id] = item.ref;
+        ownedByCatalogRef[catalogRef] = item.ref;
       }
-      for (final entry in imageDataByItemId.entries) {
-        final ownedRef = ownedByCatalogId[entry.key];
+      for (final entry in imageDataByCatalogRef.entries) {
+        final ownedRef = ownedByCatalogRef[entry.key];
         if (ownedRef == null) continue;
         final deterministicId =
             _uuid.v5(Namespace.url.value, '${ownedRef.key}:front_cover');

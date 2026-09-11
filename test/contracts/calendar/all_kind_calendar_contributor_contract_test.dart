@@ -15,7 +15,9 @@ void main() {
       project: (subject, context) => subject.contribute(context),
       id: (event) => event.eventId ?? '',
       title: (event) => event.title,
-      kindReference: (event) => event.itemId ?? event.ownedItemId ?? '',
+      kindReference: (event) => event.catalogRef?.kind.apiValue ??
+          event.ownedRef?.kind.apiValue ??
+          '',
       startsAt: (event) => event.date,
       endsAt: (event) => event.date,
       createContext: () => _contextFor(contributor.kind),

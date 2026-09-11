@@ -32,7 +32,7 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
         date: date,
         title: comic.title,
         eventId: 'comic-release:$id',
-        itemId: id,
+        catalogRef: ref,
       ));
     }
     return events;

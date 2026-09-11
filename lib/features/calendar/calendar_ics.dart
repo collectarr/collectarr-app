@@ -84,7 +84,11 @@ String _uidFor(CalendarEvent event) {
   if (explicitId != null && explicitId.isNotEmpty) {
     return '$explicitId@collectarr';
   }
-  final id = event.itemId ?? event.ownedItemId ?? 'na';
+  final catalogRef = event.catalogRef;
+  final id = catalogRef == null
+      ? event.ownedRef?.key ?? 'na'
+      : '${catalogRef.kind.apiValue}:${catalogRef.entityType.apiValue}:'
+          '${catalogRef.id}';
   final slug = event.title
       .toLowerCase()
       .replaceAll(RegExp(r'[^a-z0-9]+'), '-')

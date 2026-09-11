@@ -1,4 +1,8 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_provider.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +25,11 @@ void main() {
       kind: CalendarEventKind.releaseDate,
       date: DateTime.now().add(const Duration(days: 1)),
       title: 'Batman #150',
-      itemId: 'comic-150',
+      catalogRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-150',
+      ),
     );
 
     await tester.pumpWidget(
@@ -58,7 +66,10 @@ void main() {
       kind: CalendarEventKind.loanDue,
       date: DateTime.now(),
       title: 'Spider-Man #1',
-      ownedItemId: 'owned-1',
+      ownedRef: const OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId('owned-1'),
+      ),
     );
 
     await tester.pumpWidget(

@@ -33,7 +33,7 @@ final class BookCalendarContributor implements LibraryCalendarContributor {
         date: date,
         title: book.title,
         eventId: 'book-release:${book.editions.firstOrNull?.id ?? id}',
-        itemId: id,
+        catalogRef: ref,
       ));
     }
     return events;

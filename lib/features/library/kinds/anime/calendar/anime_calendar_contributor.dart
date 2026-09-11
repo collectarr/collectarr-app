@@ -34,7 +34,7 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
           date: date,
           title: '${anime.title} — ${release.title}',
           eventId: 'anime-release:${release.id.value}',
-          itemId: id,
+          catalogRef: ref,
         ));
       }
     }
@@ -51,7 +51,7 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
         date: session.watchedAt,
         title: '${context.titleForRef(session.targetRef)}$episodeLabel',
         eventId: 'watch:${session.id}',
-        itemId: session.targetRef.rootId ?? session.targetRef.id,
+        catalogRef: session.targetRef,
       ));
     }
     return events;

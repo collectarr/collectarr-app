@@ -33,7 +33,7 @@ final class TvCalendarContributor implements LibraryCalendarContributor {
           date: date,
           title: '${series.title} — ${release.title}',
           eventId: 'tv-release:${release.id}',
-          itemId: id,
+          catalogRef: ref,
         ));
       }
     }
@@ -50,7 +50,7 @@ final class TvCalendarContributor implements LibraryCalendarContributor {
         date: session.watchedAt,
         title: '${context.titleForRef(session.targetRef)}$episodeLabel',
         eventId: 'watch:${session.id}',
-        itemId: session.targetRef.rootId ?? session.targetRef.id,
+        catalogRef: session.targetRef,
       ));
     }
     return events;

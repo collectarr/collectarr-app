@@ -32,7 +32,7 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
         date: date,
         title: movie.title,
         eventId: 'movie-release:${movie.releases.firstOrNull?.id.value ?? id}',
-        itemId: id,
+        catalogRef: ref,
       ));
     }
     return events;

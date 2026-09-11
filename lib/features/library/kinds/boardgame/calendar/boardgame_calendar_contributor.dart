@@ -33,7 +33,7 @@ final class BoardGameCalendarContributor implements LibraryCalendarContributor {
         title: boardGame.title,
         eventId:
             'boardgame-release:${boardGame.editions.firstOrNull?.id ?? id}',
-        itemId: id,
+        catalogRef: ref,
       ));
     }
     return events;

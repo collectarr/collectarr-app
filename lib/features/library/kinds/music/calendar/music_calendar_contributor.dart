@@ -32,7 +32,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
         date: date,
         title: release.title,
         eventId: 'music-release:${release.id.value}',
-        itemId: id,
+        catalogRef: ref,
       ));
     }
     return events;

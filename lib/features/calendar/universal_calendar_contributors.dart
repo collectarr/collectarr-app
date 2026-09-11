@@ -49,8 +49,8 @@ final class OwnedItemCalendarContributor
           title: title,
           eventId: 'owned-purchased:${item.ref.id.value}',
           subtitle: item.purchaseStore,
-          itemId: catalogRef.id,
-          ownedItemId: item.ref.id.value,
+          catalogRef: catalogRef,
+          ownedRef: item.ref,
         );
       }
     }
@@ -80,8 +80,8 @@ final class LoanCalendarContributor
           title: title,
           eventId: 'loan-due:${loan.id}',
           subtitle: 'Loaned to ${loan.borrowerName}',
-          ownedItemId: loan.ownedRef.id.value,
-          itemId: catalogRef?.id,
+          ownedRef: loan.ownedRef,
+          catalogRef: catalogRef,
         );
       }
       if (loan.returnedDate != null) {
@@ -91,8 +91,8 @@ final class LoanCalendarContributor
           title: title,
           eventId: 'loan-return:${loan.id}',
           subtitle: 'Returned by ${loan.borrowerName}',
-          ownedItemId: loan.ownedRef.id.value,
-          itemId: catalogRef?.id,
+          ownedRef: loan.ownedRef,
+          catalogRef: catalogRef,
         );
       }
     }
@@ -118,7 +118,7 @@ final class GenericWatchCalendarContributor
         date: session.watchedAt,
         title: context.titleForRef(session.targetRef),
         eventId: 'watch:${session.id}',
-        itemId: session.targetRef.id,
+        catalogRef: session.targetRef,
       );
     }
   }
