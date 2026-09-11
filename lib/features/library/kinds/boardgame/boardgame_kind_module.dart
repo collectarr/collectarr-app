@@ -163,7 +163,9 @@ Iterable<String?> _boardGameLinkedMetadataValues(
     ];
 
 BoardGameMetadata? _boardGameLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   return metadata is BoardGameMetadata ? metadata : null;
 }
 
@@ -174,8 +176,8 @@ MetadataSearchQuery _boardGameMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.toTransportItem().identifierCode,
-    publisher: item?.toTransportItem().publisher,
+    barcode: item?.mapTransport((transport) => transport).identifierCode,
+    publisher: item?.mapTransport((transport) => transport).publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -261,7 +263,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.toTransportItem().payload;
+      final payload = item.mapTransport((transport) => transport).payload;
       final direct = payload['is_digital'];
       if (direct is bool) return direct;
       final format =
@@ -292,7 +294,8 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BoardGameMetadata
                   ? [...metadata.designers, ...metadata.artists]
                   : const <Object?>[];
@@ -304,7 +307,8 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BoardGameMetadata
                   ? [...metadata.publishers, metadata.publisher]
                   : const <Object?>[];
@@ -316,7 +320,8 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BoardGameMetadata
                   ? [metadata.yearPublished]
                   : const <Object?>[];

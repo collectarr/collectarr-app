@@ -21,7 +21,9 @@ final class LibraryAddCatalogTransport {
   factory LibraryAddCatalogTransport.fromSnapshot(
     CatalogImportSnapshot snapshot,
   ) {
-    return LibraryAddCatalogTransport._(snapshot.toTransportItem());
+    return LibraryAddCatalogTransport._(
+      snapshot.mapTransport((transport) => transport),
+    );
   }
 
   factory LibraryAddCatalogTransport.fromJson(Map<String, dynamic> json) {
@@ -106,8 +108,6 @@ final class LibraryAddCatalogTransport {
   LibraryAddCatalogTransport withKindMetadata(Object? kindMetadata) {
     return LibraryAddCatalogTransport._(_item.withKindMetadata(kindMetadata));
   }
-
-  CatalogItemDto toTransportItem() => _item;
 
   CatalogImportSnapshot toImportSnapshot() =>
       CatalogImportSnapshot.fromItem(_item);

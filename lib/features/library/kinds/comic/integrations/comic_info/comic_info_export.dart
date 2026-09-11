@@ -26,7 +26,8 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
   Iterable<LibraryWorkspaceSource> entries,
 ) {
   final comicEntries = entries
-      .where((entry) => entry.catalogTransport?.mediaKind == CatalogMediaKind.comic)
+      .where((entry) =>
+          entry.catalogTransport?.mediaKind == CatalogMediaKind.comic)
       .toList(growable: false);
   if (comicEntries.isEmpty) return const [];
 
@@ -37,7 +38,8 @@ List<ExportPreviewArtifact> comicInfoExportPreviews(
     final catalog = entry.catalogTransport;
     if (catalog == null) continue;
 
-    final comic = ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());
+    final comic = ComicCoreMapper.fromCatalogItem(
+        catalog.mapTransport((transport) => transport));
     final owned = ComicOwnedItemProjection.tryFromTyped(entry.typedOwnedItem);
     if (exportedCount > 0) {
       buffer.writeln();

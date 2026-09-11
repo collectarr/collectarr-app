@@ -151,9 +151,11 @@ Widget buildMovieAddSearchPane(
                         final coverUrl =
                             isCore ? item.displayCoverUrl : candidate!.imageUrl;
                         final publisher = (item
-                                ?.toTransportItem()
+                                ?.mapTransport((transport) => transport)
                                 .payload['publisher'] as String?) ??
-                            ((item?.toTransportItem().payload['publishing']
+                            ((item
+                                    ?.mapTransport((transport) => transport)
+                                    .payload['publishing']
                                 as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [

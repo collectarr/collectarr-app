@@ -20,7 +20,7 @@ List<LibraryCardBadge> _movieCompactBadges(LibraryProjectionView item) {
   final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final badges = <LibraryCardBadge>[];
   final editionsPayload = item.source.catalogTransport
-      ?.toTransportItem()
+      ?.mapTransport((transport) => transport)
       .payload['editions'] as List?;
   final firstEdition = editionsPayload != null &&
           editionsPayload.isNotEmpty &&

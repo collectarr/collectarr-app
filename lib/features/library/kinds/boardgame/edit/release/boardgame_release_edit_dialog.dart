@@ -39,7 +39,8 @@ class _BoardGameReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.item.toTransportItem().kindMetadata;
+    final metadata =
+        widget.request.item.mapTransport((transport) => transport).kindMetadata;
     if (metadata is! BoardGameMetadata) {
       throw StateError(
         'Expected BoardGameMetadata for BoardGame release editing',
@@ -47,7 +48,7 @@ class _BoardGameReleaseSchemaEditDialogState
     }
     _metadata = metadata;
     final boardGame = BoardGameCatalogMapper.mapMetadataItemToBoardGame(
-      widget.request.item.toTransportItem(),
+      widget.request.item.mapTransport((transport) => transport),
     );
     _release = _resolveRelease(
       boardGame,

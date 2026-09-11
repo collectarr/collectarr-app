@@ -160,8 +160,10 @@ LibraryEditKindDraft createGameEditDraft({
 }) {
   final owned = GameOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final game = owned?.details;
-  final meta = item.toTransportItem().kindMetadata is GameCatalogMetadata
-      ? item.toTransportItem().kindMetadata as GameCatalogMetadata
+  final meta = item.mapTransport((transport) => transport).kindMetadata
+          is GameCatalogMetadata
+      ? item.mapTransport((transport) => transport).kindMetadata
+          as GameCatalogMetadata
       : null;
   final developerNames = (meta?.creators ?? const <Map<String, dynamic>>[])
       .where((c) =>

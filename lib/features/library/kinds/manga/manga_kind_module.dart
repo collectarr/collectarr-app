@@ -215,7 +215,9 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
     ];
 
 MangaMetadata? _mangaLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   return metadata is MangaMetadata ? metadata : null;
 }
 
@@ -226,9 +228,9 @@ MetadataSearchQuery _mangaMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.toTransportItem().identifierCode,
-    issueNumber: item?.toTransportItem().itemNumber,
-    publisher: item?.toTransportItem().publisher,
+    barcode: item?.mapTransport((transport) => transport).identifierCode,
+    issueNumber: item?.mapTransport((transport) => transport).itemNumber,
+    publisher: item?.mapTransport((transport) => transport).publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -328,7 +330,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.toTransportItem().payload;
+      final payload = item.mapTransport((transport) => transport).payload;
       final direct = payload['is_digital'];
       if (direct is bool) return direct;
       final format =
@@ -359,7 +361,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is MangaMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -371,7 +374,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 75,
             containsWeight: 36,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is MangaMetadata
                   ? [metadata.itemNumber, metadata.volumeNumber]
                   : const <Object?>[];
@@ -383,7 +387,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is MangaMetadata
                   ? [
                       metadata.publisher,
@@ -399,7 +404,8 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is MangaMetadata
                   ? [
                       metadata.originalPublicationDate?.year,

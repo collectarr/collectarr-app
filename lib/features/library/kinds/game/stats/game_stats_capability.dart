@@ -20,7 +20,8 @@ class GameStatsCapability implements LibraryStatsCapability {
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
     final catalog = entry.catalogTransport;
-    final metadata = catalog?.toTransportItem().kindMetadata;
+    final metadata =
+        catalog?.mapTransport((transport) => transport).kindMetadata;
     if (catalog == null || metadata is! GameCatalogMetadata) return null;
     final secondary =
         (metadata.publishers.firstOrNull ?? metadata.developers.firstOrNull)

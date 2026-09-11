@@ -39,7 +39,7 @@ class BookLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required LibraryAddCatalogTransport item,
   }) =>
-      item.toTransportItem().itemNumber;
+      item.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<(String id, String label)> buildAddPreviewFormatBadges({
@@ -47,7 +47,8 @@ class BookLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <(String, String)>[];
-    for (final edition in item.toTransportItem().editions) {
+    for (final edition
+        in item.mapTransport((transport) => transport).editions) {
       final id = edition.physicalFormat;
       if (id == null || !seen.add(id)) continue;
       final label = edition.physicalFormatLabel?.trim();
@@ -62,12 +63,13 @@ class BookLibraryMediaPresentationBuilder
   ) {
     final item = entry.catalogTransport;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.toTransportItem().identifierCode);
+        item?.mapTransport((transport) => transport).identifierCode);
     if (item == null || identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.toTransportItem().identifierCode!.trim()}',
+        label:
+            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -78,7 +80,7 @@ class BookLibraryMediaPresentationBuilder
   List<CatalogEditionDto> buildReleaseEditions({
     required LibraryAddCatalogTransport item,
   }) {
-    return item.toTransportItem().editions;
+    return item.mapTransport((transport) => transport).editions;
   }
 
   @override
@@ -96,7 +98,7 @@ class BookLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.toTransportItem().publisher
+        item.mapTransport((transport) => transport).publisher
       ),
       (
         'Released',
@@ -104,19 +106,19 @@ class BookLibraryMediaPresentationBuilder
             ? item.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.toTransportItem().itemNumber != null)
+      if (item.mapTransport((transport) => transport).itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.toTransportItem().itemNumber
+          item.mapTransport((transport) => transport).itemNumber
         ),
-      if (item.toTransportItem().variant != null)
+      if (item.mapTransport((transport) => transport).variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.toTransportItem().variant
+          item.mapTransport((transport) => transport).variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.toTransportItem().identifierCode
+        item.mapTransport((transport) => transport).identifierCode
       ),
     ];
   }
@@ -602,18 +604,19 @@ class BookLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
   LibraryAddCatalogTransport item,
 ) {
-  final itemNumber = item.toTransportItem().itemNumber?.trim();
+  final itemNumber =
+      item.mapTransport((transport) => transport).itemNumber?.trim();
   final subtitle = [
-    if (item.toTransportItem().publisher?.trim() case final value?
-        when value.isNotEmpty)
+    if (item.mapTransport((transport) => transport).publisher?.trim()
+        case final value? when value.isNotEmpty)
       value,
     if ((item.releaseYear ?? item.releaseDate?.year) case final year?)
       year.toString(),
-    if (item.toTransportItem().physicalFormatLabel?.trim() case final value?
-        when value.isNotEmpty)
+    if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
+        case final value? when value.isNotEmpty)
       value,
-    if (item.toTransportItem().identifierCode?.trim() case final value?
-        when value.isNotEmpty)
+    if (item.mapTransport((transport) => transport).identifierCode?.trim()
+        case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
@@ -1092,15 +1095,19 @@ List<String> _bookDiscoveryTagsForSelection({
 }
 
 BookCatalogMetadata? _bookMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = item.source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
-  final payload = item.source.catalogTransport?.toTransportItem().payload;
+  final payload = item.source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .payload;
   return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }
 
 BookCatalogMetadata? _bookMetadataItem(LibraryAddCatalogTransport? item) {
-  final metadata = item?.toTransportItem().kindMetadata;
+  final metadata = item?.mapTransport((transport) => transport).kindMetadata;
   if (metadata is BookCatalogMetadata) return metadata;
-  final payload = item?.toTransportItem().payload;
+  final payload = item?.mapTransport((transport) => transport).payload;
   return payload == null ? null : BookCatalogMetadata.fromJson(payload);
 }

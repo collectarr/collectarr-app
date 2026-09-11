@@ -178,7 +178,8 @@ LibraryEditKindDraft createComicEditDraft({
     comic ?? const ComicOwnedDetails(),
   );
   final comicEdit = ComicEditController(
-    item: item.toTransportItem().kindMetadata as ComicMedia,
+    item:
+        item.mapTransport((transport) => transport).kindMetadata as ComicMedia,
     itemImages: const [],
   );
   comicEdit.initialize();

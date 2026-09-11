@@ -19,7 +19,7 @@ Widget? buildComicCustomTabView({
   required LibraryAddCatalogTransport item,
   required VoidCallback markDirty,
 }) {
-  final metadata = item.toTransportItem().kindMetadata;
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is! ComicMedia) {
     throw StateError('Expected ComicMedia for comic edit tabs');
   }

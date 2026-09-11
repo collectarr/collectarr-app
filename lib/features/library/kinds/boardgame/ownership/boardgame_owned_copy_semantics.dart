@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/catalog/transport/library_add_catalog_tr
 LibraryOwnedFormatHint resolveBoardGameOwnedFormatHint(
   LibraryAddCatalogTransport item,
 ) {
-  final transport = item.toTransportItem();
+  final transport = item.mapTransport((transport) => transport);
   final format = transport.physicalFormat;
   return (
     format: format,

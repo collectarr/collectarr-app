@@ -185,7 +185,8 @@ class TvEditDraft extends LibraryEditKindDraft
     var result = selection;
     final seasonNumber = int.tryParse(seasonNumberController.text);
     final episodeNumber = int.tryParse(episodeNumberController.text);
-    final metadata = result.item.toTransportItem().kindMetadata;
+    final metadata =
+        result.item.mapTransport((transport) => transport).kindMetadata;
     if (metadata is TvSeriesMetadata) {
       final parsedGenres = videoEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -273,7 +274,7 @@ LibraryEditKindDraft createTvEditDraft({
 }) {
   final owned = TvOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final video = owned?.details;
-  final metadata = item.toTransportItem().kindMetadata;
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final videoEdit = VideoEditController(
     itemId: item.id,
@@ -281,9 +282,10 @@ LibraryEditKindDraft createTvEditDraft({
     initialRuntime: tv?.episodeRuntimeMinutes?.toString() ?? '',
     initialAgeRating: tv?.contentRating ?? '',
     initialGenres: tv?.genres.join(', ') ?? '',
-    initialEditionTitle:
-        (item.titleExtension ?? item.toTransportItem().editionTitle)?.trim() ??
-            '',
+    initialEditionTitle: (item.titleExtension ??
+                item.mapTransport((transport) => transport).editionTitle)
+            ?.trim() ??
+        '',
     initialVariant: tv?.variant ?? '',
     initialBarcode: tv?.barcode ?? '',
     initialPhysicalFormatLabel: tv?.physicalFormatLabel ?? tv?.variant ?? '',
@@ -305,7 +307,7 @@ LibraryEditKindDraft createTvEditDraft({
     initialTrailerLinks: tv?.links ?? const <TrailerLinkDto>[],
   );
   final releaseMediaEdit = TvReleaseMediaEditController(
-    item: item.toTransportItem(),
+    item: item.mapTransport((transport) => transport),
     initialDiscCount: tv?.releases
         .map((release) => release.discCount ?? 0)
         .fold<int>(0, (max, count) => count > max ? count : max),

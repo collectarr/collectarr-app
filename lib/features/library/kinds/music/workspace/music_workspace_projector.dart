@@ -18,13 +18,15 @@ final class MusicWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final music = MusicCatalogMapper.mapMetadataItemToMusic(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final release = MusicWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     MusicCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is MusicCatalogMetadata) {
       metadata = km;
     }
@@ -44,15 +46,17 @@ final class MusicWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final music = MusicCatalogMapper.mapMetadataItemToMusic(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final release = MusicWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
       releaseId: node.releaseId,
       edition: node.edition,
     );
     MusicCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is MusicCatalogMetadata) {
       metadata = km;
     }
@@ -94,8 +98,8 @@ WorkspaceCommonProjection _musicCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload =
-      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
+  final payload = catalog?.mapTransport((transport) => transport).payload ??
+      const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

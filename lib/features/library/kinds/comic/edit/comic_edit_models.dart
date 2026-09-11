@@ -187,9 +187,13 @@ LibraryEditSelection applyComicSelectionEdits(
   final characterNames = characterDetails
       .map((character) => character['name']!.toString())
       .toList(growable: false);
-  final current = selection.item.toTransportItem().kindMetadata is ComicMedia
-      ? selection.item.toTransportItem().kindMetadata as ComicMedia
-      : ComicMedia.fromJson(selection.item.toTransportItem().payload);
+  final current = selection.item
+          .mapTransport((transport) => transport)
+          .kindMetadata is ComicMedia
+      ? selection.item.mapTransport((transport) => transport).kindMetadata
+          as ComicMedia
+      : ComicMedia.fromJson(
+          selection.item.mapTransport((transport) => transport).payload);
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[

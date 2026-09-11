@@ -32,7 +32,7 @@ class MusicLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required LibraryAddCatalogTransport item,
   }) =>
-      item.toTransportItem().itemNumber;
+      item.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<(String id, String label)> buildAddPreviewFormatBadges({
@@ -40,7 +40,8 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <(String, String)>[];
-    for (final edition in item.toTransportItem().editions) {
+    for (final edition
+        in item.mapTransport((transport) => transport).editions) {
       final id = edition.physicalFormat;
       if (id == null || !seen.add(id)) continue;
       final label = edition.physicalFormatLabel?.trim();
@@ -55,12 +56,13 @@ class MusicLibraryMediaPresentationBuilder
   ) {
     final item = entry.catalogTransport;
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item?.toTransportItem().identifierCode);
+        item?.mapTransport((transport) => transport).identifierCode);
     if (item == null || identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.toTransportItem().identifierCode!.trim()}',
+        label:
+            'Identifier ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -71,7 +73,7 @@ class MusicLibraryMediaPresentationBuilder
   List<CatalogEditionDto> buildReleaseEditions({
     required LibraryAddCatalogTransport item,
   }) {
-    return item.toTransportItem().editions;
+    return item.mapTransport((transport) => transport).editions;
   }
 
   @override
@@ -124,7 +126,7 @@ class MusicLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.toTransportItem().publisher
+        item.mapTransport((transport) => transport).publisher
       ),
       (
         'Released',
@@ -132,19 +134,19 @@ class MusicLibraryMediaPresentationBuilder
             ? item.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.toTransportItem().itemNumber != null)
+      if (item.mapTransport((transport) => transport).itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.toTransportItem().itemNumber
+          item.mapTransport((transport) => transport).itemNumber
         ),
-      if (item.toTransportItem().variant != null)
+      if (item.mapTransport((transport) => transport).variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.toTransportItem().variant
+          item.mapTransport((transport) => transport).variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.toTransportItem().identifierCode
+        item.mapTransport((transport) => transport).identifierCode
       ),
     ];
   }
@@ -206,7 +208,9 @@ class MusicLibraryMediaPresentationBuilder
       genreLine: genreLine.isEmpty ? null : genreLine,
       subLine: subLine,
       coverUrl: coverUrl,
-      itemNumber: (item?.toTransportItem().payload['item_number'] as String?) ??
+      itemNumber: (item
+              ?.mapTransport((transport) => transport)
+              .payload['item_number'] as String?) ??
           preview?.itemNumber ??
           candidate?.issueNumber,
       tracks: tracks,
@@ -479,9 +483,10 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
 
 MusicCatalogMetadata? _musicMetadataItem(LibraryAddCatalogTransport? item) {
   if (item == null) return null;
-  final metadata = item.toTransportItem().kindMetadata;
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
-  return MusicCatalogMetadata.fromJson(item.toTransportItem().payload);
+  return MusicCatalogMetadata.fromJson(
+      item.mapTransport((transport) => transport).payload);
 }
 
 String _stripTrailingMusicDescriptor(String title, String? descriptor) {

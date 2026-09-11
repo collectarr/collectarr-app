@@ -114,10 +114,11 @@ void main() {
       'is_variant': false,
     });
 
-    final item = comicKindModule.add
-        .catalogTransportFromProviderCandidate(candidate);
-    final payload =
-        (item.toTransportItem().kindMetadata as JsonEncodable).toJson();
+    final item =
+        comicKindModule.add.catalogTransportFromProviderCandidate(candidate);
+    final payload = (item.mapTransport((transport) => transport).kindMetadata
+            as JsonEncodable)
+        .toJson();
 
     expect(payload['item_number'], '1');
     expect(item.releaseYear, 2024);

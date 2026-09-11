@@ -168,14 +168,15 @@ void main() {
       edited: LibraryAddCatalogTransport.fromItem(edited),
     );
 
-    final creators =
-        jsonObjectList(merged.toTransportItem().payload['creators']);
+    final creators = jsonObjectList(
+        merged.mapTransport((transport) => transport).payload['creators']);
     expect(creators, isNotNull);
     expect(creators, isNotEmpty);
     expect(creators.first['name'], 'J.R.R. Tolkien');
     expect(creators.first['role'], 'Author');
     expect(creators.first['image_url'], 'https://cdn.example/tolkien.jpg');
-    expect(merged.toTransportItem().payload['genres'], contains('Fantasy'));
+    expect(merged.mapTransport((transport) => transport).payload['genres'],
+        contains('Fantasy'));
   });
 
   test('local cover image preprocessor applies crop and rotation transforms',

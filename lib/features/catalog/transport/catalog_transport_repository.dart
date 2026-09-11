@@ -29,7 +29,8 @@ final class CatalogTransportRepository {
     Iterable<CatalogImportSnapshot> snapshots,
   ) {
     return upsertAll(
-      snapshots.map((snapshot) => snapshot.toTransportItem()),
+      snapshots
+          .map((snapshot) => snapshot.mapTransport((transport) => transport)),
     );
   }
 
@@ -38,7 +39,8 @@ final class CatalogTransportRepository {
   ) {
     return upsertAll(
       candidates.map(
-        (candidate) => candidate.toImportSnapshot().toTransportItem(),
+        (candidate) =>
+            candidate.toImportSnapshot().mapTransport((transport) => transport),
       ),
     );
   }

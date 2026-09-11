@@ -116,7 +116,9 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static MangaMetadata? _mangaMetadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport?.toTransportItem().kindMetadata;
+    final metadata = entry.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     return metadata is MangaMetadata ? metadata : null;
   }
 

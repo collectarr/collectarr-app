@@ -17,12 +17,14 @@ final class ComicWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final catalog = source.catalogTransport;
-    final rawMetadata = catalog?.toTransportItem().kindMetadata;
+    final rawMetadata =
+        catalog?.mapTransport((transport) => transport).kindMetadata;
     final ComicMedia metadata;
     if (rawMetadata is ComicMedia) {
       metadata = rawMetadata;
     } else if (rawMetadata != null) {
-      metadata = ComicMedia.fromJson(catalog!.toTransportItem().payload);
+      metadata = ComicMedia.fromJson(
+          catalog!.mapTransport((transport) => transport).payload);
     } else {
       throw StateError('Expected ComicMedia for comic workspace');
     }
@@ -72,8 +74,8 @@ WorkspaceCommonProjection _comicCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload =
-      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
+  final payload = catalog?.mapTransport((transport) => transport).payload ??
+      const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

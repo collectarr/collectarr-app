@@ -33,7 +33,7 @@ Widget? buildTvCustomTabView({
   return switch (tabId) {
     'episodes' || 'tv_episodes' => TvEpisodesTab(
         type: draft.type,
-        item: item.toTransportItem(),
+        item: item.mapTransport((transport) => transport),
         accent: accent,
         releaseMediaEdit: releaseMediaEdit,
       ),
@@ -43,7 +43,7 @@ Widget? buildTvCustomTabView({
       ),
     'episode_map' => TvEpisodeDiscMapTab(
         type: draft.type,
-        item: item.toTransportItem(),
+        item: item.mapTransport((transport) => transport),
         accent: accent,
         releaseMediaEdit: releaseMediaEdit,
       ),

@@ -70,7 +70,9 @@ class MovieStatsCapability implements LibraryStatsCapability {
     final seasonGap = _numberedGapSummary(
       state.entries,
       (entry) {
-        final payload = entry.catalogTransport?.toTransportItem().payload;
+        final payload = entry.catalogTransport
+            ?.mapTransport((transport) => transport)
+            .payload;
         final rawSeason = payload?['season_number'] ??
             (payload?['series'] as Map?)?['season_number'];
         if (rawSeason == null) return null;
@@ -110,7 +112,9 @@ class MovieStatsCapability implements LibraryStatsCapability {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogTransport?.toTransportItem().payload;
+      final payload = entry.catalogTransport
+          ?.mapTransport((transport) => transport)
+          .payload;
       final seriesTitle = ((payload?['series_title'] ??
               (payload?['series'] as Map?)?['series_title']) as String?)
           ?.trim();
@@ -193,7 +197,9 @@ class MovieStatsCapability implements LibraryStatsCapability {
   }
 
   static MovieCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport?.toTransportItem().kindMetadata;
+    final metadata = entry.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     return metadata is MovieCatalogMetadata ? metadata : null;
   }
 

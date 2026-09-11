@@ -114,8 +114,9 @@ class _BoardGameInspectorMain extends StatelessWidget {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
     final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
-    final kindMetadata =
-        item.source.catalogTransport?.toTransportItem().kindMetadata;
+    final kindMetadata = item.source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     final metadata = kindMetadata is BoardGameMetadata ? kindMetadata : null;
     final palette = appPalette(context);
     final releaseYear = adapter?.releaseDate?.year.toString();

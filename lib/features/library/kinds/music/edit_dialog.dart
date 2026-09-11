@@ -209,11 +209,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   MusicCatalogMetadata get _musicMetadata {
-    final metadata = _item.toTransportItem().kindMetadata;
+    final metadata = _item.mapTransport((transport) => transport).kindMetadata;
     if (metadata is! MusicCatalogMetadata) {
       throw ArgumentError.value(
         metadata,
-        'item.toTransportItem().kindMetadata',
+        'item.mapTransport((transport) => transport).kindMetadata',
         'Expected MusicCatalogMetadata',
       );
     }
@@ -1968,7 +1968,8 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
     );
   }
 
-  List<CatalogEditionDto> get _itemEditions => _item.toTransportItem().editions;
+  List<CatalogEditionDto> get _itemEditions =>
+      _item.mapTransport((transport) => transport).editions;
 
   List<TrailerLinkDto> get _itemLinks => _musicMetadata.links;
 

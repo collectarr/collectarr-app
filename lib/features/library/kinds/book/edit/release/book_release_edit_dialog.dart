@@ -39,13 +39,14 @@ class _BookReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.item.toTransportItem().kindMetadata;
+    final metadata =
+        widget.request.item.mapTransport((transport) => transport).kindMetadata;
     if (metadata is! BookCatalogMetadata) {
       throw StateError('Expected BookCatalogMetadata for Book release editing');
     }
     _metadata = metadata;
     final book = BookCatalogMapper.mapMetadataItemToBook(
-      widget.request.item.toTransportItem(),
+      widget.request.item.mapTransport((transport) => transport),
     );
     _release = _resolveRelease(
       book,

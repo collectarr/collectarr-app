@@ -17,15 +17,17 @@ final class GameWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final game = GameCatalogMapper.mapMetadataItemToGame(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     GameCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {
       metadata = GameCatalogMetadata.fromJson(
-        source.catalogTransport!.toTransportItem().payload,
+        source.catalogTransport!.mapTransport((transport) => transport).payload,
       );
     }
     return GameWorkspaceDto(
@@ -43,15 +45,17 @@ final class GameWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final game = GameCatalogMapper.mapMetadataItemToGame(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     GameCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {
       metadata = GameCatalogMetadata.fromJson(
-        source.catalogTransport!.toTransportItem().payload,
+        source.catalogTransport!.mapTransport((transport) => transport).payload,
       );
     }
     return GameWorkspaceDto(
@@ -91,8 +95,8 @@ WorkspaceCommonProjection _gameCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload =
-      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
+  final payload = catalog?.mapTransport((transport) => transport).payload ??
+      const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

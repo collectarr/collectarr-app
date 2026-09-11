@@ -50,7 +50,9 @@ Widget? buildGameCustomTabView({
               LibraryReleaseIdentityFields(
                 editionTitleController: TextEditingController(
                   text: (item.titleExtension ??
-                              item.toTransportItem().editionTitle)
+                              item
+                                  .mapTransport((transport) => transport)
+                                  .editionTitle)
                           ?.trim() ??
                       '',
                 ),

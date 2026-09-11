@@ -280,7 +280,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
     if (catalog == null || catalog.mediaKind != CatalogMediaKind.comic) {
       return null;
     }
-    return ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());
+    return ComicCoreMapper.fromCatalogItem(
+        catalog.mapTransport((transport) => transport));
   }
 }
 

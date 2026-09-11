@@ -242,9 +242,11 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.item.toTransportItem().kindMetadata
-            is BoardGameMetadata
-        ? (selection.item.toTransportItem().kindMetadata as BoardGameMetadata)
+    final meta = selection.item
+            .mapTransport((transport) => transport)
+            .kindMetadata is BoardGameMetadata
+        ? (selection.item.mapTransport((transport) => transport).kindMetadata
+            as BoardGameMetadata)
         : null;
     if (meta != null) {
       final originalTitle = _nullableText(originalTitleController);
@@ -439,8 +441,10 @@ LibraryEditKindDraft createBoardGameEditDraft({
 }) {
   final owned = BoardGameOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final bg = owned?.details;
-  final meta = item.toTransportItem().kindMetadata is BoardGameMetadata
-      ? item.toTransportItem().kindMetadata as BoardGameMetadata
+  final meta = item.mapTransport((transport) => transport).kindMetadata
+          is BoardGameMetadata
+      ? item.mapTransport((transport) => transport).kindMetadata
+          as BoardGameMetadata
       : null;
   return BoardGameEditDraft(
     ownedItem: owned,
@@ -454,7 +458,8 @@ LibraryEditKindDraft createBoardGameEditDraft({
     hasPaintedMiniatures: bg?.hasPaintedMiniatures ?? false,
     storageNotes: bg?.storageNotes,
     editionTitleController: textControllers.create(
-      text: (item.titleExtension ?? item.toTransportItem().editionTitle)
+      text: (item.titleExtension ??
+                  item.mapTransport((transport) => transport).editionTitle)
               ?.trim() ??
           '',
     ),

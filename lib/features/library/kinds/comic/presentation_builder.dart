@@ -30,7 +30,7 @@ class ComicLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required LibraryAddCatalogTransport item,
   }) =>
-      item.toTransportItem().itemNumber;
+      item.mapTransport((transport) => transport).itemNumber;
 
   @override
   List<(String id, String label)> buildAddPreviewFormatBadges({
@@ -38,7 +38,8 @@ class ComicLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <(String, String)>[];
-    for (final edition in item.toTransportItem().editions) {
+    for (final edition
+        in item.mapTransport((transport) => transport).editions) {
       final id = edition.physicalFormat;
       if (id == null || !seen.add(id)) continue;
       final label = edition.physicalFormatLabel?.trim();
@@ -56,17 +57,18 @@ class ComicLibraryMediaPresentationBuilder
     final candidates = <LibraryDuplicateCandidate>[];
     final entryLabel = [
       item.title,
-      if (item.toTransportItem().itemNumber?.trim() case final value?
-          when value.isNotEmpty)
+      if (item.mapTransport((transport) => transport).itemNumber?.trim()
+          case final value? when value.isNotEmpty)
         '#$value',
     ].join(' ');
     final identifier = normalizeLibraryDuplicateIdentifier(
-        item.toTransportItem().identifierCode);
+        item.mapTransport((transport) => transport).identifierCode);
     if (identifier != null) {
       candidates.add(
         LibraryDuplicateCandidate(
           key: 'barcode:$identifier',
-          label: 'Barcode ${item.toTransportItem().identifierCode!.trim()}',
+          label:
+              'Barcode ${item.mapTransport((transport) => transport).identifierCode!.trim()}',
           reason: 'Same barcode',
           confidenceScore: 78,
           entryLabel: entryLabel,
@@ -74,23 +76,25 @@ class ComicLibraryMediaPresentationBuilder
       );
     }
     final title = normalizeLibraryDuplicateToken(item.title);
-    final issue =
-        normalizeLibraryDuplicateToken(item.toTransportItem().itemNumber);
+    final issue = normalizeLibraryDuplicateToken(
+        item.mapTransport((transport) => transport).itemNumber);
     if (title == null || issue == null) return candidates;
-    final publisher =
-        normalizeLibraryDuplicateToken(item.toTransportItem().publisher) ?? '';
+    final publisher = normalizeLibraryDuplicateToken(
+            item.mapTransport((transport) => transport).publisher) ??
+        '';
     final year = (item.releaseYear ?? item.releaseDate?.year)?.toString() ?? '';
-    final variant =
-        normalizeLibraryDuplicateToken(item.toTransportItem().variant) ?? '';
+    final variant = normalizeLibraryDuplicateToken(
+            item.mapTransport((transport) => transport).variant) ??
+        '';
     final labelParts = [
       item.title,
-      '#${item.toTransportItem().itemNumber!.trim()}',
-      if (item.toTransportItem().publisher?.trim() case final value?
-          when value.isNotEmpty)
+      '#${item.mapTransport((transport) => transport).itemNumber!.trim()}',
+      if (item.mapTransport((transport) => transport).publisher?.trim()
+          case final value? when value.isNotEmpty)
         value,
       if (year.isNotEmpty) year,
-      if (item.toTransportItem().variant?.trim() case final value?
-          when value.isNotEmpty)
+      if (item.mapTransport((transport) => transport).variant?.trim()
+          case final value? when value.isNotEmpty)
         value,
     ];
     var confidenceScore = 52;
@@ -113,7 +117,7 @@ class ComicLibraryMediaPresentationBuilder
   List<CatalogEditionDto> buildReleaseEditions({
     required LibraryAddCatalogTransport item,
   }) {
-    return item.toTransportItem().editions;
+    return item.mapTransport((transport) => transport).editions;
   }
 
   @override
@@ -131,7 +135,7 @@ class ComicLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.toTransportItem().publisher
+        item.mapTransport((transport) => transport).publisher
       ),
       (
         'Released',
@@ -139,19 +143,19 @@ class ComicLibraryMediaPresentationBuilder
             ? item.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.toTransportItem().itemNumber != null)
+      if (item.mapTransport((transport) => transport).itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.toTransportItem().itemNumber
+          item.mapTransport((transport) => transport).itemNumber
         ),
-      if (item.toTransportItem().variant != null)
+      if (item.mapTransport((transport) => transport).variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.toTransportItem().variant
+          item.mapTransport((transport) => transport).variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.toTransportItem().identifierCode
+        item.mapTransport((transport) => transport).identifierCode
       ),
     ];
   }
@@ -442,18 +446,19 @@ class ComicLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
   LibraryAddCatalogTransport item,
 ) {
-  final itemNumber = item.toTransportItem().itemNumber?.trim();
+  final itemNumber =
+      item.mapTransport((transport) => transport).itemNumber?.trim();
   final subtitle = [
-    if (item.toTransportItem().publisher?.trim() case final value?
-        when value.isNotEmpty)
+    if (item.mapTransport((transport) => transport).publisher?.trim()
+        case final value? when value.isNotEmpty)
       value,
     if ((item.releaseYear ?? item.releaseDate?.year) case final year?)
       year.toString(),
-    if (item.toTransportItem().physicalFormatLabel?.trim() case final value?
-        when value.isNotEmpty)
+    if (item.mapTransport((transport) => transport).physicalFormatLabel?.trim()
+        case final value? when value.isNotEmpty)
       value,
-    if (item.toTransportItem().identifierCode?.trim() case final value?
-        when value.isNotEmpty)
+    if (item.mapTransport((transport) => transport).identifierCode?.trim()
+        case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(

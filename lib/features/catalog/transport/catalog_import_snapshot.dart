@@ -49,7 +49,8 @@ final class CatalogImportSnapshot {
   String get title => _item.title;
   String? get coverImageData => _item.coverImageData;
 
-  CatalogItemDto toTransportItem() => _item;
+  /// Decodes the snapshot only at an explicit catalog transport boundary.
+  T mapTransport<T>(T Function(CatalogItemDto item) decoder) => decoder(_item);
 
   Map<String, dynamic> toSyncPayload() => _item.toSyncPayload();
 }

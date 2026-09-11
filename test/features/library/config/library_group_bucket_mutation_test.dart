@@ -46,7 +46,8 @@ LibraryAddCatalogTransport _mutateGroup(
     replacement: replacement,
   );
   expect(updated, isNotNull);
-  return LibraryAddCatalogTransport.fromItem(updated!.toTransportItem());
+  return LibraryAddCatalogTransport.fromItem(
+      updated!.mapTransport((transport) => transport));
 }
 
 void main() {
@@ -71,7 +72,7 @@ void main() {
       replacement: 'New publisher',
     );
 
-    final payload = updated.toTransportItem().payload;
+    final payload = updated.mapTransport((transport) => transport).payload;
     expect(payload['publisher'], 'New publisher');
     expect(payload['original_publisher'], 'New publisher');
     final publishing = payload['publishing'] as Map;
@@ -94,7 +95,7 @@ void main() {
       replacement: 'New studio',
     );
 
-    final payload = updated.toTransportItem().payload;
+    final payload = updated.mapTransport((transport) => transport).payload;
     expect(payload['publisher'], 'New studio');
     expect(payload['studio'], 'New studio');
   });
@@ -113,7 +114,8 @@ void main() {
       replacement: 'drama',
     );
 
-    expect(updated.toTransportItem().payload['genres'], ['drama']);
+    expect(updated.mapTransport((transport) => transport).payload['genres'],
+        ['drama']);
   });
 
   test('replaces a joined list bucket as one value', () {
@@ -130,7 +132,8 @@ void main() {
       replacement: 'Adventure',
     );
 
-    expect(updated.toTransportItem().payload['genres'], ['Adventure']);
+    expect(updated.mapTransport((transport) => transport).payload['genres'],
+        ['Adventure']);
   });
 
   test('preserves an explicit scalar alias when a list supplies the bucket',
@@ -153,9 +156,9 @@ void main() {
 
     expect(updated, isNotNull);
     final updatedItem = LibraryAddCatalogTransport.fromItem(
-      updated!.toTransportItem(),
+      updated!.mapTransport((transport) => transport),
     );
-    final payload = updatedItem.toTransportItem().payload;
+    final payload = updatedItem.mapTransport((transport) => transport).payload;
     expect(payload['studios'], ['New studio']);
     expect(payload['publisher'], 'Explicit publisher');
   });
@@ -179,9 +182,9 @@ void main() {
 
     expect(updated, isNotNull);
     final updatedItem = LibraryAddCatalogTransport.fromItem(
-      updated!.toTransportItem(),
+      updated!.mapTransport((transport) => transport),
     );
-    final payload = updatedItem.toTransportItem().payload;
+    final payload = updatedItem.mapTransport((transport) => transport).payload;
     expect(payload['studios'], ['New studio']);
     expect(payload['publisher'], 'New studio');
   });

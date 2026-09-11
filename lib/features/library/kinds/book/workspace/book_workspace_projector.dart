@@ -17,10 +17,12 @@ final class BookWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final book = BookCatalogMapper.mapMetadataItemToBook(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     BookCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is BookCatalogMetadata) {
       metadata = km;
     }
@@ -39,10 +41,12 @@ final class BookWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final book = BookCatalogMapper.mapMetadataItemToBook(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     BookCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is BookCatalogMetadata) {
       metadata = km;
     }
@@ -83,8 +87,8 @@ WorkspaceCommonProjection _bookCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload =
-      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
+  final payload = catalog?.mapTransport((transport) => transport).payload ??
+      const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

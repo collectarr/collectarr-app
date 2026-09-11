@@ -192,7 +192,9 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
     ];
 
 TvSeriesMetadata? _tvLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   return metadata is TvSeriesMetadata ? metadata : null;
 }
 
@@ -203,8 +205,8 @@ MetadataSearchQuery _tvMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.toTransportItem().identifierCode,
-    publisher: item?.toTransportItem().publisher,
+    barcode: item?.mapTransport((transport) => transport).identifierCode,
+    publisher: item?.mapTransport((transport) => transport).publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -278,8 +280,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
   add: StandardLibraryAddCapability<TvAddDraft>(
     kind: CatalogMediaKind.tv,
     initialDraftBuilder: TvAddDraft.new,
-    providerCandidateProjectionBuilder:
-        tvCatalogTransportFromProviderCandidate,
+    providerCandidateProjectionBuilder: tvCatalogTransportFromProviderCandidate,
     coreCatalogProjectionBuilder: tvCatalogTransportFromCoreItem,
     manualDraftBuilder: TvAddManualDraft.new,
     ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
@@ -300,7 +301,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.toTransportItem().payload;
+      final payload = item.mapTransport((transport) => transport).payload;
       final direct = payload['is_digital'];
       if (direct is bool) return direct;
       final format =
@@ -338,7 +339,8 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -350,7 +352,8 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [
                       metadata.network,
@@ -367,7 +370,8 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [
                       metadata.firstAirDate?.year,
@@ -547,7 +551,7 @@ String? _optionalTvText(String value) {
 }
 
 LibraryAddVideoResultScope _tvAddResultScope(LibraryAddCatalogTransport item) {
-  final metadata = item.toTransportItem().kindMetadata;
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is TvSeriesMetadata) {
     if (metadata.seasonNumber != null ||
         metadata.series?.seasonNumber != null) {
@@ -585,7 +589,7 @@ LibraryAddVideoResultScope _tvAddProviderResultScope(
 }
 
 String _tvAddGroupTitle(LibraryAddCatalogTransport item) {
-  final metadata = item.toTransportItem().kindMetadata;
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
   if (metadata is TvSeriesMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??

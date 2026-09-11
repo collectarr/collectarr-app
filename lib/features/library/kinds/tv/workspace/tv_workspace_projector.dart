@@ -18,13 +18,15 @@ final class TvWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }
@@ -44,13 +46,15 @@ final class TvWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }
@@ -69,13 +73,15 @@ final class TvWorkspaceProjector
     required LibraryCopyNodeRef node,
   }) {
     final video = TvCatalogMapper.mapMetadataItemToTv(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final series = TvWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }
@@ -105,8 +111,8 @@ WorkspaceCommonProjection _tvCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload =
-      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
+  final payload = catalog?.mapTransport((transport) => transport).payload ??
+      const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

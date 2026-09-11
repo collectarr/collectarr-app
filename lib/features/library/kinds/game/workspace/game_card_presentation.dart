@@ -24,7 +24,7 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final releasePlatform = adapter?.referenceFormatLabel?.trim();
   final developer = gameDto?.publisher?.trim();
   final ageRating = (item.source.catalogTransport
-          ?.toTransportItem()
+          ?.mapTransport((transport) => transport)
           .payload['age_rating'] as String?)
       ?.trim();
   final owned = item.source.typedOwnedItem;

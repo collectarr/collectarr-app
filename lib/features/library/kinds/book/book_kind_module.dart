@@ -226,7 +226,9 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
     ];
 
 BookCatalogMetadata? _bookLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   return metadata is BookCatalogMetadata ? metadata : null;
 }
 
@@ -237,8 +239,8 @@ MetadataSearchQuery _bookMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.toTransportItem().identifierCode,
-    publisher: item?.toTransportItem().publisher,
+    barcode: item?.mapTransport((transport) => transport).identifierCode,
+    publisher: item?.mapTransport((transport) => transport).publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -341,7 +343,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.toTransportItem().payload;
+      final payload = item.mapTransport((transport) => transport).payload;
       final direct = payload['is_digital'];
       if (direct is bool) return direct;
       final format =
@@ -372,7 +374,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? metadata.authors
                   : const <Object?>[];
@@ -384,7 +387,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 90,
             containsWeight: 30,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.barcode, metadata.itemNumber]
                   : const <Object?>[];
@@ -396,7 +400,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.publisher, metadata.originalPublisher]
                   : const <Object?>[];
@@ -408,7 +413,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.originalPublicationDate?.year]
                   : const <Object?>[];

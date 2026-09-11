@@ -17,7 +17,9 @@ final class MangaWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     MangaMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is MangaMetadata) {
       metadata = km;
     }
@@ -68,8 +70,8 @@ WorkspaceCommonProjection _mangaCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload =
-      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
+  final payload = catalog?.mapTransport((transport) => transport).payload ??
+      const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

@@ -186,11 +186,12 @@ class BookEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final rawMetadata = selection.item.toTransportItem().kindMetadata;
+    final rawMetadata =
+        selection.item.mapTransport((transport) => transport).kindMetadata;
     final meta = rawMetadata is BookCatalogMetadata
         ? rawMetadata
         : BookCatalogMetadata.fromJson(
-            selection.item.toTransportItem().payload);
+            selection.item.mapTransport((transport) => transport).payload);
     final count = int.tryParse(pageCountController.text);
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
@@ -252,10 +253,11 @@ LibraryEditKindDraft createBookEditDraft({
 }) {
   final owned = BookOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final book = owned?.details;
-  final rawMetadata = item.toTransportItem().kindMetadata;
+  final rawMetadata = item.mapTransport((transport) => transport).kindMetadata;
   final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata
-      : BookCatalogMetadata.fromJson(item.toTransportItem().payload);
+      : BookCatalogMetadata.fromJson(
+          item.mapTransport((transport) => transport).payload);
   return BookEditDraft(
     ownedItem: owned,
     signedBy: book?.signedBy,

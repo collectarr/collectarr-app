@@ -44,7 +44,8 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
     entityType: const CatalogEntityTypeId('work'),
     id: item.node.titleItemId,
   );
-  final catalogPayload = catalogItem?.toTransportItem().payload;
+  final catalogPayload =
+      catalogItem?.mapTransport((transport) => transport).payload;
   final rawEditions = ((catalogPayload?['editions'] as List?)
           ?.whereType<Map<String, dynamic>>()
           .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
@@ -67,9 +68,11 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
   ];
 
-  final tvLinks = (catalogItem?.toTransportItem().kindMetadata
-              is TvSeriesMetadata
-          ? (catalogItem!.toTransportItem().kindMetadata as TvSeriesMetadata)
+  final tvLinks = (catalogItem
+              ?.mapTransport((transport) => transport)
+              .kindMetadata is TvSeriesMetadata
+          ? (catalogItem!.mapTransport((transport) => transport).kindMetadata
+                  as TvSeriesMetadata)
               .links
           : (catalogPayload?['trailer_urls'] as List?)
               ?.whereType<Map<String, dynamic>>()

@@ -77,9 +77,11 @@ class GameEditController {
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.item.toTransportItem().kindMetadata
-            is GameCatalogMetadata
-        ? (selection.item.toTransportItem().kindMetadata as GameCatalogMetadata)
+    final meta = selection.item
+            .mapTransport((transport) => transport)
+            .kindMetadata is GameCatalogMetadata
+        ? (selection.item.mapTransport((transport) => transport).kindMetadata
+            as GameCatalogMetadata)
         : null;
     final platforms = splitPickListValues(platformsController.text);
 
@@ -133,7 +135,7 @@ class GameEditController {
           country: updatedCountry ?? meta.country,
           releaseDate: parseDate(releaseDateController.text),
         ) ??
-        selection.item.toTransportItem().kindMetadata;
+        selection.item.mapTransport((transport) => transport).kindMetadata;
 
     final updatedItem = selection.item.withKindMetadata(updatedMetadata);
 

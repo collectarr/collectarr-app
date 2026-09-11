@@ -18,13 +18,15 @@ final class MovieWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final media = MovieWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }
@@ -44,13 +46,15 @@ final class MovieWorkspaceProjector
     required LibraryReleaseState releaseState,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final media = MovieWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }
@@ -69,13 +73,15 @@ final class MovieWorkspaceProjector
     required LibraryCopyNodeRef node,
   }) {
     final movie = MovieCatalogMapper.mapMetadataItemToMovie(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     final media = MovieWorkspaceMapper.fromCatalogItem(
-      source.catalogTransport!.toTransportItem(),
+      source.catalogTransport!.mapTransport((transport) => transport),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogTransport?.toTransportItem().kindMetadata;
+    final km = source.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }
@@ -105,8 +111,8 @@ WorkspaceCommonProjection _movieCommonProjection(
     }
     primaryVariant ??= edition.variants.isEmpty ? null : edition.variants.first;
   }
-  final payload =
-      catalog?.toTransportItem().payload ?? const <String, dynamic>{};
+  final payload = catalog?.mapTransport((transport) => transport).payload ??
+      const <String, dynamic>{};
   final rawSeries = payload['series'];
   final seriesMap = rawSeries is Map ? rawSeries : null;
   final publishing = payload['publishing'] as Map?;

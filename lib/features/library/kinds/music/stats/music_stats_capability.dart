@@ -137,7 +137,9 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static MusicCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport?.toTransportItem().kindMetadata;
+    final metadata = entry.catalogTransport
+        ?.mapTransport((transport) => transport)
+        .kindMetadata;
     return metadata is MusicCatalogMetadata ? metadata : null;
   }
 

@@ -237,8 +237,11 @@ class MangaEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.item.toTransportItem().kindMetadata is MangaMetadata
-        ? (selection.item.toTransportItem().kindMetadata as MangaMetadata)
+    final meta = selection.item
+            .mapTransport((transport) => transport)
+            .kindMetadata is MangaMetadata
+        ? (selection.item.mapTransport((transport) => transport).kindMetadata
+            as MangaMetadata)
         : null;
     final count = int.tryParse(pageCountController.text);
     final volumeNumber = int.tryParse(volumeNumberController.text);
@@ -289,7 +292,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
           localizedReleaseDate: parseDate(releaseDateController.text) ??
               meta.localizedReleaseDate,
         ) ??
-        selection.item.toTransportItem().kindMetadata;
+        selection.item.mapTransport((transport) => transport).kindMetadata;
 
     final updatedItem = selection.item.withKindMetadata(updatedMetadata);
     return selection.copyWith(item: updatedItem);
@@ -304,7 +307,7 @@ LibraryEditKindDraft createMangaEditDraft({
 }) {
   final owned = MangaOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final manga = owned?.details;
-  final rawMetadata = item.toTransportItem().kindMetadata;
+  final rawMetadata = item.mapTransport((transport) => transport).kindMetadata;
   final MangaMetadata? metadata =
       rawMetadata is MangaMetadata ? rawMetadata : null;
   return MangaEditDraft(

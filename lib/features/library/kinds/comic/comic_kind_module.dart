@@ -153,7 +153,9 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
     ];
 
 ComicMedia? _comicLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   return metadata is ComicMedia ? metadata : null;
 }
 
@@ -164,9 +166,9 @@ MetadataSearchQuery _comicMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.toTransportItem().identifierCode,
-    issueNumber: item?.toTransportItem().itemNumber,
-    publisher: item?.toTransportItem().publisher,
+    barcode: item?.mapTransport((transport) => transport).identifierCode,
+    issueNumber: item?.mapTransport((transport) => transport).itemNumber,
+    publisher: item?.mapTransport((transport) => transport).publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -280,7 +282,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.toTransportItem().payload;
+      final payload = item.mapTransport((transport) => transport).payload;
       final direct = payload['is_digital'];
       if (direct is bool) return direct;
       final format =
@@ -311,7 +313,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is ComicMedia
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const [];
@@ -323,7 +326,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 75,
             containsWeight: 36,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is ComicMedia ? [metadata.issueNumber] : const [];
             },
             providerValues: (candidate) => [candidate.issueNumber],
@@ -333,7 +337,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is ComicMedia
                   ? [metadata.publisher, metadata.imprint]
                   : const [];
@@ -345,7 +350,8 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is ComicMedia
                   ? [
                       metadata.releaseDate?.year,

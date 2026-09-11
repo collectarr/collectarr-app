@@ -135,7 +135,9 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
     ];
 
 GameCatalogMetadata? _gameLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   return metadata is GameCatalogMetadata ? metadata : null;
 }
 
@@ -146,8 +148,8 @@ MetadataSearchQuery _gameMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.toTransportItem().identifierCode,
-    publisher: item?.toTransportItem().publisher,
+    barcode: item?.mapTransport((transport) => transport).identifierCode,
+    publisher: item?.mapTransport((transport) => transport).publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -236,7 +238,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.toTransportItem().payload;
+      final payload = item.mapTransport((transport) => transport).payload;
       final direct = payload['is_digital'];
       if (direct is bool) return direct;
       final format =
@@ -267,7 +269,8 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is GameCatalogMetadata
                   ? [metadata.platform, ...metadata.platforms]
                   : const <Object?>[];
@@ -279,7 +282,8 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is GameCatalogMetadata
                   ? [item.releaseYear, metadata.releaseDate?.year]
                   : [item.releaseYear];

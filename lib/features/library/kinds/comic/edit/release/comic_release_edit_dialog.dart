@@ -36,7 +36,8 @@ class _ComicReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.item.toTransportItem().kindMetadata;
+    final metadata =
+        widget.request.item.mapTransport((transport) => transport).kindMetadata;
     if (metadata is! ComicMedia) {
       throw StateError('Expected ComicMedia for Comic release editing');
     }
@@ -67,7 +68,8 @@ class _ComicReleaseSchemaEditDialogState
         final selection = _editDraft.toSelection(
           submitAction: LibraryEditSubmitAction.save,
         );
-        final metadata = selection.item.toTransportItem().kindMetadata;
+        final metadata =
+            selection.item.mapTransport((transport) => transport).kindMetadata;
         if (metadata is! ComicMedia) {
           throw StateError('Expected ComicMedia for Comic release save');
         }

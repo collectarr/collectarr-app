@@ -132,7 +132,8 @@ final class ComicCollectionCsvProjection
     final catalog = entry.catalogTransport;
     final comic = catalog == null
         ? null
-        : ComicCoreMapper.fromCatalogItem(catalog.toTransportItem());
+        : ComicCoreMapper.fromCatalogItem(
+            catalog.mapTransport((transport) => transport));
     return [
       entry.itemId,
       catalog?.mediaKind.apiValue ?? '',

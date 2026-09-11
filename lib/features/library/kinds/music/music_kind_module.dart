@@ -149,7 +149,9 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
     ];
 
 MusicCatalogMetadata? _musicLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
+  final metadata = source.catalogTransport
+      ?.mapTransport((transport) => transport)
+      .kindMetadata;
   return metadata is MusicCatalogMetadata ? metadata : null;
 }
 
@@ -160,8 +162,8 @@ MetadataSearchQuery _musicMetadataSearchQuery({
   final item = source.catalogTransport;
   return MetadataSearchQuery(
     query: title,
-    barcode: item?.toTransportItem().identifierCode,
-    publisher: item?.toTransportItem().publisher,
+    barcode: item?.mapTransport((transport) => transport).identifierCode,
+    publisher: item?.mapTransport((transport) => transport).publisher,
     year: item?.releaseYear,
     limit: 5,
   );
@@ -257,7 +259,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
       isDigital: common.isDigital,
     ),
     digitalCopyFlagBuilder: (item) {
-      final payload = item.toTransportItem().payload;
+      final payload = item.mapTransport((transport) => transport).payload;
       final direct = payload['is_digital'];
       if (direct is bool) return direct;
       final format =
@@ -288,7 +290,8 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is MusicCatalogMetadata
                   ? [metadata.artist]
                   : const <Object?>[];
@@ -300,7 +303,8 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is MusicCatalogMetadata
                   ? [metadata.publisher, metadata.publishing?.imprint]
                   : const <Object?>[];
@@ -312,7 +316,8 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.toTransportItem().kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is MusicCatalogMetadata
                   ? [
                       metadata.originalReleaseDate?.year,

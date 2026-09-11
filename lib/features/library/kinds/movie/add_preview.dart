@@ -30,7 +30,9 @@ class _MovieAddPreviewPane extends StatelessWidget {
         selectedItem?.title ??
         selectedCandidate!.title;
     final itemNumber = selectedBundle == null
-        ? (selectedItem?.toTransportItem().payload['item_number'] as String?)
+        ? (selectedItem
+            ?.mapTransport((transport) => transport)
+            .payload['item_number'] as String?)
         : null;
     final preview = request.candidatePreview;
     final synopsis = selectedItem?.synopsis ??
@@ -117,7 +119,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
                               accent: request.accent,
                             ),
                           if ((selectedItem
-                                          ?.toTransportItem()
+                                          ?.mapTransport((transport) => transport)
                                           .payload['physical_format_label']
                                       as String?)
                                   ?.trim()
@@ -125,7 +127,7 @@ class _MovieAddPreviewPane extends StatelessWidget {
                               true)
                             LibraryAddResultBadge(
                               (selectedItem!
-                                          .toTransportItem()
+                                          .mapTransport((transport) => transport)
                                           .payload['physical_format_label']
                                       as String)
                                   .trim(),
