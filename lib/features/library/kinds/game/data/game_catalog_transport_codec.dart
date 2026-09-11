@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_repository.dart';
@@ -51,7 +53,20 @@ final class GameCatalogTransportCodec implements CatalogKindTransportCodec {
   }
 
   @override
-  CatalogKindDerivedData? derivedDataFromDto(CatalogItemDto item) =>
+  Future<void> captureDerivedData(
+    PickListRepository pickLists,
+    SerialAuthorityRepository serialAuthority,
+    CatalogItemDto item,
+  ) async {
+    await captureCatalogKindDerivedData(
+      kind: kind,
+      derived: _derivedDataFromDto(item),
+      pickLists: pickLists,
+      serialAuthority: serialAuthority,
+    );
+  }
+
+  CatalogKindDerivedData? _derivedDataFromDto(CatalogItemDto item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: _typedMetadataFromDto(item),

@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
-import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -78,24 +77,16 @@ final class CatalogTransportRepository {
 
     final pickLists = PickListRepository(_db);
     final serialAuthority = SerialAuthorityRepository(_db);
-    final serialCandidates = <SerialAuthorityCandidate>[];
     await _db.transaction(() async {
       for (final item in list) {
         final codec = _codecs[item.mediaKind];
-        final derived = codec?.derivedDataFromDto(item);
-        if (derived == null) continue;
-
-        for (final projected in derived.pickListValues) {
-          await pickLists.captureValuesWithoutTransaction(
-            projected.listName,
-            projected.values,
-            mediaKind: item.mediaKind.apiValue,
-          );
-        }
-        serialCandidates.addAll(derived.serialCandidates);
+        if (codec == null) continue;
+        await codec.captureDerivedData(
+          pickLists,
+          serialAuthority,
+          item,
+        );
       }
-      await serialAuthority
-          .captureCandidatesWithoutTransaction(serialCandidates);
     });
   }
 

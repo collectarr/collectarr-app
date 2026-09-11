@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
 /// Explicit schema-v1 transport adapter for one catalog kind.
 ///
@@ -22,7 +23,11 @@ abstract interface class CatalogKindTransportCodec
     Iterable<String> ids,
   );
 
-  CatalogKindDerivedData? derivedDataFromDto(CatalogItemDto item);
+  Future<void> captureDerivedData(
+    PickListRepository pickLists,
+    SerialAuthorityRepository serialAuthority,
+    CatalogItemDto item,
+  );
 
   Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item);
 
