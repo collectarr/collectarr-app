@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owne
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:drift/native.dart';
@@ -130,17 +132,19 @@ void main() {
     );
 
     final itemRef = await coordinator.addOwnedItem(command);
-    final stored = await OwnedItemsRepository(db).findTypedByRef(itemRef);
-    final item = stored!.$2 as ComicOwnedItem;
+    final item = await ComicOwnedRepository(db)
+        .findById(ComicOwnedItemId(itemRef.id.value));
+    expect(item, isNotNull);
+    final storedItem = item!;
 
-    expect(item.itemId, 'comic-cmd-1');
-    expect(item.targetRef?.entityType.apiValue, 'release');
-    expect(item.targetRef?.parentId, 'edition-1');
-    expect(item.targetRef?.id, 'variant-1');
-    expect(item.condition, 'Near Mint');
-    expect(item.grade, '9.8');
-    expect(item.pricePaidCents, 1500);
-    final comicDetails = item.details;
+    expect(storedItem.itemId, 'comic-cmd-1');
+    expect(storedItem.targetRef?.entityType.apiValue, 'release');
+    expect(storedItem.targetRef?.parentId, 'edition-1');
+    expect(storedItem.targetRef?.id, 'variant-1');
+    expect(storedItem.condition, 'Near Mint');
+    expect(storedItem.grade, '9.8');
+    expect(storedItem.pricePaidCents, 1500);
+    final comicDetails = storedItem.details;
     expect(comicDetails.gradingCompany, 'CGC');
     expect(comicDetails.certificationNumber, 'CGC-12345');
     expect(comicDetails.coverPriceCents, 499);
@@ -206,16 +210,17 @@ void main() {
     );
 
     expect(updatedRef.id, initialRef.id);
-    final updatedStored =
-        await OwnedItemsRepository(db).findTypedByRef(updatedRef);
-    final updated = updatedStored!.$2 as ComicOwnedItem;
-    expect(updated.targetRef?.entityType.apiValue, 'release');
-    expect(updated.targetRef?.parentId, 'edition-updated');
-    expect(updated.targetRef?.id, 'variant-updated');
-    expect(updated.condition, 'Near Mint');
-    expect(updated.grade, '9.6');
-    expect(updated.pricePaidCents, 1000);
-    final comicDetails = updated.details;
+    final updated = await ComicOwnedRepository(db)
+        .findById(ComicOwnedItemId(updatedRef.id.value));
+    expect(updated, isNotNull);
+    final updatedItem = updated!;
+    expect(updatedItem.targetRef?.entityType.apiValue, 'release');
+    expect(updatedItem.targetRef?.parentId, 'edition-updated');
+    expect(updatedItem.targetRef?.id, 'variant-updated');
+    expect(updatedItem.condition, 'Near Mint');
+    expect(updatedItem.grade, '9.6');
+    expect(updatedItem.pricePaidCents, 1000);
+    final comicDetails = updatedItem.details;
     expect(comicDetails.rawOrSlabbed, 'Slabbed');
     expect(comicDetails.gradingCompany, 'CBCS');
   });

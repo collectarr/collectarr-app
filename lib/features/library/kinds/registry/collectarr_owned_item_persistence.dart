@@ -85,27 +85,17 @@ final class CollectarrOwnedItemPersistence {
     return collectarrReplaceOwnedFromJson(_database, kind, payload);
   }
 
-  Future<void> upsertTyped(CatalogMediaKind kind, Object item) =>
-      collectarrUpsertTypedOwnedItem(_database, kind, item);
-
-  Future<(CatalogMediaKind kind, Object item)?> findTypedByRef(
+  Future<(CatalogMediaKind kind, Object item)?> ownedItemForLibraryByRef(
     OwnedItemRef ref,
   ) async {
-    return collectarrFindTypedOwnedItemByRef(_database, ref);
+    return collectarrOwnedItemForLibraryByRef(_database, ref);
   }
 
   Future<OwnedItemMutationResult?> markDeletedByRef(
     OwnedItemRef ref,
     DateTime deletedAt,
   ) async {
-    final item = await findTypedByRef(ref);
-    if (item == null) return null;
-    return collectarrMarkTypedOwnedItemDeleted(
-      _database,
-      item.$1,
-      item.$2,
-      deletedAt,
-    );
+    return collectarrMarkOwnedItemDeletedByRef(_database, ref, deletedAt);
   }
 
   Future<void> updateLocation(OwnedItemRef ref, String? locationId) async {

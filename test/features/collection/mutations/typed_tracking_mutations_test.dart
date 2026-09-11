@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.da
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -23,9 +22,7 @@ import 'package:collectarr_app/features/collection/mutations/tracking_mutations.
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_unit_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tracking_import_contribution.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -118,7 +115,10 @@ void main() {
       await catalogCache.upsertAll([
         testCatalogItem(id: 'book-77', kind: 'book', title: 'Test Book'),
       ]);
-      await ownedItems.upsertTyped(CatalogMediaKind.book, owned);
+      await ownedItems.replaceFromPayload(
+        CatalogMediaKind.book,
+        collectarrTypedOwnedItemJson(owned),
+      );
 
       await trackingMutations.upsertTrackingLifecycle(
         TrackingTarget.owned(
@@ -345,7 +345,10 @@ void main() {
           title: 'Tracked Show',
         ),
       ]);
-      await ownedItems.upsertTyped(CatalogMediaKind.tv, owned);
+      await ownedItems.replaceFromPayload(
+        CatalogMediaKind.tv,
+        collectarrTypedOwnedItemJson(owned),
+      );
       await trackingLifecycles.upsert(
         TvTrackingLifecycle(
           id: 'tracking-tv-1',
@@ -408,7 +411,10 @@ void main() {
           title: 'Anchored Book',
         ),
       ]);
-      await ownedItems.upsertTyped(CatalogMediaKind.book, owned);
+      await ownedItems.replaceFromPayload(
+        CatalogMediaKind.book,
+        collectarrTypedOwnedItemJson(owned),
+      );
       final ownedRef = OwnedItemRef(
         kind: CatalogMediaKind.book,
         id: OwnedItemId(owned.id.value),

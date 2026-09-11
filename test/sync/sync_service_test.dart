@@ -15,6 +15,8 @@ import 'package:collectarr_app/features/collection/repositories/custom_episodes_
 import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import '../helpers/tracking_lifecycle_test_helpers.dart';
@@ -41,12 +43,8 @@ void main() {
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
 
-    final row = await OwnedItemsRepository(db).findTypedByRef(
-      const OwnedItemRef(
-        kind: CatalogMediaKind.comic,
-        id: OwnedItemId('owned-1'),
-      ),
-    );
+    final owned = await ComicOwnedRepository(db)
+        .findById(const ComicOwnedItemId('owned-1'));
     final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
     final trackingRow = await readSingleTrackingLifecycle(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
@@ -58,8 +56,6 @@ void main() {
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
-    expect(row?.$1, CatalogMediaKind.comic);
-    final owned = row?.$2 as ComicOwnedItem?;
     expect(owned?.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(typedOwnedRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
     expect(trackingRow.statusStorageValue, 'Completed');
@@ -112,14 +108,8 @@ void main() {
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
-    final row = await OwnedItemsRepository(db).findTypedByRef(
-      const OwnedItemRef(
-        kind: CatalogMediaKind.comic,
-        id: OwnedItemId('owned-1'),
-      ),
-    );
-    expect(row?.$1, CatalogMediaKind.comic);
-    final owned = row?.$2 as ComicOwnedItem?;
+    final owned = await ComicOwnedRepository(db)
+        .findById(const ComicOwnedItemId('owned-1'));
     expect(result.rejectedCount, 1);
     expect(result.rejectedChanges.single.entityId, 'owned-1');
     expect(await queue.pendingCount(), 0);

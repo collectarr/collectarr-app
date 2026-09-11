@@ -215,7 +215,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_code
 import 'package:collectarr_app/features/library/tracking/tracking_unit_codec.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 
 final List<LibraryKindModule> collectarrKindModules = [
   animeKindModule,
@@ -824,73 +823,6 @@ Future<OwnedItemMutationResult> collectarrUpdateOwnedItem(
   throw ArgumentError.value(ref.kind, 'ref', 'Unsupported owned kind');
 }
 
-Future<void> collectarrUpsertTypedOwnedItem(
-    LocalDatabase database, CatalogMediaKind kind, Object item) async {
-  if (kind == CatalogMediaKind.anime) {
-    if (item is! AnimeOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected AnimeOwnedItem for anime');
-    await AnimeOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.boardgame) {
-    if (item is! BoardGameOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected BoardGameOwnedItem for boardgame');
-    await BoardGameOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.book) {
-    if (item is! BookOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected BookOwnedItem for book');
-    await BookOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.comic) {
-    if (item is! ComicOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected ComicOwnedItem for comic');
-    await ComicOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.game) {
-    if (item is! GameOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected GameOwnedItem for game');
-    await GameOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.manga) {
-    if (item is! MangaOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected MangaOwnedItem for manga');
-    await MangaOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.movie) {
-    if (item is! MovieOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected MovieOwnedItem for movie');
-    await MovieOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.music) {
-    if (item is! MusicOwnedItem)
-      throw ArgumentError.value(
-          item, 'item', 'Expected MusicOwnedItem for music');
-    await MusicOwnedRepository(database).upsert(item);
-    return;
-  }
-  if (kind == CatalogMediaKind.tv) {
-    if (item is! TvOwnedItem)
-      throw ArgumentError.value(item, 'item', 'Expected TvOwnedItem for tv');
-    await TvOwnedRepository(database).upsert(item);
-    return;
-  }
-  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
-}
-
 Future<void> collectarrUpdateTypedOwnedLocation(LocalDatabase database,
     CatalogMediaKind kind, String id, String? locationId) async {
   if (kind == CatalogMediaKind.anime) {
@@ -967,8 +899,9 @@ Future<void> collectarrUpdateTypedOwnedLocation(LocalDatabase database,
   throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');
 }
 
-Future<(CatalogMediaKind kind, Object item)?> collectarrFindTypedOwnedItemByRef(
-    LocalDatabase database, OwnedItemRef ref) async {
+Future<(CatalogMediaKind kind, Object item)?>
+    collectarrOwnedItemForLibraryByRef(
+        LocalDatabase database, OwnedItemRef ref) async {
   if (ref.kind == CatalogMediaKind.anime) {
     final item = await AnimeOwnedRepository(database)
         .findById(AnimeOwnedItemId(ref.id.value));
@@ -1379,6 +1312,138 @@ Future<OwnedItemMutationResult?> collectarrMarkTypedOwnedItemDeleted(
   if (kind == CatalogMediaKind.tv) {
     if (item is! TvOwnedItem)
       throw ArgumentError.value(item, 'item', 'Expected TvOwnedItem for tv');
+    await TvOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.tv, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.tv, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  return null;
+}
+
+Future<OwnedItemMutationResult?> collectarrMarkOwnedItemDeletedByRef(
+    LocalDatabase database, OwnedItemRef ref, DateTime deletedAt) async {
+  if (ref.kind == CatalogMediaKind.anime) {
+    final item = await AnimeOwnedRepository(database)
+        .findById(AnimeOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await AnimeOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.anime, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.anime, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.boardgame) {
+    final item = await BoardGameOwnedRepository(database)
+        .findById(BoardGameOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await BoardGameOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized = collectarrTypedOwnedItemSyncPayload(
+        CatalogMediaKind.boardgame, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.boardgame,
+            id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.book) {
+    final item = await BookOwnedRepository(database)
+        .findById(BookOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await BookOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.book, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.book, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.comic) {
+    final item = await ComicOwnedRepository(database)
+        .findById(ComicOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await ComicOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.comic, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.comic, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.game) {
+    final item = await GameOwnedRepository(database)
+        .findById(GameOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await GameOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.game, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.game, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.manga) {
+    final item = await MangaOwnedRepository(database)
+        .findById(MangaOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await MangaOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.manga, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.manga, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.movie) {
+    final item = await MovieOwnedRepository(database)
+        .findById(MovieOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await MovieOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.movie, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.movie, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.music) {
+    final item = await MusicOwnedRepository(database)
+        .findById(MusicOwnedItemId(ref.id.value));
+    if (item == null) return null;
+    await MusicOwnedRepository(database).markDeleted(item, deletedAt);
+    final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
+    final serialized =
+        collectarrTypedOwnedItemSyncPayload(CatalogMediaKind.music, deleted);
+    return OwnedItemMutationResult(
+        ref: OwnedItemRef(
+            kind: CatalogMediaKind.music, id: OwnedItemId(deleted.id.value)),
+        syncPayload: serialized.payload,
+        isDeleted: true);
+  }
+  if (ref.kind == CatalogMediaKind.tv) {
+    final item =
+        await TvOwnedRepository(database).findById(TvOwnedItemId(ref.id.value));
+    if (item == null) return null;
     await TvOwnedRepository(database).markDeleted(item, deletedAt);
     final deleted = item.copyWith(updatedAt: deletedAt, deletedAt: deletedAt);
     final serialized =

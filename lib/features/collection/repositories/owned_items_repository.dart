@@ -101,15 +101,6 @@ final class OwnedItemsRepository {
     return null;
   }
 
-  Future<(CatalogMediaKind kind, Object item)?> findTypedByRef(
-    OwnedItemRef ref,
-  ) {
-    return _persistence.findTypedByRef(ref);
-  }
-
-  Future<void> upsertTyped(CatalogMediaKind kind, Object item) =>
-      _persistence.upsertTyped(kind, item);
-
   Future<OwnedItemMutationResult?> markDeletedByRef(
     OwnedItemRef ref,
     DateTime deletedAt,

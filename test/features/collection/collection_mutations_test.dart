@@ -21,8 +21,14 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -1574,9 +1580,17 @@ void main() {
 }
 
 Future<T> _typedOwned<T>(LocalDatabase db, OwnedItemRef ref) async {
-  final result = await OwnedItemsRepository(db).findTypedByRef(ref);
+  final result = switch (ref.kind) {
+    CatalogMediaKind.comic =>
+      await ComicOwnedRepository(db).findById(ComicOwnedItemId(ref.id.value)),
+    CatalogMediaKind.book =>
+      await BookOwnedRepository(db).findById(BookOwnedItemId(ref.id.value)),
+    CatalogMediaKind.movie =>
+      await MovieOwnedRepository(db).findById(MovieOwnedItemId(ref.id.value)),
+    _ => throw StateError('Unsupported test Owned kind ${ref.kind}'),
+  };
   expect(result, isNotNull, reason: 'Missing typed Owned item ${ref.key}');
-  return result!.$2 as T;
+  return result as T;
 }
 
 Future<T> _typedOwnedForCatalog<T>(LocalDatabase db, String itemId) async {

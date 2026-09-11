@@ -599,9 +599,6 @@ import 'package:go_router/go_router.dart';
   buffer.writeln(
     "import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';",
   );
-  buffer.writeln(
-    "import 'package:collectarr_app/features/library/config/owned_details_codec.dart';",
-  );
   buffer.writeln();
   buffer.writeln('final List<LibraryKindModule> collectarrKindModules = [');
   for (final descriptor in descriptors) {
@@ -1072,32 +1069,6 @@ void _renderOwnedPersistenceMaps(
   buffer.writeln();
 
   buffer.writeln(
-    'Future<void> collectarrUpsertTypedOwnedItem('
-    'LocalDatabase database, CatalogMediaKind kind, Object item) async {',
-  );
-  for (final descriptor in descriptors) {
-    final persistence = descriptor.ownedPersistence;
-    if (persistence == null) continue;
-    final repository = persistence.repository.className;
-    final ownedModel = persistence.ownedModel.className;
-    buffer.writeln(
-      '  if (kind == CatalogMediaKind.${descriptor.folder}) {',
-    );
-    buffer.writeln(
-      '    if (item is! $ownedModel) throw ArgumentError.value('
-      "item, 'item', 'Expected $ownedModel for ${descriptor.folder}');",
-    );
-    buffer.writeln('    await $repository(database).upsert(item);');
-    buffer.writeln('    return;');
-    buffer.writeln('  }');
-  }
-  buffer.writeln(
-    "  throw ArgumentError.value(kind, 'kind', 'Unsupported owned kind');",
-  );
-  buffer.writeln('}');
-  buffer.writeln();
-
-  buffer.writeln(
     'Future<void> collectarrUpdateTypedOwnedLocation('
     'LocalDatabase database, CatalogMediaKind kind, String id, '
     'String? locationId) async {',
@@ -1129,7 +1100,7 @@ void _renderOwnedPersistenceMaps(
 
   buffer.writeln(
     'Future<(CatalogMediaKind kind, Object item)?> '
-    'collectarrFindTypedOwnedItemByRef('
+    'collectarrOwnedItemForLibraryByRef('
     'LocalDatabase database, OwnedItemRef ref) async {',
   );
   for (final descriptor in descriptors) {
@@ -1259,6 +1230,46 @@ void _renderOwnedPersistenceMaps(
       '    if (item is! $ownedModel) throw ArgumentError.value('
       "item, 'item', 'Expected $ownedModel for ${descriptor.folder}');",
     );
+    buffer.writeln(
+      '    await $repository(database).markDeleted(item, deletedAt);',
+    );
+    buffer.writeln(
+      '    final deleted = item.copyWith('
+      'updatedAt: deletedAt, deletedAt: deletedAt);',
+    );
+    buffer.writeln(
+      '    final serialized = collectarrTypedOwnedItemSyncPayload('
+      'CatalogMediaKind.${descriptor.folder}, deleted);',
+    );
+    buffer.writeln(
+      '    return OwnedItemMutationResult('
+      'ref: OwnedItemRef(kind: CatalogMediaKind.${descriptor.folder}, '
+      'id: OwnedItemId(deleted.id.value)), '
+      'syncPayload: serialized.payload, isDeleted: true);',
+    );
+    buffer.writeln('  }');
+  }
+  buffer.writeln('  return null;');
+  buffer.writeln('}');
+  buffer.writeln();
+
+  buffer.writeln(
+    'Future<OwnedItemMutationResult?> collectarrMarkOwnedItemDeletedByRef('
+    'LocalDatabase database, OwnedItemRef ref, DateTime deletedAt) async {',
+  );
+  for (final descriptor in descriptors) {
+    final persistence = descriptor.ownedPersistence;
+    if (persistence == null) continue;
+    final repository = persistence.repository.className;
+    final ownedId = persistence.ownedId.className;
+    buffer.writeln(
+      '  if (ref.kind == CatalogMediaKind.${descriptor.folder}) {',
+    );
+    buffer.writeln(
+      '    final item = await $repository(database)'
+      '.findById($ownedId(ref.id.value));',
+    );
+    buffer.writeln('    if (item == null) return null;');
     buffer.writeln(
       '    await $repository(database).markDeleted(item, deletedAt);',
     );

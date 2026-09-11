@@ -12,8 +12,8 @@ import 'package:collectarr_app/features/catalog/catalog_display_summary_reposito
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -29,10 +29,10 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final trackingSummaries = await ref.watch(trackingSummariesProvider.future);
   final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
-  final ownedRepository = OwnedItemsRepository(db);
+  final ownedRepository = CollectarrOwnedItemPersistence(db);
   final typedOwnedResults = await Future.wait(
     ownedSummaries.map(
-      (summary) => ownedRepository.findTypedByRef(summary.ref),
+      (summary) => ownedRepository.ownedItemForLibraryByRef(summary.ref),
     ),
   );
   final typedOwnedItemsByRef = <OwnedItemRef, Object>{};

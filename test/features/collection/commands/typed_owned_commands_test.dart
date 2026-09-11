@@ -119,10 +119,10 @@ void main() {
         );
 
         final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
-        final stored = await OwnedItemsRepository(db).findTypedByRef(itemRef);
-        expect(stored, isNotNull);
-        expect(stored!.$1, kind);
-        expect(collectarrTypedOwnedItemJson(stored.$2), isNotEmpty);
+        final storedPayload =
+            await OwnedItemsRepository(db).payloadByRef(itemRef);
+        expect(storedPayload, isNotNull);
+        expect(storedPayload, isNotEmpty);
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
 
         final mismatchedDetails = mismatchedDetailsByKind[kind];
@@ -180,11 +180,10 @@ void main() {
 
         final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
 
-        final updatedStored =
-            await OwnedItemsRepository(db).findTypedByRef(updated);
-        expect(updatedStored, isNotNull);
-        expect(updatedStored!.$1, kind);
-        expect(collectarrTypedOwnedItemJson(updatedStored.$2), isNotEmpty);
+        final updatedPayload =
+            await OwnedItemsRepository(db).payloadByRef(updated);
+        expect(updatedPayload, isNotNull);
+        expect(updatedPayload, isNotEmpty);
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
       }
     });
