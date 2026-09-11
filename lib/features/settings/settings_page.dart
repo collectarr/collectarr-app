@@ -22,12 +22,10 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
-import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
 import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
-import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_pending_import_store.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
@@ -57,7 +55,6 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -835,9 +832,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 'Import your collection and tracking data from external services.',
               ),
               const SizedBox(height: 12),
-              const _ImportJobsPanel(),
+              const TmdbImportJobsPanel(),
               const SizedBox(height: 12),
-              const _TmdbPendingImportsPanel(),
+              const TmdbPendingImportsPanel(),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: () {
