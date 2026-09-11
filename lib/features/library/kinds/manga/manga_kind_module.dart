@@ -214,7 +214,7 @@ Iterable<String?> _mangaLinkedMetadataValues(MangaMetadata metadata) => [
     ];
 
 MangaMetadata? _mangaLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is MangaMetadata ? metadata : null;
 }
 
@@ -354,7 +354,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MangaMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -366,7 +366,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 75,
             containsWeight: 36,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MangaMetadata
                   ? [metadata.itemNumber, metadata.volumeNumber]
                   : const <Object?>[];
@@ -378,7 +378,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MangaMetadata
                   ? [
                       metadata.publisher,
@@ -394,7 +394,7 @@ final mangaKindModule = LibraryKindSpec<MangaWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MangaMetadata
                   ? [
                       metadata.originalPublicationDate?.year,

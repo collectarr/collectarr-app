@@ -242,8 +242,9 @@ class BoardGameEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.item.kindMetadata is BoardGameMetadata
-        ? (selection.item.kindMetadata as BoardGameMetadata)
+    final meta = selection.item.toTransportItem().kindMetadata
+            is BoardGameMetadata
+        ? (selection.item.toTransportItem().kindMetadata as BoardGameMetadata)
         : null;
     if (meta != null) {
       final originalTitle = _nullableText(originalTitleController);
@@ -438,8 +439,8 @@ LibraryEditKindDraft createBoardGameEditDraft({
 }) {
   final owned = BoardGameOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final bg = owned?.details;
-  final meta = item.kindMetadata is BoardGameMetadata
-      ? item.kindMetadata as BoardGameMetadata
+  final meta = item.toTransportItem().kindMetadata is BoardGameMetadata
+      ? item.toTransportItem().kindMetadata as BoardGameMetadata
       : null;
   return BoardGameEditDraft(
     ownedItem: owned,

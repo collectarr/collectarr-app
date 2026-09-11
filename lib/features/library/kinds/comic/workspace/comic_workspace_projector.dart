@@ -17,7 +17,7 @@ final class ComicWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     final catalog = source.catalogTransport;
-    final rawMetadata = catalog?.kindMetadata;
+    final rawMetadata = catalog?.toTransportItem().kindMetadata;
     final ComicMedia metadata;
     if (rawMetadata is ComicMedia) {
       metadata = rawMetadata;

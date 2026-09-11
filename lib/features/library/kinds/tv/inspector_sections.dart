@@ -67,8 +67,10 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
   ];
 
-  final tvLinks = (catalogItem?.kindMetadata is TvSeriesMetadata
-          ? (catalogItem!.kindMetadata as TvSeriesMetadata).links
+  final tvLinks = (catalogItem?.toTransportItem().kindMetadata
+              is TvSeriesMetadata
+          ? (catalogItem!.toTransportItem().kindMetadata as TvSeriesMetadata)
+              .links
           : (catalogPayload?['trailer_urls'] as List?)
               ?.whereType<Map<String, dynamic>>()
               .map((e) => TrailerLinkDto.fromJson(Map<String, dynamic>.from(e)))

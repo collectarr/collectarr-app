@@ -162,7 +162,7 @@ Iterable<String?> _boardGameLinkedMetadataValues(
     ];
 
 BoardGameMetadata? _boardGameLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is BoardGameMetadata ? metadata : null;
 }
 
@@ -287,7 +287,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is BoardGameMetadata
                   ? [...metadata.designers, ...metadata.artists]
                   : const <Object?>[];
@@ -299,7 +299,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is BoardGameMetadata
                   ? [...metadata.publishers, metadata.publisher]
                   : const <Object?>[];
@@ -311,7 +311,7 @@ final boardGameKindModule = LibraryKindSpec<BoardGameWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is BoardGameMetadata
                   ? [metadata.yearPublished]
                   : const <Object?>[];

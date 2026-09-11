@@ -223,7 +223,7 @@ Iterable<String?> _movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
     ];
 
 MovieCatalogMetadata? _movieLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is MovieCatalogMetadata ? metadata : null;
 }
 
@@ -371,7 +371,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MovieCatalogMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -383,7 +383,7 @@ final movieKindModule = LibraryKindSpec<MovieWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MovieCatalogMetadata
                   ? [metadata.releaseDate?.year]
                   : const <Object?>[];
@@ -536,7 +536,7 @@ String? _optionalMovieText(String value) {
 
 LibraryAddVideoResultScope _movieAddResultScope(
     LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is MovieCatalogMetadata &&
       [
         metadata.editionTitle,
@@ -565,7 +565,7 @@ LibraryAddVideoResultScope _movieAddProviderResultScope(
 }
 
 String _movieAddGroupTitle(LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is MovieCatalogMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??

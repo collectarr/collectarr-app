@@ -186,7 +186,7 @@ class BookEditDraft extends LibraryEditKindDraft {
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final rawMetadata = selection.item.kindMetadata;
+    final rawMetadata = selection.item.toTransportItem().kindMetadata;
     final meta = rawMetadata is BookCatalogMetadata
         ? rawMetadata
         : BookCatalogMetadata.fromJson(
@@ -254,7 +254,7 @@ LibraryEditKindDraft createBookEditDraft({
 }) {
   final owned = BookOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final book = owned?.details;
-  final rawMetadata = item.kindMetadata;
+  final rawMetadata = item.toTransportItem().kindMetadata;
   final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
       ? rawMetadata
       : BookCatalogMetadata.fromJson(item.toTransportItem().payload);

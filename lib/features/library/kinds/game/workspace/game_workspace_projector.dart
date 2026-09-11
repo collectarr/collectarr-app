@@ -20,7 +20,7 @@ final class GameWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     GameCatalogMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {
@@ -46,7 +46,7 @@ final class GameWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     GameCatalogMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is GameCatalogMetadata) {
       metadata = km;
     } else if (km != null) {

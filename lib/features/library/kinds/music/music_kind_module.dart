@@ -148,7 +148,7 @@ Iterable<String?> _musicLinkedMetadataValues(MusicCatalogMetadata metadata) => [
     ];
 
 MusicCatalogMetadata? _musicLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is MusicCatalogMetadata ? metadata : null;
 }
 
@@ -283,7 +283,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MusicCatalogMetadata
                   ? [metadata.artist]
                   : const <Object?>[];
@@ -295,7 +295,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MusicCatalogMetadata
                   ? [metadata.publisher, metadata.publishing?.imprint]
                   : const <Object?>[];
@@ -307,7 +307,7 @@ final musicKindModule = LibraryKindSpec<MusicWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is MusicCatalogMetadata
                   ? [
                       metadata.originalReleaseDate?.year,

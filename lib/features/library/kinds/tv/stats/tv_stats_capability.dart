@@ -21,7 +21,7 @@ class TvStatsCapability implements LibraryStatsCapability {
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
     final catalog = entry.catalogTransport;
-    final metadata = catalog?.kindMetadata;
+    final metadata = catalog?.toTransportItem().kindMetadata;
     if (catalog == null || metadata is! TvSeriesMetadata) return null;
     final secondary =
         (metadata.publisher ?? metadata.network ?? metadata.streamingService)

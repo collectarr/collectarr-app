@@ -33,7 +33,7 @@ class _BoardGameMediaSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.item.kindMetadata;
+    final metadata = widget.request.item.toTransportItem().kindMetadata;
     if (metadata is! BoardGameMetadata) {
       throw StateError(
         'Expected BoardGameMetadata for BoardGame media editing',

@@ -181,8 +181,8 @@ LibraryEditKindDraft createMusicEditDraft({
 }) {
   final owned = MusicOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final music = owned?.details;
-  final meta = item.kindMetadata is MusicCatalogMetadata
-      ? item.kindMetadata as MusicCatalogMetadata
+  final meta = item.toTransportItem().kindMetadata is MusicCatalogMetadata
+      ? item.toTransportItem().kindMetadata as MusicCatalogMetadata
       : null;
   final externalLinks = [
     for (final link in (meta?.links ?? const <TrailerLinkDto>[])

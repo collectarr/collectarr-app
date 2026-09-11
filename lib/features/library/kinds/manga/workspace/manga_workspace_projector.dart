@@ -17,7 +17,7 @@ final class MangaWorkspaceProjector
     required LibraryTitleNodeRef node,
   }) {
     MangaMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is MangaMetadata) {
       metadata = km;
     }

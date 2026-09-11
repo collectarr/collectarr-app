@@ -193,7 +193,7 @@ class MovieStatsCapability implements LibraryStatsCapability {
   }
 
   static MovieCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport?.kindMetadata;
+    final metadata = entry.catalogTransport?.toTransportItem().kindMetadata;
     return metadata is MovieCatalogMetadata ? metadata : null;
   }
 

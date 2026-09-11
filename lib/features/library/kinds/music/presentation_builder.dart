@@ -476,7 +476,7 @@ MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
 
 MusicCatalogMetadata? _musicMetadataItem(LibraryAddCatalogTransport? item) {
   if (item == null) return null;
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
   return MusicCatalogMetadata.fromJson(item.toTransportItem().payload);
 }

@@ -131,7 +131,7 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
   }
 
   static BoardGameMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport?.kindMetadata;
+    final metadata = entry.catalogTransport?.toTransportItem().kindMetadata;
     return metadata is BoardGameMetadata ? metadata : null;
   }
 

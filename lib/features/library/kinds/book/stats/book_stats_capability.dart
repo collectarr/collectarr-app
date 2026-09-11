@@ -21,7 +21,7 @@ class BookStatsCapability implements LibraryStatsCapability {
   LibraryStatsMetadataProjection? buildMetadataProjection(
       LibraryWorkspaceSource entry) {
     final catalog = entry.catalogTransport;
-    final metadata = entry.catalogTransport?.kindMetadata;
+    final metadata = entry.catalogTransport?.toTransportItem().kindMetadata;
     if (catalog == null || metadata is! BookCatalogMetadata) return null;
     final primary =
         (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)

@@ -191,7 +191,7 @@ Iterable<String?> _tvLinkedMetadataValues(TvSeriesMetadata metadata) => [
     ];
 
 TvSeriesMetadata? _tvLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is TvSeriesMetadata ? metadata : null;
 }
 
@@ -333,7 +333,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -345,7 +345,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [
                       metadata.network,
@@ -362,7 +362,7 @@ final tvKindModule = LibraryKindSpec<TvWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is TvSeriesMetadata
                   ? [
                       metadata.firstAirDate?.year,
@@ -541,7 +541,7 @@ String? _optionalTvText(String value) {
 }
 
 LibraryAddVideoResultScope _tvAddResultScope(LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is TvSeriesMetadata) {
     if (metadata.seasonNumber != null ||
         metadata.series?.seasonNumber != null) {
@@ -579,7 +579,7 @@ LibraryAddVideoResultScope _tvAddProviderResultScope(
 }
 
 String _tvAddGroupTitle(LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is TvSeriesMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??

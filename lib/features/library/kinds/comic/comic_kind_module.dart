@@ -152,7 +152,7 @@ Iterable<String?> _comicLinkedMetadataValues(ComicMedia metadata) => [
     ];
 
 ComicMedia? _comicLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is ComicMedia ? metadata : null;
 }
 
@@ -306,7 +306,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is ComicMedia
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const [];
@@ -318,7 +318,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 75,
             containsWeight: 36,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is ComicMedia ? [metadata.issueNumber] : const [];
             },
             providerValues: (candidate) => [candidate.issueNumber],
@@ -328,7 +328,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is ComicMedia
                   ? [metadata.publisher, metadata.imprint]
                   : const [];
@@ -340,7 +340,7 @@ final comicKindModule = LibraryKindSpec<ComicWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is ComicMedia
                   ? [
                       metadata.releaseDate?.year,

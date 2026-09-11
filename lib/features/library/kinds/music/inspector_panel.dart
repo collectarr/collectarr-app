@@ -24,7 +24,7 @@ import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogTransport?.kindMetadata;
+  final metadata = item.source.catalogTransport?.toTransportItem().kindMetadata;
   if (metadata is MusicCatalogMetadata) return metadata;
   if (metadata != null) {
     return MusicCatalogMetadata.fromJson(

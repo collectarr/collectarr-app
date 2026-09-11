@@ -112,7 +112,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   }
 
   static AnimeMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final metadata = entry.catalogTransport?.kindMetadata;
+    final metadata = entry.catalogTransport?.toTransportItem().kindMetadata;
     return metadata is AnimeMetadata ? metadata : null;
   }
 

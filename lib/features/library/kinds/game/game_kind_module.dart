@@ -134,7 +134,7 @@ Iterable<String?> _gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
     ];
 
 GameCatalogMetadata? _gameLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is GameCatalogMetadata ? metadata : null;
 }
 
@@ -262,7 +262,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is GameCatalogMetadata
                   ? [metadata.platform, ...metadata.platforms]
                   : const <Object?>[];
@@ -274,7 +274,7 @@ final gameKindModule = LibraryKindSpec<GameWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is GameCatalogMetadata
                   ? [item.releaseYear, metadata.releaseDate?.year]
                   : [item.releaseYear];

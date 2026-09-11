@@ -51,12 +51,12 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
 );
 
 bool _comicItemIsVariant(LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
 }
 
 String _comicGroupTitle(LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is ComicMedia) {
     final seriesTitle =
         metadata.seriesTitle?.trim() ?? metadata.series?.seriesTitle?.trim();

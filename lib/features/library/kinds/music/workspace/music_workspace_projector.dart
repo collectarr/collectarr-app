@@ -24,7 +24,7 @@ final class MusicWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     MusicCatalogMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is MusicCatalogMetadata) {
       metadata = km;
     }
@@ -52,7 +52,7 @@ final class MusicWorkspaceProjector
       edition: node.edition,
     );
     MusicCatalogMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is MusicCatalogMetadata) {
       metadata = km;
     }

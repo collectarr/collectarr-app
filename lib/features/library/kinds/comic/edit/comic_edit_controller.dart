@@ -176,9 +176,10 @@ class ComicEditController {
         .where((s) => s.isNotEmpty)
         .toList();
 
-    final currentMeta = selection.item.kindMetadata is ComicMedia
-        ? selection.item.kindMetadata as ComicMedia
-        : item;
+    final currentMeta =
+        selection.item.toTransportItem().kindMetadata is ComicMedia
+            ? selection.item.toTransportItem().kindMetadata as ComicMedia
+            : item;
 
     final updatedSeries = (currentMeta.series != null ||
             seriesId != null ||

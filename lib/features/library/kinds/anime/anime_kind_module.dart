@@ -187,7 +187,7 @@ Iterable<String?> _animeLinkedMetadataValues(AnimeMetadata metadata) => [
     ];
 
 AnimeMetadata? _animeLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is AnimeMetadata ? metadata : null;
 }
 
@@ -326,7 +326,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
             exactWeight: 120,
             containsWeight: 48,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is AnimeMetadata
                   ? [metadata.seriesTitle, metadata.series?.seriesTitle]
                   : const <Object?>[];
@@ -338,7 +338,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is AnimeMetadata
                   ? [...metadata.studios, ...metadata.producers]
                   : const <Object?>[];
@@ -351,7 +351,7 @@ final animeKindModule = LibraryKindSpec<AnimeWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is AnimeMetadata
                   ? [metadata.seasonYear, metadata.startDate?.year]
                   : const <Object?>[];
@@ -526,7 +526,7 @@ String? _optionalAnimeText(String value) {
 
 LibraryAddVideoResultScope _animeAddResultScope(
     LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is AnimeMetadata) {
     if (metadata.series?.seasonNumber != null) {
       return LibraryAddVideoResultScope.season;
@@ -564,7 +564,7 @@ LibraryAddVideoResultScope _animeAddProviderResultScope(
 }
 
 String _animeAddGroupTitle(LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is AnimeMetadata) {
     return metadata.seriesTitle?.trim() ??
         metadata.series?.seriesTitle?.trim() ??

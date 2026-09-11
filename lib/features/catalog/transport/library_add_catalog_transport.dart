@@ -37,7 +37,6 @@ final class LibraryAddCatalogTransport {
   String get id => _item.id;
   CatalogMediaKind get mediaKind => _item.mediaKind;
   LibraryItemIdentity get identity => _item.identity;
-  dynamic get kindMetadata => _item.kindMetadata;
   String get title => _item.title;
   String? get displayTitle => _item.displayTitle;
   String? get localizedTitle => _item.localizedTitle;
@@ -134,7 +133,7 @@ final class LibraryAddCatalogTransport {
   LibraryAddCatalogTransport withKindMetadataFrom(
     LibraryAddCatalogTransport source,
   ) {
-    return withKindMetadata(source.kindMetadata);
+    return withKindMetadata(source.toTransportItem().kindMetadata);
   }
 
   CatalogItemDto toTransportItem() => _item;

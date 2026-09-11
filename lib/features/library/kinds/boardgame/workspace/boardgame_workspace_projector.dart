@@ -20,7 +20,7 @@ final class BoardGameWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     BoardGameMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is BoardGameMetadata) {
       metadata = km;
     }
@@ -63,7 +63,7 @@ final class BoardGameWorkspaceProjector
   }
 
   static BoardGameMetadata? _metadataFor(LibraryWorkspaceSource source) {
-    final metadata = source.catalogTransport?.kindMetadata;
+    final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
     if (metadata is BoardGameMetadata) {
       return metadata;
     }

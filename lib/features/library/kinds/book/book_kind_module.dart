@@ -225,7 +225,7 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
     ];
 
 BookCatalogMetadata? _bookLinkedMetadata(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is BookCatalogMetadata ? metadata : null;
 }
 
@@ -367,7 +367,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is BookCatalogMetadata
                   ? metadata.authors
                   : const <Object?>[];
@@ -379,7 +379,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 90,
             containsWeight: 30,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.barcode, metadata.itemNumber]
                   : const <Object?>[];
@@ -391,7 +391,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.publisher, metadata.originalPublisher]
                   : const <Object?>[];
@@ -403,7 +403,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata = item.toTransportItem().kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.originalPublicationDate?.year]
                   : const <Object?>[];

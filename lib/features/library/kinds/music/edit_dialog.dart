@@ -209,11 +209,11 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   MusicCatalogMetadata get _musicMetadata {
-    final metadata = _item.kindMetadata;
+    final metadata = _item.toTransportItem().kindMetadata;
     if (metadata is! MusicCatalogMetadata) {
       throw ArgumentError.value(
         metadata,
-        'item.kindMetadata',
+        'item.toTransportItem().kindMetadata',
         'Expected MusicCatalogMetadata',
       );
     }

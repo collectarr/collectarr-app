@@ -180,7 +180,7 @@ class AnimeEditDraft extends LibraryEditKindDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
-    final metadata = result.item.kindMetadata;
+    final metadata = result.item.toTransportItem().kindMetadata;
     if (metadata is AnimeMetadata) {
       final parsedGenres = videoEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -254,7 +254,7 @@ LibraryEditKindDraft createAnimeEditDraft({
 }) {
   final owned = AnimeOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final video = owned?.details;
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   final anime = metadata is AnimeMetadata ? metadata : null;
   final videoEdit = VideoEditController(
     itemId: item.id,

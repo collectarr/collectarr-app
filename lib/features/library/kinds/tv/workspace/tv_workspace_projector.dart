@@ -24,7 +24,7 @@ final class TvWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }
@@ -50,7 +50,7 @@ final class TvWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }
@@ -75,7 +75,7 @@ final class TvWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     TvSeriesMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is TvSeriesMetadata) {
       metadata = km;
     }

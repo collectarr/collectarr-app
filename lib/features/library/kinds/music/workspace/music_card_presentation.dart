@@ -529,7 +529,7 @@ int? musicCardTrackCount(LibraryProjectionView item) {
 }
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  final metadata = item.source.catalogTransport?.kindMetadata;
+  final metadata = item.source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is MusicCatalogMetadata ? metadata : null;
 }
 

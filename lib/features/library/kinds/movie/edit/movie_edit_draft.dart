@@ -173,7 +173,7 @@ class MovieEditDraft extends LibraryEditKindDraft
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     var result = selection;
-    final meta = result.item.kindMetadata;
+    final meta = result.item.toTransportItem().kindMetadata;
     if (meta is MovieCatalogMetadata) {
       final parsedGenres = videoEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -247,7 +247,7 @@ LibraryEditKindDraft createMovieEditDraft({
 }) {
   final owned = MovieOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final video = owned?.details;
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   final movie = metadata is MovieCatalogMetadata ? metadata : null;
   final videoEdit = VideoEditController(
     itemId: item.id,

@@ -185,7 +185,7 @@ class TvEditDraft extends LibraryEditKindDraft
     var result = selection;
     final seasonNumber = int.tryParse(seasonNumberController.text);
     final episodeNumber = int.tryParse(episodeNumberController.text);
-    final metadata = result.item.kindMetadata;
+    final metadata = result.item.toTransportItem().kindMetadata;
     if (metadata is TvSeriesMetadata) {
       final parsedGenres = videoEdit.genresEditController.text
           .split(RegExp(r'[,\r\n]+'))
@@ -273,7 +273,7 @@ LibraryEditKindDraft createTvEditDraft({
 }) {
   final owned = TvOwnedItemProjection.tryFromTyped(typedOwnedItem);
   final video = owned?.details;
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   final tv = metadata is TvSeriesMetadata ? metadata : null;
   final videoEdit = VideoEditController(
     itemId: item.id,

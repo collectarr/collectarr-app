@@ -524,7 +524,7 @@ class _ComicSearchEntry {
 }
 
 ComicMedia _comicMediaFromResult(LibraryAddCatalogTransport item) {
-  final metadata = item.kindMetadata;
+  final metadata = item.toTransportItem().kindMetadata;
   if (metadata is! ComicMedia) {
     throw StateError('Expected ComicMedia for comic add result');
   }

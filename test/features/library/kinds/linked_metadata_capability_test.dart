@@ -135,7 +135,7 @@ Iterable<String?> _comicPublisher(ComicMedia metadata) => [
     ];
 
 ComicMedia? _comicMetadataReader(LibraryWorkspaceSource source) {
-  final metadata = source.catalogTransport?.kindMetadata;
+  final metadata = source.catalogTransport?.toTransportItem().kindMetadata;
   return metadata is ComicMedia ? metadata : null;
 }
 

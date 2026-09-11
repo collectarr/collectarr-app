@@ -240,7 +240,7 @@ class MovieLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
 
-    final movie = item.source.catalogTransport?.kindMetadata;
+    final movie = item.source.catalogTransport?.toTransportItem().kindMetadata;
     final metadata = movie is MovieCatalogMetadata ? movie : null;
     final series = metadata?.series;
     final video = metadata?.video;

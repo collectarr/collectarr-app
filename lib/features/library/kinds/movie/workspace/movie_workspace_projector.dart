@@ -24,7 +24,7 @@ final class MovieWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }
@@ -50,7 +50,7 @@ final class MovieWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }
@@ -75,7 +75,7 @@ final class MovieWorkspaceProjector
       source.catalogTransport!.toTransportItem(),
     );
     MovieCatalogMetadata? metadata;
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     if (km is MovieCatalogMetadata) {
       metadata = km;
     }

@@ -23,7 +23,7 @@ final class AnimeWorkspaceProjector
     final media = AnimeWorkspaceMapper.fromCatalogItem(
       source.catalogTransport!.toTransportItem(),
     );
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
         : (km != null
@@ -52,7 +52,7 @@ final class AnimeWorkspaceProjector
     final media = AnimeWorkspaceMapper.fromCatalogItem(
       source.catalogTransport!.toTransportItem(),
     );
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
         : (km != null
@@ -80,7 +80,7 @@ final class AnimeWorkspaceProjector
     final media = AnimeWorkspaceMapper.fromCatalogItem(
       source.catalogTransport!.toTransportItem(),
     );
-    final km = source.catalogTransport?.kindMetadata;
+    final km = source.catalogTransport?.toTransportItem().kindMetadata;
     final AnimeMetadata? metadata = km is AnimeMetadata
         ? km
         : (km != null

@@ -39,7 +39,7 @@ class _BookReleaseSchemaEditDialogState
   @override
   void initState() {
     super.initState();
-    final metadata = widget.request.item.kindMetadata;
+    final metadata = widget.request.item.toTransportItem().kindMetadata;
     if (metadata is! BookCatalogMetadata) {
       throw StateError('Expected BookCatalogMetadata for Book release editing');
     }
