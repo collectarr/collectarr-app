@@ -34,7 +34,7 @@ final class BoardGameTrackingLifecycleCodec
           trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
-            ownedItemId: row.ownedItemId,
+            ownedRefKey: row.ownedRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -80,7 +80,7 @@ final class BoardGameTrackingLifecycleCodec
           trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
-            ownedItemId: row.ownedItemId,
+            ownedRefKey: row.ownedRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -112,7 +112,7 @@ final class BoardGameTrackingLifecycleCodec
       trackingLifecycleStorageRowFromColumns(
         id: row.id,
         catalogRefJson: row.catalogRefJson,
-        ownedItemId: row.ownedItemId,
+        ownedRefKey: row.ownedRefKey,
         sourceType: row.sourceType,
         status: row.status,
         rating: row.rating,
@@ -137,7 +137,7 @@ final class BoardGameTrackingLifecycleCodec
           BoardGameTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            ownedItemId: Value(entry.ownedRef?.key),
+            ownedRefKey: Value(entry.ownedRef?.key),
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),

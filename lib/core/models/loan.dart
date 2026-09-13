@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 class Loan {
@@ -39,15 +37,13 @@ class Loan {
             Map<String, Object?>.from(json['catalog_ref'] as Map),
           )
         : null;
-    final ownedItemId = _requiredString(json, 'owned_item_id');
-    final ownedRef = json['owned_ref'] is Map
-        ? OwnedItemRef.fromJson(
-            Map<String, Object?>.from(json['owned_ref'] as Map),
-          )
-        : OwnedItemRef(
-            kind: catalogRef?.mediaKind ?? CatalogMediaKind.unknown,
-            id: OwnedItemId(ownedItemId),
-          );
+    final ownedPayload = json['owned_ref'];
+    if (ownedPayload is! Map) {
+      throw const FormatException('Loan.owned_ref is required');
+    }
+    final ownedRef = OwnedItemRef.fromJson(
+      Map<String, Object?>.from(ownedPayload),
+    );
     return Loan(
       id: _requiredString(json, 'id'),
       ownedRef: ownedRef,
@@ -86,9 +82,6 @@ class Loan {
 
   Map<String, Object?> toJson() {
     return {
-      // Keep owned_item_id for the existing API contract while making the
-      // structural reference the canonical in-app representation.
-      'owned_item_id': ownedRef.id.value,
       'owned_ref': ownedRef.toJson(),
       if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
       'borrower_name': borrowerName,

@@ -437,24 +437,25 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
       releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
     ),
     conditions: BookVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(book: (item) => item.grade),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     createDraft: createBookEditDraft,
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
     ownedFormatHintResolver: resolveBookOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
         BookOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionValueUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue) =>
+        (_ownedRef, condition, collectionValue) =>
             BookOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue, locationId, tags) =>
+        (_ownedRef, condition, collectionValue, locationId, tags) =>
             BookOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -466,7 +467,7 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      ownedItemId,
+      _ownedRef,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -484,7 +485,7 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
       final typed = _bookTransferOwnedItem(updated);
       return BookOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

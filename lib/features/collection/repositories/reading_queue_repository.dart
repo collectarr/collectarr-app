@@ -12,13 +12,13 @@ class ReadingQueueRepository {
     final rows = await (_db.select(_db.readingQueueCache)
           ..orderBy([(t) => OrderingTerm.asc(t.position)]))
         .get();
-    return rows.map((r) => OwnedItemRef.fromKey(r.ownedItemId)).toList();
+    return rows.map((r) => OwnedItemRef.fromKey(r.ownedRefKey)).toList();
   }
 
   /// Check if an item is in the queue.
   Future<bool> isInQueue(OwnedItemRef ref) async {
     final row = await (_db.select(_db.readingQueueCache)
-          ..where((t) => t.ownedItemId.equals(ref.key)))
+          ..where((t) => t.ownedRefKey.equals(ref.key)))
         .getSingleOrNull();
     return row != null;
   }
@@ -33,7 +33,7 @@ class ReadingQueueRepository {
     final pos = (maxPos.data['m'] as int) + 1;
     await _db.into(_db.readingQueueCache).insertOnConflictUpdate(
           ReadingQueueCacheCompanion.insert(
-            ownedItemId: ref.key,
+            ownedRefKey: ref.key,
             position: pos,
             addedAt: DateTime.now().toUtc(),
           ),
@@ -43,7 +43,7 @@ class ReadingQueueRepository {
   /// Remove item from queue.
   Future<void> removeFromQueue(OwnedItemRef ref) async {
     await (_db.delete(_db.readingQueueCache)
-          ..where((t) => t.ownedItemId.equals(ref.key)))
+          ..where((t) => t.ownedRefKey.equals(ref.key)))
         .go();
   }
 
@@ -59,7 +59,7 @@ class ReadingQueueRepository {
         batch.update(
           _db.readingQueueCache,
           ReadingQueueCacheCompanion(position: Value(i)),
-          where: (t) => t.ownedItemId.equals(queue[i].key),
+          where: (t) => t.ownedRefKey.equals(queue[i].key),
         );
       }
     });

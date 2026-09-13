@@ -27,7 +27,7 @@ void main() {
     await db.into(db.userFolderItemsCache).insert(
           UserFolderItemsCacheCompanion.insert(
             folderId: 'folder-1',
-            ownedItemId: 'book:owned-1',
+            ownedRefKey: 'book:owned-1',
             sortOrder: const Value(1),
           ),
         );
@@ -60,7 +60,7 @@ void main() {
     final folderItems = await db.select(db.userFolderItemsCache).get();
     expect(folderItems, hasLength(1));
     expect(folderItems.single.folderId, 'folder-1');
-    expect(folderItems.single.ownedItemId, 'book:owned-1');
+    expect(folderItems.single.ownedRefKey, 'book:owned-1');
     expect(find.text('Favorites'), findsOneWidget);
   });
 }

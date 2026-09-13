@@ -62,8 +62,6 @@ void main() {
         entityType: const CatalogEntityTypeId('work'),
         id: 'movie-1',
       ),
-      seasonNumber: 99,
-      episodeNumber: 1,
       watchedAt: DateTime.utc(2026, 9, 6, 18),
       updatedAt: DateTime.utc(2026, 9, 6, 18),
     );

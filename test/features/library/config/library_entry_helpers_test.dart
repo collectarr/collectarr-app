@@ -12,6 +12,9 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -120,7 +123,10 @@ void main() {
     );
     final node = const LibraryCopyNodeRef(
       titleItemId: 'comic-2',
-      ownedItemId: 'owned-comic-2',
+      ownedRef: const OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId('owned-comic-2'),
+      ),
     );
     final dto = const ComicWorkspaceProjector().projectTitle(
       source: source,

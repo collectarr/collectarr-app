@@ -19,7 +19,7 @@ class ItemImagesCacheRepository {
     await _db.into(_db.itemImagesCache).insertOnConflictUpdate(
           ItemImagesCacheCompanion.insert(
             id: id,
-            ownedItemId: ownedRef.key,
+            ownedRefKey: ownedRef.key,
             imageType: Value(imageType),
             imageData: imageData,
             caption: Value(caption),
@@ -33,7 +33,7 @@ class ItemImagesCacheRepository {
   Future<List<ItemImagesCacheData>> listByOwnedRef(
       OwnedItemRef ownedRef) async {
     return (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedRef.key))
+          ..where((row) => row.ownedRefKey.equals(ownedRef.key))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
             (row) => OrderingTerm.asc(row.createdAt),
@@ -48,7 +48,7 @@ class ItemImagesCacheRepository {
   }) async {
     return (_db.select(_db.itemImagesCache)
           ..where((row) =>
-              row.ownedItemId.equals(ownedRef.key) &
+              row.ownedRefKey.equals(ownedRef.key) &
               row.imageType.equals(imageType))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
@@ -67,7 +67,7 @@ class ItemImagesCacheRepository {
   /// Delete all images for an owned item.
   Future<void> deleteByOwnedRef(OwnedItemRef ownedRef) async {
     await (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedRef.key)))
+          ..where((row) => row.ownedRefKey.equals(ownedRef.key)))
         .go();
   }
 

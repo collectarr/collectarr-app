@@ -67,6 +67,32 @@ class CatalogEntityRef {
 
   CatalogMediaKind get mediaKind => kind;
 
+  /// Returns the structural root used to join catalog-related projections.
+  ///
+  /// Child references retain their complete identity at kind boundaries.
+  /// Mixed infrastructure only needs this stable root when grouping global
+  /// projections. Entity-type interpretation remains owned by the kind.
+  CatalogEntityRef get rootScope {
+    final root = rootId?.trim();
+    if (root != null && root.isNotEmpty) {
+      return CatalogEntityRef(
+        kind: kind,
+        entityType: const CatalogEntityTypeId('work'),
+        id: root,
+      );
+    }
+    if (entityType.apiValue == 'owned_copy' ||
+        entityType.apiValue == 'copy' ||
+        entityType.apiValue == 'tracking_entry') {
+      return CatalogEntityRef(
+        kind: kind,
+        entityType: const CatalogEntityTypeId('work'),
+        id: id,
+      );
+    }
+    return this;
+  }
+
   bool get isKnown =>
       !kind.isUnknown &&
       id.trim().isNotEmpty &&

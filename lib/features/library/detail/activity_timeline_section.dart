@@ -72,7 +72,7 @@ class _ActivityTimelineSectionState
               .where(
                 (i) =>
                     i.catalogRef != null &&
-                    _rootCatalogRef(i.catalogRef!) == widget.itemRef,
+                    i.catalogRef!.rootScope == widget.itemRef,
               )
               .toList(growable: false),
           orElse: () => const <OwnedItemSummary>[],
@@ -141,23 +141,6 @@ class _ActivityTimelineSectionState
       ),
     );
   }
-}
-
-CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
-  final rootId = ref.rootId;
-  if (rootId != null && rootId.isNotEmpty) {
-    return ref.copyWith(
-      id: rootId,
-      entityType: const CatalogEntityTypeId('work'),
-      rootId: null,
-    );
-  }
-  if (ref.entityType == const CatalogEntityTypeId('owned_copy') ||
-      ref.entityType == const CatalogEntityTypeId('copy') ||
-      ref.entityType == const CatalogEntityTypeId('tracking_entry')) {
-    return ref.copyWith(entityType: const CatalogEntityTypeId('work'));
-  }
-  return ref;
 }
 
 class _ActivityEventTile extends StatelessWidget {

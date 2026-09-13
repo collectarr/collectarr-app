@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,7 +39,6 @@ void main() {
 
       expect(entry.isOwned, isTrue);
       expect(entry.isWishlisted, isFalse);
-      expect(entry.ownedSummary?.collectionValue, '9.8');
       expect(entry.pricePaidCents, 1500);
       expect(entry.marketValueCents, 4500);
       expect(entry.currency, 'USD');

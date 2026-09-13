@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
@@ -122,7 +123,7 @@ class TvEditDraft extends LibraryEditKindDraft
 
   @override
   TvOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   }) {
     final targetRef = catalogRefForOwnedSelection(

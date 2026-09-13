@@ -386,25 +386,26 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
     editDialogBuilder: buildAnimeLibraryEditDialog,
     presentation: animeLibraryEditPresentation,
     conditions: AnimeVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(anime: (item) => item.grade),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     vocabularies: StandardKindVocabularyCapability(AnimeVocabularies.all),
     createDraft: createAnimeEditDraft,
     ownedDigitalFlagResolver: resolveAnimeOwnedDigitalFlag,
     ownedFormatHintResolver: resolveAnimeOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
         AnimeOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionValueUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue) =>
+        (_ownedRef, condition, collectionValue) =>
             AnimeOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue, locationId, tags) =>
+        (_ownedRef, condition, collectionValue, locationId, tags) =>
             AnimeOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -416,7 +417,7 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      ownedItemId,
+      _ownedRef,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -434,7 +435,7 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
       final typed = _animeTransferOwnedItem(updated);
       return AnimeOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

@@ -683,7 +683,7 @@ Future<int> _countImages(
 ) async {
   final rows = await db.select(db.itemImagesCache).get();
   return rows.where((row) {
-    final ownedRef = ownedItemRefFromSerialized(row.ownedItemId);
+    final ownedRef = ownedItemRefFromSerialized(row.ownedRefKey);
     return ownedRef?.id.value.startsWith(ownedPrefix) == true &&
         row.imageType == imageType;
   }).length;

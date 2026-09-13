@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -83,7 +84,7 @@ class GameEditDraft extends LibraryEditKindDraft {
 
   @override
   GameOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   }) {
     final targetRef = catalogRefForOwnedSelection(

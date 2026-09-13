@@ -222,7 +222,7 @@ mixin TrackingLifecycleStorageSupport {
 TrackingLifecycleStorageRow trackingLifecycleStorageRowFromColumns({
   required String id,
   required String catalogRefJson,
-  required String? ownedItemId,
+  required String? ownedRefKey,
   required String? sourceType,
   required String? status,
   required int? rating,
@@ -243,7 +243,7 @@ TrackingLifecycleStorageRow trackingLifecycleStorageRowFromColumns({
   return TrackingLifecycleStorageRow(
     id: id,
     catalogRef: CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded)),
-    ownedRef: ownedItemRefFromSerialized(ownedItemId),
+    ownedRef: ownedItemRefFromSerialized(ownedRefKey),
     sourceType: sourceType,
     status: status,
     rating: rating,

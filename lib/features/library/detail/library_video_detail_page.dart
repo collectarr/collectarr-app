@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/release/video_release_source.dar
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_node.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -45,8 +46,8 @@ class LibraryVideoDetailPage extends ConsumerStatefulWidget {
 class _LibraryVideoDetailPageState
     extends ConsumerState<LibraryVideoDetailPage> {
   String? _selectedReleaseNodeId;
-  final Map<String, String?> _selectedOwnedItemIdByRelease =
-      <String, String?>{};
+  final Map<String, OwnedItemRef?> _selectedOwnedItemRefByRelease =
+      <String, OwnedItemRef?>{};
 
   @override
   void initState() {
@@ -62,7 +63,7 @@ class _LibraryVideoDetailPageState
         widget.request.item.source.itemId) {
       final nodes = _releaseNodesFor(widget.request.item);
       _selectedReleaseNodeId = nodes.isEmpty ? null : nodes.first.id;
-      _selectedOwnedItemIdByRelease.clear();
+      _selectedOwnedItemRefByRelease.clear();
     }
   }
 
@@ -126,10 +127,10 @@ class _LibraryVideoDetailPageState
     if (release.ownedCopies.isEmpty) {
       return null;
     }
-    final selectedId = _selectedOwnedItemIdByRelease[release.node.id];
-    if (selectedId != null) {
+    final selectedRef = _selectedOwnedItemRefByRelease[release.node.id];
+    if (selectedRef != null) {
       for (final copy in release.ownedCopies) {
-        if (copy.ref.id.value == selectedId) {
+        if (copy.ref == selectedRef) {
           return copy;
         }
       }
@@ -252,14 +253,16 @@ class _LibraryVideoDetailPageState
                         request.type.edit.resolveOwnedDigitalFlag,
                     collectionValueReader:
                         request.type.edit.readOwnedCollectionValue,
+                    ownedItemDispatch: request.ownedItemDispatch,
                     releases: releases,
                     selectedReleaseId: activeRelease.node.id,
-                    selectedOwnedItemId: selectedOwnedCopy?.ref.id.value,
+                    selectedOwnedItemRef: selectedOwnedCopy?.ref,
                     onSelectRelease: (value) =>
                         setState(() => _selectedReleaseNodeId = value),
-                    onSelectOwnedItem: (releaseId, ownedItemId) {
+                    onSelectOwnedItem: (releaseId, ownedItemRef) {
                       setState(() {
-                        _selectedOwnedItemIdByRelease[releaseId] = ownedItemId;
+                        _selectedOwnedItemRefByRelease[releaseId] =
+                            ownedItemRef;
                       });
                     },
                     onAddCopy: _addCopyForRelease,
@@ -283,15 +286,16 @@ class _LibraryVideoDetailPageState
                 digitalFlagResolver: request.type.edit.resolveOwnedDigitalFlag,
                 collectionValueReader:
                     request.type.edit.readOwnedCollectionValue,
+                ownedItemDispatch: request.ownedItemDispatch,
                 releases: releases,
                 selectedReleaseId: _selectedReleaseNodeId ??
                     (releases.isEmpty ? null : releases.first.node.id),
-                selectedOwnedItemId: null,
+                selectedOwnedItemRef: null,
                 onSelectRelease: (value) =>
                     setState(() => _selectedReleaseNodeId = value),
-                onSelectOwnedItem: (releaseId, ownedItemId) {
+                onSelectOwnedItem: (releaseId, ownedItemRef) {
                   setState(() {
-                    _selectedOwnedItemIdByRelease[releaseId] = ownedItemId;
+                    _selectedOwnedItemRefByRelease[releaseId] = ownedItemRef;
                   });
                 },
                 onAddCopy: _addCopyForRelease,
@@ -478,9 +482,10 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
     required this.accent,
     required this.digitalFlagResolver,
     required this.collectionValueReader,
+    required this.ownedItemDispatch,
     required this.releases,
     required this.selectedReleaseId,
-    required this.selectedOwnedItemId,
+    required this.selectedOwnedItemRef,
     required this.onSelectRelease,
     required this.onSelectOwnedItem,
     required this.onAddCopy,
@@ -492,12 +497,14 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
 
   final Color accent;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(OwnedItemSummary?) collectionValueReader;
+  final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final List<_ResolvedVideoRelease> releases;
   final String? selectedReleaseId;
-  final String? selectedOwnedItemId;
+  final OwnedItemRef? selectedOwnedItemRef;
   final ValueChanged<String> onSelectRelease;
-  final void Function(String releaseId, String? ownedItemId) onSelectOwnedItem;
+  final void Function(String releaseId, OwnedItemRef? ownedItemRef)
+      onSelectOwnedItem;
   final Future<void> Function(_ResolvedVideoRelease release) onAddCopy;
   final Future<void> Function()? onAddWishlist;
   final Future<void> Function()? onRemoveWishlist;
@@ -564,7 +571,8 @@ class _VideoReleaseBrowserSection extends StatelessWidget {
                   release: selectedRelease,
                   digitalFlagResolver: digitalFlagResolver,
                   collectionValueReader: collectionValueReader,
-                  selectedOwnedItemId: selectedOwnedItemId,
+                  ownedItemDispatch: ownedItemDispatch,
+                  selectedOwnedItemRef: selectedOwnedItemRef,
                   accent: accent,
                   onSelectOwnedItem: (value) =>
                       onSelectOwnedItem(selectedRelease!.node.id, value),
@@ -733,7 +741,8 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
     required this.release,
     required this.digitalFlagResolver,
     required this.collectionValueReader,
-    required this.selectedOwnedItemId,
+    required this.ownedItemDispatch,
+    required this.selectedOwnedItemRef,
     required this.accent,
     required this.onSelectOwnedItem,
     required this.onAddCopy,
@@ -745,10 +754,11 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
 
   final _ResolvedVideoRelease release;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(OwnedItemSummary?) collectionValueReader;
-  final String? selectedOwnedItemId;
+  final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final OwnedItemRef? selectedOwnedItemRef;
   final Color accent;
-  final ValueChanged<String?> onSelectOwnedItem;
+  final ValueChanged<OwnedItemRef?> onSelectOwnedItem;
   final Future<void> Function() onAddCopy;
   final Future<void> Function()? onAddWishlist;
   final Future<void> Function()? onRemoveWishlist;
@@ -785,12 +795,12 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
             ),
             if (release.ownedCopies.isNotEmpty) ...[
               const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
+              DropdownButtonFormField<OwnedItemRef>(
                 initialValue: release.ownedCopies.any(
-                  (copy) => copy.ref.id.value == selectedOwnedItemId,
+                  (copy) => copy.ref == selectedOwnedItemRef,
                 )
-                    ? selectedOwnedItemId
-                    : release.ownedCopies.first.ref.id.value,
+                    ? selectedOwnedItemRef
+                    : release.ownedCopies.first.ref,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Selected copy',
@@ -799,17 +809,16 @@ class _VideoReleaseActionsPanel extends StatelessWidget {
                   for (var index = 0;
                       index < release.ownedCopies.length;
                       index += 1)
-                    DropdownMenuItem<String>(
-                      value: release.ownedCopies[index].ref.id.value,
+                    DropdownMenuItem<OwnedItemRef>(
+                      value: release.ownedCopies[index].ref,
                       child: Text(
                         buildOwnedCopyLabel(
                           release.ownedCopies[index],
                           [release.edition],
                           index,
                           digitalFlagResolver: digitalFlagResolver,
-                          collectionValue: collectionValueReader(
-                            release.ownedCopies[index],
-                          ),
+                          collectionValue:
+                              collectionValueReader(ownedItemDispatch),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

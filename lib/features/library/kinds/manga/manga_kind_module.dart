@@ -425,7 +425,8 @@ final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
     mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
     presentation: mangaLibraryEditPresentation,
     conditions: MangaVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(manga: (item) => item.grade),
     vocabularies: StandardKindVocabularyCapability(MangaVocabularies.all),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
@@ -438,18 +439,18 @@ final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
     createDraft: createMangaEditDraft,
     ownedDigitalFlagResolver: resolveMangaOwnedDigitalFlag,
     ownedFormatHintResolver: resolveMangaOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
         MangaOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionValueUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue) =>
+        (_ownedRef, condition, collectionValue) =>
             MangaOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue, locationId, tags) =>
+        (_ownedRef, condition, collectionValue, locationId, tags) =>
             MangaOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -461,7 +462,7 @@ final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      ownedItemId,
+      _ownedRef,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -479,7 +480,7 @@ final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
       final typed = _mangaTransferOwnedItem(updated);
       return MangaOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

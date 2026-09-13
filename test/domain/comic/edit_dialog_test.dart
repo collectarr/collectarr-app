@@ -164,7 +164,7 @@ void main() {
     );
     final customValue = CustomFieldValue(
       id: 'cfv-1',
-      targetId: 'owned-1',
+      targetId: 'comic:owned-1',
       targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'cf-1',
       value: 'First print',

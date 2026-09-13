@@ -169,7 +169,7 @@ final class CollectionCsvExporter {
   }) {
     final cfValues = entry.ownedRef != null
         ? _customFieldCells(
-            entry.ownedRef!.id.value,
+            entry.ownedRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -206,7 +206,7 @@ final class CollectionCsvExporter {
   }) {
     final cfValues = entry.ownedRef != null
         ? _customFieldCells(
-            entry.ownedRef!.id.value,
+            entry.ownedRef!.key,
             customFieldDefinitions,
             customFieldValuesByItem,
           )
@@ -242,11 +242,11 @@ final class CollectionCsvExporter {
   }
 
   List<String> _customFieldCells(
-    String ownedItemId,
+    String ownedRefKey,
     List<CustomFieldDefinition> definitions,
     Map<String, List<CustomFieldValue>> valuesByItem,
   ) {
-    final values = valuesByItem[ownedItemId] ?? const [];
+    final values = valuesByItem[ownedRefKey] ?? const [];
     final byDefId = {
       for (final v in values) v.fieldDefinitionId: v.value ?? '',
     };

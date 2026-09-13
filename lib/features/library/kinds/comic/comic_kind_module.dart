@@ -378,7 +378,8 @@ final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
     presentation: comicsLibraryEditPresentation,
     conditions: ComicVocabularies.condition.builtIns,
     collectionValueOptions: ComicVocabularies.grade.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(comic: (item) => item.grade),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     editChrome: const LibraryEditChromeConfig(
@@ -390,18 +391,18 @@ final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
     createDraft: createComicEditDraft,
     ownedDigitalFlagResolver: resolveComicOwnedDigitalFlag,
     ownedFormatHintResolver: resolveComicOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
         ComicOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionValueUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue) =>
+        (_ownedRef, condition, collectionValue) =>
             ComicOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue, locationId, tags) =>
+        (_ownedRef, condition, collectionValue, locationId, tags) =>
             ComicOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -413,7 +414,7 @@ final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      ownedItemId,
+      _ownedRef,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -431,7 +432,7 @@ final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
       final typed = _comicTransferOwnedItem(updated);
       return ComicOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

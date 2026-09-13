@@ -9,6 +9,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,7 +91,12 @@ void main() {
     draft.personal.gradeController.text = '9.9';
     draft.personal.priceController.text = '49.99';
 
-    final cmd = draft.toUpdateOwnedItemCommand('owned-item-99');
+    final cmd = draft.toUpdateOwnedItemCommand(
+      const OwnedItemRef(
+        kind: CatalogMediaKind.comic,
+        id: OwnedItemId('owned-item-99'),
+      ),
+    );
 
     expect(cmd.ownedRef.kind, CatalogMediaKind.comic);
     expect(cmd.ownedRef.id.value, 'owned-item-99');

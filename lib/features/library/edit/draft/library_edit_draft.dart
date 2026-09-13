@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -24,7 +23,6 @@ import 'package:collectarr_app/features/library/edit/item_images_edit_section.da
 import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
@@ -171,7 +169,7 @@ class LibraryEditDraft {
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
     final conditionController = create();
     final gradeController = create(
-      type.edit.readOwnedCollectionValue(ownedItem) ?? '',
+      type.edit.readOwnedCollectionValue(ownedItemDispatch) ?? '',
     );
     final purchaseDateController = create(
       ownedItem?.purchaseDate == null
@@ -529,7 +527,7 @@ class LibraryEditDraft {
       ownedUpdatePayload: existingOwnedItem == null
           ? null
           : kindDetails.buildOwnedUpdatePayload(
-              ownedItemId: existingOwnedItem.ref.id.value,
+              ownedRef: existingOwnedItem.ref,
               personal: personal,
             ),
       customFieldEdits: customFieldEdits,
@@ -594,13 +592,10 @@ class LibraryEditDraft {
     );
   }
 
-  OwnedItemUpdateRequest toUpdateOwnedItemCommand(String ownedItemId) {
+  OwnedItemUpdateRequest toUpdateOwnedItemCommand(OwnedItemRef ownedRef) {
     return libraryKindRegistrationForKind(type.kind).edit.buildUpdateCommand(
           session: this,
-          ownedRef: OwnedItemRef(
-            kind: type.kind,
-            id: OwnedItemId(ownedItemId),
-          ),
+          ownedRef: ownedRef,
           kindDraft: kindDetails,
         );
   }

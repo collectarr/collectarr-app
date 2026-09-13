@@ -458,7 +458,6 @@ OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {
     catalogRef: item.catalogRef,
     targetRef: item.targetRef,
     isDigital: item.isDigital,
-    collectionValue: item.collectionValue,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
     deletedAt: item.deletedAt,

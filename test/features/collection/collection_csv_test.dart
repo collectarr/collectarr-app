@@ -155,16 +155,17 @@ void main() {
           ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'book-1',
+            kind: 'book',
             updatedAt: DateTime.utc(2026, 5, 12),
           )),
         ),
       ],
       customFieldDefinitions: defs,
       customFieldValuesByItem: {
-        'owned-1': [
+        'book:owned-1': [
           CustomFieldValue(
             id: 'val-1',
-            targetId: 'owned-1',
+            targetId: 'book:owned-1',
             targetScope: CustomFieldTargetScope.ownedCopy,
             fieldDefinitionId: 'cf-1',
             value: 'Purchase',
@@ -172,7 +173,7 @@ void main() {
           ),
           CustomFieldValue(
             id: 'val-2',
-            targetId: 'owned-1',
+            targetId: 'book:owned-1',
             targetScope: CustomFieldTargetScope.ownedCopy,
             fieldDefinitionId: 'cf-2',
             value: '["Hardcover","Digital"]',
@@ -544,10 +545,10 @@ void main() {
       ),
     ];
     final cfValues = {
-      'owned-1': [
+      'comic:owned-1': [
         CustomFieldValue(
           id: 'v1',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'Shelf A',
@@ -555,7 +556,7 @@ void main() {
         ),
         CustomFieldValue(
           id: 'v2',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-2',
           value: '9',
@@ -616,10 +617,10 @@ void main() {
       ),
     ];
     final cfValues = {
-      'owned-1': [
+      'comic:owned-1': [
         CustomFieldValue(
           id: 'v1',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'Special note, with comma',

@@ -142,7 +142,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       // Read source value (built-in or custom field).
       String? sourceValue;
       if (src.isCustomField) {
-        final values = allCfValues?[item.ref.id.value] ?? [];
+        final values = allCfValues?[item.ref.key] ?? [];
         sourceValue = values
             .where((v) => v.fieldDefinitionId == src.customFieldId)
             .map((v) => v.value)
@@ -160,7 +160,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       // Read existing target value.
       String? existingTarget;
       if (tgt.isCustomField) {
-        final values = allCfValues?[item.ref.id.value] ?? [];
+        final values = allCfValues?[item.ref.key] ?? [];
         existingTarget = values
             .where((v) => v.fieldDefinitionId == tgt.customFieldId)
             .map((v) => v.value)
@@ -195,12 +195,12 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
 
       // Write target.
       if (tgt.isCustomField) {
-        final existing = (allCfValues?[item.ref.id.value] ?? [])
+        final existing = (allCfValues?[item.ref.key] ?? [])
             .where((v) => v.fieldDefinitionId == tgt.customFieldId)
             .firstOrNull;
         await cfRepo.upsertValue(CustomFieldValue(
           id: existing?.id ?? const Uuid().v4(),
-          targetId: item.ref.id.value,
+          targetId: item.ref.key,
           targetScope: CustomFieldTargetScope.ownedCopy,
           catalogRef: item.catalogRef,
           fieldDefinitionId: tgt.customFieldId!,
@@ -226,13 +226,13 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
       // Clear source for custom fields when mode is Move.
       if (_mode == TransferMode.move) {
         if (src.isCustomField) {
-          final existing = (allCfValues?[item.ref.id.value] ?? [])
+          final existing = (allCfValues?[item.ref.key] ?? [])
               .where((v) => v.fieldDefinitionId == src.customFieldId)
               .firstOrNull;
           if (existing != null) {
             await cfRepo.upsertValue(CustomFieldValue(
               id: existing.id,
-              targetId: item.ref.id.value,
+              targetId: item.ref.key,
               targetScope: CustomFieldTargetScope.ownedCopy,
               catalogRef: item.catalogRef,
               fieldDefinitionId: src.customFieldId!,

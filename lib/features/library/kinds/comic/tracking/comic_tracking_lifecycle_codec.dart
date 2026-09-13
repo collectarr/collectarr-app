@@ -35,7 +35,7 @@ final class ComicTrackingLifecycleCodec
           trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
-            ownedItemId: row.ownedItemId,
+            ownedRefKey: row.ownedRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -61,7 +61,7 @@ final class ComicTrackingLifecycleCodec
           ComicTrackingRowsCompanion.insert(
             id: entry.id,
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            ownedItemId: Value(entry.ownedRef?.key),
+            ownedRefKey: Value(entry.ownedRef?.key),
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),

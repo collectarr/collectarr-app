@@ -14,7 +14,7 @@ final class BookTrackingUnit extends TrackingUnitSummary {
     super.trackingEntryId,
     super.ownedRef,
     super.deletedAt,
-  }) : super(unitType: BookTrackingUnit.type);
+  });
 
   static const type = 'chapter';
 
@@ -25,6 +25,7 @@ final class BookTrackingUnit extends TrackingUnitSummary {
   Map<String, dynamic> toSyncPayload() {
     return super.toSyncPayload()
       ..addAll({
+        'unit_type': type,
         'volume_number': volumeNumber,
         'chapter_number': chapterNumber,
       });
@@ -36,7 +37,6 @@ final class BookTrackingUnit extends TrackingUnitSummary {
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
     OwnedItemRef? ownedRef,
-    String? unitType,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,

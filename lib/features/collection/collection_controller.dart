@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracki
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
+import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -192,13 +193,9 @@ final watchSessionsByCatalogRefProvider =
   final sessions = ref.watch(watchSessionsProvider);
   return sessions.maybeWhen(
     data: (items) {
-      final rootPrefix = _catalogRefSessionPrefix(catalogRef);
+      final codec = _watchSessionCodecFor(catalogRef.mediaKind);
       final matched = items.where((session) {
-        final targetId = session.targetRef.id;
-        return targetId == catalogRef.id ||
-            targetId.startsWith(rootPrefix) ||
-            (catalogRef.entityType == const CatalogEntityTypeId('work') &&
-                targetId.startsWith('${catalogRef.id}:release:'));
+        return codec?.matchesCatalogScope(session, catalogRef) ?? false;
       }).toList(growable: false);
       matched.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
       return matched;
@@ -207,14 +204,11 @@ final watchSessionsByCatalogRefProvider =
   );
 });
 
-String _catalogRefSessionPrefix(CatalogEntityRef catalogRef) {
-  return switch (catalogRef.entityType.apiValue) {
-    'work' => '${catalogRef.id}:season:',
-    'season' => '${catalogRef.id}:episode:',
-    'episode' => '${catalogRef.id}:',
-    'release' => '${catalogRef.id}:',
-    _ => '${catalogRef.id}:',
-  };
+WatchSessionCodec? _watchSessionCodecFor(CatalogMediaKind kind) {
+  for (final codec in collectarrWatchSessionCodecs) {
+    if (codec.kind == kind) return codec;
+  }
+  return null;
 }
 
 final metadataOverridesProvider =

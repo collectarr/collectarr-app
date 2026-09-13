@@ -57,17 +57,17 @@ Set<String> customFieldTargetIds({
   required LibraryNodeRef node,
 }) {
   return {
-    if (source.ownedSummary case final owned?) owned.ref.id.value,
-    if (source.ownedRef case final owned?) owned.id.value,
+    if (source.ownedSummary case final owned?) owned.ref.key,
+    if (source.ownedRef case final owned?) owned.key,
     if (source.catalogRef case final catalog?) catalog.id,
     node.titleItemId,
     if (node case LibraryReleaseNodeRef(:final releaseId)) releaseId,
     if (node
         case LibraryCopyNodeRef(
-          :final ownedItemId,
+          :final ownedRef,
           :final copyId,
         )) ...[
-      ownedItemId,
+      ownedRef.key,
       if (copyId != null) copyId,
     ],
   };

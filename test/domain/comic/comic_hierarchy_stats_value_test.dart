@@ -13,6 +13,8 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_work
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -91,8 +93,13 @@ void main() {
     final missingVariant = _comicProjection(
       id: 'missing-variant',
       seriesTitle: 'Saga',
-      node: const LibraryCopyNodeRef(
-          titleItemId: 'missing-variant', ownedItemId: 'owned-missing-variant'),
+      node: LibraryCopyNodeRef(
+        titleItemId: 'missing-variant',
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId('owned-missing-variant'),
+        ),
+      ),
     );
 
     expect(libraryHierarchyContractDiagnosticLabel(complete), isNull);

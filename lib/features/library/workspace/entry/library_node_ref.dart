@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 
 sealed class LibraryNodeRef {
@@ -67,18 +68,18 @@ final class LibraryReleaseNodeRef extends LibraryNodeRef {
 final class LibraryCopyNodeRef extends LibraryNodeRef {
   const LibraryCopyNodeRef({
     required this.titleItemId,
-    required this.ownedItemId,
+    required this.ownedRef,
     this.copyId,
   });
 
   @override
   final String titleItemId;
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final String? copyId;
 
   @override
-  String get id => copyId ?? ownedItemId;
+  String get id => copyId ?? ownedRef.key;
 
   @override
   LibraryBrowserScope get scope => LibraryBrowserScope.copy;
@@ -88,10 +89,10 @@ final class LibraryCopyNodeRef extends LibraryNodeRef {
     if (identical(this, other)) return true;
     return other is LibraryCopyNodeRef &&
         other.titleItemId == titleItemId &&
-        other.ownedItemId == ownedItemId &&
+        other.ownedRef == ownedRef &&
         other.copyId == copyId;
   }
 
   @override
-  int get hashCode => Object.hash(titleItemId, ownedItemId, copyId);
+  int get hashCode => Object.hash(titleItemId, ownedRef, copyId);
 }

@@ -78,8 +78,6 @@ class TrackingUnitRepository {
     final itemCompare = (a.targetRef.rootId ?? a.targetRef.id)
         .compareTo(b.targetRef.rootId ?? b.targetRef.id);
     if (itemCompare != 0) return itemCompare;
-    final typeCompare = a.unitType.compareTo(b.unitType);
-    if (typeCompare != 0) return typeCompare;
     final coordinatesCompare =
         _codecs[a.targetRef.mediaKind]?.compareCoordinates(a, b) ?? 0;
     if (coordinatesCompare != 0) return coordinatesCompare;

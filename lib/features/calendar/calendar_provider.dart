@@ -19,17 +19,17 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   final catalogRefs = <CatalogEntityRef>{};
   for (final item in ownedItems) {
     if (item.catalogRef case final ref?) {
-      catalogRefs.add(_rootCatalogRef(ref));
+      catalogRefs.add(ref.rootScope);
     }
   }
   for (final session in watchSessions) {
-    catalogRefs.add(_rootCatalogRef(session.targetRef));
+    catalogRefs.add(session.targetRef.rootScope);
   }
 
   final catalogByRef =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
   String titleFor(CatalogEntityRef ref) =>
-      catalogByRef[_rootCatalogRef(ref)]?.title ?? 'Unknown item';
+      catalogByRef[ref.rootScope]?.title ?? 'Unknown item';
 
   final events = <CalendarEvent>[];
 
@@ -59,13 +59,3 @@ final calendarEventsProvider = FutureProvider<List<CalendarEvent>>((ref) async {
   events.sort((a, b) => a.date.compareTo(b.date));
   return events;
 });
-
-CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
-  final rootId = ref.rootId;
-  if (rootId == null || rootId.isEmpty) return ref;
-  return ref.copyWith(
-    id: rootId,
-    entityType: const CatalogEntityTypeId('work'),
-    rootId: null,
-  );
-}

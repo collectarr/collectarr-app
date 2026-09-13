@@ -232,7 +232,7 @@ class VideoProgressPresenter {
   ) {
     final keys = <String>{};
     for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
-      if (unit.isDeleted || unit.unitType != TvTrackingUnit.type) {
+      if (unit.isDeleted) {
         continue;
       }
       final seasonNumber = unit.seasonNumber;
@@ -276,7 +276,7 @@ class VideoProgressPresenter {
       map.putIfAbsent(key, () => <WatchSession>[]).add(session);
     }
     for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
-      if (unit.isDeleted || unit.unitType != TvTrackingUnit.type) {
+      if (unit.isDeleted) {
         continue;
       }
       final seasonNumber = unit.seasonNumber;
@@ -348,7 +348,7 @@ class VideoProgressPresenter {
       List<TrackingUnitSummary> trackedUnits) {
     TvTrackingUnit? latest;
     for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
-      if (unit.isDeleted || unit.unitType != TvTrackingUnit.type) {
+      if (unit.isDeleted) {
         continue;
       }
       if (latest == null || unit.completedAt.isAfter(latest.completedAt)) {

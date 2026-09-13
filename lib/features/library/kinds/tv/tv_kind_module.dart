@@ -400,24 +400,25 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
     presentation: tvLibraryEditPresentation,
     conditions: TvVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(tv: (item) => item.grade),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     createDraft: createTvEditDraft,
     ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
     ownedFormatHintResolver: resolveTvOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
         TvOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionValueUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue) =>
+        (_ownedRef, condition, collectionValue) =>
             TvOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue, locationId, tags) =>
+        (_ownedRef, condition, collectionValue, locationId, tags) =>
             TvOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -429,7 +430,7 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      ownedItemId,
+      _ownedRef,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -447,7 +448,7 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
       final typed = _tvTransferOwnedItem(updated);
       return TvOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

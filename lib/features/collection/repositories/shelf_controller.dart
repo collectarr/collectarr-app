@@ -45,9 +45,9 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   }
   final catalogRefs = <CatalogEntityRef>{
     for (final item in ownedSummaries)
-      if (item.catalogRef != null) _rootCatalogRef(item.catalogRef!),
-    for (final item in wishlist) _rootCatalogRef(item.catalogRef),
-    for (final item in trackingSummaries) _rootCatalogRef(item.catalogRef),
+      if (item.catalogRef != null) item.catalogRef!.rootScope,
+    for (final item in wishlist) item.catalogRef.rootScope,
+    for (final item in trackingSummaries) item.catalogRef.rootScope,
   };
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
@@ -130,15 +130,15 @@ class ShelfState {
     final ownedByCatalogRef = <CatalogEntityRef, OwnedItemSummary>{
       for (final item in resolvedOwnedSummaries)
         if (!item.isDeleted && item.catalogRef != null)
-          _rootCatalogRef(item.catalogRef!): item,
+          item.catalogRef!.rootScope: item,
     };
     final wishlistByCatalogRef = <CatalogEntityRef, WishlistItem>{
       for (final item in wishlistItems)
-        if (!item.isDeleted) _rootCatalogRef(item.catalogRef): item,
+        if (!item.isDeleted) item.catalogRef.rootScope: item,
     };
     final trackingByCatalogRef = <CatalogEntityRef, TrackingSummary>{};
     for (final entry in resolvedTrackingSummaries) {
-      final catalogRef = _rootCatalogRef(entry.catalogRef);
+      final catalogRef = entry.catalogRef.rootScope;
       if (entry.isDeleted || trackingByCatalogRef.containsKey(catalogRef)) {
         continue;
       }
@@ -149,11 +149,7 @@ class ShelfState {
       if (session.isDeleted) {
         continue;
       }
-      final catalogRef = CatalogEntityRef(
-        kind: session.targetRef.kind,
-        entityType: const CatalogEntityTypeId('work'),
-        id: session.targetRef.rootId ?? session.targetRef.id,
-      );
+      final catalogRef = session.targetRef.rootScope;
       watchSessionsByCatalogRef
           .putIfAbsent(catalogRef, () => <WatchSession>[])
           .add(session);
@@ -270,25 +266,6 @@ class ShelfState {
     }
     return counts;
   }
-}
-
-/// Workspace source carrying the structural summary and the transport
-/// snapshot required by the current kind-specific Library projectors.
-CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
-  final rootId = ref.rootId;
-  if (rootId != null && rootId.isNotEmpty) {
-    return ref.copyWith(
-      id: rootId,
-      entityType: const CatalogEntityTypeId('work'),
-      rootId: null,
-    );
-  }
-  if (ref.entityType == const CatalogEntityTypeId('owned_copy') ||
-      ref.entityType == const CatalogEntityTypeId('copy') ||
-      ref.entityType == const CatalogEntityTypeId('tracking_entry')) {
-    return ref.copyWith(entityType: const CatalogEntityTypeId('work'));
-  }
-  return ref;
 }
 
 List<String> _catalogSearchTokens(CatalogImportSnapshot? item) {

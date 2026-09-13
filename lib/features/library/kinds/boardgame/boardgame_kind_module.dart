@@ -340,24 +340,25 @@ final boardGameKindModule = LibraryKindCapabilityBundle<BoardGameWorkspaceDto>(
     vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
     presentation: boardGamesLibraryEditPresentation,
     conditions: BoardGameVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(boardgame: (item) => item.grade),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     createDraft: createBoardGameEditDraft,
     ownedDigitalFlagResolver: resolveBoardGameOwnedDigitalFlag,
     ownedFormatHintResolver: resolveBoardGameOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
         BoardgameOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionValueUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue) =>
+        (_ownedRef, condition, collectionValue) =>
             BoardgameOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue, locationId, tags) =>
+        (_ownedRef, condition, collectionValue, locationId, tags) =>
             BoardgameOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -369,7 +370,7 @@ final boardGameKindModule = LibraryKindCapabilityBundle<BoardGameWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      ownedItemId,
+      _ownedRef,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -387,7 +388,7 @@ final boardGameKindModule = LibraryKindCapabilityBundle<BoardGameWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
       final typed = _boardGameTransferOwnedItem(updated);
       return BoardgameOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

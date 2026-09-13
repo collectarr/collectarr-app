@@ -11,7 +11,6 @@ class TrackingUnitSummary {
   const TrackingUnitSummary({
     required this.id,
     required this.targetRef,
-    required this.unitType,
     required this.completedAt,
     required this.updatedAt,
     this.trackingEntryId,
@@ -23,7 +22,6 @@ class TrackingUnitSummary {
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
   final OwnedItemRef? ownedRef;
-  final String unitType;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -34,7 +32,6 @@ class TrackingUnitSummary {
   Map<String, dynamic> toSyncPayload() {
     return {
       'catalog_ref': targetRef.toJson(),
-      'unit_type': unitType,
       'tracking_entry_id': trackingEntryId,
       'owned_ref': ownedRef?.toJson(),
       'completed_at': completedAt.toUtc().toIso8601String(),
@@ -46,7 +43,6 @@ class TrackingUnitSummary {
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
     OwnedItemRef? ownedRef,
-    String? unitType,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -56,7 +52,6 @@ class TrackingUnitSummary {
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
       ownedRef: ownedRef ?? this.ownedRef,
-      unitType: unitType ?? this.unitType,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,

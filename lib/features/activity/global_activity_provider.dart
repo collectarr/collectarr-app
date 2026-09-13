@@ -57,7 +57,7 @@ final globalActivityProvider =
     final catalogRef = item.catalogRef;
     if (catalogRef == null) continue;
     ownedByCatalogRef
-        .putIfAbsent(_rootCatalogRef(catalogRef), () => <OwnedItemSummary>[])
+        .putIfAbsent(catalogRef.rootScope, () => <OwnedItemSummary>[])
         .add(item);
   }
   final ownedByRef = <OwnedItemRef, OwnedItemSummary>{
@@ -69,9 +69,7 @@ final globalActivityProvider =
     final ownedItem = ownedByRef[loan.ownedRef];
     final catalogRef = ownedItem?.catalogRef;
     if (catalogRef == null) continue;
-    loansByRef
-        .putIfAbsent(_rootCatalogRef(catalogRef), () => <Loan>[])
-        .add(loan);
+    loansByRef.putIfAbsent(catalogRef.rootScope, () => <Loan>[]).add(loan);
   }
 
   final trackingByRef = <CatalogEntityRef, List<TrackingActivitySummary>>{};
@@ -79,7 +77,7 @@ final globalActivityProvider =
     if (entry.isDeleted) continue;
     trackingByRef
         .putIfAbsent(
-          _rootCatalogRef(entry.catalogRef),
+          entry.catalogRef.rootScope,
           () => <TrackingActivitySummary>[],
         )
         .add(TrackingActivitySummary.fromSummary(entry));
@@ -88,14 +86,14 @@ final globalActivityProvider =
   for (final session in watchSessions) {
     if (session.isDeleted) continue;
     watchByRef
-        .putIfAbsent(_rootCatalogRef(session.targetRef), () => <WatchSession>[])
+        .putIfAbsent(session.targetRef.rootScope, () => <WatchSession>[])
         .add(session);
   }
   final wishlistByRef = <CatalogEntityRef, List<WishlistItem>>{};
   for (final item in wishlistItems) {
     if (item.isDeleted) continue;
     wishlistByRef
-        .putIfAbsent(_rootCatalogRef(item.catalogRef), () => <WishlistItem>[])
+        .putIfAbsent(item.catalogRef.rootScope, () => <WishlistItem>[])
         .add(item);
   }
   final refs = <CatalogEntityRef>{
@@ -139,13 +137,3 @@ final globalActivityProvider =
   entries.sort((a, b) => b.event.timestamp.compareTo(a.event.timestamp));
   return entries;
 });
-
-CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
-  final rootId = ref.rootId;
-  if (rootId == null || rootId.isEmpty) return ref;
-  return ref.copyWith(
-    id: rootId,
-    entityType: const CatalogEntityTypeId('work'),
-    rootId: null,
-  );
-}

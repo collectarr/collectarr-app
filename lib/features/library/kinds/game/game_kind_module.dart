@@ -301,25 +301,26 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
     releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
     conditions: GameVocabularies.condition.builtIns,
-    ownedCollectionValueReader: (ownedItem) => ownedItem?.collectionValue,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(game: (item) => item.grade),
     defaultCondition: 'Near Mint',
     defaultCollectionValue: 'Ungraded',
     presentation: gameLibraryEditPresentation,
     createDraft: createGameEditDraft,
     ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
     ownedFormatHintResolver: resolveGameOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (ownedItemId, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
         GameOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
     ownedConditionValueUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue) =>
+        (_ownedRef, condition, collectionValue) =>
             GameOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (ownedItemId, condition, collectionValue, locationId, tags) =>
+        (_ownedRef, condition, collectionValue, locationId, tags) =>
             GameOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -331,7 +332,7 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      ownedItemId,
+      _ownedRef,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -349,7 +350,7 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (ownedItemId, updated) {
+    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
       final typed = _gameTransferOwnedItem(updated);
       return GameOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

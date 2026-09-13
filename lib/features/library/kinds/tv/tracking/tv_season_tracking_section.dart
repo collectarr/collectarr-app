@@ -70,7 +70,6 @@ class _VideoSeasonTrackingSectionState
             seasons.first;
         final watchedEpisodeKeys = trackedUnits
             .whereType<TvTrackingUnit>()
-            .where((unit) => unit.unitType == TvTrackingUnit.type)
             .map(_episodeKeyForUnit)
             .toSet();
         final watchedInSelectedSeason = selectedSeason.episodes
@@ -204,18 +203,16 @@ class _VideoSeasonTrackingSectionState
         }
       }
     }
-    final trackedEpisodes = trackedUnits
-        .whereType<TvTrackingUnit>()
-        .where((unit) => unit.unitType == TvTrackingUnit.type)
-        .toList(growable: false)
-      ..sort((a, b) {
-        final seasonCompare =
-            (b.seasonNumber ?? 0).compareTo(a.seasonNumber ?? 0);
-        if (seasonCompare != 0) {
-          return seasonCompare;
-        }
-        return (b.episodeNumber ?? 0).compareTo(a.episodeNumber ?? 0);
-      });
+    final trackedEpisodes =
+        trackedUnits.whereType<TvTrackingUnit>().toList(growable: false)
+          ..sort((a, b) {
+            final seasonCompare =
+                (b.seasonNumber ?? 0).compareTo(a.seasonNumber ?? 0);
+            if (seasonCompare != 0) {
+              return seasonCompare;
+            }
+            return (b.episodeNumber ?? 0).compareTo(a.episodeNumber ?? 0);
+          });
     for (final trackedEpisode in trackedEpisodes) {
       final seasonNumber = trackedEpisode.seasonNumber;
       if (seasonNumber == null) {

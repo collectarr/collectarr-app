@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -152,7 +153,7 @@ class MangaEditDraft extends LibraryEditKindDraft {
 
   @override
   MangaOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   }) {
     final targetRef = catalogRefForOwnedSelection(

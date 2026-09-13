@@ -116,7 +116,7 @@ class BoardGamePlaySessionsRows extends Table {
 class BoardGameTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get ownedRefKey => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();

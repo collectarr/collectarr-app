@@ -103,7 +103,7 @@ class AnimeTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get entryType => text().withDefault(const Constant('native'))();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get ownedRefKey => text().nullable()();
   TextColumn get mediaId => text()();
   TextColumn get episodeId => text().nullable()();
   TextColumn get status => text().withDefault(const Constant(''))();
@@ -130,8 +130,7 @@ class AnimeTrackingUnitRows extends Table {
   TextColumn get id => text()();
   TextColumn get targetRefJson => text()();
   TextColumn get trackingEntryId => text().nullable()();
-  TextColumn get ownedItemId => text().nullable()();
-  TextColumn get unitType => text()();
+  TextColumn get ownedRefKey => text().nullable()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();

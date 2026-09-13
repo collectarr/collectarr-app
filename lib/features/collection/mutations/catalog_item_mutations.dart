@@ -173,8 +173,7 @@ final class CatalogItemMutations {
     CatalogEntityRef current,
     CatalogEntityRef target,
   ) {
-    if (current.entityType == const CatalogEntityTypeId('work') ||
-        current.rootId == null) {
+    if (current.rootScope == current || current.rootId == null) {
       return target;
     }
     return current.copyWith(

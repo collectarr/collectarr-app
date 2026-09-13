@@ -2469,11 +2469,11 @@ class $ItemImagesCacheTable extends ItemImagesCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, false,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _imageTypeMeta =
       const VerificationMeta('imageType');
@@ -2511,7 +2511,7 @@ class $ItemImagesCacheTable extends ItemImagesCache
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, ownedItemId, imageType, imageData, caption, sortOrder, createdAt];
+      [id, ownedRefKey, imageType, imageData, caption, sortOrder, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2528,13 +2528,13 @@ class $ItemImagesCacheTable extends ItemImagesCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedItemIdMeta);
+      context.missing(_ownedRefKeyMeta);
     }
     if (data.containsKey('image_type')) {
       context.handle(_imageTypeMeta,
@@ -2571,8 +2571,8 @@ class $ItemImagesCacheTable extends ItemImagesCache
     return ItemImagesCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
       imageType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}image_type'])!,
       imageData: attachedDatabase.typeMapping
@@ -2595,7 +2595,7 @@ class $ItemImagesCacheTable extends ItemImagesCache
 class ItemImagesCacheData extends DataClass
     implements Insertable<ItemImagesCacheData> {
   final String id;
-  final String ownedItemId;
+  final String ownedRefKey;
   final String imageType;
   final Uint8List imageData;
   final String? caption;
@@ -2603,7 +2603,7 @@ class ItemImagesCacheData extends DataClass
   final DateTime createdAt;
   const ItemImagesCacheData(
       {required this.id,
-      required this.ownedItemId,
+      required this.ownedRefKey,
       required this.imageType,
       required this.imageData,
       this.caption,
@@ -2613,7 +2613,7 @@ class ItemImagesCacheData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['owned_ref_key'] = Variable<String>(ownedRefKey);
     map['image_type'] = Variable<String>(imageType);
     map['image_data'] = Variable<Uint8List>(imageData);
     if (!nullToAbsent || caption != null) {
@@ -2627,7 +2627,7 @@ class ItemImagesCacheData extends DataClass
   ItemImagesCacheCompanion toCompanion(bool nullToAbsent) {
     return ItemImagesCacheCompanion(
       id: Value(id),
-      ownedItemId: Value(ownedItemId),
+      ownedRefKey: Value(ownedRefKey),
       imageType: Value(imageType),
       imageData: Value(imageData),
       caption: caption == null && nullToAbsent
@@ -2643,7 +2643,7 @@ class ItemImagesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ItemImagesCacheData(
       id: serializer.fromJson<String>(json['id']),
-      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
       imageType: serializer.fromJson<String>(json['imageType']),
       imageData: serializer.fromJson<Uint8List>(json['imageData']),
       caption: serializer.fromJson<String?>(json['caption']),
@@ -2656,7 +2656,7 @@ class ItemImagesCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
       'imageType': serializer.toJson<String>(imageType),
       'imageData': serializer.toJson<Uint8List>(imageData),
       'caption': serializer.toJson<String?>(caption),
@@ -2667,7 +2667,7 @@ class ItemImagesCacheData extends DataClass
 
   ItemImagesCacheData copyWith(
           {String? id,
-          String? ownedItemId,
+          String? ownedRefKey,
           String? imageType,
           Uint8List? imageData,
           Value<String?> caption = const Value.absent(),
@@ -2675,7 +2675,7 @@ class ItemImagesCacheData extends DataClass
           DateTime? createdAt}) =>
       ItemImagesCacheData(
         id: id ?? this.id,
-        ownedItemId: ownedItemId ?? this.ownedItemId,
+        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
         imageType: imageType ?? this.imageType,
         imageData: imageData ?? this.imageData,
         caption: caption.present ? caption.value : this.caption,
@@ -2685,8 +2685,8 @@ class ItemImagesCacheData extends DataClass
   ItemImagesCacheData copyWithCompanion(ItemImagesCacheCompanion data) {
     return ItemImagesCacheData(
       id: data.id.present ? data.id.value : this.id,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       imageType: data.imageType.present ? data.imageType.value : this.imageType,
       imageData: data.imageData.present ? data.imageData.value : this.imageData,
       caption: data.caption.present ? data.caption.value : this.caption,
@@ -2699,7 +2699,7 @@ class ItemImagesCacheData extends DataClass
   String toString() {
     return (StringBuffer('ItemImagesCacheData(')
           ..write('id: $id, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('imageType: $imageType, ')
           ..write('imageData: $imageData, ')
           ..write('caption: $caption, ')
@@ -2710,14 +2710,14 @@ class ItemImagesCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, ownedItemId, imageType,
+  int get hashCode => Object.hash(id, ownedRefKey, imageType,
       $driftBlobEquality.hash(imageData), caption, sortOrder, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ItemImagesCacheData &&
           other.id == this.id &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.imageType == this.imageType &&
           $driftBlobEquality.equals(other.imageData, this.imageData) &&
           other.caption == this.caption &&
@@ -2727,7 +2727,7 @@ class ItemImagesCacheData extends DataClass
 
 class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   final Value<String> id;
-  final Value<String> ownedItemId;
+  final Value<String> ownedRefKey;
   final Value<String> imageType;
   final Value<Uint8List> imageData;
   final Value<String?> caption;
@@ -2736,7 +2736,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   final Value<int> rowid;
   const ItemImagesCacheCompanion({
     this.id = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.imageType = const Value.absent(),
     this.imageData = const Value.absent(),
     this.caption = const Value.absent(),
@@ -2746,7 +2746,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   });
   ItemImagesCacheCompanion.insert({
     required String id,
-    required String ownedItemId,
+    required String ownedRefKey,
     this.imageType = const Value.absent(),
     required Uint8List imageData,
     this.caption = const Value.absent(),
@@ -2754,12 +2754,12 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        ownedItemId = Value(ownedItemId),
+        ownedRefKey = Value(ownedRefKey),
         imageData = Value(imageData),
         createdAt = Value(createdAt);
   static Insertable<ItemImagesCacheData> custom({
     Expression<String>? id,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? imageType,
     Expression<Uint8List>? imageData,
     Expression<String>? caption,
@@ -2769,7 +2769,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (imageType != null) 'image_type': imageType,
       if (imageData != null) 'image_data': imageData,
       if (caption != null) 'caption': caption,
@@ -2781,7 +2781,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
 
   ItemImagesCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? ownedItemId,
+      Value<String>? ownedRefKey,
       Value<String>? imageType,
       Value<Uint8List>? imageData,
       Value<String?>? caption,
@@ -2790,7 +2790,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
       Value<int>? rowid}) {
     return ItemImagesCacheCompanion(
       id: id ?? this.id,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       imageType: imageType ?? this.imageType,
       imageData: imageData ?? this.imageData,
       caption: caption ?? this.caption,
@@ -2806,8 +2806,8 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (imageType.present) {
       map['image_type'] = Variable<String>(imageType.value);
@@ -2834,7 +2834,7 @@ class ItemImagesCacheCompanion extends UpdateCompanion<ItemImagesCacheData> {
   String toString() {
     return (StringBuffer('ItemImagesCacheCompanion(')
           ..write('id: $id, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('imageType: $imageType, ')
           ..write('imageData: $imageData, ')
           ..write('caption: $caption, ')
@@ -2857,18 +2857,12 @@ class $LoansCacheTable extends LoansCache
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, false,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedKindMeta =
-      const VerificationMeta('ownedKind');
-  @override
-  late final GeneratedColumn<String> ownedKind = GeneratedColumn<String>(
-      'owned_kind', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _borrowerNameMeta =
       const VerificationMeta('borrowerName');
   @override
@@ -2899,16 +2893,8 @@ class $LoansCacheTable extends LoansCache
       'notes', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        ownedItemId,
-        ownedKind,
-        borrowerName,
-        lentDate,
-        dueDate,
-        returnedDate,
-        notes
-      ];
+  List<GeneratedColumn> get $columns =>
+      [id, ownedRefKey, borrowerName, lentDate, dueDate, returnedDate, notes];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2924,17 +2910,13 @@ class $LoansCacheTable extends LoansCache
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedItemIdMeta);
-    }
-    if (data.containsKey('owned_kind')) {
-      context.handle(_ownedKindMeta,
-          ownedKind.isAcceptableOrUnknown(data['owned_kind']!, _ownedKindMeta));
+      context.missing(_ownedRefKeyMeta);
     }
     if (data.containsKey('borrower_name')) {
       context.handle(
@@ -2975,10 +2957,8 @@ class $LoansCacheTable extends LoansCache
     return LoansCacheData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
-      ownedKind: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_kind']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
       borrowerName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}borrower_name'])!,
       lentDate: attachedDatabase.typeMapping
@@ -3000,10 +2980,7 @@ class $LoansCacheTable extends LoansCache
 
 class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   final String id;
-  final String ownedItemId;
-
-  /// Serialized kind component of the structural OwnedItemRef.
-  final String? ownedKind;
+  final String ownedRefKey;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -3011,8 +2988,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   final String? notes;
   const LoansCacheData(
       {required this.id,
-      required this.ownedItemId,
-      this.ownedKind,
+      required this.ownedRefKey,
       required this.borrowerName,
       required this.lentDate,
       this.dueDate,
@@ -3022,10 +2998,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['owned_item_id'] = Variable<String>(ownedItemId);
-    if (!nullToAbsent || ownedKind != null) {
-      map['owned_kind'] = Variable<String>(ownedKind);
-    }
+    map['owned_ref_key'] = Variable<String>(ownedRefKey);
     map['borrower_name'] = Variable<String>(borrowerName);
     map['lent_date'] = Variable<DateTime>(lentDate);
     if (!nullToAbsent || dueDate != null) {
@@ -3043,10 +3016,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   LoansCacheCompanion toCompanion(bool nullToAbsent) {
     return LoansCacheCompanion(
       id: Value(id),
-      ownedItemId: Value(ownedItemId),
-      ownedKind: ownedKind == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ownedKind),
+      ownedRefKey: Value(ownedRefKey),
       borrowerName: Value(borrowerName),
       lentDate: Value(lentDate),
       dueDate: dueDate == null && nullToAbsent
@@ -3065,8 +3035,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LoansCacheData(
       id: serializer.fromJson<String>(json['id']),
-      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
-      ownedKind: serializer.fromJson<String?>(json['ownedKind']),
+      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
       borrowerName: serializer.fromJson<String>(json['borrowerName']),
       lentDate: serializer.fromJson<DateTime>(json['lentDate']),
       dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
@@ -3079,8 +3048,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'ownedItemId': serializer.toJson<String>(ownedItemId),
-      'ownedKind': serializer.toJson<String?>(ownedKind),
+      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
       'borrowerName': serializer.toJson<String>(borrowerName),
       'lentDate': serializer.toJson<DateTime>(lentDate),
       'dueDate': serializer.toJson<DateTime?>(dueDate),
@@ -3091,8 +3059,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
 
   LoansCacheData copyWith(
           {String? id,
-          String? ownedItemId,
-          Value<String?> ownedKind = const Value.absent(),
+          String? ownedRefKey,
           String? borrowerName,
           DateTime? lentDate,
           Value<DateTime?> dueDate = const Value.absent(),
@@ -3100,8 +3067,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
           Value<String?> notes = const Value.absent()}) =>
       LoansCacheData(
         id: id ?? this.id,
-        ownedItemId: ownedItemId ?? this.ownedItemId,
-        ownedKind: ownedKind.present ? ownedKind.value : this.ownedKind,
+        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
         borrowerName: borrowerName ?? this.borrowerName,
         lentDate: lentDate ?? this.lentDate,
         dueDate: dueDate.present ? dueDate.value : this.dueDate,
@@ -3112,9 +3078,8 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   LoansCacheData copyWithCompanion(LoansCacheCompanion data) {
     return LoansCacheData(
       id: data.id.present ? data.id.value : this.id,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      ownedKind: data.ownedKind.present ? data.ownedKind.value : this.ownedKind,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       borrowerName: data.borrowerName.present
           ? data.borrowerName.value
           : this.borrowerName,
@@ -3131,8 +3096,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   String toString() {
     return (StringBuffer('LoansCacheData(')
           ..write('id: $id, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('ownedKind: $ownedKind, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('borrowerName: $borrowerName, ')
           ..write('lentDate: $lentDate, ')
           ..write('dueDate: $dueDate, ')
@@ -3143,15 +3107,14 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
   }
 
   @override
-  int get hashCode => Object.hash(id, ownedItemId, ownedKind, borrowerName,
-      lentDate, dueDate, returnedDate, notes);
+  int get hashCode => Object.hash(
+      id, ownedRefKey, borrowerName, lentDate, dueDate, returnedDate, notes);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LoansCacheData &&
           other.id == this.id &&
-          other.ownedItemId == this.ownedItemId &&
-          other.ownedKind == this.ownedKind &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.borrowerName == this.borrowerName &&
           other.lentDate == this.lentDate &&
           other.dueDate == this.dueDate &&
@@ -3161,8 +3124,7 @@ class LoansCacheData extends DataClass implements Insertable<LoansCacheData> {
 
 class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   final Value<String> id;
-  final Value<String> ownedItemId;
-  final Value<String?> ownedKind;
+  final Value<String> ownedRefKey;
   final Value<String> borrowerName;
   final Value<DateTime> lentDate;
   final Value<DateTime?> dueDate;
@@ -3171,8 +3133,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   final Value<int> rowid;
   const LoansCacheCompanion({
     this.id = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.ownedKind = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.borrowerName = const Value.absent(),
     this.lentDate = const Value.absent(),
     this.dueDate = const Value.absent(),
@@ -3182,8 +3143,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   });
   LoansCacheCompanion.insert({
     required String id,
-    required String ownedItemId,
-    this.ownedKind = const Value.absent(),
+    required String ownedRefKey,
     required String borrowerName,
     required DateTime lentDate,
     this.dueDate = const Value.absent(),
@@ -3191,13 +3151,12 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     this.notes = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        ownedItemId = Value(ownedItemId),
+        ownedRefKey = Value(ownedRefKey),
         borrowerName = Value(borrowerName),
         lentDate = Value(lentDate);
   static Insertable<LoansCacheData> custom({
     Expression<String>? id,
-    Expression<String>? ownedItemId,
-    Expression<String>? ownedKind,
+    Expression<String>? ownedRefKey,
     Expression<String>? borrowerName,
     Expression<DateTime>? lentDate,
     Expression<DateTime>? dueDate,
@@ -3207,8 +3166,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (ownedKind != null) 'owned_kind': ownedKind,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (borrowerName != null) 'borrower_name': borrowerName,
       if (lentDate != null) 'lent_date': lentDate,
       if (dueDate != null) 'due_date': dueDate,
@@ -3220,8 +3178,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
 
   LoansCacheCompanion copyWith(
       {Value<String>? id,
-      Value<String>? ownedItemId,
-      Value<String?>? ownedKind,
+      Value<String>? ownedRefKey,
       Value<String>? borrowerName,
       Value<DateTime>? lentDate,
       Value<DateTime?>? dueDate,
@@ -3230,8 +3187,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
       Value<int>? rowid}) {
     return LoansCacheCompanion(
       id: id ?? this.id,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      ownedKind: ownedKind ?? this.ownedKind,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate ?? this.lentDate,
       dueDate: dueDate ?? this.dueDate,
@@ -3247,11 +3203,8 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (ownedKind.present) {
-      map['owned_kind'] = Variable<String>(ownedKind.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (borrowerName.present) {
       map['borrower_name'] = Variable<String>(borrowerName.value);
@@ -3278,8 +3231,7 @@ class LoansCacheCompanion extends UpdateCompanion<LoansCacheData> {
   String toString() {
     return (StringBuffer('LoansCacheCompanion(')
           ..write('id: $id, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('ownedKind: $ownedKind, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('borrowerName: $borrowerName, ')
           ..write('lentDate: $lentDate, ')
           ..write('dueDate: $dueDate, ')
@@ -4284,11 +4236,11 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
   late final GeneratedColumn<String> folderId = GeneratedColumn<String>(
       'folder_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, false,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _sortOrderMeta =
       const VerificationMeta('sortOrder');
@@ -4299,7 +4251,7 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
   @override
-  List<GeneratedColumn> get $columns => [folderId, ownedItemId, sortOrder];
+  List<GeneratedColumn> get $columns => [folderId, ownedRefKey, sortOrder];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4317,13 +4269,13 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
     } else if (isInserting) {
       context.missing(_folderIdMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedItemIdMeta);
+      context.missing(_ownedRefKeyMeta);
     }
     if (data.containsKey('sort_order')) {
       context.handle(_sortOrderMeta,
@@ -4333,7 +4285,7 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {folderId, ownedItemId};
+  Set<GeneratedColumn> get $primaryKey => {folderId, ownedRefKey};
   @override
   UserFolderItemsCacheData map(Map<String, dynamic> data,
       {String? tablePrefix}) {
@@ -4341,8 +4293,8 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
     return UserFolderItemsCacheData(
       folderId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}folder_id'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
     );
@@ -4357,17 +4309,17 @@ class $UserFolderItemsCacheTable extends UserFolderItemsCache
 class UserFolderItemsCacheData extends DataClass
     implements Insertable<UserFolderItemsCacheData> {
   final String folderId;
-  final String ownedItemId;
+  final String ownedRefKey;
   final int sortOrder;
   const UserFolderItemsCacheData(
       {required this.folderId,
-      required this.ownedItemId,
+      required this.ownedRefKey,
       required this.sortOrder});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['folder_id'] = Variable<String>(folderId);
-    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['owned_ref_key'] = Variable<String>(ownedRefKey);
     map['sort_order'] = Variable<int>(sortOrder);
     return map;
   }
@@ -4375,7 +4327,7 @@ class UserFolderItemsCacheData extends DataClass
   UserFolderItemsCacheCompanion toCompanion(bool nullToAbsent) {
     return UserFolderItemsCacheCompanion(
       folderId: Value(folderId),
-      ownedItemId: Value(ownedItemId),
+      ownedRefKey: Value(ownedRefKey),
       sortOrder: Value(sortOrder),
     );
   }
@@ -4385,7 +4337,7 @@ class UserFolderItemsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserFolderItemsCacheData(
       folderId: serializer.fromJson<String>(json['folderId']),
-      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
     );
   }
@@ -4394,24 +4346,24 @@ class UserFolderItemsCacheData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'folderId': serializer.toJson<String>(folderId),
-      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
       'sortOrder': serializer.toJson<int>(sortOrder),
     };
   }
 
   UserFolderItemsCacheData copyWith(
-          {String? folderId, String? ownedItemId, int? sortOrder}) =>
+          {String? folderId, String? ownedRefKey, int? sortOrder}) =>
       UserFolderItemsCacheData(
         folderId: folderId ?? this.folderId,
-        ownedItemId: ownedItemId ?? this.ownedItemId,
+        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
         sortOrder: sortOrder ?? this.sortOrder,
       );
   UserFolderItemsCacheData copyWithCompanion(
       UserFolderItemsCacheCompanion data) {
     return UserFolderItemsCacheData(
       folderId: data.folderId.present ? data.folderId.value : this.folderId,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
     );
   }
@@ -4420,51 +4372,51 @@ class UserFolderItemsCacheData extends DataClass
   String toString() {
     return (StringBuffer('UserFolderItemsCacheData(')
           ..write('folderId: $folderId, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sortOrder: $sortOrder')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(folderId, ownedItemId, sortOrder);
+  int get hashCode => Object.hash(folderId, ownedRefKey, sortOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserFolderItemsCacheData &&
           other.folderId == this.folderId &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sortOrder == this.sortOrder);
 }
 
 class UserFolderItemsCacheCompanion
     extends UpdateCompanion<UserFolderItemsCacheData> {
   final Value<String> folderId;
-  final Value<String> ownedItemId;
+  final Value<String> ownedRefKey;
   final Value<int> sortOrder;
   final Value<int> rowid;
   const UserFolderItemsCacheCompanion({
     this.folderId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   UserFolderItemsCacheCompanion.insert({
     required String folderId,
-    required String ownedItemId,
+    required String ownedRefKey,
     this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : folderId = Value(folderId),
-        ownedItemId = Value(ownedItemId);
+        ownedRefKey = Value(ownedRefKey);
   static Insertable<UserFolderItemsCacheData> custom({
     Expression<String>? folderId,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<int>? sortOrder,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (folderId != null) 'folder_id': folderId,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (rowid != null) 'rowid': rowid,
     });
@@ -4472,12 +4424,12 @@ class UserFolderItemsCacheCompanion
 
   UserFolderItemsCacheCompanion copyWith(
       {Value<String>? folderId,
-      Value<String>? ownedItemId,
+      Value<String>? ownedRefKey,
       Value<int>? sortOrder,
       Value<int>? rowid}) {
     return UserFolderItemsCacheCompanion(
       folderId: folderId ?? this.folderId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sortOrder: sortOrder ?? this.sortOrder,
       rowid: rowid ?? this.rowid,
     );
@@ -4489,8 +4441,8 @@ class UserFolderItemsCacheCompanion
     if (folderId.present) {
       map['folder_id'] = Variable<String>(folderId.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
@@ -4505,7 +4457,7 @@ class UserFolderItemsCacheCompanion
   String toString() {
     return (StringBuffer('UserFolderItemsCacheCompanion(')
           ..write('folderId: $folderId, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4519,11 +4471,11 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ReadingQueueCacheTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, false,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _positionMeta =
       const VerificationMeta('position');
@@ -4538,7 +4490,7 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
       'added_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [ownedItemId, position, addedAt];
+  List<GeneratedColumn> get $columns => [ownedRefKey, position, addedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4550,13 +4502,13 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedItemIdMeta);
+      context.missing(_ownedRefKeyMeta);
     }
     if (data.containsKey('position')) {
       context.handle(_positionMeta,
@@ -4574,13 +4526,13 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  Set<GeneratedColumn> get $primaryKey => {ownedRefKey};
   @override
   ReadingQueueCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ReadingQueueCacheData(
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
       position: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}position'])!,
       addedAt: attachedDatabase.typeMapping
@@ -4596,17 +4548,17 @@ class $ReadingQueueCacheTable extends ReadingQueueCache
 
 class ReadingQueueCacheData extends DataClass
     implements Insertable<ReadingQueueCacheData> {
-  final String ownedItemId;
+  final String ownedRefKey;
   final int position;
   final DateTime addedAt;
   const ReadingQueueCacheData(
-      {required this.ownedItemId,
+      {required this.ownedRefKey,
       required this.position,
       required this.addedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['owned_ref_key'] = Variable<String>(ownedRefKey);
     map['position'] = Variable<int>(position);
     map['added_at'] = Variable<DateTime>(addedAt);
     return map;
@@ -4614,7 +4566,7 @@ class ReadingQueueCacheData extends DataClass
 
   ReadingQueueCacheCompanion toCompanion(bool nullToAbsent) {
     return ReadingQueueCacheCompanion(
-      ownedItemId: Value(ownedItemId),
+      ownedRefKey: Value(ownedRefKey),
       position: Value(position),
       addedAt: Value(addedAt),
     );
@@ -4624,7 +4576,7 @@ class ReadingQueueCacheData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ReadingQueueCacheData(
-      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
       position: serializer.fromJson<int>(json['position']),
       addedAt: serializer.fromJson<DateTime>(json['addedAt']),
     );
@@ -4633,23 +4585,23 @@ class ReadingQueueCacheData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
       'position': serializer.toJson<int>(position),
       'addedAt': serializer.toJson<DateTime>(addedAt),
     };
   }
 
   ReadingQueueCacheData copyWith(
-          {String? ownedItemId, int? position, DateTime? addedAt}) =>
+          {String? ownedRefKey, int? position, DateTime? addedAt}) =>
       ReadingQueueCacheData(
-        ownedItemId: ownedItemId ?? this.ownedItemId,
+        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
         position: position ?? this.position,
         addedAt: addedAt ?? this.addedAt,
       );
   ReadingQueueCacheData copyWithCompanion(ReadingQueueCacheCompanion data) {
     return ReadingQueueCacheData(
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       position: data.position.present ? data.position.value : this.position,
       addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
     );
@@ -4658,7 +4610,7 @@ class ReadingQueueCacheData extends DataClass
   @override
   String toString() {
     return (StringBuffer('ReadingQueueCacheData(')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('position: $position, ')
           ..write('addedAt: $addedAt')
           ..write(')'))
@@ -4666,44 +4618,44 @@ class ReadingQueueCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(ownedItemId, position, addedAt);
+  int get hashCode => Object.hash(ownedRefKey, position, addedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ReadingQueueCacheData &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.position == this.position &&
           other.addedAt == this.addedAt);
 }
 
 class ReadingQueueCacheCompanion
     extends UpdateCompanion<ReadingQueueCacheData> {
-  final Value<String> ownedItemId;
+  final Value<String> ownedRefKey;
   final Value<int> position;
   final Value<DateTime> addedAt;
   final Value<int> rowid;
   const ReadingQueueCacheCompanion({
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.position = const Value.absent(),
     this.addedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ReadingQueueCacheCompanion.insert({
-    required String ownedItemId,
+    required String ownedRefKey,
     required int position,
     required DateTime addedAt,
     this.rowid = const Value.absent(),
-  })  : ownedItemId = Value(ownedItemId),
+  })  : ownedRefKey = Value(ownedRefKey),
         position = Value(position),
         addedAt = Value(addedAt);
   static Insertable<ReadingQueueCacheData> custom({
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<int>? position,
     Expression<DateTime>? addedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (position != null) 'position': position,
       if (addedAt != null) 'added_at': addedAt,
       if (rowid != null) 'rowid': rowid,
@@ -4711,12 +4663,12 @@ class ReadingQueueCacheCompanion
   }
 
   ReadingQueueCacheCompanion copyWith(
-      {Value<String>? ownedItemId,
+      {Value<String>? ownedRefKey,
       Value<int>? position,
       Value<DateTime>? addedAt,
       Value<int>? rowid}) {
     return ReadingQueueCacheCompanion(
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       position: position ?? this.position,
       addedAt: addedAt ?? this.addedAt,
       rowid: rowid ?? this.rowid,
@@ -4726,8 +4678,8 @@ class ReadingQueueCacheCompanion
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (position.present) {
       map['position'] = Variable<int>(position.value);
@@ -4744,7 +4696,7 @@ class ReadingQueueCacheCompanion
   @override
   String toString() {
     return (StringBuffer('ReadingQueueCacheCompanion(')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('position: $position, ')
           ..write('addedAt: $addedAt, ')
           ..write('rowid: $rowid')
@@ -10289,11 +10241,11 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _mediaIdMeta =
       const VerificationMeta('mediaId');
@@ -10399,7 +10351,7 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
         id,
         entryType,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         mediaId,
         episodeId,
         status,
@@ -10444,11 +10396,11 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('media_id')) {
       context.handle(_mediaIdMeta,
@@ -10547,8 +10499,8 @@ class $AnimeTrackingRowsTable extends AnimeTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}entry_type'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       mediaId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}media_id'])!,
       episodeId: attachedDatabase.typeMapping
@@ -10595,7 +10547,7 @@ class AnimeTrackingRow extends DataClass
   final String id;
   final String entryType;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String mediaId;
   final String? episodeId;
   final String status;
@@ -10616,7 +10568,7 @@ class AnimeTrackingRow extends DataClass
       {required this.id,
       required this.entryType,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       required this.mediaId,
       this.episodeId,
       required this.status,
@@ -10639,8 +10591,8 @@ class AnimeTrackingRow extends DataClass
     map['id'] = Variable<String>(id);
     map['entry_type'] = Variable<String>(entryType);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     map['media_id'] = Variable<String>(mediaId);
     if (!nullToAbsent || episodeId != null) {
@@ -10690,9 +10642,9 @@ class AnimeTrackingRow extends DataClass
       id: Value(id),
       entryType: Value(entryType),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       mediaId: Value(mediaId),
       episodeId: episodeId == null && nullToAbsent
           ? const Value.absent()
@@ -10741,7 +10693,7 @@ class AnimeTrackingRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       entryType: serializer.fromJson<String>(json['entryType']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       mediaId: serializer.fromJson<String>(json['mediaId']),
       episodeId: serializer.fromJson<String?>(json['episodeId']),
       status: serializer.fromJson<String>(json['status']),
@@ -10768,7 +10720,7 @@ class AnimeTrackingRow extends DataClass
       'id': serializer.toJson<String>(id),
       'entryType': serializer.toJson<String>(entryType),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'mediaId': serializer.toJson<String>(mediaId),
       'episodeId': serializer.toJson<String?>(episodeId),
       'status': serializer.toJson<String>(status),
@@ -10792,7 +10744,7 @@ class AnimeTrackingRow extends DataClass
           {String? id,
           String? entryType,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           String? mediaId,
           Value<String?> episodeId = const Value.absent(),
           String? status,
@@ -10813,7 +10765,7 @@ class AnimeTrackingRow extends DataClass
         id: id ?? this.id,
         entryType: entryType ?? this.entryType,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         mediaId: mediaId ?? this.mediaId,
         episodeId: episodeId.present ? episodeId.value : this.episodeId,
         status: status ?? this.status,
@@ -10843,8 +10795,8 @@ class AnimeTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
       episodeId: data.episodeId.present ? data.episodeId.value : this.episodeId,
       status: data.status.present ? data.status.value : this.status,
@@ -10884,7 +10836,7 @@ class AnimeTrackingRow extends DataClass
           ..write('id: $id, ')
           ..write('entryType: $entryType, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('mediaId: $mediaId, ')
           ..write('episodeId: $episodeId, ')
           ..write('status: $status, ')
@@ -10910,7 +10862,7 @@ class AnimeTrackingRow extends DataClass
       id,
       entryType,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       mediaId,
       episodeId,
       status,
@@ -10934,7 +10886,7 @@ class AnimeTrackingRow extends DataClass
           other.id == this.id &&
           other.entryType == this.entryType &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.mediaId == this.mediaId &&
           other.episodeId == this.episodeId &&
           other.status == this.status &&
@@ -10957,7 +10909,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
   final Value<String> id;
   final Value<String> entryType;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String> mediaId;
   final Value<String?> episodeId;
   final Value<String> status;
@@ -10979,7 +10931,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     this.id = const Value.absent(),
     this.entryType = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.mediaId = const Value.absent(),
     this.episodeId = const Value.absent(),
     this.status = const Value.absent(),
@@ -11002,7 +10954,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     required String id,
     this.entryType = const Value.absent(),
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     required String mediaId,
     this.episodeId = const Value.absent(),
     this.status = const Value.absent(),
@@ -11027,7 +10979,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     Expression<String>? id,
     Expression<String>? entryType,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? mediaId,
     Expression<String>? episodeId,
     Expression<String>? status,
@@ -11050,7 +11002,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
       if (id != null) 'id': id,
       if (entryType != null) 'entry_type': entryType,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (mediaId != null) 'media_id': mediaId,
       if (episodeId != null) 'episode_id': episodeId,
       if (status != null) 'status': status,
@@ -11076,7 +11028,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
       {Value<String>? id,
       Value<String>? entryType,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String>? mediaId,
       Value<String?>? episodeId,
       Value<String>? status,
@@ -11098,7 +11050,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
       id: id ?? this.id,
       entryType: entryType ?? this.entryType,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       mediaId: mediaId ?? this.mediaId,
       episodeId: episodeId ?? this.episodeId,
       status: status ?? this.status,
@@ -11131,8 +11083,8 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (mediaId.present) {
       map['media_id'] = Variable<String>(mediaId.value);
@@ -11194,7 +11146,7 @@ class AnimeTrackingRowsCompanion extends UpdateCompanion<AnimeTrackingRow> {
           ..write('id: $id, ')
           ..write('entryType: $entryType, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('mediaId: $mediaId, ')
           ..write('episodeId: $episodeId, ')
           ..write('status: $status, ')
@@ -11240,18 +11192,12 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _unitTypeMeta =
-      const VerificationMeta('unitType');
-  @override
-  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
-      'unit_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -11287,8 +11233,7 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedItemId,
-        unitType,
+        ownedRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -11325,17 +11270,11 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
-    }
-    if (data.containsKey('unit_type')) {
-      context.handle(_unitTypeMeta,
-          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
-    } else if (isInserting) {
-      context.missing(_unitTypeMeta);
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -11382,10 +11321,8 @@ class $AnimeTrackingUnitRowsTable extends AnimeTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
-      unitType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -11410,8 +11347,7 @@ class AnimeTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedItemId;
-  final String unitType;
+  final String? ownedRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -11421,8 +11357,7 @@ class AnimeTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedItemId,
-      required this.unitType,
+      this.ownedRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -11436,10 +11371,9 @@ class AnimeTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
-    map['unit_type'] = Variable<String>(unitType);
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -11461,10 +11395,9 @@ class AnimeTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
-      unitType: Value(unitType),
+          : Value(ownedRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -11486,8 +11419,7 @@ class AnimeTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
-      unitType: serializer.fromJson<String>(json['unitType']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -11502,8 +11434,7 @@ class AnimeTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
-      'unitType': serializer.toJson<String>(unitType),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -11516,8 +11447,7 @@ class AnimeTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedItemId = const Value.absent(),
-          String? unitType,
+          Value<String?> ownedRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -11529,8 +11459,7 @@ class AnimeTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
-        unitType: unitType ?? this.unitType,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -11548,9 +11477,8 @@ class AnimeTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -11570,8 +11498,7 @@ class AnimeTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -11586,8 +11513,7 @@ class AnimeTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedItemId,
-      unitType,
+      ownedRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -11600,8 +11526,7 @@ class AnimeTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedItemId == this.ownedItemId &&
-          other.unitType == this.unitType &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -11614,8 +11539,7 @@ class AnimeTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedItemId;
-  final Value<String> unitType;
+  final Value<String?> ownedRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -11626,8 +11550,7 @@ class AnimeTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.unitType = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -11639,8 +11562,7 @@ class AnimeTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    required String unitType,
+    this.ownedRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -11649,15 +11571,13 @@ class AnimeTrackingUnitRowsCompanion
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         targetRefJson = Value(targetRefJson),
-        unitType = Value(unitType),
         completedAt = Value(completedAt),
         updatedAt = Value(updatedAt);
   static Insertable<AnimeTrackingUnitRow> custom({
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedItemId,
-    Expression<String>? unitType,
+    Expression<String>? ownedRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -11669,8 +11589,7 @@ class AnimeTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (unitType != null) 'unit_type': unitType,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -11684,8 +11603,7 @@ class AnimeTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedItemId,
-      Value<String>? unitType,
+      Value<String?>? ownedRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -11696,8 +11614,7 @@ class AnimeTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      unitType: unitType ?? this.unitType,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -11719,11 +11636,8 @@ class AnimeTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (unitType.present) {
-      map['unit_type'] = Variable<String>(unitType.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -11752,8 +11666,7 @@ class AnimeTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -17189,11 +17102,11 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -17262,7 +17175,7 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -17299,11 +17212,11 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -17374,8 +17287,8 @@ class $BoardGameTrackingRowsTable extends BoardGameTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -17411,7 +17324,7 @@ class BoardGameTrackingRow extends DataClass
     implements Insertable<BoardGameTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -17426,7 +17339,7 @@ class BoardGameTrackingRow extends DataClass
   const BoardGameTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -17443,8 +17356,8 @@ class BoardGameTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -17484,9 +17397,9 @@ class BoardGameTrackingRow extends DataClass
     return BoardGameTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -17524,7 +17437,7 @@ class BoardGameTrackingRow extends DataClass
     return BoardGameTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -17544,7 +17457,7 @@ class BoardGameTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -17562,7 +17475,7 @@ class BoardGameTrackingRow extends DataClass
   BoardGameTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -17577,7 +17490,7 @@ class BoardGameTrackingRow extends DataClass
       BoardGameTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -17600,8 +17513,8 @@ class BoardGameTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -17629,7 +17542,7 @@ class BoardGameTrackingRow extends DataClass
     return (StringBuffer('BoardGameTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -17649,7 +17562,7 @@ class BoardGameTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -17667,7 +17580,7 @@ class BoardGameTrackingRow extends DataClass
       (other is BoardGameTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -17685,7 +17598,7 @@ class BoardGameTrackingRowsCompanion
     extends UpdateCompanion<BoardGameTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -17701,7 +17614,7 @@ class BoardGameTrackingRowsCompanion
   const BoardGameTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -17718,7 +17631,7 @@ class BoardGameTrackingRowsCompanion
   BoardGameTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -17737,7 +17650,7 @@ class BoardGameTrackingRowsCompanion
   static Insertable<BoardGameTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -17754,7 +17667,7 @@ class BoardGameTrackingRowsCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -17773,7 +17686,7 @@ class BoardGameTrackingRowsCompanion
   BoardGameTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -17789,7 +17702,7 @@ class BoardGameTrackingRowsCompanion
     return BoardGameTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -17814,8 +17727,8 @@ class BoardGameTrackingRowsCompanion
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -17861,7 +17774,7 @@ class BoardGameTrackingRowsCompanion
     return (StringBuffer('BoardGameTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -21320,18 +21233,12 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _unitTypeMeta =
-      const VerificationMeta('unitType');
-  @override
-  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
-      'unit_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -21367,8 +21274,7 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedItemId,
-        unitType,
+        ownedRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -21405,17 +21311,11 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
-    }
-    if (data.containsKey('unit_type')) {
-      context.handle(_unitTypeMeta,
-          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
-    } else if (isInserting) {
-      context.missing(_unitTypeMeta);
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -21462,10 +21362,8 @@ class $BookTrackingUnitRowsTable extends BookTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
-      unitType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -21490,8 +21388,7 @@ class BookTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedItemId;
-  final String unitType;
+  final String? ownedRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -21501,8 +21398,7 @@ class BookTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedItemId,
-      required this.unitType,
+      this.ownedRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -21516,10 +21412,9 @@ class BookTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
-    map['unit_type'] = Variable<String>(unitType);
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -21541,10 +21436,9 @@ class BookTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
-      unitType: Value(unitType),
+          : Value(ownedRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -21566,8 +21460,7 @@ class BookTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
-      unitType: serializer.fromJson<String>(json['unitType']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -21582,8 +21475,7 @@ class BookTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
-      'unitType': serializer.toJson<String>(unitType),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -21596,8 +21488,7 @@ class BookTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedItemId = const Value.absent(),
-          String? unitType,
+          Value<String?> ownedRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -21609,8 +21500,7 @@ class BookTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
-        unitType: unitType ?? this.unitType,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -21628,9 +21518,8 @@ class BookTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -21650,8 +21539,7 @@ class BookTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -21666,8 +21554,7 @@ class BookTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedItemId,
-      unitType,
+      ownedRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -21680,8 +21567,7 @@ class BookTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedItemId == this.ownedItemId &&
-          other.unitType == this.unitType &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -21694,8 +21580,7 @@ class BookTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedItemId;
-  final Value<String> unitType;
+  final Value<String?> ownedRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -21706,8 +21591,7 @@ class BookTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.unitType = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -21719,8 +21603,7 @@ class BookTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    required String unitType,
+    this.ownedRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -21729,15 +21612,13 @@ class BookTrackingUnitRowsCompanion
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         targetRefJson = Value(targetRefJson),
-        unitType = Value(unitType),
         completedAt = Value(completedAt),
         updatedAt = Value(updatedAt);
   static Insertable<BookTrackingUnitRow> custom({
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedItemId,
-    Expression<String>? unitType,
+    Expression<String>? ownedRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -21749,8 +21630,7 @@ class BookTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (unitType != null) 'unit_type': unitType,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -21764,8 +21644,7 @@ class BookTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedItemId,
-      Value<String>? unitType,
+      Value<String?>? ownedRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -21776,8 +21655,7 @@ class BookTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      unitType: unitType ?? this.unitType,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -21799,11 +21677,8 @@ class BookTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (unitType.present) {
-      map['unit_type'] = Variable<String>(unitType.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -21832,8 +21707,7 @@ class BookTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -21862,11 +21736,11 @@ class $BookTrackingRowsTable extends BookTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -21935,7 +21809,7 @@ class $BookTrackingRowsTable extends BookTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -21971,11 +21845,11 @@ class $BookTrackingRowsTable extends BookTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -22046,8 +21920,8 @@ class $BookTrackingRowsTable extends BookTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -22082,7 +21956,7 @@ class $BookTrackingRowsTable extends BookTrackingRows
 class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -22097,7 +21971,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   const BookTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -22114,8 +21988,8 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -22155,9 +22029,9 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return BookTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -22195,7 +22069,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return BookTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -22215,7 +22089,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -22233,7 +22107,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   BookTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -22248,7 +22122,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
       BookTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -22271,8 +22145,8 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -22300,7 +22174,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
     return (StringBuffer('BookTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -22320,7 +22194,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -22338,7 +22212,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
       (other is BookTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -22355,7 +22229,7 @@ class BookTrackingRow extends DataClass implements Insertable<BookTrackingRow> {
 class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -22371,7 +22245,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   const BookTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -22388,7 +22262,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   BookTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -22407,7 +22281,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   static Insertable<BookTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -22424,7 +22298,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -22443,7 +22317,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
   BookTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -22459,7 +22333,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     return BookTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -22484,8 +22358,8 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -22531,7 +22405,7 @@ class BookTrackingRowsCompanion extends UpdateCompanion<BookTrackingRow> {
     return (StringBuffer('BookTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -26764,11 +26638,11 @@ class $ComicReadingRowsTable extends ComicReadingRows
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ComicReadingRowsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, false,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
   @override
@@ -26794,7 +26668,7 @@ class $ComicReadingRowsTable extends ComicReadingRows
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [ownedItemId, rating, status, startedAt, finishedAt];
+      [ownedRefKey, rating, status, startedAt, finishedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -26805,13 +26679,13 @@ class $ComicReadingRowsTable extends ComicReadingRows
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     } else if (isInserting) {
-      context.missing(_ownedItemIdMeta);
+      context.missing(_ownedRefKeyMeta);
     }
     if (data.containsKey('rating')) {
       context.handle(_ratingMeta,
@@ -26835,13 +26709,13 @@ class $ComicReadingRowsTable extends ComicReadingRows
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {ownedItemId};
+  Set<GeneratedColumn> get $primaryKey => {ownedRefKey};
   @override
   ComicReadingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ComicReadingRow(
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key'])!,
       rating: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}rating']),
       status: attachedDatabase.typeMapping
@@ -26860,13 +26734,13 @@ class $ComicReadingRowsTable extends ComicReadingRows
 }
 
 class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
-  final String ownedItemId;
+  final String ownedRefKey;
   final int? rating;
   final String? status;
   final DateTime? startedAt;
   final DateTime? finishedAt;
   const ComicReadingRow(
-      {required this.ownedItemId,
+      {required this.ownedRefKey,
       this.rating,
       this.status,
       this.startedAt,
@@ -26874,7 +26748,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['owned_item_id'] = Variable<String>(ownedItemId);
+    map['owned_ref_key'] = Variable<String>(ownedRefKey);
     if (!nullToAbsent || rating != null) {
       map['rating'] = Variable<int>(rating);
     }
@@ -26892,7 +26766,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
 
   ComicReadingRowsCompanion toCompanion(bool nullToAbsent) {
     return ComicReadingRowsCompanion(
-      ownedItemId: Value(ownedItemId),
+      ownedRefKey: Value(ownedRefKey),
       rating:
           rating == null && nullToAbsent ? const Value.absent() : Value(rating),
       status:
@@ -26910,7 +26784,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ComicReadingRow(
-      ownedItemId: serializer.fromJson<String>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String>(json['ownedRefKey']),
       rating: serializer.fromJson<int?>(json['rating']),
       status: serializer.fromJson<String?>(json['status']),
       startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
@@ -26921,7 +26795,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'ownedItemId': serializer.toJson<String>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String>(ownedRefKey),
       'rating': serializer.toJson<int?>(rating),
       'status': serializer.toJson<String?>(status),
       'startedAt': serializer.toJson<DateTime?>(startedAt),
@@ -26930,13 +26804,13 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   }
 
   ComicReadingRow copyWith(
-          {String? ownedItemId,
+          {String? ownedRefKey,
           Value<int?> rating = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<DateTime?> startedAt = const Value.absent(),
           Value<DateTime?> finishedAt = const Value.absent()}) =>
       ComicReadingRow(
-        ownedItemId: ownedItemId ?? this.ownedItemId,
+        ownedRefKey: ownedRefKey ?? this.ownedRefKey,
         rating: rating.present ? rating.value : this.rating,
         status: status.present ? status.value : this.status,
         startedAt: startedAt.present ? startedAt.value : this.startedAt,
@@ -26944,8 +26818,8 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
       );
   ComicReadingRow copyWithCompanion(ComicReadingRowsCompanion data) {
     return ComicReadingRow(
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       rating: data.rating.present ? data.rating.value : this.rating,
       status: data.status.present ? data.status.value : this.status,
       startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
@@ -26957,7 +26831,7 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
   @override
   String toString() {
     return (StringBuffer('ComicReadingRow(')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('rating: $rating, ')
           ..write('status: $status, ')
           ..write('startedAt: $startedAt, ')
@@ -26968,12 +26842,12 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
 
   @override
   int get hashCode =>
-      Object.hash(ownedItemId, rating, status, startedAt, finishedAt);
+      Object.hash(ownedRefKey, rating, status, startedAt, finishedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ComicReadingRow &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.rating == this.rating &&
           other.status == this.status &&
           other.startedAt == this.startedAt &&
@@ -26981,14 +26855,14 @@ class ComicReadingRow extends DataClass implements Insertable<ComicReadingRow> {
 }
 
 class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
-  final Value<String> ownedItemId;
+  final Value<String> ownedRefKey;
   final Value<int?> rating;
   final Value<String?> status;
   final Value<DateTime?> startedAt;
   final Value<DateTime?> finishedAt;
   final Value<int> rowid;
   const ComicReadingRowsCompanion({
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.rating = const Value.absent(),
     this.status = const Value.absent(),
     this.startedAt = const Value.absent(),
@@ -26996,15 +26870,15 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
     this.rowid = const Value.absent(),
   });
   ComicReadingRowsCompanion.insert({
-    required String ownedItemId,
+    required String ownedRefKey,
     this.rating = const Value.absent(),
     this.status = const Value.absent(),
     this.startedAt = const Value.absent(),
     this.finishedAt = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : ownedItemId = Value(ownedItemId);
+  }) : ownedRefKey = Value(ownedRefKey);
   static Insertable<ComicReadingRow> custom({
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<int>? rating,
     Expression<String>? status,
     Expression<DateTime>? startedAt,
@@ -27012,7 +26886,7 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (rating != null) 'rating': rating,
       if (status != null) 'status': status,
       if (startedAt != null) 'started_at': startedAt,
@@ -27022,14 +26896,14 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
   }
 
   ComicReadingRowsCompanion copyWith(
-      {Value<String>? ownedItemId,
+      {Value<String>? ownedRefKey,
       Value<int?>? rating,
       Value<String?>? status,
       Value<DateTime?>? startedAt,
       Value<DateTime?>? finishedAt,
       Value<int>? rowid}) {
     return ComicReadingRowsCompanion(
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       rating: rating ?? this.rating,
       status: status ?? this.status,
       startedAt: startedAt ?? this.startedAt,
@@ -27041,8 +26915,8 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (rating.present) {
       map['rating'] = Variable<int>(rating.value);
@@ -27065,7 +26939,7 @@ class ComicReadingRowsCompanion extends UpdateCompanion<ComicReadingRow> {
   @override
   String toString() {
     return (StringBuffer('ComicReadingRowsCompanion(')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('rating: $rating, ')
           ..write('status: $status, ')
           ..write('startedAt: $startedAt, ')
@@ -27099,18 +26973,12 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _unitTypeMeta =
-      const VerificationMeta('unitType');
-  @override
-  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
-      'unit_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -27140,8 +27008,7 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedItemId,
-        unitType,
+        ownedRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -27177,17 +27044,11 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
-    }
-    if (data.containsKey('unit_type')) {
-      context.handle(_unitTypeMeta,
-          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
-    } else if (isInserting) {
-      context.missing(_unitTypeMeta);
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -27228,10 +27089,8 @@ class $ComicTrackingUnitRowsTable extends ComicTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
-      unitType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -27254,8 +27113,7 @@ class ComicTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedItemId;
-  final String unitType;
+  final String? ownedRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -27264,8 +27122,7 @@ class ComicTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedItemId,
-      required this.unitType,
+      this.ownedRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -27278,10 +27135,9 @@ class ComicTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
-    map['unit_type'] = Variable<String>(unitType);
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -27300,10 +27156,9 @@ class ComicTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
-      unitType: Value(unitType),
+          : Value(ownedRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -27322,8 +27177,7 @@ class ComicTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
-      unitType: serializer.fromJson<String>(json['unitType']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -27337,8 +27191,7 @@ class ComicTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
-      'unitType': serializer.toJson<String>(unitType),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -27350,8 +27203,7 @@ class ComicTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedItemId = const Value.absent(),
-          String? unitType,
+          Value<String?> ownedRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -27362,8 +27214,7 @@ class ComicTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
-        unitType: unitType ?? this.unitType,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -27378,9 +27229,8 @@ class ComicTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -27396,8 +27246,7 @@ class ComicTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -27408,7 +27257,7 @@ class ComicTrackingUnitRow extends DataClass
 
   @override
   int get hashCode => Object.hash(id, targetRefJson, trackingEntryId,
-      ownedItemId, unitType, completedAt, updatedAt, deletedAt, issueNumber);
+      ownedRefKey, completedAt, updatedAt, deletedAt, issueNumber);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -27416,8 +27265,7 @@ class ComicTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedItemId == this.ownedItemId &&
-          other.unitType == this.unitType &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -27429,8 +27277,7 @@ class ComicTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedItemId;
-  final Value<String> unitType;
+  final Value<String?> ownedRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -27440,8 +27287,7 @@ class ComicTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.unitType = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -27452,8 +27298,7 @@ class ComicTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    required String unitType,
+    this.ownedRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -27461,15 +27306,13 @@ class ComicTrackingUnitRowsCompanion
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         targetRefJson = Value(targetRefJson),
-        unitType = Value(unitType),
         completedAt = Value(completedAt),
         updatedAt = Value(updatedAt);
   static Insertable<ComicTrackingUnitRow> custom({
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedItemId,
-    Expression<String>? unitType,
+    Expression<String>? ownedRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -27480,8 +27323,7 @@ class ComicTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (unitType != null) 'unit_type': unitType,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -27494,8 +27336,7 @@ class ComicTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedItemId,
-      Value<String>? unitType,
+      Value<String?>? ownedRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -27505,8 +27346,7 @@ class ComicTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      unitType: unitType ?? this.unitType,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -27527,11 +27367,8 @@ class ComicTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (unitType.present) {
-      map['unit_type'] = Variable<String>(unitType.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -27557,8 +27394,7 @@ class ComicTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -27586,11 +27422,11 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -27659,7 +27495,7 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -27695,11 +27531,11 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -27770,8 +27606,8 @@ class $ComicTrackingRowsTable extends ComicTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -27807,7 +27643,7 @@ class ComicTrackingRow extends DataClass
     implements Insertable<ComicTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -27822,7 +27658,7 @@ class ComicTrackingRow extends DataClass
   const ComicTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -27839,8 +27675,8 @@ class ComicTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -27880,9 +27716,9 @@ class ComicTrackingRow extends DataClass
     return ComicTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -27920,7 +27756,7 @@ class ComicTrackingRow extends DataClass
     return ComicTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -27940,7 +27776,7 @@ class ComicTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -27958,7 +27794,7 @@ class ComicTrackingRow extends DataClass
   ComicTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -27973,7 +27809,7 @@ class ComicTrackingRow extends DataClass
       ComicTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -27996,8 +27832,8 @@ class ComicTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -28025,7 +27861,7 @@ class ComicTrackingRow extends DataClass
     return (StringBuffer('ComicTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -28045,7 +27881,7 @@ class ComicTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -28063,7 +27899,7 @@ class ComicTrackingRow extends DataClass
       (other is ComicTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -28080,7 +27916,7 @@ class ComicTrackingRow extends DataClass
 class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -28096,7 +27932,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   const ComicTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -28113,7 +27949,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   ComicTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -28132,7 +27968,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   static Insertable<ComicTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -28149,7 +27985,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -28168,7 +28004,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
   ComicTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -28184,7 +28020,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     return ComicTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -28209,8 +28045,8 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -28256,7 +28092,7 @@ class ComicTrackingRowsCompanion extends UpdateCompanion<ComicTrackingRow> {
     return (StringBuffer('ComicTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -31210,11 +31046,11 @@ class $GameTrackingRowsTable extends GameTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -31283,7 +31119,7 @@ class $GameTrackingRowsTable extends GameTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -31319,11 +31155,11 @@ class $GameTrackingRowsTable extends GameTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -31394,8 +31230,8 @@ class $GameTrackingRowsTable extends GameTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -31430,7 +31266,7 @@ class $GameTrackingRowsTable extends GameTrackingRows
 class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -31445,7 +31281,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   const GameTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -31462,8 +31298,8 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -31503,9 +31339,9 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return GameTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -31543,7 +31379,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return GameTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -31563,7 +31399,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -31581,7 +31417,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   GameTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -31596,7 +31432,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
       GameTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -31619,8 +31455,8 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -31648,7 +31484,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
     return (StringBuffer('GameTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -31668,7 +31504,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -31686,7 +31522,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
       (other is GameTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -31703,7 +31539,7 @@ class GameTrackingRow extends DataClass implements Insertable<GameTrackingRow> {
 class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -31719,7 +31555,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   const GameTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -31736,7 +31572,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   GameTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -31755,7 +31591,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   static Insertable<GameTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -31772,7 +31608,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -31791,7 +31627,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
   GameTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -31807,7 +31643,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     return GameTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -31832,8 +31668,8 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -31879,7 +31715,7 @@ class GameTrackingRowsCompanion extends UpdateCompanion<GameTrackingRow> {
     return (StringBuffer('GameTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -34569,18 +34405,12 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _unitTypeMeta =
-      const VerificationMeta('unitType');
-  @override
-  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
-      'unit_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -34616,8 +34446,7 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedItemId,
-        unitType,
+        ownedRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -34654,17 +34483,11 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
-    }
-    if (data.containsKey('unit_type')) {
-      context.handle(_unitTypeMeta,
-          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
-    } else if (isInserting) {
-      context.missing(_unitTypeMeta);
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -34711,10 +34534,8 @@ class $MangaTrackingUnitRowsTable extends MangaTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
-      unitType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -34739,8 +34560,7 @@ class MangaTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedItemId;
-  final String unitType;
+  final String? ownedRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -34750,8 +34570,7 @@ class MangaTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedItemId,
-      required this.unitType,
+      this.ownedRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -34765,10 +34584,9 @@ class MangaTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
-    map['unit_type'] = Variable<String>(unitType);
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -34790,10 +34608,9 @@ class MangaTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
-      unitType: Value(unitType),
+          : Value(ownedRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -34815,8 +34632,7 @@ class MangaTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
-      unitType: serializer.fromJson<String>(json['unitType']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -34831,8 +34647,7 @@ class MangaTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
-      'unitType': serializer.toJson<String>(unitType),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -34845,8 +34660,7 @@ class MangaTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedItemId = const Value.absent(),
-          String? unitType,
+          Value<String?> ownedRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -34858,8 +34672,7 @@ class MangaTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
-        unitType: unitType ?? this.unitType,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -34877,9 +34690,8 @@ class MangaTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -34899,8 +34711,7 @@ class MangaTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -34915,8 +34726,7 @@ class MangaTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedItemId,
-      unitType,
+      ownedRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -34929,8 +34739,7 @@ class MangaTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedItemId == this.ownedItemId &&
-          other.unitType == this.unitType &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -34943,8 +34752,7 @@ class MangaTrackingUnitRowsCompanion
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedItemId;
-  final Value<String> unitType;
+  final Value<String?> ownedRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -34955,8 +34763,7 @@ class MangaTrackingUnitRowsCompanion
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.unitType = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -34968,8 +34775,7 @@ class MangaTrackingUnitRowsCompanion
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    required String unitType,
+    this.ownedRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -34978,15 +34784,13 @@ class MangaTrackingUnitRowsCompanion
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         targetRefJson = Value(targetRefJson),
-        unitType = Value(unitType),
         completedAt = Value(completedAt),
         updatedAt = Value(updatedAt);
   static Insertable<MangaTrackingUnitRow> custom({
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedItemId,
-    Expression<String>? unitType,
+    Expression<String>? ownedRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -34998,8 +34802,7 @@ class MangaTrackingUnitRowsCompanion
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (unitType != null) 'unit_type': unitType,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -35013,8 +34816,7 @@ class MangaTrackingUnitRowsCompanion
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedItemId,
-      Value<String>? unitType,
+      Value<String?>? ownedRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -35025,8 +34827,7 @@ class MangaTrackingUnitRowsCompanion
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      unitType: unitType ?? this.unitType,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -35048,11 +34849,8 @@ class MangaTrackingUnitRowsCompanion
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (unitType.present) {
-      map['unit_type'] = Variable<String>(unitType.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -35081,8 +34879,7 @@ class MangaTrackingUnitRowsCompanion
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -35111,11 +34908,11 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -35184,7 +34981,7 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -35220,11 +35017,11 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -35295,8 +35092,8 @@ class $MangaTrackingRowsTable extends MangaTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -35332,7 +35129,7 @@ class MangaTrackingRow extends DataClass
     implements Insertable<MangaTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -35347,7 +35144,7 @@ class MangaTrackingRow extends DataClass
   const MangaTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -35364,8 +35161,8 @@ class MangaTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -35405,9 +35202,9 @@ class MangaTrackingRow extends DataClass
     return MangaTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -35445,7 +35242,7 @@ class MangaTrackingRow extends DataClass
     return MangaTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -35465,7 +35262,7 @@ class MangaTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -35483,7 +35280,7 @@ class MangaTrackingRow extends DataClass
   MangaTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -35498,7 +35295,7 @@ class MangaTrackingRow extends DataClass
       MangaTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -35521,8 +35318,8 @@ class MangaTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -35550,7 +35347,7 @@ class MangaTrackingRow extends DataClass
     return (StringBuffer('MangaTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -35570,7 +35367,7 @@ class MangaTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -35588,7 +35385,7 @@ class MangaTrackingRow extends DataClass
       (other is MangaTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -35605,7 +35402,7 @@ class MangaTrackingRow extends DataClass
 class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -35621,7 +35418,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   const MangaTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -35638,7 +35435,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   MangaTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -35657,7 +35454,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   static Insertable<MangaTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -35674,7 +35471,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -35693,7 +35490,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
   MangaTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -35709,7 +35506,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     return MangaTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -35734,8 +35531,8 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -35781,7 +35578,7 @@ class MangaTrackingRowsCompanion extends UpdateCompanion<MangaTrackingRow> {
     return (StringBuffer('MangaTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -38851,11 +38648,11 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -38924,7 +38721,7 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -38960,11 +38757,11 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -39035,8 +38832,8 @@ class $MovieTrackingRowsTable extends MovieTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -39072,7 +38869,7 @@ class MovieTrackingRow extends DataClass
     implements Insertable<MovieTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -39087,7 +38884,7 @@ class MovieTrackingRow extends DataClass
   const MovieTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -39104,8 +38901,8 @@ class MovieTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -39145,9 +38942,9 @@ class MovieTrackingRow extends DataClass
     return MovieTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -39185,7 +38982,7 @@ class MovieTrackingRow extends DataClass
     return MovieTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -39205,7 +39002,7 @@ class MovieTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -39223,7 +39020,7 @@ class MovieTrackingRow extends DataClass
   MovieTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -39238,7 +39035,7 @@ class MovieTrackingRow extends DataClass
       MovieTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -39261,8 +39058,8 @@ class MovieTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -39290,7 +39087,7 @@ class MovieTrackingRow extends DataClass
     return (StringBuffer('MovieTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -39310,7 +39107,7 @@ class MovieTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -39328,7 +39125,7 @@ class MovieTrackingRow extends DataClass
       (other is MovieTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -39345,7 +39142,7 @@ class MovieTrackingRow extends DataClass
 class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -39361,7 +39158,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   const MovieTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -39378,7 +39175,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   MovieTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -39397,7 +39194,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   static Insertable<MovieTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -39414,7 +39211,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -39433,7 +39230,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
   MovieTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -39449,7 +39246,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     return MovieTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -39474,8 +39271,8 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -39521,7 +39318,7 @@ class MovieTrackingRowsCompanion extends UpdateCompanion<MovieTrackingRow> {
     return (StringBuffer('MovieTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -43065,11 +42862,11 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -43138,7 +42935,7 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -43174,11 +42971,11 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -43249,8 +43046,8 @@ class $MusicTrackingRowsTable extends MusicTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -43286,7 +43083,7 @@ class MusicTrackingRow extends DataClass
     implements Insertable<MusicTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -43301,7 +43098,7 @@ class MusicTrackingRow extends DataClass
   const MusicTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -43318,8 +43115,8 @@ class MusicTrackingRow extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -43359,9 +43156,9 @@ class MusicTrackingRow extends DataClass
     return MusicTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -43399,7 +43196,7 @@ class MusicTrackingRow extends DataClass
     return MusicTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -43419,7 +43216,7 @@ class MusicTrackingRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -43437,7 +43234,7 @@ class MusicTrackingRow extends DataClass
   MusicTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -43452,7 +43249,7 @@ class MusicTrackingRow extends DataClass
       MusicTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -43475,8 +43272,8 @@ class MusicTrackingRow extends DataClass
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -43504,7 +43301,7 @@ class MusicTrackingRow extends DataClass
     return (StringBuffer('MusicTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -43524,7 +43321,7 @@ class MusicTrackingRow extends DataClass
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -43542,7 +43339,7 @@ class MusicTrackingRow extends DataClass
       (other is MusicTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -43559,7 +43356,7 @@ class MusicTrackingRow extends DataClass
 class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -43575,7 +43372,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   const MusicTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -43592,7 +43389,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   MusicTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -43611,7 +43408,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   static Insertable<MusicTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -43628,7 +43425,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -43647,7 +43444,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
   MusicTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -43663,7 +43460,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     return MusicTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -43688,8 +43485,8 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -43735,7 +43532,7 @@ class MusicTrackingRowsCompanion extends UpdateCompanion<MusicTrackingRow> {
     return (StringBuffer('MusicTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -51548,11 +51345,11 @@ class $TvTrackingRowsTable extends TvTrackingRows
   late final GeneratedColumn<String> catalogRefJson = GeneratedColumn<String>(
       'catalog_ref_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _sourceTypeMeta =
       const VerificationMeta('sourceType');
@@ -51641,7 +51438,7 @@ class $TvTrackingRowsTable extends TvTrackingRows
   List<GeneratedColumn> get $columns => [
         id,
         catalogRefJson,
-        ownedItemId,
+        ownedRefKey,
         sourceType,
         status,
         rating,
@@ -51680,11 +51477,11 @@ class $TvTrackingRowsTable extends TvTrackingRows
     } else if (isInserting) {
       context.missing(_catalogRefJsonMeta);
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('source_type')) {
       context.handle(
@@ -51773,8 +51570,8 @@ class $TvTrackingRowsTable extends TvTrackingRows
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       catalogRefJson: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}catalog_ref_json'])!,
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       sourceType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_type']),
       status: attachedDatabase.typeMapping
@@ -51815,7 +51612,7 @@ class $TvTrackingRowsTable extends TvTrackingRows
 class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   final String id;
   final String catalogRefJson;
-  final String? ownedItemId;
+  final String? ownedRefKey;
   final String? sourceType;
   final String? status;
   final int? rating;
@@ -51833,7 +51630,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   const TvTrackingRow(
       {required this.id,
       required this.catalogRefJson,
-      this.ownedItemId,
+      this.ownedRefKey,
       this.sourceType,
       this.status,
       this.rating,
@@ -51853,8 +51650,8 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['catalog_ref_json'] = Variable<String>(catalogRefJson);
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
     if (!nullToAbsent || sourceType != null) {
       map['source_type'] = Variable<String>(sourceType);
@@ -51901,9 +51698,9 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return TvTrackingRowsCompanion(
       id: Value(id),
       catalogRefJson: Value(catalogRefJson),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
+          : Value(ownedRefKey),
       sourceType: sourceType == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceType),
@@ -51948,7 +51745,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return TvTrackingRow(
       id: serializer.fromJson<String>(json['id']),
       catalogRefJson: serializer.fromJson<String>(json['catalogRefJson']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       sourceType: serializer.fromJson<String?>(json['sourceType']),
       status: serializer.fromJson<String?>(json['status']),
       rating: serializer.fromJson<int?>(json['rating']),
@@ -51972,7 +51769,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'catalogRefJson': serializer.toJson<String>(catalogRefJson),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'sourceType': serializer.toJson<String?>(sourceType),
       'status': serializer.toJson<String?>(status),
       'rating': serializer.toJson<int?>(rating),
@@ -51993,7 +51790,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   TvTrackingRow copyWith(
           {String? id,
           String? catalogRefJson,
-          Value<String?> ownedItemId = const Value.absent(),
+          Value<String?> ownedRefKey = const Value.absent(),
           Value<String?> sourceType = const Value.absent(),
           Value<String?> status = const Value.absent(),
           Value<int?> rating = const Value.absent(),
@@ -52011,7 +51808,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
       TvTrackingRow(
         id: id ?? this.id,
         catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         sourceType: sourceType.present ? sourceType.value : this.sourceType,
         status: status.present ? status.value : this.status,
         rating: rating.present ? rating.value : this.rating,
@@ -52039,8 +51836,8 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
       catalogRefJson: data.catalogRefJson.present
           ? data.catalogRefJson.value
           : this.catalogRefJson,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       sourceType:
           data.sourceType.present ? data.sourceType.value : this.sourceType,
       status: data.status.present ? data.status.value : this.status,
@@ -52077,7 +51874,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
     return (StringBuffer('TvTrackingRow(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -52100,7 +51897,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
   int get hashCode => Object.hash(
       id,
       catalogRefJson,
-      ownedItemId,
+      ownedRefKey,
       sourceType,
       status,
       rating,
@@ -52121,7 +51918,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
       (other is TvTrackingRow &&
           other.id == this.id &&
           other.catalogRefJson == this.catalogRefJson &&
-          other.ownedItemId == this.ownedItemId &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.sourceType == this.sourceType &&
           other.status == this.status &&
           other.rating == this.rating &&
@@ -52141,7 +51938,7 @@ class TvTrackingRow extends DataClass implements Insertable<TvTrackingRow> {
 class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   final Value<String> id;
   final Value<String> catalogRefJson;
-  final Value<String?> ownedItemId;
+  final Value<String?> ownedRefKey;
   final Value<String?> sourceType;
   final Value<String?> status;
   final Value<int?> rating;
@@ -52160,7 +51957,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   const TvTrackingRowsCompanion({
     this.id = const Value.absent(),
     this.catalogRefJson = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -52180,7 +51977,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   TvTrackingRowsCompanion.insert({
     required String id,
     required String catalogRefJson,
-    this.ownedItemId = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.sourceType = const Value.absent(),
     this.status = const Value.absent(),
     this.rating = const Value.absent(),
@@ -52202,7 +51999,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   static Insertable<TvTrackingRow> custom({
     Expression<String>? id,
     Expression<String>? catalogRefJson,
-    Expression<String>? ownedItemId,
+    Expression<String>? ownedRefKey,
     Expression<String>? sourceType,
     Expression<String>? status,
     Expression<int>? rating,
@@ -52222,7 +52019,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (catalogRefJson != null) 'catalog_ref_json': catalogRefJson,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (sourceType != null) 'source_type': sourceType,
       if (status != null) 'status': status,
       if (rating != null) 'rating': rating,
@@ -52245,7 +52042,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
   TvTrackingRowsCompanion copyWith(
       {Value<String>? id,
       Value<String>? catalogRefJson,
-      Value<String?>? ownedItemId,
+      Value<String?>? ownedRefKey,
       Value<String?>? sourceType,
       Value<String?>? status,
       Value<int?>? rating,
@@ -52264,7 +52061,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     return TvTrackingRowsCompanion(
       id: id ?? this.id,
       catalogRefJson: catalogRefJson ?? this.catalogRefJson,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       sourceType: sourceType ?? this.sourceType,
       status: status ?? this.status,
       rating: rating ?? this.rating,
@@ -52292,8 +52089,8 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     if (catalogRefJson.present) {
       map['catalog_ref_json'] = Variable<String>(catalogRefJson.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (sourceType.present) {
       map['source_type'] = Variable<String>(sourceType.value);
@@ -52348,7 +52145,7 @@ class TvTrackingRowsCompanion extends UpdateCompanion<TvTrackingRow> {
     return (StringBuffer('TvTrackingRowsCompanion(')
           ..write('id: $id, ')
           ..write('catalogRefJson: $catalogRefJson, ')
-          ..write('ownedItemId: $ownedItemId, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('sourceType: $sourceType, ')
           ..write('status: $status, ')
           ..write('rating: $rating, ')
@@ -52392,18 +52189,12 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
   late final GeneratedColumn<String> trackingEntryId = GeneratedColumn<String>(
       'tracking_entry_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ownedItemIdMeta =
-      const VerificationMeta('ownedItemId');
+  static const VerificationMeta _ownedRefKeyMeta =
+      const VerificationMeta('ownedRefKey');
   @override
-  late final GeneratedColumn<String> ownedItemId = GeneratedColumn<String>(
-      'owned_item_id', aliasedName, true,
+  late final GeneratedColumn<String> ownedRefKey = GeneratedColumn<String>(
+      'owned_ref_key', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _unitTypeMeta =
-      const VerificationMeta('unitType');
-  @override
-  late final GeneratedColumn<String> unitType = GeneratedColumn<String>(
-      'unit_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _completedAtMeta =
       const VerificationMeta('completedAt');
   @override
@@ -52439,8 +52230,7 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
         id,
         targetRefJson,
         trackingEntryId,
-        ownedItemId,
-        unitType,
+        ownedRefKey,
         completedAt,
         updatedAt,
         deletedAt,
@@ -52476,17 +52266,11 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
           trackingEntryId.isAcceptableOrUnknown(
               data['tracking_entry_id']!, _trackingEntryIdMeta));
     }
-    if (data.containsKey('owned_item_id')) {
+    if (data.containsKey('owned_ref_key')) {
       context.handle(
-          _ownedItemIdMeta,
-          ownedItemId.isAcceptableOrUnknown(
-              data['owned_item_id']!, _ownedItemIdMeta));
-    }
-    if (data.containsKey('unit_type')) {
-      context.handle(_unitTypeMeta,
-          unitType.isAcceptableOrUnknown(data['unit_type']!, _unitTypeMeta));
-    } else if (isInserting) {
-      context.missing(_unitTypeMeta);
+          _ownedRefKeyMeta,
+          ownedRefKey.isAcceptableOrUnknown(
+              data['owned_ref_key']!, _ownedRefKeyMeta));
     }
     if (data.containsKey('completed_at')) {
       context.handle(
@@ -52533,10 +52317,8 @@ class $TvTrackingUnitRowsTable extends TvTrackingUnitRows
           DriftSqlType.string, data['${effectivePrefix}target_ref_json'])!,
       trackingEntryId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tracking_entry_id']),
-      ownedItemId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}owned_item_id']),
-      unitType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_type'])!,
+      ownedRefKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}owned_ref_key']),
       completedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}completed_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -52561,8 +52343,7 @@ class TvTrackingUnitRow extends DataClass
   final String id;
   final String targetRefJson;
   final String? trackingEntryId;
-  final String? ownedItemId;
-  final String unitType;
+  final String? ownedRefKey;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -52572,8 +52353,7 @@ class TvTrackingUnitRow extends DataClass
       {required this.id,
       required this.targetRefJson,
       this.trackingEntryId,
-      this.ownedItemId,
-      required this.unitType,
+      this.ownedRefKey,
       required this.completedAt,
       required this.updatedAt,
       this.deletedAt,
@@ -52587,10 +52367,9 @@ class TvTrackingUnitRow extends DataClass
     if (!nullToAbsent || trackingEntryId != null) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId);
     }
-    if (!nullToAbsent || ownedItemId != null) {
-      map['owned_item_id'] = Variable<String>(ownedItemId);
+    if (!nullToAbsent || ownedRefKey != null) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey);
     }
-    map['unit_type'] = Variable<String>(unitType);
     map['completed_at'] = Variable<DateTime>(completedAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -52612,10 +52391,9 @@ class TvTrackingUnitRow extends DataClass
       trackingEntryId: trackingEntryId == null && nullToAbsent
           ? const Value.absent()
           : Value(trackingEntryId),
-      ownedItemId: ownedItemId == null && nullToAbsent
+      ownedRefKey: ownedRefKey == null && nullToAbsent
           ? const Value.absent()
-          : Value(ownedItemId),
-      unitType: Value(unitType),
+          : Value(ownedRefKey),
       completedAt: Value(completedAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -52637,8 +52415,7 @@ class TvTrackingUnitRow extends DataClass
       id: serializer.fromJson<String>(json['id']),
       targetRefJson: serializer.fromJson<String>(json['targetRefJson']),
       trackingEntryId: serializer.fromJson<String?>(json['trackingEntryId']),
-      ownedItemId: serializer.fromJson<String?>(json['ownedItemId']),
-      unitType: serializer.fromJson<String>(json['unitType']),
+      ownedRefKey: serializer.fromJson<String?>(json['ownedRefKey']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
@@ -52653,8 +52430,7 @@ class TvTrackingUnitRow extends DataClass
       'id': serializer.toJson<String>(id),
       'targetRefJson': serializer.toJson<String>(targetRefJson),
       'trackingEntryId': serializer.toJson<String?>(trackingEntryId),
-      'ownedItemId': serializer.toJson<String?>(ownedItemId),
-      'unitType': serializer.toJson<String>(unitType),
+      'ownedRefKey': serializer.toJson<String?>(ownedRefKey),
       'completedAt': serializer.toJson<DateTime>(completedAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
@@ -52667,8 +52443,7 @@ class TvTrackingUnitRow extends DataClass
           {String? id,
           String? targetRefJson,
           Value<String?> trackingEntryId = const Value.absent(),
-          Value<String?> ownedItemId = const Value.absent(),
-          String? unitType,
+          Value<String?> ownedRefKey = const Value.absent(),
           DateTime? completedAt,
           DateTime? updatedAt,
           Value<DateTime?> deletedAt = const Value.absent(),
@@ -52680,8 +52455,7 @@ class TvTrackingUnitRow extends DataClass
         trackingEntryId: trackingEntryId.present
             ? trackingEntryId.value
             : this.trackingEntryId,
-        ownedItemId: ownedItemId.present ? ownedItemId.value : this.ownedItemId,
-        unitType: unitType ?? this.unitType,
+        ownedRefKey: ownedRefKey.present ? ownedRefKey.value : this.ownedRefKey,
         completedAt: completedAt ?? this.completedAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -52699,9 +52473,8 @@ class TvTrackingUnitRow extends DataClass
       trackingEntryId: data.trackingEntryId.present
           ? data.trackingEntryId.value
           : this.trackingEntryId,
-      ownedItemId:
-          data.ownedItemId.present ? data.ownedItemId.value : this.ownedItemId,
-      unitType: data.unitType.present ? data.unitType.value : this.unitType,
+      ownedRefKey:
+          data.ownedRefKey.present ? data.ownedRefKey.value : this.ownedRefKey,
       completedAt:
           data.completedAt.present ? data.completedAt.value : this.completedAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -52721,8 +52494,7 @@ class TvTrackingUnitRow extends DataClass
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -52737,8 +52509,7 @@ class TvTrackingUnitRow extends DataClass
       id,
       targetRefJson,
       trackingEntryId,
-      ownedItemId,
-      unitType,
+      ownedRefKey,
       completedAt,
       updatedAt,
       deletedAt,
@@ -52751,8 +52522,7 @@ class TvTrackingUnitRow extends DataClass
           other.id == this.id &&
           other.targetRefJson == this.targetRefJson &&
           other.trackingEntryId == this.trackingEntryId &&
-          other.ownedItemId == this.ownedItemId &&
-          other.unitType == this.unitType &&
+          other.ownedRefKey == this.ownedRefKey &&
           other.completedAt == this.completedAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
@@ -52764,8 +52534,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
   final Value<String> id;
   final Value<String> targetRefJson;
   final Value<String?> trackingEntryId;
-  final Value<String?> ownedItemId;
-  final Value<String> unitType;
+  final Value<String?> ownedRefKey;
   final Value<DateTime> completedAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
@@ -52776,8 +52545,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     this.id = const Value.absent(),
     this.targetRefJson = const Value.absent(),
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    this.unitType = const Value.absent(),
+    this.ownedRefKey = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -52789,8 +52557,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     required String id,
     required String targetRefJson,
     this.trackingEntryId = const Value.absent(),
-    this.ownedItemId = const Value.absent(),
-    required String unitType,
+    this.ownedRefKey = const Value.absent(),
     required DateTime completedAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
@@ -52799,15 +52566,13 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         targetRefJson = Value(targetRefJson),
-        unitType = Value(unitType),
         completedAt = Value(completedAt),
         updatedAt = Value(updatedAt);
   static Insertable<TvTrackingUnitRow> custom({
     Expression<String>? id,
     Expression<String>? targetRefJson,
     Expression<String>? trackingEntryId,
-    Expression<String>? ownedItemId,
-    Expression<String>? unitType,
+    Expression<String>? ownedRefKey,
     Expression<DateTime>? completedAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
@@ -52819,8 +52584,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
       if (id != null) 'id': id,
       if (targetRefJson != null) 'target_ref_json': targetRefJson,
       if (trackingEntryId != null) 'tracking_entry_id': trackingEntryId,
-      if (ownedItemId != null) 'owned_item_id': ownedItemId,
-      if (unitType != null) 'unit_type': unitType,
+      if (ownedRefKey != null) 'owned_ref_key': ownedRefKey,
       if (completedAt != null) 'completed_at': completedAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -52834,8 +52598,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
       {Value<String>? id,
       Value<String>? targetRefJson,
       Value<String?>? trackingEntryId,
-      Value<String?>? ownedItemId,
-      Value<String>? unitType,
+      Value<String?>? ownedRefKey,
       Value<DateTime>? completedAt,
       Value<DateTime>? updatedAt,
       Value<DateTime?>? deletedAt,
@@ -52846,8 +52609,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
       id: id ?? this.id,
       targetRefJson: targetRefJson ?? this.targetRefJson,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      ownedItemId: ownedItemId ?? this.ownedItemId,
-      unitType: unitType ?? this.unitType,
+      ownedRefKey: ownedRefKey ?? this.ownedRefKey,
       completedAt: completedAt ?? this.completedAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -52869,11 +52631,8 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
     if (trackingEntryId.present) {
       map['tracking_entry_id'] = Variable<String>(trackingEntryId.value);
     }
-    if (ownedItemId.present) {
-      map['owned_item_id'] = Variable<String>(ownedItemId.value);
-    }
-    if (unitType.present) {
-      map['unit_type'] = Variable<String>(unitType.value);
+    if (ownedRefKey.present) {
+      map['owned_ref_key'] = Variable<String>(ownedRefKey.value);
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
@@ -52902,8 +52661,7 @@ class TvTrackingUnitRowsCompanion extends UpdateCompanion<TvTrackingUnitRow> {
           ..write('id: $id, ')
           ..write('targetRefJson: $targetRefJson, ')
           ..write('trackingEntryId: $trackingEntryId, ')
-          ..write('ownedItemId: $ownedItemId, ')
-          ..write('unitType: $unitType, ')
+          ..write('ownedRefKey: $ownedRefKey, ')
           ..write('completedAt: $completedAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -54401,7 +54159,7 @@ typedef $$CustomFieldValuesCacheTableProcessedTableManager
 typedef $$ItemImagesCacheTableCreateCompanionBuilder = ItemImagesCacheCompanion
     Function({
   required String id,
-  required String ownedItemId,
+  required String ownedRefKey,
   Value<String> imageType,
   required Uint8List imageData,
   Value<String?> caption,
@@ -54412,7 +54170,7 @@ typedef $$ItemImagesCacheTableCreateCompanionBuilder = ItemImagesCacheCompanion
 typedef $$ItemImagesCacheTableUpdateCompanionBuilder = ItemImagesCacheCompanion
     Function({
   Value<String> id,
-  Value<String> ownedItemId,
+  Value<String> ownedRefKey,
   Value<String> imageType,
   Value<Uint8List> imageData,
   Value<String?> caption,
@@ -54433,8 +54191,8 @@ class $$ItemImagesCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get imageType => $composableBuilder(
       column: $table.imageType, builder: (column) => ColumnFilters(column));
@@ -54464,8 +54222,8 @@ class $$ItemImagesCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get imageType => $composableBuilder(
       column: $table.imageType, builder: (column) => ColumnOrderings(column));
@@ -54495,8 +54253,8 @@ class $$ItemImagesCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get imageType =>
       $composableBuilder(column: $table.imageType, builder: (column) => column);
@@ -54543,7 +54301,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
               $$ItemImagesCacheTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> ownedItemId = const Value.absent(),
+            Value<String> ownedRefKey = const Value.absent(),
             Value<String> imageType = const Value.absent(),
             Value<Uint8List> imageData = const Value.absent(),
             Value<String?> caption = const Value.absent(),
@@ -54553,7 +54311,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
           }) =>
               ItemImagesCacheCompanion(
             id: id,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             imageType: imageType,
             imageData: imageData,
             caption: caption,
@@ -54563,7 +54321,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String ownedItemId,
+            required String ownedRefKey,
             Value<String> imageType = const Value.absent(),
             required Uint8List imageData,
             Value<String?> caption = const Value.absent(),
@@ -54573,7 +54331,7 @@ class $$ItemImagesCacheTableTableManager extends RootTableManager<
           }) =>
               ItemImagesCacheCompanion.insert(
             id: id,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             imageType: imageType,
             imageData: imageData,
             caption: caption,
@@ -54606,8 +54364,7 @@ typedef $$ItemImagesCacheTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$LoansCacheTableCreateCompanionBuilder = LoansCacheCompanion Function({
   required String id,
-  required String ownedItemId,
-  Value<String?> ownedKind,
+  required String ownedRefKey,
   required String borrowerName,
   required DateTime lentDate,
   Value<DateTime?> dueDate,
@@ -54617,8 +54374,7 @@ typedef $$LoansCacheTableCreateCompanionBuilder = LoansCacheCompanion Function({
 });
 typedef $$LoansCacheTableUpdateCompanionBuilder = LoansCacheCompanion Function({
   Value<String> id,
-  Value<String> ownedItemId,
-  Value<String?> ownedKind,
+  Value<String> ownedRefKey,
   Value<String> borrowerName,
   Value<DateTime> lentDate,
   Value<DateTime?> dueDate,
@@ -54639,11 +54395,8 @@ class $$LoansCacheTableFilterComposer
   ColumnFilters<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get ownedKind => $composableBuilder(
-      column: $table.ownedKind, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName, builder: (column) => ColumnFilters(column));
@@ -54673,11 +54426,8 @@ class $$LoansCacheTableOrderingComposer
   ColumnOrderings<String> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get ownedKind => $composableBuilder(
-      column: $table.ownedKind, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName,
@@ -54709,11 +54459,8 @@ class $$LoansCacheTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get ownedKind =>
-      $composableBuilder(column: $table.ownedKind, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get borrowerName => $composableBuilder(
       column: $table.borrowerName, builder: (column) => column);
@@ -54758,8 +54505,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
               $$LoansCacheTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
-            Value<String> ownedItemId = const Value.absent(),
-            Value<String?> ownedKind = const Value.absent(),
+            Value<String> ownedRefKey = const Value.absent(),
             Value<String> borrowerName = const Value.absent(),
             Value<DateTime> lentDate = const Value.absent(),
             Value<DateTime?> dueDate = const Value.absent(),
@@ -54769,8 +54515,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           }) =>
               LoansCacheCompanion(
             id: id,
-            ownedItemId: ownedItemId,
-            ownedKind: ownedKind,
+            ownedRefKey: ownedRefKey,
             borrowerName: borrowerName,
             lentDate: lentDate,
             dueDate: dueDate,
@@ -54780,8 +54525,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String ownedItemId,
-            Value<String?> ownedKind = const Value.absent(),
+            required String ownedRefKey,
             required String borrowerName,
             required DateTime lentDate,
             Value<DateTime?> dueDate = const Value.absent(),
@@ -54791,8 +54535,7 @@ class $$LoansCacheTableTableManager extends RootTableManager<
           }) =>
               LoansCacheCompanion.insert(
             id: id,
-            ownedItemId: ownedItemId,
-            ownedKind: ownedKind,
+            ownedRefKey: ownedRefKey,
             borrowerName: borrowerName,
             lentDate: lentDate,
             dueDate: dueDate,
@@ -55367,14 +55110,14 @@ typedef $$UserFoldersCacheTableProcessedTableManager = ProcessedTableManager<
 typedef $$UserFolderItemsCacheTableCreateCompanionBuilder
     = UserFolderItemsCacheCompanion Function({
   required String folderId,
-  required String ownedItemId,
+  required String ownedRefKey,
   Value<int> sortOrder,
   Value<int> rowid,
 });
 typedef $$UserFolderItemsCacheTableUpdateCompanionBuilder
     = UserFolderItemsCacheCompanion Function({
   Value<String> folderId,
-  Value<String> ownedItemId,
+  Value<String> ownedRefKey,
   Value<int> sortOrder,
   Value<int> rowid,
 });
@@ -55391,8 +55134,8 @@ class $$UserFolderItemsCacheTableFilterComposer
   ColumnFilters<String> get folderId => $composableBuilder(
       column: $table.folderId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
@@ -55410,8 +55153,8 @@ class $$UserFolderItemsCacheTableOrderingComposer
   ColumnOrderings<String> get folderId => $composableBuilder(
       column: $table.folderId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
@@ -55429,8 +55172,8 @@ class $$UserFolderItemsCacheTableAnnotationComposer
   GeneratedColumn<String> get folderId =>
       $composableBuilder(column: $table.folderId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -55467,25 +55210,25 @@ class $$UserFolderItemsCacheTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> folderId = const Value.absent(),
-            Value<String> ownedItemId = const Value.absent(),
+            Value<String> ownedRefKey = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UserFolderItemsCacheCompanion(
             folderId: folderId,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sortOrder: sortOrder,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String folderId,
-            required String ownedItemId,
+            required String ownedRefKey,
             Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               UserFolderItemsCacheCompanion.insert(
             folderId: folderId,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sortOrder: sortOrder,
             rowid: rowid,
           ),
@@ -55515,14 +55258,14 @@ typedef $$UserFolderItemsCacheTableProcessedTableManager
         PrefetchHooks Function()>;
 typedef $$ReadingQueueCacheTableCreateCompanionBuilder
     = ReadingQueueCacheCompanion Function({
-  required String ownedItemId,
+  required String ownedRefKey,
   required int position,
   required DateTime addedAt,
   Value<int> rowid,
 });
 typedef $$ReadingQueueCacheTableUpdateCompanionBuilder
     = ReadingQueueCacheCompanion Function({
-  Value<String> ownedItemId,
+  Value<String> ownedRefKey,
   Value<int> position,
   Value<DateTime> addedAt,
   Value<int> rowid,
@@ -55537,8 +55280,8 @@ class $$ReadingQueueCacheTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get position => $composableBuilder(
       column: $table.position, builder: (column) => ColumnFilters(column));
@@ -55556,8 +55299,8 @@ class $$ReadingQueueCacheTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get position => $composableBuilder(
       column: $table.position, builder: (column) => ColumnOrderings(column));
@@ -55575,8 +55318,8 @@ class $$ReadingQueueCacheTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<int> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -55614,25 +55357,25 @@ class $$ReadingQueueCacheTableTableManager extends RootTableManager<
               $$ReadingQueueCacheTableAnnotationComposer(
                   $db: db, $table: table),
           updateCompanionCallback: ({
-            Value<String> ownedItemId = const Value.absent(),
+            Value<String> ownedRefKey = const Value.absent(),
             Value<int> position = const Value.absent(),
             Value<DateTime> addedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ReadingQueueCacheCompanion(
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             position: position,
             addedAt: addedAt,
             rowid: rowid,
           ),
           createCompanionCallback: ({
-            required String ownedItemId,
+            required String ownedRefKey,
             required int position,
             required DateTime addedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
               ReadingQueueCacheCompanion.insert(
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             position: position,
             addedAt: addedAt,
             rowid: rowid,
@@ -58166,7 +57909,7 @@ typedef $$AnimeTrackingRowsTableCreateCompanionBuilder
   required String id,
   Value<String> entryType,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   required String mediaId,
   Value<String?> episodeId,
   Value<String> status,
@@ -58190,7 +57933,7 @@ typedef $$AnimeTrackingRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> entryType,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String> mediaId,
   Value<String?> episodeId,
   Value<String> status,
@@ -58229,8 +57972,8 @@ class $$AnimeTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get mediaId => $composableBuilder(
       column: $table.mediaId, builder: (column) => ColumnFilters(column));
@@ -58303,8 +58046,8 @@ class $$AnimeTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get mediaId => $composableBuilder(
       column: $table.mediaId, builder: (column) => ColumnOrderings(column));
@@ -58379,8 +58122,8 @@ class $$AnimeTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get mediaId =>
       $composableBuilder(column: $table.mediaId, builder: (column) => column);
@@ -58462,7 +58205,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> entryType = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String> mediaId = const Value.absent(),
             Value<String?> episodeId = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -58485,7 +58228,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             id: id,
             entryType: entryType,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             mediaId: mediaId,
             episodeId: episodeId,
             status: status,
@@ -58508,7 +58251,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             required String id,
             Value<String> entryType = const Value.absent(),
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             required String mediaId,
             Value<String?> episodeId = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -58531,7 +58274,7 @@ class $$AnimeTrackingRowsTableTableManager extends RootTableManager<
             id: id,
             entryType: entryType,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             mediaId: mediaId,
             episodeId: episodeId,
             status: status,
@@ -58577,8 +58320,7 @@ typedef $$AnimeTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  required String unitType,
+  Value<String?> ownedRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -58591,8 +58333,7 @@ typedef $$AnimeTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  Value<String> unitType,
+  Value<String?> ownedRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -58620,11 +58361,8 @@ class $$AnimeTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -58662,11 +58400,8 @@ class $$AnimeTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -58704,11 +58439,8 @@ class $$AnimeTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get unitType =>
-      $composableBuilder(column: $table.unitType, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -58760,8 +58492,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String> unitType = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -58773,8 +58504,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -58786,8 +58516,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            required String unitType,
+            Value<String?> ownedRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -58799,8 +58528,7 @@ class $$AnimeTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -61197,7 +60925,7 @@ typedef $$BoardGameTrackingRowsTableCreateCompanionBuilder
     = BoardGameTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -61215,7 +60943,7 @@ typedef $$BoardGameTrackingRowsTableUpdateCompanionBuilder
     = BoardGameTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -61246,8 +60974,8 @@ class $$BoardGameTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -61301,8 +61029,8 @@ class $$BoardGameTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -61356,8 +61084,8 @@ class $$BoardGameTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -61426,7 +61154,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -61443,7 +61171,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
               BoardGameTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -61460,7 +61188,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -61477,7 +61205,7 @@ class $$BoardGameTrackingRowsTableTableManager extends RootTableManager<
               BoardGameTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -62948,8 +62676,7 @@ typedef $$BookTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  required String unitType,
+  Value<String?> ownedRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -62962,8 +62689,7 @@ typedef $$BookTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  Value<String> unitType,
+  Value<String?> ownedRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -62991,11 +62717,8 @@ class $$BookTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -63033,11 +62756,8 @@ class $$BookTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -63075,11 +62795,8 @@ class $$BookTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get unitType =>
-      $composableBuilder(column: $table.unitType, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -63130,8 +62847,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String> unitType = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -63143,8 +62859,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -63156,8 +62871,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            required String unitType,
+            Value<String?> ownedRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -63169,8 +62883,7 @@ class $$BookTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -63206,7 +62919,7 @@ typedef $$BookTrackingRowsTableCreateCompanionBuilder
     = BookTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -63224,7 +62937,7 @@ typedef $$BookTrackingRowsTableUpdateCompanionBuilder
     = BookTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -63255,8 +62968,8 @@ class $$BookTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -63310,8 +63023,8 @@ class $$BookTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -63365,8 +63078,8 @@ class $$BookTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -63431,7 +63144,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -63448,7 +63161,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
               BookTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -63465,7 +63178,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -63482,7 +63195,7 @@ class $$BookTrackingRowsTableTableManager extends RootTableManager<
               BookTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -65252,7 +64965,7 @@ typedef $$ComicOwnedItemsRowsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$ComicReadingRowsTableCreateCompanionBuilder
     = ComicReadingRowsCompanion Function({
-  required String ownedItemId,
+  required String ownedRefKey,
   Value<int?> rating,
   Value<String?> status,
   Value<DateTime?> startedAt,
@@ -65261,7 +64974,7 @@ typedef $$ComicReadingRowsTableCreateCompanionBuilder
 });
 typedef $$ComicReadingRowsTableUpdateCompanionBuilder
     = ComicReadingRowsCompanion Function({
-  Value<String> ownedItemId,
+  Value<String> ownedRefKey,
   Value<int?> rating,
   Value<String?> status,
   Value<DateTime?> startedAt,
@@ -65278,8 +64991,8 @@ class $$ComicReadingRowsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnFilters(column));
@@ -65303,8 +65016,8 @@ class $$ComicReadingRowsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get rating => $composableBuilder(
       column: $table.rating, builder: (column) => ColumnOrderings(column));
@@ -65328,8 +65041,8 @@ class $$ComicReadingRowsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<int> get rating =>
       $composableBuilder(column: $table.rating, builder: (column) => column);
@@ -65371,7 +65084,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$ComicReadingRowsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<String> ownedItemId = const Value.absent(),
+            Value<String> ownedRefKey = const Value.absent(),
             Value<int?> rating = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -65379,7 +65092,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicReadingRowsCompanion(
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             rating: rating,
             status: status,
             startedAt: startedAt,
@@ -65387,7 +65100,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           createCompanionCallback: ({
-            required String ownedItemId,
+            required String ownedRefKey,
             Value<int?> rating = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<DateTime?> startedAt = const Value.absent(),
@@ -65395,7 +65108,7 @@ class $$ComicReadingRowsTableTableManager extends RootTableManager<
             Value<int> rowid = const Value.absent(),
           }) =>
               ComicReadingRowsCompanion.insert(
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             rating: rating,
             status: status,
             startedAt: startedAt,
@@ -65429,8 +65142,7 @@ typedef $$ComicTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  required String unitType,
+  Value<String?> ownedRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -65442,8 +65154,7 @@ typedef $$ComicTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  Value<String> unitType,
+  Value<String?> ownedRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -65470,11 +65181,8 @@ class $$ComicTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -65509,11 +65217,8 @@ class $$ComicTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -65546,11 +65251,8 @@ class $$ComicTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get unitType =>
-      $composableBuilder(column: $table.unitType, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -65599,8 +65301,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String> unitType = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -65611,8 +65312,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -65623,8 +65323,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            required String unitType,
+            Value<String?> ownedRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -65635,8 +65334,7 @@ class $$ComicTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -65671,7 +65369,7 @@ typedef $$ComicTrackingRowsTableCreateCompanionBuilder
     = ComicTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -65689,7 +65387,7 @@ typedef $$ComicTrackingRowsTableUpdateCompanionBuilder
     = ComicTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -65720,8 +65418,8 @@ class $$ComicTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -65775,8 +65473,8 @@ class $$ComicTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -65830,8 +65528,8 @@ class $$ComicTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -65897,7 +65595,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -65914,7 +65612,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
               ComicTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -65931,7 +65629,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -65948,7 +65646,7 @@ class $$ComicTrackingRowsTableTableManager extends RootTableManager<
               ComicTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -67237,7 +66935,7 @@ typedef $$GameTrackingRowsTableCreateCompanionBuilder
     = GameTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -67255,7 +66953,7 @@ typedef $$GameTrackingRowsTableUpdateCompanionBuilder
     = GameTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -67286,8 +66984,8 @@ class $$GameTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -67341,8 +67039,8 @@ class $$GameTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -67396,8 +67094,8 @@ class $$GameTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -67462,7 +67160,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -67479,7 +67177,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
               GameTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -67496,7 +67194,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -67513,7 +67211,7 @@ class $$GameTrackingRowsTableTableManager extends RootTableManager<
               GameTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -68642,8 +68340,7 @@ typedef $$MangaTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  required String unitType,
+  Value<String?> ownedRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -68656,8 +68353,7 @@ typedef $$MangaTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  Value<String> unitType,
+  Value<String?> ownedRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -68685,11 +68381,8 @@ class $$MangaTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -68727,11 +68420,8 @@ class $$MangaTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -68769,11 +68459,8 @@ class $$MangaTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get unitType =>
-      $composableBuilder(column: $table.unitType, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -68825,8 +68512,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String> unitType = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -68838,8 +68524,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -68851,8 +68536,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            required String unitType,
+            Value<String?> ownedRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -68864,8 +68548,7 @@ class $$MangaTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -68901,7 +68584,7 @@ typedef $$MangaTrackingRowsTableCreateCompanionBuilder
     = MangaTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -68919,7 +68602,7 @@ typedef $$MangaTrackingRowsTableUpdateCompanionBuilder
     = MangaTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -68950,8 +68633,8 @@ class $$MangaTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -69005,8 +68688,8 @@ class $$MangaTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -69060,8 +68743,8 @@ class $$MangaTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -69127,7 +68810,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -69144,7 +68827,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
               MangaTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -69161,7 +68844,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -69178,7 +68861,7 @@ class $$MangaTrackingRowsTableTableManager extends RootTableManager<
               MangaTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -70519,7 +70202,7 @@ typedef $$MovieTrackingRowsTableCreateCompanionBuilder
     = MovieTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -70537,7 +70220,7 @@ typedef $$MovieTrackingRowsTableUpdateCompanionBuilder
     = MovieTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -70568,8 +70251,8 @@ class $$MovieTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -70623,8 +70306,8 @@ class $$MovieTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -70678,8 +70361,8 @@ class $$MovieTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -70745,7 +70428,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -70762,7 +70445,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
               MovieTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -70779,7 +70462,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -70796,7 +70479,7 @@ class $$MovieTrackingRowsTableTableManager extends RootTableManager<
               MovieTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -72362,7 +72045,7 @@ typedef $$MusicTrackingRowsTableCreateCompanionBuilder
     = MusicTrackingRowsCompanion Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -72380,7 +72063,7 @@ typedef $$MusicTrackingRowsTableUpdateCompanionBuilder
     = MusicTrackingRowsCompanion Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -72411,8 +72094,8 @@ class $$MusicTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -72466,8 +72149,8 @@ class $$MusicTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -72521,8 +72204,8 @@ class $$MusicTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -72588,7 +72271,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -72605,7 +72288,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
               MusicTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -72622,7 +72305,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -72639,7 +72322,7 @@ class $$MusicTrackingRowsTableTableManager extends RootTableManager<
               MusicTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -76126,7 +75809,7 @@ typedef $$TvTrackingRowsTableCreateCompanionBuilder = TvTrackingRowsCompanion
     Function({
   required String id,
   required String catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -76147,7 +75830,7 @@ typedef $$TvTrackingRowsTableUpdateCompanionBuilder = TvTrackingRowsCompanion
     Function({
   Value<String> id,
   Value<String> catalogRefJson,
-  Value<String?> ownedItemId,
+  Value<String?> ownedRefKey,
   Value<String?> sourceType,
   Value<String?> status,
   Value<int?> rating,
@@ -76181,8 +75864,8 @@ class $$TvTrackingRowsTableFilterComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnFilters(column));
@@ -76246,8 +75929,8 @@ class $$TvTrackingRowsTableOrderingComposer
       column: $table.catalogRefJson,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => ColumnOrderings(column));
@@ -76313,8 +75996,8 @@ class $$TvTrackingRowsTableAnnotationComposer
   GeneratedColumn<String> get catalogRefJson => $composableBuilder(
       column: $table.catalogRefJson, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<String> get sourceType => $composableBuilder(
       column: $table.sourceType, builder: (column) => column);
@@ -76388,7 +76071,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> catalogRefJson = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -76408,7 +76091,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
               TvTrackingRowsCompanion(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -76428,7 +76111,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String catalogRefJson,
-            Value<String?> ownedItemId = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<String?> sourceType = const Value.absent(),
             Value<String?> status = const Value.absent(),
             Value<int?> rating = const Value.absent(),
@@ -76448,7 +76131,7 @@ class $$TvTrackingRowsTableTableManager extends RootTableManager<
               TvTrackingRowsCompanion.insert(
             id: id,
             catalogRefJson: catalogRefJson,
-            ownedItemId: ownedItemId,
+            ownedRefKey: ownedRefKey,
             sourceType: sourceType,
             status: status,
             rating: rating,
@@ -76492,8 +76175,7 @@ typedef $$TvTrackingUnitRowsTableCreateCompanionBuilder
   required String id,
   required String targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  required String unitType,
+  Value<String?> ownedRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   Value<DateTime?> deletedAt,
@@ -76506,8 +76188,7 @@ typedef $$TvTrackingUnitRowsTableUpdateCompanionBuilder
   Value<String> id,
   Value<String> targetRefJson,
   Value<String?> trackingEntryId,
-  Value<String?> ownedItemId,
-  Value<String> unitType,
+  Value<String?> ownedRefKey,
   Value<DateTime> completedAt,
   Value<DateTime> updatedAt,
   Value<DateTime?> deletedAt,
@@ -76535,11 +76216,8 @@ class $$TvTrackingUnitRowsTableFilterComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnFilters(column));
@@ -76577,11 +76255,8 @@ class $$TvTrackingUnitRowsTableOrderingComposer
       column: $table.trackingEntryId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get unitType => $composableBuilder(
-      column: $table.unitType, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => ColumnOrderings(column));
@@ -76619,11 +76294,8 @@ class $$TvTrackingUnitRowsTableAnnotationComposer
   GeneratedColumn<String> get trackingEntryId => $composableBuilder(
       column: $table.trackingEntryId, builder: (column) => column);
 
-  GeneratedColumn<String> get ownedItemId => $composableBuilder(
-      column: $table.ownedItemId, builder: (column) => column);
-
-  GeneratedColumn<String> get unitType =>
-      $composableBuilder(column: $table.unitType, builder: (column) => column);
+  GeneratedColumn<String> get ownedRefKey => $composableBuilder(
+      column: $table.ownedRefKey, builder: (column) => column);
 
   GeneratedColumn<DateTime> get completedAt => $composableBuilder(
       column: $table.completedAt, builder: (column) => column);
@@ -76673,8 +76345,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> targetRefJson = const Value.absent(),
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            Value<String> unitType = const Value.absent(),
+            Value<String?> ownedRefKey = const Value.absent(),
             Value<DateTime> completedAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -76686,8 +76357,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -76699,8 +76369,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             required String id,
             required String targetRefJson,
             Value<String?> trackingEntryId = const Value.absent(),
-            Value<String?> ownedItemId = const Value.absent(),
-            required String unitType,
+            Value<String?> ownedRefKey = const Value.absent(),
             required DateTime completedAt,
             required DateTime updatedAt,
             Value<DateTime?> deletedAt = const Value.absent(),
@@ -76712,8 +76381,7 @@ class $$TvTrackingUnitRowsTableTableManager extends RootTableManager<
             id: id,
             targetRefJson: targetRefJson,
             trackingEntryId: trackingEntryId,
-            ownedItemId: ownedItemId,
-            unitType: unitType,
+            ownedRefKey: ownedRefKey,
             completedAt: completedAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,

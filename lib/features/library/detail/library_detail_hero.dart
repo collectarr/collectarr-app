@@ -56,7 +56,7 @@ class LibraryDetailHero extends StatelessWidget {
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
         : ownedCopies.indexWhere(
-            (i) => i.ref.id.value == ownedItem!.ref.id.value,
+            (i) => i.ref == ownedItem!.ref,
           );
     final summaryFacts = <({String label, String value})>[
       (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),

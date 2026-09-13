@@ -90,7 +90,8 @@ void main() {
     final payload = item.toSyncPayload();
 
     expect(payload['snapshot_version'], 1);
-    expect(payload.containsKey('id'), isFalse);
+    expect(payload['id'], 'comic-1');
+    expect(payload['kind'], 'comic');
     expect(payload['title'], 'Absolute Batman');
     expect(payload['cover_image_url'], 'https://cdn.example/full.jpg');
     expect(payload['thumbnail_image_url'], 'https://cdn.example/thumb.jpg');
@@ -216,7 +217,7 @@ void main() {
     );
     final customValue = CustomFieldValue(
       id: 'cf-1',
-      targetId: owned.id,
+      targetId: owned.ref.key,
       targetScope: CustomFieldTargetScope.ownedCopy,
       catalogRef: ref,
       fieldDefinitionId: 'field-1',
@@ -308,7 +309,7 @@ void main() {
       () {
     final loan = Loan.fromJson({
       'id': 'loan-1',
-      'owned_item_id': 'owned-1',
+      'owned_ref': {'kind': 'book', 'id': 'owned-1'},
       'borrower_name': 'Alex',
       'lent_date': '2026-05-01',
       'due_date': 'not-a-date',
@@ -321,7 +322,7 @@ void main() {
     expect(
       () => Loan.fromJson({
         'id': 'loan-2',
-        'owned_item_id': 'owned-2',
+        'owned_ref': {'kind': 'book', 'id': 'owned-2'},
         'borrower_name': 'Jamie',
         'lent_date': 'invalid-date',
       }),

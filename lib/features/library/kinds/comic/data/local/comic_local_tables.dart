@@ -116,22 +116,21 @@ class ComicOwnedItemsRows extends Table {
 }
 
 class ComicReadingRows extends Table {
-  TextColumn get ownedItemId => text()();
+  TextColumn get ownedRefKey => text()();
   IntColumn get rating => integer().nullable()();
   TextColumn get status => text().nullable()();
   DateTimeColumn get startedAt => dateTime().nullable()();
   DateTimeColumn get finishedAt => dateTime().nullable()();
 
   @override
-  Set<Column> get primaryKey => {ownedItemId};
+  Set<Column> get primaryKey => {ownedRefKey};
 }
 
 class ComicTrackingUnitRows extends Table {
   TextColumn get id => text()();
   TextColumn get targetRefJson => text()();
   TextColumn get trackingEntryId => text().nullable()();
-  TextColumn get ownedItemId => text().nullable()();
-  TextColumn get unitType => text()();
+  TextColumn get ownedRefKey => text().nullable()();
   DateTimeColumn get completedAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -144,7 +143,7 @@ class ComicTrackingUnitRows extends Table {
 class ComicTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get catalogRefJson => text()();
-  TextColumn get ownedItemId => text().nullable()();
+  TextColumn get ownedRefKey => text().nullable()();
   TextColumn get sourceType => text().nullable()();
   TextColumn get status => text().nullable()();
   IntColumn get rating => integer().nullable()();

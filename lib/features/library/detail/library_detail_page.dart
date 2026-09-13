@@ -76,28 +76,27 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
 }
 
 class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
-  String? _selectedOwnedItemId;
+  OwnedItemRef? _selectedOwnedItemRef;
   bool _selectNewestOwnedItem = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedOwnedItemId = widget.ownedSummary?.ref.id.value;
+    _selectedOwnedItemRef = widget.ownedSummary?.ref;
   }
 
   @override
   void didUpdateWidget(covariant LibraryDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.item.node.id != oldWidget.item.node.id) {
-      _selectedOwnedItemId = widget.ownedSummary?.ref.id.value;
+      _selectedOwnedItemRef = widget.ownedSummary?.ref;
       _selectNewestOwnedItem = false;
       return;
     }
-    if (widget.ownedSummary?.ref.id.value !=
-            oldWidget.ownedSummary?.ref.id.value &&
+    if (widget.ownedSummary?.ref != oldWidget.ownedSummary?.ref &&
         widget.ownedSummary != null &&
-        _selectedOwnedItemId == null) {
-      _selectedOwnedItemId = widget.ownedSummary!.ref.id.value;
+        _selectedOwnedItemRef == null) {
+      _selectedOwnedItemRef = widget.ownedSummary!.ref;
     }
   }
 
@@ -126,7 +125,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final ownedResolution = resolveActiveOwnedSummary(
       ownedCopies,
       fallback: widget.ownedSummary,
-      selectedOwnedItemId: _selectedOwnedItemId,
+      selectedOwnedItemRef: _selectedOwnedItemRef,
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedSummary = ownedResolution.ownedItem;
@@ -157,12 +156,12 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                 item: widget.item,
                 activeOwnedItem: activeOwnedSummary,
                 ownedCopies: ownedCopies,
-                selectedOwnedItemId: activeOwnedSummary?.ref.id.value,
+                selectedOwnedItemRef: activeOwnedSummary?.ref,
                 accent: widget.accent,
                 onSelectOwnedItem: ownedCopies.length < 2
                     ? null
                     : (value) => setState(() {
-                          _selectedOwnedItemId = value;
+                          _selectedOwnedItemRef = value;
                           _selectNewestOwnedItem = false;
                         }),
                 onEdit: widget.onEdit == null
@@ -263,7 +262,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       return;
     }
     setState(() {
-      _selectedOwnedItemId = null;
+      _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
   }
@@ -274,8 +273,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       return;
     }
     setState(() {
-      if (_selectedOwnedItemId == item.ref.id.value) {
-        _selectedOwnedItemId = null;
+      if (_selectedOwnedItemRef == item.ref) {
+        _selectedOwnedItemRef = null;
       }
       _selectNewestOwnedItem = false;
     });
@@ -288,7 +287,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     required this.item,
     required this.activeOwnedItem,
     required this.ownedCopies,
-    required this.selectedOwnedItemId,
+    required this.selectedOwnedItemRef,
     required this.accent,
     required this.onSelectOwnedItem,
     required this.onEdit,
@@ -303,9 +302,9 @@ class _LibraryDetailToolbar extends StatelessWidget {
   final LibraryProjectionView item;
   final OwnedItemSummary? activeOwnedItem;
   final List<OwnedItemSummary> ownedCopies;
-  final String? selectedOwnedItemId;
+  final OwnedItemRef? selectedOwnedItemRef;
   final Color accent;
-  final ValueChanged<String?>? onSelectOwnedItem;
+  final ValueChanged<OwnedItemRef?>? onSelectOwnedItem;
   final VoidCallback? onEdit;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onAddCopy;
@@ -367,7 +366,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
               ),
               if (hasCopyMenu) ...[
                 const SizedBox(width: 4),
-                LibraryDenseMenuButton<String>(
+                LibraryDenseMenuButton<OwnedItemRef>(
                   key: const ValueKey('detail-toolbar-copy-menu'),
                   label: 'Copy',
                   icon: Icons.copy_all_outlined,
@@ -376,17 +375,15 @@ class _LibraryDetailToolbar extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   entries: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
-                      LibraryDenseMenuEntry<String>(
-                        value: ownedCopies[index].ref.id.value,
-                        label: ownedCopies[index].ref.id.value ==
-                                selectedOwnedItemId
+                      LibraryDenseMenuEntry<OwnedItemRef>(
+                        value: ownedCopies[index].ref,
+                        label: ownedCopies[index].ref == selectedOwnedItemRef
                             ? 'Viewing ${buildOwnedCopySummaryLabel(ownedCopies[index], index)}'
                             : buildOwnedCopySummaryLabel(
                                 ownedCopies[index],
                                 index,
                               ),
-                        icon: ownedCopies[index].ref.id.value ==
-                                selectedOwnedItemId
+                        icon: ownedCopies[index].ref == selectedOwnedItemRef
                             ? Icons.check_circle
                             : Icons.radio_button_unchecked,
                       ),

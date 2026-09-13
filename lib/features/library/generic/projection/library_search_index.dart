@@ -65,9 +65,9 @@ class LibrarySearchIndex {
     }
     add(source.locationPath);
 
-    final ownedId = source.ownedRef?.id.value;
-    if (ownedId != null) {
-      final cfValues = customFieldValuesByItem[ownedId];
+    final ownedRefKey = source.ownedRef?.key;
+    if (ownedRefKey != null) {
+      final cfValues = customFieldValuesByItem[ownedRefKey];
       if (cfValues != null) {
         for (final v in cfValues) {
           add(v);

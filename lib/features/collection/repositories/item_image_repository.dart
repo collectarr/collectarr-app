@@ -10,7 +10,7 @@ class ItemImageRepository {
 
   Future<List<ItemImage>> listForOwnedRef(OwnedItemRef ownedRef) async {
     final rows = await (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedRef.key))
+          ..where((row) => row.ownedRefKey.equals(ownedRef.key))
           ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)]))
         .get();
     return rows.map(_fromRow).toList(growable: false);
@@ -25,7 +25,7 @@ class ItemImageRepository {
     }
     final keys = refs.map((ref) => ref.key).toList(growable: false);
     final rows = await (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.isIn(keys))
+          ..where((row) => row.ownedRefKey.isIn(keys))
           ..orderBy([
             (row) => OrderingTerm.asc(row.sortOrder),
             (row) => OrderingTerm.asc(row.createdAt),
@@ -33,7 +33,7 @@ class ItemImageRepository {
         .get();
     final grouped = <OwnedItemRef, List<ItemImage>>{};
     for (final row in rows) {
-      final ref = OwnedItemRef.fromKey(row.ownedItemId);
+      final ref = OwnedItemRef.fromKey(row.ownedRefKey);
       grouped.putIfAbsent(ref, () => <ItemImage>[]).add(_fromRow(row));
     }
     return grouped;
@@ -43,7 +43,7 @@ class ItemImageRepository {
     return _db.into(_db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: image.id,
-            ownedItemId: image.ownedRef.key,
+            ownedRefKey: image.ownedRef.key,
             imageType: Value(image.imageType),
             imageData: image.imageData,
             caption: Value(image.caption),
@@ -85,7 +85,7 @@ class ItemImageRepository {
 
   Future<void> deleteAllForOwnedRef(OwnedItemRef ownedRef) {
     return (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.ownedItemId.equals(ownedRef.key)))
+          ..where((row) => row.ownedRefKey.equals(ownedRef.key)))
         .go();
   }
 
@@ -93,7 +93,7 @@ class ItemImageRepository {
     final count = _db.itemImagesCache.id.count();
     final query = _db.selectOnly(_db.itemImagesCache)
       ..addColumns([count])
-      ..where(_db.itemImagesCache.ownedItemId.equals(ownedRef.key));
+      ..where(_db.itemImagesCache.ownedRefKey.equals(ownedRef.key));
     final row = await query.getSingle();
     return row.read(count) ?? 0;
   }
@@ -101,7 +101,7 @@ class ItemImageRepository {
   ItemImage _fromRow(ItemImagesCacheData row) {
     return ItemImage(
       id: row.id,
-      ownedRef: OwnedItemRef.fromKey(row.ownedItemId),
+      ownedRef: OwnedItemRef.fromKey(row.ownedRefKey),
       imageType: row.imageType,
       imageData: row.imageData,
       caption: row.caption,

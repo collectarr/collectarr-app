@@ -86,27 +86,27 @@ class LibraryInspector extends ConsumerStatefulWidget {
 }
 
 class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
-  String? _selectedOwnedItemId;
+  OwnedItemRef? _selectedOwnedItemRef;
   bool _selectNewestOwnedItem = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedOwnedItemId = widget.ownedItem?.ref.id.value;
+    _selectedOwnedItemRef = widget.ownedItem?.ref;
   }
 
   @override
   void didUpdateWidget(covariant LibraryInspector oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.item?.node.id != oldWidget.item?.node.id) {
-      _selectedOwnedItemId = widget.ownedItem?.ref.id.value;
+      _selectedOwnedItemRef = widget.ownedItem?.ref;
       _selectNewestOwnedItem = false;
       return;
     }
-    if (widget.ownedItem?.ref.id.value != oldWidget.ownedItem?.ref.id.value &&
+    if (widget.ownedItem?.ref != oldWidget.ownedItem?.ref &&
         widget.ownedItem != null &&
-        _selectedOwnedItemId == null) {
-      _selectedOwnedItemId = widget.ownedItem!.ref.id.value;
+        _selectedOwnedItemRef == null) {
+      _selectedOwnedItemRef = widget.ownedItem!.ref;
     }
   }
 
@@ -127,16 +127,16 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final ownedSummaryResolution = resolveActiveOwnedSummary(
       ownedCopies,
       fallback: widget.ownedItem == null ? null : widget.ownedItem,
-      selectedOwnedItemId: _selectedOwnedItemId,
+      selectedOwnedItemRef: _selectedOwnedItemRef,
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedItem = ownedSummaryResolution.ownedItem;
-    if (ownedSummaryResolution.nextSelectedOwnedItemId != null &&
-        (ownedSummaryResolution.nextSelectedOwnedItemId !=
-                _selectedOwnedItemId ||
+    if (ownedSummaryResolution.nextSelectedOwnedItemRef != null &&
+        (ownedSummaryResolution.nextSelectedOwnedItemRef !=
+                _selectedOwnedItemRef ||
             (ownedSummaryResolution.clearNewest && _selectNewestOwnedItem))) {
       _scheduleOwnedCopySelection(
-        ownedSummaryResolution.nextSelectedOwnedItemId!,
+        ownedSummaryResolution.nextSelectedOwnedItemRef!,
         clearNewest: ownedSummaryResolution.clearNewest,
       );
     }
@@ -321,7 +321,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             const [],
         digitalFlagResolver: widget.type.edit.resolveOwnedDigitalFlag,
         collectionValueReader: widget.type.edit.readOwnedCollectionValue,
-        selectedOwnedItemId: activeOwnedItem?.ref.id.value,
+        ownedItemDispatch: inspectorRequest.ownedItemDispatch,
+        selectedOwnedItemRef: activeOwnedItem?.ref,
         accent: widget.accent,
         onAddCopy: () => _addOwnedCopy(
           selected,
@@ -329,7 +330,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
         onSelected: ownedCopies.length < 2
             ? null
-            : (value) => setState(() => _selectedOwnedItemId = value),
+            : (value) => setState(() => _selectedOwnedItemRef = value),
       );
     }
     final bundleSection = activeBundleReleaseId == null
@@ -341,8 +342,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final trailingSections = <Widget>[
       if (activeOwnedItem != null && widget.db != null)
         InspectorCustomFieldsSection(
-          ownedItemId: activeOwnedItem.ref.id.value,
-          mediaKind: widget.type.kind.apiValue,
+          ownedRef: activeOwnedItem.ref,
           db: widget.db!,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
@@ -461,7 +461,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   void _scheduleOwnedCopySelection(
-    String ownedItemId, {
+    OwnedItemRef ownedItemRef, {
     bool clearNewest = true,
   }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -469,7 +469,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         return;
       }
       setState(() {
-        _selectedOwnedItemId = ownedItemId;
+        _selectedOwnedItemRef = ownedItemRef;
         if (clearNewest) {
           _selectNewestOwnedItem = false;
         }
@@ -497,7 +497,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       return;
     }
     setState(() {
-      _selectedOwnedItemId = null;
+      _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
   }
@@ -508,8 +508,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       return;
     }
     setState(() {
-      if (_selectedOwnedItemId == item.ref.id.value) {
-        _selectedOwnedItemId = null;
+      if (_selectedOwnedItemRef == item.ref) {
+        _selectedOwnedItemRef = null;
       }
       _selectNewestOwnedItem = false;
     });
@@ -537,7 +537,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       return;
     }
     setState(() {
-      _selectedOwnedItemId = null;
+      _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -581,7 +581,8 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
     required this.editions,
     required this.digitalFlagResolver,
     required this.collectionValueReader,
-    required this.selectedOwnedItemId,
+    required this.ownedItemDispatch,
+    required this.selectedOwnedItemRef,
     required this.accent,
     required this.onAddCopy,
     this.onSelected,
@@ -590,11 +591,12 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
   final List<OwnedItemSummary> copies;
   final List<CatalogEditionDto> editions;
   final LibraryOwnedDigitalFlagResolver digitalFlagResolver;
-  final String? Function(OwnedItemSummary?) collectionValueReader;
-  final String? selectedOwnedItemId;
+  final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final OwnedItemRef? selectedOwnedItemRef;
   final Color accent;
   final VoidCallback onAddCopy;
-  final ValueChanged<String?>? onSelected;
+  final ValueChanged<OwnedItemRef?>? onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -613,25 +615,24 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                     )
-                  : DropdownButtonFormField<String>(
-                      initialValue: selectedOwnedItemId,
+                  : DropdownButtonFormField<OwnedItemRef>(
+                      initialValue: selectedOwnedItemRef,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Active copy',
                       ),
                       items: [
                         for (var index = 0; index < copies.length; index += 1)
-                          DropdownMenuItem<String>(
-                            value: copies[index].ref.id.value,
+                          DropdownMenuItem<OwnedItemRef>(
+                            value: copies[index].ref,
                             child: Text(
                               buildOwnedCopyLabel(
                                 copies[index],
                                 editions,
                                 index,
                                 digitalFlagResolver: digitalFlagResolver,
-                                collectionValue: collectionValueReader(
-                                  copies[index],
-                                ),
+                                collectionValue:
+                                    collectionValueReader(ownedItemDispatch),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,

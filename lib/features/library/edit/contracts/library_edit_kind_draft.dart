@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
@@ -21,7 +22,7 @@ abstract class LibraryEditKindDraft {
   /// The generic edit host supplies only structural form state. Each concrete
   /// kind translates its personal fields and details into its own payload.
   OwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required String ownedItemId,
+    required OwnedItemRef ownedRef,
     required PersonalStateDraft personal,
   });
 

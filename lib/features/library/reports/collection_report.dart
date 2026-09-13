@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:barcode/barcode.dart' as bc;
@@ -32,7 +32,7 @@ enum ReportColumn {
 
   String extractFrom(
     LibraryProjectionView item, {
-    String? Function(OwnedItemSummary?)? collectionValueReader,
+    String? Function(LibraryOwnedItemDispatch?)? collectionValueReader,
   }) {
     final dto = item.dto;
     final adapter = dto is WorkspaceDtoAdapter ? dto : null;
@@ -44,7 +44,7 @@ enum ReportColumn {
       // Kind-specific report contributors may provide it later.
       ReportColumn.condition => '',
       ReportColumn.grade =>
-        collectionValueReader?.call(item.source.ownedSummary) ?? '',
+        collectionValueReader?.call(item.source.ownedItemDispatch) ?? '',
       // These fields are kind semantics. Mixed reports must not inspect
       // transport payload keys; typed report contributors can provide them.
       ReportColumn.publisher => '',
@@ -77,7 +77,7 @@ Future<void> printCollectionReport({
   required BuildContext context,
   required String title,
   required List<LibraryProjectionView> items,
-  String? Function(OwnedItemSummary?)? collectionValueReader,
+  String? Function(LibraryOwnedItemDispatch?)? collectionValueReader,
 }) async {
   final columns = await showDialog<List<ReportColumn>>(
     context: context,
@@ -101,7 +101,7 @@ pw.Document _buildDocument(
   String title,
   List<LibraryProjectionView> items,
   List<ReportColumn> columns, {
-  String? Function(OwnedItemSummary?)? collectionValueReader,
+  String? Function(LibraryOwnedItemDispatch?)? collectionValueReader,
 }) {
   final doc = pw.Document(
     title: title,

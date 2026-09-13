@@ -15,7 +15,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
     required this.item,
     this.activeOwnedItem,
     this.ownedCopies = const [],
-    this.selectedOwnedItemId,
+    this.selectedOwnedItemRef,
     this.onSelectOwnedItem,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -28,8 +28,8 @@ class LibraryDetailActionStrip extends StatelessWidget {
   final LibraryProjectionView item;
   final OwnedItemSummary? activeOwnedItem;
   final List<OwnedItemSummary> ownedCopies;
-  final String? selectedOwnedItemId;
-  final ValueChanged<String?>? onSelectOwnedItem;
+  final OwnedItemRef? selectedOwnedItemRef;
+  final ValueChanged<OwnedItemRef?>? onSelectOwnedItem;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
@@ -51,9 +51,9 @@ class LibraryDetailActionStrip extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: LibrarySelectField<String>(
+                child: LibrarySelectField<OwnedItemRef>(
                   label: 'Copy in collection',
-                  value: selectedOwnedItemId,
+                  value: selectedOwnedItemRef,
                   decoration: const InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 12,
@@ -62,8 +62,8 @@ class LibraryDetailActionStrip extends StatelessWidget {
                   ),
                   items: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
-                      DropdownMenuItem<String>(
-                        value: ownedCopies[index].ref.id.value,
+                      DropdownMenuItem<OwnedItemRef>(
+                        value: ownedCopies[index].ref,
                         child: Text(
                           buildOwnedCopySummaryLabel(
                             ownedCopies[index],
@@ -148,7 +148,7 @@ class LibraryDetailStatsBar extends StatelessWidget {
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
         : ownedCopies.indexWhere(
-            (i) => i.ref.id.value == ownedItem!.ref.id.value,
+            (i) => i.ref == ownedItem!.ref,
           );
     final facts = <({String label, String value})>[
       (label: 'Status', value: genericLibraryStatusLabel(item)),

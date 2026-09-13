@@ -169,7 +169,7 @@ class LibraryPageEditCoordinator {
           );
           final cfValuesFuture = owned != null
               ? customFieldRepo.listValuesForTarget(
-                  targetId: owned.ref.id.value,
+                  targetId: owned.ref.key,
                   targetScope: CustomFieldTargetScope.ownedCopy,
                 )
               : Future.value(const <CustomFieldValue>[]);
@@ -309,7 +309,7 @@ class LibraryPageEditCoordinator {
       final cfList = result.customFieldEdits.entries.map((e) {
         return CustomFieldValue(
           id: const Uuid().v4(),
-          targetId: owned.ref.id.value,
+          targetId: owned.ref.key,
           targetScope: CustomFieldTargetScope.ownedCopy,
           catalogRef: owned.catalogRef,
           fieldDefinitionId: e.key,

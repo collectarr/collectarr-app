@@ -13,7 +13,7 @@ final class ComicTrackingUnit extends TrackingUnitSummary {
     super.trackingEntryId,
     super.ownedRef,
     super.deletedAt,
-  }) : super(unitType: ComicTrackingUnit.type);
+  });
 
   static const type = 'issue';
 
@@ -21,7 +21,9 @@ final class ComicTrackingUnit extends TrackingUnitSummary {
 
   @override
   Map<String, dynamic> toSyncPayload() {
-    return super.toSyncPayload()..['issue_number'] = issueNumber;
+    return super.toSyncPayload()
+      ..['unit_type'] = type
+      ..['issue_number'] = issueNumber;
   }
 
   @override
@@ -30,7 +32,6 @@ final class ComicTrackingUnit extends TrackingUnitSummary {
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
     OwnedItemRef? ownedRef,
-    String? unitType,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,

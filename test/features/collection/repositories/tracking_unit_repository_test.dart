@@ -43,7 +43,6 @@ void main() {
 
     final typed = await db.select(db.tvTrackingUnitRows).getSingle();
     expect(typed.targetRefJson, contains('series-1'));
-    expect(typed.unitType, 'episode');
     expect(typed.seasonNumber, 2);
     expect(typed.episodeNumber, 4);
 
@@ -235,7 +234,6 @@ void main() {
             entityType: const CatalogEntityTypeId('work'),
             id: 'item-1',
           ),
-          unitType: 'unit',
           completedAt: DateTime.utc(2026, 9, 5),
           updatedAt: DateTime.utc(2026, 9, 5),
         ),

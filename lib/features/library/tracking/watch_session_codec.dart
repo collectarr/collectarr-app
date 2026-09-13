@@ -10,6 +10,11 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 abstract interface class WatchSessionCodec {
   CatalogMediaKind get kind;
 
+  /// Returns whether a session belongs to the supplied kind-owned catalog
+  /// scope. Hierarchy matching is semantic and therefore stays in the kind
+  /// codec instead of the mixed Collection host.
+  bool matchesCatalogScope(WatchSession session, CatalogEntityRef scope);
+
   Future<List<WatchSession>> listActive(
     LocalDatabase db, {
     CatalogEntityRef? catalogRef,

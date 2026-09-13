@@ -93,7 +93,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
                 label: 'Status', value: genericLibraryStatusLabel(item)),
             LibraryDetailField(
                 label: 'Owned ID',
-                value: genericLibraryDash(ownedSummary?.ref.id.value)),
+                value: genericLibraryDash(ownedSummary?.ref.key)),
             LibraryDetailField(
                 label: 'Quantity',
                 value: ownedSummary == null

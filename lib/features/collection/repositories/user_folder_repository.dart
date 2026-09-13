@@ -70,7 +70,7 @@ class UserFolderRepository {
           ..where((t) => t.folderId.equals(folderId))
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
         .get();
-    return rows.map((r) => OwnedItemRef.fromKey(r.ownedItemId)).toList();
+    return rows.map((r) => OwnedItemRef.fromKey(r.ownedRefKey)).toList();
   }
 
   Future<void> addItemToFolder(String folderId, OwnedItemRef ownedRef) async {
@@ -83,7 +83,7 @@ class UserFolderRepository {
     await _db.into(_db.userFolderItemsCache).insertOnConflictUpdate(
           UserFolderItemsCacheCompanion.insert(
             folderId: folderId,
-            ownedItemId: ownedRef.key,
+            ownedRefKey: ownedRef.key,
             sortOrder: Value(sortOrder),
           ),
         );
@@ -95,13 +95,13 @@ class UserFolderRepository {
   ) async {
     await (_db.delete(_db.userFolderItemsCache)
           ..where((t) =>
-              t.folderId.equals(folderId) & t.ownedItemId.equals(ownedRef.key)))
+              t.folderId.equals(folderId) & t.ownedRefKey.equals(ownedRef.key)))
         .go();
   }
 
   Future<List<UserFolder>> getFoldersForItem(OwnedItemRef ownedRef) async {
     final rows = await (_db.select(_db.userFolderItemsCache)
-          ..where((t) => t.ownedItemId.equals(ownedRef.key)))
+          ..where((t) => t.ownedRefKey.equals(ownedRef.key)))
         .get();
     if (rows.isEmpty) return [];
     final folderIds = rows.map((r) => r.folderId).toSet();

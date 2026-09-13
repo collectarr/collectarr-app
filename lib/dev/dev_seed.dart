@@ -842,7 +842,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   final seedImages = imageRows
       .where(
         (row) =>
-            ownedById.values.any((owned) => owned.ref.key == row.ownedItemId),
+            ownedById.values.any((owned) => owned.ref.key == row.ownedRefKey),
       )
       .toList(growable: false);
   for (final entry in devSeedAuxiliaryMinimumCounts.entries.where(

@@ -14,7 +14,7 @@ final class AnimeTrackingUnit extends TrackingUnitSummary {
     super.trackingEntryId,
     super.ownedRef,
     super.deletedAt,
-  }) : super(unitType: AnimeTrackingUnit.type);
+  });
 
   static const type = 'episode';
 
@@ -25,6 +25,7 @@ final class AnimeTrackingUnit extends TrackingUnitSummary {
   Map<String, dynamic> toSyncPayload() {
     return super.toSyncPayload()
       ..addAll({
+        'unit_type': type,
         'season_number': seasonNumber,
         'episode_number': episodeNumber,
       });
@@ -36,7 +37,6 @@ final class AnimeTrackingUnit extends TrackingUnitSummary {
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
     OwnedItemRef? ownedRef,
-    String? unitType,
     DateTime? completedAt,
     DateTime? updatedAt,
     DateTime? deletedAt,

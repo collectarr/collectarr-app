@@ -15,6 +15,27 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
+  bool matchesCatalogScope(WatchSession session, CatalogEntityRef scope) {
+    if (session.targetRef.mediaKind != kind || scope.mediaKind != kind) {
+      return false;
+    }
+    final target = session.targetRef;
+    if (target == scope) return true;
+
+    final scopeId = scope.id;
+    final targetRootId = target.rootId ?? target.id;
+    if (targetRootId != (scope.rootId ?? scopeId)) return false;
+
+    return switch (scope.entityType.apiValue) {
+      'work' => true,
+      'season' =>
+        target.parentId == scopeId || target.id.startsWith('$scopeId:episode:'),
+      'episode' => target.id == scopeId || target.parentId == scopeId,
+      _ => target.rootId == scopeId,
+    };
+  }
+
+  @override
   Future<List<WatchSession>> listActive(
     LocalDatabase db, {
     CatalogEntityRef? catalogRef,

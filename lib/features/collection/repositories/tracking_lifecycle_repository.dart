@@ -107,11 +107,11 @@ class TrackingLifecycleRepository {
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
     final wanted = {
-      for (final ref in catalogRefs) _rootCatalogRef(ref),
+      for (final ref in catalogRefs) ref.rootScope,
     };
     if (wanted.isEmpty) return const [];
     return (await listActive())
-        .where((entry) => wanted.contains(_rootCatalogRef(entry.catalogRef)))
+        .where((entry) => wanted.contains(entry.catalogRef.rootScope))
         .toList(growable: false);
   }
 
@@ -137,25 +137,6 @@ class TrackingLifecycleRepository {
 
   Map<String, dynamic> toSyncPayload(TrackingLifecycle entry) {
     return _codecForKind(entry.catalogRef.mediaKind).toSyncPayload(entry);
-  }
-
-  CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
-    final rootId = ref.rootId;
-    if (rootId != null && rootId.isNotEmpty) {
-      return ref.copyWith(
-        id: rootId,
-        entityType: const CatalogEntityTypeId('work'),
-        rootId: null,
-        parentId: null,
-      );
-    }
-    if (ref.entityType != const CatalogEntityTypeId('work')) {
-      return ref.copyWith(
-        entityType: const CatalogEntityTypeId('work'),
-        parentId: null,
-      );
-    }
-    return ref;
   }
 
   TrackingLifecycleCodec _codecForKind(CatalogMediaKind kind) {

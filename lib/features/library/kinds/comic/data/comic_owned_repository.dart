@@ -1,4 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
@@ -20,7 +23,10 @@ final class ComicOwnedRepository
         .getSingleOrNull();
     if (row == null) return null;
     final readingRow = await (_db.select(_db.comicReadingRows)
-          ..where((table) => table.ownedItemId.equals(id.value)))
+          ..where((table) => table.ownedRefKey.equals(OwnedItemRef(
+                kind: CatalogMediaKind.comic,
+                id: OwnedItemId(id.value),
+              ).key)))
         .getSingleOrNull();
     return ComicLocalMapper.fromOwnedItemRow(
       row,

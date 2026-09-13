@@ -9,7 +9,7 @@ class LoanRepository {
 
   Future<List<Loan>> getLoansForItem(OwnedItemRef ownedRef) async {
     final rows = await (_db.select(_db.loansCache)
-          ..where((t) => t.ownedItemId.equals(ownedRef.key))
+          ..where((t) => t.ownedRefKey.equals(ownedRef.key))
           ..orderBy([(t) => OrderingTerm.desc(t.lentDate)]))
         .get();
     return rows.map(_fromRow).toList();
@@ -34,8 +34,7 @@ class LoanRepository {
     await _db.into(_db.loansCache).insert(
           LoansCacheCompanion.insert(
             id: loan.id,
-            ownedItemId: loan.ownedRef.key,
-            ownedKind: Value(loan.ownedRef.kind.apiValue),
+            ownedRefKey: loan.ownedRef.key,
             borrowerName: loan.borrowerName,
             lentDate: loan.lentDate,
             dueDate: Value(loan.dueDate),
@@ -57,7 +56,7 @@ class LoanRepository {
   Loan _fromRow(LoansCacheData row) {
     return Loan(
       id: row.id,
-      ownedRef: OwnedItemRef.fromKey(row.ownedItemId),
+      ownedRef: OwnedItemRef.fromKey(row.ownedRefKey),
       borrowerName: row.borrowerName,
       lentDate: row.lentDate,
       dueDate: row.dueDate,

@@ -79,7 +79,8 @@ OwnedItemRef? ownedItemRefFromSerialized(Object? value) {
 /// Small read projection used by mixed-kind hosts such as Loans and Shelf.
 ///
 /// Keep this projection intentionally boring. If a UI needs condition, grade,
-/// packaging, or another semantic field, it must dispatch to the owning kind.
+/// packaging, value, or another semantic field, it must dispatch to the
+/// owning kind.
 @immutable
 final class OwnedItemSummary {
   const OwnedItemSummary({
@@ -88,7 +89,6 @@ final class OwnedItemSummary {
     this.catalogRef,
     this.targetRef,
     this.isDigital,
-    this.collectionValue,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
@@ -115,7 +115,6 @@ final class OwnedItemSummary {
   final CatalogEntityRef? catalogRef;
   final CatalogEntityRef? targetRef;
   final bool? isDigital;
-  final String? collectionValue;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
@@ -160,7 +159,6 @@ final class OwnedItemSummary {
           ? this.targetRef
           : targetRef as CatalogEntityRef?,
       isDigital: isDigital,
-      collectionValue: collectionValue,
       createdAt: createdAt,
       updatedAt: updatedAt,
       deletedAt: deletedAt,

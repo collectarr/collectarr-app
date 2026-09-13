@@ -371,7 +371,6 @@ bool _episodeWatched({
 }) {
   final tracked = trackedUnits.whereType<TvTrackingUnit>().any(
         (unit) =>
-            unit.unitType == TvTrackingUnit.type &&
             unit.seasonNumber == seasonNumber &&
             unit.episodeNumber == episodeNumber &&
             !unit.isDeleted,

@@ -31,23 +31,18 @@ class WatchSessionsRepository {
   Future<List<WatchSession>> listActiveByCatalogRefs(
     Iterable<CatalogEntityRef> catalogRefs,
   ) async {
-    final refsByKind = <CatalogMediaKind, Set<CatalogEntityRef>>{};
-    for (final ref in catalogRefs) {
-      final rootRef = _rootCatalogRef(ref);
-      refsByKind
-          .putIfAbsent(rootRef.mediaKind, () => <CatalogEntityRef>{})
-          .add(rootRef);
-    }
-    if (refsByKind.isEmpty) return const [];
+    final scopes = catalogRefs.toSet();
+    if (scopes.isEmpty) return const [];
     final sessions = <WatchSession>[];
-    for (final entry in refsByKind.entries) {
-      final codec = _codecs[entry.key];
-      if (codec == null) continue;
-      for (final catalogRef in entry.value) {
-        sessions.addAll(
-          await codec.listActive(_db, catalogRef: catalogRef),
-        );
-      }
+    for (final codec in _codecs.values) {
+      final candidates = await codec.listActive(_db);
+      sessions.addAll(
+        candidates.where(
+          (session) => scopes.any(
+            (scope) => codec.matchesCatalogScope(session, scope),
+          ),
+        ),
+      );
     }
     sessions.sort(_compareSessions);
     return sessions;
@@ -103,22 +98,5 @@ class WatchSessionsRepository {
 
   static int _compareSessions(WatchSession left, WatchSession right) {
     return right.watchedAt.compareTo(left.watchedAt);
-  }
-
-  static CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
-    final rootId = ref.rootId;
-    if (rootId != null && rootId.isNotEmpty) {
-      return ref.copyWith(
-        id: rootId,
-        entityType: const CatalogEntityTypeId('work'),
-        rootId: null,
-      );
-    }
-    if (ref.entityType == const CatalogEntityTypeId('owned_copy') ||
-        ref.entityType == const CatalogEntityTypeId('copy') ||
-        ref.entityType == const CatalogEntityTypeId('tracking_entry')) {
-      return ref.copyWith(entityType: const CatalogEntityTypeId('work'));
-    }
-    return ref;
   }
 }

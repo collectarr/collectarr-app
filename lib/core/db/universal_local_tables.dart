@@ -33,7 +33,7 @@ class CustomFieldValuesCache extends Table {
 
 class ItemImagesCache extends Table {
   TextColumn get id => text()();
-  TextColumn get ownedItemId => text()();
+  TextColumn get ownedRefKey => text()();
   TextColumn get imageType =>
       text().withDefault(const Constant('front_cover'))();
   BlobColumn get imageData => blob()();
@@ -106,10 +106,7 @@ class UserMetadataOverridesCache extends Table {
 
 class LoansCache extends Table {
   TextColumn get id => text()();
-  TextColumn get ownedItemId => text()();
-
-  /// Serialized kind component of the structural OwnedItemRef.
-  TextColumn get ownedKind => text().nullable()();
+  TextColumn get ownedRefKey => text()();
   TextColumn get borrowerName => text()();
   DateTimeColumn get lentDate => dateTime()();
   DateTimeColumn get dueDate => dateTime().nullable()();
@@ -156,20 +153,20 @@ class UserFoldersCache extends Table {
 
 class UserFolderItemsCache extends Table {
   TextColumn get folderId => text()();
-  TextColumn get ownedItemId => text()();
+  TextColumn get ownedRefKey => text()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   @override
-  Set<Column> get primaryKey => {folderId, ownedItemId};
+  Set<Column> get primaryKey => {folderId, ownedRefKey};
 }
 
 class ReadingQueueCache extends Table {
-  TextColumn get ownedItemId => text()();
+  TextColumn get ownedRefKey => text()();
   IntColumn get position => integer()();
   DateTimeColumn get addedAt => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {ownedItemId};
+  Set<Column> get primaryKey => {ownedRefKey};
 }
 
 class PickListValuesCache extends Table {

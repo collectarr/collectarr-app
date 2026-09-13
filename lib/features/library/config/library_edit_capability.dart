@@ -27,13 +27,13 @@ typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
 });
 
 typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-    String ownedItemId, int indexNumber);
+    OwnedItemRef ownedRef, int indexNumber);
 
 typedef LibraryOwnedConditionValueUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(String ownedItemId, String? condition, String? collectionValue);
+    Function(OwnedItemRef ownedRef, String? condition, String? collectionValue);
 
 typedef LibraryOwnedCollectionValueReader = String? Function(
-  OwnedItemSummary? ownedItem,
+  LibraryOwnedItemDispatch? ownedItem,
 );
 
 typedef LibraryOwnedFormatHint = ({String? format, String? label});
@@ -43,7 +43,7 @@ typedef LibraryOwnedFormatHintResolver = LibraryOwnedFormatHint Function(
 );
 
 typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-  String ownedItemId,
+  OwnedItemRef ownedRef,
   String? condition,
   String? collectionValue,
   String? locationId,
@@ -52,7 +52,7 @@ typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
 
 typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
     Function(
-  String ownedItemId,
+  OwnedItemRef ownedRef,
   DateTime? purchaseDate,
   int? pricePaidCents,
   String? currency,
@@ -64,7 +64,7 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
 
 typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
     Function(
-  String ownedItemId,
+  OwnedItemRef ownedRef,
   Object updated,
 );
 
@@ -124,7 +124,7 @@ class LibraryEditCapability {
   bool get hasConditionPickList => conditions.isNotEmpty;
   bool get hasCollectionValuePickList => collectionValueOptions.isNotEmpty;
 
-  String? readOwnedCollectionValue(OwnedItemSummary? ownedItem) =>
+  String? readOwnedCollectionValue(LibraryOwnedItemDispatch? ownedItem) =>
       ownedCollectionValueReader(ownedItem);
 
   LibraryOwnedFormatHint resolveOwnedFormatHint(
@@ -161,7 +161,7 @@ class LibraryEditCapability {
     }
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
-      payload: builder(ownedRef.id.value, indexNumber),
+      payload: builder(ownedRef, indexNumber),
     );
   }
 
@@ -178,7 +178,7 @@ class LibraryEditCapability {
     }
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
-      payload: builder(ownedRef.id.value, condition, collectionValue),
+      payload: builder(ownedRef, condition, collectionValue),
     );
   }
 
@@ -196,7 +196,7 @@ class LibraryEditCapability {
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
       payload: builder(
-        ownedRef.id.value,
+        ownedRef,
         condition,
         collectionValue,
         locationId,
@@ -224,7 +224,7 @@ class LibraryEditCapability {
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
       payload: builder(
-        ownedRef.id.value,
+        ownedRef,
         purchaseDate,
         pricePaidCents,
         currency,
@@ -246,7 +246,7 @@ class LibraryEditCapability {
     }
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
-      payload: builder(ownedRef.id.value, updated),
+      payload: builder(ownedRef, updated),
     );
   }
 
@@ -271,7 +271,7 @@ class LibraryEditCapability {
     return UpdateOwnedItemCommand(
       ownedRef: ownedRef,
       payload: kindDraft.buildOwnedUpdatePayload(
-        ownedItemId: ownedRef.id.value,
+        ownedRef: ownedRef,
         personal: session.personal,
       ),
     );

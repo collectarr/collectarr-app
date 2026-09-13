@@ -251,19 +251,19 @@ TrackingSummary? resolveActiveTrackingSummary(
 class LibraryOwnedSummaryResolution {
   const LibraryOwnedSummaryResolution({
     required this.ownedItem,
-    this.nextSelectedOwnedItemId,
+    this.nextSelectedOwnedItemRef,
     this.clearNewest = false,
   });
 
   final OwnedItemSummary? ownedItem;
-  final String? nextSelectedOwnedItemId;
+  final OwnedItemRef? nextSelectedOwnedItemRef;
   final bool clearNewest;
 }
 
 LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
   List<OwnedItemSummary> ownedCopies, {
   OwnedItemSummary? fallback,
-  String? selectedOwnedItemId,
+  OwnedItemRef? selectedOwnedItemRef,
   bool selectNewest = false,
 }) {
   if (ownedCopies.isEmpty) {
@@ -273,13 +273,13 @@ LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
     final newest = ownedCopies.first;
     return LibraryOwnedSummaryResolution(
       ownedItem: newest,
-      nextSelectedOwnedItemId: newest.ref.id.value,
+      nextSelectedOwnedItemRef: newest.ref,
       clearNewest: true,
     );
   }
-  if (selectedOwnedItemId != null) {
+  if (selectedOwnedItemRef != null) {
     for (final item in ownedCopies) {
-      if (item.ref.id.value == selectedOwnedItemId) {
+      if (item.ref == selectedOwnedItemRef) {
         return LibraryOwnedSummaryResolution(ownedItem: item);
       }
     }
@@ -292,7 +292,7 @@ LibraryOwnedSummaryResolution resolveActiveOwnedSummary(
         );
   return LibraryOwnedSummaryResolution(
     ownedItem: resolved,
-    nextSelectedOwnedItemId: resolved.ref.id.value,
+    nextSelectedOwnedItemRef: resolved.ref,
   );
 }
 

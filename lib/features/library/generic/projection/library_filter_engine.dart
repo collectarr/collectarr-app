@@ -199,11 +199,11 @@ class LibraryFilterEngine {
     if (definitionId == null || definitionId.isEmpty) {
       return true;
     }
-    final ownedItemId = item.source.ownedRef?.id.value;
-    if (ownedItemId == null) {
+    final ownedRefKey = item.source.ownedRef?.key;
+    if (ownedRefKey == null) {
       return false;
     }
-    final values = customFieldValuesByDefinitionByItem[ownedItemId];
+    final values = customFieldValuesByDefinitionByItem[ownedRefKey];
     final actualValue = values?[definitionId]?.trim();
     if (actualValue == null || actualValue.isEmpty) {
       return false;

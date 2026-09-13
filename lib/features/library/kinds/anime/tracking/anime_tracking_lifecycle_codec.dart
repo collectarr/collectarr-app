@@ -37,7 +37,7 @@ final class AnimeTrackingLifecycleCodec
           trackingLifecycleStorageRowFromColumns(
             id: row.id,
             catalogRefJson: row.catalogRefJson,
-            ownedItemId: row.ownedItemId,
+            ownedRefKey: row.ownedRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -156,7 +156,7 @@ final class AnimeTrackingLifecycleCodec
             id: entry.id,
             entryType: const Value('entry'),
             catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            ownedItemId: Value(entry.ownedRef?.key),
+            ownedRefKey: Value(entry.ownedRef?.key),
             mediaId: entry.catalogRef.rootId ?? entry.catalogRef.id,
             episodeId: Value(
               entry.catalogRef.entityType ==

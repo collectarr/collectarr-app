@@ -60,4 +60,36 @@ void main() {
       'future_entity',
     );
   });
+
+  test('derives a stable structural root scope', () {
+    const child = CatalogEntityRef(
+      kind: CatalogMediaKind.tv,
+      entityType: const CatalogEntityTypeId('episode'),
+      id: 'episode-2',
+      rootId: 'series-1',
+      parentId: 'season-1',
+    );
+    expect(
+      child.rootScope,
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.tv,
+        entityType: const CatalogEntityTypeId('work'),
+        id: 'series-1',
+      ),
+    );
+
+    const synthetic = CatalogEntityRef(
+      kind: CatalogMediaKind.comic,
+      entityType: const CatalogEntityTypeId('owned_copy'),
+      id: 'copy-1',
+    );
+    expect(
+      synthetic.rootScope,
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: const CatalogEntityTypeId('work'),
+        id: 'copy-1',
+      ),
+    );
+  });
 }

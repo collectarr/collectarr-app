@@ -17,7 +17,6 @@ final class TrackingUnitStorageRow {
     required this.targetRef,
     required this.trackingEntryId,
     required this.ownedRef,
-    required this.unitType,
     required this.completedAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -27,7 +26,6 @@ final class TrackingUnitStorageRow {
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
   final OwnedItemRef? ownedRef;
-  final String unitType;
   final DateTime completedAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -82,8 +80,7 @@ TrackingUnitStorageRow trackingUnitStorageRowFromColumns({
   required String id,
   required String targetRefJson,
   required String? trackingEntryId,
-  required String? ownedItemId,
-  required String unitType,
+  required String? ownedRefKey,
   required DateTime completedAt,
   required DateTime updatedAt,
   required DateTime? deletedAt,
@@ -97,8 +94,7 @@ TrackingUnitStorageRow trackingUnitStorageRowFromColumns({
     id: id,
     targetRef: CatalogEntityRef.fromJson(Map<String, Object?>.from(decoded)),
     trackingEntryId: trackingEntryId,
-    ownedRef: ownedItemRefFromSerialized(ownedItemId),
-    unitType: unitType,
+    ownedRef: ownedItemRefFromSerialized(ownedRefKey),
     completedAt: completedAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
