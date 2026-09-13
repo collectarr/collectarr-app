@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
@@ -110,14 +111,14 @@ abstract interface class TrackingLifecycleCodec {
     Iterable<String>? ids,
   );
 
-  Map<String, dynamic> toSyncPayload(TrackingLifecycle entry);
+  JsonMap toSyncPayload(TrackingLifecycle entry);
 
   /// Reconstructs a tracking entry received from the provider sync boundary.
   ///
   /// Kind-specific coordinates are parsed by the owning codec rather than by
   /// the shared model's transport factory.
   TrackingLifecycle fromSyncPayload({
-    required Map<String, dynamic> payload,
+    required JsonMap payload,
     required String id,
     required DateTime updatedAt,
     DateTime? deletedAt,

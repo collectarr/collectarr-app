@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
@@ -37,8 +38,8 @@ List<CatalogEditionDto> resolveVideoCatalogEditionsForCatalogItem(
   final editionsPayload = payload['editions'] as List?;
   final rawEditions = editionsPayload != null
       ? editionsPayload
-          .whereType<Map<String, dynamic>>()
-          .map((e) => CatalogEditionDto.fromJson(Map<String, dynamic>.from(e)))
+          .whereType<JsonMap>()
+          .map((e) => CatalogEditionDto.fromJson(JsonMap.from(e)))
           .toList()
       : const <CatalogEditionDto>[];
   if (!item.mediaKind.isVideoLibraryKind) {
@@ -385,12 +386,12 @@ class _EditionSeed {
     this.releaseDate,
     this.physicalFormat,
     this.formatLabel,
-    Map<String, dynamic>? metadata,
+    JsonMap? metadata,
     Map<String, CatalogVariantDto>? variants,
-  })  : metadata = <String, dynamic>{
+  })  : metadata = JsonMap.from({
           ...?metadata,
           _videoReleaseSourceKey: source
-        },
+        }),
         _variants = <String, CatalogVariantDto>{...?variants};
 
   factory _EditionSeed.localAnchor(
@@ -399,7 +400,7 @@ class _EditionSeed {
     String? variantId,
     String? bundleReleaseId,
   }) {
-    final metadata = <String, dynamic>{
+    final metadata = JsonMap.from({
       _videoReleaseAnchorKindKey: variantId != null
           ? 'variant'
           : bundleReleaseId != null
@@ -408,7 +409,7 @@ class _EditionSeed {
       if (variantId != null) _videoReleaseAnchorVariantIdKey: variantId,
       if (bundleReleaseId != null)
         _videoReleaseAnchorBundleIdKey: bundleReleaseId,
-    };
+    });
     final seed = _EditionSeed(
       id: id,
       title: _fallbackEditionTitle(input),
@@ -450,9 +451,9 @@ class _EditionSeed {
       releaseDate: input.releaseDate,
       physicalFormat: _normalized(input.physicalFormat),
       formatLabel: _normalized(input.formatLabel),
-      metadata: const <String, dynamic>{
+      metadata: JsonMap.from({
         _videoReleaseAnchorKindKey: 'item',
-      },
+      }),
     );
   }
 
@@ -465,7 +466,7 @@ class _EditionSeed {
   final DateTime? releaseDate;
   final String? physicalFormat;
   final String? formatLabel;
-  final Map<String, dynamic> metadata;
+  final JsonMap metadata;
   final Map<String, CatalogVariantDto> _variants;
 
   void absorbAnchor(
@@ -487,10 +488,10 @@ class _EditionSeed {
         physicalFormat: input.physicalFormat,
         physicalFormatLabel: input.formatLabel,
         isPrimary: true,
-        metadata: <String, dynamic>{
+        metadata: JsonMap.from({
           if (normalizedBundleReleaseId != null)
             _videoReleaseAnchorBundleIdKey: normalizedBundleReleaseId,
-        },
+        }),
       );
     }
     if (editionId == null &&

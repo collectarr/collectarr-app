@@ -1,23 +1,17 @@
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
-class ComicOwnedDetailsCodec
-    extends OwnedDetailsPersistenceCodec<ComicOwnedDetails> {
+final class ComicOwnedDetailsCodec {
   const ComicOwnedDetailsCodec();
 
-  @override
   ComicOwnedDetails fromJson(Map<String, dynamic> json) =>
       ComicOwnedDetails.fromJson(json);
 
-  @override
   Map<String, dynamic> toJson(ComicOwnedDetails details) => details.toJson();
 
-  @override
   Map<String, dynamic> toSyncPayload(ComicOwnedDetails details) =>
       details.toJson();
 
-  @override
   ComicOwnedDetails defaultDetails() => const ComicOwnedDetails();
 
   ComicOwnedDetailsDraft draftFromDetails(ComicOwnedDetails details) =>

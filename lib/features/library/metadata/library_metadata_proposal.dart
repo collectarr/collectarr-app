@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_proposal_store.dart';
 
@@ -36,7 +37,7 @@ String resolveLibraryMetadataProposalProvider(
   return requestedProvider;
 }
 
-Future<Map<String, dynamic>> createLibraryMetadataProposal({
+Future<JsonMap> createLibraryMetadataProposal({
   required ApiClient api,
   required CatalogMediaKind kind,
   String? defaultProvider,
@@ -46,7 +47,7 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
   String? title,
   String? summary,
   String? imageUrl,
-  Map<String, dynamic>? metadataPayload,
+  JsonMap? metadataPayload,
 }) {
   return api.createMetadataProposal(
     provider: resolveLibraryMetadataProposalProvider(
@@ -63,7 +64,7 @@ Future<Map<String, dynamic>> createLibraryMetadataProposal({
   );
 }
 
-Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
+Future<JsonMap> createAndRecordLibraryMetadataProposal({
   MetadataProposalStore store = const MetadataProposalStore(),
   required ApiClient api,
   required CatalogMediaKind kind,
@@ -74,7 +75,7 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
   String? title,
   String? summary,
   String? imageUrl,
-  Map<String, dynamic>? metadataPayload,
+  JsonMap? metadataPayload,
   required String source,
 }) async {
   final resolvedProvider = resolveLibraryMetadataProposalProvider(
@@ -103,7 +104,7 @@ Future<Map<String, dynamic>> createAndRecordLibraryMetadataProposal({
 
 Future<void> recordLibraryMetadataProposalResponse({
   MetadataProposalStore store = const MetadataProposalStore(),
-  required Map<String, dynamic> response,
+  required JsonMap response,
   required CatalogMediaKind kind,
   String? defaultProvider,
   String? provider,

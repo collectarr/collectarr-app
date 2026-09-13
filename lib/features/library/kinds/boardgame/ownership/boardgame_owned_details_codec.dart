@@ -1,24 +1,18 @@
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 
-class BoardgameOwnedDetailsCodec
-    extends OwnedDetailsPersistenceCodec<BoardgameOwnedDetails> {
+final class BoardgameOwnedDetailsCodec {
   const BoardgameOwnedDetailsCodec();
 
-  @override
   BoardgameOwnedDetails fromJson(Map<String, dynamic> json) =>
       BoardgameOwnedDetails.fromJson(json);
 
-  @override
   Map<String, dynamic> toJson(BoardgameOwnedDetails details) =>
       details.toJson();
 
-  @override
   Map<String, dynamic> toSyncPayload(BoardgameOwnedDetails details) =>
       details.toJson();
 
-  @override
   BoardgameOwnedDetails defaultDetails() => const BoardgameOwnedDetails();
 
   BoardgameOwnedDetailsDraft draftFromDetails(BoardgameOwnedDetails details) =>

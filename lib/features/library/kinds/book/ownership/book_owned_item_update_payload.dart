@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 
@@ -91,23 +90,20 @@ final class BookOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> indexNumber;
   final Patch<BookOwnedDetailsDraft> details;
 
-  @override
   bool canApplyTo(BookOwnedItem existing) => true;
 
-  @override
   BookOwnedItem applyTo(
     BookOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
-    final existingDetails = existing.details as BookOwnedDetails;
+    final existingDetails = existing.details;
     final codec = const BookOwnedDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingDetails,
       set: (draft) {
         final value = draft.toDetails();
-        codec.validate(value);
         return value;
       },
       clear: () => codec.defaultDetails(),

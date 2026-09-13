@@ -62,7 +62,7 @@ void main() {
         CatalogMediaKind.movie: ComicOwnedDetails(),
       };
       for (final spec in collectarrKindRegistrationsList) {
-        final codec = ownedDetailsCodecForTest(spec.kind);
+        final codec = ownedDetailsFixtureForTest(spec.kind);
         final defaultDetails = codec.defaultDetails();
         expect(defaultDetails, isNotNull);
 

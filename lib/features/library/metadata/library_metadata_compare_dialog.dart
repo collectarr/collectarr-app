@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -11,7 +12,7 @@ Future<void> showLibraryMetadataCompareDialog({
   required String itemId,
   required String itemTitle,
   required CatalogMediaKind kind,
-  required Map<String, dynamic> localPayload,
+  required JsonMap localPayload,
   required MetadataCompareBuilder compareBuilder,
   required Color accent,
 }) async {
@@ -41,7 +42,7 @@ class _LibraryMetadataCompareDialog extends ConsumerStatefulWidget {
   final String itemId;
   final String itemTitle;
   final CatalogMediaKind kind;
-  final Map<String, dynamic> localPayload;
+  final JsonMap localPayload;
   final MetadataCompareBuilder compareBuilder;
   final Color accent;
 
@@ -54,7 +55,7 @@ class _LibraryMetadataCompareDialogState
     extends ConsumerState<_LibraryMetadataCompareDialog> {
   bool _isLoading = false;
   String? _error;
-  Map<String, dynamic>? _serverPayload;
+  JsonMap? _serverPayload;
 
   @override
   void initState() {
@@ -73,12 +74,12 @@ class _LibraryMetadataCompareDialogState
         kind: widget.kind,
         id: widget.itemId,
       );
-      final payload = <String, dynamic>{
+      final payload = JsonMap.from({
         ...dto.raw,
         'id': dto.id,
         'title': dto.title,
         if (dto.kind != null) 'kind': dto.kind,
-      };
+      });
       if (!mounted) {
         return;
       }

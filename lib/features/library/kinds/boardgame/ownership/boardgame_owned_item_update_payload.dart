@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
 
@@ -91,23 +90,20 @@ final class BoardgameOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> indexNumber;
   final Patch<BoardgameOwnedDetailsDraft> details;
 
-  @override
   bool canApplyTo(BoardGameOwnedItem existing) => true;
 
-  @override
   BoardGameOwnedItem applyTo(
     BoardGameOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
-    final existingDetails = existing.details as BoardgameOwnedDetails;
+    final existingDetails = existing.details;
     final codec = const BoardgameOwnedDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingDetails,
       set: (draft) {
         final value = draft.toDetails();
-        codec.validate(value);
         return value;
       },
       clear: () => codec.defaultDetails(),

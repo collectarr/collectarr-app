@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
@@ -91,23 +90,20 @@ final class MangaOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> indexNumber;
   final Patch<MangaOwnedDetailsDraft> details;
 
-  @override
   bool canApplyTo(MangaOwnedItem existing) => true;
 
-  @override
   MangaOwnedItem applyTo(
     MangaOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
-    final existingDetails = existing.details as MangaOwnedDetails;
+    final existingDetails = existing.details;
     final codec = const MangaOwnedDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingDetails,
       set: (draft) {
         final value = draft.toDetails();
-        codec.validate(value);
         return value;
       },
       clear: () => codec.defaultDetails(),

@@ -281,8 +281,7 @@ class _MetadataProposalTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            if ((proposal.metadataPayload ?? const <String, dynamic>{})
-                .isNotEmpty) ...[
+            if ((proposal.metadataPayload ?? JsonMap()).isNotEmpty) ...[
               const SizedBox(height: 8),
               _ProposalPayloadPreview(
                 kind: catalogMediaKindFromValue(
@@ -396,7 +395,7 @@ class _ProposalMetadataEditResult {
   final String? title;
   final String? summary;
   final String? imageUrl;
-  final Map<String, dynamic> metadataPayload;
+  final JsonMap metadataPayload;
 }
 
 class _ProposalMetadataEditDialog extends StatefulWidget {
@@ -427,8 +426,8 @@ class _ProposalMetadataEditDialogState
   void initState() {
     super.initState();
     final proposal = widget.proposal;
-    final payload = Map<String, dynamic>.from(
-      proposal.metadataPayload ?? const <String, dynamic>{},
+    final payload = JsonMap.from(
+      proposal.metadataPayload ?? JsonMap(),
     );
     _kind = _inferProposalKind(proposal.provider, payload);
     _catalogKind = catalogMediaKindFromValue(_kind);
@@ -502,11 +501,10 @@ class _ProposalMetadataEditDialogState
     );
   }
 
-  Map<String, dynamic>? _payloadForKindSwitch() {
+  JsonMap? _payloadForKindSwitch() {
     final rawPayload = _payloadController.text.trim();
     try {
-      final decoded =
-          rawPayload.isEmpty ? <String, dynamic>{} : jsonDecode(rawPayload);
+      final decoded = rawPayload.isEmpty ? JsonMap() : jsonDecode(rawPayload);
       if (decoded is! Map) {
         throw const FormatException('Metadata payload must be a JSON object.');
       }
@@ -516,7 +514,7 @@ class _ProposalMetadataEditDialogState
       for (final field in _adminProposalFields) {
         field.write(values, _kindFieldControllers[field.key]!.text);
       }
-      return Map<String, dynamic>.from(values.toSerialized());
+      return JsonMap.from(values.toSerialized());
     } on FormatException catch (error) {
       setState(() {
         _errorMessage = error.message;
@@ -532,11 +530,10 @@ class _ProposalMetadataEditDialogState
       return;
     }
     final rawPayload = _payloadController.text.trim();
-    Map<String, dynamic> payload;
+    JsonMap payload;
     try {
-      final decoded =
-          rawPayload.isEmpty ? <String, dynamic>{} : jsonDecode(rawPayload);
-      if (decoded is! Map<String, dynamic>) {
+      final decoded = rawPayload.isEmpty ? JsonMap() : jsonDecode(rawPayload);
+      if (decoded is! JsonMap) {
         setState(() {
           _errorMessage = 'Metadata payload must be a JSON object.';
         });
@@ -584,7 +581,7 @@ class _ProposalMetadataEditDialogState
         title: _emptyToNull(_titleController.text),
         summary: _emptyToNull(_summaryController.text),
         imageUrl: _emptyToNull(_imageUrlController.text),
-        metadataPayload: Map<String, dynamic>.from(
+        metadataPayload: JsonMap.from(
           semanticValues.toSerialized(),
         ),
       ),
@@ -1303,102 +1300,6 @@ class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
   }
 }
 
-class _CatalogCorrection {
-  const _CatalogCorrection({
-    this.title,
-    this.originalTitle,
-    this.localizedTitle,
-    this.sortKey,
-    this.searchAliases,
-    this.titleExtension,
-    this.itemNumber,
-    this.synopsis,
-    this.crossover,
-    this.plotSummary,
-    this.plotDescription,
-    this.genres,
-    this.platforms,
-    this.characters,
-    this.storyArcs,
-    this.creators,
-    this.tracks,
-    this.trailerUrls,
-    this.externalLinks,
-    this.editionTitle,
-    this.pageCount,
-    this.runtimeMinutes,
-    this.color,
-    this.nrDiscs,
-    this.screenRatio,
-    this.audioTracks,
-    this.subtitles,
-    this.layers,
-    this.publisher,
-    this.releaseDate,
-    this.imprint,
-    this.subtitle,
-    this.seriesGroup,
-    this.country,
-    this.language,
-    this.ageRating,
-    this.audienceRating,
-    this.catalogNumber,
-    this.releaseStatus,
-    this.physicalFormat,
-    this.variantName,
-    this.barcode,
-    this.coverImageUrl,
-    this.thumbnailImageUrl,
-    this.seriesTags,
-  });
-
-  final String? title;
-  final String? originalTitle;
-  final String? localizedTitle;
-  final String? sortKey;
-  final List<String>? searchAliases;
-  final String? titleExtension;
-  final String? itemNumber;
-  final String? synopsis;
-  final String? crossover;
-  final String? plotSummary;
-  final String? plotDescription;
-  final List<String>? genres;
-  final List<String>? platforms;
-  final List<String>? characters;
-  final List<String>? storyArcs;
-  final List<Map<String, dynamic>>? creators;
-  final List<CatalogTrackDto>? tracks;
-  final List<TrailerLinkDto>? trailerUrls;
-  final List<TrailerLinkDto>? externalLinks;
-  final String? editionTitle;
-  final int? pageCount;
-  final int? runtimeMinutes;
-  final String? color;
-  final int? nrDiscs;
-  final String? screenRatio;
-  final String? audioTracks;
-  final String? subtitles;
-  final String? layers;
-  final String? publisher;
-  final DateTime? releaseDate;
-  final String? imprint;
-  final String? subtitle;
-  final String? seriesGroup;
-  final String? country;
-  final String? language;
-  final String? ageRating;
-  final String? audienceRating;
-  final String? catalogNumber;
-  final String? releaseStatus;
-  final String? physicalFormat;
-  final String? variantName;
-  final String? barcode;
-  final String? coverImageUrl;
-  final String? thumbnailImageUrl;
-  final List<String>? seriesTags;
-}
-
 class _CorrectionPreviewEntry {
   const _CorrectionPreviewEntry({
     required this.label,
@@ -1574,8 +1475,8 @@ String _proposalKindLabel(String kind) {
       _fallbackKindLabel(kind);
 }
 
-String _inferProposalKind(String provider, Map<String, dynamic>? payload) {
-  final map = payload ?? const <String, dynamic>{};
+String _inferProposalKind(String provider, JsonMap? payload) {
+  final map = payload ?? JsonMap();
   final explicit = _emptyToNull(map['kind']?.toString() ?? '');
   if (explicit != null) {
     return explicit;
@@ -1612,24 +1513,14 @@ List<String> _payloadStringList(Object? value) {
   ];
 }
 
-List<Map<String, dynamic>> _payloadTrackRows(Object? value) {
+List<JsonMap> _payloadTrackRows(Object? value) {
   if (value is! List) {
     return const [];
   }
   return [
     for (final row in value)
-      if (row is Map<String, dynamic>) row,
+      if (row is JsonMap) row,
   ];
-}
-
-void _setPayloadTextValue(
-    Map<String, Object?> payload, String key, String value) {
-  final normalized = _emptyToNull(value);
-  if (normalized == null) {
-    payload.remove(key);
-    return;
-  }
-  payload[key] = normalized;
 }
 
 String _adminErrorMessage(Object error) {

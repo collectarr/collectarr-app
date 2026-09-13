@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 final class WatchSessionCreateRequest {
   const WatchSessionCreateRequest({
@@ -56,11 +56,11 @@ abstract interface class WatchSessionCodec {
   ///
   /// The host supplies lifecycle and transport plumbing; the owning kind
   /// decides whether the payload contains hierarchy coordinates.
-  Map<String, dynamic> toSyncPayload(WatchSession session);
+  JsonMap toSyncPayload(WatchSession session);
 
   /// Reconstructs a session received from the provider sync boundary.
   WatchSession fromSyncPayload({
-    required Map<String, dynamic> payload,
+    required JsonMap payload,
     required String id,
     required DateTime updatedAt,
     DateTime? deletedAt,

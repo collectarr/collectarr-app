@@ -1,23 +1,17 @@
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
-class MovieOwnedDetailsCodec
-    extends OwnedDetailsPersistenceCodec<MovieOwnedDetails> {
+final class MovieOwnedDetailsCodec {
   const MovieOwnedDetailsCodec();
 
-  @override
   MovieOwnedDetails fromJson(Map<String, dynamic> json) =>
       MovieOwnedDetails.fromJson(json);
 
-  @override
   Map<String, dynamic> toJson(MovieOwnedDetails details) => details.toJson();
 
-  @override
   Map<String, dynamic> toSyncPayload(MovieOwnedDetails details) =>
       details.toJson();
 
-  @override
   MovieOwnedDetails defaultDetails() => const MovieOwnedDetails();
 
   MovieOwnedDetailsDraft draftFromDetails(MovieOwnedDetails details) =>

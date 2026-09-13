@@ -177,15 +177,23 @@ class CustomFieldRepository {
   }
 
   CustomFieldValue _valueFromRow(CustomFieldValuesCacheData row) {
+    final catalogRefJson = row.catalogRefJson;
+    CatalogEntityRef? catalogRef;
+    if (catalogRefJson != null) {
+      final decoded = jsonDecode(catalogRefJson);
+      if (decoded is! Map) {
+        throw const FormatException(
+            'catalogRefJson must contain a JSON object');
+      }
+      catalogRef = CatalogEntityRef.fromJson(
+        Map<String, dynamic>.from(decoded),
+      );
+    }
     return CustomFieldValue(
       id: row.id,
       targetId: row.targetId,
       targetScope: CustomFieldTargetScope.fromApiValue(row.targetScope),
-      catalogRef: row.catalogRefJson == null
-          ? null
-          : CatalogEntityRef.fromJson(
-              jsonDecode(row.catalogRefJson!) as Map<String, dynamic>,
-            ),
+      catalogRef: catalogRef,
       fieldDefinitionId: row.fieldDefinitionId,
       value: row.value,
       updatedAt: row.updatedAt,

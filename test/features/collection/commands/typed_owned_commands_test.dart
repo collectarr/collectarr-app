@@ -118,7 +118,8 @@ void main() {
           ),
         );
 
-        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
         final storedPayload =
             await OwnedItemsRepository(db).payloadByRef(itemRef);
         expect(storedPayload, isNotNull);
@@ -178,7 +179,8 @@ void main() {
               ),
         );
 
-        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
 
         final updatedPayload =
             await OwnedItemsRepository(db).payloadByRef(updated);
@@ -190,7 +192,8 @@ void main() {
 
     test('default details for all 9 kinds resolves to non-generic details', () {
       for (final kind in allActiveKinds) {
-        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
         expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
             reason: '$kind default details must not be TestOwnedDetails');
 

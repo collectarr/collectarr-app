@@ -85,7 +85,7 @@ class SyncApplyService {
     );
   }
 
-  Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
+  Future<void> _applyEntities(List<JsonMap> entities) async {
     final catalogSnapshots = <CatalogImportSnapshot>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
@@ -95,7 +95,7 @@ class SyncApplyService {
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
     final customEpisodes = <CustomEpisode>[];
-    final pickListUpserts = <Map<String, dynamic>>[];
+    final pickListUpserts = <JsonMap>[];
     final pickListDeletes = <String>[];
     // Collect image data from snapshots keyed by the complete catalog ref.
     // Equal IDs are valid across kinds and must never overwrite one another.
@@ -188,7 +188,7 @@ class SyncApplyService {
         final rawCatalogRef = item.payload['catalog_ref'];
         if (rawCatalogRef is! Map) continue;
         final catalogRef = CatalogEntityRef.fromJson(
-          Map<String, dynamic>.from(rawCatalogRef),
+          JsonMap.from(rawCatalogRef),
         );
         ownedByCatalogRef[catalogRef] = item.ref;
       }
@@ -208,7 +208,7 @@ class SyncApplyService {
   }
 
   Future<void> _applyPickListValues(
-    List<Map<String, dynamic>> upserts,
+    List<JsonMap> upserts,
     List<String> deletes,
   ) async {
     if (upserts.isNotEmpty) {
@@ -240,7 +240,7 @@ class SyncApplyService {
   // ---------------------------------------------------------------------------
 
   CatalogImportSnapshot _catalogSnapshotFromEntity(
-    Map<String, dynamic> entity,
+    JsonMap entity,
   ) {
     final type = entity['entity_type'] as String;
     if (type != 'library_item_snapshot') {
@@ -253,7 +253,7 @@ class SyncApplyService {
   }
 
   _OwnedSyncPayload _ownedPayloadFromEntity(
-    Map<String, dynamic> entity,
+    JsonMap entity,
   ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
@@ -269,7 +269,7 @@ class SyncApplyService {
       );
     }
     final catalogRef = CatalogEntityRef.fromJson(
-      Map<String, dynamic>.from(rawCatalogRef),
+      JsonMap.from(rawCatalogRef),
     );
     final kind = catalogRef.mediaKind;
     final normalizedPayload = {
@@ -289,7 +289,7 @@ class SyncApplyService {
     );
   }
 
-  WishlistItem _wishlistItemFromEntity(Map<String, dynamic> entity) {
+  WishlistItem _wishlistItemFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -306,7 +306,7 @@ class SyncApplyService {
     });
   }
 
-  TrackingLifecycle _trackingLifecycleFromEntity(Map<String, dynamic> entity) {
+  TrackingLifecycle _trackingLifecycleFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -341,7 +341,7 @@ class SyncApplyService {
     );
   }
 
-  WatchSession _watchSessionFromEntity(Map<String, dynamic> entity) {
+  WatchSession _watchSessionFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -374,7 +374,7 @@ class SyncApplyService {
   }
 
   UserMetadataOverride _metadataOverrideFromEntity(
-    Map<String, dynamic> entity,
+    JsonMap entity,
   ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
@@ -391,7 +391,7 @@ class SyncApplyService {
     });
   }
 
-  CustomEpisode _customEpisodeFromEntity(Map<String, dynamic> entity) {
+  CustomEpisode _customEpisodeFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -423,7 +423,7 @@ class SyncApplyService {
     );
   }
 
-  StorageLocation _locationFromEntity(Map<String, dynamic> entity) {
+  StorageLocation _locationFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     if (type != 'location') {
       throw FormatException('Expected location entity, got $type');
@@ -438,7 +438,7 @@ class SyncApplyService {
   // Response parsing helpers
   // ---------------------------------------------------------------------------
 
-  Set<String> _acceptedKeys(Map<String, dynamic> response) {
+  Set<String> _acceptedKeys(JsonMap response) {
     final accepted = response['accepted'];
     if (accepted is! List) {
       throw const FormatException(
@@ -446,8 +446,8 @@ class SyncApplyService {
       );
     }
     return accepted
-        .whereType<Map<dynamic, dynamic>>()
-        .map((item) => item.cast<String, dynamic>())
+        .whereType<Map<Object?, Object?>>()
+        .map((item) => JsonMap.from(item.cast<String, Object?>()))
         .where(
           (item) =>
               item['entity_type'] is String && item['entity_id'] is String,
@@ -457,7 +457,7 @@ class SyncApplyService {
   }
 
   List<SyncRejectedChange> _rejectedChanges(
-    Map<String, dynamic> response,
+    JsonMap response,
     List<SyncChange> pending,
   ) {
     final rejected = response['rejected'];
@@ -472,8 +472,8 @@ class SyncApplyService {
     final pendingByKey = {
       for (final change in pending) _changeKey(change): change,
     };
-    return rejected.whereType<Map<dynamic, dynamic>>().map((item) {
-      final json = item.cast<String, dynamic>();
+    return rejected.whereType<Map<Object?, Object?>>().map((item) {
+      final json = JsonMap.from(item.cast<String, Object?>());
       final key = '${json['entity_type']}:${json['entity_id']}';
       return SyncRejectedChange.fromJson(
         json,
@@ -482,26 +482,26 @@ class SyncApplyService {
     }).toList(growable: false);
   }
 
-  List<Map<String, dynamic>> _entities(Map<String, dynamic> response) {
+  List<JsonMap> _entities(JsonMap response) {
     final entities = response['entities'];
     if (entities is! List) {
       throw const FormatException('Sync pull response is missing entities');
     }
     return entities
-        .whereType<Map<dynamic, dynamic>>()
-        .map((item) => item.cast<String, dynamic>())
+        .whereType<Map<Object?, Object?>>()
+        .map((item) => JsonMap.from(item.cast<String, Object?>()))
         .toList(growable: false);
   }
 
-  Map<String, dynamic> _payload(Map<String, dynamic> entity) {
+  JsonMap _payload(JsonMap entity) {
     final payload = entity['payload'];
     if (payload is! Map) {
       throw const FormatException('Sync entity is missing payload');
     }
-    return payload.cast<String, dynamic>();
+    return JsonMap.from(payload.cast<String, Object?>());
   }
 
-  DateTime _serverTime(Map<String, dynamic> response) {
+  DateTime _serverTime(JsonMap response) {
     final value = response['server_time'];
     if (value is! String) {
       throw const FormatException('Sync response is missing server_time');

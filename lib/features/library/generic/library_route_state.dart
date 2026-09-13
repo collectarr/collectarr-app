@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -277,7 +278,7 @@ class LibraryRouteState {
     if (!selection.hasActiveFilters) {
       return null;
     }
-    final payload = <String, dynamic>{
+    final payload = JsonMap.from({
       if (selection.ownershipFilter != LibraryOwnershipFilter.all)
         'ownership': selection.ownershipFilter.name,
       if (selection.trackingStatusFilter != LibraryTrackingStatusFilter.all)
@@ -301,7 +302,7 @@ class LibraryRouteState {
         },
       if (selection.missingCover) 'missingCover': true,
       if (selection.missingMetadata) 'missingMetadata': true,
-    };
+    });
     return base64Url.encode(utf8.encode(jsonEncode(payload)));
   }
 

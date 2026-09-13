@@ -1,23 +1,17 @@
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 
-class MangaOwnedDetailsCodec
-    extends OwnedDetailsPersistenceCodec<MangaOwnedDetails> {
+final class MangaOwnedDetailsCodec {
   const MangaOwnedDetailsCodec();
 
-  @override
   MangaOwnedDetails fromJson(Map<String, dynamic> json) =>
       MangaOwnedDetails.fromJson(json);
 
-  @override
   Map<String, dynamic> toJson(MangaOwnedDetails details) => details.toJson();
 
-  @override
   Map<String, dynamic> toSyncPayload(MangaOwnedDetails details) =>
       details.toJson();
 
-  @override
   MangaOwnedDetails defaultDetails() => const MangaOwnedDetails();
 
   MangaOwnedDetailsDraft draftFromDetails(MangaOwnedDetails details) =>

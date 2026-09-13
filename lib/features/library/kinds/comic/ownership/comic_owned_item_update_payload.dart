@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 
@@ -96,23 +95,20 @@ final class ComicOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> indexNumber;
   final Patch<ComicOwnedDetailsDraft> details;
 
-  @override
   bool canApplyTo(ComicOwnedItem existing) => true;
 
-  @override
   ComicOwnedItem applyTo(
     ComicOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
-    final existingDetails = existing.details as ComicOwnedDetails;
+    final existingDetails = existing.details;
     final detailsCodec = const ComicOwnedDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingDetails,
       set: (draft) {
         final resolved = draft.toDetails();
-        detailsCodec.validate(resolved);
         return resolved;
       },
       clear: () => detailsCodec.defaultDetails(),

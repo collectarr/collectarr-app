@@ -51,7 +51,7 @@ void main() {
             reason: '$kind must have explicit edit draft factory');
 
         // Owned details and codec live in the kind-owned serialization registry.
-        final ownedCodec = ownedDetailsCodecForTest(kind);
+        final ownedCodec = ownedDetailsFixtureForTest(kind);
         expect(ownedCodec.defaultDetails(), isNotNull,
             reason: '$kind defaultOwnedDetails must not be null');
         expect(
@@ -102,7 +102,7 @@ void main() {
     test('serialization detail registry covers every active kind', () {
       final decodedTypes = <Type>{};
       for (final kind in activeKinds) {
-        final codec = ownedDetailsCodecForTest(kind);
+        final codec = ownedDetailsFixtureForTest(kind);
         final details = codec.defaultDetails();
         final decoded = codec.fromJson(details.toJson());
         expect(decoded.runtimeType, details.runtimeType,
@@ -113,7 +113,7 @@ void main() {
 
       expect(decodedTypes, hasLength(activeKinds.length));
       expect(
-        () => ownedDetailsCodecForTest(CatalogMediaKind.unknown),
+        () => ownedDetailsFixtureForTest(CatalogMediaKind.unknown),
         throwsArgumentError,
       );
     });
@@ -151,7 +151,8 @@ void main() {
         () {
       final detailsTypes = <Type>{};
       for (final kind in activeKinds) {
-        final defaultDetails = ownedDetailsCodecForTest(kind).defaultDetails();
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
         expect(defaultDetails, isNotNull);
         detailsTypes.add(defaultDetails.runtimeType);
       }

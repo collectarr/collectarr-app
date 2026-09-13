@@ -690,7 +690,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
       });
       return;
     }
-    final correction = _CatalogCorrection(
+    final correction = AdminCatalogCorrection(
       title: scalarValues['title'] as String?,
       originalTitle: scalarValues['original_title'] as String?,
       localizedTitle: scalarValues['localized_title'] as String?,
@@ -797,7 +797,7 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
   }
 
   List<_CorrectionPreviewEntry> _correctionPreview(
-    _CatalogCorrection correction,
+    AdminCatalogCorrection correction,
   ) {
     final item = widget.item;
     final changes = <_CorrectionPreviewEntry>[];
@@ -921,7 +921,10 @@ class _MetadataCorrectionDialogState extends State<_MetadataCorrectionDialog> {
     };
   }
 
-  Object? _previewScalarAfterValue(_CatalogCorrection correction, String key) {
+  Object? _previewScalarAfterValue(
+    AdminCatalogCorrection correction,
+    String key,
+  ) {
     return switch (key) {
       'title' => correction.title,
       'original_title' => correction.originalTitle,

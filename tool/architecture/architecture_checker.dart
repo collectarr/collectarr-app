@@ -6,8 +6,6 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:path/path.dart' as p;
 
-import 'migration_exceptions.dart';
-
 class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   ArchitectureRuleVisitor({
     required this.filePath,
@@ -147,26 +145,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'LibraryCatalogItemView',
   };
 
-  static final _genericMetadataMapAllowlist =
-      architectureExceptionPaths('TK003');
-
-  static final _dynamicCatalogAllowlist = architectureExceptionPaths('TK009');
-
-  static final _generatedDtoAllowlist = architectureExceptionPaths('TK006');
-
-  static final _structuralProjectionAllowlist =
-      architectureExceptionPaths('TK010');
-
-  // The enum implementation itself may compare enum values while parsing its
-  // serialized representation. This is not generic feature dispatch.
-  static final _structuralKindComparisonAllowlist =
-      architectureExceptionPaths('TK005-comparison');
-
-  // These models switch over their own structural event enum to provide
-  // labels/icons/colors. They do not dispatch catalog semantics by kind.
-  static final _structuralKindSwitchAllowlist =
-      architectureExceptionPaths('TK005-switch');
-
   @override
   void visitPropertyAccess(PropertyAccess node) {
     if (_isStrictGenericContext(relativePath)) {
@@ -242,7 +220,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     }
 
     if (_isGeneratedCoreDtoPath(importedRelativePath) &&
-        !_generatedDtoAllowlist.contains(relativePath)) {
+        !_isGeneratedDtoImportBoundary(relativePath, kindName)) {
       violations.add(
         'TK006 $relativePath:$lineNumber: Generated Core DTO import must stay inside the owning kind module ($uriString)',
       );
@@ -285,16 +263,14 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       );
     }
 
-    if (_isGenericMetadataMap(node) &&
-        !_genericMetadataMapAllowlist.contains(relativePath)) {
+    if (_isGenericMetadataMap(node)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
       violations.add(
         'TK003 $relativePath:$line: Generic metadata map must be classified or moved to a kind-owned mapper',
       );
     }
 
-    if (_isDynamicCatalogType(node) &&
-        !_dynamicCatalogAllowlist.contains(relativePath)) {
+    if (_isDynamicCatalogType(node)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
       violations.add(
         'TK009 $relativePath:$line: Dynamic catalog/metadata object must be replaced or explicitly allowlisted',
@@ -345,8 +321,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitSwitchStatement(SwitchStatement node) {
-    if (isBoundaryFile &&
-        !_structuralKindSwitchAllowlist.contains(relativePath)) {
+    if (isBoundaryFile && !_isStructuralSwitchFile(relativePath)) {
       if (_isCatalogKindDispatchExpression(node.expression.toSource())) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
@@ -359,8 +334,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitSwitchExpression(SwitchExpression node) {
-    if (isBoundaryFile &&
-        !_structuralKindSwitchAllowlist.contains(relativePath)) {
+    if (isBoundaryFile && !_isStructuralSwitchFile(relativePath)) {
       if (_isCatalogKindDispatchExpression(node.expression.toSource())) {
         final line = lineInfo.getLocation(node.offset).lineNumber;
         violations.add(
@@ -374,7 +348,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   @override
   void visitBinaryExpression(BinaryExpression node) {
     if (isBoundaryFile &&
-        !_structuralKindComparisonAllowlist.contains(relativePath) &&
+        !_isStructuralComparisonFile(relativePath) &&
         (node.operator.lexeme == '==' || node.operator.lexeme == '!=')) {
       final left = node.leftOperand.toSource();
       final right = node.rightOperand.toSource();
@@ -440,7 +414,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   void _checkDeclaredSemanticName(String name, int offset) {
     if (!_isStrictGenericContext(relativePath) ||
-        _structuralProjectionAllowlist.contains(relativePath) ||
+        _isStructuralProjectionFile(relativePath) ||
         !_forbiddenContextualMemberNames.contains(name)) {
       return;
     }
@@ -495,8 +469,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     if (arguments == null || arguments.length != 2) return false;
     final keyType = arguments[0].toSource();
     final valueType = arguments[1].toSource();
-    if (keyType != 'String' ||
-        (valueType != 'dynamic' && valueType != 'Object?')) {
+    if (keyType != 'String' || valueType != 'dynamic') {
       return false;
     }
     final lineNumber = lineInfo.getLocation(node.offset).lineNumber;
@@ -544,48 +517,49 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }
 }
 
-const _registryRoot = 'lib/features/library/kinds/registry/';
-
-List<String> architectureAllowlistIntegrityErrors(String repoRoot) {
-  final allowlists = <String, Set<String>>{
-    'generic metadata maps':
-        ArchitectureRuleVisitor._genericMetadataMapAllowlist,
-    'dynamic catalog values': ArchitectureRuleVisitor._dynamicCatalogAllowlist,
-    'generated DTO imports': ArchitectureRuleVisitor._generatedDtoAllowlist,
-    'structural projections':
-        ArchitectureRuleVisitor._structuralProjectionAllowlist,
-    'structural kind switches':
-        ArchitectureRuleVisitor._structuralKindSwitchAllowlist,
-    'structural kind comparisons':
-        ArchitectureRuleVisitor._structuralKindComparisonAllowlist,
-  };
-  final errors = <String>[];
-  errors.addAll(architectureMigrationExceptionIntegrityErrors());
-  for (final entry in allowlists.entries) {
-    for (final relativePath in entry.value) {
-      final file = File(p.join(repoRoot, relativePath));
-      if (!file.existsSync()) {
-        errors.add('${entry.key}: missing allowlisted file $relativePath');
-        continue;
-      }
-    }
-  }
-  return errors;
+bool _isGeneratedDtoImportBoundary(String relativePath, String? kindName) {
+  return relativePath == 'lib/core/api/api_client.dart' ||
+      relativePath.startsWith('lib/core/api/generated/') ||
+      relativePath.startsWith('lib/features/catalog/transport/') ||
+      relativePath.startsWith('lib/features/providers/') ||
+      kindName != null;
 }
 
-void runArchitectureChecker([List<String> arguments = const []]) {
+bool _isStructuralProjectionFile(String relativePath) {
+  return const {
+    'lib/core/models/catalog_display_summary.dart',
+    'lib/core/models/catalog_search_hit.dart',
+    'lib/core/models/calendar_event.dart',
+    'lib/core/models/owned_item_projection.dart',
+  }.contains(relativePath);
+}
+
+bool _isStructuralSwitchFile(String relativePath) {
+  return const {
+    'lib/core/models/activity_event.dart',
+    'lib/core/models/calendar_event.dart',
+  }.contains(relativePath);
+}
+
+bool _isStructuralComparisonFile(String relativePath) {
+  return const {
+    'lib/core/models/catalog_media_kind.dart',
+    'lib/features/collection/csv/collection_csv_codec.dart',
+    'lib/features/collection/mutations/wishlist_mutations.dart',
+    'lib/features/imports/personal_lists/anime_list_import_service.dart',
+    'lib/features/library/selection/library_bulk_actions.dart',
+  }.contains(relativePath);
+}
+
+const _registryRoot = 'lib/features/library/kinds/registry/';
+
+void runArchitectureChecker() {
   final repoRoot = Directory.current.path;
   final libRoot = p.join(repoRoot, 'lib');
   final files = _dartFilesUnder(Directory(libRoot)).toList()..sort();
 
   final allViolations = <String>[];
   final allComplexityWarnings = <String>[];
-
-  allViolations.addAll(
-    architectureAllowlistIntegrityErrors(repoRoot).map(
-      (error) => 'architecture allowlist: $error',
-    ),
-  );
 
   for (final file in files) {
     final relativePath = p.relative(file, from: repoRoot).replaceAll('\\', '/');

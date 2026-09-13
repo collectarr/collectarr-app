@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 bool sameStringList(List<String>? a, List<String>? b) {
   final left = normalizeStringList(a);
@@ -30,8 +31,8 @@ List<String> normalizeStringList(List<String>? values) {
 }
 
 bool sameCreators(
-  List<Map<String, dynamic>>? a,
-  List<Map<String, dynamic>>? b,
+  List<JsonMap>? a,
+  List<JsonMap>? b,
 ) {
   final left = normalizeCreators(a);
   final right = normalizeCreators(b);
@@ -48,13 +49,13 @@ bool sameCreators(
   return true;
 }
 
-List<Map<String, dynamic>> normalizeCreators(
-  List<Map<String, dynamic>>? values,
+List<JsonMap> normalizeCreators(
+  List<JsonMap>? values,
 ) {
   if (values == null) {
-    return const <Map<String, dynamic>>[];
+    return const <JsonMap>[];
   }
-  final normalized = <Map<String, dynamic>>[];
+  final normalized = <JsonMap>[];
   for (final raw in values) {
     final name = (raw['name']?.toString() ?? '').trim();
     if (name.isEmpty) {
@@ -83,9 +84,9 @@ bool sameTrailerLinks(List<TrailerLinkDto>? a, List<TrailerLinkDto>? b) {
   return true;
 }
 
-List<Map<String, dynamic>> normalizeTrailerLinks(List<TrailerLinkDto>? links) {
+List<JsonMap> normalizeTrailerLinks(List<TrailerLinkDto>? links) {
   if (links == null) {
-    return const <Map<String, dynamic>>[];
+    return const <JsonMap>[];
   }
   return [
     for (final link in links)
@@ -123,11 +124,11 @@ bool sameTracks(List<CatalogTrackDto>? a, List<CatalogTrackDto>? b) {
   return true;
 }
 
-List<Map<String, dynamic>> normalizeTracks(List<CatalogTrackDto>? values) {
+List<JsonMap> normalizeTracks(List<CatalogTrackDto>? values) {
   if (values == null) {
-    return const <Map<String, dynamic>>[];
+    return const <JsonMap>[];
   }
-  final normalized = <Map<String, dynamic>>[];
+  final normalized = <JsonMap>[];
   for (final track in values) {
     final title = (track.title ?? '').trim();
     if (title.isEmpty) {

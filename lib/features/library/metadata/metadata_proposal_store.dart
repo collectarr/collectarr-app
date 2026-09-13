@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MetadataProposalRecord {
@@ -23,7 +24,7 @@ class MetadataProposalRecord {
   final String source;
   final DateTime createdAt;
 
-  factory MetadataProposalRecord.fromJson(Map<String, dynamic> json) {
+  factory MetadataProposalRecord.fromJson(JsonMap json) {
     return MetadataProposalRecord(
       localId: json['local_id'] as String? ?? '',
       serverId: json['server_id'] as String?,
@@ -37,7 +38,7 @@ class MetadataProposalRecord {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  JsonMap toJson() {
     return {
       'local_id': localId,
       if (serverId != null) 'server_id': serverId,
@@ -69,15 +70,15 @@ class MetadataProposalStore {
     }
     return [
       for (final value in decoded)
-        if (value is Map<String, dynamic>)
+        if (value is JsonMap)
           MetadataProposalRecord.fromJson(value)
         else if (value is Map)
-          MetadataProposalRecord.fromJson(Map<String, dynamic>.from(value)),
+          MetadataProposalRecord.fromJson(JsonMap.from(value)),
     ];
   }
 
   Future<void> recordResponse({
-    required Map<String, dynamic> response,
+    required JsonMap response,
     required String provider,
     required String query,
     required String source,

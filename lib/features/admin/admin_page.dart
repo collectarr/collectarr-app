@@ -4,11 +4,13 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_catalog_correction.dart';
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
@@ -912,7 +914,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
       catalogMediaKindFromApiValue(item.kind),
     );
-    final correction = await showDialog<_CatalogCorrection>(
+    final correction = await showDialog<AdminCatalogCorrection>(
       context: context,
       builder: (context) => _MetadataCorrectionDialog(
         item: item,
@@ -1035,7 +1037,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   Set<String> _catalogCorrectionExplicitFields(
     AdminMetadataItem item,
-    _CatalogCorrection correction,
+    AdminCatalogCorrection correction,
   ) {
     final fields = <String>{};
     void addField(String key, Object? before, Object? after) {
@@ -1178,7 +1180,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     };
   }
 
-  Object? _catalogScalarAfterValue(_CatalogCorrection correction, String key) {
+  Object? _catalogScalarAfterValue(
+    AdminCatalogCorrection correction,
+    String key,
+  ) {
     return switch (key) {
       'title' => correction.title,
       'original_title' => correction.originalTitle,

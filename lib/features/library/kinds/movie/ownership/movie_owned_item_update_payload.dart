@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 
@@ -91,23 +90,20 @@ final class MovieOwnedItemUpdatePayload implements OwnedItemUpdatePayload {
   final Patch<int?> indexNumber;
   final Patch<MovieOwnedDetailsDraft> details;
 
-  @override
   bool canApplyTo(MovieOwnedItem existing) => true;
 
-  @override
   MovieOwnedItem applyTo(
     MovieOwnedItem existing, {
     required DateTime updatedAt,
     required String? fallbackOwnerUserId,
     required String? fallbackOwnerLabel,
   }) {
-    final existingDetails = existing.details as MovieOwnedDetails;
+    final existingDetails = existing.details;
     final codec = const MovieOwnedDetailsCodec();
     final resolvedDetails = details.when(
       unchanged: () => existingDetails,
       set: (draft) {
         final value = draft.toDetails();
-        codec.validate(value);
         return value;
       },
       clear: () => codec.defaultDetails(),
