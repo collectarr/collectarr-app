@@ -739,7 +739,7 @@ List<GameOwnedItem> gameSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.game, 15))
         GameOwnedItem(
           id: GameOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(itemId),
+          catalogRef: seedCatalogRef(CatalogMediaKind.game, itemId),
           createdAt: now.subtract(const Duration(days: 200)),
           updatedAt: now,
           isDigital: false,
@@ -766,9 +766,14 @@ List<TrackingLifecycle> gameSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         GameTrackingLifecycle(
           id: 'seed-track-game-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-game-${seedOrdinal2(i)}'),
-          ownedRef:
-              seedOwnedRefFromId('seed-owned-seed-game-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.game,
+            'seed-game-${seedOrdinal2(i)}',
+          ),
+          ownedRef: seedOwnedRefFromId(
+            CatalogMediaKind.game,
+            'seed-owned-seed-game-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10
               ? MediaTrackingStatus.completed

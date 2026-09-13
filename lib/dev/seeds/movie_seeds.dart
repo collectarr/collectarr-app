@@ -929,7 +929,7 @@ List<CatalogItemDto> movieSeedCatalogItems() => [
 List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-01'),
-        catalogRef: seedCatalogRef('seed-movie-01'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
         createdAt: now.subtract(const Duration(days: 420)),
         updatedAt: now,
         isDigital: false,
@@ -949,7 +949,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-02'),
-        catalogRef: seedCatalogRef('seed-movie-02'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
         createdAt: now.subtract(const Duration(days: 380)),
         updatedAt: now,
         isDigital: false,
@@ -968,7 +968,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-03'),
-        catalogRef: seedCatalogRef('seed-movie-03'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
         createdAt: now.subtract(const Duration(days: 350)),
         updatedAt: now,
         isDigital: false,
@@ -990,7 +990,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-04'),
-        catalogRef: seedCatalogRef('seed-movie-04'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
         createdAt: now.subtract(const Duration(days: 280)),
         updatedAt: now,
         isDigital: false,
@@ -1012,7 +1012,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-05'),
-        catalogRef: seedCatalogRef('seed-movie-05'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
         createdAt: now.subtract(const Duration(days: 200)),
         updatedAt: now,
         isDigital: false,
@@ -1034,7 +1034,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-06'),
-        catalogRef: seedCatalogRef('seed-movie-06'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
         createdAt: now.subtract(const Duration(days: 500)),
         updatedAt: now,
         isDigital: false,
@@ -1055,7 +1055,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-07'),
-        catalogRef: seedCatalogRef('seed-movie-07'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
         createdAt: now.subtract(const Duration(days: 340)),
         updatedAt: now,
         isDigital: false,
@@ -1076,7 +1076,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-08'),
-        catalogRef: seedCatalogRef('seed-movie-08'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
         createdAt: now.subtract(const Duration(days: 240)),
         updatedAt: now,
         isDigital: false,
@@ -1096,7 +1096,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-09'),
-        catalogRef: seedCatalogRef('seed-movie-09'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
         createdAt: now.subtract(const Duration(days: 230)),
         updatedAt: now,
         isDigital: false,
@@ -1118,7 +1118,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-10'),
-        catalogRef: seedCatalogRef('seed-movie-10'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
         createdAt: now.subtract(const Duration(days: 150)),
         updatedAt: now,
         isDigital: false,
@@ -1138,7 +1138,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-11'),
-        catalogRef: seedCatalogRef('seed-movie-11'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
         createdAt: now.subtract(const Duration(days: 90)),
         updatedAt: now,
         isDigital: false,
@@ -1159,7 +1159,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-12'),
-        catalogRef: seedCatalogRef('seed-movie-12'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
         createdAt: now.subtract(const Duration(days: 60)),
         updatedAt: now,
         isDigital: false,
@@ -1180,7 +1180,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-13'),
-        catalogRef: seedCatalogRef('seed-movie-13'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
         createdAt: now.subtract(const Duration(days: 30)),
         updatedAt: now,
         isDigital: false,
@@ -1201,7 +1201,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-14'),
-        catalogRef: seedCatalogRef('seed-movie-14'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
         createdAt: now.subtract(const Duration(days: 45)),
         updatedAt: now,
         isDigital: false,
@@ -1222,7 +1222,7 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
       ),
       MovieOwnedItem(
         id: MovieOwnedItemId('seed-owned-movie-15'),
-        catalogRef: seedCatalogRef('seed-movie-15'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
         createdAt: now.subtract(const Duration(days: 20)),
         updatedAt: now,
         isDigital: false,
@@ -1247,8 +1247,11 @@ List<MovieOwnedItem> movieSeedOwnedItems(DateTime now) => [
 List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       MovieTrackingLifecycle(
         id: 'seed-track-movie-01',
-        catalogRef: seedCatalogRef('seed-movie-01'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-01'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-01',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1260,8 +1263,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-02',
-        catalogRef: seedCatalogRef('seed-movie-02'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-02'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-02',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1273,8 +1279,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-03',
-        catalogRef: seedCatalogRef('seed-movie-03'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-03'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-03',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1285,8 +1294,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-04',
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-04'),
-        catalogRef: seedCatalogRef('seed-movie-04'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-04',
+        ),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1297,8 +1309,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-07',
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-07'),
-        catalogRef: seedCatalogRef('seed-movie-07'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-07',
+        ),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1310,8 +1325,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-05',
-        catalogRef: seedCatalogRef('seed-movie-05'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-05'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-05',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1322,8 +1340,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-06',
-        catalogRef: seedCatalogRef('seed-movie-06'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-06'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-06',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1334,8 +1355,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-08',
-        catalogRef: seedCatalogRef('seed-movie-08'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-08'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-08',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1346,8 +1370,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-09',
-        catalogRef: seedCatalogRef('seed-movie-09'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-09'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-09',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1358,8 +1385,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-10',
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-10'),
-        catalogRef: seedCatalogRef('seed-movie-10'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-10',
+        ),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1370,8 +1400,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-13',
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-13'),
-        catalogRef: seedCatalogRef('seed-movie-13'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-13',
+        ),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13'),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1383,8 +1416,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-11',
-        catalogRef: seedCatalogRef('seed-movie-11'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-11'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-11',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1395,8 +1431,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-12',
-        catalogRef: seedCatalogRef('seed-movie-12'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-12'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-12',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 9,
@@ -1407,8 +1446,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-14',
-        catalogRef: seedCatalogRef('seed-movie-14'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-14'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-14',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,
@@ -1419,8 +1461,11 @@ List<TrackingLifecycle> movieSeedTrackingLifecycles(DateTime now) => [
       ),
       MovieTrackingLifecycle(
         id: 'seed-track-movie-15',
-        catalogRef: seedCatalogRef('seed-movie-15'),
-        ownedRef: seedOwnedRefFromId('seed-owned-movie-15'),
+        catalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15'),
+        ownedRef: seedOwnedRefFromId(
+          CatalogMediaKind.movie,
+          'seed-owned-movie-15',
+        ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
         rating: 10,

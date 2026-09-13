@@ -83,7 +83,7 @@ void main() {
   test('seed quality guard rejects owned details under the wrong kind', () {
     final movie = movieSeedOwnedItems(DateTime.utc(2024, 1, 1)).first;
     final mismatched = movie.copyWith(
-      catalogRef: seedCatalogRef('seed-comic-01'),
+      catalogRef: seedCatalogRef(CatalogMediaKind.comic, 'seed-comic-01'),
     );
 
     expect(

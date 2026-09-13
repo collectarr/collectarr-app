@@ -81,15 +81,6 @@ class CatalogEntityRef {
         id: root,
       );
     }
-    if (entityType.apiValue == 'owned_copy' ||
-        entityType.apiValue == 'copy' ||
-        entityType.apiValue == 'tracking_entry') {
-      return CatalogEntityRef(
-        kind: kind,
-        entityType: const CatalogEntityTypeId('work'),
-        id: id,
-      );
-    }
     return this;
   }
 

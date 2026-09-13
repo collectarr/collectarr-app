@@ -863,7 +863,7 @@ List<AnimeOwnedItem> animeSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.anime, 15))
         AnimeOwnedItem(
           id: AnimeOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(itemId),
+          catalogRef: seedCatalogRef(CatalogMediaKind.anime, itemId),
           createdAt: now.subtract(const Duration(days: 180)),
           updatedAt: now,
           isDigital: false,
@@ -891,7 +891,10 @@ List<TrackingLifecycle> animeSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeTrackingLifecycle(
           id: 'seed-track-anime-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-anime-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.anime,
+            'seed-anime-${seedOrdinal2(i)}',
+          ),
           coordinates: AnimeTrackingCoordinates(
             seasonNumber: 1,
             episodeNumber: i.isEven ? 2 : 1,
@@ -899,8 +902,10 @@ List<TrackingLifecycle> animeSeedTrackingLifecycles(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef:
-              seedOwnedRefFromId('seed-owned-seed-anime-${seedOrdinal2(i)}'),
+          ownedRef: seedOwnedRefFromId(
+            CatalogMediaKind.anime,
+            'seed-owned-seed-anime-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: i <= 12
               ? MediaTrackingStatus.completed
@@ -918,7 +923,10 @@ List<WatchSession> animeSeedWatchSessions(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         AnimeWatchSession(
           id: 'seed-watch-anime-${seedOrdinal2(i)}',
-          targetRef: seedCatalogRef('seed-anime-${seedOrdinal2(i)}'),
+          targetRef: seedCatalogRef(
+            CatalogMediaKind.anime,
+            'seed-anime-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: i.isEven ? 2 : 1,
           sourceType: TrackingSourceType.physical,
@@ -934,7 +942,10 @@ List<CustomEpisode> animeSeedCustomEpisodes(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         CustomEpisode(
           id: 'seed-custom-anime-${seedOrdinal2(i)}',
-          seriesRef: seedCatalogRef('seed-anime-${seedOrdinal2(i)}'),
+          seriesRef: seedCatalogRef(
+            CatalogMediaKind.anime,
+            'seed-anime-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: 3,
           title: 'Seed special episode ${seedOrdinal2(i)}',

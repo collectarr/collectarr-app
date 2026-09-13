@@ -379,11 +379,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       details,
     );
     return AddOwnedItemCommand(
-      catalogRef: CatalogEntityRef(
-        kind: kind,
-        entityType: const CatalogEntityTypeId('owned_copy'),
-        id: item.id,
-      ),
+      catalogRef: item.catalogRef,
       typedPayload: typedPayload,
       targetRef: targetRef ?? item.catalogRef,
       tracking: OwnedItemTrackingDraft(
@@ -415,11 +411,7 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
       kindValue: kindValue,
     );
     return AddOwnedItemCommand(
-      catalogRef: CatalogEntityRef(
-        kind: kind,
-        entityType: const CatalogEntityTypeId('owned_copy'),
-        id: item.id,
-      ),
+      catalogRef: item.catalogRef,
       typedPayload: typedPayload,
       targetRef: targetRef ?? item.catalogRef,
       tracking: OwnedItemTrackingDraft(

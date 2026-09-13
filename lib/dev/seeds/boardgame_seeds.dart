@@ -479,7 +479,10 @@ List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
           id: BoardGameOwnedItemId(
             i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
           ),
-          catalogRef: seedCatalogRef('seed-boardgame-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.boardgame,
+            'seed-boardgame-${seedOrdinal2(i)}',
+          ),
           createdAt: now.subtract(Duration(days: 600 - (i * 25))),
           updatedAt: now,
           isDigital: false,
@@ -515,9 +518,14 @@ List<TrackingLifecycle> boardgameSeedTrackingLifecycles(DateTime now) => [
           id: i == 1
               ? 'seed-track-06'
               : 'seed-track-boardgame-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-boardgame-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.boardgame,
+            'seed-boardgame-${seedOrdinal2(i)}',
+          ),
           ownedRef: seedOwnedRefFromId(
-              i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}'),
+            CatalogMediaKind.boardgame,
+            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: i == 1
               ? MediaTrackingStatus.paused

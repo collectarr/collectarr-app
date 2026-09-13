@@ -52,15 +52,12 @@ final class OwnedItemMutations {
   }) async {
     final payload = await ownedItems.createPayloadByRef(sourceRef);
     if (payload == null) return null;
+    final catalogRef = targetRef ?? payload.catalogRef;
     return addOwnedItem(
       AddOwnedItemCommand(
-        catalogRef: CatalogEntityRef(
-          kind: sourceRef.kind,
-          entityType: const CatalogEntityTypeId('owned_copy'),
-          id: sourceRef.id.value,
-        ),
+        catalogRef: catalogRef,
         typedPayload: payload,
-        targetRef: targetRef ?? payload.catalogRef,
+        targetRef: targetRef,
         tracking: tracking,
       ),
     );
@@ -72,7 +69,7 @@ final class OwnedItemMutations {
     final now = DateTime.now().toUtc();
     final catalogRef = command.catalogRef;
     final wishlistTargetRef = command.targetRef ?? catalogRef;
-    final catalogLookupRef = _catalogWorkRef(command.targetRef ?? catalogRef);
+    final catalogLookupRef = command.targetRef ?? catalogRef;
 
     final existingWishlist =
         await wishlist.findActiveByCatalogRef(wishlistTargetRef);
@@ -215,20 +212,6 @@ final class OwnedItemMutations {
       );
     }
     return catalogRef;
-  }
-
-  CatalogEntityRef _catalogWorkRef(CatalogEntityRef ref) {
-    if (ref.entityType == const CatalogEntityTypeId('owned_copy') ||
-        ref.entityType == const CatalogEntityTypeId('copy') ||
-        ref.entityType == const CatalogEntityTypeId('tracking_entry')) {
-      return ref.copyWith(
-        entityType: const CatalogEntityTypeId('work'),
-        id: ref.rootId ?? ref.id,
-        rootId: null,
-        parentId: null,
-      );
-    }
-    return ref;
   }
 
   SyncChange _syncChangeForCatalogRef(

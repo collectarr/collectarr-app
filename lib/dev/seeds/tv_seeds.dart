@@ -1014,7 +1014,7 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.tv, 15))
         TvOwnedItem(
           id: TvOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(itemId),
+          catalogRef: seedCatalogRef(CatalogMediaKind.tv, itemId),
           createdAt: now.subtract(const Duration(days: 280)),
           updatedAt: now,
           isDigital: false,
@@ -1041,7 +1041,10 @@ List<TrackingLifecycle> tvSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvTrackingLifecycle(
           id: 'seed-track-tv-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.tv,
+            'seed-tv-${seedOrdinal2(i)}',
+          ),
           coordinates: TvTrackingCoordinates(
             seasonNumber: 1,
             episodeNumber: i.isEven ? 2 : 1,
@@ -1049,7 +1052,10 @@ List<TrackingLifecycle> tvSeedTrackingLifecycles(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef: seedOwnedRefFromId('seed-owned-seed-tv-${seedOrdinal2(i)}'),
+          ownedRef: seedOwnedRefFromId(
+            CatalogMediaKind.tv,
+            'seed-owned-seed-tv-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10
               ? MediaTrackingStatus.completed
@@ -1070,7 +1076,10 @@ List<WatchSession> tvSeedWatchSessions(DateTime now) => [
         TvWatchSession(
           id: 'seed-watch-tv-${seedOrdinal2(i)}',
           seriesId: TvSeriesId('seed-tv-${seedOrdinal2(i)}'),
-          targetRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
+          targetRef: seedCatalogRef(
+            CatalogMediaKind.tv,
+            'seed-tv-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: i.isEven ? 2 : 1,
           sourceType: TrackingSourceType.physical,
@@ -1086,7 +1095,10 @@ List<CustomEpisode> tvSeedCustomEpisodes(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         CustomEpisode(
           id: 'seed-custom-tv-${seedOrdinal2(i)}',
-          seriesRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
+          seriesRef: seedCatalogRef(
+            CatalogMediaKind.tv,
+            'seed-tv-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: 3,
           title: 'Seed bonus episode ${seedOrdinal2(i)}',

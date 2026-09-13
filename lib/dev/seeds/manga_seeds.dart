@@ -692,7 +692,7 @@ List<MangaOwnedItem> mangaSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.manga, 15))
         MangaOwnedItem(
           id: MangaOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(itemId),
+          catalogRef: seedCatalogRef(CatalogMediaKind.manga, itemId),
           createdAt: now.subtract(const Duration(days: 210)),
           updatedAt: now,
           isDigital: false,
@@ -731,9 +731,14 @@ List<TrackingLifecycle> mangaSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MangaTrackingLifecycle(
           id: 'seed-track-manga-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-manga-${seedOrdinal2(i)}'),
-          ownedRef:
-              seedOwnedRefFromId('seed-owned-seed-manga-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.manga,
+            'seed-manga-${seedOrdinal2(i)}',
+          ),
+          ownedRef: seedOwnedRefFromId(
+            CatalogMediaKind.manga,
+            'seed-owned-seed-manga-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: i <= 11
               ? MediaTrackingStatus.completed

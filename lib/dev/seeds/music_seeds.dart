@@ -1376,7 +1376,7 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.music, 15))
         MusicOwnedItem(
           id: MusicOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(itemId),
+          catalogRef: seedCatalogRef(CatalogMediaKind.music, itemId),
           createdAt: now.subtract(const Duration(days: 220)),
           updatedAt: now,
           isDigital: false,
@@ -1406,9 +1406,14 @@ List<TrackingLifecycle> musicSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MusicTrackingLifecycle(
           id: 'seed-track-music-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-music-${seedOrdinal2(i)}'),
-          ownedRef:
-              seedOwnedRefFromId('seed-owned-seed-music-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.music,
+            'seed-music-${seedOrdinal2(i)}',
+          ),
+          ownedRef: seedOwnedRefFromId(
+            CatalogMediaKind.music,
+            'seed-owned-seed-music-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: MediaTrackingStatus.completed,
           rating: 10,

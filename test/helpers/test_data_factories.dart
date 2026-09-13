@@ -370,7 +370,7 @@ TestOwnedItem testOwnedItem({
   final resolvedCatalogRef = catalogRef ??
       CatalogEntityRef(
         kind: catalogMediaKindFromApiValue(kind),
-        entityType: const CatalogEntityTypeId('owned_copy'),
+        entityType: const CatalogEntityTypeId('work'),
         id: itemId,
       );
 

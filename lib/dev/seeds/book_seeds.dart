@@ -762,7 +762,7 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.book, 15))
         BookOwnedItem(
           id: BookOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(itemId),
+          catalogRef: seedCatalogRef(CatalogMediaKind.book, itemId),
           createdAt: now.subtract(const Duration(days: 300)),
           updatedAt: now,
           isDigital: false,
@@ -786,9 +786,14 @@ List<TrackingLifecycle> bookSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BookTrackingLifecycle(
           id: 'seed-track-book-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-book-${seedOrdinal2(i)}'),
-          ownedRef:
-              seedOwnedRefFromId('seed-owned-seed-book-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.book,
+            'seed-book-${seedOrdinal2(i)}',
+          ),
+          ownedRef: seedOwnedRefFromId(
+            CatalogMediaKind.book,
+            'seed-owned-seed-book-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10
               ? MediaTrackingStatus.completed

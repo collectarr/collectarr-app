@@ -31,10 +31,17 @@ Iterable<String> seedIds(CatalogMediaKind kind, int count) sync* {
   }
 }
 
-CatalogEntityRef seedCatalogRef(String itemId) {
-  final kind = itemId.startsWith('seed-') ? itemId.split('-')[1] : 'unknown';
+CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
+  final expectedPrefix = 'seed-${kind.apiValue}-';
+  if (!itemId.startsWith(expectedPrefix)) {
+    throw ArgumentError.value(
+      itemId,
+      'itemId',
+      'Seed catalog IDs for ${kind.apiValue} must start with $expectedPrefix',
+    );
+  }
   return CatalogEntityRef(
-    kind: catalogMediaKindFromApiValue(kind),
+    kind: kind,
     entityType: const CatalogEntityTypeId('work'),
     id: itemId,
   );
@@ -44,16 +51,8 @@ OwnedItemRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
   return OwnedItemRef(kind: kind, id: OwnedItemId(itemId));
 }
 
-OwnedItemRef seedOwnedRefFromId(String itemId) {
-  final parts = itemId.split('-');
-  final kindValue = parts.length > 2 && parts[2] == 'seed'
-      ? (parts.length > 3 ? parts[3] : null)
-      : parts[2];
-  final normalizedKind = kindValue == 'bg' ? 'boardgame' : kindValue;
-  return seedOwnedRef(
-    catalogMediaKindFromApiValue(normalizedKind),
-    itemId,
-  );
+OwnedItemRef seedOwnedRefFromId(CatalogMediaKind kind, String itemId) {
+  return seedOwnedRef(kind, itemId);
 }
 
 /// Rebuilds a transport fixture while preserving its common catalog fields.

@@ -794,7 +794,7 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
       for (final itemId in seedIds(CatalogMediaKind.comic, 15))
         ComicOwnedItem(
           id: ComicOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(itemId),
+          catalogRef: seedCatalogRef(CatalogMediaKind.comic, itemId),
           createdAt: now.subtract(const Duration(days: 260)),
           updatedAt: now,
           isDigital: false,
@@ -823,9 +823,14 @@ List<TrackingLifecycle> comicSeedTrackingLifecycles(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         ComicTrackingLifecycle(
           id: 'seed-track-comic-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef('seed-comic-${seedOrdinal2(i)}'),
-          ownedRef:
-              seedOwnedRefFromId('seed-owned-seed-comic-${seedOrdinal2(i)}'),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.comic,
+            'seed-comic-${seedOrdinal2(i)}',
+          ),
+          ownedRef: seedOwnedRefFromId(
+            CatalogMediaKind.comic,
+            'seed-owned-seed-comic-${seedOrdinal2(i)}',
+          ),
           sourceType: TrackingSourceType.physical,
           status: i <= 12
               ? MediaTrackingStatus.completed

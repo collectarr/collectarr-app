@@ -61,7 +61,7 @@ void main() {
     );
   });
 
-  test('derives a stable structural root scope', () {
+  test('derives a stable structural root scope only from root context', () {
     const child = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
       entityType: const CatalogEntityTypeId('episode'),
@@ -78,18 +78,11 @@ void main() {
       ),
     );
 
-    const synthetic = CatalogEntityRef(
+    const targetWithoutRoot = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
       entityType: const CatalogEntityTypeId('owned_copy'),
       id: 'copy-1',
     );
-    expect(
-      synthetic.rootScope,
-      const CatalogEntityRef(
-        kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('work'),
-        id: 'copy-1',
-      ),
-    );
+    expect(targetWithoutRoot.rootScope, targetWithoutRoot);
   });
 }
