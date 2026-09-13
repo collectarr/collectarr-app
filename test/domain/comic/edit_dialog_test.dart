@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -14,6 +15,7 @@ import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -87,7 +89,7 @@ void main() {
       ['Opening', 'Finale'],
       mediaKind: 'comic',
     );
-    final type = comicKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-1',
@@ -334,7 +336,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = comicKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-restore-order',
@@ -420,7 +422,7 @@ void main() {
     const imageBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS1cAAAAASUVORK5CYII=';
 
-    final type = comicKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-2',

@@ -125,7 +125,7 @@ void main() {
   });
 
   test('boardGameKindModule registers dedicated BoardGame capabilities', () {
-    expect(boardGameKindModule.kind, CatalogMediaKind.boardgame);
+    expect(boardGameKindModule.identity.kind, CatalogMediaKind.boardgame);
     expect(boardGameKindModule.add.kind, CatalogMediaKind.boardgame);
     expect(
         boardGameKindModule.add.createInitialDraft(), isA<BoardgameAddDraft>());

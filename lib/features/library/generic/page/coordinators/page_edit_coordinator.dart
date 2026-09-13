@@ -62,7 +62,7 @@ class LibraryPageEditCoordinator {
     if (catalogSource == null) {
       return;
     }
-    final catalogItem = catalogSource;
+    final catalogItem = CatalogSearchCandidate.fromSnapshot(catalogSource);
     _s._isEditDialogInFlight = true;
     final catalog = _s.ref.read(mediaCatalogProvider).maybeWhen(
           data: (value) => value,

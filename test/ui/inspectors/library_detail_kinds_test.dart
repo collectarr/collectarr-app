@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -10,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -27,7 +29,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = comicKindModule;
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogTransport: testCatalogItem(
@@ -79,7 +81,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = musicKindModule;
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
       final source = LibraryWorkspaceSource(
         itemId: 'music-1',
         catalogTransport: testCatalogItem(
@@ -130,7 +132,7 @@ void main() {
     testWidgets('renders game-specific fields', (tester) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = gameKindModule;
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.game);
       final source = LibraryWorkspaceSource(
         itemId: 'game-1',
         catalogTransport: testCatalogItem(
@@ -184,7 +186,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = bookKindModule;
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
       final source = LibraryWorkspaceSource(
         itemId: 'book-1',
         catalogTransport: testCatalogItem(
@@ -239,7 +241,7 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = comicKindModule;
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
       final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogTransport: testCatalogItem(

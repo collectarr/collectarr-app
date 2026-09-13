@@ -28,7 +28,7 @@ void main() {
           ],
         },
       ],
-    }));
+    })).toImportSnapshot();
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -54,7 +54,7 @@ void main() {
       'kind': 'movie',
       'title': 'Dune',
       'physical_format_label': '4K UHD',
-    }));
+    })).toImportSnapshot();
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -80,7 +80,7 @@ void main() {
       'kind': 'tv',
       'title': 'Severance',
       'physical_format_label': 'Blu-ray',
-    }));
+    })).toImportSnapshot();
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(
       catalogItem,
@@ -106,7 +106,7 @@ void main() {
       'id': 'movie-3',
       'kind': 'movie',
       'title': 'Arrival',
-    }));
+    })).toImportSnapshot();
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
 
@@ -121,7 +121,7 @@ void main() {
       'title': 'Heat',
       'physical_format_label': 'Blu-ray',
       'release_date': DateTime.utc(1995, 12, 15).toIso8601String(),
-    }));
+    })).toImportSnapshot();
 
     final editions = resolveVideoCatalogEditionsForCatalogItem(catalogItem);
 

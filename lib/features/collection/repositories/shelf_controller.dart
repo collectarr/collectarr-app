@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
@@ -56,7 +56,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   // equal IDs across kinds cannot collide.
   final catalogSnapshotsByRef = (await CatalogSnapshotRepository(db)
           .findByRefs(catalogRefs))
-      .map((ref, item) => MapEntry(ref, CatalogSearchCandidate.fromItem(item)));
+      .map((ref, item) => MapEntry(ref, CatalogImportSnapshot.fromItem(item)));
   final locations = await LocationRepository(db).getAll();
   final watchSessions = await WatchSessionsRepository(
     db,
@@ -105,18 +105,19 @@ class ShelfState {
         const <OwnedItemRef, LibraryOwnedItemDispatch>{},
     List<WatchSession> watchSessions = const [],
     Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
-    Map<CatalogEntityRef, CatalogSearchCandidate>? catalogSnapshotsByRef,
+    Map<CatalogEntityRef, CatalogImportSnapshot>? catalogSnapshotsByRef,
     List<StorageLocation> locations = const [],
     Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
         const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
-    final catalogByRef = <CatalogEntityRef, CatalogSearchCandidate>{
+    final catalogByRef = <CatalogEntityRef, CatalogImportSnapshot>{
       ...?catalogSnapshotsByRef,
     };
     final resolvedCatalogSummariesByRef =
         Map<CatalogEntityRef, CatalogDisplaySummary>.unmodifiable(
-      catalogSummariesByRef ?? const <CatalogEntityRef, CatalogDisplaySummary>{},
+      catalogSummariesByRef ??
+          const <CatalogEntityRef, CatalogDisplaySummary>{},
     );
     final resolvedOwnedSummaries =
         ownedSummaries?.toList(growable: false) ?? const <OwnedItemSummary>[];
@@ -290,7 +291,7 @@ CatalogEntityRef _rootCatalogRef(CatalogEntityRef ref) {
   return ref;
 }
 
-List<String> _catalogSearchTokens(CatalogSearchCandidate? item) {
+List<String> _catalogSearchTokens(CatalogImportSnapshot? item) {
   if (item == null) {
     return const <String>[];
   }

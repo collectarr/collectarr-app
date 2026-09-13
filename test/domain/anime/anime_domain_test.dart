@@ -83,7 +83,8 @@ void main() {
 
     test('AnimeMetadata serialization and deserialization roundtrip', () {
       final metadata = AnimeMetadata(
-        nativeTitle: 'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”',
+        nativeTitle:
+            'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”',
         romajiTitle: 'KaubÃ…Âi Bibappu',
         englishTitle: 'Cowboy Bebop',
         alternateTitles: const ['COWBOY BEBOP'],
@@ -115,7 +116,8 @@ void main() {
       final json = metadata.toJson();
       final fromJson = AnimeMetadata.fromJson(json);
 
-      expect(fromJson.nativeTitle, 'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”');
+      expect(fromJson.nativeTitle,
+          'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”');
       expect(fromJson.romajiTitle, 'KaubÃ…Âi Bibappu');
       expect(fromJson.englishTitle, 'Cowboy Bebop');
       expect(fromJson.format, AnimeFormat.tv);
@@ -155,7 +157,7 @@ void main() {
     });
 
     test('AnimeKindModule uses Anime-owned capabilities exclusively', () {
-      expect(animeKindModule.kind, CatalogMediaKind.anime);
+      expect(animeKindModule.identity.kind, CatalogMediaKind.anime);
       expect(animeKindModule.add.kind, CatalogMediaKind.anime);
       expect(animeKindModule.add.createInitialDraft(), isA<AnimeAddDraft>());
       expect(const AnimeOwnedDetailsCodec(), isA<AnimeOwnedDetailsCodec>());

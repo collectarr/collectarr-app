@@ -142,7 +142,7 @@ void main() {
     });
 
     test('MangaKindModule uses Manga-owned capabilities exclusively', () {
-      expect(mangaKindModule.kind, CatalogMediaKind.manga);
+      expect(mangaKindModule.identity.kind, CatalogMediaKind.manga);
       expect(mangaKindModule.add.kind, CatalogMediaKind.manga);
       expect(mangaKindModule.add.createInitialDraft(), isA<MangaAddDraft>());
       expect(const MangaOwnedDetailsCodec(), isA<MangaOwnedDetailsCodec>());

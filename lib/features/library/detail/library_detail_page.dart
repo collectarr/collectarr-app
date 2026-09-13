@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
@@ -247,7 +248,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.type.add.buildCommand(
-            catalogItem,
+            CatalogSearchCandidate.fromSnapshot(catalogItem),
             const LibraryAddCommonDraft(),
             widget.type.add.createInitialDraft(),
             targetRef: catalogRefForLibrarySelection(

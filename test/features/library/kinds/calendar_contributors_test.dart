@@ -122,7 +122,10 @@ void main() {
       expect(events, hasLength(1));
       expect(events.single.kind, CalendarEventKind.releaseDate);
       expect(events.single.date, date);
-      expect(events.single.itemId, isNotEmpty);
+      expect(
+        events.single.eventId ?? events.single.catalogRef?.id,
+        isNotEmpty,
+      );
     }
   });
 

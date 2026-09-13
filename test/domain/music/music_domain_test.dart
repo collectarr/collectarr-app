@@ -176,7 +176,7 @@ void main() {
   });
 
   test('musicKindModule registers dedicated Music capabilities', () {
-    expect(musicKindModule.kind, CatalogMediaKind.music);
+    expect(musicKindModule.identity.kind, CatalogMediaKind.music);
     expect(musicKindModule.add.kind, CatalogMediaKind.music);
     expect(musicKindModule.add.createInitialDraft(), isA<MusicAddDraft>());
     expect(const MusicOwnedDetailsCodec(), isA<MusicOwnedDetailsCodec>());

@@ -11,40 +11,44 @@ import 'catalog_import_snapshot.dart';
 /// repository persists the selected result.
 final class CatalogSearchCandidate {
   const CatalogSearchCandidate._({
-    required CatalogItemDto item,
+    required CatalogImportSnapshot snapshot,
     required this.summary,
-  }) : _item = item;
+  }) : _snapshot = snapshot;
 
   factory CatalogSearchCandidate.fromTransport({
     required CatalogItemDto item,
     required CatalogDisplaySummary summary,
   }) {
     return CatalogSearchCandidate._(
-      item: item,
+      snapshot: CatalogImportSnapshot.fromItem(item),
       summary: summary,
     );
   }
 
   factory CatalogSearchCandidate.fromItem(CatalogItemDto item) {
-    return CatalogSearchCandidate._(
-      item: item,
-      summary: CatalogDisplaySummary(
-        ref: item.catalogRef,
-        kind: item.mediaKind,
-        title: item.resolvedDisplayTitle,
-        imageUrl: item.displayCoverUrl,
-      ),
+    return CatalogSearchCandidate.fromSnapshot(
+      CatalogImportSnapshot.fromItem(item),
     );
   }
 
   factory CatalogSearchCandidate.fromSnapshot(
     CatalogImportSnapshot snapshot,
   ) {
-    return snapshot.mapTransport(CatalogSearchCandidate.fromItem);
+    return CatalogSearchCandidate._(
+      snapshot: snapshot,
+      summary: CatalogDisplaySummary(
+        ref: snapshot.catalogRef,
+        kind: snapshot.mediaKind,
+        title: snapshot.resolvedDisplayTitle,
+        imageUrl: snapshot.displayCoverUrl,
+      ),
+    );
   }
 
   factory CatalogSearchCandidate.fromJson(Map<String, dynamic> json) {
-    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson(json));
+    return CatalogSearchCandidate.fromSnapshot(
+      CatalogImportSnapshot.fromJson(json),
+    );
   }
 
   /// Decodes a Core search response at the catalog transport boundary and
@@ -55,22 +59,26 @@ final class CatalogSearchCandidate {
     required Map<String, dynamic> json,
     JsonEncodable Function(JsonMap payload)? metadataDecoder,
   }) {
-    var item = CatalogItemDto.fromJson(json);
+    var snapshot = CatalogImportSnapshot.fromJson(json);
     if (metadataDecoder != null) {
-      item = item.withKindMetadata(metadataDecoder(item.payload));
+      snapshot = snapshot.mapTransport(
+        (item) => CatalogImportSnapshot.fromItem(
+          item.withKindMetadata(metadataDecoder(item.payload)),
+        ),
+      );
     }
     return CatalogSearchCandidate._(
-      item: item,
+      snapshot: snapshot,
       summary: CatalogDisplaySummary.work(
-        kind: item.mediaKind,
-        id: item.id,
-        title: item.title,
-        imageUrl: item.displayCoverUrl,
+        kind: snapshot.mediaKind,
+        id: snapshot.id,
+        title: snapshot.title,
+        imageUrl: snapshot.displayCoverUrl,
       ),
     );
   }
 
-  final CatalogItemDto _item;
+  final CatalogImportSnapshot _snapshot;
   final CatalogDisplaySummary summary;
 
   String get id => summary.id;
@@ -79,29 +87,30 @@ final class CatalogSearchCandidate {
   LibraryItemIdentity get identity =>
       LibraryItemIdentity(id: id, mediaKind: mediaKind);
   String get title => summary.title;
-  String? get displayTitle => _item.displayTitle;
-  String? get localizedTitle => _item.localizedTitle;
-  String? get originalTitle => _item.originalTitle;
-  String? get titleExtension => _item.titleExtension;
+  String? get displayTitle => _snapshot.displayTitle;
+  String? get localizedTitle => _snapshot.localizedTitle;
+  String? get originalTitle => _snapshot.originalTitle;
+  String? get titleExtension => _snapshot.titleExtension;
   String? get subtitle => summary.subtitle;
   String? get imageUrl => summary.imageUrl;
-  List<String>? get searchAliases => _item.searchAliases;
-  String? get sortKey => _item.sortKey;
-  String? get synopsis => _item.synopsis;
-  String? get coverImageUrl => _item.coverImageUrl;
-  String? get thumbnailImageUrl => _item.thumbnailImageUrl;
-  String? get coverImageData => _item.coverImageData;
-  DateTime? get releaseDate => _item.releaseDate;
-  int? get releaseYear => _item.releaseYear;
-  String get resolvedDisplayTitle => _item.resolvedDisplayTitle;
-  String? get displayCoverUrl => _item.displayCoverUrl;
-  CatalogEntityRef get catalogRef => _item.catalogRef;
+  List<String>? get searchAliases => _snapshot.searchAliases;
+  String? get sortKey => _snapshot.sortKey;
+  String? get synopsis => _snapshot.synopsis;
+  String? get coverImageUrl => _snapshot.coverImageUrl;
+  String? get thumbnailImageUrl => _snapshot.thumbnailImageUrl;
+  String? get coverImageData => _snapshot.coverImageData;
+  DateTime? get releaseDate => _snapshot.releaseDate;
+  int? get releaseYear => _snapshot.releaseYear;
+  String get resolvedDisplayTitle => _snapshot.resolvedDisplayTitle;
+  String? get displayCoverUrl => _snapshot.displayCoverUrl;
+  CatalogEntityRef get catalogRef => _snapshot.catalogRef;
   CatalogDisplaySummary get displaySummary => summary;
 
   /// Kind-specific code may decode the provider/Core payload at this
   /// explicit transport boundary. Generic hosts should use [summary] and the
   /// structural getters above only.
-  T mapTransport<T>(T Function(CatalogItemDto item) decoder) => decoder(_item);
+  T mapTransport<T>(T Function(CatalogItemDto item) decoder) =>
+      _snapshot.mapTransport(decoder);
 
   CatalogSearchCandidate copyWith({
     LibraryItemIdentity? identity,
@@ -124,35 +133,39 @@ final class CatalogSearchCandidate {
     Object? physicalFormatLabel = _unset,
   }) {
     return CatalogSearchCandidate.fromItem(
-      _item.copyWith(
-        identity: identity,
-        title: title,
-        displayTitle: displayTitle,
-        localizedTitle: localizedTitle,
-        originalTitle: originalTitle,
-        titleExtension: titleExtension,
-        searchAliases: searchAliases,
-        sortKey: sortKey,
-        synopsis: synopsis,
-        coverImageUrl: coverImageUrl,
-        thumbnailImageUrl: thumbnailImageUrl,
-        coverImageData: coverImageData,
-        releaseDate: releaseDate,
-        releaseYear: releaseYear,
-        editions: editions,
-        trailerUrls: trailerUrls,
-        physicalFormat: physicalFormat,
-        physicalFormatLabel: physicalFormatLabel,
+      _snapshot.mapTransport(
+        (item) => item.copyWith(
+          identity: identity,
+          title: title,
+          displayTitle: displayTitle,
+          localizedTitle: localizedTitle,
+          originalTitle: originalTitle,
+          titleExtension: titleExtension,
+          searchAliases: searchAliases,
+          sortKey: sortKey,
+          synopsis: synopsis,
+          coverImageUrl: coverImageUrl,
+          thumbnailImageUrl: thumbnailImageUrl,
+          coverImageData: coverImageData,
+          releaseDate: releaseDate,
+          releaseYear: releaseYear,
+          editions: editions,
+          trailerUrls: trailerUrls,
+          physicalFormat: physicalFormat,
+          physicalFormatLabel: physicalFormatLabel,
+        ),
       ),
     );
   }
 
   CatalogSearchCandidate withKindMetadata(Object? metadata) {
-    return CatalogSearchCandidate.fromItem(_item.withKindMetadata(metadata));
+    return _snapshot.mapTransport(
+      (item) =>
+          CatalogSearchCandidate.fromItem(item.withKindMetadata(metadata)),
+    );
   }
 
-  CatalogImportSnapshot toImportSnapshot() =>
-      CatalogImportSnapshot.fromItem(_item);
+  CatalogImportSnapshot toImportSnapshot() => _snapshot;
 }
 
 const Object _unset = Object();

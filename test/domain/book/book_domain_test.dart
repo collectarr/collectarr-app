@@ -281,7 +281,7 @@ void main() {
   });
 
   test('bookKindModule registers dedicated Book capabilities', () {
-    expect(bookKindModule.kind, CatalogMediaKind.book);
+    expect(bookKindModule.identity.kind, CatalogMediaKind.book);
     expect(bookKindModule.add.kind, CatalogMediaKind.book);
     expect(bookKindModule.add.createInitialDraft(), isA<BookAddDraft>());
     expect(const BookOwnedDetailsCodec(), isA<BookOwnedDetailsCodec>());

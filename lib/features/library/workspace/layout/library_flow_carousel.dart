@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -834,7 +835,9 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
     final module = libraryKindRegistrationForKind(widget.item.source.mediaKind);
     final List<CatalogEditionDto> editions = catalog == null
         ? const <CatalogEditionDto>[]
-        : module.presentation.builder.buildReleaseEditions(item: catalog);
+        : module.presentation.builder.buildReleaseEditions(
+            item: CatalogSearchCandidate.fromSnapshot(catalog),
+          );
     final hasReleases = editions.length > 1;
 
     final itemNumber = adapter?.itemNumber;

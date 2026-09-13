@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -21,7 +22,7 @@ class LibraryCollectionActions {
     final kindModule = libraryKindRegistrationForKind(catalogItem.mediaKind);
     return coordinator.addOwnedItem(
       kindModule.add.buildCommand(
-        catalogItem,
+        CatalogSearchCandidate.fromSnapshot(catalogItem),
         const LibraryAddCommonDraft(),
         kindModule.add.createInitialDraft(),
         targetRef: item.source.ownedSummary?.catalogRef ??

@@ -11,6 +11,7 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
@@ -148,7 +149,10 @@ CatalogItemDto testCatalogItem({
 }
 
 extension ShelfCatalogFixture on CatalogItemDto {
-  CatalogSearchCandidate get asShelfCatalogItem =>
+  CatalogImportSnapshot get asShelfCatalogItem =>
+      CatalogImportSnapshot.fromItem(this);
+
+  CatalogSearchCandidate get asSearchCandidate =>
       CatalogSearchCandidate.fromItem(this);
 
   CatalogDisplaySummary get asShelfCatalogSummary =>
@@ -602,7 +606,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
-    catalogTransport: CatalogSearchCandidate.fromItem(
+    catalogTransport: CatalogImportSnapshot.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),

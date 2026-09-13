@@ -45,9 +45,34 @@ final class CatalogImportSnapshot {
 
   String get id => _item.id;
   CatalogMediaKind get kind => _item.mediaKind;
+  CatalogMediaKind get mediaKind => _item.mediaKind;
   CatalogEntityRef get catalogRef => _item.catalogRef;
   String get title => _item.title;
+  String? get displayTitle => _item.displayTitle;
+  String? get localizedTitle => _item.localizedTitle;
+  String? get originalTitle => _item.originalTitle;
+  String? get titleExtension => _item.titleExtension;
+  List<String>? get searchAliases => _item.searchAliases;
+  String? get sortKey => _item.sortKey;
+  String? get synopsis => _item.synopsis;
+  String get resolvedDisplayTitle => _item.resolvedDisplayTitle;
+  String? get displayCoverUrl => _item.displayCoverUrl;
+  String? get coverImageUrl => _item.coverImageUrl;
+  String? get thumbnailImageUrl => _item.thumbnailImageUrl;
   String? get coverImageData => _item.coverImageData;
+  DateTime? get releaseDate => _item.releaseDate;
+  int? get releaseYear => _item.releaseYear;
+  List<CatalogEditionDto> get editions => _item.editions;
+  String? get itemNumber => _item.itemNumber;
+  String? get variant => _item.variant;
+  String? get publisher => _item.publisher;
+  String? get barcode => _item.barcode;
+  String? get identifierCode => _item.identifierCode;
+  String? get physicalFormat => _item.physicalFormat;
+  String? get physicalFormatLabel => _item.physicalFormatLabel;
+  String? get editionTitle => _item.editionTitle;
+  Object? get kindMetadata => _item.kindMetadata;
+  Map<String, dynamic> get payload => _item.payload;
 
   /// Decodes the snapshot only at an explicit catalog transport boundary.
   T mapTransport<T>(T Function(CatalogItemDto item) decoder) => decoder(_item);

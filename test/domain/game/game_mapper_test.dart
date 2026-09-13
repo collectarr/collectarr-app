@@ -146,7 +146,7 @@ void main() {
   });
 
   test('gameKindModule registers dedicated Game capabilities', () {
-    expect(gameKindModule.kind, CatalogMediaKind.game);
+    expect(gameKindModule.identity.kind, CatalogMediaKind.game);
     expect(gameKindModule.add.kind, CatalogMediaKind.game);
     expect(gameKindModule.add.createInitialDraft(), isA<GameAddDraft>());
     expect(const GameOwnedDetailsCodec(), isA<GameOwnedDetailsCodec>());

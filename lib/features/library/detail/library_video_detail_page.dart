@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
@@ -73,7 +74,7 @@ class _LibraryVideoDetailPageState
     }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
           widget.request.type.add.buildCommand(
-            catalogItem,
+            CatalogSearchCandidate.fromSnapshot(catalogItem),
             const LibraryAddCommonDraft(),
             widget.request.type.add.createInitialDraft(),
             targetRef: catalogRefForLibrarySelection(

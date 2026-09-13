@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -148,7 +149,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final catalog = item.source.catalogTransport;
     final List<CatalogEditionDto> rawEditions = catalog == null
         ? const []
-        : module.presentation.builder.buildReleaseEditions(item: catalog);
+        : module.presentation.builder.buildReleaseEditions(
+            item: CatalogSearchCandidate.fromSnapshot(catalog),
+          );
     final referenceHierarchy = libraryReferenceHierarchySegments(
       mediaType: item.source.mediaKind.apiValue,
       editions: rawEditions,

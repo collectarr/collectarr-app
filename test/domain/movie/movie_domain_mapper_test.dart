@@ -197,7 +197,7 @@ void main() {
   });
 
   test('MovieKindModule uses Movie-owned capabilities', () {
-    expect(movieKindModule.kind, CatalogMediaKind.movie);
+    expect(movieKindModule.identity.kind, CatalogMediaKind.movie);
     expect(movieKindModule.add.kind, CatalogMediaKind.movie);
     expect(movieKindModule.add.createInitialDraft(), isA<MovieAddDraft>());
     expect(const MovieOwnedDetailsCodec(), isA<MovieOwnedDetailsCodec>());

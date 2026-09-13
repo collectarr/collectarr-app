@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -13,6 +14,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -31,7 +33,7 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
     await BookOwnedRepository(db).upsertAll([
       testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
@@ -107,7 +109,7 @@ void main() {
   testWidgets('detail page edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
     await BookOwnedRepository(db).upsertAll([
       testBookOwnedItemFrom(testOwnedItem(
         id: 'owned-1',
@@ -219,7 +221,7 @@ void main() {
       (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
     final trackingRepository = trackingLifecycleTestRepository(db);
     await trackingRepository.upsert(
       trackingRepository.create(

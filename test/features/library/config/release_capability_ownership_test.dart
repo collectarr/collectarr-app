@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/release/video_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
@@ -63,7 +65,7 @@ void main() {
       expect(
         () => libraryItemsForShelf(
           shelf,
-          comicKindModule,
+          libraryKindRegistrationForKind(CatalogMediaKind.comic),
           browserMode: LibraryWorkspaceBrowserMode.releases,
         ),
         throwsA(isA<UnsupportedError>()),
@@ -101,7 +103,7 @@ void main() {
 
       final items = libraryItemsForShelf(
         shelf,
-        movieKindModule,
+        libraryKindRegistrationForKind(CatalogMediaKind.movie),
         browserMode: LibraryWorkspaceBrowserMode.releases,
       );
 

@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
@@ -110,7 +111,9 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
           trailerUrls: item.source.catalogTransport == null
               ? const []
               : type.presentation.builder.buildLinks(
-                  item: item.source.catalogTransport!,
+                  item: CatalogSearchCandidate.fromSnapshot(
+                    item.source.catalogTransport!,
+                  ),
                 ),
           accent: accent,
         ),

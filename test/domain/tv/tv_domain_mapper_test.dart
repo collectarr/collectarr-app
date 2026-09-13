@@ -289,7 +289,7 @@ void main() {
   });
 
   test('TvKindModule uses TV-owned capabilities', () {
-    expect(tvKindModule.kind, CatalogMediaKind.tv);
+    expect(tvKindModule.identity.kind, CatalogMediaKind.tv);
     expect(tvKindModule.add.kind, CatalogMediaKind.tv);
     expect(tvKindModule.add.createInitialDraft(), isA<TvAddDraft>());
     expect(const TvOwnedDetailsCodec(), isA<TvOwnedDetailsCodec>());

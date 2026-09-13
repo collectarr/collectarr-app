@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ List<Widget> buildLibraryDetailEditorSections({
         editions: catalogItem == null
             ? const []
             : type.presentation.builder.buildReleaseEditions(
-                item: catalogItem,
+                item: CatalogSearchCandidate.fromSnapshot(catalogItem),
               ),
         accent: accent,
       ),

@@ -28,6 +28,7 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
@@ -187,7 +188,10 @@ CatalogItemDto testCatalogItem({
 }
 
 extension ShelfCatalogFixture on CatalogItemDto {
-  CatalogSearchCandidate get asShelfCatalogItem =>
+  CatalogImportSnapshot get asShelfCatalogItem =>
+      CatalogImportSnapshot.fromItem(this);
+
+  CatalogSearchCandidate get asSearchCandidate =>
       CatalogSearchCandidate.fromItem(this);
 
   CatalogDisplaySummary get asShelfCatalogSummary =>
@@ -649,7 +653,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
     catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ).displaySummary,
-    catalogTransport: CatalogSearchCandidate.fromItem(
+    catalogTransport: CatalogImportSnapshot.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),
     ),
     ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
@@ -9,11 +10,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
 
-CatalogSearchCandidate _metadata(
+CatalogImportSnapshot _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
-  return CatalogSearchCandidate.fromItem(
+  return CatalogImportSnapshot.fromItem(
     testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: '$kind-1',
@@ -25,8 +26,8 @@ CatalogSearchCandidate _metadata(
   );
 }
 
-CatalogSearchCandidate _mutateGroup(
-  CatalogSearchCandidate item,
+CatalogImportSnapshot _mutateGroup(
+  CatalogImportSnapshot item,
   CatalogMediaKind kind,
   String mode,
   String currentLabel, {
@@ -44,8 +45,7 @@ CatalogSearchCandidate _mutateGroup(
     replacement: replacement,
   );
   expect(updated, isNotNull);
-  return CatalogSearchCandidate.fromItem(
-      updated!.mapTransport((transport) => transport));
+  return updated!;
 }
 
 void main() {

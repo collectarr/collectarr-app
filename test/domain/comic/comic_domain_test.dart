@@ -208,7 +208,7 @@ void main() {
   });
 
   test('comicKindModule registers dedicated Comic capabilities', () {
-    expect(comicKindModule.kind, CatalogMediaKind.comic);
+    expect(comicKindModule.identity.kind, CatalogMediaKind.comic);
     expect(comicKindModule.add.kind, CatalogMediaKind.comic);
     expect(comicKindModule.add.createInitialDraft(), isA<ComicAddDraft>());
     expect(const ComicOwnedDetailsCodec(), isA<ComicOwnedDetailsCodec>());

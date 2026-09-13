@@ -478,7 +478,10 @@ class MusicLibraryMediaPresentationBuilder
 }
 
 MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
-  return _musicMetadataItem(item.source.catalogTransport);
+  final catalog = item.source.catalogTransport;
+  return catalog == null
+      ? null
+      : _musicMetadataItem(CatalogSearchCandidate.fromSnapshot(catalog));
 }
 
 MusicCatalogMetadata? _musicMetadataItem(CatalogSearchCandidate? item) {

@@ -1,14 +1,16 @@
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final comicRuntime = comicKindModule;
-  final mangaRuntime = mangaKindModule;
+  final comicRuntime = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+  final mangaRuntime = libraryKindRegistrationForKind(CatalogMediaKind.manga);
 
   setUp(() {
     LibraryWorkspacePreferences.resetCachedChromeForTesting();

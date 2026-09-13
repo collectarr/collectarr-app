@@ -24,7 +24,7 @@ void main() {
           'track_count': 3,
           'catalog_number': 'KDCD 1022',
         },
-      }).asShelfCatalogItem,
+      }).asSearchCandidate,
     );
 
     expect(display, isNotNull);
@@ -83,7 +83,7 @@ void main() {
             },
           ],
         },
-      }).asShelfCatalogItem,
+      }).asSearchCandidate,
       candidate: null,
       preview: null,
       isFetchingPreview: false,
@@ -160,7 +160,7 @@ void main() {
             },
           ],
         },
-      }).asShelfCatalogItem,
+      }).asSearchCandidate,
       candidate: null,
       preview: null,
       isFetchingPreview: false,
