@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
-import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_session_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -13,8 +14,9 @@ void main() {
     );
     final watchedAt = DateTime.utc(2026, 7, 5, 12, 30);
     final updatedAt = DateTime.utc(2026, 7, 5, 13, 0);
-    final session = WatchSession(
+    final session = TvWatchSession(
       id: 'session-1',
+      seriesId: TvSeriesId('series-1'),
       targetRef: ref,
       trackingEntryId: 'track-1',
       seasonNumber: 1,
@@ -44,10 +46,11 @@ void main() {
       payload: kindPayload,
       id: 'session-1',
       updatedAt: updatedAt,
-    );
+    ) as TvWatchSession;
 
     expect(roundTrip.targetRef.id, 'release-1');
-    expect(roundTrip.targetRef.entityType, const CatalogEntityTypeId('release'));
+    expect(
+        roundTrip.targetRef.entityType, const CatalogEntityTypeId('release'));
     expect(roundTrip.seasonNumber, 1);
     expect(roundTrip.episodeNumber, 3);
     expect(roundTrip.sourceType, TrackingSourceType.digital);

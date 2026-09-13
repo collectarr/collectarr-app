@@ -6,6 +6,8 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:drift/drift.dart';
 
 final class TvWatchSessionCodec implements WatchSessionCodec {
@@ -13,6 +15,37 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.tv;
+
+  @override
+  WatchSession create(WatchSessionCreateRequest request) {
+    if (request.targetRef.mediaKind != kind) {
+      throw ArgumentError.value(
+        request.targetRef.mediaKind,
+        'request.targetRef.kind',
+        'Expected TV watch session',
+      );
+    }
+    final coordinates = _coordinatesForTarget(request.targetRef);
+    return TvWatchSession(
+      id: request.id,
+      seriesId: TvSeriesId(
+        request.targetRef.rootId ?? request.targetRef.id,
+      ),
+      episodeId: request.targetRef.entityType.apiValue == 'episode'
+          ? TvEpisodeId(request.targetRef.id)
+          : null,
+      targetRef: request.targetRef,
+      trackingEntryId: request.trackingEntryId,
+      seasonNumber: coordinates.seasonNumber,
+      episodeNumber: coordinates.episodeNumber,
+      sourceType: request.sourceType,
+      seenWhere: request.seenWhere,
+      watchedAt: request.watchedAt ?? request.updatedAt,
+      rating: request.rating,
+      notes: request.notes,
+      updatedAt: request.updatedAt,
+    );
+  }
 
   @override
   bool matchesCatalogScope(WatchSession session, CatalogEntityRef scope) {
@@ -60,7 +93,7 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
 
   @override
   Future<void> upsert(LocalDatabase db, WatchSession session) async {
-    if (session.targetRef.mediaKind != kind) {
+    if (session is! TvWatchSession || session.targetRef.mediaKind != kind) {
       throw ArgumentError.value(
         session.targetRef.mediaKind,
         'session.targetRef.kind',
@@ -89,10 +122,11 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
   @override
   Map<String, dynamic> toSyncPayload(WatchSession session) {
     _validateKind(session);
-    return session.toSyncPayload()
+    final typed = session as TvWatchSession;
+    return typed.toSyncPayload()
       ..addAll({
-        'season_number': session.seasonNumber,
-        'episode_number': session.episodeNumber,
+        'season_number': typed.seasonNumber,
+        'episode_number': typed.episodeNumber,
       });
   }
 
@@ -111,8 +145,12 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
         'Expected TV watch session',
       );
     }
-    return WatchSession(
+    return TvWatchSession(
       id: id,
+      seriesId: TvSeriesId(targetRef.rootId ?? targetRef.id),
+      episodeId: targetRef.entityType.apiValue == 'episode'
+          ? TvEpisodeId(targetRef.id)
+          : null,
       targetRef: targetRef,
       trackingEntryId: payload['tracking_entry_id'] as String?,
       seasonNumber: _int(payload['season_number']),
@@ -127,13 +165,18 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
     );
   }
 
-  WatchSession _fromRow(TvWatchSessionRow row) {
-    return WatchSession(
+  TvWatchSession _fromRow(TvWatchSessionRow row) {
+    final targetRef = _targetRef(
+      row.targetRefJson,
+      itemId: row.seriesId,
+    );
+    return TvWatchSession(
       id: row.id,
-      targetRef: _targetRef(
-        row.targetRefJson,
-        itemId: row.seriesId,
-      ),
+      seriesId: TvSeriesId(row.seriesId),
+      episodeId: targetRef.entityType.apiValue == 'episode'
+          ? TvEpisodeId(targetRef.id)
+          : null,
+      targetRef: targetRef,
       trackingEntryId: row.trackingEntryId,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
@@ -159,7 +202,7 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
   }
 
   void _validateKind(WatchSession session) {
-    if (session.targetRef.mediaKind != kind) {
+    if (session is! TvWatchSession || session.targetRef.mediaKind != kind) {
       throw ArgumentError.value(
         session.targetRef.mediaKind,
         'session.targetRef.kind',
@@ -175,6 +218,30 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
+
+  _TvWatchCoordinates _coordinatesForTarget(CatalogEntityRef target) {
+    final season = _numberAfter(target.id, ':season:');
+    final episode = _numberAfter(target.id, ':episode:');
+    return _TvWatchCoordinates(
+      seasonNumber: season,
+      episodeNumber: episode,
+    );
+  }
+
+  int? _numberAfter(String value, String marker) {
+    final markerIndex = value.indexOf(marker);
+    if (markerIndex < 0) return null;
+    final start = markerIndex + marker.length;
+    final end = value.indexOf(':', start);
+    return int.tryParse(value.substring(start, end < 0 ? value.length : end));
+  }
+}
+
+final class _TvWatchCoordinates {
+  const _TvWatchCoordinates({this.seasonNumber, this.episodeNumber});
+
+  final int? seasonNumber;
+  final int? episodeNumber;
 }
 
 int? _int(Object? value) {

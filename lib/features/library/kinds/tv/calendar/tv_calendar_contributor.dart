@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_calendar_contribu
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 
 /// TV owns the meaning of episode coordinates in watch-session calendar text.
 final class TvCalendarContributor implements LibraryCalendarContributor {
@@ -38,8 +39,8 @@ final class TvCalendarContributor implements LibraryCalendarContributor {
       }
     }
 
-    for (final session in context.watchSessions) {
-      if (session.isDeleted || session.targetRef.mediaKind != kind) continue;
+    for (final session in context.watchSessions.whereType<TvWatchSession>()) {
+      if (session.isDeleted) continue;
 
       final episodeLabel =
           session.seasonNumber != null && session.episodeNumber != null

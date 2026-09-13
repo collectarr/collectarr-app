@@ -180,7 +180,6 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
             ),
             label: season.title ?? 'Season ${season.seasonNumber ?? 0}',
             subtitle: 'Season ${season.seasonNumber ?? 0}',
-            seasonNumber: season.seasonNumber ?? 0,
           ),
           for (final episode in season.episodes)
             WatchHistoryTargetOption(
@@ -192,8 +191,6 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
               label: episode.title ?? 'Episode ${episode.episodeNumber ?? 0}',
               subtitle:
                   'Season ${season.seasonNumber} • Episode ${episode.episodeNumber}',
-              seasonNumber: season.seasonNumber,
-              episodeNumber: episode.episodeNumber?.toInt() ?? 0,
             ),
         ],
       ],

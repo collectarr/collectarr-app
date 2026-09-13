@@ -2,6 +2,8 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,8 +57,9 @@ TrackingUnitSummary _trackedEpisode(
 }
 
 WatchSession _watchSession(int seasonNumber, int episodeNumber, DateTime at) {
-  return WatchSession(
+  return TvWatchSession(
     id: '$seasonNumber-$episodeNumber',
+    seriesId: TvSeriesId('series-1'),
     targetRef: _ref(),
     watchedAt: at,
     updatedAt: at,

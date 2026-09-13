@@ -12,6 +12,9 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -119,8 +122,9 @@ void main() {
     final now = DateTime.utc(2026, 9, 5);
 
     await repository.upsertAll([
-      WatchSession(
+      TvWatchSession(
         id: 'tv-session-1',
+        seriesId: TvSeriesId('tv-1'),
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
           entityType: const CatalogEntityTypeId('work'),
@@ -131,7 +135,7 @@ void main() {
         watchedAt: now,
         updatedAt: now,
       ),
-      WatchSession(
+      AnimeWatchSession(
         id: 'anime-session-1',
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.anime,

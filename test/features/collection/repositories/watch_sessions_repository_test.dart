@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_session_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,8 +17,9 @@ void main() {
       db,
       codecs: collectarrWatchSessionCodecs,
     );
-    final session = WatchSession(
+    final session = TvWatchSession(
       id: 'tv-session-1',
+      seriesId: TvSeriesId('tv-1'),
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
         entityType: const CatalogEntityTypeId('episode'),
@@ -42,7 +45,7 @@ void main() {
       payload: repository.toSyncPayload(session),
       id: session.id,
       updatedAt: session.updatedAt,
-    );
+    ) as TvWatchSession;
     expect(decoded.targetRef.toJson(), session.targetRef.toJson());
     expect(decoded.seasonNumber, 1);
     expect(decoded.episodeNumber, 2);

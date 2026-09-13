@@ -3,12 +3,40 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 
+final class WatchSessionCreateRequest {
+  const WatchSessionCreateRequest({
+    required this.id,
+    required this.targetRef,
+    required this.updatedAt,
+    this.trackingEntryId,
+    this.sourceType,
+    this.watchedAt,
+    this.seenWhere,
+    this.rating,
+    this.notes,
+  });
+
+  final String id;
+  final CatalogEntityRef targetRef;
+  final String? trackingEntryId;
+  final Object? sourceType;
+  final DateTime? watchedAt;
+  final String? seenWhere;
+  final int? rating;
+  final String? notes;
+  final DateTime updatedAt;
+}
+
 /// Kind-owned persistence contract for watch-session projections.
 ///
 /// The shared host knows only lifecycle fields needed to aggregate and order
 /// sessions. Episode coordinates and table mappings remain in the owner.
 abstract interface class WatchSessionCodec {
   CatalogMediaKind get kind;
+
+  /// Creates the kind-owned session for a structural target reference.
+  /// Hierarchy coordinates, when applicable, are decoded by the owning kind.
+  WatchSession create(WatchSessionCreateRequest request);
 
   /// Returns whether a session belongs to the supplied kind-owned catalog
   /// scope. Hierarchy matching is semantic and therefore stays in the kind

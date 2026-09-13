@@ -3,6 +3,9 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -47,16 +50,36 @@ WatchSession _session(
   required int season,
   required int episode,
 }) {
+  final targetRef = CatalogEntityRef(
+    kind: kind,
+    entityType: const CatalogEntityTypeId('episode'),
+    id: '$id-item',
+  );
+  if (kind == CatalogMediaKind.tv) {
+    return TvWatchSession(
+      id: id,
+      seriesId: TvSeriesId('$id-item'),
+      targetRef: targetRef,
+      watchedAt: DateTime.utc(2026, 9, 5),
+      updatedAt: DateTime.utc(2026, 9, 5),
+      seasonNumber: season,
+      episodeNumber: episode,
+    );
+  }
+  if (kind == CatalogMediaKind.anime) {
+    return AnimeWatchSession(
+      id: id,
+      targetRef: targetRef,
+      watchedAt: DateTime.utc(2026, 9, 5),
+      updatedAt: DateTime.utc(2026, 9, 5),
+      seasonNumber: season,
+      episodeNumber: episode,
+    );
+  }
   return WatchSession(
     id: id,
-    targetRef: CatalogEntityRef(
-      kind: kind,
-      entityType: const CatalogEntityTypeId('episode'),
-      id: '$id-item',
-    ),
+    targetRef: targetRef,
     watchedAt: DateTime.utc(2026, 9, 5),
     updatedAt: DateTime.utc(2026, 9, 5),
-    seasonNumber: season,
-    episodeNumber: episode,
   );
 }

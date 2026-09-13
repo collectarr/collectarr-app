@@ -70,15 +70,11 @@ class WatchHistoryTargetOption {
     required this.ref,
     required this.label,
     this.subtitle,
-    this.seasonNumber,
-    this.episodeNumber,
   });
 
   final CatalogEntityRef ref;
   final String label;
   final String? subtitle;
-  final int? seasonNumber;
-  final int? episodeNumber;
 }
 
 const _sessionHistoryLabelsByKind = <CatalogMediaKind, SessionHistoryLabels>{
@@ -260,8 +256,6 @@ class WatchHistorySection extends ConsumerWidget {
           seenWhere: result.seenWhere,
           rating: result.rating,
           notes: result.notes,
-          seasonNumber: result.target.seasonNumber,
-          episodeNumber: result.target.episodeNumber,
         );
   }
 
@@ -280,8 +274,6 @@ class WatchHistorySection extends ConsumerWidget {
       return WatchHistoryTargetOption(
         ref: existing.targetRef,
         label: _targetLabelFor(existing.targetRef, options),
-        seasonNumber: existing.seasonNumber,
-        episodeNumber: existing.episodeNumber,
       );
     }
     return options.first;

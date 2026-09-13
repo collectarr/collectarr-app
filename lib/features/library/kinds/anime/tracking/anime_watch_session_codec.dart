@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 import 'package:drift/drift.dart';
 
 final class AnimeWatchSessionCodec implements WatchSessionCodec {
@@ -13,6 +14,31 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.anime;
+
+  @override
+  WatchSession create(WatchSessionCreateRequest request) {
+    if (request.targetRef.mediaKind != kind) {
+      throw ArgumentError.value(
+        request.targetRef.mediaKind,
+        'request.targetRef.kind',
+        'Expected Anime watch session',
+      );
+    }
+    final coordinates = _coordinatesForTarget(request.targetRef);
+    return AnimeWatchSession(
+      id: request.id,
+      targetRef: request.targetRef,
+      trackingEntryId: request.trackingEntryId,
+      seasonNumber: coordinates.seasonNumber,
+      episodeNumber: coordinates.episodeNumber,
+      sourceType: request.sourceType,
+      seenWhere: request.seenWhere,
+      watchedAt: request.watchedAt ?? request.updatedAt,
+      rating: request.rating,
+      notes: request.notes,
+      updatedAt: request.updatedAt,
+    );
+  }
 
   @override
   bool matchesCatalogScope(WatchSession session, CatalogEntityRef scope) {
@@ -60,7 +86,7 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
 
   @override
   Future<void> upsert(LocalDatabase db, WatchSession session) async {
-    if (session.targetRef.mediaKind != kind) {
+    if (session is! AnimeWatchSession || session.targetRef.mediaKind != kind) {
       throw ArgumentError.value(
         session.targetRef.mediaKind,
         'session.targetRef.kind',
@@ -89,10 +115,11 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   @override
   Map<String, dynamic> toSyncPayload(WatchSession session) {
     _validateKind(session);
-    return session.toSyncPayload()
+    final typed = session as AnimeWatchSession;
+    return typed.toSyncPayload()
       ..addAll({
-        'season_number': session.seasonNumber,
-        'episode_number': session.episodeNumber,
+        'season_number': typed.seasonNumber,
+        'episode_number': typed.episodeNumber,
       });
   }
 
@@ -111,7 +138,7 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
         'Expected Anime watch session',
       );
     }
-    return WatchSession(
+    return AnimeWatchSession(
       id: id,
       targetRef: targetRef,
       trackingEntryId: payload['tracking_entry_id'] as String?,
@@ -127,13 +154,14 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
     );
   }
 
-  WatchSession _fromRow(AnimeWatchSessionRow row) {
-    return WatchSession(
+  AnimeWatchSession _fromRow(AnimeWatchSessionRow row) {
+    final targetRef = _targetRef(
+      row.targetRefJson,
+      itemId: row.seriesId,
+    );
+    return AnimeWatchSession(
       id: row.id,
-      targetRef: _targetRef(
-        row.targetRefJson,
-        itemId: row.seriesId,
-      ),
+      targetRef: targetRef,
       trackingEntryId: row.trackingEntryId,
       seasonNumber: row.seasonNumber,
       episodeNumber: row.episodeNumber,
@@ -161,7 +189,7 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   }
 
   void _validateKind(WatchSession session) {
-    if (session.targetRef.mediaKind != kind) {
+    if (session is! AnimeWatchSession || session.targetRef.mediaKind != kind) {
       throw ArgumentError.value(
         session.targetRef.mediaKind,
         'session.targetRef.kind',
@@ -179,6 +207,28 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
     }
     return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
   }
+
+  _AnimeWatchCoordinates _coordinatesForTarget(CatalogEntityRef target) {
+    return _AnimeWatchCoordinates(
+      seasonNumber: _numberAfter(target.id, ':season:'),
+      episodeNumber: _numberAfter(target.id, ':episode:'),
+    );
+  }
+
+  int? _numberAfter(String value, String marker) {
+    final markerIndex = value.indexOf(marker);
+    if (markerIndex < 0) return null;
+    final start = markerIndex + marker.length;
+    final end = value.indexOf(':', start);
+    return int.tryParse(value.substring(start, end < 0 ? value.length : end));
+  }
+}
+
+final class _AnimeWatchCoordinates {
+  const _AnimeWatchCoordinates({this.seasonNumber, this.episodeNumber});
+
+  final int? seasonNumber;
+  final int? episodeNumber;
 }
 
 int? _int(Object? value) {

@@ -8,8 +8,6 @@ class WatchSession {
     required this.watchedAt,
     required this.updatedAt,
     this.trackingEntryId,
-    this.seasonNumber,
-    this.episodeNumber,
     Object? sourceType,
     this.seenWhere,
     this.rating,
@@ -22,8 +20,6 @@ class WatchSession {
   final String id;
   final CatalogEntityRef targetRef;
   final String? trackingEntryId;
-  final int? seasonNumber;
-  final int? episodeNumber;
   final TrackingSourceType? sourceType;
   final String? seenWhere;
   final DateTime watchedAt;
@@ -33,8 +29,6 @@ class WatchSession {
   final DateTime? deletedAt;
 
   bool get isDeleted => deletedAt != null;
-
-  bool get isEpisodeSession => seasonNumber != null && episodeNumber != null;
 
   String? get sourceTypeApiValue => sourceType?.apiValue;
 
@@ -57,8 +51,6 @@ class WatchSession {
     String? id,
     CatalogEntityRef? targetRef,
     String? trackingEntryId,
-    int? seasonNumber,
-    int? episodeNumber,
     Object? sourceType,
     String? seenWhere,
     DateTime? watchedAt,
@@ -71,8 +63,6 @@ class WatchSession {
       id: id ?? this.id,
       targetRef: targetRef ?? this.targetRef,
       trackingEntryId: trackingEntryId ?? this.trackingEntryId,
-      seasonNumber: seasonNumber ?? this.seasonNumber,
-      episodeNumber: episodeNumber ?? this.episodeNumber,
       sourceType: sourceType ?? this.sourceType,
       seenWhere: seenWhere ?? this.seenWhere,
       watchedAt: watchedAt ?? this.watchedAt,

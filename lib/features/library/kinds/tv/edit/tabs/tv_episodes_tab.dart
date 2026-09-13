@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/dialogs/tv_custom_episode_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/widgets/tv_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
@@ -378,12 +379,12 @@ bool _episodeWatched({
   if (tracked) {
     return true;
   }
-  return watchSessions.any(
-    (session) =>
-        session.seasonNumber == seasonNumber &&
-        session.episodeNumber == episodeNumber &&
-        !session.isDeleted,
-  );
+  return watchSessions.whereType<TvWatchSession>().any(
+        (session) =>
+            session.seasonNumber == seasonNumber &&
+            session.episodeNumber == episodeNumber &&
+            !session.isDeleted,
+      );
 }
 
 String? _formatDate(DateTime? value) {

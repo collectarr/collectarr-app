@@ -1,15 +1,18 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 WatchSession _session(int season, int episode, DateTime at) {
-  return WatchSession(
+  return TvWatchSession(
     id: '$season-$episode-$at',
-    targetRef: const CatalogEntityRef(
+    seriesId: TvSeriesId('series-1'),
+    targetRef: CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: const CatalogEntityTypeId('work'),
-      id: 'series-1',
+      entityType: const CatalogEntityTypeId('episode'),
+      id: 'series-1:season:$season:episode:$episode',
     ),
     watchedAt: at,
     updatedAt: at,
@@ -29,7 +32,7 @@ void main() {
     ]);
 
     expect(summary.sessionCount, 3);
-    expect(summary.uniqueEpisodeCount, 2);
+    expect(summary.uniqueTargetCount, 2);
     expect(summary.rewatchCount, 1);
     expect(summary.label(), contains('rewatches'));
   });

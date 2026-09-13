@@ -3,8 +3,10 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
 
 class VideoProgressPresenter {
@@ -145,10 +147,7 @@ class VideoProgressPresenter {
   }) {
     final watchedEpisodes = _watchedEpisodeMap(trackedUnits, watchSessions);
     final sessionsByEpisode = <String, List<WatchSession>>{};
-    for (final session in watchSessions) {
-      if (!session.isEpisodeSession) {
-        continue;
-      }
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
       if (session.seasonNumber != _seasonNumber(season)) {
         continue;
       }
@@ -245,10 +244,8 @@ class VideoProgressPresenter {
         episodeNumber: episodeNumber,
       ));
     }
-    for (final session in watchSessions) {
-      if (!session.isEpisodeSession || session.isDeleted) {
-        continue;
-      }
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
+      if (session.isDeleted) continue;
       if (session.seasonNumber == null || session.episodeNumber == null) {
         continue;
       }
@@ -265,10 +262,8 @@ class VideoProgressPresenter {
     List<WatchSession> watchSessions,
   ) {
     final map = <String, List<WatchSession>>{};
-    for (final session in watchSessions) {
-      if (!session.isEpisodeSession || session.isDeleted) {
-        continue;
-      }
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
+      if (session.isDeleted) continue;
       final key = _episodeKey(
         seasonNumber: session.seasonNumber!,
         episodeNumber: session.episodeNumber!,
@@ -289,8 +284,9 @@ class VideoProgressPresenter {
         episodeNumber: episodeNumber,
       );
       map.putIfAbsent(key, () => <WatchSession>[]).add(
-            WatchSession(
+            TvWatchSession(
               id: unit.id,
+              seriesId: TvSeriesId(unit.targetRef.rootId ?? unit.targetRef.id),
               targetRef: unit.targetRef,
               watchedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
@@ -333,9 +329,11 @@ class VideoProgressPresenter {
     return null;
   }
 
-  static WatchSession? _latestWatchSession(List<WatchSession> watchSessions) {
-    final sessions = watchSessions.where((session) => session.isEpisodeSession);
-    WatchSession? latest;
+  static TvWatchSession? _latestWatchSession(
+    List<WatchSession> watchSessions,
+  ) {
+    final sessions = watchSessions.whereType<TvWatchSession>();
+    TvWatchSession? latest;
     for (final session in sessions) {
       if (latest == null || session.watchedAt.isAfter(latest.watchedAt)) {
         latest = session;
@@ -358,13 +356,13 @@ class VideoProgressPresenter {
     return latest;
   }
 
-  static WatchSession? _latestWatchSessionForSeason(
+  static TvWatchSession? _latestWatchSessionForSeason(
     int seasonNumber,
     List<WatchSession> watchSessions,
   ) {
-    WatchSession? latest;
-    for (final session in watchSessions) {
-      if (!session.isEpisodeSession || session.seasonNumber != seasonNumber) {
+    TvWatchSession? latest;
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
+      if (session.seasonNumber != seasonNumber) {
         continue;
       }
       if (latest == null || session.watchedAt.isAfter(latest.watchedAt)) {

@@ -1067,8 +1067,9 @@ List<TrackingLifecycle> tvSeedTrackingLifecycles(DateTime now) => [
 
 List<WatchSession> tvSeedWatchSessions(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        WatchSession(
+        TvWatchSession(
           id: 'seed-watch-tv-${seedOrdinal2(i)}',
+          seriesId: TvSeriesId('seed-tv-${seedOrdinal2(i)}'),
           targetRef: seedCatalogRef('seed-tv-${seedOrdinal2(i)}'),
           seasonNumber: 1,
           episodeNumber: i.isEven ? 2 : 1,

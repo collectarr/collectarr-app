@@ -1,42 +1,62 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 
 import 'tv_ids.dart';
 
-final class TvWatchSession {
-  const TvWatchSession({
-    required this.id,
+final class TvWatchSession extends WatchSession {
+  TvWatchSession({
+    required super.id,
     required this.seriesId,
-    required this.targetRef,
-    required this.watchedAt,
-    required this.updatedAt,
+    required super.targetRef,
+    required super.watchedAt,
+    required super.updatedAt,
     this.episodeId,
-    this.trackingEntryId,
     this.seasonNumber,
     this.episodeNumber,
-    this.sourceType,
-    this.seenWhere,
-    this.rating,
-    this.notes,
-    this.deletedAt,
+    super.trackingEntryId,
+    super.sourceType,
+    super.seenWhere,
+    super.rating,
+    super.notes,
+    super.deletedAt,
   });
 
-  final String id;
   final TvSeriesId seriesId;
   final TvEpisodeId? episodeId;
-  final CatalogEntityRef targetRef;
-  final String? trackingEntryId;
   final int? seasonNumber;
   final int? episodeNumber;
-  final TrackingSourceType? sourceType;
-  final String? seenWhere;
-  final DateTime watchedAt;
-  final int? rating;
-  final String? notes;
-  final DateTime updatedAt;
-  final DateTime? deletedAt;
 
-  bool get isDeleted => deletedAt != null;
+  @override
+  TvWatchSession copyWith({
+    String? id,
+    CatalogEntityRef? targetRef,
+    String? trackingEntryId,
+    Object? sourceType,
+    String? seenWhere,
+    DateTime? watchedAt,
+    int? rating,
+    String? notes,
+    DateTime? updatedAt,
+    DateTime? deletedAt,
+  }) {
+    return TvWatchSession(
+      id: id ?? this.id,
+      seriesId: seriesId,
+      episodeId: episodeId,
+      targetRef: targetRef ?? this.targetRef,
+      watchedAt: watchedAt ?? this.watchedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+      trackingEntryId: trackingEntryId ?? this.trackingEntryId,
+      sourceType: sourceType ?? this.sourceType,
+      seenWhere: seenWhere ?? this.seenWhere,
+      rating: rating ?? this.rating,
+      notes: notes ?? this.notes,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

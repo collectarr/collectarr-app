@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -28,8 +29,6 @@ final class WatchSessionMutations {
     CatalogEntityRef targetRef, {
     String? id,
     String? trackingEntryId,
-    int? seasonNumber,
-    int? episodeNumber,
     Object? sourceType,
     DateTime? watchedAt,
     String? seenWhere,
@@ -37,18 +36,18 @@ final class WatchSessionMutations {
     String? notes,
   }) async {
     final now = DateTime.now().toUtc();
-    final session = WatchSession(
-      id: id ?? idGenerator(),
-      targetRef: targetRef,
-      trackingEntryId: trackingEntryId,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber,
-      sourceType: sourceType,
-      watchedAt: watchedAt ?? now,
-      seenWhere: seenWhere,
-      rating: rating,
-      notes: notes,
-      updatedAt: now,
+    final session = watchSessions.create(
+      WatchSessionCreateRequest(
+        id: id ?? idGenerator(),
+        targetRef: targetRef,
+        trackingEntryId: trackingEntryId,
+        sourceType: sourceType,
+        watchedAt: watchedAt ?? now,
+        seenWhere: seenWhere,
+        rating: rating,
+        notes: notes,
+        updatedAt: now,
+      ),
     );
 
     await mutationRunner.run(

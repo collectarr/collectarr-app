@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_i
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 
 final animeDevSeedContributor = TypedDevSeedKindContributor<AnimeOwnedItem>(
   kind: CatalogMediaKind.anime,
@@ -915,7 +916,7 @@ List<TrackingLifecycle> animeSeedTrackingLifecycles(DateTime now) => [
 
 List<WatchSession> animeSeedWatchSessions(DateTime now) => [
       for (var i = 1; i <= 15; i++)
-        WatchSession(
+        AnimeWatchSession(
           id: 'seed-watch-anime-${seedOrdinal2(i)}',
           targetRef: seedCatalogRef('seed-anime-${seedOrdinal2(i)}'),
           seasonNumber: 1,

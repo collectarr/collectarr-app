@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_calendar_contribu
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 
 /// Anime owns the meaning of episode coordinates in watch-session calendar
 /// text independently from TV.
@@ -39,8 +40,9 @@ final class AnimeCalendarContributor implements LibraryCalendarContributor {
       }
     }
 
-    for (final session in context.watchSessions) {
-      if (session.isDeleted || session.targetRef.mediaKind != kind) continue;
+    for (final session
+        in context.watchSessions.whereType<AnimeWatchSession>()) {
+      if (session.isDeleted) continue;
 
       final episodeLabel =
           session.seasonNumber != null && session.episodeNumber != null

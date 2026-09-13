@@ -70,8 +70,6 @@ void main() {
       ),
       watchedAt: DateTime.utc(2026, 1, 5),
       updatedAt: DateTime.utc(2026, 1, 5),
-      seasonNumber: 9,
-      episodeNumber: 9,
     );
     final context = UniversalCalendarContext(
       ownedItems: const [],

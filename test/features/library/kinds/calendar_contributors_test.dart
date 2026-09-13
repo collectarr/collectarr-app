@@ -21,6 +21,9 @@ import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.d
 import 'package:collectarr_app/features/library/kinds/music/calendar/music_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
 import 'package:collectarr_app/features/library/kinds/tv/calendar/tv_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_watch_session.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -201,16 +204,36 @@ WatchSession _session(
   int? season,
   int? episode,
 }) {
+  final targetRef = CatalogEntityRef(
+    kind: kind,
+    entityType: const CatalogEntityTypeId('episode'),
+    id: '${kind.apiValue}-item',
+  );
+  if (kind == CatalogMediaKind.tv) {
+    return TvWatchSession(
+      id: '${kind.apiValue}-session',
+      seriesId: TvSeriesId('${kind.apiValue}-item'),
+      targetRef: targetRef,
+      watchedAt: DateTime.utc(2026, 9, 5),
+      updatedAt: DateTime.utc(2026, 9, 5),
+      seasonNumber: season,
+      episodeNumber: episode,
+    );
+  }
+  if (kind == CatalogMediaKind.anime) {
+    return AnimeWatchSession(
+      id: '${kind.apiValue}-session',
+      targetRef: targetRef,
+      watchedAt: DateTime.utc(2026, 9, 5),
+      updatedAt: DateTime.utc(2026, 9, 5),
+      seasonNumber: season,
+      episodeNumber: episode,
+    );
+  }
   return WatchSession(
     id: '${kind.apiValue}-session',
-    targetRef: CatalogEntityRef(
-      kind: kind,
-      entityType: const CatalogEntityTypeId('episode'),
-      id: '${kind.apiValue}-item',
-    ),
+    targetRef: targetRef,
     watchedAt: DateTime.utc(2026, 9, 5),
     updatedAt: DateTime.utc(2026, 9, 5),
-    seasonNumber: season,
-    episodeNumber: episode,
   );
 }

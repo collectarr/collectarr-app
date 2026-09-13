@@ -3,14 +3,14 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 class SessionHistorySummary {
   const SessionHistorySummary({
     required this.sessionCount,
-    required this.uniqueEpisodeCount,
+    required this.uniqueTargetCount,
     required this.rewatchCount,
     this.firstWatchedAt,
     this.lastWatchedAt,
   });
 
   final int sessionCount;
-  final int uniqueEpisodeCount;
+  final int uniqueTargetCount;
   final int rewatchCount;
   final DateTime? firstWatchedAt;
   final DateTime? lastWatchedAt;
@@ -38,33 +38,17 @@ class SessionHistoryPresenter {
     if (active.isEmpty) {
       return const SessionHistorySummary(
         sessionCount: 0,
-        uniqueEpisodeCount: 0,
+        uniqueTargetCount: 0,
         rewatchCount: 0,
       );
     }
     active.sort((a, b) => a.watchedAt.compareTo(b.watchedAt));
-    final uniqueEpisodeKeys = <String>{};
-    for (final session in active) {
-      if (!session.isEpisodeSession ||
-          session.seasonNumber == null ||
-          session.episodeNumber == null) {
-        continue;
-      }
-      uniqueEpisodeKeys.add(
-        '${session.seasonNumber}:${session.episodeNumber}',
-      );
-    }
-    final episodeSessionCount = active
-        .where((session) =>
-            session.isEpisodeSession &&
-            session.seasonNumber != null &&
-            session.episodeNumber != null)
-        .length;
+    final uniqueTargetRefs = active.map((session) => session.targetRef).toSet();
     return SessionHistorySummary(
       sessionCount: active.length,
-      uniqueEpisodeCount: uniqueEpisodeKeys.length,
-      rewatchCount: (episodeSessionCount - uniqueEpisodeKeys.length)
-          .clamp(0, active.length),
+      uniqueTargetCount: uniqueTargetRefs.length,
+      rewatchCount:
+          (active.length - uniqueTargetRefs.length).clamp(0, active.length),
       firstWatchedAt: active.first.watchedAt,
       lastWatchedAt: active.last.watchedAt,
     );

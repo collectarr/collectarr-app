@@ -19,6 +19,18 @@ class WatchSessionsRepository {
   final LocalDatabase _db;
   final Map<CatalogMediaKind, WatchSessionCodec> _codecs;
 
+  WatchSession create(WatchSessionCreateRequest request) {
+    final codec = _codecs[request.targetRef.mediaKind];
+    if (codec == null) {
+      throw ArgumentError.value(
+        request.targetRef.kind,
+        'request.targetRef.kind',
+        'No watch-session codec is registered for this kind',
+      );
+    }
+    return codec.create(request);
+  }
+
   Future<List<WatchSession>> listActive() async {
     final sessions = <WatchSession>[];
     for (final codec in _codecs.values) {

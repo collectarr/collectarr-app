@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_ep
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_summary_card.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -449,6 +450,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                 watched: watchedEpisodeKeys
                     .contains('$seasonNumber:${ep.episodeNumber}'),
                 watchCount: watchSessions
+                    .whereType<TvWatchSession>()
                     .where(
                       (s) =>
                           s.seasonNumber == seasonNumber &&
@@ -503,6 +505,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                 watched: watchedEpisodeKeys
                     .contains('$seasonNumber:${episode.episodeNumber}'),
                 watchCount: watchSessions
+                    .whereType<TvWatchSession>()
                     .where(
                       (s) =>
                           s.seasonNumber == seasonNumber &&
