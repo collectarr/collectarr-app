@@ -14,7 +14,7 @@ class AnimeLibraryKindProviderMapper
       envelope: envelope,
       expectedKind: CatalogMediaKind.anime,
     );
-    final norm = envelope.normalized;
+    final norm = envelope.payload;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
@@ -24,7 +24,7 @@ class AnimeLibraryKindProviderMapper
       'title': title,
       'cover_image_url': coverImageUrl,
       'thumbnail_image_url': coverImageUrl,
-      ...norm,
+      ...norm.toJson(),
     });
   }
 

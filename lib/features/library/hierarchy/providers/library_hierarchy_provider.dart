@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
@@ -58,7 +56,7 @@ final libraryHierarchyProvider = FutureProvider.autoDispose.family<
           params.providerItemId!,
           kind: params.kind,
         );
-        final list = envelope.normalized['children'];
+        final list = envelope.payload['children'];
         if (list is List) {
           return [
             for (var i = 0; i < list.length; i++)

@@ -177,7 +177,7 @@ void main() {
           provider: 'musicbrainz',
           providerItemId: 'mb_123',
           kind: CatalogMediaKind.music,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Abbey Road',
             'artist': 'The Beatles',
             'publisher': 'Apple Records',
@@ -191,7 +191,7 @@ void main() {
                 'media_or_disc_count': 1,
               }
             ],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),

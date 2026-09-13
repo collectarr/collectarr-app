@@ -45,7 +45,7 @@ class _FakeTestProvider implements MetadataCapability {
       provider: name,
       providerItemId: providerItemId,
       kind: kind ?? descriptor.kind,
-      normalized: {'title': 'Item $providerItemId'},
+      payload: ProviderMetadataPayload({'title': 'Item $providerItemId'}),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-17T12:00:00Z'),
       images: [
         ProviderImageRef(provider: name, url: 'https://example.com/image.jpg'),

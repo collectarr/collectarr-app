@@ -17,11 +17,11 @@ void main() {
         provider: 'openlibrary',
         providerItemId: 'OL12345W',
         kind: CatalogMediaKind.book,
-        normalized: {
+        payload: ProviderMetadataPayload({
           'title': 'The Hobbit',
           'page_count': 310,
           'publisher': 'George Allen & Unwin',
-        },
+        }),
         provenance: ProviderProvenance(
           fetchedAt: '2026-08-17T12:00:00Z',
           sourceUrl: 'https://openlibrary.org/works/OL12345W',
@@ -51,7 +51,7 @@ void main() {
       expect(restored.provider, 'openlibrary');
       expect(restored.providerItemId, 'OL12345W');
       expect(restored.kind, CatalogMediaKind.book);
-      expect(restored.normalized['title'], 'The Hobbit');
+      expect(restored.payload['title'], 'The Hobbit');
       expect(restored.provenance.fetchedAt, '2026-08-17T12:00:00Z');
       expect(restored.images, hasLength(1));
       expect(restored.images.first.url,
@@ -95,8 +95,8 @@ void main() {
         expect(envelope.provider, isNotEmpty);
         expect(envelope.providerItemId, isNotEmpty);
         expect(envelope.kind, isNot(CatalogMediaKind.unknown));
-        expect(envelope.normalized, isNotEmpty);
-        expect(envelope.normalized['title'], isNotNull);
+        expect(envelope.payload, isNotEmpty);
+        expect(envelope.payload['title'], isNotNull);
         expect(envelope.provenance.fetchedAt, isNotEmpty);
         expect(envelope.images, isNotEmpty);
         expect(envelope.images.first.url, isNotEmpty);
@@ -144,11 +144,11 @@ void main() {
         provider: 'gcd',
         providerItemId: '123',
         kind: CatalogMediaKind.comic,
-        normalized: {
+        payload: ProviderMetadataPayload({
           'title': 'Spider-Man',
           'item_number': '300',
           'publisher': 'Marvel Comics',
-        },
+        }),
         provenance: const ProviderProvenance(fetchedAt: '2026-08-20T00:00:00Z'),
         images: const [
           ProviderImageRef(

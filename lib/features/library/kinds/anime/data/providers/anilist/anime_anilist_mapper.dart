@@ -19,7 +19,7 @@ final class AnimeAniListMapper {
 
   static AnimeMedia fromEnvelope(ProviderMetadataEnvelope envelope) {
     _validateEnvelope(envelope);
-    final normalized = Map<String, dynamic>.from(envelope.normalized);
+    final normalized = envelope.payload.toJson();
     final coverImageUrl = _text(normalized['cover_image_url']) ??
         (envelope.images.isEmpty ? null : envelope.images.first.url);
     return AnimeMedia.fromJson({

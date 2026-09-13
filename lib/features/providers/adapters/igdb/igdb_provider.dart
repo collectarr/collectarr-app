@@ -152,7 +152,7 @@ class IGDBProvider extends ProviderAdapter {
       provider: name,
       providerItemId: cleanId,
       kind: CatalogMediaKind.game,
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://www.igdb.com/games/$gameSlug',

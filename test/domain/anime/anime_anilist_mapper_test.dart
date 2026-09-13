@@ -69,11 +69,11 @@ void main() {
       provider: 'anilist',
       providerItemId: 'anime:999',
       kind: CatalogMediaKind.anime,
-      normalized: const {
+      payload: ProviderMetadataPayload(const {
         'title': 'A Place Further Than the Universe',
         'anime_type': 'TV',
         'episode_count': 13,
-      },
+      }),
       images: const [
         ProviderImageRef(provider: 'anilist', url: 'https://cdn/cover.jpg'),
       ],
@@ -101,7 +101,7 @@ void main() {
           provider: 'anilist',
           providerItemId: 'manga:42',
           kind: CatalogMediaKind.manga,
-          normalized: const {'title': 'Wrong kind'},
+          payload: ProviderMetadataPayload(const {'title': 'Wrong kind'}),
           images: const [],
           provenance: const ProviderProvenance(fetchedAt: ''),
           attribution: const ProviderAttribution(required: false),

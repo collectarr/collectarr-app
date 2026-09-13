@@ -84,7 +84,7 @@ void validateLibraryKindProviderEnvelope({
       '${expectedKind.apiValue} provider integration received an envelope without a provider item ID',
     );
   }
-  final title = envelope.normalized['title']?.toString().trim();
+  final title = envelope.payload['title']?.toString().trim();
   if (title == null || title.isEmpty) {
     throw StateError(
       '${expectedKind.apiValue} provider integration received an envelope without a title',

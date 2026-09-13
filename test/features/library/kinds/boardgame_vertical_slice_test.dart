@@ -147,7 +147,7 @@ void main() {
           provider: 'bgg',
           providerItemId: '224517',
           kind: CatalogMediaKind.boardgame,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Brass: Birmingham',
             'year_published': 2018,
             'min_players': 2,
@@ -159,7 +159,7 @@ void main() {
             'bgg_rating': 8.6,
             'bgg_rank': 1,
             'designers': ['Gavan Brown', 'Martin Wallace'],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),

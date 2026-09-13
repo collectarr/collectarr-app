@@ -200,7 +200,7 @@ class ComicVineProvider extends ProviderAdapter {
       provider: name,
       providerItemId: canonicalId,
       kind: catalogMediaKindFromApiValue(targetKind),
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: _optionalText(raw['site_detail_url']) ??

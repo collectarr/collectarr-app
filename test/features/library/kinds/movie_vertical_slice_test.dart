@@ -146,7 +146,7 @@ void main() {
           provider: 'tmdb',
           providerItemId: '872585',
           kind: CatalogMediaKind.movie,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Oppenheimer',
             'original_title': 'Oppenheimer',
             'runtime_minutes': 180,
@@ -155,7 +155,7 @@ void main() {
             'directors': [
               {'name': 'Christopher Nolan', 'role': 'Director'}
             ],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),

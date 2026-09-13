@@ -182,7 +182,7 @@ void main() {
           provider: 'comicvine',
           providerItemId: '4000-12345',
           kind: CatalogMediaKind.comic,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Amazing Fantasy #15',
             'series_title': 'Amazing Fantasy',
             'issue_number': '15',
@@ -195,7 +195,7 @@ void main() {
             'characters': ['Peter Parker', 'Spider-Man'],
             'is_key_comic': true,
             'key_reason': '1st appearance of Spider-Man',
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),

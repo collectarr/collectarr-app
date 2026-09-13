@@ -192,7 +192,7 @@ void main() {
           provider: 'igdb',
           providerItemId: '1234',
           kind: CatalogMediaKind.game,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Super Mario 64',
             'platform': 'Nintendo 64',
             'franchise': 'Super Mario',
@@ -221,7 +221,7 @@ void main() {
                 'captured_at': '2026-08-20T00:00:00.000Z'
               },
             },
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),

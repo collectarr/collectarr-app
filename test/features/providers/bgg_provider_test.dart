@@ -157,18 +157,18 @@ void main() {
       expect(envelope.provider, 'bgg');
       expect(envelope.providerItemId, '174430');
       expect(envelope.kind, CatalogMediaKind.boardgame);
-      expect(envelope.normalized['title'], 'Gloomhaven');
-      expect(envelope.normalized['publisher'], 'Cephalofair Games');
-      expect(envelope.normalized['min_players'], 1);
-      expect(envelope.normalized['max_players'], 4);
-      expect(envelope.normalized['min_age'], 14);
-      expect(envelope.normalized['playing_time_minutes'], 120);
-      expect(envelope.normalized['genres'],
+      expect(envelope.payload['title'], 'Gloomhaven');
+      expect(envelope.payload['publisher'], 'Cephalofair Games');
+      expect(envelope.payload['min_players'], 1);
+      expect(envelope.payload['max_players'], 4);
+      expect(envelope.payload['min_age'], 14);
+      expect(envelope.payload['playing_time_minutes'], 120);
+      expect(envelope.payload['genres'],
           containsAll(['Adventure', 'Fantasy', 'Miniatures']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators'])[0]['name'],
           'Isaac Childres');
-      expect(jsonObjectList(envelope.normalized['creators'])[0]['role'],
+      expect(jsonObjectList(envelope.payload['creators'])[0]['role'],
           'Designer');
       expect(envelope.images, hasLength(1));
       expect(envelope.images[0].url,
@@ -226,23 +226,23 @@ void main() {
         ],
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
       expect(
-          normalized['min_players'], goldenEnvelope.normalized['min_players']);
+          normalized['min_players'], goldenEnvelope.payload['min_players']);
       expect(
-          normalized['max_players'], goldenEnvelope.normalized['max_players']);
-      expect(normalized['min_age'], goldenEnvelope.normalized['min_age']);
+          normalized['max_players'], goldenEnvelope.payload['max_players']);
+      expect(normalized['min_age'], goldenEnvelope.payload['min_age']);
       expect(normalized['playing_time_minutes'],
-          goldenEnvelope.normalized['playing_time_minutes']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+          goldenEnvelope.payload['playing_time_minutes']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(jsonObject(normalized['provider_ids'])['bgg'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['bgg']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['bgg']);
       expect(jsonObjectList(normalized['creators'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['name']);
       expect(jsonObjectList(normalized['creators'])[0]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['role']);
     });
   });
 }

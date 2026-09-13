@@ -578,7 +578,7 @@ void main() {
           provider: 'test_prov',
           providerItemId: id,
           kind: CatalogMediaKind.book,
-          normalized: {
+          payload: ProviderMetadataPayload({
             'title': 'The Hitchhiker\'s Guide to the Galaxy',
             'publisher': 'Pan Books',
             'synopsis': 'Don\'t Panic.',
@@ -587,7 +587,7 @@ void main() {
               {'name': 'Douglas Adams', 'role': 'Author'}
             ],
             'page_count': 224,
-          },
+          }),
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
             sourceUrl: 'https://example.com/books/42',
@@ -662,7 +662,7 @@ void main() {
           provider: 'comic_prov',
           providerItemId: id,
           kind: CatalogMediaKind.comic,
-          normalized: {
+          payload: ProviderMetadataPayload({
             'title': 'Action Comics #1',
             'publisher': 'DC Comics',
             'synopsis': 'The first appearance of Superman.',
@@ -671,7 +671,7 @@ void main() {
               {'name': 'Jerry Siegel', 'role': 'Writer'},
               {'name': 'Joe Shuster', 'role': 'Artist'},
             ],
-          },
+          }),
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
             sourceUrl: 'https://example.com/comics/99',

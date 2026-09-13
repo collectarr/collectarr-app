@@ -191,15 +191,15 @@ void main() {
       expect(envelope.provider, 'mangadex');
       expect(envelope.providerItemId, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
       expect(envelope.kind, CatalogMediaKind.manga);
-      expect(envelope.normalized['title'], 'Chainsaw Man');
+      expect(envelope.payload['title'], 'Chainsaw Man');
       expect(
-          envelope.normalized['synopsis'], contains('Denji is a teenage boy'));
-      expect(envelope.normalized['genres'],
+          envelope.payload['synopsis'], contains('Denji is a teenage boy'));
+      expect(envelope.payload['genres'],
           containsAll(['Action', 'Supernatural']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Tatsuki Fujimoto');
-      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+      expect(jsonObjectList(envelope.payload['creators']).first['role'],
           'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -258,14 +258,14 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(jsonObject(normalized['provider_ids'])['mangadex'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['mangadex']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['mangadex']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
     });
   });
 }

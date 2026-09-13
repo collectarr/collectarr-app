@@ -19,7 +19,7 @@ final class TvProviderTypedMapper {
       envelope: envelope,
       expectedKind: CatalogMediaKind.tv,
     );
-    final normalized = Map<String, dynamic>.from(envelope.normalized);
+    final normalized = envelope.payload.toJson();
     final title = _text(normalized['title']) ?? 'Unknown';
     final coverImageUrl = _text(normalized['cover_image_url']) ??
         (envelope.images.isEmpty ? null : envelope.images.first.url);

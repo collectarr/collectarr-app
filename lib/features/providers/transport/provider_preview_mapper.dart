@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/providers/transport/provider_metadata_en
 AdminProviderPreview providerPreviewFromEnvelope(
   ProviderMetadataEnvelope envelope,
 ) {
-  final norm = envelope.normalized;
+  final norm = envelope.payload;
   final title = norm['title']?.toString() ?? 'Unknown';
   final synopsis = norm['synopsis']?.toString();
   final publisher = norm['publisher']?.toString();

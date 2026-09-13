@@ -200,15 +200,15 @@ void main() {
       expect(envelope.provider, 'tmdb');
       expect(envelope.providerItemId, '550');
       expect(envelope.kind, CatalogMediaKind.movie);
-      expect(envelope.normalized['title'], 'Fight Club');
-      expect(envelope.normalized['runtime_minutes'], 139);
-      expect(envelope.normalized['publisher'], '20th Century Fox');
-      expect(envelope.normalized['audience_rating'], '8.4');
-      expect(envelope.normalized['genres'], containsAll(['Drama', 'Thriller']));
-      expect(jsonObject(envelope.normalized['provider_ids'])['tmdb'], '550');
+      expect(envelope.payload['title'], 'Fight Club');
+      expect(envelope.payload['runtime_minutes'], 139);
+      expect(envelope.payload['publisher'], '20th Century Fox');
+      expect(envelope.payload['audience_rating'], '8.4');
+      expect(envelope.payload['genres'], containsAll(['Drama', 'Thriller']));
+      expect(jsonObject(envelope.payload['provider_ids'])['tmdb'], '550');
       expect(
-          jsonObject(envelope.normalized['provider_ids'])['imdb'], 'tt0137523');
-      expect(envelope.normalized['creators'], hasLength(3));
+          jsonObject(envelope.payload['provider_ids'])['imdb'], 'tt0137523');
+      expect(envelope.payload['creators'], hasLength(3));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -260,22 +260,22 @@ void main() {
         }
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
       expect(normalized['runtime_minutes'],
-          goldenEnvelope.normalized['runtime_minutes']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+          goldenEnvelope.payload['runtime_minutes']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(normalized['audience_rating'],
-          goldenEnvelope.normalized['audience_rating']);
+          goldenEnvelope.payload['audience_rating']);
       expect(jsonObject(normalized['provider_ids'])['tmdb'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['tmdb']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['tmdb']);
       expect(jsonObject(normalized['provider_ids'])['imdb'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['imdb']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['imdb']);
       expect(jsonObjectList(normalized['creators'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['name']);
       expect(jsonObjectList(normalized['creators'])[0]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['role']);
     });
   });
 }

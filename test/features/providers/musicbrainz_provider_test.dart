@@ -221,17 +221,17 @@ void main() {
       expect(envelope.provider, 'musicbrainz');
       expect(envelope.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
       expect(envelope.kind, CatalogMediaKind.music);
-      expect(envelope.normalized['title'], 'The Dark Side of the Moon');
-      expect(envelope.normalized['publisher'], 'Harvest');
-      expect(envelope.normalized['track_count'], 3);
-      expect(envelope.normalized['tracks'], hasLength(3));
-      expect(jsonObjectList(envelope.normalized['tracks'])[0]['title'],
+      expect(envelope.payload['title'], 'The Dark Side of the Moon');
+      expect(envelope.payload['publisher'], 'Harvest');
+      expect(envelope.payload['track_count'], 3);
+      expect(envelope.payload['tracks'], hasLength(3));
+      expect(jsonObjectList(envelope.payload['tracks'])[0]['title'],
           'Speak to Me');
       expect(
-          jsonObjectList(envelope.normalized['tracks'])[0]['duration_seconds'],
+          jsonObjectList(envelope.payload['tracks'])[0]['duration_seconds'],
           67);
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Pink Floyd');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -286,18 +286,18 @@ void main() {
         'cover-art-archive': {'artwork': true, 'front': true},
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(
-          normalized['track_count'], goldenEnvelope.normalized['track_count']);
-      expect(normalized['tracks'], goldenEnvelope.normalized['tracks']);
+          normalized['track_count'], goldenEnvelope.payload['track_count']);
+      expect(normalized['tracks'], goldenEnvelope.payload['tracks']);
       expect(jsonObject(normalized['provider_ids'])['musicbrainz'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['musicbrainz']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['musicbrainz']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
       expect(jsonObjectList(normalized['creators']).first['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['role']);
     });
   });
 }

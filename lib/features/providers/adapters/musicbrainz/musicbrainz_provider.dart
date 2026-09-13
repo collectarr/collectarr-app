@@ -169,7 +169,7 @@ class MusicBrainzProvider extends ProviderAdapter {
       provider: name,
       providerItemId: id,
       kind: CatalogMediaKind.music,
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://musicbrainz.org/release/$id',

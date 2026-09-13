@@ -157,7 +157,7 @@ class MangaDexProvider extends ProviderAdapter {
       provider: name,
       providerItemId: mangaId,
       kind: CatalogMediaKind.manga,
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://mangadex.org/title/$mangaId',

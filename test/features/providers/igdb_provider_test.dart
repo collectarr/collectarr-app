@@ -210,12 +210,12 @@ void main() {
       expect(envelope.provider, 'igdb');
       expect(envelope.providerItemId, '1942');
       expect(envelope.kind, CatalogMediaKind.game);
-      expect(envelope.normalized['title'], 'The Witcher 3: Wild Hunt');
-      expect(envelope.normalized['publisher'], 'CD PROJEKT RED');
-      expect(envelope.normalized['audience_rating'], '92.0');
-      expect(envelope.normalized['genres'],
+      expect(envelope.payload['title'], 'The Witcher 3: Wild Hunt');
+      expect(envelope.payload['publisher'], 'CD PROJEKT RED');
+      expect(envelope.payload['audience_rating'], '92.0');
+      expect(envelope.payload['genres'],
           containsAll(['Role-playing (RPG)', 'Adventure']));
-      expect(envelope.normalized['platforms'],
+      expect(envelope.payload['platforms'],
           containsAll(['PC', 'PlayStation 4', 'Xbox One', 'Nintendo Switch']));
       expect(envelope.images, hasLength(1));
       expect(envelope.images[0].url,
@@ -268,17 +268,17 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
-      expect(normalized['platforms'], goldenEnvelope.normalized['platforms']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
+      expect(normalized['platforms'], goldenEnvelope.payload['platforms']);
       expect(normalized['audience_rating'],
-          goldenEnvelope.normalized['audience_rating']);
+          goldenEnvelope.payload['audience_rating']);
       expect(normalized['cover_image_url'],
-          goldenEnvelope.normalized['cover_image_url']);
+          goldenEnvelope.payload['cover_image_url']);
       expect(jsonObject(normalized['provider_ids'])['igdb'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['igdb']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['igdb']);
     });
   });
 }

@@ -254,7 +254,7 @@ class HardcoverProvider extends ProviderAdapter {
       provider: name,
       providerItemId: canonicalItemId,
       kind: catalogMediaKindFromApiValue(targetKind),
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://hardcover.app/books/${book.slug ?? intId}',

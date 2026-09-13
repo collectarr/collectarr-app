@@ -43,7 +43,7 @@ final class MusicMusicBrainzMapper {
 
   static MusicRelease fromEnvelope(ProviderMetadataEnvelope envelope) {
     _validateEnvelope(envelope);
-    final normalized = Map<String, dynamic>.from(envelope.normalized);
+    final normalized = envelope.payload.toJson();
     final providerId = _requiredText(
       envelope.providerItemId,
       'MusicBrainz envelope item',

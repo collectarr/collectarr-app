@@ -149,7 +149,7 @@ void main() {
           provider: 'anilist',
           providerItemId: '154587',
           kind: CatalogMediaKind.anime,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Frieren: Beyond Journey\'s End',
             'native_title':
                 'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',
@@ -161,7 +161,7 @@ void main() {
             'airing_status': 'finished',
             'source_material': 'manga',
             'studios': ['Madhouse'],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),

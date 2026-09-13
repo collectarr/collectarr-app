@@ -5,6 +5,9 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import '../domain/models/provider_attribution.dart';
 import '../domain/models/provider_image_ref.dart';
 import '../domain/models/provider_provenance.dart';
+import 'provider_metadata_payload.dart';
+
+export 'provider_metadata_payload.dart';
 
 @immutable
 class ProviderMetadataEnvelope {
@@ -13,7 +16,7 @@ class ProviderMetadataEnvelope {
     required this.provider,
     required this.providerItemId,
     required this.kind,
-    required this.normalized,
+    required this.payload,
     required this.provenance,
     required this.images,
     required this.attribution,
@@ -23,7 +26,7 @@ class ProviderMetadataEnvelope {
   final String provider;
   final String providerItemId;
   final CatalogMediaKind kind;
-  final Map<String, dynamic> normalized;
+  final ProviderMetadataPayload payload;
   final ProviderProvenance provenance;
   final List<ProviderImageRef> images;
   final ProviderAttribution attribution;
@@ -36,7 +39,7 @@ class ProviderMetadataEnvelope {
       provider: preview.provider,
       providerItemId: itemId,
       kind: catalogMediaKindFromApiValue(preview.kind),
-      normalized: {
+      payload: ProviderMetadataPayload({
         'title': preview.title,
         'item_number': preview.itemNumber,
         'synopsis': preview.synopsis,
@@ -77,7 +80,7 @@ class ProviderMetadataEnvelope {
         },
         if (preview.video != null) 'video': preview.video!,
         if (preview.game != null) 'game': preview.game!,
-      },
+      }),
       provenance: const ProviderProvenance(fetchedAt: ''),
       images: preview.coverImageUrl == null
           ? const []
@@ -92,16 +95,6 @@ class ProviderMetadataEnvelope {
   }
 
   factory ProviderMetadataEnvelope.fromJson(Map<String, dynamic> json) {
-    final rawNormalized = json['normalized'];
-    final normalized = <String, dynamic>{};
-    if (rawNormalized is Map) {
-      for (final entry in rawNormalized.entries) {
-        if (entry.key != null) {
-          normalized[entry.key.toString()] = entry.value;
-        }
-      }
-    }
-
     final rawImages = json['images'];
     final images = <ProviderImageRef>[];
     if (rawImages is List) {
@@ -129,7 +122,7 @@ class ProviderMetadataEnvelope {
       provider: json['provider']?.toString() ?? '',
       providerItemId: json['provider_item_id']?.toString() ?? '',
       kind: catalogMediaKindFromApiValue(json['kind']?.toString()),
-      normalized: normalized,
+      payload: ProviderMetadataPayload.fromJson(json['normalized']),
       provenance: provenance,
       images: images,
       attribution: attribution,
@@ -142,7 +135,7 @@ class ProviderMetadataEnvelope {
       'provider': provider,
       'provider_item_id': providerItemId,
       'kind': kind.apiValue,
-      'normalized': normalized,
+      'normalized': payload.toJson(),
       'provenance': provenance.toJson(),
       'images': images.map((img) => img.toJson()).toList(growable: false),
       'attribution': attribution.toJson(),
@@ -158,7 +151,7 @@ class ProviderMetadataEnvelope {
           provider == other.provider &&
           providerItemId == other.providerItemId &&
           kind == other.kind &&
-          mapEquals(normalized, other.normalized) &&
+          payload == other.payload &&
           provenance == other.provenance &&
           listEquals(images, other.images) &&
           attribution == other.attribution;
@@ -169,7 +162,7 @@ class ProviderMetadataEnvelope {
         provider,
         providerItemId,
         kind,
-        Object.hashAll(normalized.entries),
+        payload,
         provenance,
         Object.hashAll(images),
         attribution,

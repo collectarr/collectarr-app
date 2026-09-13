@@ -213,17 +213,17 @@ void main() {
       expect(envelope.provider, 'hardcover');
       expect(envelope.providerItemId, '1234');
       expect(envelope.kind, CatalogMediaKind.book);
-      expect(envelope.normalized['title'], 'Dune');
-      expect(envelope.normalized['synopsis'],
+      expect(envelope.payload['title'], 'Dune');
+      expect(envelope.payload['synopsis'],
           contains('Set on the desert planet'));
-      expect(envelope.normalized['publisher'], 'Chilton Books');
-      expect(envelope.normalized['page_count'], 688);
-      expect(envelope.normalized['genres'],
+      expect(envelope.payload['publisher'], 'Chilton Books');
+      expect(envelope.payload['page_count'], 688);
+      expect(envelope.payload['genres'],
           containsAll(['Science Fiction', 'Space Opera']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Frank Herbert');
-      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+      expect(jsonObjectList(envelope.payload['creators']).first['role'],
           'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -277,17 +277,17 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['page_count'], goldenEnvelope.normalized['page_count']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['page_count'], goldenEnvelope.payload['page_count']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(jsonObject(normalized['provider_ids'])['hardcover'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['hardcover']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['hardcover']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
       expect(jsonObjectList(normalized['creators']).first['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['role']);
     });
   });
 }

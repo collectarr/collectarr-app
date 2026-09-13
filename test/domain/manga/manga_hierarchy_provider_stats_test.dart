@@ -112,7 +112,7 @@ ProviderMetadataEnvelope _envelope({
     provider: 'anilist',
     providerItemId: '123',
     kind: kind,
-    normalized: normalized,
+    payload: ProviderMetadataPayload(normalized),
     provenance: const ProviderProvenance(fetchedAt: '2026-01-01T00:00:00Z'),
     images: const [],
     attribution: const ProviderAttribution(required: false),

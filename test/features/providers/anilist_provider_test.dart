@@ -234,19 +234,19 @@ void main() {
       expect(envelope.provider, 'anilist');
       expect(envelope.providerItemId, '30002');
       expect(envelope.kind, CatalogMediaKind.manga);
-      expect(envelope.normalized['title'], 'Berserk');
-      expect(envelope.normalized['synopsis'],
+      expect(envelope.payload['title'], 'Berserk');
+      expect(envelope.payload['synopsis'],
           contains('Guts, a former mercenary'));
-      expect(envelope.normalized['genres'],
+      expect(envelope.payload['genres'],
           containsAll(['Action', 'Adventure', 'Dark Fantasy']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Kentarou Miura');
-      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
+      expect(jsonObjectList(envelope.payload['creators']).first['role'],
           'Story & Art');
       expect(
-          jsonObject(envelope.normalized['provider_ids'])['anilist'], '30002');
-      expect(jsonObject(envelope.normalized['provider_ids'])['mal'], '2');
+          jsonObject(envelope.payload['provider_ids'])['anilist'], '30002');
+      expect(jsonObject(envelope.payload['provider_ids'])['mal'], '2');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -293,19 +293,19 @@ void main() {
         },
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(normalized['cover_image_url'],
-          goldenEnvelope.normalized['cover_image_url']);
+          goldenEnvelope.payload['cover_image_url']);
       expect(jsonObject(normalized['provider_ids'])['anilist'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['anilist']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['anilist']);
       expect(jsonObject(normalized['provider_ids'])['mal'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['mal']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['mal']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
       expect(jsonObjectList(normalized['creators']).first['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['role']);
     });
   });
 }

@@ -174,7 +174,7 @@ ProviderMetadataEnvelope _movieEnvelope({
     provider: 'tmdb',
     providerItemId: 'movie-1',
     kind: kind,
-    normalized: normalized,
+    payload: ProviderMetadataPayload(normalized),
     images: images,
     provenance: const ProviderProvenance(fetchedAt: '2026-01-01T00:00:00Z'),
     attribution: const ProviderAttribution(required: false),

@@ -97,11 +97,11 @@ void main() {
       provider: 'tmdb',
       providerItemId: '1396',
       kind: CatalogMediaKind.tv,
-      normalized: const {
+      payload: ProviderMetadataPayload(const {
         'title': 'Breaking Bad',
         'status': 'Ended',
         'network': 'AMC',
-      },
+      }),
       images: const [
         ProviderImageRef(provider: 'tmdb', url: 'https://cdn/tv.jpg'),
       ],
@@ -121,7 +121,7 @@ void main() {
           provider: 'tmdb',
           providerItemId: '872585',
           kind: CatalogMediaKind.movie,
-          normalized: const {'title': 'Wrong kind'},
+          payload: ProviderMetadataPayload(const {'title': 'Wrong kind'}),
           images: const [],
           provenance: const ProviderProvenance(fetchedAt: ''),
           attribution: const ProviderAttribution(required: false),

@@ -14,13 +14,13 @@ class MovieLibraryKindProviderMapper
       envelope: envelope,
       expectedKind: CatalogMediaKind.movie,
     );
-    final norm = envelope.normalized;
+    final norm = envelope.payload;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
 
     return MovieCatalog.fromJson({
-      ...norm,
+      ...norm.toJson(),
       'id': envelope.providerItemId,
       'title': title,
       'cover_image_url': coverImageUrl,

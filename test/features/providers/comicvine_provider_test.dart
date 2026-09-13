@@ -186,19 +186,19 @@ void main() {
       expect(envelope.provider, 'comicvine');
       expect(envelope.providerItemId, '4000-160294');
       expect(envelope.kind, CatalogMediaKind.comic);
-      expect(envelope.normalized['title'], 'Absolute Batman #1');
-      expect(envelope.normalized['series_title'], 'Absolute Batman');
-      expect(envelope.normalized['item_number'], '1');
-      expect(envelope.normalized['volume_start_year'], 2024);
-      expect(envelope.normalized['publisher'], 'DC Comics');
-      expect(envelope.normalized['synopsis'],
+      expect(envelope.payload['title'], 'Absolute Batman #1');
+      expect(envelope.payload['series_title'], 'Absolute Batman');
+      expect(envelope.payload['item_number'], '1');
+      expect(envelope.payload['volume_start_year'], 2024);
+      expect(envelope.payload['publisher'], 'DC Comics');
+      expect(envelope.payload['synopsis'],
           contains('In this new DC Absolute universe'));
-      expect(envelope.normalized['creators'], hasLength(2));
-      expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+      expect(envelope.payload['creators'], hasLength(2));
+      expect(jsonObjectList(envelope.payload['creators'])[0]['name'],
           'Scott Snyder');
       expect(
-          jsonObjectList(envelope.normalized['creators'])[0]['role'], 'Writer');
-      expect(envelope.normalized['variant_covers'], hasLength(1));
+          jsonObjectList(envelope.payload['creators'])[0]['role'], 'Writer');
+      expect(envelope.payload['variant_covers'], hasLength(1));
       expect(envelope.images, hasLength(2));
       expect(envelope.attribution.required, isTrue);
     });
@@ -252,28 +252,28 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
       expect(normalized['series_title'],
-          goldenEnvelope.normalized['series_title']);
+          goldenEnvelope.payload['series_title']);
       expect(
-          normalized['item_number'], goldenEnvelope.normalized['item_number']);
+          normalized['item_number'], goldenEnvelope.payload['item_number']);
       expect(normalized['volume_start_year'],
-          goldenEnvelope.normalized['volume_start_year']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
+          goldenEnvelope.payload['volume_start_year']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
       expect(jsonObject(normalized['provider_ids'])['comicvine'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['comicvine']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['comicvine']);
       expect(jsonObjectList(normalized['creators'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['name']);
       expect(jsonObjectList(normalized['creators'])[0]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['role']);
       expect(
           jsonObjectList(normalized['variant_covers'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['variant_covers'])[0]
+          jsonObjectList(goldenEnvelope.payload['variant_covers'])[0]
               ['name']);
       expect(
           jsonObjectList(normalized['variant_covers'])[0]['cover_image_url'],
-          jsonObjectList(goldenEnvelope.normalized['variant_covers'])[0]
+          jsonObjectList(goldenEnvelope.payload['variant_covers'])[0]
               ['cover_image_url']);
     });
   });

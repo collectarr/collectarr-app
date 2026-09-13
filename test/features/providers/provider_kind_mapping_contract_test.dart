@@ -267,7 +267,7 @@ ProviderMetadataEnvelope _envelopeFor(_ProviderKindCase testCase) {
     provider: testCase.provider,
     providerItemId: testCase.providerItemId,
     kind: testCase.kind,
-    normalized: normalized,
+    payload: ProviderMetadataPayload(normalized),
     provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),
     images: [
       ProviderImageRef(
@@ -306,7 +306,7 @@ void main() {
       );
 
       final envelope = _envelopeFor(testCase);
-      expect(envelope.normalized['kind'], testCase.kind.apiValue);
+      expect(envelope.payload['kind'], testCase.kind.apiValue);
 
       final item = _metadataItemFor(testCase.kind, envelope);
       expect(item.mediaKind, testCase.kind);
@@ -338,7 +338,7 @@ void main() {
         provider: 'contract-test',
         providerItemId: 'wrong-kind',
         kind: wrongKind,
-        normalized: const {'title': 'Wrong kind'},
+        payload: ProviderMetadataPayload(const {'title': 'Wrong kind'}),
         provenance: const ProviderProvenance(fetchedAt: '2026-09-05T00:00:00Z'),
         images: const [],
         attribution: const ProviderAttribution(required: false),

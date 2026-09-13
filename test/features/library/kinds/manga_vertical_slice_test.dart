@@ -190,10 +190,10 @@ void main() {
           provider: 'anilist',
           providerItemId: '123',
           kind: CatalogMediaKind.manga,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Frieren',
             'publisher': 'Shogakukan',
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),

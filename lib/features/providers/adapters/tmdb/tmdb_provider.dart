@@ -199,7 +199,7 @@ class TMDbProvider extends ProviderAdapter {
       provider: name,
       providerItemId: canonicalItemId,
       kind: catalogMediaKindFromApiValue(targetKind),
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://www.themoviedb.org/$targetKind/$tmdbId',

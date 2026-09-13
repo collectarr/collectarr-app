@@ -288,7 +288,7 @@ class AniListProvider extends ProviderAdapter {
       provider: name,
       providerItemId: canonicalItemId,
       kind: catalogMediaKindFromApiValue(resolvedKind),
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://anilist.co/$resolvedKind/$anilistId',

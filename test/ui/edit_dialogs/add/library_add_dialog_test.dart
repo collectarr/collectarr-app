@@ -2769,7 +2769,7 @@ class _FakeMetadataProvider implements MetadataCapability {
         provider: name,
         providerItemId: providerItemId,
         kind: CatalogMediaKind.music,
-        normalized: {
+        payload: ProviderMetadataPayload({
           'title': 'Provider result Discovery',
           'series_title': 'Daft Punk',
           'publisher': 'Virgin',
@@ -2786,7 +2786,7 @@ class _FakeMetadataProvider implements MetadataCapability {
               'duration_seconds': 212,
             },
           ],
-        },
+        }),
         provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
         images: const [],
         attribution: const ProviderAttribution(required: false),
@@ -2796,9 +2796,9 @@ class _FakeMetadataProvider implements MetadataCapability {
       provider: name,
       providerItemId: providerItemId,
       kind: mediaKind,
-      normalized: {
+      payload: ProviderMetadataPayload({
         'title': 'Provider item $providerItemId',
-      },
+      }),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
       images: const [],
       attribution: const ProviderAttribution(required: false),
@@ -2813,9 +2813,9 @@ class _FakeMetadataProvider implements MetadataCapability {
       provider: name,
       providerItemId: '$name-$barcode',
       kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
-      normalized: {
+      payload: ProviderMetadataPayload({
         'title': 'Barcode item $barcode',
-      },
+      }),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
       images: const [],
       attribution: const ProviderAttribution(required: false),

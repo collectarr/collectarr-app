@@ -14,13 +14,13 @@ class MangaLibraryKindProviderMapper
       envelope: envelope,
       expectedKind: CatalogMediaKind.manga,
     );
-    final norm = envelope.normalized;
+    final norm = envelope.payload;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
 
     return MangaMetadata.fromJson({
-      ...norm,
+      ...norm.toJson(),
       'id': envelope.providerItemId,
       'title': title,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
@@ -34,13 +34,13 @@ class MangaLibraryKindProviderMapper
       envelope: envelope,
       expectedKind: CatalogMediaKind.manga,
     );
-    final norm = envelope.normalized;
+    final norm = envelope.payload;
     final title = norm['title']?.toString() ?? 'Unknown';
     final coverImageUrl = norm['cover_image_url']?.toString() ??
         (envelope.images.isNotEmpty ? envelope.images.first.url : null);
 
     return MangaCatalog.fromJson({
-      ...norm,
+      ...norm.toJson(),
       'id': envelope.providerItemId,
       'title': title,
       if (coverImageUrl != null) 'cover_image_url': coverImageUrl,

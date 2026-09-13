@@ -200,7 +200,7 @@ class OpenLibraryProvider extends ProviderAdapter {
       provider: name,
       providerItemId: canonicalItemId,
       kind: CatalogMediaKind.book,
-      normalized: normalized,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://openlibrary.org/works/$canonicalItemId',

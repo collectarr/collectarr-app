@@ -197,14 +197,14 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'openlibrary');
       expect(envelope.kind, CatalogMediaKind.book);
-      expect(envelope.normalized['title'], 'The Fellowship of the Ring');
-      expect(envelope.normalized['subtitle'],
+      expect(envelope.payload['title'], 'The Fellowship of the Ring');
+      expect(envelope.payload['subtitle'],
           'Being the First Part of The Lord of the Rings');
-      expect(envelope.normalized['page_count'], 423);
-      expect(envelope.normalized['publisher'], 'George Allen & Unwin');
-      expect(envelope.normalized['isbn'], '9780261102354');
+      expect(envelope.payload['page_count'], 423);
+      expect(envelope.payload['publisher'], 'George Allen & Unwin');
+      expect(envelope.payload['isbn'], '9780261102354');
       expect(
-          envelope.normalized['genres'], containsAll(['Fantasy', 'Adventure']));
+          envelope.payload['genres'], containsAll(['Fantasy', 'Adventure']));
       expect(envelope.images, hasLength(1));
       expect(envelope.images.first.url,
           'https://covers.openlibrary.org/b/id/12345-L.jpg');
@@ -250,15 +250,15 @@ void main() {
         },
       );
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['subtitle'], goldenEnvelope.normalized['subtitle']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['page_count'], goldenEnvelope.normalized['page_count']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['isbn'], goldenEnvelope.normalized['isbn']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['subtitle'], goldenEnvelope.payload['subtitle']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['page_count'], goldenEnvelope.payload['page_count']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['isbn'], goldenEnvelope.payload['isbn']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(normalized['cover_image_url'],
-          goldenEnvelope.normalized['cover_image_url']);
+          goldenEnvelope.payload['cover_image_url']);
     });
   });
 }

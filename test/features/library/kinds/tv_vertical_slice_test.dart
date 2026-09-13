@@ -150,7 +150,7 @@ void main() {
           provider: 'tmdb',
           providerItemId: '1396',
           kind: CatalogMediaKind.tv,
-          normalized: const {
+          payload: const ProviderMetadataPayload({
             'title': 'Breaking Bad',
             'status': 'Ended',
             'network': 'AMC',
@@ -159,7 +159,7 @@ void main() {
             'episode_count': 62,
             'episode_runtime_minutes': 47,
             'content_rating': 'TV-MA',
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
