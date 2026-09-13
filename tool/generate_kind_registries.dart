@@ -469,8 +469,8 @@ _Contributor? _discoverIntegrationContributor(
 String _renderRegistry(List<_KindDescriptor> descriptors) {
   final buffer = StringBuffer('''// GENERATED CODE - DO NOT MODIFY BY HAND
 // Run: dart run tool/generate_kind_registries.dart
+// ignore_for_file: curly_braces_in_flow_control_structures
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -478,7 +478,6 @@ import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
-import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
@@ -486,24 +485,12 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
-import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
-import 'package:collectarr_app/features/library/config/library_edit_capability.dart';
-import 'package:collectarr_app/features/library/config/library_transfer_capability.dart';
-import 'package:collectarr_app/features/library/config/library_stats_capability.dart';
-import 'package:collectarr_app/features/library/config/library_value_capability.dart';
-import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
-import 'package:collectarr_app/features/library/config/library_ui_policy.dart';
-import 'package:collectarr_app/features/library/config/library_linked_metadata_capability.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';

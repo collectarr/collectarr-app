@@ -35,7 +35,7 @@ void main() {
       id: const TvOwnedItemId('owned-tv-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'tv-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),

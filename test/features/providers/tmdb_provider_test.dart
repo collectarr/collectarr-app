@@ -206,8 +206,7 @@ void main() {
       expect(envelope.payload['audience_rating'], '8.4');
       expect(envelope.payload['genres'], containsAll(['Drama', 'Thriller']));
       expect(jsonObject(envelope.payload['provider_ids'])['tmdb'], '550');
-      expect(
-          jsonObject(envelope.payload['provider_ids'])['imdb'], 'tt0137523');
+      expect(jsonObject(envelope.payload['provider_ids'])['imdb'], 'tt0137523');
       expect(envelope.payload['creators'], hasLength(3));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);

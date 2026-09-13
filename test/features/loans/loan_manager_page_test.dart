@@ -1,8 +1,6 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
@@ -57,7 +55,7 @@ void main() {
           id: OwnedItemId('owned-1'),
         ),
         catalogRef: const CatalogEntityRef(
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             kind: CatalogMediaKind.comic,
             id: 'comic-1'),
         borrowerName: 'Alice',
@@ -118,7 +116,7 @@ void main() {
           id: OwnedItemId('owned-2'),
         ),
         catalogRef: const CatalogEntityRef(
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             kind: CatalogMediaKind.comic,
             id: 'comic-2'),
         borrowerName: 'Bob',

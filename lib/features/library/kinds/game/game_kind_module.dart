@@ -309,18 +309,17 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
     createDraft: createGameEditDraft,
     ownedDigitalFlagResolver: resolveGameOwnedDigitalFlag,
     ownedFormatHintResolver: resolveGameOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
         GameOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionValueUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue) =>
-            GameOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+        GameOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue, locationId, tags) =>
+        (_, condition, collectionValue, locationId, tags) =>
             GameOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -332,7 +331,7 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      _ownedRef,
+      _,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -350,7 +349,7 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
+    ownedTransferUpdatePayloadBuilder: (_, updated) {
       final typed = _gameTransferOwnedItem(updated);
       return GameOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

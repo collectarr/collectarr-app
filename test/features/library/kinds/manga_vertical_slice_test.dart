@@ -1,15 +1,12 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
@@ -17,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_work
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
@@ -117,7 +113,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'manga_1',
           kind: CatalogMediaKind.manga,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
         ),
         condition: 'Near Mint',
         updatedAt: DateTime.now(),
@@ -210,7 +206,7 @@ void main() {
             catalogRef: const CatalogEntityRef(
               id: 'manga_1',
               kind: CatalogMediaKind.manga,
-              entityType: const CatalogEntityTypeId('work'),
+              entityType: CatalogEntityTypeId('work'),
             ),
             updatedAt: DateTime.now(),
             details: const MangaOwnedDetails(

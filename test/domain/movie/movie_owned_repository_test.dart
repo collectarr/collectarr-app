@@ -24,7 +24,7 @@ void main() {
       id: const MovieOwnedItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'movie-1',
       ),
       condition: 'Very Good',

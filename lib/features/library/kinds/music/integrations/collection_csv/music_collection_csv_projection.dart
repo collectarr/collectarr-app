@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_owned_ite
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
@@ -16,9 +14,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// remain owned by Music and are intentionally not flattened into the
 /// generic collection row.
 final class MusicCollectionCsvProjection
-    with
-        LibraryCollectionCsvOwnedImportSupport,
-        LibraryCollectionCsvTrackingImport
+    with LibraryCollectionCsvOwnedImportSupport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -58,10 +54,6 @@ final class MusicCollectionCsvProjection
     final value = cells.elementAtOrNull(10)?.trim();
     return value == null || value.isEmpty ? null : value;
   }
-
-  @override
-  TrackingLifecycleCodec get trackingLifecycleCodec =>
-      const MusicTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

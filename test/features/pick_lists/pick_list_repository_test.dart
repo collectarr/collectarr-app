@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
@@ -157,7 +156,7 @@ void main() {
         id: const ComicOwnedItemId('owned-merge-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('owned_copy'),
+          entityType: CatalogEntityTypeId('owned_copy'),
           id: 'item-merge-1',
         ),
         condition: 'Near Mint',

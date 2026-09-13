@@ -227,8 +227,7 @@ void main() {
       expect(envelope.payload['tracks'], hasLength(3));
       expect(jsonObjectList(envelope.payload['tracks'])[0]['title'],
           'Speak to Me');
-      expect(
-          jsonObjectList(envelope.payload['tracks'])[0]['duration_seconds'],
+      expect(jsonObjectList(envelope.payload['tracks'])[0]['duration_seconds'],
           67);
       expect(envelope.payload['creators'], hasLength(1));
       expect(jsonObjectList(envelope.payload['creators']).first['name'],
@@ -289,8 +288,7 @@ void main() {
       expect(normalized['title'], goldenEnvelope.payload['title']);
       expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
       expect(normalized['genres'], goldenEnvelope.payload['genres']);
-      expect(
-          normalized['track_count'], goldenEnvelope.payload['track_count']);
+      expect(normalized['track_count'], goldenEnvelope.payload['track_count']);
       expect(normalized['tracks'], goldenEnvelope.payload['tracks']);
       expect(jsonObject(normalized['provider_ids'])['musicbrainz'],
           jsonObject(goldenEnvelope.payload['provider_ids'])['musicbrainz']);

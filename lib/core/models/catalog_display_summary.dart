@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import 'catalog_entity_ref.dart';
-import 'catalog_media_kind.dart';
 
 /// Minimal catalog projection for mixed-kind/global hosts.
 ///

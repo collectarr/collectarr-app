@@ -37,7 +37,7 @@ void main() {
         id: const ComicOwnedItemId('owned-value-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('owned_copy'),
+          entityType: CatalogEntityTypeId('owned_copy'),
           id: 'comic-value-1',
         ),
         pricePaidCents: 1800,

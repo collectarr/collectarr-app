@@ -1,11 +1,7 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
 ///
@@ -15,8 +11,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_code
 /// model shared by kinds.
 abstract interface class LibraryCollectionCsvProjection {
   CatalogMediaKind get kind;
-
-  TrackingLifecycleCodec get trackingLifecycleCodec;
 
   String importDisplayTitle(List<String> catalogCells);
 
@@ -41,21 +35,6 @@ abstract interface class LibraryCollectionCsvProjection {
   JsonMap ownedItemImportPayload(
     LibraryCollectionCsvOwnedImport input,
   );
-
-  /// Creates the universal lifecycle record at the CSV serialization
-  /// boundary. The host supplies only structural refs and decoded lifecycle
-  /// values; the owning kind decides whether this import is applicable.
-  TrackingLifecycle? trackingLifecycleFromImport({
-    required String entryId,
-    required CatalogEntityRef catalogRef,
-    required OwnedItemRef ownedRef,
-    required DateTime now,
-    required int? rating,
-    required String? status,
-    required DateTime? startedAt,
-    required DateTime? finishedAt,
-    TrackingLifecycle? existing,
-  });
 
   /// The complete CLZ header for a single-kind export.
 
@@ -218,51 +197,6 @@ Map<String, dynamic> collectionCsvOwnedImportPayload(
   }
   if (input.soldTo != null) payload['sold_to'] = input.soldTo;
   return payload;
-}
-
-/// Shared structural lifecycle import mechanics used by each kind-owned CSV
-/// projection. Kind projections opt into this behavior explicitly; the
-/// Collection import host does not construct or interpret tracking records.
-mixin LibraryCollectionCsvTrackingImport
-    implements LibraryCollectionCsvProjection {
-  @override
-  TrackingLifecycleCodec get trackingLifecycleCodec;
-
-  @override
-  TrackingLifecycle? trackingLifecycleFromImport({
-    required String entryId,
-    required CatalogEntityRef catalogRef,
-    required OwnedItemRef ownedRef,
-    required DateTime now,
-    required int? rating,
-    required String? status,
-    required DateTime? startedAt,
-    required DateTime? finishedAt,
-    TrackingLifecycle? existing,
-  }) {
-    final resolvedStatus = mediaTrackingStatusFromValue(status);
-    if (existing != null) {
-      return existing.copyWith(
-        catalogRef: catalogRef,
-        ownedRef: ownedRef,
-        status: resolvedStatus ?? existing.status,
-        rating: rating ?? existing.rating,
-        startedAt: startedAt ?? existing.startedAt,
-        finishedAt: finishedAt ?? existing.finishedAt,
-        updatedAt: now,
-      );
-    }
-    return trackingLifecycleCodec.create(
-      id: entryId,
-      catalogRef: catalogRef,
-      ownedRef: ownedRef,
-      status: resolvedStatus ?? MediaTrackingStatus.planned,
-      rating: rating,
-      startedAt: startedAt,
-      finishedAt: finishedAt,
-      updatedAt: now,
-    );
-  }
 }
 
 const libraryCollectionCsvCatalogCellCount = 11;

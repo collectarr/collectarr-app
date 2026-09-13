@@ -164,12 +164,11 @@ void main() {
       expect(envelope.payload['creators'], hasLength(2));
       expect(jsonObjectList(envelope.payload['creators'])[0]['name'],
           'David Michelinie');
-      expect(
-          jsonObjectList(envelope.payload['creators'])[0]['role'], 'writer');
+      expect(jsonObjectList(envelope.payload['creators'])[0]['role'], 'writer');
       expect(jsonObjectList(envelope.payload['creators'])[1]['name'],
           'Todd McFarlane');
-      expect(jsonObjectList(envelope.payload['creators'])[1]['role'],
-          'penciller');
+      expect(
+          jsonObjectList(envelope.payload['creators'])[1]['role'], 'penciller');
       expect(envelope.payload['characters'], hasLength(2));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -211,10 +210,9 @@ void main() {
       });
 
       expect(normalized['title'], goldenEnvelope.payload['title']);
-      expect(normalized['series_title'],
-          goldenEnvelope.payload['series_title']);
       expect(
-          normalized['item_number'], goldenEnvelope.payload['item_number']);
+          normalized['series_title'], goldenEnvelope.payload['series_title']);
+      expect(normalized['item_number'], goldenEnvelope.payload['item_number']);
       expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
       expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
       expect(normalized['cover_image_url'],

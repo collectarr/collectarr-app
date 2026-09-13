@@ -74,7 +74,7 @@ void main() {
       id: const MangaOwnedItemId('owned-manga-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.manga,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'manga-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),

@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('comic group mode categories are provided by registration capabilities', () {
+  test('comic group mode categories are provided by registration capabilities',
+      () {
     const modes = [
       'series',
       'grade',

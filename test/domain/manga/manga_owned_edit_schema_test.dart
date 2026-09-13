@@ -167,7 +167,7 @@ MangaEditDraft _createDraft(MangaOwnedDetails details) {
         catalogRef: const CatalogEntityRef(
           id: 'manga-1',
           kind: CatalogMediaKind.manga,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
         ),
         updatedAt: DateTime(2026),
         details: details,

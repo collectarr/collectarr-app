@@ -222,7 +222,7 @@ class BookLibraryMediaPresentationBuilder
         ('Catalog No.', musicCatalogNumber),
       if (gamePlatforms != null && gamePlatforms.isNotEmpty)
         ('Platforms', gamePlatforms.join(', ')),
-      if (runtimeMinutes != null) ('Runtime', '${runtimeMinutes} min'),
+      if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
       if (pageCount != null) ('Pages', pageCount),
       if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
         ('Release Status', musicReleaseStatus),

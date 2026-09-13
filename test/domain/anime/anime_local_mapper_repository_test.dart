@@ -54,7 +54,7 @@ void main() {
       id: const AnimeOwnedItemId('owned-anime-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'anime-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),
@@ -162,7 +162,7 @@ void main() {
           id: const AnimeOwnedItemId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.anime,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             id: 'anime-1',
           ),
           updatedAt: DateTime.utc(2026, 1, 1),

@@ -6,7 +6,6 @@ import 'package:path/path.dart' as p;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
 
@@ -361,8 +360,8 @@ String label(CatalogMediaKind mediaType) {
   });
 
   test('architecture checker has no migration exception registry', () {
-    final source = File('tool/architecture/architecture_checker.dart')
-        .readAsStringSync();
+    final source =
+        File('tool/architecture/architecture_checker.dart').readAsStringSync();
     expect(source, isNot(contains('migration_exceptions')));
     expect(source, isNot(contains('architectureExceptionPaths')));
   });

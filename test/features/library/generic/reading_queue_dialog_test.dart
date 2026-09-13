@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -72,13 +71,13 @@ void main() {
                     ),
                   ],
                   trackingSummaries: [
-                    TrackingSummary.fromLifecycle(TrackingLifecycle(
+                    TrackingSummary(
                       id: 'tracking-1',
                       catalogRef: testCatalogRef('book-1', kind: 'book'),
                       ownedRef: OwnedItemRef.fromKey('book:owned-1'),
                       status: MediaTrackingStatus.inProgress,
                       updatedAt: DateTime.utc(2026, 1, 1),
-                    )),
+                    ),
                   ],
                   catalogSummariesByRef: {
                     testCatalogRef('book-1', kind: 'book'):

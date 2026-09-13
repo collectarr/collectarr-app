@@ -192,15 +192,14 @@ void main() {
       expect(envelope.providerItemId, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
       expect(envelope.kind, CatalogMediaKind.manga);
       expect(envelope.payload['title'], 'Chainsaw Man');
+      expect(envelope.payload['synopsis'], contains('Denji is a teenage boy'));
       expect(
-          envelope.payload['synopsis'], contains('Denji is a teenage boy'));
-      expect(envelope.payload['genres'],
-          containsAll(['Action', 'Supernatural']));
+          envelope.payload['genres'], containsAll(['Action', 'Supernatural']));
       expect(envelope.payload['creators'], hasLength(1));
       expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Tatsuki Fujimoto');
-      expect(jsonObjectList(envelope.payload['creators']).first['role'],
-          'Author');
+      expect(
+          jsonObjectList(envelope.payload['creators']).first['role'], 'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });

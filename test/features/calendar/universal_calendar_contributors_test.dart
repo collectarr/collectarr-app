@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -18,7 +17,7 @@ void main() {
       title: 'book-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       purchaseDate: DateTime.utc(2026, 1, 1),
@@ -65,7 +64,7 @@ void main() {
       id: 'watch-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       watchedAt: DateTime.utc(2026, 1, 5),
@@ -96,7 +95,7 @@ void main() {
       title: 'Book copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
@@ -109,7 +108,7 @@ void main() {
       title: 'Comic copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'comic-1',
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
@@ -151,7 +150,7 @@ void main() {
           id: 'tv-watch-1',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.tv,
-            entityType: const CatalogEntityTypeId('episode'),
+            entityType: CatalogEntityTypeId('episode'),
             id: 'tv-1',
           ),
           watchedAt: DateTime.utc(2026, 1, 5),

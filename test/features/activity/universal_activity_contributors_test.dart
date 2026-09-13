@@ -1,10 +1,8 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -17,7 +15,7 @@ void main() {
   test('projects universal lifecycle domains without kind semantics', () {
     final catalogRef = const CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId('work'),
       id: 'book-activity',
     );
     final now = DateTime.utc(2026, 9, 1);
@@ -33,13 +31,13 @@ void main() {
       soldTo: 'Collector',
       updatedAt: now,
     );
-    final tracking = TrackingLifecycle(
+    final tracking = TrackingSummary(
       id: 'tracking-book-activity',
       catalogRef: catalogRef,
       status: MediaTrackingStatus.completed,
       rating: 9,
       startedAt: now.add(const Duration(days: 4)),
-      finishedAt: now.add(const Duration(days: 5)),
+      completedAt: now.add(const Duration(days: 5)),
       updatedAt: now.add(const Duration(days: 5)),
     );
     final wishlist = WishlistItem(
@@ -65,9 +63,7 @@ void main() {
             UniversalActivityContext(
               ownedItems: [owned],
               trackingLifecycles: [
-                TrackingActivitySummary.fromSummary(
-                  TrackingSummary.fromLifecycle(tracking),
-                )
+                TrackingActivitySummary.fromSummary(tracking)
               ],
               wishlistItems: [wishlist],
               loans: [loan],
@@ -108,7 +104,7 @@ void main() {
           id: 'watch-1',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           watchedAt: DateTime.utc(2026, 1, 5),
@@ -132,7 +128,7 @@ void main() {
           id: 'tv-watch-1',
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.tv,
-            entityType: const CatalogEntityTypeId('episode'),
+            entityType: CatalogEntityTypeId('episode'),
             id: 'tv-1',
           ),
           watchedAt: DateTime.utc(2026, 1, 5),

@@ -14,7 +14,7 @@ void main() {
     final repository = UserMetadataOverridesCacheRepository(db);
     const target = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: const CatalogEntityTypeId('edition'),
+      entityType: CatalogEntityTypeId('edition'),
       id: 'edition-1',
     );
     final updatedAt = DateTime.utc(2026, 9, 7, 12);
@@ -56,12 +56,12 @@ void main() {
     final repository = UserMetadataOverridesCacheRepository(db);
     const bookTarget = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: const CatalogEntityTypeId('edition'),
+      entityType: CatalogEntityTypeId('edition'),
       id: 'shared-id',
     );
     const comicTarget = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('issue'),
+      entityType: CatalogEntityTypeId('issue'),
       id: 'shared-id',
     );
 

@@ -22,7 +22,6 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_profile.
 export 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 
 import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
 export 'package:collectarr_app/features/library/config/library_kind_identity.dart';

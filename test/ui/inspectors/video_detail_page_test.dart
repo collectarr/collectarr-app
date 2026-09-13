@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -10,7 +9,6 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
@@ -200,7 +198,7 @@ void main() {
         id: 'wishlist-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('edition'),
+          entityType: CatalogEntityTypeId('edition'),
           id: 'edition-4k',
           rootId: 'movie-1',
         ),
@@ -270,7 +268,7 @@ void main() {
                 id: 'wishlist-1',
                 catalogRef: const CatalogEntityRef(
                   kind: CatalogMediaKind.movie,
-                  entityType: const CatalogEntityTypeId('edition'),
+                  entityType: CatalogEntityTypeId('edition'),
                   id: 'edition-4k',
                   rootId: 'movie-1',
                 ),

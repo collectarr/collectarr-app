@@ -235,8 +235,8 @@ void main() {
       expect(envelope.providerItemId, '30002');
       expect(envelope.kind, CatalogMediaKind.manga);
       expect(envelope.payload['title'], 'Berserk');
-      expect(envelope.payload['synopsis'],
-          contains('Guts, a former mercenary'));
+      expect(
+          envelope.payload['synopsis'], contains('Guts, a former mercenary'));
       expect(envelope.payload['genres'],
           containsAll(['Action', 'Adventure', 'Dark Fantasy']));
       expect(envelope.payload['creators'], hasLength(1));
@@ -244,8 +244,7 @@ void main() {
           'Kentarou Miura');
       expect(jsonObjectList(envelope.payload['creators']).first['role'],
           'Story & Art');
-      expect(
-          jsonObject(envelope.payload['provider_ids'])['anilist'], '30002');
+      expect(jsonObject(envelope.payload['provider_ids'])['anilist'], '30002');
       expect(jsonObject(envelope.payload['provider_ids'])['mal'], '2');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);

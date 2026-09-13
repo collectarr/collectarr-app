@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
 import '../../../helpers/tracking_lifecycle_test_helpers.dart';
@@ -45,7 +44,6 @@ import 'package:collectarr_app/features/library/add/services/library_add_search_
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -365,7 +363,7 @@ void main() {
           (command.typedPayload.detailsDraft as ComicOwnedDetailsDraft)
               .toDetails();
       expect(details, isA<ComicOwnedDetails>());
-      expect((details as ComicOwnedDetails).gradingCompany, 'CBCS');
+      expect((details).gradingCompany, 'CBCS');
       expect(details.signedBy, 'Stan Lee');
     });
 
@@ -388,7 +386,7 @@ void main() {
           (command.typedPayload.detailsDraft as MovieOwnedDetailsDraft)
               .toDetails();
       expect(details, isA<MovieOwnedDetails>());
-      expect((details as MovieOwnedDetails).packaging, 'SteelBook');
+      expect((details).packaging, 'SteelBook');
       expect(details.region, 'Region A');
     });
 
@@ -411,7 +409,7 @@ void main() {
           (command.typedPayload.detailsDraft as GameOwnedDetailsDraft)
               .toDetails();
       expect(details, isA<GameOwnedDetails>());
-      expect((details as GameOwnedDetails).completeness, 'CIB');
+      expect((details).completeness, 'CIB');
       expect(details.hasBox, true);
     });
 
@@ -434,7 +432,7 @@ void main() {
           (command.typedPayload.detailsDraft as MusicOwnedDetailsDraft)
               .toDetails();
       expect(details, isA<MusicOwnedDetails>());
-      expect((details as MusicOwnedDetails).storageDevice, 'Shelf A');
+      expect((details).storageDevice, 'Shelf A');
       expect(details.storageSlot, '12');
     });
 

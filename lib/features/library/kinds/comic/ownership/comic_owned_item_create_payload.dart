@@ -69,7 +69,6 @@ final class ComicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   ComicOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

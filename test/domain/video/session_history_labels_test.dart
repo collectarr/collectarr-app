@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +45,7 @@ void main() {
           watchSessionsByCatalogRefProvider(
             const CatalogEntityRef(
               kind: CatalogMediaKind.book,
-              entityType: const CatalogEntityTypeId('work'),
+              entityType: CatalogEntityTypeId('work'),
               id: 'book-1',
             ),
           ).overrideWithValue(
@@ -58,7 +57,7 @@ void main() {
             body: WatchHistorySection(
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.book,
-                entityType: const CatalogEntityTypeId('work'),
+                entityType: CatalogEntityTypeId('work'),
                 id: 'book-1',
               ),
               accent: Colors.teal,
@@ -80,7 +79,7 @@ void main() {
       id: 'session-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       watchedAt: DateTime.utc(2026, 5, 14),
@@ -93,7 +92,7 @@ void main() {
           watchSessionsByCatalogRefProvider(
             const CatalogEntityRef(
               kind: CatalogMediaKind.book,
-              entityType: const CatalogEntityTypeId('work'),
+              entityType: CatalogEntityTypeId('work'),
               id: 'book-1',
             ),
           ).overrideWithValue(
@@ -105,7 +104,7 @@ void main() {
             body: WatchHistorySection(
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.book,
-                entityType: const CatalogEntityTypeId('work'),
+                entityType: CatalogEntityTypeId('work'),
                 id: 'book-1',
               ),
               accent: Colors.teal,

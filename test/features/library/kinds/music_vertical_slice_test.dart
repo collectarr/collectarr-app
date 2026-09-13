@@ -1,6 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
@@ -8,10 +6,8 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_provi
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
@@ -129,7 +125,7 @@ void main() {
           catalogRef: const CatalogEntityRef(
             id: 'music_1',
             kind: CatalogMediaKind.music,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'Near Mint',
           updatedAt: DateTime.now(),

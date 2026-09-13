@@ -3,10 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_ite
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/remote/comic_core_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -18,9 +15,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// that format. The returned lists are serialization cells, not Comic domain
 /// objects, so the type-erased boundary exists only at export.
 final class ComicCollectionCsvProjection
-    with
-        LibraryCollectionCsvOwnedImportSupport,
-        LibraryCollectionCsvTrackingImport
+    with LibraryCollectionCsvOwnedImportSupport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -60,10 +55,6 @@ final class ComicCollectionCsvProjection
     final value = cells.elementAtOrNull(10)?.trim();
     return value == null || value.isEmpty ? null : value;
   }
-
-  @override
-  TrackingLifecycleCodec get trackingLifecycleCodec =>
-      const ComicTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
@@ -12,9 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 
 /// Book's semantic contribution to the generic collection CSV host.
 final class BookCollectionCsvProjection
-    with
-        LibraryCollectionCsvOwnedImportSupport,
-        LibraryCollectionCsvTrackingImport
+    with LibraryCollectionCsvOwnedImportSupport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -54,10 +50,6 @@ final class BookCollectionCsvProjection
     final value = cells.elementAtOrNull(10)?.trim();
     return value == null || value.isEmpty ? null : value;
   }
-
-  @override
-  TrackingLifecycleCodec get trackingLifecycleCodec =>
-      const BookTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

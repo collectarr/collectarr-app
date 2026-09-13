@@ -165,7 +165,7 @@ void main() {
           id: const BookOwnedItemId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
-            entityType: const CatalogEntityTypeId('work'),
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           updatedAt: DateTime.utc(2026, 1, 1),
@@ -182,7 +182,7 @@ void main() {
       id: const BookOwnedItemId('owned-book-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),

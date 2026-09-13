@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -19,7 +18,7 @@ void main() {
       id: const ComicOwnedItemId('owned-comic-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'comic-1',
       ),
       condition: 'Near Mint',

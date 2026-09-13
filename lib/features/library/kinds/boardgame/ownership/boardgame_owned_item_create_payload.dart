@@ -64,7 +64,6 @@ final class BoardgameOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   BoardGameOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

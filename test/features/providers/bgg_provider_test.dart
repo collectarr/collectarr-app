@@ -168,8 +168,8 @@ void main() {
       expect(envelope.payload['creators'], hasLength(1));
       expect(jsonObjectList(envelope.payload['creators'])[0]['name'],
           'Isaac Childres');
-      expect(jsonObjectList(envelope.payload['creators'])[0]['role'],
-          'Designer');
+      expect(
+          jsonObjectList(envelope.payload['creators'])[0]['role'], 'Designer');
       expect(envelope.images, hasLength(1));
       expect(envelope.images[0].url,
           'https://cf.geekdo-images.com/gloomhaven.jpg');
@@ -229,10 +229,8 @@ void main() {
       expect(normalized['title'], goldenEnvelope.payload['title']);
       expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
       expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
-      expect(
-          normalized['min_players'], goldenEnvelope.payload['min_players']);
-      expect(
-          normalized['max_players'], goldenEnvelope.payload['max_players']);
+      expect(normalized['min_players'], goldenEnvelope.payload['min_players']);
+      expect(normalized['max_players'], goldenEnvelope.payload['max_players']);
       expect(normalized['min_age'], goldenEnvelope.payload['min_age']);
       expect(normalized['playing_time_minutes'],
           goldenEnvelope.payload['playing_time_minutes']);

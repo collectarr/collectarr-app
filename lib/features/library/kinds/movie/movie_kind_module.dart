@@ -423,18 +423,17 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
     createDraft: createMovieEditDraft,
     ownedDigitalFlagResolver: resolveMovieOwnedDigitalFlag,
     ownedFormatHintResolver: resolveMovieOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
         MovieOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionValueUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue) =>
-            MovieOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+        MovieOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue, locationId, tags) =>
+        (_, condition, collectionValue, locationId, tags) =>
             MovieOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -446,7 +445,7 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      _ownedRef,
+      _,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -464,7 +463,7 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
+    ownedTransferUpdatePayloadBuilder: (_, updated) {
       final typed = _movieTransferOwnedItem(updated);
       return MovieOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

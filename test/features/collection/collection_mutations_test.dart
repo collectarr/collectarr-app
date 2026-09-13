@@ -640,7 +640,7 @@ void main() {
           original,
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
-            entityType: const CatalogEntityTypeId('bundle_release'),
+            entityType: CatalogEntityTypeId('bundle_release'),
             id: 'bundle-1',
             rootId: 'movie-1',
           ),
@@ -678,7 +678,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('edition'),
+        entityType: CatalogEntityTypeId('edition'),
         id: 'edition-4k',
         rootId: 'movie-1',
       ),
@@ -686,7 +686,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('edition'),
+        entityType: CatalogEntityTypeId('edition'),
         id: 'edition-bluray',
         rootId: 'movie-1',
       ),
@@ -721,7 +721,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('edition'),
+        entityType: CatalogEntityTypeId('edition'),
         id: 'edition-4k',
         rootId: 'movie-1',
       ),
@@ -729,7 +729,7 @@ void main() {
     await wishlistMutations.addToWishlist(
       const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('edition'),
+        entityType: CatalogEntityTypeId('edition'),
         id: 'edition-bluray',
         rootId: 'movie-1',
       ),
@@ -738,7 +738,7 @@ void main() {
     await wishlistMutations.removeFromWishlist(
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('edition'),
+        entityType: CatalogEntityTypeId('edition'),
         id: 'edition-4k',
         rootId: 'movie-1',
       ),

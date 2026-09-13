@@ -7,10 +7,8 @@ import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,7 +104,7 @@ void main() {
     final command = typedAddOwnedItemCommand(
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('owned_copy'),
+        entityType: CatalogEntityTypeId('owned_copy'),
         id: 'comic-cmd-1',
       ),
       targetRef: const CatalogEntityRef(
@@ -168,7 +166,7 @@ void main() {
       typedAddOwnedItemCommand(
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('owned_copy'),
+          entityType: CatalogEntityTypeId('owned_copy'),
           id: 'comic-cmd-2',
         ),
         common: const LibraryAddCommonDraft(

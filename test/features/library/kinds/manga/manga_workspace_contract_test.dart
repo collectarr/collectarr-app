@@ -80,7 +80,7 @@ void main() {
     final facets = mangaLibraryFacetModule;
     expect(facets, isNotNull);
     expect(
-      facets!.externalFacetBucketIdsByMode.keys,
+      facets.externalFacetBucketIdsByMode.keys,
       containsAll(['manga.genre', 'manga.demographic']),
     );
 

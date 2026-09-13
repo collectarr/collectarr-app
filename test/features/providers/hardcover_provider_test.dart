@@ -214,8 +214,8 @@ void main() {
       expect(envelope.providerItemId, '1234');
       expect(envelope.kind, CatalogMediaKind.book);
       expect(envelope.payload['title'], 'Dune');
-      expect(envelope.payload['synopsis'],
-          contains('Set on the desert planet'));
+      expect(
+          envelope.payload['synopsis'], contains('Set on the desert planet'));
       expect(envelope.payload['publisher'], 'Chilton Books');
       expect(envelope.payload['page_count'], 688);
       expect(envelope.payload['genres'],
@@ -223,8 +223,8 @@ void main() {
       expect(envelope.payload['creators'], hasLength(1));
       expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Frank Herbert');
-      expect(jsonObjectList(envelope.payload['creators']).first['role'],
-          'Author');
+      expect(
+          jsonObjectList(envelope.payload['creators']).first['role'], 'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });

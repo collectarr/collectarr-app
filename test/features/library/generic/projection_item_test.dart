@@ -3,8 +3,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -80,7 +78,7 @@ void main() {
         id: 'wish-3',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('release'),
+          entityType: CatalogEntityTypeId('release'),
           id: 'variant-3',
           rootId: 'comic-3',
         ),

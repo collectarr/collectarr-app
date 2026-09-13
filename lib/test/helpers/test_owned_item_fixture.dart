@@ -74,7 +74,8 @@ final class TestOwnedItem {
 
   JsonMap toSyncPayload() => {
         'catalog_ref': catalogRef.toJson(),
-        if (createdAt != null) 'created_at': createdAt!.toUtc().toIso8601String(),
+        if (createdAt != null)
+          'created_at': createdAt!.toUtc().toIso8601String(),
         if (isDigital != null) 'is_digital': isDigital,
         'target_ref': targetRef?.toJson(),
         'condition': condition,

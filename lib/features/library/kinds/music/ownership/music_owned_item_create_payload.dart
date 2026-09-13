@@ -64,7 +64,6 @@ final class MusicOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   MusicOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

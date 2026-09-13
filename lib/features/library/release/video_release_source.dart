@@ -388,10 +388,7 @@ class _EditionSeed {
     this.formatLabel,
     JsonMap? metadata,
     Map<String, CatalogVariantDto>? variants,
-  })  : metadata = JsonMap.from({
-          ...?metadata,
-          _videoReleaseSourceKey: source
-        }),
+  })  : metadata = JsonMap.from({...?metadata, _videoReleaseSourceKey: source}),
         _variants = <String, CatalogVariantDto>{...?variants};
 
   factory _EditionSeed.localAnchor(

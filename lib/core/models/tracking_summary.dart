@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -24,22 +23,6 @@ final class TrackingSummary {
     this.notes,
     this.deletedAt,
   });
-
-  factory TrackingSummary.fromLifecycle(TrackingLifecycle entry) {
-    return TrackingSummary(
-      id: entry.id,
-      catalogRef: entry.catalogRef,
-      status: entry.status ?? MediaTrackingStatus.none,
-      ownedRef: entry.ownedRef,
-      sourceType: entry.sourceType,
-      rating: entry.rating,
-      startedAt: entry.startedAt,
-      completedAt: entry.finishedAt,
-      notes: entry.notes,
-      updatedAt: entry.updatedAt,
-      deletedAt: entry.deletedAt,
-    );
-  }
 
   final String id;
   final CatalogEntityRef catalogRef;

@@ -121,7 +121,7 @@ void main() {
       final owned = _movieOwnedSummary(
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('edition'),
+          entityType: CatalogEntityTypeId('edition'),
           id: 'ed_1',
           rootId: 'movie_1',
         ),
@@ -159,7 +159,7 @@ void main() {
         updatedAt: DateTime(2026),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('edition'),
+          entityType: CatalogEntityTypeId('edition'),
           id: 'ed_1',
           rootId: 'movie_1',
         ),
@@ -201,7 +201,7 @@ void main() {
       final owned = _movieOwnedSummary(
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('release'),
+          entityType: CatalogEntityTypeId('release'),
           id: 'var_b',
           rootId: 'movie_1',
         ),
@@ -236,7 +236,7 @@ void main() {
       final owned = _movieOwnedSummary(
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('bundle_release'),
+          entityType: CatalogEntityTypeId('bundle_release'),
           id: 'ed_1',
           rootId: 'movie_1',
         ),

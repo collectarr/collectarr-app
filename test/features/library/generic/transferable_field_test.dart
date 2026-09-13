@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -22,7 +21,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'work-1',
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
         ),
         condition: 'Mint',
         grade: '9.8',
@@ -89,7 +88,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'c-1',
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
         ),
         details: const ComicOwnedDetails(keyComic: true),
         updatedAt: DateTime(2026, 1, 1),
@@ -116,7 +115,7 @@ void main() {
         catalogRef: const CatalogEntityRef(
           id: 'm-1',
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
         ),
         details: const MovieOwnedDetails(packaging: 'Steelbook'),
         updatedAt: DateTime(2026, 1, 1),

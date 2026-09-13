@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -12,9 +11,6 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -26,7 +22,7 @@ void main() {
       id: 'tracking-item',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       progressCurrent: 10,
@@ -36,7 +32,7 @@ void main() {
       id: 'tracking-copy',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       ownedRef: OwnedItemRef.fromKey('book:owned-1'),
@@ -50,7 +46,7 @@ void main() {
         id: 'owned-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
           id: 'book-1',
         ),
         updatedAt: DateTime.utc(2026, 5, 25, 11),
@@ -123,7 +119,7 @@ void main() {
     );
     final node = const LibraryCopyNodeRef(
       titleItemId: 'comic-2',
-      ownedRef: const OwnedItemRef(
+      ownedRef: OwnedItemRef(
         kind: CatalogMediaKind.comic,
         id: OwnedItemId('owned-comic-2'),
       ),
@@ -160,7 +156,7 @@ void main() {
       id: 'wishlist-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('release'),
+        entityType: CatalogEntityTypeId('release'),
         id: 'variant-uhd',
         rootId: 'movie-1',
       ),

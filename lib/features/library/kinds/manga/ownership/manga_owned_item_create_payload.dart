@@ -64,7 +64,6 @@ final class MangaOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   MangaOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

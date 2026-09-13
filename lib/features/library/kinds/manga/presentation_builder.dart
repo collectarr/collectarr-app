@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -266,7 +265,7 @@ class MangaLibraryMediaPresentationBuilder
         ('Catalog No.', musicCatalogNumber),
       if (gamePlatforms != null && gamePlatforms.isNotEmpty)
         ('Platforms', gamePlatforms.join(', ')),
-      if (runtimeMinutes != null) ('Runtime', '${runtimeMinutes} min'),
+      if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
       if (pageCount != null) ('Pages', pageCount),
       if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
         ('Release Status', musicReleaseStatus),

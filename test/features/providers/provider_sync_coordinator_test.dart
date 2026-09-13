@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
 import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
@@ -100,7 +99,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
       );
 
       // BASE snapshot
@@ -182,7 +181,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
       );
 
       await linkStore.saveLink(
@@ -253,7 +252,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-55',
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
       );
 
       const entry = ProviderPersonalEntry(
@@ -302,7 +301,7 @@ void main() {
       const localRef = CatalogEntityRef(
         id: 'local-anime-policy',
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
       );
       const base = ProviderPersonalEntry(
         provider: ProviderId.aniList,

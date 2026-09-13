@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_o
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
@@ -12,9 +10,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 
 /// BoardGame's semantic contribution to the generic collection CSV host.
 final class BoardGameCollectionCsvProjection
-    with
-        LibraryCollectionCsvOwnedImportSupport,
-        LibraryCollectionCsvTrackingImport
+    with LibraryCollectionCsvOwnedImportSupport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -54,10 +50,6 @@ final class BoardGameCollectionCsvProjection
     final value = cells.elementAtOrNull(10)?.trim();
     return value == null || value.isEmpty ? null : value;
   }
-
-  @override
-  TrackingLifecycleCodec get trackingLifecycleCodec =>
-      const BoardGameTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

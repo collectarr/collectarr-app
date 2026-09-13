@@ -3,8 +3,6 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_proj
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
@@ -16,9 +14,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 /// episodes remain typed TV hierarchy and are not flattened into generic
 /// collection-owned fields.
 final class TvCollectionCsvProjection
-    with
-        LibraryCollectionCsvOwnedImportSupport,
-        LibraryCollectionCsvTrackingImport
+    with LibraryCollectionCsvOwnedImportSupport
     implements
         LibraryCollectionCsvProjection,
         LibraryCollectionCsvOwnedDetailsDecoder {
@@ -58,10 +54,6 @@ final class TvCollectionCsvProjection
     final value = cells.elementAtOrNull(10)?.trim();
     return value == null || value.isEmpty ? null : value;
   }
-
-  @override
-  TrackingLifecycleCodec get trackingLifecycleCodec =>
-      const TvTrackingLifecycleCodec();
 
   @override
   List<String> get clzFriendlyHeader =>

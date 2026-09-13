@@ -64,7 +64,6 @@ final class TvOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   TvOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

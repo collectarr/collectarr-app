@@ -64,7 +64,6 @@ final class MovieOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   MovieOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

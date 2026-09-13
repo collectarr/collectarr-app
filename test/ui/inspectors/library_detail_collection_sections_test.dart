@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';

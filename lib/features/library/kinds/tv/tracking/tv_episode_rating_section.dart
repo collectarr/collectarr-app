@@ -1,9 +1,8 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_grid.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_picker.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -122,16 +121,9 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final trackingLifecycles = ref.watch(
-            trackingPersistenceEntriesByCatalogRefProvider)[CatalogEntityRef(
-          kind: CatalogMediaKind.tv,
-          entityType: const CatalogEntityTypeId('work'),
-          id: itemId,
-        )] ??
-        const <TrackingLifecycle>[];
-    final ratings = trackingLifecycles.isEmpty
-        ? const <String, int>{}
-        : tvTrackingCoordinatesFor(trackingLifecycles.first).episodeRatings;
+    final tracking = ref.watch(tvTrackingLifecycleBySeriesIdProvider(itemId));
+    final ratings = tracking.asData?.value?.coordinates.episodeRatings ??
+        const <String, int>{};
 
     if (ratings.isEmpty) return const SizedBox.shrink();
 

@@ -444,18 +444,17 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
     createDraft: createBookEditDraft,
     ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
     ownedFormatHintResolver: resolveBookOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
         BookOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionValueUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue) =>
-            BookOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+        BookOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue, locationId, tags) =>
+        (_, condition, collectionValue, locationId, tags) =>
             BookOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -467,7 +466,7 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      _ownedRef,
+      _,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -485,7 +484,7 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
+    ownedTransferUpdatePayloadBuilder: (_, updated) {
       final typed = _bookTransferOwnedItem(updated);
       return BookOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

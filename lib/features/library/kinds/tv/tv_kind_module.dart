@@ -407,18 +407,17 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
     createDraft: createTvEditDraft,
     ownedDigitalFlagResolver: resolveTvOwnedDigitalFlag,
     ownedFormatHintResolver: resolveTvOwnedFormatHint,
-    ownedIndexUpdatePayloadBuilder: (_ownedRef, indexNumber) =>
+    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
         TvOwnedItemUpdatePayload.partial(
       indexNumber: Patch.set(indexNumber),
     ),
-    ownedConditionValueUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue) =>
-            TvOwnedItemUpdatePayload.partial(
+    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+        TvOwnedItemUpdatePayload.partial(
       condition: Patch.set(condition),
       grade: Patch.set(collectionValue),
     ),
     ownedBulkUpdatePayloadBuilder:
-        (_ownedRef, condition, collectionValue, locationId, tags) =>
+        (_, condition, collectionValue, locationId, tags) =>
             TvOwnedItemUpdatePayload.partial(
       condition:
           condition == null ? const Patch.unchanged() : Patch.set(condition),
@@ -430,7 +429,7 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
       tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
     ),
     ownedPersonalDetailsUpdatePayloadBuilder: (
-      _ownedRef,
+      _,
       purchaseDate,
       pricePaidCents,
       currency,
@@ -448,7 +447,7 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
       locationId:
           locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
     ),
-    ownedTransferUpdatePayloadBuilder: (_ownedRef, updated) {
+    ownedTransferUpdatePayloadBuilder: (_, updated) {
       final typed = _tvTransferOwnedItem(updated);
       return TvOwnedItemUpdatePayload.partial(
         condition: Patch.set(typed.condition),

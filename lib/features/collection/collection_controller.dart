@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
@@ -17,7 +16,6 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/collection/repositories/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_unit_codecs.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_custom_episode_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_watch_session_codecs.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
@@ -45,39 +43,6 @@ final collectionSummariesProvider =
     FutureProvider<List<OwnedItemSummary>>((ref) async {
   final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
-});
-
-/// Full persistence aggregates are exposed only to typed edit/sync flows.
-final trackingPersistenceEntriesProvider =
-    FutureProvider<List<TrackingLifecycle>>((ref) async {
-  final cache = TrackingLifecycleRepository(
-    ref.watch(localDatabaseProvider),
-    codecs: collectarrTrackingLifecycleCodecs,
-  );
-  return cache.listActive();
-});
-
-final trackingPersistenceEntriesByCatalogRefProvider =
-    Provider<Map<CatalogEntityRef, List<TrackingLifecycle>>>((ref) {
-  final tracking = ref.watch(trackingPersistenceEntriesProvider);
-  return tracking.maybeWhen(
-    data: (items) {
-      final grouped = <CatalogEntityRef, List<TrackingLifecycle>>{};
-      for (final item in items) {
-        if (item.isDeleted) {
-          continue;
-        }
-        grouped
-            .putIfAbsent(item.catalogRef, () => <TrackingLifecycle>[])
-            .add(item);
-      }
-      for (final entries in grouped.values) {
-        entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-      }
-      return grouped;
-    },
-    orElse: () => const <CatalogEntityRef, List<TrackingLifecycle>>{},
-  );
 });
 
 /// Structural tracking projection for mixed/global consumers.

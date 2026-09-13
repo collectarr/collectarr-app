@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -27,10 +26,10 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_providers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -126,7 +125,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             : <OwnedItemSummary>[widget.ownedItem!]);
     final ownedSummaryResolution = resolveActiveOwnedSummary(
       ownedCopies,
-      fallback: widget.ownedItem == null ? null : widget.ownedItem,
+      fallback: widget.ownedItem,
       selectedOwnedItemRef: _selectedOwnedItemRef,
       selectNewest: _selectNewestOwnedItem,
     );
@@ -148,7 +147,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     };
     final activeTrackingLifecycle = resolveActiveTrackingLifecycle(
       trackingLifecycles,
-      activeOwnedItem == null ? null : activeOwnedItem,
+      activeOwnedItem,
     );
     final onToggleOwned = selected.source.isOwned
         ? activeOwnedItem == null

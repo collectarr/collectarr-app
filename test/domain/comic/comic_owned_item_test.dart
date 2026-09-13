@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
@@ -13,7 +12,7 @@ void main() {
     id: const ComicOwnedItemId('owned-comic-1'),
     catalogRef: const CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('work'),
+      entityType: CatalogEntityTypeId('work'),
       id: 'comic-1',
     ),
     createdAt: DateTime.utc(2024, 1, 1),
@@ -83,7 +82,7 @@ void main() {
         ...item.toJson(),
         'catalog_ref': const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
           id: 'book-1',
         ).toJson(),
       }),

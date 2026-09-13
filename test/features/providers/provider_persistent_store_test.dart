@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/credentials/provider_credential_store.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
@@ -106,7 +105,7 @@ void main() {
       localEntityRef: const CatalogEntityRef(
         id: 'anime-21',
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
       ),
       baseSnapshot: base,
       remoteRevision: 'rev-1',
@@ -152,7 +151,7 @@ void main() {
       const CatalogEntityRef(
         id: 'anime-21',
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
       ),
     );
 

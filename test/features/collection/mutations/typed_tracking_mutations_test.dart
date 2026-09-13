@@ -1,7 +1,6 @@
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
@@ -78,7 +77,7 @@ void main() {
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.movie,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'movie-target-1',
       );
 
@@ -106,7 +105,7 @@ void main() {
         id: BookOwnedItemId('owned-item-77'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
           id: 'book-77',
         ),
         details: const BookOwnedDetails(),
@@ -151,7 +150,7 @@ void main() {
         ),
         targetRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: const CatalogEntityTypeId('release'),
+          entityType: CatalogEntityTypeId('release'),
           id: 'variant-anchor',
           rootId: 'book-anchor-target',
           parentId: 'edition-anchor',
@@ -173,7 +172,7 @@ void main() {
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-anchor-clear',
       );
 
@@ -216,7 +215,7 @@ void main() {
     test('handles unknown tracking source cleanly', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.game,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'game-100',
       );
 
@@ -236,7 +235,7 @@ void main() {
     test('preserves typed unit ratings map', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'tv-series-1',
       );
 
@@ -269,7 +268,7 @@ void main() {
     test('does not introduce hardcoded comic fallback kind', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'music-album-99',
       );
 
@@ -289,7 +288,7 @@ void main() {
     test('forwards file import origin through tracking mutation', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'anime-import-1',
       );
 
@@ -329,7 +328,7 @@ void main() {
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'tv-owned-1',
       );
       final owned = TvOwnedItem(
@@ -390,7 +389,7 @@ void main() {
     test('owned sync can explicitly replace its catalog target', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-owned-anchor-clear',
       );
       final owned = BookOwnedItem(
@@ -446,7 +445,7 @@ void main() {
     test('updateTrackingLifecycle applies explicit clears', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-clear-1',
       );
       final existing = BookTrackingLifecycle(

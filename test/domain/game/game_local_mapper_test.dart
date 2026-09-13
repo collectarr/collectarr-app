@@ -103,7 +103,7 @@ void main() {
       id: const GameOwnedItemId('owned-game-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.game,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'game-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),

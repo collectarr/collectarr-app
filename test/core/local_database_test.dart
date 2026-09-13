@@ -11,9 +11,11 @@ void main() {
     final version = await db.customSelect('PRAGMA user_version').getSingle();
     expect(version.data.values.single, 1);
 
-    final tables = await db.customSelect(
+    final tables = await db
+        .customSelect(
           "SELECT name FROM sqlite_master WHERE type = 'table'",
-    ).get();
+        )
+        .get();
     final names = tables.map((row) => row.data['name']).whereType<String>();
 
     expect(names, contains('comic_media_rows'));
@@ -39,9 +41,11 @@ void main() {
       'anime_media_rows',
       'music_media_rows',
     ];
-    final tables = await db.customSelect(
+    final tables = await db
+        .customSelect(
           "SELECT name FROM sqlite_master WHERE type = 'table'",
-    ).get();
+        )
+        .get();
     final names = tables.map((row) => row.data['name']).whereType<String>();
 
     expect(names, containsAll(expected));

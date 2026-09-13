@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,7 +34,7 @@ void main() {
     final hit = CatalogSearchHit(
       ref: const CatalogEntityRef(
         kind: CatalogMediaKind.book,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       kind: CatalogMediaKind.book,

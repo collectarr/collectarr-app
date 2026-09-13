@@ -74,7 +74,7 @@ void main() {
       id: const MusicOwnedItemId('owned-music-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'music-1',
       ),
       createdAt: DateTime.utc(2026, 4, 1),

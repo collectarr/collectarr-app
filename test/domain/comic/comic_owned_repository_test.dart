@@ -17,7 +17,7 @@ void main() {
       id: const ComicOwnedItemId('owned-comic-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'comic-1',
       ),
       targetRef: const CatalogEntityRef(

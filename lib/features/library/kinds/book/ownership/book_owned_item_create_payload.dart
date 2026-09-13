@@ -64,7 +64,6 @@ final class BookOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   BookOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

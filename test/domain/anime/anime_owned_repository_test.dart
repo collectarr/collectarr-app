@@ -24,7 +24,7 @@ void main() {
       id: const AnimeOwnedItemId('owned-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.anime,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'anime-1',
       ),
       condition: 'Very Good',

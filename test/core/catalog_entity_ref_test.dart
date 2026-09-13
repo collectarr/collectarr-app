@@ -5,19 +5,19 @@ void main() {
   test('CatalogEntityRef is a stable value key', () {
     const first = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('issue'),
+      entityType: CatalogEntityTypeId('issue'),
       id: 'issue-1',
       rootId: 'series-1',
     );
     const equal = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('issue'),
+      entityType: CatalogEntityTypeId('issue'),
       id: 'issue-1',
       rootId: 'series-1',
     );
     const different = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('issue'),
+      entityType: CatalogEntityTypeId('issue'),
       id: 'issue-2',
       rootId: 'series-1',
     );
@@ -32,7 +32,7 @@ void main() {
       () {
     const ref = CatalogEntityRef(
       kind: CatalogMediaKind.book,
-      entityType: const CatalogEntityTypeId('edition'),
+      entityType: CatalogEntityTypeId('edition'),
       id: 'edition-1',
       rootId: 'book-1',
       parentId: 'series-1',
@@ -64,7 +64,7 @@ void main() {
   test('derives a stable structural root scope only from root context', () {
     const child = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
-      entityType: const CatalogEntityTypeId('episode'),
+      entityType: CatalogEntityTypeId('episode'),
       id: 'episode-2',
       rootId: 'series-1',
       parentId: 'season-1',
@@ -73,14 +73,14 @@ void main() {
       child.rootScope,
       const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'series-1',
       ),
     );
 
     const targetWithoutRoot = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: const CatalogEntityTypeId('owned_copy'),
+      entityType: CatalogEntityTypeId('owned_copy'),
       id: 'copy-1',
     );
     expect(targetWithoutRoot.rootScope, targetWithoutRoot);

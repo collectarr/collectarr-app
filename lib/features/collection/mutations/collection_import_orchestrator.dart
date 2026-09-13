@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -20,6 +19,7 @@ import 'package:collectarr_app/features/collection/runner/collection_mutation_ru
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_collection_csv_projection.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
@@ -99,16 +99,10 @@ final class CollectionImportOrchestrator {
           ))
         if (item.catalogRef != null) item.catalogRef!: item,
     };
-    final existingLifecycles = {
-      for (final entry
-          in await this.trackingLifecycles.findActiveByCatalogRefs(rowRefs))
-        entry.catalogRef: entry,
-    };
-
     final activeWishlistRefs = existingWishlist.keys.toSet();
     final ownedItemRefs = <OwnedItemRef>[];
     final ownedWrites = <Future<OwnedItemMutationResult> Function()>[];
-    final trackingLifecycles = <TrackingLifecycle>[];
+    final trackingImports = <TrackingLifecycleImport>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
@@ -164,30 +158,17 @@ final class CollectionImportOrchestrator {
         );
         ownedItemRefs.add(ownedRef);
 
-        final trackingLifecycle = row.tracking.isEmpty
-            ? null
-            : libraryCollectionCsvProjectionForKind(mediaKind)
-                ?.trackingLifecycleFromImport(
-                entryId: idGenerator(),
-                catalogRef: ownedImport.catalogRef,
-                ownedRef: ownedRef,
-                now: now,
-                rating: row.tracking.rating,
-                status: row.tracking.status,
-                startedAt: row.tracking.startedAt,
-                finishedAt: row.tracking.finishedAt,
-                existing: existingLifecycles[ownedImport.catalogRef],
-              );
-        if (trackingLifecycle != null) {
-          trackingLifecycles.add(trackingLifecycle);
-          syncChanges.add(
-            SyncChange(
-              id: 'tracking_entry:${trackingLifecycle.id}:upsert:${now.millisecondsSinceEpoch}',
-              entityType: 'tracking_entry',
-              entityId: trackingLifecycle.id,
-              action: 'upsert',
-              payload: this.trackingLifecycles.toSyncPayload(trackingLifecycle),
-              clientChangedAt: now,
+        if (!row.tracking.isEmpty) {
+          trackingImports.add(
+            TrackingLifecycleImport(
+              entryId: idGenerator(),
+              catalogRef: ownedImport.catalogRef,
+              ownedRef: ownedRef,
+              now: now,
+              rating: row.tracking.rating,
+              status: row.tracking.status,
+              startedAt: row.tracking.startedAt,
+              finishedAt: row.tracking.finishedAt,
             ),
           );
         }
@@ -256,8 +237,20 @@ final class CollectionImportOrchestrator {
             ),
           );
         }
-        if (trackingLifecycles.isNotEmpty) {
-          await this.trackingLifecycles.upsertAll(trackingLifecycles);
+        if (trackingImports.isNotEmpty) {
+          final trackingResults =
+              await trackingLifecycles.upsertImportedAll(trackingImports);
+          syncChanges.addAll([
+            for (final result in trackingResults)
+              SyncChange(
+                id: 'tracking_entry:${result.ref.id}:upsert:${now.millisecondsSinceEpoch}',
+                entityType: 'tracking_entry',
+                entityId: result.ref.id,
+                action: 'upsert',
+                payload: result.payload,
+                clientChangedAt: now,
+              ),
+          ]);
         }
         if (wishlistUpserts.isNotEmpty) {
           await wishlist.upsertAll(wishlistUpserts);
@@ -271,7 +264,7 @@ final class CollectionImportOrchestrator {
       },
       eventsToEmit: [
         for (final item in ownedItemRefs) OwnedItemAdded(item),
-        for (final _ in trackingLifecycles) const TrackingChanged(),
+        for (final _ in trackingImports) const TrackingChanged(),
         for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
         for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
         for (final snapshot in importedCatalogSnapshots)

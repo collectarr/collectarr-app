@@ -9,6 +9,7 @@ import 'package:collectarr_app/core/sync/sync_retry.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_providers.dart';
 import 'package:collectarr_app/features/sync/data/sync_repository.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';

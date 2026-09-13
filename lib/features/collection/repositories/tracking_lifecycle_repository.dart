@@ -3,8 +3,10 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
 
 /// Orchestrates tracking-entry lifecycle across kind-owned persistence codecs.
 ///
@@ -128,6 +130,66 @@ class TrackingLifecycleRepository {
             .upsertToStorage(_db, entry);
       }
     });
+  }
+
+  /// Applies schema-v1 import values and returns only a structural sync
+  /// record. The concrete lifecycle is reconstructed and persisted inside
+  /// this repository, never exposed to the generic import host.
+  Future<List<TrackingLifecycleImportResult>> upsertImportedAll(
+    Iterable<TrackingLifecycleImport> imports,
+  ) async {
+    final values = imports.toList(growable: false);
+    if (values.isEmpty) return const [];
+
+    final entries = <TrackingLifecycle>[];
+    for (final input in values) {
+      final existingEntries =
+          await findActiveByCatalogRoots([input.catalogRef]);
+      TrackingLifecycle? existing;
+      if (existingEntries.isNotEmpty) {
+        existing = existingEntries.firstWhere(
+          (entry) => entry.ownedRef == input.ownedRef,
+          orElse: () => existingEntries.first,
+        );
+      }
+      final entry = existing == null
+          ? create(
+              id: input.entryId,
+              catalogRef: input.catalogRef,
+              ownedRef: input.ownedRef,
+              status: mediaTrackingStatusFromValue(input.status) ??
+                  MediaTrackingStatus.planned,
+              rating: input.rating,
+              startedAt: input.startedAt,
+              finishedAt: input.finishedAt,
+              updatedAt: input.now,
+            )
+          : existing.copyWith(
+              id: input.entryId,
+              catalogRef: input.catalogRef,
+              ownedRef: input.ownedRef,
+              status:
+                  mediaTrackingStatusFromValue(input.status) ?? existing.status,
+              rating: input.rating ?? existing.rating,
+              startedAt: input.startedAt ?? existing.startedAt,
+              finishedAt: input.finishedAt ?? existing.finishedAt,
+              updatedAt: input.now,
+            );
+      entries.add(entry);
+    }
+
+    await upsertAll(entries);
+    return [
+      for (final entry in entries)
+        TrackingLifecycleImportResult(
+          ref: TrackingLifecycleRef(
+            kind: entry.catalogRef.mediaKind,
+            id: entry.id,
+          ),
+          catalogRef: entry.catalogRef,
+          payload: toSyncPayload(entry),
+        ),
+    ];
   }
 
   Future<void> markDeleted(TrackingLifecycle entry, DateTime deletedAt) {

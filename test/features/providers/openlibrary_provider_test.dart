@@ -203,8 +203,7 @@ void main() {
       expect(envelope.payload['page_count'], 423);
       expect(envelope.payload['publisher'], 'George Allen & Unwin');
       expect(envelope.payload['isbn'], '9780261102354');
-      expect(
-          envelope.payload['genres'], containsAll(['Fantasy', 'Adventure']));
+      expect(envelope.payload['genres'], containsAll(['Fantasy', 'Adventure']));
       expect(envelope.images, hasLength(1));
       expect(envelope.images.first.url,
           'https://covers.openlibrary.org/b/id/12345-L.jpg');

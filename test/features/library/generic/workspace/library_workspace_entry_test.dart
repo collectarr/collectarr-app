@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -66,7 +65,7 @@ void main() {
         id: 'tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
           id: 'book-1',
         ),
         status: MediaTrackingStatus.inProgress,

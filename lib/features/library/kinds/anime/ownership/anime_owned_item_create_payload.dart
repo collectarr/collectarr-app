@@ -64,7 +64,6 @@ final class AnimeOwnedItemCreatePayload implements OwnedItemCreatePayload {
   final bool? isDigital;
   final String? tags;
 
-  @override
   AnimeOwnedItem toOwnedItem({
     required CatalogEntityRef resolvedCatalogRef,
     required String id,

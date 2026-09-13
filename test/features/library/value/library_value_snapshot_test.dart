@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -17,7 +15,7 @@ void main() {
       id: 'owned-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
-        entityType: const CatalogEntityTypeId('owned_copy'),
+        entityType: CatalogEntityTypeId('owned_copy'),
         id: 'comic-1',
       ),
       updatedAt: DateTime.utc(2026, 7, 5),

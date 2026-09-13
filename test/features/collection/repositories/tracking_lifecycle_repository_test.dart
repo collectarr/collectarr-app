@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/tracking_lifecycle_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_import.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_tracking_lifecycle_codecs.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_lifecycle_codec.dart';
@@ -18,7 +20,7 @@ void main() {
       id: 'tv-sync-1',
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
-        entityType: const CatalogEntityTypeId('work'),
+        entityType: CatalogEntityTypeId('work'),
         id: 'tv-1',
       ),
       coordinates: TvTrackingCoordinates(
@@ -55,7 +57,7 @@ void main() {
         id: 'tv-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.tv,
-          entityType: const CatalogEntityTypeId('episode'),
+          entityType: CatalogEntityTypeId('episode'),
           id: 'episode-1',
           rootId: 'tv-1',
         ),
@@ -106,7 +108,7 @@ void main() {
         id: 'movie-tracking-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.movie,
-          entityType: const CatalogEntityTypeId('work'),
+          entityType: CatalogEntityTypeId('work'),
           id: 'movie-1',
         ),
         updatedAt: DateTime.utc(2026, 9, 6),
@@ -128,5 +130,43 @@ void main() {
       repository.toSyncPayload(entry),
       isNot(contains('episode_number')),
     );
+  });
+
+  test('applies schema-v1 tracking imports at the persistence boundary',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = TrackingLifecycleRepository(
+      db,
+      codecs: collectarrTrackingLifecycleCodecs,
+    );
+    const catalogRef = CatalogEntityRef(
+      kind: CatalogMediaKind.comic,
+      entityType: CatalogEntityTypeId('work'),
+      id: 'comic-import-1',
+    );
+    const ownedRef = OwnedItemRef(
+      kind: CatalogMediaKind.comic,
+      id: OwnedItemId('owned-import-1'),
+    );
+
+    final results = await repository.upsertImportedAll([
+      TrackingLifecycleImport(
+        entryId: 'tracking-import-1',
+        catalogRef: catalogRef,
+        ownedRef: ownedRef,
+        now: DateTime.utc(2026, 9, 14),
+        rating: 9,
+        status: 'Completed',
+      ),
+    ]);
+
+    expect(results, hasLength(1));
+    expect(results.single.catalogRef, catalogRef);
+    expect(results.single.payload['status'], 'Completed');
+    expect(results.single.payload['rating'], 9);
+    final persisted = await repository.findByRef(results.single.ref);
+    expect(persisted?.ownedRef, ownedRef);
+    expect(persisted?.rating, 9);
   });
 }

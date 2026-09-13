@@ -79,7 +79,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
     bool isOwnedId(String? id) =>
         id != null &&
         ownedCatalogRefs.any(
-          (ref) => ref.kind == CatalogMediaKind.comic.apiValue && ref.id == id,
+          (ref) => ref.kind == CatalogMediaKind.comic && ref.id == id,
         );
     final series = data.series;
     final description = series['description']?.toString();
