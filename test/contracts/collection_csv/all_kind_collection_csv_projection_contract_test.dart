@@ -47,7 +47,7 @@ void main() {
         allOf(greaterThanOrEqualTo(9), lessThanOrEqualTo(10)),
         reason: kind.apiValue,
       );
-      final importedOwnedPayload = projection.ownedItemImportPayload(
+      final importedOwnedTransport = projection.ownedItemImportTransport(
         CollectionCsvOwnedImport(
           id: 'owned-${kind.apiValue}',
           catalogRef: CatalogEntityRef(
@@ -59,7 +59,8 @@ void main() {
           kindOwnedCells: importedOwnedCells,
         ),
       );
-      expect(importedOwnedPayload, isNotEmpty, reason: kind.apiValue);
+      expect(importedOwnedTransport.payload, isNotEmpty, reason: kind.apiValue);
+      expect(importedOwnedTransport.ref.kind, kind, reason: kind.apiValue);
 
       expect(
         projection.importDisplayTitle([
@@ -95,7 +96,7 @@ void main() {
         contains('Contract publisher'),
         reason: kind.apiValue,
       );
-      final imported = projection.catalogItemFromImportCells([
+      final imported = projection.catalogTransportFromImportCells([
         'import-${kind.apiValue}',
         kind.apiValue,
         'Imported item',
@@ -109,9 +110,10 @@ void main() {
         '0123456789',
       ]);
       expect(imported, isNotNull, reason: kind.apiValue);
-      expect(imported!.id, 'import-${kind.apiValue}', reason: kind.apiValue);
-      expect(imported.mediaKind, kind, reason: kind.apiValue);
-      expect(imported.title, 'Imported item', reason: kind.apiValue);
+      expect(imported!.ref.id, 'import-${kind.apiValue}',
+          reason: kind.apiValue);
+      expect(imported.ref.kind, kind, reason: kind.apiValue);
+      expect(imported.payload['title'], 'Imported item', reason: kind.apiValue);
     }
   });
 }

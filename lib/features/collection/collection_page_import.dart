@@ -161,7 +161,14 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
     await CatalogTransportRepository(ref.read(localDatabaseProvider))
         .upsertSearchCandidates([item]);
-    final resolvedRow = row.copyWith(itemId: item.id);
+    final resolvedRow = row.copyWith(
+      itemId: item.id,
+      catalogRef: item.catalogRef,
+      mediaKind: item.mediaKind,
+      title: item.title,
+      kindDisplayTitle: item.title,
+      kindDisplaySubtitle: item.subtitle,
+    );
     setState(() {
       final preview = _preview!;
       _preview = CollectionImportPreview(
@@ -202,7 +209,16 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
           unresolvedRows.add(row);
           continue;
         }
-        resolvedRows.add(row.copyWith(itemId: match.id));
+        resolvedRows.add(
+          row.copyWith(
+            itemId: match.catalogRef.id,
+            catalogRef: match.catalogRef,
+            mediaKind: match.kind,
+            title: match.title,
+            kindDisplayTitle: match.title,
+            kindDisplaySubtitle: match.subtitle,
+          ),
+        );
         resolvedItems.add(match);
       }
       await CatalogTransportRepository(ref.read(localDatabaseProvider))

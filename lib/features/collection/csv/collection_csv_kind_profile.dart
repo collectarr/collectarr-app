@@ -1,7 +1,10 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
 ///
@@ -25,14 +28,16 @@ abstract interface class CollectionCsvKindProfile {
   /// one. The collection host only uses the normalized lookup value.
   String? importBarcode(List<String> catalogCells);
 
-  CatalogSearchCandidate? catalogItemFromImportCells(List<String> catalogCells);
+  CatalogImportTransport? catalogTransportFromImportCells(
+    List<String> catalogCells,
+  );
 
   /// Builds the kind-owned JSON payload at the CSV serialization boundary.
   ///
   /// Collection does not inspect this map. It passes it immediately to the
   /// generated kind persistence dispatcher, which decodes it into the
   /// concrete Owned aggregate and returns only a structural mutation result.
-  JsonMap ownedItemImportPayload(
+  OwnedImportTransport ownedItemImportTransport(
     CollectionCsvOwnedImport input,
   );
 
@@ -146,7 +151,7 @@ abstract interface class CollectionCsvOwnedCellsDecoder {
 /// The helper writes only schema-v1 personal columns. Concrete projections
 /// still choose the final Owned type and decode their own kind cells.
 mixin CollectionCsvKindOwnedImportSupport {
-  JsonMap ownedItemImportPayload(
+  OwnedImportTransport ownedItemImportTransport(
     CollectionCsvOwnedImport input,
   ) {
     final payload = collectionCsvKindOwnedImportPayload(input);
@@ -154,7 +159,14 @@ mixin CollectionCsvKindOwnedImportSupport {
     if (details != null) {
       payload.addAll(details.toJson());
     }
-    return payload;
+    return OwnedImportTransport(
+      ref: OwnedItemRef(
+        kind: input.catalogRef.kind,
+        id: OwnedItemId(input.id),
+      ),
+      catalogRef: input.catalogRef,
+      payload: payload,
+    );
   }
 
   JsonEncodable? decodeOwnedCells(List<String> cells);

@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
@@ -224,12 +224,12 @@ final class ComicCollectionCsvProjection
   static const _columnAliases = ComicCollectionCsvImportProfile.columnAliases;
 
   @override
-  CatalogSearchCandidate? catalogItemFromImportCells(List<String> cells) {
+  CatalogImportTransport? catalogTransportFromImportCells(List<String> cells) {
     if (cells.length != collectionCsvV1CatalogCellCount ||
         cells[0].trim().isEmpty) {
       return null;
     }
-    return CatalogSearchCandidate.fromItem(CatalogItemDto.fromJson({
+    return CatalogImportTransport.fromPayload({
       'id': cells[0],
       'kind': kind.apiValue,
       'title': cells[2],
@@ -241,7 +241,7 @@ final class ComicCollectionCsvProjection
       if (cells[8].trim().isNotEmpty) 'publisher': cells[8],
       if (cells[9].trim().isNotEmpty) 'release_date': cells[9],
       if (cells[10].trim().isNotEmpty) 'barcode': cells[10],
-    }));
+    });
   }
 }
 

@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
@@ -27,9 +30,15 @@ void main() {
       updatedAt: DateTime.utc(2026, 5, 1),
       details: const ComicOwnedDetails(),
     );
-    await OwnedItemsRepository(db).replaceFromPayload(
-      CatalogMediaKind.comic,
-      owned.toJson(),
+    await OwnedItemsRepository(db).replaceFromTransport(
+      OwnedImportTransport(
+        ref: OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId(owned.id.value),
+        ),
+        catalogRef: owned.catalogRef,
+        payload: owned.toJson(),
+      ),
     );
 
     final summaries = await OwnedItemsRepository(db).listActiveSummaries();

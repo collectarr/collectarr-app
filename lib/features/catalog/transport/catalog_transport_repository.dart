@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -28,6 +29,20 @@ final class CatalogTransportRepository {
   ) {
     return upsertTransportItems(
         candidates.map((candidate) => candidate.toTransport()));
+  }
+
+  /// Persists kind-owned import snapshots at the catalog transport boundary.
+  Future<void> upsertImportTransports(
+    Iterable<CatalogImportTransport> transports,
+  ) {
+    return upsertTransportItems([
+      for (final transport in transports)
+        CatalogItemDto.fromJson({
+          ...transport.payload,
+          'id': transport.ref.id,
+          'kind': transport.ref.kind.apiValue,
+        }),
+    ]);
   }
 
   CatalogItemDto itemFromSyncPayload({

@@ -21,6 +21,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
@@ -117,9 +118,15 @@ void main() {
       await catalogCache.upsertTransportItems([
         testCatalogItem(id: 'book-77', kind: 'book', title: 'Test Book'),
       ]);
-      await ownedItems.replaceFromPayload(
-        CatalogMediaKind.book,
-        owned.toJson(),
+      await ownedItems.replaceFromTransport(
+        OwnedImportTransport(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.book,
+            id: OwnedItemId(owned.id.value),
+          ),
+          catalogRef: owned.catalogRef,
+          payload: owned.toJson(),
+        ),
       );
 
       await trackingMutations.upsertTrackingState(
@@ -355,9 +362,15 @@ void main() {
           title: 'Tracked Show',
         ),
       ]);
-      await ownedItems.replaceFromPayload(
-        CatalogMediaKind.tv,
-        owned.toJson(),
+      await ownedItems.replaceFromTransport(
+        OwnedImportTransport(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.tv,
+            id: OwnedItemId(owned.id.value),
+          ),
+          catalogRef: owned.catalogRef,
+          payload: owned.toJson(),
+        ),
       );
       await trackingRecords.upsertStorageRecord(
         TvTrackingState(
@@ -422,9 +435,15 @@ void main() {
           title: 'Anchored Book',
         ),
       ]);
-      await ownedItems.replaceFromPayload(
-        CatalogMediaKind.book,
-        owned.toJson(),
+      await ownedItems.replaceFromTransport(
+        OwnedImportTransport(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.book,
+            id: OwnedItemId(owned.id.value),
+          ),
+          catalogRef: owned.catalogRef,
+          payload: owned.toJson(),
+        ),
       );
       final ownedRef = OwnedItemRef(
         kind: CatalogMediaKind.book,

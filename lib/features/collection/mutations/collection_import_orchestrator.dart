@@ -7,13 +7,14 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -71,9 +72,9 @@ final class CollectionImportOrchestrator {
         if (_catalogRefForRow(row) case final ref?) ref,
     ];
     final existingCatalogSummaries = await catalogSummaries.findByRefs(rowRefs);
-    final importedCatalogItems = <CatalogSearchCandidate>[];
+    final importedCatalogItems = <CatalogImportTransport>[];
     final importedCatalogItemsByRef =
-        <CatalogEntityRef, CatalogSearchCandidate>{};
+        <CatalogEntityRef, CatalogImportTransport>{};
     for (final row in resolvedRows) {
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
@@ -82,7 +83,7 @@ final class CollectionImportOrchestrator {
       // import row; Collection must not re-persist existing metadata or
       // synthesize a generic semantic fallback.
       if (existingCatalogSummaries.containsKey(rowRef)) continue;
-      final item = _catalogItemFromCsvRow(row);
+      final item = _catalogTransportFromCsvRow(row);
       if (item == null) continue;
       importedCatalogItemsByRef[rowRef] = item;
       importedCatalogItems.add(item);
@@ -116,10 +117,10 @@ final class CollectionImportOrchestrator {
       imported++;
       final importedCatalogItem = importedCatalogItemsByRef[rowRef];
       final existingCatalogSummary = existingCatalogSummaries[rowRef];
-      final catalogKind = importedCatalogItem?.mediaKind ??
+      final catalogKind = importedCatalogItem?.ref.kind ??
           existingCatalogSummary?.kind ??
           row.mediaKind;
-      final catalogId = importedCatalogItem?.id ?? row.itemId;
+      final catalogId = importedCatalogItem?.ref.id ?? row.itemId;
       if ((importedCatalogItem != null || existingCatalogSummary != null) &&
           snapshotRefs.add(rowRef)) {
         syncChanges.add(
@@ -147,13 +148,9 @@ final class CollectionImportOrchestrator {
           existingPayload: existingOwnedPayload,
           catalogKind: catalogKind,
         );
-        final mediaKind = ownedImport.kind;
         final ownedRef = ownedImport.ref;
         ownedWrites.add(
-          () => ownedItems.replaceFromPayload(
-            mediaKind,
-            ownedImport.payload,
-          ),
+          () => ownedItems.replaceFromTransport(ownedImport.transport),
         );
         ownedItemRefs.add(ownedRef);
 
@@ -161,7 +158,7 @@ final class CollectionImportOrchestrator {
           trackingImports.add(
             TrackingStorageImport(
               entryId: idGenerator(),
-              catalogRef: ownedImport.catalogRef,
+              catalogRef: ownedImport.transport.catalogRef,
               ownedRef: ownedRef,
               now: now,
               rating: row.tracking.rating,
@@ -219,7 +216,7 @@ final class CollectionImportOrchestrator {
       origin: origin,
       action: () async {
         if (importedCatalogItems.isNotEmpty) {
-          await catalogTransport.upsertSearchCandidates(importedCatalogItems);
+          await catalogTransport.upsertImportTransports(importedCatalogItems);
         }
         for (final write in ownedWrites) {
           final persisted = await write();
@@ -261,8 +258,7 @@ final class CollectionImportOrchestrator {
         for (final _ in trackingImports) const TrackingChanged(),
         for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
         for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
-        for (final item in importedCatalogItems)
-          CatalogItemChanged(item.catalogRef),
+        for (final item in importedCatalogItems) CatalogItemChanged(item.ref),
       ],
     );
 
@@ -287,7 +283,14 @@ final class CollectionImportOrchestrator {
             kind: row.mediaKind,
           );
           if (matched != null) {
-            row = row.copyWith(itemId: matched.ref.id);
+            row = row.copyWith(
+              itemId: matched.ref.id,
+              catalogRef: matched.ref,
+              mediaKind: matched.kind,
+              title: matched.title,
+              kindDisplayTitle: matched.title,
+              kindDisplaySubtitle: matched.subtitle,
+            );
           }
         }
         if (row.itemId.trim().isEmpty &&
@@ -301,7 +304,14 @@ final class CollectionImportOrchestrator {
             kind: row.mediaKind,
           );
           if (matched != null) {
-            row = row.copyWith(itemId: matched.ref.id);
+            row = row.copyWith(
+              itemId: matched.ref.id,
+              catalogRef: matched.ref,
+              mediaKind: matched.kind,
+              title: matched.title,
+              kindDisplayTitle: matched.title,
+              kindDisplaySubtitle: matched.subtitle,
+            );
           }
         }
       }
@@ -385,13 +395,15 @@ final class CollectionImportOrchestrator {
   /// Collection only normalizes the structural identity cell needed by the
   /// serialization boundary. It must not reconstruct a rich
   /// when the row did not come from a complete kind-owned catalog projection.
-  CatalogSearchCandidate? _catalogItemFromCsvRow(CollectionImportRow row) {
+  CatalogImportTransport? _catalogTransportFromCsvRow(
+    CollectionImportRow row,
+  ) {
     final projection = _profileForKind(row.mediaKind);
     final cells = _catalogImportCells(row);
     if (projection == null || cells == null) {
       return null;
     }
-    return projection.catalogItemFromImportCells(cells);
+    return projection.catalogTransportFromImportCells(cells);
   }
 
   List<String>? _catalogImportCells(CollectionImportRow row) {
@@ -439,7 +451,7 @@ final class CollectionImportOrchestrator {
     if (projection != null) {
       final ownedRef = existingSummary?.ref ??
           OwnedItemRef(kind: kind, id: OwnedItemId(idGenerator()));
-      final payload = projection.ownedItemImportPayload(
+      final transport = projection.ownedItemImportTransport(
         CollectionCsvOwnedImport(
           id: ownedRef.id.value,
           catalogRef: catalogRef,
@@ -461,10 +473,8 @@ final class CollectionImportOrchestrator {
         ),
       );
       return (
-        kind: kind,
         ref: ownedRef,
-        catalogRef: catalogRef,
-        payload: payload,
+        transport: transport,
       );
     }
     throw StateError('No CSV projection registered for ${kind.apiValue}.');
@@ -496,10 +506,8 @@ final class CollectionImportOrchestrator {
 }
 
 typedef _OwnedImport = ({
-  CatalogMediaKind kind,
   OwnedItemRef ref,
-  CatalogEntityRef catalogRef,
-  JsonMap payload,
+  OwnedImportTransport transport,
 });
 
 class CollectionImportPreview {

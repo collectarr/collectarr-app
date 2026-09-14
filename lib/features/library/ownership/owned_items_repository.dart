@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
 
 /// Cross-kind read/write host backed by each kind's complete owned table.
 ///
@@ -63,11 +64,17 @@ final class OwnedItemsRepository {
     return _persistence.payloadByRef(ref);
   }
 
-  Future<OwnedItemMutationResult> replaceFromPayload(
-    CatalogMediaKind kind,
-    JsonMap payload,
+  Future<OwnedItemMutationResult> replaceFromTransport(
+    OwnedImportTransport transport,
   ) {
-    return _persistence.replaceFromPayload(kind, payload);
+    return _persistence.replaceFromPayload(
+      transport.ref.kind,
+      {
+        ...transport.payload,
+        'id': transport.ref.id.value,
+        'catalog_ref': transport.catalogRef.toJson(),
+      },
+    );
   }
 
   SyncChange syncChangeForMutation(
