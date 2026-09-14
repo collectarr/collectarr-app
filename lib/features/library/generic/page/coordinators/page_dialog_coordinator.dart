@@ -310,7 +310,7 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showConditionPickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
-    final editCapability = _page.type.edit;
+    final editCapability = _page.type.editPresentation;
     final definition =
         editCapability.vocabularies?.definitionForSuffix('condition');
     if (definition == null) {
@@ -332,7 +332,7 @@ class LibraryPageDialogCoordinator {
 
   Future<void> showGradePickListEditorFlow() async {
     final db = _page.ref.read(localDatabaseProvider);
-    final editCapability = _page.type.edit;
+    final editCapability = _page.type.editPresentation;
     final definition =
         editCapability.vocabularies?.definitionForSuffix('grade');
     if (definition == null) {
@@ -572,7 +572,7 @@ class LibraryPageDialogCoordinator {
       final ownedItem = items[i].source.ownedSummary;
       if (ownedItem == null) continue;
       await coordinator.updateOwnedItem(
-        _page.type.edit.buildIndexUpdateCommand(
+        _page.type.ownedEdit.buildIndexUpdateCommand(
           ownedRef: ownedItem.ref,
           indexNumber: i + 1,
         ),

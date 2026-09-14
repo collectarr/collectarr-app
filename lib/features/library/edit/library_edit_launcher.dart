@@ -15,7 +15,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
 }) {
-  final editCapability = request.type.edit;
+  final editCapability = request.type.editPresentation;
   final builder = switch (request.resolvedScope) {
     LibraryEditScope.media =>
       editCapability.mediaEditDialogBuilder ?? editCapability.editDialogBuilder,

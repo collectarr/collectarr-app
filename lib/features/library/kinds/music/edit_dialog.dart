@@ -197,7 +197,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<LibraryEditTabSpec> get _tabSpecs {
-    return musicKindModule.edit.presentation
+    return musicKindModule.editCapabilities.presentationCapability.presentation
         .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabs(
           context: _editPresentationContext,
@@ -471,7 +471,7 @@ class _MusicLibraryEditDialogState extends ConsumerState<MusicLibraryEditDialog>
   }
 
   List<String> _tabSectionIds(String tabId) {
-    return musicKindModule.edit.presentation
+    return musicKindModule.editCapabilities.presentationCapability.presentation
         .builderForScope(widget.request.scope ?? LibraryEditScope.all)
         .buildTabSectionIds(
           context: _editPresentationContext,

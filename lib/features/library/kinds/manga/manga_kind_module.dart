@@ -420,7 +420,7 @@ final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
     ),
     manualPaneBuilder: buildMangaAddManualPane,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildMangaLibraryEditDialog,
     mediaEditDialogBuilder: buildMangaMediaLibraryEditDialog,
     presentation: mangaLibraryEditPresentation,

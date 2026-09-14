@@ -53,7 +53,10 @@ void main() {
   });
 
   test('comic edit capability exposes its dialog builder', () {
-    expect(comicKindModule.edit.editDialogBuilder, isNotNull);
+    expect(
+      comicKindModule.editCapabilities.presentationCapability.editDialogBuilder,
+      isNotNull,
+    );
   });
 
   test('release browser mode is owned by video hierarchy', () {

@@ -103,7 +103,8 @@ void main() {
       containsAll(['book.genre', 'book.subject']),
     );
 
-    final vocabularyCapability = bookKindModule.edit.vocabularies;
+    final vocabularyCapability =
+        bookKindModule.editCapabilities.presentationCapability.vocabularies;
     expect(vocabularyCapability, isNotNull);
     expect(
       vocabularyCapability!.definitions.map((definition) => definition.key),

@@ -411,7 +411,7 @@ final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
       providerCandidateIsGroup: libraryAddVideoProviderCandidateIsGroup,
     ),
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildMovieLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
     presentation: movieLibraryEditPresentation,

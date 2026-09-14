@@ -101,7 +101,7 @@ class LibraryAddSessionController
                     .createInitialDraft(),
                 submitState: const AsyncValue.data(null),
                 defaultCondition: (type ?? libraryKindRegistrationForKind(kind))
-                    .edit
+                    .editPresentation
                     .defaultCondition,
               ),
         );
@@ -1567,7 +1567,7 @@ class LibraryAddSessionController
       manualDraft:
           libraryKindRegistrationForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
-      defaultCondition: type.edit.defaultCondition,
+      defaultCondition: type.editPresentation.defaultCondition,
     );
   }
 

@@ -167,7 +167,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     _controller.addListener(_onControllerStateChanged);
 
-    final editCap = widget.type.edit;
+    final editCap = widget.type.editPresentation;
     _conditionOptions = editCap.conditions;
     _loadAvailableLocations();
     _loadPickListOptions();

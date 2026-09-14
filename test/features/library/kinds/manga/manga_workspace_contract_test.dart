@@ -84,7 +84,8 @@ void main() {
       containsAll(['manga.genre', 'manga.demographic']),
     );
 
-    final vocabularyCapability = mangaKindModule.edit.vocabularies;
+    final vocabularyCapability =
+        mangaKindModule.editCapabilities.presentationCapability.vocabularies;
     expect(vocabularyCapability, isNotNull);
     expect(
       vocabularyCapability!.definitions.map((definition) => definition.key),

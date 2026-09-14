@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +21,24 @@ void main() {
         expect(field.label.trim(), isNotEmpty);
         expect(field.minLines, greaterThanOrEqualTo(1));
         expect(field.maxLines, greaterThanOrEqualTo(field.minLines));
+      }
+
+      final overrideFields = contributor.metadataOverrideFields;
+      final overrideIds = overrideFields.map((field) => field.id);
+      expect(
+        overrideIds.toSet().length,
+        overrideIds.length,
+        reason: '${contributor.kind.apiValue} has duplicate override fields',
+      );
+      expect(
+        overrideFields.map((field) => field.id.value),
+        contains('title'),
+      );
+      for (final field in overrideFields) {
+        expect(field.id.kind, contributor.kind);
+        expect(field.id, isA<MetadataFieldId>());
+        expect(field.id.value.trim(), isNotEmpty);
+        expect(field.label.trim(), isNotEmpty);
       }
     }
   });

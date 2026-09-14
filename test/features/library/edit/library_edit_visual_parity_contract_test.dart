@@ -54,7 +54,7 @@ void main() {
     for (final runtime in collectarrKindRegistrationsList) {
       expect(runtime.kind, isNot(CatalogMediaKind.unknown));
       for (final context in _editContexts) {
-        final builder = runtime.edit.presentation.builderForScope(
+        final builder = runtime.editPresentation.presentation.builderForScope(
           context.scope,
         );
         final tabs = builder.buildTabs(context: context);

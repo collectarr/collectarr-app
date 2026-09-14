@@ -426,7 +426,7 @@ final bookKindModule = LibraryKindCapabilityBundle<BookWorkspaceDto>(
     ),
     manualPaneBuilder: buildBookAddManualPane,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildBookLibraryEditDialog,
     mediaEditDialogBuilder: buildBookMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildBookReleaseLibraryEditDialog,

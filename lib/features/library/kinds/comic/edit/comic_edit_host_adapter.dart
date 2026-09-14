@@ -58,8 +58,9 @@ class ComicEditHostAdapter implements ComicEditHost {
   List<ItemImage> get comicItemImages => draft.itemImages;
 
   @override
-  LibraryEditPresentationState get comicEditPresentation =>
-      comicKindModule.edit.presentation.builder.build(
+  LibraryEditPresentationState get comicEditPresentation => comicKindModule
+          .editCapabilities.presentationCapability.presentation.builder
+          .build(
         context: LibraryEditPresentationContext(
           isOwned: draft.isOwned,
           isTrackingOnly: draft.isTrackingOnly,

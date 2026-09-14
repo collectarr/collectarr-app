@@ -48,7 +48,7 @@ export 'package:collectarr_app/features/library/kinds/registry/library_kind_regi
 class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
   const LibraryKindCapabilityBundle({
     required this.add,
-    required this.edit,
+    required this.editCapabilities,
     required this.identity,
     required this.physicalMediaFormats,
     required this.metadata,
@@ -82,7 +82,7 @@ class LibraryKindCapabilityBundle<TDto extends LibraryWorkspaceDto> {
   final LibraryStatsCapability stats;
   final LibraryValueCapability? value;
   final LibraryRelationCapability? relations;
-  final LibraryEditCapability edit;
+  final LibraryEditCapabilitySet editCapabilities;
   final MediaTrackingProfile trackingProfile;
   final LibraryUiPolicy uiPolicy;
   final TitleProjectionCapability<LibraryWorkspaceDto> titleCapability;

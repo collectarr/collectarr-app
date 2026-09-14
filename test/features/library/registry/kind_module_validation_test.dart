@@ -26,7 +26,7 @@ void main() {
       expect(collectarrKindTrackingProfiles.keys, containsAll(activeKinds));
       expect(collectarrKindHierarchies.keys, containsAll(activeKinds));
       expect(collectarrKindInspectors.keys, containsAll(activeKinds));
-      expect(collectarrKindEdits.keys, containsAll(activeKinds));
+      expect(collectarrKindEditCapabilities.keys, containsAll(activeKinds));
       expect(collectarrKindTransfers.keys, containsAll(activeKinds));
       expect(collectarrKindStats.keys, containsAll(activeKinds));
       expect(collectarrKindUiPolicies.keys, containsAll(activeKinds));
@@ -45,7 +45,10 @@ void main() {
             same(collectarrKindPresentations[module.kind]));
         expect(module.metadata, same(collectarrKindMetadata[module.kind]));
         expect(module.hierarchy, same(collectarrKindHierarchies[module.kind]));
-        expect(module.edit, same(collectarrKindEdits[module.kind]));
+        expect(
+          module.editCapabilities,
+          same(collectarrKindEditCapabilities[module.kind]),
+        );
         expect(module.add, same(collectarrKindAdds[module.kind]));
         expect(
             module.viewProfile, same(collectarrKindViewProfiles[module.kind]));

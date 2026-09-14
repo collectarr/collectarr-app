@@ -232,11 +232,11 @@ class LibraryPageToolbarController {
             onScanCover: _s._coverCoordinator.scanCoverFlow,
             onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
             onShowConditionPickListEditorFlow:
-                _s.widget.type.edit.hasConditionPickList
+                _s.widget.type.editPresentation.hasConditionPickList
                     ? _s._dialogCoordinator.showConditionPickListEditorFlow
                     : null,
             onShowGradePickListEditorFlow:
-                _s.widget.type.edit.hasCollectionValuePickList
+                _s.widget.type.editPresentation.hasCollectionValuePickList
                     ? _s._dialogCoordinator.showGradePickListEditorFlow
                     : null,
             onShowTagPickListEditorFlow:

@@ -250,9 +250,9 @@ class _LibraryVideoDetailPageState
                   return _VideoReleaseBrowserSection(
                     accent: request.accent,
                     digitalFlagResolver:
-                        request.type.edit.resolveOwnedDigitalFlag,
+                        request.type.ownedEdit.resolveOwnedDigitalFlag,
                     collectionValueReader:
-                        request.type.edit.readOwnedCollectionValue,
+                        request.type.ownedEdit.readOwnedCollectionValue,
                     ownedItemDispatch: request.ownedItemDispatch,
                     releases: releases,
                     selectedReleaseId: activeRelease.node.id,
@@ -283,9 +283,10 @@ class _LibraryVideoDetailPageState
             else
               _VideoReleaseBrowserSection(
                 accent: request.accent,
-                digitalFlagResolver: request.type.edit.resolveOwnedDigitalFlag,
+                digitalFlagResolver:
+                    request.type.ownedEdit.resolveOwnedDigitalFlag,
                 collectionValueReader:
-                    request.type.edit.readOwnedCollectionValue,
+                    request.type.ownedEdit.readOwnedCollectionValue,
                 ownedItemDispatch: request.ownedItemDispatch,
                 releases: releases,
                 selectedReleaseId: _selectedReleaseNodeId ??

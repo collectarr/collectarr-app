@@ -397,7 +397,7 @@ class _InspectorPersonalDetailsEditorState
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
           libraryKindRegistrationForKind(
             widget.ownedItem.catalogRef?.mediaKind ?? widget.ownedItem.ref.kind,
-          ).edit.buildPersonalDetailsUpdateCommand(
+          ).ownedEdit.buildPersonalDetailsUpdateCommand(
                 ownedRef: widget.ownedItem.ref,
                 purchaseDate: _purchaseDate,
                 pricePaidCents: price,

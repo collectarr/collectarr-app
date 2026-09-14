@@ -317,7 +317,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         releases: widget.type.presentation.builder.buildWorkspaceReleases(
           selected.source,
         ),
-        collectionValueReader: widget.type.edit.readOwnedCollectionValue,
+        collectionValueReader: widget.type.ownedEdit.readOwnedCollectionValue,
         ownedItemDispatch: inspectorRequest.ownedItemDispatch,
         selectedOwnedItemRef: activeOwnedItem?.ref,
         accent: widget.accent,

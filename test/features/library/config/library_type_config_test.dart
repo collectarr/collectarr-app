@@ -97,7 +97,9 @@ void main() {
     expect(comicKindModule.trackingProfile, comicTrackingProfile);
     expect(comicKindModule.presentation, comicLibraryMediaPresentation);
     expect(comicKindModule.add.dialogLauncher, same(showComicLibraryAddDialog));
-    expect(comicKindModule.edit.editDialogBuilder,
+    expect(
+        comicKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildComicLibraryEditDialog));
     expect(comicKindModule.inspector.sectionsBuilder,
         same(buildComicInspectorSections));
@@ -132,11 +134,16 @@ void main() {
     );
     expect(mangaKindModule.trackingProfile, mangaTrackingProfile);
     expect(mangaKindModule.presentation, mangaLibraryMediaPresentation);
-    expect(mangaKindModule.edit.editDialogBuilder, isNotNull);
-    expect(mangaKindModule.edit.mediaEditDialogBuilder,
-        same(buildMangaMediaLibraryEditDialog));
     expect(
-        mangaKindModule.edit.presentation, same(mangaLibraryEditPresentation));
+        mangaKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
+        isNotNull);
+    expect(
+        mangaKindModule
+            .editCapabilities.presentationCapability.mediaEditDialogBuilder,
+        same(buildMangaMediaLibraryEditDialog));
+    expect(mangaKindModule.editCapabilities.presentationCapability.presentation,
+        same(mangaLibraryEditPresentation));
     expect(mangaKindModule.identity.countLabel(1), 'Manga');
     expect(mangaKindModule.identity.countLabel(2), 'Manga');
   });
@@ -167,13 +174,10 @@ void main() {
   });
 
   test('books do not create series subgroups for volume metadata', () {
-    final source = LibraryWorkspaceSource(
+    final source = testLibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogTransport: testCatalogItem(
-        id: 'book-1',
-        kind: 'book',
-        title: 'Dune',
-      ).asShelfCatalogItem,
+      kind: 'book',
+      title: 'Dune',
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -203,7 +207,10 @@ void main() {
       ),
       isTrue,
     );
-    expect(animeKindModule.edit.editDialogBuilder, isNotNull);
+    expect(
+        animeKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
+        isNotNull);
 
     expect(tvKindModule.identity.kind, CatalogMediaKind.tv);
     expect(tvKindModule.metadata.defaultProviderId, 'tmdb');
@@ -212,7 +219,9 @@ void main() {
           .supportsProvider('tmdb', tvKindModule.identity.kind),
       isTrue,
     );
-    expect(tvKindModule.edit.editDialogBuilder, isNotNull);
+    expect(
+        tvKindModule.editCapabilities.presentationCapability.editDialogBuilder,
+        isNotNull);
     expect(tvKindModule.inspector.detailPageBuilder,
         same(buildLibraryVideoDetailPage));
     expect(tvKindModule.inspector.videoDetailContributionBuilder, isNotNull);
@@ -232,10 +241,12 @@ void main() {
       hasCustomFields: false,
     );
 
-    final mediaTabs = tvKindModule.edit.presentation
+    final mediaTabs = tvKindModule
+        .editCapabilities.presentationCapability.presentation
         .builderForScope(LibraryEditScope.media)
         .buildTabs(context: context);
-    final releaseTabs = tvKindModule.edit.presentation
+    final releaseTabs = tvKindModule
+        .editCapabilities.presentationCapability.presentation
         .builderForScope(LibraryEditScope.release)
         .buildTabs(context: context);
 
@@ -318,11 +329,13 @@ void main() {
 
   test('book runtime registers typed add and edit hierarchy surfaces', () {
     expect(
-      bookKindModule.edit.mediaEditDialogBuilder,
+      bookKindModule
+          .editCapabilities.presentationCapability.mediaEditDialogBuilder,
       same(buildBookMediaLibraryEditDialog),
     );
     expect(
-      bookKindModule.edit.releaseEditDialogBuilder,
+      bookKindModule
+          .editCapabilities.presentationCapability.releaseEditDialogBuilder,
       same(buildBookReleaseLibraryEditDialog),
     );
     expect(bookKindModule.hierarchy.childrenTitle(2), 'Editions (2)');
@@ -338,7 +351,8 @@ void main() {
       hasBundleReleaseAnchors: false,
       hasCustomFields: false,
     );
-    final tabs = bookKindModule.edit.presentation
+    final tabs = bookKindModule
+        .editCapabilities.presentationCapability.presentation
         .builderForScope(LibraryEditScope.media)
         .buildTabs(context: context);
     expect(tabs.map((tab) => tab.id), contains('owned'));
@@ -524,7 +538,9 @@ void main() {
     );
     expect(movieKindModule.add.dialogLauncher, same(showMovieLibraryAddDialog));
     expect(
-      libraryKindRegistration(CatalogMediaKind.movie).edit.editDialogBuilder,
+      libraryKindRegistration(CatalogMediaKind.movie)
+          .editPresentation
+          .editDialogBuilder,
       isNotNull,
     );
     expect(
@@ -538,7 +554,9 @@ void main() {
   test('all registered kinds declare an explicit edit dialog builder', () {
     for (final registration in defaultLibraryKindRegistry.allModules) {
       expect(
-        collectarrKindEdits[registration.kind]!.editDialogBuilder,
+        collectarrKindEditCapabilities[registration.kind]!
+            .presentationCapability
+            .editDialogBuilder,
         isNotNull,
         reason:
             'Expected ${registration.kind.apiValue} to declare an explicit edit dialog builder.',
@@ -635,19 +653,27 @@ void main() {
   });
 
   test('comic kind uses dedicated edit dialog builder', () {
-    expect(comicKindModule.edit.editDialogBuilder,
+    expect(
+        comicKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildComicLibraryEditDialog));
   });
 
   test('music kind uses dedicated edit dialog builder', () {
-    expect(musicKindModule.edit.editDialogBuilder,
+    expect(
+        musicKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildMusicLibraryEditDialog));
   });
 
   test('game kinds use dedicated edit dialog builders', () {
-    expect(gameKindModule.edit.editDialogBuilder,
+    expect(
+        gameKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildGameLibraryEditDialog));
-    expect(boardGameKindModule.edit.editDialogBuilder,
+    expect(
+        boardGameKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildBoardGameLibraryEditDialog));
   });
 

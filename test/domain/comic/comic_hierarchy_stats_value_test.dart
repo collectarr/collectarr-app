@@ -135,7 +135,8 @@ void main() {
       accent: Colors.blue,
       scope: LibraryEditScope.media,
     );
-    final builder = comicKindModule.edit.mediaEditDialogBuilder;
+    final builder = comicKindModule
+        .editCapabilities.presentationCapability.mediaEditDialogBuilder;
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -178,7 +179,8 @@ void main() {
       accent: Colors.blue,
       scope: LibraryEditScope.release,
     );
-    final builder = comicKindModule.edit.releaseEditDialogBuilder;
+    final builder = comicKindModule
+        .editCapabilities.presentationCapability.releaseEditDialogBuilder;
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -223,7 +225,9 @@ void main() {
     final draft = LibraryEditDraft.fromRequest(request);
     addTearDown(draft.dispose);
 
-    final ownedTabs = comicKindModule.edit.presentation.builder.buildTabs(
+    final ownedTabs = comicKindModule
+        .editCapabilities.presentationCapability.presentation.builder
+        .buildTabs(
       context: const LibraryEditPresentationContext(
         isOwned: true,
         isTrackingOnly: false,

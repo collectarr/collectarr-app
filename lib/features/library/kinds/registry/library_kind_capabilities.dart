@@ -30,7 +30,15 @@ extension LibraryKindRegistrationCapabilities on LibraryKindRegistration {
 
   LibraryInspectorCapability get inspector => collectarrKindInspectors[kind]!;
 
-  LibraryEditCapability get edit => collectarrKindEdits[kind]!;
+  LibraryEditCapabilitySet get editCapabilities =>
+      collectarrKindEditCapabilities[kind]!;
+
+  LibraryEditPresentationCapability get editPresentation =>
+      editCapabilities.presentationCapability;
+
+  LibraryEditDraftCapability get editDraft => editCapabilities.draft;
+
+  LibraryOwnedEditCapability get ownedEdit => editCapabilities.owned;
 
   LibraryTransferCapability get transfer => collectarrKindTransfers[kind]!;
 

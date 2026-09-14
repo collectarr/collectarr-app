@@ -83,7 +83,7 @@ class InspectorPersonalSection extends StatelessWidget {
       existingOwnedItem,
       catalogReleases,
       0,
-      collectionValue: type.edit.readOwnedCollectionValue(
+      collectionValue: type.ownedEdit.readOwnedCollectionValue(
         item.source.ownedItemDispatch,
       ),
     );

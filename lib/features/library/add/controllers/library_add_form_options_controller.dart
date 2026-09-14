@@ -20,9 +20,9 @@ class LibraryAddFormOptionsController {
     String? selectedTags,
   }) async {
     final conditionDefinition =
-        type.edit.vocabularies?.definitionForSuffix('condition');
+        type.editPresentation.vocabularies?.definitionForSuffix('condition');
     final builtInConditions = conditionDefinition == null
-        ? type.edit.conditions
+        ? type.editPresentation.conditions
         : [for (final value in conditionDefinition.builtIns) value.toString()];
     final conditionOptions = await loadConditionGradePickListOptions(
       database,

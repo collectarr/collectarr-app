@@ -294,7 +294,7 @@ final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
     ),
     manualPaneBuilder: buildGameAddManualPane,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildGameLibraryEditDialog,
     mediaEditDialogBuilder: buildGameMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildGameReleaseLibraryEditDialog,

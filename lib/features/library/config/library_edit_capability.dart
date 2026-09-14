@@ -71,10 +71,11 @@ typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
 typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
     Function();
 
-/// Encapsulates edit dialogs, edit chrome, field config, condition/value options,
-/// kind-owned draft creation, and update command building.
-class LibraryEditCapability {
-  const LibraryEditCapability({
+/// Presentation-only configuration for the shared edit host.
+///
+/// This object contains no draft construction or Owned mutation behavior.
+final class LibraryEditPresentationCapability {
+  const LibraryEditPresentationCapability({
     this.editDialogBuilder,
     this.mediaEditDialogBuilder,
     this.releaseEditDialogBuilder,
@@ -83,18 +84,8 @@ class LibraryEditCapability {
     this.vocabularies,
     required this.conditions,
     this.collectionValueOptions = const [],
-    required this.ownedCollectionValueReader,
     required this.defaultCondition,
     required this.defaultCollectionValue,
-    required this.createDraft,
-    required this.ownedDigitalFlagResolver,
-    required this.ownedFormatHintResolver,
-    this.ownedIndexUpdatePayloadBuilder,
-    this.ownedConditionValueUpdatePayloadBuilder,
-    this.ownedBulkUpdatePayloadBuilder,
-    this.ownedPersonalDetailsUpdatePayloadBuilder,
-    this.ownedTransferUpdatePayloadBuilder,
-    this.ownedDetailsResetPayloadBuilder,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -105,10 +96,52 @@ class LibraryEditCapability {
   final LibraryKindVocabularyCapability? vocabularies;
   final List<String> conditions;
   final List<String> collectionValueOptions;
-  final LibraryOwnedCollectionValueReader ownedCollectionValueReader;
   final String defaultCondition;
   final String defaultCollectionValue;
+
+  bool get hasConditionPickList => conditions.isNotEmpty;
+  bool get hasCollectionValuePickList => collectionValueOptions.isNotEmpty;
+}
+
+/// Kind-owned draft construction and typed edit-result assembly.
+final class LibraryEditDraftCapability {
+  const LibraryEditDraftCapability({required this.createDraft});
+
   final LibraryEditKindDraftFactory createDraft;
+
+  JsonEncodable buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
+      kindDraft.toDetailsDraft();
+
+  OwnedItemUpdateRequest buildUpdateCommand({
+    required PersonalStateDraft personal,
+    required OwnedItemRef ownedRef,
+    required LibraryEditKindDraft kindDraft,
+  }) {
+    return UpdateOwnedItemCommand(
+      ownedRef: ownedRef,
+      payload: kindDraft.buildOwnedUpdatePayload(
+        ownedRef: ownedRef,
+        personal: personal,
+      ),
+    );
+  }
+}
+
+/// Kind-owned Owned field semantics and mutation payload builders.
+final class LibraryOwnedEditCapability {
+  const LibraryOwnedEditCapability({
+    required this.ownedCollectionValueReader,
+    required this.ownedDigitalFlagResolver,
+    required this.ownedFormatHintResolver,
+    this.ownedIndexUpdatePayloadBuilder,
+    this.ownedConditionValueUpdatePayloadBuilder,
+    this.ownedBulkUpdatePayloadBuilder,
+    this.ownedPersonalDetailsUpdatePayloadBuilder,
+    this.ownedTransferUpdatePayloadBuilder,
+    this.ownedDetailsResetPayloadBuilder,
+  });
+
+  final LibraryOwnedCollectionValueReader ownedCollectionValueReader;
   final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
   final LibraryOwnedFormatHintResolver ownedFormatHintResolver;
   final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
@@ -120,9 +153,6 @@ class LibraryEditCapability {
   final LibraryOwnedTransferUpdatePayloadBuilder?
       ownedTransferUpdatePayloadBuilder;
   final LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder;
-
-  bool get hasConditionPickList => conditions.isNotEmpty;
-  bool get hasCollectionValuePickList => collectionValueOptions.isNotEmpty;
 
   String? readOwnedCollectionValue(LibraryOwnedItemDispatch? ownedItem) =>
       ownedCollectionValueReader(ownedItem);
@@ -147,9 +177,6 @@ class LibraryEditCapability {
       formats: formats,
     );
   }
-
-  JsonEncodable buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
-      kindDraft.toDetailsDraft();
 
   UpdateOwnedItemCommand buildIndexUpdateCommand({
     required OwnedItemRef ownedRef,
@@ -262,18 +289,62 @@ class LibraryEditCapability {
       payload: builder(),
     );
   }
+}
 
-  OwnedItemUpdateRequest buildUpdateCommand({
-    required LibraryEditDraft session,
-    required OwnedItemRef ownedRef,
-    required LibraryEditKindDraft kindDraft,
-  }) {
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: kindDraft.buildOwnedUpdatePayload(
-        ownedRef: ownedRef,
-        personal: session.personal,
-      ),
-    );
-  }
+/// Internal kind composition object. Consumers must select one of the three
+/// narrow capabilities; this type is never exposed by the public registry.
+final class LibraryEditCapabilitySet {
+  LibraryEditCapabilitySet({
+    LibraryEditDialogBuilder? editDialogBuilder,
+    LibraryEditDialogBuilder? mediaEditDialogBuilder,
+    LibraryEditDialogBuilder? releaseEditDialogBuilder,
+    required LibraryEditPresentation presentation,
+    required LibraryEditKindDraftFactory createDraft,
+    required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
+    required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
+    required LibraryOwnedFormatHintResolver ownedFormatHintResolver,
+    required List<String> conditions,
+    required String defaultCondition,
+    required String defaultCollectionValue,
+    List<String> collectionValueOptions = const [],
+    LibraryEditChromeConfig editChrome = const LibraryEditChromeConfig(),
+    LibraryKindVocabularyCapability? vocabularies,
+    LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder,
+    LibraryOwnedConditionValueUpdatePayloadBuilder?
+        ownedConditionValueUpdatePayloadBuilder,
+    LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder,
+    LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
+        ownedPersonalDetailsUpdatePayloadBuilder,
+    LibraryOwnedTransferUpdatePayloadBuilder? ownedTransferUpdatePayloadBuilder,
+    LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder,
+  })  : presentationCapability = LibraryEditPresentationCapability(
+          editDialogBuilder: editDialogBuilder,
+          mediaEditDialogBuilder: mediaEditDialogBuilder,
+          releaseEditDialogBuilder: releaseEditDialogBuilder,
+          presentation: presentation,
+          editChrome: editChrome,
+          vocabularies: vocabularies,
+          conditions: conditions,
+          collectionValueOptions: collectionValueOptions,
+          defaultCondition: defaultCondition,
+          defaultCollectionValue: defaultCollectionValue,
+        ),
+        draft = LibraryEditDraftCapability(createDraft: createDraft),
+        owned = LibraryOwnedEditCapability(
+          ownedCollectionValueReader: ownedCollectionValueReader,
+          ownedDigitalFlagResolver: ownedDigitalFlagResolver,
+          ownedFormatHintResolver: ownedFormatHintResolver,
+          ownedIndexUpdatePayloadBuilder: ownedIndexUpdatePayloadBuilder,
+          ownedConditionValueUpdatePayloadBuilder:
+              ownedConditionValueUpdatePayloadBuilder,
+          ownedBulkUpdatePayloadBuilder: ownedBulkUpdatePayloadBuilder,
+          ownedPersonalDetailsUpdatePayloadBuilder:
+              ownedPersonalDetailsUpdatePayloadBuilder,
+          ownedTransferUpdatePayloadBuilder: ownedTransferUpdatePayloadBuilder,
+          ownedDetailsResetPayloadBuilder: ownedDetailsResetPayloadBuilder,
+        );
+
+  final LibraryEditPresentationCapability presentationCapability;
+  final LibraryEditDraftCapability draft;
+  final LibraryOwnedEditCapability owned;
 }

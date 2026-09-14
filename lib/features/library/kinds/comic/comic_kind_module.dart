@@ -369,7 +369,7 @@ final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
     ),
     resultPolicy: comicAddResultPolicy,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildComicLibraryEditDialog,
     mediaEditDialogBuilder: buildComicMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildComicReleaseLibraryEditDialog,

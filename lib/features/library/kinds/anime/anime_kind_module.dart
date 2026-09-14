@@ -382,7 +382,7 @@ final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
     manualPaneBuilder: buildAnimeAddManualPane,
     chrome: _animeAddChrome,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildAnimeLibraryEditDialog,
     presentation: animeLibraryEditPresentation,
     conditions: AnimeVocabularies.condition.builtIns,

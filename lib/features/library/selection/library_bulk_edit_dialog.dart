@@ -62,7 +62,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   void initState() {
     super.initState();
-    final editCapability = widget.type.edit;
+    final editCapability = widget.type.editPresentation;
     _conditionOptions = editCapability.conditions;
     _gradeOptions = editCapability.collectionValueOptions;
     _loadAvailableLocations();
@@ -235,7 +235,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   }
 
   Future<void> _loadPickListOptions() async {
-    final editCapability = widget.type.edit;
+    final editCapability = widget.type.editPresentation;
     final conditionDefinition =
         editCapability.vocabularies?.definitionForSuffix('condition');
     final gradeDefinition =

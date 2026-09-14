@@ -169,7 +169,7 @@ class LibraryEditDraft {
     final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
     final conditionController = create();
     final gradeController = create(
-      type.edit.readOwnedCollectionValue(ownedItemDispatch) ?? '',
+      type.ownedEdit.readOwnedCollectionValue(ownedItemDispatch) ?? '',
     );
     final purchaseDateController = create(
       ownedItem?.purchaseDate == null
@@ -296,7 +296,7 @@ class LibraryEditDraft {
       finishedAt: trackingLifecycle?.finishedAt,
     );
 
-    final kindDetails = type.edit.createDraft(
+    final kindDetails = type.editDraft.createDraft(
       item: item,
       // Kind edit schemas consume only the concrete aggregate supplied by the
       // typed Library boundary. The generic request value is never decoded by
@@ -367,9 +367,9 @@ class LibraryEditDraft {
 
   bool get isDigitalFormat {
     final existingOwnedItem = ownedItem;
-    final formatHint = type.edit.resolveOwnedFormatHint(item);
+    final formatHint = type.ownedEdit.resolveOwnedFormatHint(item);
     final format = formatHint.label ?? '';
-    return type.edit.resolveOwnedDigitalFlag(
+    return type.ownedEdit.resolveOwnedDigitalFlag(
           existingOwnedItem,
           item.mapTransport((transport) => transport.editions),
           fallbackFormat: formatHint.format,
@@ -569,7 +569,7 @@ class LibraryEditDraft {
 
   JsonEncodable buildDetailsDraft() => libraryKindRegistrationForKind(
         type.kind,
-      ).edit.buildDetailsDraft(kindDetails);
+      ).editDraft.buildDetailsDraft(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
     return type.add.buildCommandFromDetails(
@@ -594,8 +594,10 @@ class LibraryEditDraft {
   }
 
   OwnedItemUpdateRequest toUpdateOwnedItemCommand(OwnedItemRef ownedRef) {
-    return libraryKindRegistrationForKind(type.kind).edit.buildUpdateCommand(
-          session: this,
+    return libraryKindRegistrationForKind(type.kind)
+        .editDraft
+        .buildUpdateCommand(
+          personal: personal,
           ownedRef: ownedRef,
           kindDraft: kindDetails,
         );

@@ -273,7 +273,7 @@ class LibraryPageCollectionActionCoordinator {
     final prefill = await PrefillDefaults.load();
     await _page.bulkActions().moveSelectedToOwned(
           entries,
-          defaultCondition: _page.type.edit.defaultCondition,
+          defaultCondition: _page.type.editPresentation.defaultCondition,
           defaultLocationId: prefill.locationId,
           defaultTags: prefill.tags,
         );

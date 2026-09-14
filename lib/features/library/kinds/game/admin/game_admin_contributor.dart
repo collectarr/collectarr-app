@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 
@@ -40,5 +41,24 @@ class GameAdminContributor implements LibraryAdminContributor {
           write: _writeGamePlatforms,
         ),
         adminExternalLinksProposalField(),
+      ];
+
+  @override
+  List<LibraryMetadataOverrideField> get metadataOverrideFields => [
+        const LibraryMetadataOverrideField(
+          id: MetadataFieldId(
+            kind: CatalogMediaKind.game,
+            value: 'title',
+          ),
+          label: 'Title',
+        ),
+        for (final field in proposalFields)
+          LibraryMetadataOverrideField(
+            id: MetadataFieldId(
+              kind: CatalogMediaKind.game,
+              value: field.key,
+            ),
+            label: field.label,
+          ),
       ];
 }

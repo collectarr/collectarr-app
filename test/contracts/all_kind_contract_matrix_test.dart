@@ -169,7 +169,7 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   expect(spec.add.kind, kind);
   expect(spec.add.createInitialDraft(), isNotNull);
   expect(spec.add.createManualDraft(), isNotNull);
-  expect(spec.edit.createDraft, isNotNull);
+  expect(spec.editCapabilities.draft.createDraft, isNotNull);
 
   for (final path in contractFiles) {
     expect(

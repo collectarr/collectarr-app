@@ -402,12 +402,14 @@ abstract final class LibraryPageShellPresenter {
                 .allows(LibraryToolbarActionId.readingQueue)
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
-        onEditConditionPickList: state.widget.type.edit.hasConditionPickList
-            ? state._dialogCoordinator.showConditionPickListEditorFlow
-            : null,
-        onEditGradePickList: state.widget.type.edit.hasCollectionValuePickList
-            ? state._dialogCoordinator.showGradePickListEditorFlow
-            : null,
+        onEditConditionPickList:
+            state.widget.type.editPresentation.hasConditionPickList
+                ? state._dialogCoordinator.showConditionPickListEditorFlow
+                : null,
+        onEditGradePickList:
+            state.widget.type.editPresentation.hasCollectionValuePickList
+                ? state._dialogCoordinator.showGradePickListEditorFlow
+                : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
         onTransferFieldData: state._hasOwnedItemsInProjection(projection)
             ? () =>

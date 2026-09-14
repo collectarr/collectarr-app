@@ -395,7 +395,7 @@ final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
     manualPaneBuilder: buildTvAddManualPane,
     chrome: _tvAddChrome,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildTvLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
     presentation: tvLibraryEditPresentation,

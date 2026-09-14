@@ -174,7 +174,7 @@ void main() {
         );
 
         final updated = await coordinator.updateOwnedItem(
-          testKindRegistration(kind).edit.buildDetailsResetCommand(
+          testKindRegistration(kind).ownedEdit.buildDetailsResetCommand(
                 ownedRef: OwnedItemRef(kind: kind, id: initialRef.id),
               ),
         );

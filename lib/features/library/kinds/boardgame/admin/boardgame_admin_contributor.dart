@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 
 /// Board game-specific proposal fields used by the Admin host.
@@ -24,5 +25,24 @@ class BoardGameAdminContributor implements LibraryAdminContributor {
           label: 'Genres (comma separated)',
         ),
         adminExternalLinksProposalField(),
+      ];
+
+  @override
+  List<LibraryMetadataOverrideField> get metadataOverrideFields => [
+        const LibraryMetadataOverrideField(
+          id: MetadataFieldId(
+            kind: CatalogMediaKind.boardgame,
+            value: 'title',
+          ),
+          label: 'Title',
+        ),
+        for (final field in proposalFields)
+          LibraryMetadataOverrideField(
+            id: MetadataFieldId(
+              kind: CatalogMediaKind.boardgame,
+              value: field.key,
+            ),
+            label: field.label,
+          ),
       ];
 }

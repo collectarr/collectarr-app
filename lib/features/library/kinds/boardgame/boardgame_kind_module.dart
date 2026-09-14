@@ -333,7 +333,7 @@ final boardGameKindModule = LibraryKindCapabilityBundle<BoardGameWorkspaceDto>(
     ),
     manualPaneBuilder: buildBoardgameAddManualPane,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildBoardGameLibraryEditDialog,
     mediaEditDialogBuilder: buildBoardGameMediaLibraryEditDialog,
     releaseEditDialogBuilder: buildBoardGameReleaseLibraryEditDialog,

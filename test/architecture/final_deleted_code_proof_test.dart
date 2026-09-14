@@ -13,6 +13,9 @@ void main() {
       'LibrarySectionRegistry',
       'DefaultLibraryEditPresentationBuilder',
       'CatalogCache',
+      'LibraryEditCapability',
+      'collectarrKindEdits',
+      'MetadataOverrideFieldOption',
     ];
 
     final violations = <String>[];

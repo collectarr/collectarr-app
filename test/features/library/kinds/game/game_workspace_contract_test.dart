@@ -101,7 +101,8 @@ void main() {
       facets.externalFacetBucketIdsByMode.keys,
       containsAll(['game.genre', 'game.region']),
     );
-    final vocabularyCapability = gameKindModule.edit.vocabularies;
+    final vocabularyCapability =
+        gameKindModule.editCapabilities.presentationCapability.vocabularies;
     expect(vocabularyCapability, isNotNull);
     expect(
       vocabularyCapability!.definitions.map((definition) => definition.key),

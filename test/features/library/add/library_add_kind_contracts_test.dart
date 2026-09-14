@@ -305,15 +305,17 @@ void main() {
             reason: '$kind must build a kind-owned Owned create payload');
         expect(command.typedPayload.catalogRef.kind.apiValue, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
-        expect(runtime.edit.ownedIndexUpdatePayloadBuilder, isNotNull,
+        expect(runtime.ownedEdit.ownedIndexUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned Owned index payload');
-        expect(runtime.edit.ownedConditionValueUpdatePayloadBuilder, isNotNull,
+        expect(runtime.ownedEdit.ownedConditionValueUpdatePayloadBuilder,
+            isNotNull,
             reason: '$kind must build a kind-owned condition/grade payload');
-        expect(runtime.edit.ownedBulkUpdatePayloadBuilder, isNotNull,
+        expect(runtime.ownedEdit.ownedBulkUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned bulk payload');
-        expect(runtime.edit.ownedPersonalDetailsUpdatePayloadBuilder, isNotNull,
+        expect(runtime.ownedEdit.ownedPersonalDetailsUpdatePayloadBuilder,
+            isNotNull,
             reason: '$kind must build a kind-owned personal payload');
-        expect(runtime.edit.ownedTransferUpdatePayloadBuilder, isNotNull,
+        expect(runtime.ownedEdit.ownedTransferUpdatePayloadBuilder, isNotNull,
             reason: '$kind must build a kind-owned transfer payload');
 
         final existing = _buildOwnedFromCreatePayload(

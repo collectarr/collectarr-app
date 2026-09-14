@@ -287,7 +287,7 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   final supportedFields = {
     for (final definition in type.presentation.filterDefinitions) definition.id,
   };
-  final editCap = type.edit;
+  final editCap = type.editPresentation;
   final collectionValues = editCap.collectionValueOptions;
   final hasCollectionValues =
       collectionValues.isNotEmpty && supportedFields.contains('grade');

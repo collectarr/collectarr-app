@@ -76,18 +76,8 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
 
   Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
     final contributor = libraryAdminContributorForKind(targetRef.mediaKind);
-    final fields = [
-      MetadataOverrideFieldOption(
-        id: MetadataFieldId(kind: targetRef.mediaKind, value: 'title'),
-        label: 'Title',
-      ),
-      for (final field
-          in contributor?.proposalFields ?? const <LibraryAdminProposalField>[])
-        MetadataOverrideFieldOption(
-          id: MetadataFieldId(kind: targetRef.mediaKind, value: field.key),
-          label: field.label,
-        ),
-    ];
+    final fields = contributor?.metadataOverrideFields ??
+        const <LibraryMetadataOverrideField>[];
     final result = await showDialog<MetadataOverrideFormResult>(
       context: context,
       builder: (_) => MetadataOverrideFormDialog(

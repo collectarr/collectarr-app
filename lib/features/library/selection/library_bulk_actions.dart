@@ -43,7 +43,7 @@ class LibraryBulkActions {
       final kindModule = libraryKindRegistrationForKind(
         catalogRef.mediaKind,
       );
-      final updateCmd = kindModule.edit.buildBulkUpdateCommand(
+      final updateCmd = kindModule.ownedEdit.buildBulkUpdateCommand(
         ownedRef: ownedItem.ref,
         condition: selection.condition,
         collectionValue: selection.collectionValue,

@@ -45,7 +45,7 @@ void main() {
         ownerLabelController: manualDraft.ownerLabelController,
         linksController: manualDraft.linksController,
         isAdding: false,
-        defaultCondition: runtime.edit.defaultCondition,
+        defaultCondition: runtime.editPresentation.defaultCondition,
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,

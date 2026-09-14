@@ -123,7 +123,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isOwned => _draft.isOwned;
 
-  LibraryEditCapability get _editCapability => widget.type.edit;
+  LibraryEditPresentationCapability get _editCapability =>
+      widget.type.editPresentation;
 
   LibraryEditPresentationContext get _editPresentationContext =>
       LibraryEditPresentationContext(
@@ -171,7 +172,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         ),
     ];
 
-    _tabSpecs = widget.type.edit.presentation
+    _tabSpecs = widget.type.editPresentation.presentation
         .builderForScope(widget.scope)
         .buildTabs(context: _editPresentationContext);
 
@@ -259,7 +260,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.type.edit.presentation
+    final title = widget.type.editPresentation.presentation
         .builderForScope(widget.scope)
         .buildDialogTitle(item: widget.item);
 
@@ -304,7 +305,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _tabViewFor(String id) {
-    final customView = widget.type.edit.presentation
+    final customView = widget.type.editPresentation.presentation
         .builderForScope(widget.scope)
         .buildCustomTabView(
           tabId: id,

@@ -1,19 +1,9 @@
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
-
-/// Structural option supplied by the owning kind to the override form.
-final class MetadataOverrideFieldOption {
-  const MetadataOverrideFieldOption({
-    required this.id,
-    required this.label,
-  });
-
-  final MetadataFieldId id;
-  final String label;
-}
 
 final class MetadataOverrideFormResult {
   const MetadataOverrideFormResult({
@@ -37,7 +27,7 @@ final class MetadataOverrideFormDialog extends StatefulWidget {
   });
 
   final Color accent;
-  final List<MetadataOverrideFieldOption> fields;
+  final List<LibraryMetadataOverrideField> fields;
 
   @override
   State<MetadataOverrideFormDialog> createState() =>

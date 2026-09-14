@@ -319,17 +319,18 @@ final Map<CatalogMediaKind, LibraryInspectorCapability>
   CatalogMediaKind.tv: tvKindModule.inspector,
 });
 
-final Map<CatalogMediaKind, LibraryEditCapability> collectarrKindEdits =
-    Map.unmodifiable(<CatalogMediaKind, LibraryEditCapability>{
-  CatalogMediaKind.anime: animeKindModule.edit,
-  CatalogMediaKind.boardgame: boardGameKindModule.edit,
-  CatalogMediaKind.book: bookKindModule.edit,
-  CatalogMediaKind.comic: comicKindModule.edit,
-  CatalogMediaKind.game: gameKindModule.edit,
-  CatalogMediaKind.manga: mangaKindModule.edit,
-  CatalogMediaKind.movie: movieKindModule.edit,
-  CatalogMediaKind.music: musicKindModule.edit,
-  CatalogMediaKind.tv: tvKindModule.edit,
+final Map<CatalogMediaKind, LibraryEditCapabilitySet>
+    collectarrKindEditCapabilities =
+    Map.unmodifiable(<CatalogMediaKind, LibraryEditCapabilitySet>{
+  CatalogMediaKind.anime: animeKindModule.editCapabilities,
+  CatalogMediaKind.boardgame: boardGameKindModule.editCapabilities,
+  CatalogMediaKind.book: bookKindModule.editCapabilities,
+  CatalogMediaKind.comic: comicKindModule.editCapabilities,
+  CatalogMediaKind.game: gameKindModule.editCapabilities,
+  CatalogMediaKind.manga: mangaKindModule.editCapabilities,
+  CatalogMediaKind.movie: movieKindModule.editCapabilities,
+  CatalogMediaKind.music: musicKindModule.editCapabilities,
+  CatalogMediaKind.tv: tvKindModule.editCapabilities,
 });
 
 final Map<CatalogMediaKind, LibraryTransferCapability> collectarrKindTransfers =

@@ -655,8 +655,8 @@ import 'package:go_router/go_router.dart';
   _renderModuleCapabilityMap(
     buffer,
     descriptors,
-    name: 'collectarrKindEdits',
-    field: 'edit',
+    name: 'collectarrKindEditCapabilities',
+    field: 'editCapabilities',
   );
   _renderModuleCapabilityMap(
     buffer,
@@ -886,7 +886,7 @@ void _renderModuleCapabilityMap(
     'trackingProfile' => 'MediaTrackingProfile',
     'hierarchy' => 'LibraryHierarchyCapability',
     'inspector' => 'LibraryInspectorCapability',
-    'edit' => 'LibraryEditCapability',
+    'editCapabilities' => 'LibraryEditCapabilitySet',
     'transfer' => 'LibraryTransferCapability',
     'stats' => 'LibraryStatsCapability',
     'value' => 'LibraryValueCapability?',

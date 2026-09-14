@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
 
 typedef LibraryAdminProposalFieldReader = String Function(
@@ -32,6 +33,21 @@ class LibraryAdminProposalField {
   final LibraryAdminProposalFieldWriter write;
 }
 
+/// A metadata field that the owning kind allows users to override locally.
+///
+/// The host only renders this structural option. The field identity is
+/// created by the kind contributor, so generic Library UI never invents a
+/// semantic field path or assumes that every kind has the same fields.
+class LibraryMetadataOverrideField {
+  const LibraryMetadataOverrideField({
+    required this.id,
+    required this.label,
+  });
+
+  final MetadataFieldId id;
+  final String label;
+}
+
 /// Semantic admin contribution supplied by one library kind.
 ///
 /// Admin may render the fields structurally, but it must not interpret their
@@ -40,6 +56,8 @@ abstract interface class LibraryAdminContributor {
   CatalogMediaKind get kind;
 
   List<LibraryAdminProposalField> get proposalFields;
+
+  List<LibraryMetadataOverrideField> get metadataOverrideFields;
 }
 
 String readAdminProposalText(

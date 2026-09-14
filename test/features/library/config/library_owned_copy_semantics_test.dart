@@ -20,7 +20,7 @@ void main() {
       );
 
       expect(
-        type.edit.resolveOwnedDigitalFlag(
+        type.ownedEdit.resolveOwnedDigitalFlag(
           testOwnedItemSummary(digital),
           const [],
         ),
@@ -28,7 +28,7 @@ void main() {
         reason: type.kind.apiValue,
       );
       expect(
-        type.edit.resolveOwnedDigitalFlag(
+        type.ownedEdit.resolveOwnedDigitalFlag(
           testOwnedItemSummary(physical),
           const [],
         ),

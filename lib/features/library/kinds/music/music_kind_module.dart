@@ -332,7 +332,7 @@ final musicKindModule = LibraryKindCapabilityBundle<MusicWorkspaceDto>(
     manualPaneBuilder: buildMusicAddManualPane,
     chrome: _musicAddChrome,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildMusicLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
     presentation: musicLibraryEditPresentation,

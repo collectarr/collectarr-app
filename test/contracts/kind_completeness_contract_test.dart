@@ -44,10 +44,10 @@ void main() {
             reason: '$kind initial add draft must be non-null');
 
         // Edit capability
-        final editCap = runtime.edit;
+        final editCap = runtime.editCapabilities;
         expect(editCap, isNotNull,
             reason: '$kind must have explicit edit capability');
-        expect(editCap.createDraft, isNotNull,
+        expect(editCap.draft.createDraft, isNotNull,
             reason: '$kind must have explicit edit draft factory');
 
         // Owned details and codec live in the kind-owned serialization registry.
@@ -243,8 +243,8 @@ void main() {
         () {
       for (final kind in activeKinds) {
         final runtime = testKindRegistration(kind);
-        expect(runtime.edit, isNotNull);
-        expect(runtime.edit.createDraft, isNotNull);
+        expect(runtime.editDraft, isNotNull);
+        expect(runtime.editDraft.createDraft, isNotNull);
       }
     });
   });

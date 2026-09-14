@@ -214,7 +214,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           updated = src.writeTo(updated, null);
         }
         await widget.mutations.updateOwnedItem(
-          widget.type.edit.buildTransferUpdateCommand(
+          widget.type.ownedEdit.buildTransferUpdateCommand(
             ownedRef: item.ref,
             updated: updated,
           ),
@@ -243,7 +243,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
         } else {
           final updated = src.writeTo(item.value, null);
           await widget.mutations.updateOwnedItem(
-            widget.type.edit.buildTransferUpdateCommand(
+            widget.type.ownedEdit.buildTransferUpdateCommand(
               ownedRef: item.ref,
               updated: updated,
             ),

@@ -159,7 +159,7 @@ void main() {
       for (final kind in kinds) {
         final runtime = testKindRegistration(kind);
         expect(runtime.kind, kind, reason: 'Runtime for $kind should exist');
-        final vocCapability = runtime.edit.vocabularies;
+        final vocCapability = runtime.editPresentation.vocabularies;
         expect(vocCapability, isNotNull,
             reason: 'Vocabulary capability for $kind should be set');
         expect(vocCapability!.definitions, isNotEmpty,
