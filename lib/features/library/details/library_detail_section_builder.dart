@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
@@ -19,7 +20,8 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required LibraryProjectionView item,
   required Color accent,
   OwnedItemSummary? ownedSummary,
-  required TrackingLifecycle? trackingLifecycle,
+  TrackingSummary? trackingSummary,
+  TrackingLifecycle? trackingLifecycle,
   required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -39,7 +41,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ),
       ],
     ),
-    if (ownedSummary != null || trackingLifecycle != null)
+    if (ownedSummary != null || trackingSummary != null)
       LibraryDetailSectionSpec(
         slot: LibraryDetailSectionSlot.personal,
         title: 'Personal status',
@@ -50,7 +52,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             ownedItemDispatch: item.source.ownedItemDispatch,
             ownedSummary: ownedSummary,
             ownedCopies: ownedCopies,
-            trackingLifecycle: trackingLifecycle,
+            trackingSummary: trackingSummary,
             accent: accent,
             onFilterByValue: onFilterByValue,
           ),
@@ -58,6 +60,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             type: type,
             item: item,
             accent: accent,
+            trackingSummary: trackingSummary,
             trackingLifecycle: trackingLifecycle,
           ),
         ],

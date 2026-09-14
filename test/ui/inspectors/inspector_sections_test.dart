@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -176,12 +177,15 @@ void main() {
                 grade: '9.4',
                 updatedAt: DateTime.utc(2026, 5, 22),
               )),
-              trackingLifecycle: BookTrackingLifecycle(
+              trackingSummary: TrackingSummary(
                 id: 'track-1',
                 catalogRef: testCatalogRef('book-1', kind: 'book'),
+                status: MediaTrackingStatus.completed,
                 rating: 8,
-                progressCurrent: 412,
-                progressTotal: 412,
+                progress: const TrackingProgressSnapshot(
+                  current: 412,
+                  total: 412,
+                ),
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
               accent: Colors.blue,

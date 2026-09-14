@@ -68,7 +68,6 @@ void main() {
       ownedItems: ownedRepo,
       wishlist: wishlistRepo,
       catalogSummaries: CatalogDisplaySummaryRepository(db),
-      trackingLifecycles: trackingRepo,
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );
@@ -76,8 +75,6 @@ void main() {
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
       catalogTransport: catalogRepo,
-      trackingLifecycles: trackingRepo,
-      trackingUnits: trackingUnitsRepo,
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );

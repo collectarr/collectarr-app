@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -139,6 +141,16 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         clearNewest: ownedSummaryResolution.clearNewest,
       );
     }
+    final trackingSummaries = switch (selected.source.catalogRef) {
+      final catalogRef? =>
+        ref.watch(trackingSummariesByCatalogRefProvider)[catalogRef] ??
+            const <TrackingSummary>[],
+      _ => const <TrackingSummary>[],
+    };
+    final activeTrackingSummary = resolveActiveTrackingSummary(
+      trackingSummaries,
+      activeOwnedItem,
+    );
     final trackingLifecycles = switch (selected.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
@@ -230,6 +242,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       selected,
       activeOwnedItem,
       ownedCopies,
+      activeTrackingSummary,
       activeTrackingLifecycle,
       LibraryInspectorRequest(
         type: widget.type,
@@ -240,6 +253,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             ? null
             : () => widget.onEdit!(activeOwnedItem),
         ownedCopies: ownedCopies,
+        trackingSummary: activeTrackingSummary,
         trackingLifecycle: activeTrackingLifecycle,
         accent: widget.accent,
         detailsLayout: widget.detailsLayout,
@@ -268,6 +282,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView selected,
     OwnedItemSummary? activeOwnedItem,
     List<OwnedItemSummary> ownedCopies,
+    TrackingSummary? activeTrackingSummary,
     TrackingLifecycle? activeTrackingLifecycle,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
@@ -350,7 +365,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           item: selected,
           ownedItem: activeOwnedItem,
           ownedItemDispatch: inspectorRequest.ownedItemDispatch,
-          trackingLifecycle: activeTrackingLifecycle,
+          trackingSummary: activeTrackingSummary,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
@@ -368,6 +383,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               item: selected,
               accent: widget.accent,
               ownedItem: activeOwnedItem,
+              trackingSummary: activeTrackingSummary,
               trackingLifecycle: activeTrackingLifecycle,
             )
           : null),

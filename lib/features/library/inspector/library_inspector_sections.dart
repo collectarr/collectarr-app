@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -45,7 +45,7 @@ class InspectorPersonalSection extends StatelessWidget {
     required this.item,
     this.ownedItem,
     this.ownedItemDispatch,
-    this.trackingLifecycle,
+    this.trackingSummary,
     required this.accent,
     this.valueSnapshot,
     this.onFilterByValue,
@@ -55,7 +55,7 @@ class InspectorPersonalSection extends StatelessWidget {
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingSummary? trackingSummary;
   final Color accent;
   final LibraryValueSnapshot? valueSnapshot;
   final ValueChanged<String>? onFilterByValue;
@@ -87,11 +87,11 @@ class InspectorPersonalSection extends StatelessWidget {
         item.source.ownedItemDispatch,
       ),
     );
-    final tracking = trackingLifecycle;
+    final tracking = trackingSummary;
     final trackingRating = tracking?.rating;
     final trackingStatus = tracking?.statusStorageValue;
     final trackingStartedAt = tracking?.startedAt;
-    final trackingFinishedAt = tracking?.finishedAt;
+    final trackingFinishedAt = tracking?.completedAt;
     final kindPersonalFields = type.inspector.buildPersonalDetailFields(
       context: context,
       item: item,

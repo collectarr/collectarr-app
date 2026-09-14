@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
@@ -281,6 +282,7 @@ class LibraryInspectorRequest {
     this.ownedItemDispatch,
     this.onEdit,
     this.ownedCopies = const [],
+    this.trackingSummary,
     required this.trackingLifecycle,
     required this.accent,
     this.detailsLayout = LibraryDetailsLayout.hidden,
@@ -297,6 +299,7 @@ class LibraryInspectorRequest {
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final VoidCallback? onEdit;
   final List<OwnedItemSummary> ownedCopies;
+  final TrackingSummary? trackingSummary;
   final TrackingLifecycle? trackingLifecycle;
   final Color accent;
   final LibraryDetailsLayout detailsLayout;

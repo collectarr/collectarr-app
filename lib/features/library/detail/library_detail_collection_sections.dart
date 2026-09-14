@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
@@ -20,7 +20,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     this.ownedItemDispatch,
     this.ownedSummary,
     this.ownedCopies = const [],
-    this.trackingLifecycle,
+    this.trackingSummary,
     required this.accent,
     this.onFilterByValue,
   });
@@ -30,7 +30,7 @@ class LibraryDetailPersonalSection extends StatelessWidget {
   final LibraryOwnedItemDispatch? ownedItemDispatch;
   final OwnedItemSummary? ownedSummary;
   final List<OwnedItemSummary> ownedCopies;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingSummary? trackingSummary;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -76,10 +76,10 @@ class LibraryDetailPersonalSection extends StatelessWidget {
     final totalCurrentValue = totalMarketValueCents == null
         ? ''
         : formatMoney(totalMarketValueCents, totalsCurrency);
-    final tracking = trackingLifecycle;
+    final tracking = trackingSummary;
     final trackingStatus = tracking?.statusStorageValue;
     final trackingRating = tracking?.rating;
-    final trackingProgress = _detailTrackingProgressLabel(trackingLifecycle);
+    final trackingProgress = _detailTrackingProgressLabel(trackingSummary);
     return LibraryDetailSection(
       title: 'Local collection',
       accentColor: accent,
@@ -204,8 +204,8 @@ String? _detailProfitLossLabel(OwnedItemSummary? ownedItem) {
   return formatMoney(sold - paid, ownedItem?.currency);
 }
 
-String? _detailTrackingProgressLabel(TrackingLifecycle? trackingLifecycle) {
-  final progress = trackingLifecycle?.progress;
+String? _detailTrackingProgressLabel(TrackingSummary? trackingSummary) {
+  final progress = trackingSummary?.progress;
   final current = progress?.current;
   final total = progress?.total;
   if (current == null && total == null) {

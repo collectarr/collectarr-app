@@ -71,12 +71,12 @@ List<Widget> buildMovieInspectorSections(
       InspectorContributorsSection(request: request),
     if ((metadata?.links.isNotEmpty ?? false))
       InspectorLinksTrailersSection(request: request),
-    if (request.ownedItem != null || request.trackingLifecycle != null)
+    if (request.ownedItem != null || request.trackingSummary != null)
       InspectorPersonalStatusSection(
         type: request.type,
         item: item,
         ownedItem: request.ownedItem,
-        trackingLifecycle: request.trackingLifecycle,
+        trackingSummary: request.trackingSummary,
         accent: request.accent,
         onFilterByValue: request.onFilterByValue,
       ),

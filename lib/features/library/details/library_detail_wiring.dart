@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -11,10 +12,11 @@ List<Widget> buildLibraryDetailEditorSections({
   required LibraryProjectionView item,
   required Color accent,
   OwnedItemSummary? ownedItem,
+  TrackingSummary? trackingSummary,
   TrackingLifecycle? trackingLifecycle,
 }) {
   return [
-    if (trackingLifecycle != null)
+    if (trackingSummary != null && trackingLifecycle != null)
       InspectorTrackingDetailsEditor(
         itemId: item.node.titleItemId,
         mediaType: item.source.mediaKind.apiValue,
@@ -34,6 +36,7 @@ List<Widget> buildLibraryInspectorEditorSections({
   required LibraryProjectionView item,
   required Color accent,
   OwnedItemSummary? ownedItem,
+  TrackingSummary? trackingSummary,
   TrackingLifecycle? trackingLifecycle,
 }) {
   return buildLibraryDetailEditorSections(
@@ -42,6 +45,7 @@ List<Widget> buildLibraryInspectorEditorSections({
     accent: accent,
     ownedItem: ownedItem,
     trackingLifecycle: trackingLifecycle,
+    trackingSummary: trackingSummary,
   );
 }
 

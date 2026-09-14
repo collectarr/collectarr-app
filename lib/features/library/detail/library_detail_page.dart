@@ -2,7 +2,9 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/catalog_reference_helpers.dart';
@@ -127,6 +129,16 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       selectNewest: _selectNewestOwnedItem,
     );
     final activeOwnedSummary = ownedResolution.ownedItem;
+    final trackingSummaries = switch (widget.item.source.catalogRef) {
+      final catalogRef? =>
+        ref.watch(trackingSummariesByCatalogRefProvider)[catalogRef] ??
+            const <TrackingSummary>[],
+      _ => const <TrackingSummary>[],
+    };
+    final activeTrackingSummary = resolveActiveTrackingSummary(
+      trackingSummaries,
+      activeOwnedSummary,
+    );
     final trackingLifecycles = switch (widget.item.source.catalogRef) {
       final catalogRef? =>
         ref.watch(trackingPersistenceEntriesByCatalogRefProvider)[catalogRef] ??
@@ -210,6 +222,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   item: widget.item,
                   accent: widget.accent,
                   ownedSummary: activeOwnedSummary,
+                  trackingSummary: activeTrackingSummary,
                   trackingLifecycle: activeTrackingLifecycle,
                   ownedCopies: ownedCopies,
                   onFilterByValue: widget.onFilterByValue,
@@ -225,9 +238,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
   Future<void> _searchOnEbay(LibraryProjectionView item) async {
     final dto = item.dto;
     final itemNumber = libraryCardPresentationForEntry(item).itemNumber;
-    final query = itemNumber != null
-        ? '${dto.title} #$itemNumber'
-        : dto.title;
+    final query = itemNumber != null ? '${dto.title} #$itemNumber' : dto.title;
     await launchEbaySearch(query);
   }
 

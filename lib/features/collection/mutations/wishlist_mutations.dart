@@ -6,8 +6,6 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_snapshot.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_lifecycle_repository.dart';
-import 'package:collectarr_app/features/library/tracking/tracking_unit_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
@@ -20,8 +18,6 @@ final class WishlistMutations {
   const WishlistMutations({
     required this.wishlist,
     required this.catalogTransport,
-    required this.trackingLifecycles,
-    required this.trackingUnits,
     required this.syncQueue,
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
@@ -29,8 +25,6 @@ final class WishlistMutations {
 
   final WishlistItemsCacheRepository wishlist;
   final CatalogTransportRepository catalogTransport;
-  final TrackingLifecycleRepository trackingLifecycles;
-  final TrackingUnitRepository trackingUnits;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;

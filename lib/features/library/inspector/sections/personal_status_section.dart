@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/core/models/tracking_lifecycle.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -13,7 +13,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
     required this.accent,
     this.ownedItem,
     this.ownedItemDispatch,
-    this.trackingLifecycle,
+    this.trackingSummary,
     this.onFilterByValue,
   });
 
@@ -21,7 +21,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
   final LibraryProjectionView item;
   final OwnedItemSummary? ownedItem;
   final LibraryOwnedItemDispatch? ownedItemDispatch;
-  final TrackingLifecycle? trackingLifecycle;
+  final TrackingSummary? trackingSummary;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -32,7 +32,7 @@ class InspectorPersonalStatusSection extends StatelessWidget {
       item: item,
       ownedItem: ownedItem,
       ownedItemDispatch: ownedItemDispatch,
-      trackingLifecycle: trackingLifecycle,
+      trackingSummary: trackingSummary,
       accent: accent,
       onFilterByValue: onFilterByValue,
     );
