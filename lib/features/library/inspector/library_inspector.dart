@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -23,9 +24,8 @@ import 'package:collectarr_app/features/library/sharing/collection_share_dialog.
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';

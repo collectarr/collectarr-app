@@ -10,7 +10,10 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
@@ -227,13 +230,24 @@ TvOwnedItem _tvTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected TvOwnedItem');
 }
 
-final tvKindModule = LibraryKindCapabilityBundle<TvWorkspaceDto>(
+final tvKindModule = (
   presentation: tvLibraryMediaPresentation,
   physicalMediaFormats: tvPhysicalMediaFormats,
   trackingProfile: tvTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
   releaseCapability: const TvReleaseProjectionCapability<LibraryWorkspaceDto>(),
   releaseDetailSource: const TvReleaseDetailSource(),
   catalogTarget: const TvCatalogTargetCapability(),
+  relations: null,
+  value: null,
+  toolbar: null,
+  searchTargetOptions: const <LibrarySearchTarget>[],
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.tv,
+    const LibraryUiPolicy(
+      wideDialog: true,
+    ),
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.tv,
     singularLabel: 'TV Show',

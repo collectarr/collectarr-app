@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 

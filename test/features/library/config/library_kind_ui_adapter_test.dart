@@ -27,7 +27,7 @@ void main() {
 
   test('comic-only toolbar actions stay in the kind registration', () {
     final actionIds =
-        comicKindModule.toolbar!.actions.map((action) => action.id);
+        comicKindModule.toolbar.actions.map((action) => action.id);
     expect(actionIds, contains('comic.jump_to_issue'));
     expect(actionIds, contains('comic.missing_issues'));
   });

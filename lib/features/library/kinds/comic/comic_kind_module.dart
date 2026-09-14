@@ -24,7 +24,9 @@ import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart'
 import 'package:collectarr_app/features/library/kinds/comic/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/detail/comic_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
@@ -188,12 +190,17 @@ ComicOwnedItem _comicTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected ComicOwnedItem');
 }
 
-final comicKindModule = LibraryKindCapabilityBundle<ComicWorkspaceDto>(
+final comicKindModule = (
   presentation: comicLibraryMediaPresentation,
   physicalMediaFormats: comicPhysicalMediaFormats,
   trackingProfile: comicTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
   catalogTarget: const ComicCatalogTargetCapability(),
   viewProfile: comicsWorkspaceViewProfile,
+  releaseCapability: null,
+  releaseDetailSource: null,
+  uiPolicy: const LibraryUiPolicy(),
+  searchTargetOptions: const <LibrarySearchTarget>[],
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.comic,
     singularLabel: 'Comic',

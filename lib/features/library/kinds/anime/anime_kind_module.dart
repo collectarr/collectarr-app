@@ -43,7 +43,10 @@ import 'package:collectarr_app/features/library/kinds/anime/add/anime_provider_c
 import 'package:collectarr_app/features/library/kinds/anime/data/remote/anime_core_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/add/library_add_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_result_policy.dart';
@@ -223,14 +226,23 @@ AnimeOwnedItem _animeTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected AnimeOwnedItem');
 }
 
-final animeKindModule = LibraryKindCapabilityBundle<AnimeWorkspaceDto>(
+final animeKindModule = (
   presentation: animeLibraryMediaPresentation,
   physicalMediaFormats: animePhysicalMediaFormats,
   trackingProfile: animeTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
   releaseCapability:
       const AnimeReleaseProjectionCapability<LibraryWorkspaceDto>(),
   releaseDetailSource: const AnimeReleaseDetailSource(),
   catalogTarget: const AnimeCatalogTargetCapability(),
+  relations: null,
+  value: null,
+  toolbar: null,
+  searchTargetOptions: const <LibrarySearchTarget>[],
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.anime,
+    const LibraryUiPolicy(),
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.anime,
     singularLabel: 'Anime',

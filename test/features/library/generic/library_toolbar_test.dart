@@ -662,7 +662,7 @@ void main() {
   });
 
   test('comic kind exposes a module-owned missing issues toolbar action', () {
-    final action = comicKindModule.toolbar!.actions
+    final action = comicKindModule.toolbar.actions
         .firstWhere((a) => a.id == 'comic.missing_issues');
     expect(action.id, 'comic.missing_issues');
     expect(action.label, 'Missing issues report...');

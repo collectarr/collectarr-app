@@ -1,1 +1,2 @@
-export 'collectarr_kind_registry.g.dart' show collectarrTrackingUnitStorageCodecs;
+export 'collectarr_kind_registry.g.dart'
+    show collectarrTrackingUnitStorageCodecs;

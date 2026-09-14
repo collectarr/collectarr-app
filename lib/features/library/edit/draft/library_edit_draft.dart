@@ -163,7 +163,7 @@ class LibraryEditDraft {
         wishlistItem: wishlistItem,
         trackingSummary: trackingSummary,
         accent: accent,
-      wishlistTargetOptions: wishlistTargetOptions,
+        wishlistTargetOptions: wishlistTargetOptions,
         physicalFormats: physicalFormats,
         customFieldDefinitions: customFieldDefinitions,
         customFieldValues: customFieldValues,

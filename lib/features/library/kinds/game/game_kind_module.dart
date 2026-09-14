@@ -14,7 +14,10 @@ import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocab
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 
 import 'package:flutter/material.dart';
@@ -169,11 +172,23 @@ GameOwnedItem _gameTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected GameOwnedItem');
 }
 
-final gameKindModule = LibraryKindCapabilityBundle<GameWorkspaceDto>(
+final gameKindModule = (
   presentation: gamesLibraryMediaPresentation,
   physicalMediaFormats: gamePhysicalMediaFormats,
   trackingProfile: gameTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
+  releaseCapability: null,
+  releaseDetailSource: null,
   catalogTarget: const GameCatalogTargetCapability(),
+  uiPolicy: const LibraryUiPolicy(),
+  relations: null,
+  value: null,
+  toolbar: null,
+  searchTargetOptions: const <LibrarySearchTarget>[],
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.game,
+    const LibraryUiPolicy(),
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.game,
     singularLabel: 'Game',

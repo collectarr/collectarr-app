@@ -128,7 +128,7 @@ void main() {
         movieKindModule.hierarchy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.media,
           browseScope: LibraryBrowserScope.title,
-          hasReleaseCapability: movieKindModule.releaseCapability != null,
+          hasReleaseCapability: true,
         ),
         isTrue,
       );

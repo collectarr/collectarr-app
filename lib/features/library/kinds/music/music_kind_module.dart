@@ -26,7 +26,9 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/music/detail/music_personal_detail_fields.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 
@@ -178,16 +180,26 @@ MusicOwnedItem _musicTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MusicOwnedItem');
 }
 
-final musicKindModule = LibraryKindCapabilityBundle<MusicWorkspaceDto>(
+final musicKindModule = (
   presentation: musicLibraryMediaPresentation,
   physicalMediaFormats: musicPhysicalMediaFormats,
-  searchTargetOptions: const [
+  searchTargetOptions: const <LibrarySearchTarget>[
     LibrarySearchTarget.all,
     LibrarySearchTarget.mediaOnly,
     LibrarySearchTarget.tracksOnly,
   ],
   trackingProfile: musicTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
+  releaseCapability: null,
+  releaseDetailSource: null,
   catalogTarget: const MusicCatalogTargetCapability(),
+  relations: null,
+  value: null,
+  toolbar: null,
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.music,
+    const LibraryUiPolicy(),
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.music,
     singularLabel: 'Music',

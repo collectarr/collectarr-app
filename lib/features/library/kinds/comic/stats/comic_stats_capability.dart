@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';

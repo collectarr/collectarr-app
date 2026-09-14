@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/owned_item_projection.dart';
@@ -52,7 +53,6 @@ import 'package:collectarr_app/features/library/config/library_kind_browser_dele
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';

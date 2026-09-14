@@ -40,7 +40,10 @@ import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_work
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/add/library_add_kind_filters.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_result_policy.dart';
@@ -263,14 +266,24 @@ MovieOwnedItem _movieTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MovieOwnedItem');
 }
 
-final movieKindModule = LibraryKindCapabilityBundle<MovieWorkspaceDto>(
+final movieKindModule = (
   presentation: moviesLibraryMediaPresentation,
   physicalMediaFormats: moviePhysicalMediaFormats,
   trackingProfile: movieTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
   releaseCapability:
       const MovieReleaseProjectionCapability<LibraryWorkspaceDto>(),
   releaseDetailSource: const MovieReleaseDetailSource(),
   catalogTarget: const MovieCatalogTargetCapability(),
+  relations: null,
+  toolbar: null,
+  searchTargetOptions: const <LibrarySearchTarget>[],
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.movie,
+    const LibraryUiPolicy(
+      wideDialog: true,
+    ),
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.movie,
     singularLabel: 'Movie',

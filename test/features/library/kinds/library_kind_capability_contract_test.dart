@@ -42,7 +42,7 @@ void main() {
         () {
       // Comic has toolbar actions
       expect(comicKindModule.toolbar, isNotNull);
-      expect(comicKindModule.toolbar!.actions, isNotEmpty);
+      expect(comicKindModule.toolbar.actions, isNotEmpty);
 
       // Specs without custom toolbar actions have null toolbar
       final registrationsWithoutToolbar = collectarrKindRegistrationsList

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
 

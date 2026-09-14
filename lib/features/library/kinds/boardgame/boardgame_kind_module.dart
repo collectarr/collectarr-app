@@ -38,7 +38,10 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -195,11 +198,23 @@ BoardGameOwnedItem _boardGameTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected BoardGameOwnedItem');
 }
 
-final boardGameKindModule = LibraryKindCapabilityBundle<BoardGameWorkspaceDto>(
+final boardGameKindModule = (
   presentation: boardGamesLibraryMediaPresentation,
   physicalMediaFormats: boardGamePhysicalMediaFormats,
   trackingProfile: boardGameTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
+  releaseCapability: null,
+  releaseDetailSource: null,
   catalogTarget: const BoardGameCatalogTargetCapability(),
+  uiPolicy: const LibraryUiPolicy(),
+  value: null,
+  relations: null,
+  toolbar: null,
+  searchTargetOptions: const <LibrarySearchTarget>[],
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.boardgame,
+    const LibraryUiPolicy(),
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.boardgame,
     singularLabel: 'Board Game',

@@ -38,7 +38,10 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_work
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_bundle.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
@@ -251,11 +254,23 @@ MangaOwnedItem _mangaTransferOwnedItem(Object value) {
   throw ArgumentError.value(value, 'updated', 'Expected MangaOwnedItem');
 }
 
-final mangaKindModule = LibraryKindCapabilityBundle<MangaWorkspaceDto>(
+final mangaKindModule = (
   presentation: mangaLibraryMediaPresentation,
   physicalMediaFormats: mangaPhysicalMediaFormats,
   trackingProfile: mangaTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
+  releaseCapability: null,
+  releaseDetailSource: null,
   catalogTarget: const MangaCatalogTargetCapability(),
+  uiPolicy: const LibraryUiPolicy(),
+  relations: null,
+  value: null,
+  toolbar: null,
+  searchTargetOptions: const <LibrarySearchTarget>[],
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.manga,
+    const LibraryUiPolicy(),
+  ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.manga,
     singularLabel: 'Manga',

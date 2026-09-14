@@ -32,7 +32,7 @@ void main() {
       ),
     );
 
-    final target = comicKindModule.relations!.targetFor(item);
+    final target = comicKindModule.relations.targetFor(item);
 
     expect(target?.id, 'series-1');
     expect(target?.title, 'Saga');
