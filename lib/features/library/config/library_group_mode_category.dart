@@ -1,13 +1,13 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'library_group_mode_category_models.dart';
 
 export 'library_group_mode_category_models.dart';
 
 List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
   List<String> modes,
 ) {
-  final fields = type.fields;
+  final fields = libraryKindWorkspaceForKind(type.kind).fields;
   final categoriesMap = <String, List<String>>{};
 
   for (final mode in modes) {
@@ -23,7 +23,7 @@ List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
 }
 
 List<LibraryGroupModeCategory> libraryGroupModeCategories(
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
   List<String> modes,
 ) {
   return type.presentation.builder.buildGroupModeCategories(modes) ??

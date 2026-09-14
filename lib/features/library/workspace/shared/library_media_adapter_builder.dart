@@ -1,5 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -7,28 +8,33 @@ import 'package:collectarr_app/features/library/workspace/table/media_table_colu
 
 export 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
 
-const double kPlannedMediaMinCoverSize = 96;
-const double kPlannedMediaDefaultCoverSize = 128;
-const double kPlannedMediaMaxCoverSize = 188;
-const double kPlannedMediaTableColumnSpacing = 10;
-const double kPlannedMediaTableHorizontalMargin = 8;
+const double kStandardMediaMinCoverSize = 96;
+const double kStandardMediaDefaultCoverSize = 128;
+const double kStandardMediaMaxCoverSize = 188;
+const double kStandardMediaTableColumnSpacing = 10;
+const double kStandardMediaTableHorizontalMargin = 8;
 
-LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
-  LibraryKindRuntime type,
+LibraryWorkspaceViewProfile standardMediaWorkspaceViewProfile(
+  CatalogMediaKind kind,
+  LibraryUiPolicy uiPolicy,
 ) {
-  final coverGridHeightFactor = type.uiPolicy.coverAspectRatio;
+  final coverGridHeightFactor = uiPolicy.coverAspectRatio;
   return LibraryWorkspaceViewProfile(
-    runtimeResolver: () => type,
-    defaultCoverSize: kPlannedMediaDefaultCoverSize,
-    minCoverSize: kPlannedMediaMinCoverSize,
-    maxCoverSize: kPlannedMediaMaxCoverSize,
+    kindModuleResolver: () => libraryKindRegistrationForKind(kind),
+    defaultCoverSize: kStandardMediaDefaultCoverSize,
+    minCoverSize: kStandardMediaMinCoverSize,
+    maxCoverSize: kStandardMediaMaxCoverSize,
     coverGridHeightFactor: coverGridHeightFactor,
-    presetConfig: (preset) => plannedMediaViewPresetConfig(type, preset),
-    clampColumnWidth: (column, width) =>
-        clampPlannedMediaTableColumnWidth(type, column, width),
+    presetConfig: (preset) => standardMediaViewPresetConfig(kind, preset),
+    clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
+      libraryKindWorkspaceForKind(kind).fields,
+      column,
+      width,
+    ),
     defaultDetailsLayout: LibraryDetailsLayout.bottom,
     sortAscendingForColumn: (column) =>
-        type.fields
+        libraryKindWorkspaceForKind(kind)
+            .fields
             .findSortDefinition(
               column,
             )
@@ -37,16 +43,17 @@ LibraryWorkspaceViewProfile plannedMediaWorkspaceViewProfile(
   );
 }
 
-LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
-  LibraryKindRuntime type,
+LibraryWorkspaceViewPresetConfig standardMediaViewPresetConfig(
+  CatalogMediaKind kind,
   LibraryWorkspacePreset preset,
 ) {
-  final defaultCols = type.fields.defaultVisibleColumns;
+  final defaultCols =
+      libraryKindWorkspaceForKind(kind).fields.defaultVisibleColumns;
   return switch (preset) {
     LibraryWorkspacePreset.cover => LibraryWorkspaceViewPresetConfig(
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.bottom,
-        coverSize: kPlannedMediaDefaultCoverSize,
+        coverSize: kStandardMediaDefaultCoverSize,
         visibleColumns: defaultCols,
       ),
     LibraryWorkspacePreset.card => LibraryWorkspaceViewPresetConfig(
@@ -70,15 +77,16 @@ LibraryWorkspaceViewPresetConfig plannedMediaViewPresetConfig(
   };
 }
 
-String? plannedMediaSubgroupKeyForEntry(
-  LibraryKindRuntime type,
-  LibraryProjectionRuntime item,
+String? standardMediaSubgroupKeyForEntry(
+  LibraryKindRegistration type,
+  LibraryProjectionView item,
   LibraryGroupIdRuntime groupId,
 ) {
-  return type.subgroupKeyForEntry(item, groupId);
+  return libraryKindWorkspaceForKind(type.kind)
+      .subgroupKeyForEntry(item, groupId);
 }
 
-int plannedMediaCompareSubgroupKeys(
+int standardMediaCompareSubgroupKeys(
   String left,
   String right,
 ) {

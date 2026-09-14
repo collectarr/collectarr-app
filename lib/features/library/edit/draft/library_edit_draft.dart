@@ -1,47 +1,50 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
 import 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
-import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
+    hide formatDate;
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft_factory.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/common_metadata_draft.dart';
-export 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 
 class LibraryEditDraft {
-  LibraryEditDraft._({
+  /// Low-level state constructor used by [createLibraryEditDraft].
+  ///
+  /// Callers should normally use [fromRequest], [fromItem], or [fromFields].
+  LibraryEditDraft.create({
     required TextControllerGroup textControllers,
     required this.type,
     required this.item,
+    required this.kindItem,
     required this.ownedItem,
+    required this.ownedItemDispatch,
     required this.wishlistItem,
-    required this.trackingEntry,
+    required this.trackingSummary,
     required this.accent,
-    required this.availableBundleReleases,
+    required this.wishlistTargetOptions,
     required this.physicalFormats,
     required this.customFieldDefinitions,
     required this.customFieldValues,
@@ -56,13 +59,19 @@ class LibraryEditDraft {
 
   final TextControllerGroup _textControllers;
 
-  final LibraryKindRuntime type;
-  final LibraryMetadataItem item;
-  final OwnedItem? ownedItem;
+  final LibraryKindRegistration type;
+  final CatalogEditMetadata item;
+
+  /// The selected transport candidate is retained only for the kind-owned
+  /// draft and final catalog mutation boundary. The shared shell reads
+  /// [item], never the transport candidate's rich payload.
+  final CatalogSearchCandidate kindItem;
+  final OwnedItemSummary? ownedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final Color accent;
-  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<CatalogTargetOption> wishlistTargetOptions;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -72,7 +81,7 @@ class LibraryEditDraft {
   final CommonMetadataDraft metadata;
   final PersonalStateDraft personal;
   final TrackingDraft tracking;
-  final KindEditDraft kindDetails;
+  final LibraryEditKindDraft kindDetails;
 
   Map<String, String?> customFieldEdits;
   List<ItemImageEdit> itemImageEdits;
@@ -88,12 +97,13 @@ class LibraryEditDraft {
   factory LibraryEditDraft.fromRequest(LibraryEditDialogRequest request) {
     return LibraryEditDraft.fromFields(
       type: request.type,
-      item: request.item,
+      item: request.kindItem,
       ownedItem: request.ownedItem,
+      ownedItemDispatch: request.ownedItemDispatch,
       wishlistItem: request.wishlistItem,
-      trackingEntry: request.trackingEntry,
+      trackingSummary: request.trackingSummary,
       accent: request.accent,
-      availableBundleReleases: request.availableBundleReleases,
+      wishlistTargetOptions: request.wishlistTargetOptions,
       physicalFormats: request.physicalFormats,
       customFieldDefinitions: request.customFieldDefinitions,
       customFieldValues: request.customFieldValues,
@@ -102,13 +112,14 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromItem({
-    required LibraryKindRuntime type,
-    required LibraryMetadataItem item,
-    OwnedItem? ownedItem,
+    required LibraryKindRegistration type,
+    required CatalogSearchCandidate item,
+    OwnedItemSummary? ownedItem,
+    LibraryOwnedItemDispatch? ownedItemDispatch,
     WishlistItem? wishlistItem,
-    TrackingEntry? trackingEntry,
+    TrackingSummary? trackingSummary,
     required Color accent,
-    List<BundleReleaseSummary> availableBundleReleases = const [],
+    List<CatalogTargetOption> wishlistTargetOptions = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     List<CustomFieldValue> customFieldValues = const [],
@@ -118,10 +129,11 @@ class LibraryEditDraft {
       type: type,
       item: item,
       ownedItem: ownedItem,
+      ownedItemDispatch: ownedItemDispatch,
       wishlistItem: wishlistItem,
-      trackingEntry: trackingEntry,
+      trackingSummary: trackingSummary,
       accent: accent,
-      availableBundleReleases: availableBundleReleases,
+      wishlistTargetOptions: wishlistTargetOptions,
       physicalFormats: physicalFormats,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValues: customFieldValues,
@@ -130,231 +142,42 @@ class LibraryEditDraft {
   }
 
   factory LibraryEditDraft.fromFields({
-    required LibraryKindRuntime type,
-    required LibraryMetadataItem item,
-    required OwnedItem? ownedItem,
+    required LibraryKindRegistration type,
+    required CatalogSearchCandidate item,
+    required OwnedItemSummary? ownedItem,
+    LibraryOwnedItemDispatch? ownedItemDispatch,
     required WishlistItem? wishlistItem,
-    required TrackingEntry? trackingEntry,
+    required TrackingSummary? trackingSummary,
     required Color accent,
-    List<BundleReleaseSummary> availableBundleReleases = const [],
+    List<CatalogTargetOption> wishlistTargetOptions = const [],
     List<PhysicalMediaFormat> physicalFormats = const [],
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     List<CustomFieldValue> customFieldValues = const [],
     List<ItemImage> itemImages = const [],
-  }) {
-    final textControllers = TextControllerGroup();
-    TextEditingController create([String text = '']) =>
-        textControllers.create(text: text);
-
-    final editionTitle = libraryKindTitleExtension(item);
-
-    final titleController = create(item.title);
-    final coverController = create(item.coverImageUrl ?? '');
-    final thumbnailController = create(item.thumbnailImageUrl ?? '');
-    final synopsisController = create(item.synopsis ?? '');
-    final displayTitleController = create(item.displayTitle ?? '');
-    final sortKeyController = create(item.sortKey ?? '');
-    final originalTitleController = create(item.originalTitle ?? '');
-    final localizedTitleController = create(item.localizedTitle ?? '');
-    final searchAliasesController = create(
-      (item.searchAliases ?? const <String>[]).join(', '),
-    );
-    final ownerLabelController = create(ownedItem?.ownerLabel ?? '');
-    final conditionController = create(ownedItem?.condition ?? '');
-    final gradeController = create(ownedItem?.grade ?? '');
-    final purchaseDateController = create(
-      ownedItem?.purchaseDate == null
-          ? ''
-          : formatDate(ownedItem!.purchaseDate!),
-    );
-    final priceController = create(
-      ownedItem?.pricePaidCents == null
-          ? ''
-          : (ownedItem!.pricePaidCents! / 100).toStringAsFixed(2),
-    );
-    final currencyController = create(ownedItem?.currency ?? '');
-    final quantityController = create((ownedItem?.quantity ?? 1).toString());
-    final indexNumberController =
-        create(ownedItem?.indexNumber?.toString() ?? '');
-    final notesController = create(ownedItem?.personalNotes ?? '');
-    final wishlistPriceController = create(
-      wishlistItem?.targetPriceCents == null
-          ? ''
-          : (wishlistItem!.targetPriceCents! / 100).toStringAsFixed(2),
-    );
-    final wishlistCurrencyController = create(wishlistItem?.currency ?? '');
-    final wishlistNotesController = create(wishlistItem?.notes ?? '');
-    final ratingController = create(
-      (trackingEntry?.rating ?? ownedItem?.rating)?.toString() ?? '',
-    );
-    final trackingController = create(
-      trackingEntry?.statusStorageValue ?? ownedItem?.readStatus ?? '',
-    );
-    final progressCurrentController = create(
-      trackingEntry?.progressCurrent?.toString() ?? '',
-    );
-    final progressTotalController = create(
-      trackingEntry?.progressTotal?.toString() ?? '',
-    );
-    final timesCompletedController = create(
-      trackingEntry?.timesCompleted?.toString() ?? '',
-    );
-    final trackingNotesController = create(trackingEntry?.notes ?? '');
-    final tagsController = create(ownedItem?.tags ?? '');
-    final sellPriceController = create(
-      ownedItem?.sellPriceCents == null
-          ? ''
-          : (ownedItem!.sellPriceCents! / 100).toStringAsFixed(2),
-    );
-    final soldToController = create(ownedItem?.soldTo ?? '');
-    final purchaseStoreController = create(ownedItem?.purchaseStore ?? '');
-    final marketValueController = create(
-      ownedItem?.marketValueCents == null
-          ? ''
-          : (ownedItem!.marketValueCents! / 100).toStringAsFixed(2),
-    );
-
-    final editions = libraryKindEditions(item);
-
-    final editionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
-      editionTitle: editionTitle,
-      variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
-    );
-    final wishlistEditionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: wishlistItem?.editionId,
-      editionTitle: editionTitle,
-      variantId: wishlistItem?.variantId,
-    );
-
-    final metadata = CommonMetadataDraft(
-      titleController: titleController,
-      displayTitleController: displayTitleController,
-      sortKeyController: sortKeyController,
-      originalTitleController: originalTitleController,
-      localizedTitleController: localizedTitleController,
-      searchAliasesController: searchAliasesController,
-      synopsisController: synopsisController,
-      coverController: coverController,
-      thumbnailController: thumbnailController,
-    );
-
-    final personal = PersonalStateDraft(
-      ownerLabelController: ownerLabelController,
-      conditionController: conditionController,
-      gradeController: gradeController,
-      purchaseDateController: purchaseDateController,
-      priceController: priceController,
-      currencyController: currencyController,
-      quantityController: quantityController,
-      indexNumberController: indexNumberController,
-      notesController: notesController,
-      purchaseStoreController: purchaseStoreController,
-      marketValueController: marketValueController,
-      wishlistPriceController: wishlistPriceController,
-      wishlistCurrencyController: wishlistCurrencyController,
-      wishlistNotesController: wishlistNotesController,
-      tagsController: tagsController,
-      sellPriceController: sellPriceController,
-      soldToController: soldToController,
-      tagOptions: splitPickListValues(ownedItem?.tags),
-      availableLocations: const [],
-      selectedLocationId: ownedItem?.locationId,
-      selectedOwnedAnchorType: PersonalItemAnchorType.fromApiValue(
-            ownedItem?.personalAnchor?.apiValue,
-          ) ??
-          PersonalItemAnchorType.item,
-      selectedEditionId: editionSelection.edition?.id,
-      selectedVariantId: editionSelection.variant?.id,
-      selectedBundleReleaseId:
-          normalizeLibrarySelectionId(ownedItem?.bundleReleaseId),
-      selectedWishlistAnchorType: PersonalItemAnchorType.fromApiValue(
-            wishlistItem?.personalAnchor?.apiValue,
-          ) ??
-          PersonalItemAnchorType.item,
-      selectedWishlistEditionId: wishlistEditionSelection.edition?.id,
-      selectedWishlistVariantId: wishlistEditionSelection.variant?.id,
-      selectedWishlistBundleReleaseId:
-          normalizeLibrarySelectionId(wishlistItem?.bundleReleaseId),
-      locationChanged: false,
-      soldAt: ownedItem?.soldAt,
-      collectionStatus: ownedItem?.collectionStatus,
-    );
-
-    final tracking = TrackingDraft(
-      ratingController: ratingController,
-      trackingController: trackingController,
-      progressCurrentController: progressCurrentController,
-      progressTotalController: progressTotalController,
-      timesCompletedController: timesCompletedController,
-      trackingNotesController: trackingNotesController,
-      selectedTrackingEditionId:
-          trackingEntry?.editionId ?? editionSelection.edition?.id,
-      selectedTrackingVariantId:
-          trackingEntry?.variantId ?? editionSelection.variant?.id,
-      startedAt: trackingEntry?.startedAt ?? ownedItem?.startedAt,
-      finishedAt: trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
-    );
-
-    final kindDetails = type.edit.createDraft(
-      item: item,
-      ownedItem: ownedItem,
-      trackingEntry: trackingEntry,
-      textControllers: textControllers,
-    );
-
-    return LibraryEditDraft._(
-      textControllers: textControllers,
-      type: type,
-      item: item,
-      ownedItem: ownedItem,
-      wishlistItem: wishlistItem,
-      trackingEntry: trackingEntry,
-      accent: accent,
-      availableBundleReleases: List<BundleReleaseSummary>.unmodifiable(
-        availableBundleReleases,
-      ),
-      physicalFormats: List<PhysicalMediaFormat>.unmodifiable(physicalFormats),
-      customFieldDefinitions:
-          List<CustomFieldDefinition>.unmodifiable(customFieldDefinitions),
-      customFieldValues: List<CustomFieldValue>.unmodifiable(customFieldValues),
-      itemImages: List<ItemImage>.unmodifiable(itemImages),
-      metadata: metadata,
-      personal: personal,
-      tracking: tracking,
-      kindDetails: kindDetails,
-      customFieldEdits: {
-        for (final def in customFieldDefinitions)
-          def.id: _initialCustomFieldValue(def.id, customFieldValues),
-      },
-      itemImageEdits: const [],
-    );
-  }
-
-  static String? _initialCustomFieldValue(
-    String definitionId,
-    List<CustomFieldValue> values,
-  ) {
-    for (final value in values) {
-      if (value.fieldDefinitionId == definitionId) {
-        return value.value;
-      }
-    }
-    return null;
-  }
+  }) =>
+      createLibraryEditDraft(
+        type: type,
+        item: item,
+        ownedItem: ownedItem,
+        ownedItemDispatch: ownedItemDispatch,
+        wishlistItem: wishlistItem,
+        trackingSummary: trackingSummary,
+        accent: accent,
+        wishlistTargetOptions: wishlistTargetOptions,
+        physicalFormats: physicalFormats,
+        customFieldDefinitions: customFieldDefinitions,
+        customFieldValues: customFieldValues,
+        itemImages: itemImages,
+      );
 
   // ---------------------------------------------------------------------------
   // Domain Helpers & Actions
   // ---------------------------------------------------------------------------
 
   bool get isOwned => ownedItem != null;
-  bool get hasTrackingContext => isOwned || trackingEntry != null;
-  bool get isTrackingOnly => !isOwned && trackingEntry != null;
+  bool get hasTrackingContext => isOwned || trackingSummary != null;
+  bool get isTrackingOnly => !isOwned && trackingSummary != null;
   bool get hasWishlistContext => wishlistItem != null;
-  bool get isVideoKind => item.mediaKind.isVideoLibraryKind;
-
   PhysicalMediaFormat? physicalFormatForId(String? id) {
     final normalized = emptyToNull(id ?? '');
     return normalized == null
@@ -363,21 +186,17 @@ class LibraryEditDraft {
   }
 
   bool get isDigitalFormat {
-    final payload = libraryKindMetadataPayload(item);
-    final physicalFormatLabel = payload['physical_format_label']?.toString();
-    final physicalFormat = payload['physical_format']?.toString();
-    final format = physicalFormatLabel ??
-        physicalFormat ??
-        libraryKindTitleExtension(item) ??
-        '';
-    return format.toLowerCase() == 'digital' ||
-        isDigitalPhysicalMediaFormat(
-          physicalFormat,
-          label: format,
-          formats: physicalFormats.isEmpty
-              ? allKnownPhysicalMediaFormats
-              : physicalFormats,
-        );
+    final existingOwnedItem = ownedItem;
+    final formatHint = type.ownedEdit.resolveOwnedFormatHint(kindItem);
+    final format = formatHint.label ?? '';
+    return type.ownedEdit.resolveOwnedDigitalFlag(
+          existingOwnedItem,
+          type.presentation.builder.buildReleaseOptions(item: kindItem),
+          fallbackFormat: formatHint.format,
+          fallbackLabel: format,
+          formats: physicalFormats,
+        ) ??
+        false;
   }
 
   bool get showPhysicalOwnedFields => isOwned && !isDigitalFormat;
@@ -387,25 +206,19 @@ class LibraryEditDraft {
     DateTime? startedAt,
     DateTime? finishedAt,
     DateTime? soldAt,
-    String? selectedEditionId,
-    String? selectedVariantId,
+    CatalogEntityRef? selectedTargetRef,
     Map<String, String?> customFieldEdits,
     List<ItemImageEdit> itemImageEdits,
   }) cloneDialogState() {
-    final editions = libraryKindEditions(item);
-    final editionSelection = resolveLibraryEditionSelection(
-      editions,
-      editionId: ownedItem?.editionId ?? trackingEntry?.editionId,
-      editionTitle: libraryKindTitleExtension(item),
-      variantId: ownedItem?.variantId ?? trackingEntry?.variantId,
-    );
     return (
       selectedLocationId: personal.selectedLocationId,
       startedAt: tracking.startedAt,
       finishedAt: tracking.finishedAt,
       soldAt: personal.soldAt,
-      selectedEditionId: editionSelection.edition?.id,
-      selectedVariantId: editionSelection.variant?.id,
+      selectedTargetRef: personal.selectedOwnedTargetRef ??
+          trackingSummary?.catalogRef ??
+          wishlistItem?.catalogRef ??
+          item.ref,
       customFieldEdits: Map<String, String?>.from(customFieldEdits),
       itemImageEdits: List<ItemImageEdit>.from(itemImageEdits),
     );
@@ -428,9 +241,6 @@ class LibraryEditDraft {
         itemImageEdits: itemImageEdits,
       );
 
-  bool get showsEpisodeTrackingFields =>
-      type.trackingProfile.name == videoTrackingProfile.name;
-
   void setExternalLinks(List<TrailerLinkDto> links) {
     kindDetails.setExternalLinks(links);
   }
@@ -443,7 +253,8 @@ class LibraryEditDraft {
   LibraryEditSelection buildSelection({
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
-    final baseItem = item.copyWith(
+    final existingOwnedItem = ownedItem;
+    final baseItem = kindItem.copyWith(
       title: metadata.titleController.text.trim(),
       sortKey: emptyToNull(metadata.sortKeyController.text),
       originalTitle: emptyToNull(metadata.originalTitleController.text),
@@ -455,30 +266,14 @@ class LibraryEditDraft {
       thumbnailImageUrl: emptyToNull(metadata.thumbnailController.text),
     );
     final baseSelection = LibraryEditSelection(
-      item: baseItem,
+      item: baseItem.editMetadata,
+      kindItem: baseItem,
       personal: ownedItem == null
           ? null
           : LibraryPersonalEditSelection(
-              anchorType: personal.selectedOwnedAnchorType.apiValue,
-              editionId: personal.selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.edition ||
-                      personal.selectedOwnedAnchorType ==
-                          PersonalItemAnchorType.variant
-                  ? personal.selectedEditionId
-                  : null,
-              variantId: personal.selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.variant
-                  ? personal.selectedVariantId
-                  : null,
-              bundleReleaseId: personal.selectedOwnedAnchorType ==
-                      PersonalItemAnchorType.bundleRelease
-                  ? personal.selectedBundleReleaseId
-                  : null,
+              targetRef: personal.selectedOwnedTargetRef,
               condition: showPhysicalOwnedFields
                   ? emptyToNull(personal.conditionController.text)
-                  : null,
-              grade: showPhysicalOwnedFields
-                  ? emptyToNull(personal.gradeController.text)
                   : null,
               purchaseDate: parseDate(personal.purchaseDateController.text),
               pricePaidCents: parseMoneyCents(personal.priceController.text),
@@ -495,22 +290,10 @@ class LibraryEditDraft {
               sellPriceCents:
                   parseMoneyCents(personal.sellPriceController.text),
               soldTo: emptyToNull(personal.soldToController.text),
-              rawOrSlabbed: null,
-              gradingCompany: null,
-              graderNotes: null,
-              signedBy: null,
-              labelType: null,
-              pageQuality: null,
-              certificationNumber: null,
-              keyComic: null,
-              keyReason: null,
-              keyCategory: null,
-              coverPriceCents: null,
               purchaseStore:
                   emptyToNull(personal.purchaseStoreController.text) ??
                       ownedItem?.purchaseStore,
-              collectionStatus:
-                  personal.collectionStatus ?? ownedItem?.collectionStatus,
+              collectionStatus: personal.collectionStatus,
               marketValueCents:
                   parseMoneyCents(personal.marketValueController.text) ??
                       ownedItem?.marketValueCents,
@@ -520,21 +303,7 @@ class LibraryEditDraft {
       wishlist: wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
-              anchorType: personal.selectedWishlistAnchorType.apiValue,
-              editionId: personal.selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.edition ||
-                      personal.selectedWishlistAnchorType ==
-                          PersonalItemAnchorType.variant
-                  ? personal.selectedWishlistEditionId
-                  : null,
-              variantId: personal.selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.variant
-                  ? personal.selectedWishlistVariantId
-                  : null,
-              bundleReleaseId: personal.selectedWishlistAnchorType ==
-                      PersonalItemAnchorType.bundleRelease
-                  ? personal.selectedWishlistBundleReleaseId
-                  : null,
+              catalogRef: personal.selectedWishlistCatalogRef ?? item.ref,
               targetPriceCents:
                   parseMoneyCents(personal.wishlistPriceController.text),
               currency: emptyToNull(personal.wishlistCurrencyController.text),
@@ -543,8 +312,7 @@ class LibraryEditDraft {
       tracking: !hasTrackingContext
           ? null
           : LibraryTrackingEditSelection(
-              editionId: tracking.selectedTrackingEditionId,
-              variantId: tracking.selectedTrackingVariantId,
+              targetRef: tracking.selectedTargetRef ?? item.ref,
               rating: parseInt(tracking.ratingController.text),
               readStatus: emptyToNull(tracking.trackingController.text),
               startedAt: tracking.startedAt,
@@ -554,6 +322,12 @@ class LibraryEditDraft {
               progressTotal: parseInt(tracking.progressTotalController.text),
               timesCompleted: parseInt(tracking.timesCompletedController.text),
               notes: emptyToNull(tracking.trackingNotesController.text),
+            ),
+      ownedUpdatePayload: existingOwnedItem == null
+          ? null
+          : kindDetails.buildOwnedUpdatePayload(
+              ownedRef: existingOwnedItem.ref,
+              personal: personal,
             ),
       customFieldEdits: customFieldEdits,
       itemImageEdits: itemImageEdits,
@@ -572,14 +346,14 @@ class LibraryEditDraft {
   }
 
   void dispose() {
+    kindDetails.dispose();
     _textControllers.dispose();
   }
 
-  OwnedItemCommonDraft buildCommonDraft() {
-    return OwnedItemCommonDraft(
+  LibraryAddCommonDraft buildCommonDraft() {
+    return LibraryAddCommonDraft(
       quantity: parseInt(personal.quantityController.text) ?? 1,
       condition: emptyToNull(personal.conditionController.text),
-      grade: emptyToNull(personal.gradeController.text),
       purchaseDate: parseDate(personal.purchaseDateController.text),
       pricePaidCents: parseMoneyCents(personal.priceController.text),
       currency: emptyToNull(personal.currencyController.text),
@@ -588,36 +362,36 @@ class LibraryEditDraft {
       purchaseStore: emptyToNull(personal.purchaseStoreController.text),
       collectionStatus: personal.collectionStatus,
       tags: emptyToNull(personal.tagsController.text),
-      rating: parseInt(tracking.ratingController.text),
-      readStatus: emptyToNull(tracking.trackingController.text),
-      startedAt: tracking.startedAt,
-      finishedAt: tracking.finishedAt,
-      editionId: personal.selectedEditionId,
-      variantId: personal.selectedVariantId,
-      bundleReleaseId: personal.selectedBundleReleaseId,
     );
   }
 
-  OwnedDetailsDraft buildDetailsDraft() => libraryKindRuntimeForKind(
+  JsonEncodable buildDetailsDraft() => libraryKindRegistrationForKind(
         type.kind,
-      ).edit.buildDetailsDraft(kindDetails);
+      ).editDraft.buildDetailsDraft(kindDetails);
 
   AddOwnedItemCommand toAddOwnedItemCommand() {
-    return AddOwnedItemCommand(
-      catalogRef: CatalogEntityRef(
-        kind: type.kind.apiValue,
-        entityType: CatalogEntityType.ownedCopy,
-        id: item.id,
+    return type.add.buildCommandFromDetails(
+      kindItem,
+      buildCommonDraft(),
+      buildDetailsDraft(),
+      targetRef: personal.selectedOwnedTargetRef ?? item.ref,
+      kindValue: emptyToNull(personal.gradeController.text),
+      tracking: LibraryAddTrackingDraft(
+        readStatus: emptyToNull(tracking.trackingController.text),
+        notes: emptyToNull(tracking.trackingNotesController.text),
+        rating: parseInt(tracking.ratingController.text),
+        startedAt: tracking.startedAt,
+        finishedAt: tracking.finishedAt,
       ),
-      common: buildCommonDraft(),
-      details: buildDetailsDraft(),
     );
   }
 
-  UpdateOwnedItemCommand toUpdateOwnedItemCommand(String ownedItemId) {
-    return libraryKindRuntimeForKind(type.kind).edit.buildUpdateCommand(
-          session: this,
-          ownedItemId: ownedItemId,
+  OwnedItemUpdateRequest toUpdateOwnedItemCommand(OwnedItemRef ownedRef) {
+    return libraryKindRegistrationForKind(type.kind)
+        .editDraft
+        .buildUpdateCommand(
+          personal: personal,
+          ownedRef: ownedRef,
           kindDraft: kindDetails,
         );
   }

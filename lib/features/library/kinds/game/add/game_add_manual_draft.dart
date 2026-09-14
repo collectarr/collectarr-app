@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 class GameAddManualDraft implements LibraryKindAddDraft {
   GameAddManualDraft({
     TextEditingController? numberController,
+    TextEditingController? platformController,
+    TextEditingController? regionController,
     TextEditingController? publisherController,
     TextEditingController? yearController,
     TextEditingController? barcodeController,
@@ -21,6 +23,8 @@ class GameAddManualDraft implements LibraryKindAddDraft {
     TextEditingController? editionTitleController,
     TextEditingController? releaseDateController,
   })  : numberController = numberController ?? TextEditingController(),
+        platformController = platformController ?? TextEditingController(),
+        regionController = regionController ?? TextEditingController(),
         publisherController = publisherController ?? TextEditingController(),
         yearController = yearController ?? TextEditingController(),
         barcodeController = barcodeController ?? TextEditingController(),
@@ -42,6 +46,8 @@ class GameAddManualDraft implements LibraryKindAddDraft {
             releaseDateController ?? TextEditingController();
 
   final TextEditingController numberController;
+  final TextEditingController platformController;
+  final TextEditingController regionController;
   final TextEditingController publisherController;
   final TextEditingController yearController;
   final TextEditingController barcodeController;
@@ -62,6 +68,8 @@ class GameAddManualDraft implements LibraryKindAddDraft {
   @override
   void dispose() {
     numberController.dispose();
+    platformController.dispose();
+    regionController.dispose();
     publisherController.dispose();
     yearController.dispose();
     barcodeController.dispose();

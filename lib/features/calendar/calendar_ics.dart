@@ -80,7 +80,15 @@ String _formatUtcTimestamp(DateTime utc) {
 }
 
 String _uidFor(CalendarEvent event) {
-  final id = event.itemId ?? event.ownedItemId ?? 'na';
+  final explicitId = event.eventId?.trim();
+  if (explicitId != null && explicitId.isNotEmpty) {
+    return '$explicitId@collectarr';
+  }
+  final catalogRef = event.catalogRef;
+  final id = catalogRef == null
+      ? event.ownedRef?.key ?? 'na'
+      : '${catalogRef.kind.apiValue}:${catalogRef.entityType.apiValue}:'
+          '${catalogRef.id}';
   final slug = event.title
       .toLowerCase()
       .replaceAll(RegExp(r'[^a-z0-9]+'), '-')

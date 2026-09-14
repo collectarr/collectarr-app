@@ -394,11 +394,11 @@ class AppUpdateController extends Notifier<AppUpdateState> {
         return;
       }
       GitHubRelease? release;
-      for (final item in response.data!) {
-        if (item is! Map<String, dynamic>) continue;
-        if (item['draft'] as bool? ?? false) continue;
+      for (final rawRelease in response.data!) {
+        if (rawRelease is! Map<Object?, Object?>) continue;
+        if (rawRelease['draft'] as bool? ?? false) continue;
         final candidate = GitHubRelease.fromJson(
-          item,
+          Map<String, dynamic>.from(rawRelease),
           resolver: _resolver,
           targetPlatform: _targetPlatform,
         );

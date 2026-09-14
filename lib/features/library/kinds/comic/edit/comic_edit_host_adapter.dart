@@ -1,17 +1,18 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
@@ -22,7 +23,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   ComicEditHostAdapter({
     required this.context,
     required this.draft,
-    required this.catalogItem,
+    required this.media,
     required this.accent,
     required this.scope,
     required this.markDirty,
@@ -30,7 +31,7 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   final BuildContext context;
   final LibraryEditDraft draft;
-  final ComicCatalogItem catalogItem;
+  final ComicMedia media;
   final Color accent;
   final LibraryEditScope scope;
   final VoidCallback markDirty;
@@ -49,17 +50,18 @@ class ComicEditHostAdapter implements ComicEditHost {
   Color get comicAccent => accent;
 
   @override
-  LibraryKindRuntime get comicLibraryType => draft.type;
+  LibraryKindRegistration get comicLibraryType => draft.type;
 
   @override
-  ComicCatalogItem get comicCatalogItem => catalogItem;
+  ComicMedia get comicMedia => media;
 
   @override
   List<ItemImage> get comicItemImages => draft.itemImages;
 
   @override
-  LibraryEditPresentationState get comicEditPresentation =>
-      comicKindModule.edit.presentation.builder.build(
+  LibraryEditPresentationState get comicEditPresentation => comicKindModule
+          .editCapabilities.presentationCapability.presentation.builder
+          .build(
         context: LibraryEditPresentationContext(
           isOwned: draft.isOwned,
           isTrackingOnly: draft.isTrackingOnly,
@@ -72,8 +74,8 @@ class ComicEditHostAdapter implements ComicEditHost {
                   '') ==
               'digital',
           hasPhysicalFormats: true,
-          hasEditionAnchors: false,
-          hasBundleReleaseAnchors: false,
+          hasOwnedTargetOptions: false,
+          hasAdditionalTargetOptions: false,
           hasCustomFields: draft.customFieldDefinitions.isNotEmpty,
           scope: scope,
         ),
@@ -359,11 +361,22 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   String? get comicSelectedBundleReleaseId =>
-      draft.personal.selectedBundleReleaseId;
+      draft.personal.selectedOwnedTargetRef?.entityType.apiValue ==
+              'bundle_release'
+          ? draft.personal.selectedOwnedTargetRef?.id
+          : null;
 
   @override
   set comicSelectedBundleReleaseId(String? value) {
-    draft.personal.selectedBundleReleaseId = value;
+    final id = value?.trim();
+    draft.personal.selectedOwnedTargetRef = id == null || id.isEmpty
+        ? null
+        : CatalogEntityRef(
+            kind: draft.type.kind,
+            entityType: const CatalogEntityTypeId('bundle_release'),
+            id: id,
+            rootId: draft.item.id,
+          );
     markDirty();
   }
 
@@ -377,7 +390,12 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   String get comicSelectedOwnedAnchorType =>
-      draft.personal.selectedOwnedAnchorType.apiValue;
+      switch (draft.personal.selectedOwnedTargetRef?.entityType.apiValue) {
+        'edition' => 'edition',
+        'release' => 'variant',
+        'bundle_release' => 'bundle_release',
+        _ => 'item',
+      };
 
   @override
   List<ItemImageEdit> get comicItemImageEdits => draft.itemImageEdits;

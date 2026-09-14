@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -173,8 +174,8 @@ final class AnimeCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'anime',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.anime,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.anime,
       common: CatalogCommonDto(
@@ -196,14 +197,14 @@ final class AnimeEntry {
   const AnimeEntry({
     required this.catalog,
     this.ownedDetails,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final AnimeCatalog catalog;
   final AnimeOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
@@ -212,21 +213,25 @@ final class AnimeEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory AnimeEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? AnimeCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : AnimeCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.anime,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory AnimeEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      AnimeWorkspaceCatalogData data =>
+        AnimeCatalog.fromJson(data.media.toSyncPayload()),
+      _ => AnimeCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.anime,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return AnimeEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.animeDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedDetails:
+          AnimeOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

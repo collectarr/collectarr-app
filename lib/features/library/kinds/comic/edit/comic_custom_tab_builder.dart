@@ -1,12 +1,14 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_host_adapter.dart';
+import 'comic_edit_draft.dart';
 import 'comic_edit_tabs.dart';
+import 'owned/comic_owned_edit_tab.dart';
 
 Widget? buildComicCustomTabView({
   required String tabId,
@@ -14,25 +16,31 @@ Widget? buildComicCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryMetadataItem item,
+  required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final metadata = item.kindMetadata;
-  if (metadata is! ComicCatalogMetadata) {
-    throw StateError('Expected ComicCatalogMetadata for comic edit tabs');
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  if (metadata is! ComicMedia) {
+    throw StateError('Expected ComicMedia for comic edit tabs');
   }
-  final catalogItem = ComicCatalogMapper.mapMetadataToComic(
-    metadata,
-    id: item.identity.id,
-  );
+  final media = metadata.id?.value == item.identity.id
+      ? metadata
+      : metadata.copyWith(id: ComicMediaId(item.identity.id));
   final host = ComicEditHostAdapter(
     context: context,
     draft: draft,
-    catalogItem: catalogItem,
+    media: media,
     accent: accent,
     scope: scope,
     markDirty: markDirty,
   );
+  if (tabId == 'owned') {
+    final kindDraft = draft.kindDetails;
+    if (kindDraft is! ComicEditDraft) {
+      throw StateError('Expected ComicEditDraft for Comic owned editing');
+    }
+    return buildComicOwnedEditSchemaTab(comicDraft: kindDraft);
+  }
   return switch (tabId) {
     'main' => host.buildComicMainTab(),
     'creators' => host.buildComicCreatorsTab(),

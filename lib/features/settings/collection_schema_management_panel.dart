@@ -6,6 +6,7 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
@@ -136,6 +137,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
     await showPickListManagerDialog(
       context: context,
       db: db,
+      registry: defaultPickListRegistry,
     );
     ref.invalidate(_collectionSchemaSnapshotProvider);
   }
@@ -154,7 +156,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       return const ['All libraries: 0'];
     }
     final stats = <String>['All libraries: ${data.globalCustomFieldCount}'];
-    for (final type in defaultLibraryKindRegistry.allRuntimes) {
+    for (final type in defaultLibraryKindRegistry.allModules) {
       final count = data.customFieldCountsByKind[type.kind.apiValue];
       if (count == null || count == 0) {
         continue;

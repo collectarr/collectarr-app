@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -9,8 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 typedef _InspectorCustomFieldsRequest = ({
   LocalDatabase db,
-  String ownedItemId,
-  String mediaKind,
+  OwnedItemRef ownedRef,
 });
 
 final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
@@ -18,9 +18,9 @@ final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
   (ref, request) async {
     final repo = CustomFieldRepository(request.db);
     final definitions =
-        await repo.listDefinitions(mediaKind: request.mediaKind);
+        await repo.listDefinitions(mediaKind: request.ownedRef.kind.apiValue);
     final values = await repo.listValuesForTarget(
-      targetId: request.ownedItemId,
+      targetId: request.ownedRef.key,
       targetScope: CustomFieldTargetScope.ownedCopy,
     );
     return _CustomFieldData(
@@ -33,15 +33,13 @@ final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
 class InspectorCustomFieldsSection extends ConsumerWidget {
   const InspectorCustomFieldsSection({
     super.key,
-    required this.ownedItemId,
-    required this.mediaKind,
+    required this.ownedRef,
     required this.db,
     required this.accent,
     this.onFilterByValue,
   });
 
-  final String ownedItemId;
-  final String mediaKind;
+  final OwnedItemRef ownedRef;
   final LocalDatabase db;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
@@ -50,7 +48,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref
         .watch(_inspectorCustomFieldsProvider(
-          (db: db, ownedItemId: ownedItemId, mediaKind: mediaKind),
+          (db: db, ownedRef: ownedRef),
         ))
         .value;
     if (data == null || data.definitions.isEmpty) {

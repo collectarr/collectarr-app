@@ -1,9 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -185,8 +186,8 @@ final class BoardGameCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'boardgame',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.boardgame,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.boardgame,
       common: CatalogCommonDto(
@@ -207,14 +208,14 @@ final class BoardGameEntry {
   const BoardGameEntry({
     required this.catalog,
     this.ownedDetails,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final BoardGameCatalog catalog;
-  final BoardGameOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final BoardgameOwnedDetails? ownedDetails;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
@@ -223,21 +224,25 @@ final class BoardGameEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory BoardGameEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? BoardGameCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : BoardGameCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.boardgame,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory BoardGameEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      BoardGameWorkspaceCatalogData data when data.metadata != null =>
+        BoardGameCatalog.fromJson(data.metadata!.toSyncPayload()),
+      _ => BoardGameCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.boardgame,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return BoardGameEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.boardgameDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedDetails:
+          BoardGameOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

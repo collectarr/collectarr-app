@@ -1,0 +1,170 @@
+import 'package:flutter/foundation.dart';
+
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import '../domain/models/provider_attribution.dart';
+import '../domain/models/provider_image_ref.dart';
+import '../domain/models/provider_provenance.dart';
+import 'provider_metadata_payload.dart';
+
+export 'provider_metadata_payload.dart';
+
+@immutable
+class ProviderMetadataEnvelope {
+  const ProviderMetadataEnvelope({
+    this.schemaVersion = 'v1',
+    required this.provider,
+    required this.providerItemId,
+    required this.kind,
+    required this.payload,
+    required this.provenance,
+    required this.images,
+    required this.attribution,
+  });
+
+  final String schemaVersion;
+  final String provider;
+  final String providerItemId;
+  final CatalogMediaKind kind;
+  final ProviderMetadataPayload payload;
+  final ProviderProvenance provenance;
+  final List<ProviderImageRef> images;
+  final ProviderAttribution attribution;
+
+  factory ProviderMetadataEnvelope.fromAdminPreview(
+    AdminProviderPreview preview, {
+    required String itemId,
+  }) {
+    return ProviderMetadataEnvelope(
+      provider: preview.provider,
+      providerItemId: itemId,
+      kind: catalogMediaKindFromApiValue(preview.kind),
+      payload: ProviderMetadataPayload({
+        'title': preview.title,
+        'item_number': preview.itemNumber,
+        'synopsis': preview.synopsis,
+        'cover_image_url': preview.coverImageUrl,
+        'edition_title': preview.editionTitle,
+        'physical_format': preview.physicalFormat,
+        'physical_format_label': preview.physicalFormatLabel,
+        'publisher': preview.publisher,
+        'release_date': preview.releaseDate?.toIso8601String(),
+        'barcode': preview.barcode,
+        'isbn': preview.isbn,
+        'variant': preview.variantName,
+        'country': preview.country,
+        'language': preview.language,
+        'age_rating': preview.ageRating,
+        'audience_rating': preview.audienceRating,
+        'genres': preview.genres,
+        'characters': preview.characters,
+        'story_arcs': preview.storyArcs,
+        if (preview.creators.isNotEmpty)
+          'creators': [
+            for (final creator in preview.creators)
+              {
+                'name': creator.name,
+                if (creator.role != null) 'role': creator.role,
+                if (creator.imageUrl != null) 'image_url': creator.imageUrl,
+              },
+          ],
+        if (preview.series != null) 'series_title': preview.series!.seriesTitle,
+        if (preview.publishing != null)
+          'publishing': preview.publishing!.toJson(),
+        if (preview.music != null) ...{
+          if (preview.music!['track_count'] != null)
+            'track_count': preview.music!['track_count'],
+          if (preview.music!['tracks'] != null)
+            'tracks': preview.music!['tracks'],
+          'music': preview.music!,
+        },
+        if (preview.video != null) 'video': preview.video!,
+        if (preview.game != null) 'game': preview.game!,
+      }),
+      provenance: const ProviderProvenance(fetchedAt: ''),
+      images: preview.coverImageUrl == null
+          ? const []
+          : [
+              ProviderImageRef(
+                provider: preview.provider,
+                url: preview.coverImageUrl!,
+              ),
+            ],
+      attribution: const ProviderAttribution(required: false),
+    );
+  }
+
+  factory ProviderMetadataEnvelope.fromJson(Map<String, dynamic> json) {
+    final rawImages = json['images'];
+    final images = <ProviderImageRef>[];
+    if (rawImages is List) {
+      for (final item in rawImages) {
+        if (item is Map) {
+          images
+              .add(ProviderImageRef.fromJson(Map<String, dynamic>.from(item)));
+        }
+      }
+    }
+
+    final rawProvenance = json['provenance'];
+    final provenance = rawProvenance is Map
+        ? ProviderProvenance.fromJson(Map<String, dynamic>.from(rawProvenance))
+        : const ProviderProvenance(fetchedAt: '');
+
+    final rawAttribution = json['attribution'];
+    final attribution = rawAttribution is Map
+        ? ProviderAttribution.fromJson(
+            Map<String, dynamic>.from(rawAttribution))
+        : const ProviderAttribution(required: false);
+
+    return ProviderMetadataEnvelope(
+      schemaVersion: json['schema_version']?.toString() ?? 'v1',
+      provider: json['provider']?.toString() ?? '',
+      providerItemId: json['provider_item_id']?.toString() ?? '',
+      kind: catalogMediaKindFromApiValue(json['kind']?.toString()),
+      payload: ProviderMetadataPayload.fromJson(json['normalized']),
+      provenance: provenance,
+      images: images,
+      attribution: attribution,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'schema_version': schemaVersion,
+      'provider': provider,
+      'provider_item_id': providerItemId,
+      'kind': kind.apiValue,
+      'normalized': payload.toJson(),
+      'provenance': provenance.toJson(),
+      'images': images.map((img) => img.toJson()).toList(growable: false),
+      'attribution': attribution.toJson(),
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProviderMetadataEnvelope &&
+          runtimeType == other.runtimeType &&
+          schemaVersion == other.schemaVersion &&
+          provider == other.provider &&
+          providerItemId == other.providerItemId &&
+          kind == other.kind &&
+          payload == other.payload &&
+          provenance == other.provenance &&
+          listEquals(images, other.images) &&
+          attribution == other.attribution;
+
+  @override
+  int get hashCode => Object.hash(
+        schemaVersion,
+        provider,
+        providerItemId,
+        kind,
+        payload,
+        provenance,
+        Object.hashAll(images),
+        attribution,
+      );
+}

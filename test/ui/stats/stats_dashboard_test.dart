@@ -1,12 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -17,18 +14,19 @@ void main() {
   ) async {
     final state = ShelfState(
       entries: [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'music-1',
-          catalogItem: testCatalogItem(
-            id: 'music-1',
-            kind: 'music',
-            title: 'Discovery',
-          ),
+          catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
+            testCatalogItem(
+              id: 'music-1',
+              kind: 'music',
+              title: 'Discovery',
+            ),
+          ).asShelfCatalogItem),
         ),
       ],
       ownedCount: 0,
       wishlistCount: 0,
-      missingGradeCount: 0,
       pricedCount: 0,
       totalPaidCents: null,
       primaryCurrency: null,
@@ -43,7 +41,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: musicKindModule,
+                  type: const MusicRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -74,35 +72,35 @@ void main() {
   ) async {
     final state = ShelfState(
       entries: [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'game-1',
           locationPath: 'Office › Shelf A',
-          catalogItem: testCatalogItem(
+          catalogData: testWorkspaceCatalogData(testCatalogItem(
             id: 'game-1',
             kind: 'game',
             title: 'Elden Ring',
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
-          ),
-          ownedItem: testOwnedItem(
+          ).asShelfCatalogItem),
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'game-1',
             pricePaidCents: 4000,
             currency: 'USD',
             updatedAt: DateTime.utc(2026, 5, 1),
-          ),
+          )),
         ),
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'game-2',
           locationPath: 'Office › Shelf B',
-          catalogItem: testCatalogItem(
+          catalogData: testWorkspaceCatalogData(testCatalogItem(
             id: 'game-2',
             kind: 'game',
             title: 'Dark Souls III',
             series: const CatalogSeriesDetailsDto(seriesTitle: 'Souls'),
             publisher: 'Bandai Namco',
-          ),
-          ownedItem: testOwnedItem(
+          ).asShelfCatalogItem),
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-2',
             itemId: 'game-2',
             pricePaidCents: 2500,
@@ -111,13 +109,11 @@ void main() {
             soldTo: 'Retro Shop',
             currency: 'USD',
             updatedAt: DateTime.utc(2026, 5, 2),
-          ),
+          )),
         ),
       ],
       ownedCount: 2,
       wishlistCount: 0,
-      missingGradeCount: 2,
-      keyComicCount: 1,
       pricedCount: 2,
       totalPaidCents: 6500,
       primaryCurrency: 'USD',
@@ -134,7 +130,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: gameKindModule,
+                  type: const GameRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -166,25 +162,24 @@ void main() {
     final state = ShelfState(
       entries: [
         for (final itemNumber in ['1', '2', '4'])
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-$itemNumber',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-$itemNumber',
               kind: 'comic',
               title: 'Saga',
               itemNumber: itemNumber,
               series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
-            ),
-            ownedItem: testOwnedItem(
+            ).asShelfCatalogItem),
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-$itemNumber',
               itemId: 'comic-$itemNumber',
               updatedAt: DateTime.utc(2026, 5, 1),
-            ),
+            )),
           ),
       ],
       ownedCount: 3,
       wishlistCount: 0,
-      missingGradeCount: 3,
       pricedCount: 0,
       totalPaidCents: null,
       primaryCurrency: null,
@@ -199,7 +194,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -222,9 +217,9 @@ void main() {
     final state = ShelfState(
       entries: [
         for (final volume in [1, 3])
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-volume-$volume',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-volume-$volume',
               kind: 'comic',
               title: 'Vinland Saga',
@@ -232,17 +227,16 @@ void main() {
                 seriesTitle: 'Vinland Saga',
                 volumeNumber: '$volume',
               ),
-            ),
-            ownedItem: testOwnedItem(
+            ).asShelfCatalogItem),
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-comic-volume-$volume',
               itemId: 'comic-volume-$volume',
               updatedAt: DateTime.utc(2026, 5, 1),
-            ),
+            )),
           ),
       ],
       ownedCount: 2,
       wishlistCount: 0,
-      missingGradeCount: 2,
       pricedCount: 0,
       totalPaidCents: null,
       primaryCurrency: null,
@@ -257,7 +251,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),
@@ -280,9 +274,9 @@ void main() {
     final state = ShelfState(
       entries: [
         for (final season in [1, 3])
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'movie-season-$season',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'movie-season-$season',
               kind: 'movie',
               title: 'The Mandalorian',
@@ -290,17 +284,16 @@ void main() {
                 seriesTitle: 'The Mandalorian',
                 seasonNumber: season,
               ),
-            ),
-            ownedItem: testOwnedItem(
+            ).asShelfCatalogItem),
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-movie-season-$season',
               itemId: 'movie-season-$season',
               updatedAt: DateTime.utc(2026, 5, 1),
-            ),
+            )),
           ),
       ],
       ownedCount: 2,
       wishlistCount: 0,
-      missingGradeCount: 2,
       pricedCount: 0,
       totalPaidCents: null,
       primaryCurrency: null,
@@ -315,7 +308,7 @@ void main() {
               child: TextButton(
                 onPressed: () => showStatsDashboardDialog(
                   context,
-                  type: movieKindModule,
+                  type: const MovieRegistration(),
                   state: state,
                 ),
                 child: const Text('Open stats'),

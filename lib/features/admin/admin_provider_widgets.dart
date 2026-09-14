@@ -1819,7 +1819,7 @@ class _ProviderResultTile extends StatelessWidget {
               runSpacing: 6,
               children: [
                 _MiniChip(label: candidate.provider),
-                _MiniChip(label: candidate.kind),
+                _MiniChip(label: candidate.kind.apiValue),
                 _MiniChip(label: entityLabel),
               ],
             ),

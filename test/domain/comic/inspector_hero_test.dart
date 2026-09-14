@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -12,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 LibraryProjectionItem _itemFixture() {
   final cat = testCatalogItem(
@@ -29,11 +28,13 @@ LibraryProjectionItem _itemFixture() {
     ),
     genres: const ['Action', 'Dystopian'],
   );
-  final source = ShelfEntry(itemId: 'comic-hero-fixture', catalogItem: cat);
-  return LibraryProjectionItem.fromShelf(source, comicKindModule);
+  final source = LibraryWorkspaceSource(
+      itemId: 'comic-hero-fixture',
+      catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem));
+  return LibraryProjectionItem.fromShelf(source, const ComicRegistration());
 }
 
-Widget _heroHost(OwnedItem ownedItem) {
+Widget _heroHost(TestOwnedItem ownedItem) {
   final db = LocalDatabase(NativeDatabase.memory());
   return ProviderScope(
     overrides: [
@@ -43,10 +44,12 @@ Widget _heroHost(OwnedItem ownedItem) {
       home: Scaffold(
         body: ComicInspectorHero(
           request: LibraryInspectorRequest(
-            type: comicKindModule,
+            type: const ComicRegistration(),
             item: _itemFixture(),
-            ownedItem: ownedItem,
-            trackingEntry: null,
+            ownedItem: testOwnedSummary(ownedItem),
+            ownedItemDispatch: testComicOwnedItemDispatchFrom(
+              testComicOwnedItemFrom(ownedItem),
+            ),
             accent: Colors.red,
           ),
         ),

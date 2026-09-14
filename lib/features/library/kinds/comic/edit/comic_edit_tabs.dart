@@ -1,6 +1,4 @@
-import 'package:collectarr_app/features/library/edit/anchor_selection_helpers.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
@@ -534,20 +532,16 @@ extension ComicEditTabBuilders on ComicEditHost {
             child: Column(
               children: [
                 buildComicOwnershipAnchorSelectionField(),
-                if (comicSelectedOwnedAnchorType ==
-                        PersonalItemAnchorType.edition.apiValue ||
-                    comicSelectedOwnedAnchorType ==
-                        PersonalItemAnchorType.variant.apiValue) ...[
+                if (comicSelectedOwnedAnchorType == 'edition' ||
+                    comicSelectedOwnedAnchorType == 'variant') ...[
                   const SizedBox(height: 10),
                   LibraryEditResponsiveRow(children: [
                     buildComicEditionSelectionField(),
-                    if (comicSelectedOwnedAnchorType ==
-                        PersonalItemAnchorType.variant.apiValue)
+                    if (comicSelectedOwnedAnchorType == 'variant')
                       buildComicVariantSelectionField(),
                   ]),
                 ],
-                if (comicSelectedOwnedAnchorType ==
-                    PersonalItemAnchorType.bundleRelease.apiValue) ...[
+                if (comicSelectedOwnedAnchorType == 'bundle_release') ...[
                   const SizedBox(height: 10),
                   buildComicBundleReleaseSelectionField(
                     fieldKey: const Key('library-edit-owned-bundle-field'),
@@ -555,8 +549,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                     selectedBundleReleaseId: comicSelectedBundleReleaseId,
                     onChanged: (value) {
                       comicMutateState(() {
+                        final normalized = value?.trim();
                         comicSelectedBundleReleaseId =
-                            normalizeLibrarySelectionId(value);
+                            normalized == null || normalized.isEmpty
+                                ? null
+                                : normalized;
                       });
                     },
                   ),
@@ -668,69 +665,6 @@ extension ComicEditTabBuilders on ComicEditHost {
             children: [
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
-                    controller: comicGradeController, label: 'Grade'),
-                LibraryEditTextField(
-                  controller: comicConditionController,
-                  label: 'Condition',
-                ),
-                _comicRawOrSlabbedField(),
-                LibraryEditTextField(
-                  controller: comicGradingCompanyController,
-                  label: 'Grading company',
-                ),
-                LibraryEditTextField(
-                  controller: comicCertificationNumberController,
-                  label: 'Certification number',
-                ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                    controller: comicLabelTypeController, label: 'Label type'),
-                LibraryEditTextField(
-                    controller: comicSignedByController, label: 'Signed by'),
-                buildComicPageQualityPickField(label: 'Page quality'),
-                LibraryEditTextField(
-                  controller: comicCoverPriceController,
-                  label: 'Cover price',
-                  validator: optionalMoneyValidator,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: comicGraderNotesController,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Grader notes',
-                  alignLabelWithHint: true,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Material(
-                color: Colors.transparent,
-                child: SwitchListTile(
-                  value: comicKeyComic,
-                  onChanged: (value) =>
-                      comicMutateState(() => comicKeyComic = value),
-                  title: const Text('Key comic'),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                ),
-              ),
-              if (comicKeyComic) ...[
-                const SizedBox(height: 6),
-                LibraryEditResponsiveRow(children: [
-                  LibraryEditTextField(
-                    controller: comicKeyReasonController,
-                    label: 'Key reason (first appearance, etc.)',
-                  ),
-                  buildComicKeyCategoryPickField(label: 'Key category'),
-                ]),
-              ],
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
                   controller: comicPriceController,
                   label: 'Price paid',
                   validator: optionalMoneyValidator,
@@ -810,47 +744,10 @@ extension ComicEditTabBuilders on ComicEditHost {
                   currency: comicCurrencyController.text,
                 ),
               ],
-              const SizedBox(height: 10),
-              LibraryDateFieldButton(
-                label: 'Last bag & board date',
-                value: comicLastBagBoardDate,
-                onChanged: (value) =>
-                    comicMutateState(() => comicLastBagBoardDate = value),
-              ),
             ],
           ),
         ),
       ],
-    );
-  }
-
-  Widget _comicRawOrSlabbedField() {
-    final rawValue = comicRawOrSlabbedController.text.trim().toLowerCase();
-    final selected = rawValue == 'slabbed' ? 'slabbed' : 'raw';
-    return InputDecorator(
-      decoration: const InputDecoration(labelText: 'Raw / Slabbed'),
-      child: SegmentedButton<String>(
-        segments: const [
-          ButtonSegment<String>(value: 'raw', label: Text('Raw')),
-          ButtonSegment<String>(value: 'slabbed', label: Text('Slabbed')),
-        ],
-        selected: {selected},
-        showSelectedIcon: false,
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
-          ),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
-        ),
-        onSelectionChanged: (selection) {
-          comicMutateState(() {
-            final value = selection.first;
-            comicRawOrSlabbedController.text =
-                value == 'slabbed' ? 'Slabbed' : 'Raw';
-          });
-        },
-      ),
     );
   }
 
@@ -1456,7 +1353,7 @@ extension ComicEditTabBuilders on ComicEditHost {
 
   String _buildComicMarketSearchQuery() {
     return [
-      comicCatalogItem.title,
+      comicMedia.title,
       if (emptyToNull(comicNumberController.text) case final issue?) '#$issue',
       if (emptyToNull(comicPhysicalFormatLabelController.text)
           case final format?)
@@ -1468,7 +1365,7 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicCoverTab() {
     final coverUrl = emptyToNull(comicCoverController.text) ??
         emptyToNull(comicThumbnailController.text) ??
-        comicCatalogItem.displayCoverUrl;
+        comicMedia.releases.firstOrNull?.coverImageUrl;
     final resolvedImages = _resolvedEditImages();
     final backCover = firstResolvedComicEditImageOfType(
       resolvedImages,

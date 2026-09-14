@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -165,8 +166,8 @@ final class TvCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'tv',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.tv,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.tv,
       common: CatalogCommonDto(
@@ -188,14 +189,14 @@ final class TvEntry {
   const TvEntry({
     required this.catalog,
     this.ownedDetails,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final TvCatalog catalog;
   final TvOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
@@ -204,21 +205,23 @@ final class TvEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory TvEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? TvCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : TvCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.tv,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory TvEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      TvWorkspaceCatalogData data => TvCatalog.fromJson(data.series.toJson()),
+      _ => TvCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.tv,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return TvEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.tvDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedDetails:
+          TvOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)?.details,
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

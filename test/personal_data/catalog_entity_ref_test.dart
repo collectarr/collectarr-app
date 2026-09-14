@@ -1,25 +1,51 @@
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('variant anchor type without IDs falls back to item', () {
-    final anchor = PersonalItemAnchor.fromRaw(anchorType: 'variant');
-
-    expect(anchor?.type, PersonalItemAnchorType.item);
-    expect(anchor?.editionId, isNull);
-    expect(anchor?.variantId, isNull);
+  test('catalog items expose a typed work reference', () {
+    expect(
+      _item().catalogRef,
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-1',
+      ),
+    );
   });
 
-  test(
-      'variant anchor type still resolves to edition when only edition id exists',
-      () {
-    final anchor = PersonalItemAnchor.fromRaw(
-      anchorType: 'variant',
-      editionId: 'edition-1',
+  test('catalog target selection preserves typed hierarchy references', () {
+    final item = _item();
+    const release = CatalogEntityRef(
+      kind: CatalogMediaKind.comic,
+      entityType: CatalogEntityTypeId('release'),
+      id: 'release-1',
+      rootId: 'comic-1',
+      parentId: 'edition-1',
     );
 
-    expect(anchor?.type, PersonalItemAnchorType.edition);
-    expect(anchor?.editionId, 'edition-1');
-    expect(anchor?.variantId, isNull);
+    expect(item.catalogRefForTarget(release), release);
+  });
+
+  test('catalog entity references are usable as typed map keys', () {
+    final ref = _item().catalogRef;
+    final values = <CatalogEntityRef, String>{ref: 'comic'};
+
+    expect(values[ref], 'comic');
+    expect(
+      values[const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-1',
+      )],
+      'comic',
+    );
   });
 }
+
+CatalogItemDto _item() => CatalogItemDto.raw(
+      id: 'comic-1',
+      mediaKind: CatalogMediaKind.comic,
+      common: const CatalogCommonDto(title: 'Comic'),
+      payload: const <String, dynamic>{},
+    );

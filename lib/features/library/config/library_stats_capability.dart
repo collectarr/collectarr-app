@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:flutter/material.dart';
 
 class LibraryStatsTileDescriptor {
@@ -14,16 +14,65 @@ class LibraryStatsTileDescriptor {
   final String value;
 }
 
+/// Small financial projection used by the generic toolbar host.
+///
+/// The host renders totals, while each kind decides how its Owned model
+/// contributes the values.
+class LibraryOwnedFinancialSummary {
+  const LibraryOwnedFinancialSummary({
+    this.pricePaidCents,
+    this.sellPriceCents,
+    this.currency,
+  });
+
+  final int? pricePaidCents;
+  final int? sellPriceCents;
+  final String? currency;
+}
+
+/// Structural metadata facts consumed by the generic statistics host.
+///
+/// The names deliberately describe presentation roles rather than domain
+/// fields. A Comic, Book, or TV module decides what its primary and secondary
+/// labels mean; the host only counts and renders the resulting values.
+class LibraryStatsMetadataProjection {
+  const LibraryStatsMetadataProjection({
+    this.primaryGroup,
+    this.secondaryGroup,
+    this.hasCover = false,
+    this.hasSynopsis = false,
+    this.hasSecondaryMetadata = false,
+    this.hasReleaseDate = false,
+    this.hasItemNumber = false,
+  });
+
+  final String? primaryGroup;
+  final String? secondaryGroup;
+  final bool hasCover;
+  final bool hasSynopsis;
+  final bool hasSecondaryMetadata;
+  final bool hasReleaseDate;
+  final bool hasItemNumber;
+}
+
 abstract interface class LibraryStatsCapability {
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry);
+
+  /// Projects kind-owned metadata into structural facts for the generic stats
+  /// renderer. No kind field names or domain objects cross this boundary.
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry);
+
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   );
 
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   );
 }
 
@@ -31,9 +80,30 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   const DefaultLibraryStatsCapability();
 
   @override
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
+    return LibraryOwnedFinancialSummary(
+      pricePaidCents: entry.pricePaidCents,
+      sellPriceCents: entry.sellPriceCents,
+      currency: entry.currency,
+    );
+  }
+
+  @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
+    final summary = entry.catalogSummary;
+    if (summary == null) return null;
+    return LibraryStatsMetadataProjection(
+      primaryGroup: summary.title,
+      hasCover: summary.imageUrl?.trim().isNotEmpty == true,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) =>
       const [];
 
@@ -41,7 +111,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) =>
       const [];
 }

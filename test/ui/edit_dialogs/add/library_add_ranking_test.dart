@@ -1,8 +1,10 @@
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _publisherFilterId = LibraryAddFilterId('test.publisher');
@@ -15,7 +17,8 @@ final _ranking = buildLibraryAddSearchRanking(
       id: _publisherFilterId,
       exactWeight: 60,
       containsWeight: 24,
-      metadataValues: (item) => [item.payload['publisher']],
+      metadataValues: (item) =>
+          [item.mapTransport((transport) => transport).payload['publisher']],
       providerValues: (candidate) => [candidate.publisher],
     ),
     LibraryAddSearchRankField(
@@ -29,7 +32,8 @@ final _ranking = buildLibraryAddSearchRanking(
       id: _issueFilterId,
       exactWeight: 75,
       containsWeight: 36,
-      metadataValues: (item) => [item.payload['item_number']],
+      metadataValues: (item) =>
+          [item.mapTransport((transport) => transport).payload['item_number']],
       providerValues: (candidate) => [candidate.issueNumber],
     ),
   ],
@@ -101,7 +105,11 @@ void main() {
           advancedFilters: {_publisherFilterId: 'DC Comics'},
         ),
       );
-      expect(result.first.payload['publisher'], 'DC Comics');
+      expect(
+          result.first
+              .mapTransport((transport) => transport)
+              .payload['publisher'],
+          'DC Comics');
     });
 
     test('ranks matching year higher', () {
@@ -131,7 +139,11 @@ void main() {
           advancedFilters: {_issueFilterId: '1'},
         ),
       );
-      expect(result.first.payload['item_number'], '1');
+      expect(
+          result.first
+              .mapTransport((transport) => transport)
+              .payload['item_number'],
+          '1');
     });
 
     test('ranks provider candidates using the same kind-owned fields', () {
@@ -140,14 +152,14 @@ void main() {
           provider: 'test',
           providerItemId: 'id-1',
           title: 'Batman',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'IDW',
         ),
         ProviderCandidate(
           provider: 'test',
           providerItemId: 'id-2',
           title: 'Batman',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'DC Comics',
         ),
       ];
@@ -174,13 +186,13 @@ void main() {
     });
   });
 
-  group('filterAndRankLibraryMetadataItems', () {
+  group('filterAndRankCatalogItems', () {
     test('removes items below minimum score', () {
       final items = [
         _item(title: 'Exact Match'),
         _item(title: 'Completely Different Title'),
       ];
-      final result = filterAndRankLibraryMetadataItems(
+      final result = filterAndRankCatalogItems(
         items,
         _ranking,
         _context(query: 'Exact Match'),
@@ -191,7 +203,7 @@ void main() {
     });
 
     test('returns empty when no items meet threshold', () {
-      final result = filterAndRankLibraryMetadataItems(
+      final result = filterAndRankCatalogItems(
         [_item(title: 'Unrelated')],
         _ranking,
         _context(query: 'Saga'),
@@ -201,7 +213,7 @@ void main() {
     });
 
     test('returns original items when no input is given', () {
-      final result = filterAndRankLibraryMetadataItems(
+      final result = filterAndRankCatalogItems(
         [_item(title: 'A'), _item(title: 'B')],
         _ranking,
         _context(),
@@ -211,18 +223,20 @@ void main() {
   });
 }
 
-LibraryMetadataItem _item({
+CatalogSearchCandidate _item({
   required String title,
   String? publisher,
   String? itemNumber,
   int? releaseYear,
 }) {
-  return LibraryMetadataItem.fromMetadataMap({
-    'id': 'test-${title.hashCode}',
-    'kind': 'comic',
-    'title': title,
-    if (publisher != null) 'publisher': publisher,
-    if (itemNumber != null) 'item_number': itemNumber,
-    if (releaseYear != null) 'release_year': releaseYear,
-  });
+  return CatalogSearchCandidate.fromItem(
+    testCatalogItemFromJson({
+      'id': 'test-${title.hashCode}',
+      'kind': 'comic',
+      'title': title,
+      if (publisher != null) 'publisher': publisher,
+      if (itemNumber != null) 'item_number': itemNumber,
+      if (releaseYear != null) 'release_year': releaseYear,
+    }),
+  );
 }

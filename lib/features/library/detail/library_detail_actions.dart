@@ -1,9 +1,9 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +14,7 @@ class LibraryDetailActionStrip extends StatelessWidget {
     required this.item,
     this.activeOwnedItem,
     this.ownedCopies = const [],
-    this.selectedOwnedItemId,
+    this.selectedOwnedItemRef,
     this.onSelectOwnedItem,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -23,12 +23,12 @@ class LibraryDetailActionStrip extends StatelessWidget {
     required this.onEdit,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
-  final OwnedItem? activeOwnedItem;
-  final List<OwnedItem> ownedCopies;
-  final String? selectedOwnedItemId;
-  final ValueChanged<String?>? onSelectOwnedItem;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
+  final OwnedItemSummary? activeOwnedItem;
+  final List<OwnedItemSummary> ownedCopies;
+  final OwnedItemRef? selectedOwnedItemRef;
+  final ValueChanged<OwnedItemRef?>? onSelectOwnedItem;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
@@ -50,10 +50,10 @@ class LibraryDetailActionStrip extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  initialValue: selectedOwnedItemId,
+                child: LibrarySelectField<OwnedItemRef>(
+                  label: 'Copy in collection',
+                  value: selectedOwnedItemRef,
                   decoration: const InputDecoration(
-                    labelText: 'Copy in collection',
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 10,
@@ -61,11 +61,13 @@ class LibraryDetailActionStrip extends StatelessWidget {
                   ),
                   items: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
-                      DropdownMenuItem<String>(
-                        value: ownedCopies[index].id,
+                      DropdownMenuItem<OwnedItemRef>(
+                        value: ownedCopies[index].ref,
                         child: Text(
-                          buildOwnedCopyLabel(
-                              ownedCopies[index], const [], index),
+                          buildOwnedCopySummaryLabel(
+                            ownedCopies[index],
+                            index,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -128,15 +130,15 @@ class LibraryDetailStatsBar extends StatelessWidget {
     this.ownedCopies = const [],
   });
 
-  final LibraryProjectionRuntime item;
-  final OwnedItem? ownedItem;
-  final List<OwnedItem> ownedCopies;
+  final LibraryProjectionView item;
+  final OwnedItemSummary? ownedItem;
+  final List<OwnedItemSummary> ownedCopies;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(item);
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -144,7 +146,9 @@ class LibraryDetailStatsBar extends StatelessWidget {
         : ownedCopies.fold<int>(0, (sum, i) => sum + i.quantity);
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
-        : ownedCopies.indexWhere((i) => i.id == ownedItem!.id);
+        : ownedCopies.indexWhere(
+            (i) => i.ref == ownedItem!.ref,
+          );
     final facts = <({String label, String value})>[
       (label: 'Status', value: genericLibraryStatusLabel(item)),
       (
@@ -155,9 +159,10 @@ class LibraryDetailStatsBar extends StatelessWidget {
       ),
       (
         label: 'Metadata',
-        value: adapter?.publisher == null || adapter!.publisher!.isEmpty
-            ? 'Missing'
-            : 'Ready'
+        value: (presentation.synopsis?.trim().isNotEmpty == true) ||
+                (presentation.format?.trim().isNotEmpty == true)
+            ? 'Ready'
+            : 'Missing'
       ),
       (label: 'Quantity', value: totalQuantity.toString()),
       if (totalCopies > 1) (label: 'Copies', value: totalCopies.toString()),
@@ -165,9 +170,10 @@ class LibraryDetailStatsBar extends StatelessWidget {
         (label: 'Selected', value: 'Copy ${selectedCopyIndex + 1}'),
       (
         label: 'Updated',
-        value:
-            formatNullableDate(ownedItem?.updatedAt ?? adapter?.releaseDate) ??
-                '-',
+        value: formatNullableDate(
+              ownedItem?.updatedAt ?? presentation.releaseDate,
+            ) ??
+            '-',
       ),
     ];
 

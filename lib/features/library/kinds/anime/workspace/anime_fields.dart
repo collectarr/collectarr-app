@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -21,7 +23,7 @@ abstract final class AnimeKindSchema {
   static final studio = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.studio,
     label: 'Studio',
-    getValue: (dto) => dto.metadata?.studios.firstOrNull ?? dto.publisher,
+    getValue: (dto) => dto.studio ?? dto.publisher,
   );
 
   static final publisher = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -40,7 +42,11 @@ abstract final class AnimeKindSchema {
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = AnimeOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is AnimeOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -56,7 +62,7 @@ abstract final class AnimeKindSchema {
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -89,7 +95,7 @@ abstract final class AnimeKindSchema {
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -121,7 +127,7 @@ abstract final class AnimeKindSchema {
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.watchStatus,
     label: 'Watch Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -147,7 +153,7 @@ abstract final class AnimeKindSchema {
   static final format = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.format,
     label: 'Format',
-    getValue: (dto) => dto.metadata?.format.label,
+    getValue: (dto) => dto.animeType,
   );
 
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -165,7 +171,7 @@ abstract final class AnimeKindSchema {
   static final episodeCount = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.episodeCount,
     label: 'Episode Count',
-    getValue: (dto) => dto.metadata?.episodeCount,
+    getValue: (dto) => dto.episodeCount,
   );
 
   static final episodeRuntimeMinutes =
@@ -178,7 +184,7 @@ abstract final class AnimeKindSchema {
   static final airingStatus = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.airingStatus,
     label: 'Airing Status',
-    getValue: (dto) => dto.metadata?.airingStatus.label,
+    getValue: (dto) => dto.airingStatus,
   );
 
   static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -215,7 +221,7 @@ final animeLibraryGroupDefinitions = [
     sidebarTitle: 'Studios',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringListBucketValueMutator(
+    bucketValueMutator: catalogTransportStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     ),
@@ -374,8 +380,8 @@ final animeLibraryColumnDefinitions = [
   ),
   columnFromField<AnimeKind, AnimeWorkspaceDto, int?>(
     AnimeKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -391,8 +397,7 @@ final animeLibraryColumnDefinitions = [
     id: AnimeFieldIds.rating,
     label: 'Rating',
     getValue: AnimeKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<AnimeKind, AnimeWorkspaceDto, String?>(

@@ -8,31 +8,28 @@ import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import '../../../helpers/test_constants.dart';
 import '../../../helpers/json_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart'
+    as music_details;
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -132,7 +129,7 @@ void main() {
   });
 
   test('book provider add merge preserves preview creators', () {
-    final ingested = LibraryMetadataItem.fromCatalogItem(
+    final ingested = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-item-1',
         kind: 'book',
@@ -143,7 +140,7 @@ void main() {
         ),
       ),
     );
-    final edited = LibraryMetadataItem.fromCatalogItem(
+    final edited = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-item-1',
         kind: 'book',
@@ -164,17 +161,19 @@ void main() {
     );
 
     final merged = mergeProviderAddResult(
-      ingested: ingested,
-      edited: edited,
+      ingested: CatalogSearchCandidate.fromItem(ingested),
+      edited: CatalogSearchCandidate.fromItem(edited),
     );
 
-    final creators = jsonObjectList(merged.payload['creators']);
+    final creators = jsonObjectList(
+        merged.mapTransport((transport) => transport).payload['creators']);
     expect(creators, isNotNull);
     expect(creators, isNotEmpty);
     expect(creators.first['name'], 'J.R.R. Tolkien');
     expect(creators.first['role'], 'Author');
     expect(creators.first['image_url'], 'https://cdn.example/tolkien.jpg');
-    expect(merged.payload['genres'], contains('Fantasy'));
+    expect(merged.mapTransport((transport) => transport).payload['genres'],
+        contains('Fantasy'));
   });
 
   test('local cover image preprocessor applies crop and rotation transforms',
@@ -193,7 +192,7 @@ void main() {
     );
 
     final prepared = await const LocalLibraryCoverImagePreprocessor()
-        .prepareImage(type: comicKindModule, image: reviewed);
+        .prepareImage(type: const ComicRegistration(), image: reviewed);
 
     expect(prepared.transformsApplied, isTrue);
     expect(prepared.preparedBytes, isNotNull);
@@ -219,9 +218,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: gameKindModule,
-              initialBarcode: '759606083060',
-              autoLookupInitialBarcode: false,
+              type: const GameRegistration(),
+              initialIdentifier: '759606083060',
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -241,7 +240,8 @@ void main() {
     );
   });
 
-  testWidgets('generic add dialog applies persisted prefill defaults',
+  testWidgets(
+      'generic add dialog keeps kind defaults and applies universal prefill defaults',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       'collectarr.prefill.condition': 'Very Fine',
@@ -278,8 +278,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -288,8 +288,8 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.text('Very Fine'), findsOneWidget);
-    expect(find.text('9.6'), findsOneWidget);
+    expect(find.text('Very Fine'), findsNothing);
+    expect(find.text('9.6'), findsNothing);
     expect(find.text('Short Box 1'), findsOneWidget);
   });
 
@@ -316,16 +316,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final api = _FakeLibraryAddApiClient();
-    final providerSearchType = comicKindModule.resolveWithCatalog(const [
-      CatalogMediaType(
-        kind: 'comic',
-        singularLabel: 'Comic',
-        pluralLabel: 'Comics',
-        routeSegments: ['comics'],
-        defaultProvider: 'anilist',
-        providers: ['anilist', 'gcd', 'comicvine'],
-      ),
-    ]);
+    const providerSearchType = ComicRegistration();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -341,7 +332,7 @@ void main() {
           home: Scaffold(
             body: LibraryAddDialog(
               type: providerSearchType,
-              autoLookupInitialBarcode: false,
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -383,8 +374,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -467,8 +458,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
               coverScanService: const LocalLibraryCoverScanService(
                 sourcePrompt: _FakeCoverScanSourcePrompt(action: null),
                 imagePicker: _FakeCoverImagePicker(file: null),
@@ -523,8 +514,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -580,8 +571,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -655,8 +646,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -722,7 +713,7 @@ void main() {
                     ),
                   ).reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -751,10 +742,10 @@ void main() {
           provider: 'comicvine',
           providerItemId: 'comicvine-detective-423',
           title: 'Detective Comics #423',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
-          series: CatalogSeriesDetailsDto(
+          series: ProviderSeriesHint(
             seriesTitle: 'Detective Comics',
             volumeStartYear: 1988,
           ),
@@ -763,10 +754,10 @@ void main() {
           provider: 'comicvine',
           providerItemId: 'comicvine-423',
           title: 'Batman #423 (match)',
-          kind: 'comic',
+          kind: CatalogMediaKind.comic,
           publisher: 'DC',
           issueNumber: '423',
-          series: CatalogSeriesDetailsDto(
+          series: ProviderSeriesHint(
             seriesTitle: 'Batman',
             volumeStartYear: 1988,
           ),
@@ -806,8 +797,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
               coverScanService: LocalLibraryCoverScanService(
                 sourcePrompt: const _FakeCoverScanSourcePrompt(
                   action: LibraryCoverScanAction.importImage,
@@ -874,7 +865,7 @@ void main() {
                   reviewedImage =
                       await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -893,7 +884,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
-        matching: find.text('Rotation: 0°'),
+        matching: find.text('Rotation: 0Ã‚Â°'),
       ),
       findsOneWidget,
     );
@@ -909,7 +900,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('library-cover-review-rotation-label')),
-        matching: find.text('Rotation: 90°'),
+        matching: find.text('Rotation: 90Ã‚Â°'),
       ),
       findsOneWidget,
     );
@@ -942,7 +933,7 @@ void main() {
                   reviewedImage =
                       await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -1003,7 +994,7 @@ void main() {
                   reviewedImage =
                       await const DialogLibraryCoverImageReview().reviewImage(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                     file: XFile.fromData(Uint8List(0), name: 'IMG_1234.jpg'),
                   );
                 },
@@ -1052,8 +1043,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1094,8 +1085,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MovieRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1134,7 +1125,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open comic add'),
@@ -1175,8 +1166,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1211,8 +1202,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1224,7 +1214,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open comic add'),
@@ -1267,8 +1257,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1280,7 +1269,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open comic add'),
@@ -1336,7 +1325,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: movieKindModule,
+                    type: const MovieRegistration(),
                   );
                 },
                 child: const Text('Open movie add'),
@@ -1372,8 +1361,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1385,7 +1373,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: movieKindModule,
+                    type: const MovieRegistration(),
                   );
                 },
                 child: const Text('Open movie add'),
@@ -1428,8 +1416,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1441,7 +1428,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: movieKindModule,
+                    type: const MovieRegistration(),
                   );
                 },
                 child: const Text('Open movie add'),
@@ -1482,8 +1469,7 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           providerRegistryProvider
               .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1491,8 +1477,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MovieRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1530,7 +1516,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => TestAdminAuthController(ref),
+            () => TestAdminAuthController(),
           ),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
@@ -1539,8 +1525,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1575,17 +1561,28 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          collectionByCatalogItemProvider.overrideWith(
+          collectionByCatalogRefProvider.overrideWith(
             (ref) => {
-              'comic-423': testOwnedItem(
-                id: 'owned-comic-423',
-                itemId: 'comic-423',
-                updatedAt: DateTime.utc(2026, 6, 1, 12),
+              const CatalogEntityRef(
+                kind: CatalogMediaKind.comic,
+                entityType: CatalogEntityTypeId('work'),
+                id: 'comic-423',
+              ): const OwnedItemSummary(
+                ref: OwnedItemRef(
+                  kind: CatalogMediaKind.comic,
+                  id: OwnedItemId('owned-comic-423'),
+                ),
+                title: 'comic-423',
+                catalogRef: CatalogEntityRef(
+                  kind: CatalogMediaKind.comic,
+                  entityType: CatalogEntityTypeId('work'),
+                  id: 'comic-423',
+                ),
               ),
             },
           ),
           authControllerProvider.overrideWith(
-            (ref) => TestAdminAuthController(ref),
+            () => TestAdminAuthController(),
           ),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
@@ -1594,8 +1591,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1635,17 +1632,28 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          collectionByCatalogItemProvider.overrideWith(
+          collectionByCatalogRefProvider.overrideWith(
             (ref) => {
-              'comic-423': testOwnedItem(
-                id: 'owned-comic-423',
-                itemId: 'comic-423',
-                updatedAt: DateTime.utc(2026, 6, 1, 12),
+              const CatalogEntityRef(
+                kind: CatalogMediaKind.comic,
+                entityType: CatalogEntityTypeId('work'),
+                id: 'comic-423',
+              ): const OwnedItemSummary(
+                ref: OwnedItemRef(
+                  kind: CatalogMediaKind.comic,
+                  id: OwnedItemId('owned-comic-423'),
+                ),
+                title: 'comic-423',
+                catalogRef: CatalogEntityRef(
+                  kind: CatalogMediaKind.comic,
+                  entityType: CatalogEntityTypeId('work'),
+                  id: 'comic-423',
+                ),
               ),
             },
           ),
           authControllerProvider.overrideWith(
-            (ref) => TestAdminAuthController(ref),
+            () => TestAdminAuthController(),
           ),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
@@ -1654,8 +1662,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1694,8 +1702,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1703,8 +1710,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1748,8 +1755,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1757,8 +1763,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1813,8 +1819,7 @@ void main() {
         overrides: [
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -1822,8 +1827,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: comicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const ComicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1895,8 +1900,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MusicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1948,8 +1953,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MusicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -1990,8 +1995,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MusicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -2013,7 +2018,7 @@ void main() {
     await tester.tap(find.byType(FilledButton).last);
     await pumpUntilSettled(tester);
 
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await CatalogSnapshotRepository(db).findAll();
     expect(rows, isNotEmpty);
     expect(rows.single.id, 'music-core-1');
   });
@@ -2039,8 +2044,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: musicKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MusicRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -2062,11 +2067,13 @@ void main() {
     await tester.tap(find.byType(FilledButton).last);
     await pumpUntilSettled(tester);
 
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await CatalogSnapshotRepository(db).findAll();
     expect(rows, isNotEmpty);
-    final cached = await CatalogCacheRepository(db).findById(rows.single.id);
-    final music = MusicCatalogDetailsDto.fromJson(
-      Map<String, dynamic>.from(cached!.payload['music'] as Map),
+    final cached = await CatalogSnapshotRepository(db).findByRef(
+      rows.single.catalogRef,
+    );
+    final music = music_details.MusicCatalogDetailsDto.fromJson(
+      Map<String, dynamic>.from(cached!.payload),
     );
     expect(music.trackCount, 2);
     expect(music.tracks, hasLength(2));
@@ -2087,8 +2094,7 @@ void main() {
           localDatabaseProvider.overrideWithValue(db),
           providerRegistryProvider
               .overrideWithValue(AsyncData(_buildTestProviderRegistry())),
-          authControllerProvider
-              .overrideWith((ref) => TestAdminAuthController(ref)),
+          authControllerProvider.overrideWith(() => TestAdminAuthController()),
           metadataProviderStatusesProvider.overrideWith(
             (ref) async => const <String, AdminProviderStatus>{},
           ),
@@ -2096,8 +2102,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MovieRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),
@@ -2167,7 +2173,7 @@ void main() {
                 onPressed: () {
                   showLibraryAddDialog(
                     context: context,
-                    type: comicKindModule,
+                    type: const ComicRegistration(),
                   );
                 },
                 child: const Text('Open compact add'),
@@ -2205,6 +2211,120 @@ class _FakeLibraryAddApiClient extends ApiClient {
   String? lastIngestProviderItemId;
   int providerPreviewCallCount = 0;
 
+  static const _searchFixtures = <String, List<Map<String, dynamic>>>{
+    'comic|Batman|': [
+      {
+        'id': 'comic-423',
+        'kind': 'comic',
+        'title': 'Batman',
+        'item_number': '423',
+        'publisher': 'DC',
+        'release_year': 1988,
+        'series': {
+          'series_id': 'series-batman',
+          'series_title': 'Batman',
+          'volume_name': 'Vol. 2',
+          'volume_number': 2,
+          'volume_start_year': 1987,
+        },
+      },
+    ],
+    'movie|Blade Runner|': [
+      {
+        'id': 'movie-1',
+        'kind': 'movie',
+        'title': 'Blade Runner 2049',
+        'publisher': 'Warner Bros.',
+        'release_year': 2017,
+      },
+    ],
+    'music||Daft Punk Core': [
+      {
+        'id': 'music-core-1',
+        'kind': 'music',
+        'title': 'Random Access Memories',
+        'publisher': 'Columbia',
+        'release_year': 2013,
+      },
+    ],
+  };
+
+  static final _typedMetadataFixtures =
+      <String, TypedMetadataResponse Function()>{
+    'comic:comic-423': () => ComicWorkDto.fromJson({
+          'id': 'comic-423',
+          'kind': 'comic',
+          'title': 'Batman',
+          'item_number': '423',
+          'publisher': 'DC',
+          'release_year': 1988,
+          'editions': const [
+            {
+              'id': 'edition-comic-423-collector',
+              'title': 'Collector Edition',
+              'physical_format_label': 'Sketch Cover',
+              'variants': [
+                {
+                  'id': 'variant-comic-423-a',
+                  'name': 'Any',
+                  'is_primary': true,
+                },
+                {
+                  'id': 'variant-comic-423-c',
+                  'name': 'Sketch Cover',
+                  'is_primary': false,
+                },
+              ],
+            },
+          ],
+        }),
+    'music:music-core-1': () => MusicReleaseDto.fromJson({
+          'id': 'music-core-1',
+          'kind': 'music',
+          'title': 'Random Access Memories',
+          'publisher': 'Columbia',
+          'release_year': 2013,
+          'track_count': 2,
+          'tracks': [
+            {
+              'id': 'music-core-1-track-1',
+              'media_id': 'music-core-1-media-1',
+              'position': '1',
+              'title': 'Give Life Back to Music',
+            },
+            {
+              'id': 'music-core-1-track-2',
+              'media_id': 'music-core-1-media-1',
+              'position': '2',
+              'title': 'The Game of Love',
+            },
+          ],
+          'media': [
+            {
+              'id': 'music-core-1-media-1',
+              'release_id': 'music-core-1',
+              'media_number': 1,
+              'title': 'Disc 1',
+              'track_count': 2,
+              'tracks': [
+                {
+                  'id': 'music-core-1-track-1',
+                  'media_id': 'music-core-1-media-1',
+                  'position': '1',
+                  'title': 'Give Life Back to Music',
+                },
+                {
+                  'id': 'music-core-1-track-2',
+                  'media_id': 'music-core-1-media-1',
+                  'position': '2',
+                  'title': 'The Game of Love',
+                },
+              ],
+            },
+          ],
+        }),
+  };
+
   @override
   Future<List<CatalogMediaType>> metadataMediaTypes() async {
     return fallbackMediaCatalog;
@@ -2217,131 +2337,20 @@ class _FakeLibraryAddApiClient extends ApiClient {
     lastSearchQuery = query.query;
     lastSearchKind = query.kind;
     lastSearchSeries = query.series;
-    if (query.kind == 'comic' && query.query == 'Batman') {
-      return const [
-        {
-          'id': 'comic-423',
-          'kind': 'comic',
-          'title': 'Batman',
-          'item_number': '423',
-          'publisher': 'DC',
-          'release_year': 1988,
-          'series': {
-            'series_id': 'series-batman',
-            'series_title': 'Batman',
-            'volume_name': 'Vol. 2',
-            'volume_number': 2,
-            'volume_start_year': 1987,
-          },
-        },
-      ];
-    }
-    if (query.kind == 'movie' && query.query == 'Blade Runner') {
-      return const [
-        {
-          'id': 'movie-1',
-          'kind': 'movie',
-          'title': 'Blade Runner 2049',
-          'publisher': 'Warner Bros.',
-          'release_year': 2017,
-        },
-      ];
-    }
-    if (query.kind == 'music' && query.series == 'Daft Punk Core') {
-      return const [
-        {
-          'id': 'music-core-1',
-          'kind': 'music',
-          'title': 'Random Access Memories',
-          'publisher': 'Columbia',
-          'release_year': 2013,
-        },
-      ];
-    }
-    return const [];
+    return _searchFixtures[
+            '${query.kind}|${query.query}|${query.series ?? ''}'] ??
+        _searchFixtures['${query.kind}||${query.series ?? ''}'] ??
+        _searchFixtures['${query.kind}|${query.query}|'] ??
+        const [];
   }
 
   @override
   Future<TypedMetadataResponse> getTypedMetadataItem({
-    required String kind,
+    required CatalogMediaKind kind,
     required String id,
   }) async {
-    if (kind == 'comic' && id == 'comic-423') {
-      return ComicWorkDto.fromJson({
-        'id': 'comic-423',
-        'kind': 'comic',
-        'title': 'Batman',
-        'item_number': '423',
-        'publisher': 'DC',
-        'release_year': 1988,
-        'editions': const [
-          {
-            'id': 'edition-comic-423-collector',
-            'title': 'Collector Edition',
-            'physical_format_label': 'Sketch Cover',
-            'variants': [
-              {
-                'id': 'variant-comic-423-a',
-                'name': 'Any',
-                'is_primary': true,
-              },
-              {
-                'id': 'variant-comic-423-c',
-                'name': 'Sketch Cover',
-                'is_primary': false,
-              },
-            ],
-          },
-        ],
-      });
-    }
-    if (kind == 'music' && id == 'music-core-1') {
-      return MusicReleaseDto.fromJson({
-        'id': 'music-core-1',
-        'kind': 'music',
-        'title': 'Random Access Memories',
-        'publisher': 'Columbia',
-        'release_year': 2013,
-        'track_count': 2,
-        'tracks': [
-          {
-            'id': 'music-core-1-track-1',
-            'media_id': 'music-core-1-media-1',
-            'position': '1',
-            'title': 'Give Life Back to Music',
-          },
-          {
-            'id': 'music-core-1-track-2',
-            'media_id': 'music-core-1-media-1',
-            'position': '2',
-            'title': 'The Game of Love',
-          },
-        ],
-        'media': [
-          {
-            'id': 'music-core-1-media-1',
-            'release_id': 'music-core-1',
-            'media_number': 1,
-            'title': 'Disc 1',
-            'track_count': 2,
-            'tracks': [
-              {
-                'id': 'music-core-1-track-1',
-                'media_id': 'music-core-1-media-1',
-                'position': '1',
-                'title': 'Give Life Back to Music',
-              },
-              {
-                'id': 'music-core-1-track-2',
-                'media_id': 'music-core-1-media-1',
-                'position': '2',
-                'title': 'The Game of Love',
-              },
-            ],
-          },
-        ],
-      });
-    }
+    final fixture = _typedMetadataFixtures['${kind.apiValue}:$id'];
+    if (fixture != null) return fixture();
     throw StateError('Unknown typed metadata item $kind:$id');
   }
 
@@ -2551,7 +2560,7 @@ class _FakeCoverImagePreprocessor implements LibraryCoverImagePreprocessor {
 
   @override
   Future<LibraryCoverPreparedImage> prepareImage({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverReviewedImage image,
   }) async {
     return LibraryCoverPreparedImage(
@@ -2568,7 +2577,7 @@ class _FakeCoverTextRecognizer implements LibraryCoverTextRecognizer {
 
   @override
   Future<String?> recognizeText({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverPreparedImage image,
   }) async {
     return text;
@@ -2663,8 +2672,8 @@ Future<Uint8List> _generateSolidPngBytes({
   return byteData!.buffer.asUint8List();
 }
 
-ProviderRegistry _buildTestProviderRegistry() {
-  return InMemoryProviderRegistry([
+ProviderConnectorRegistry _buildTestProviderRegistry() {
+  return InMemoryProviderConnectorRegistry([
     _FakeMetadataProvider(name: 'anilist', defaultKind: 'comic').toConnector(),
     _FakeMetadataProvider(name: 'tmdb', defaultKind: 'movie').toConnector(),
     _FakeMetadataProvider(name: 'musicbrainz', defaultKind: 'music')
@@ -2693,14 +2702,14 @@ class _FakeMetadataProvider implements MetadataCapability {
   ProviderDescriptor get descriptor => ProviderDescriptor(
         name: name,
         displayName: name,
-        kind: defaultKind,
-        supportedKinds: [defaultKind],
+        kind: catalogMediaKindFromApiValue(defaultKind),
+        supportedKinds: [catalogMediaKindFromApiValue(defaultKind)],
       );
 
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     if (name == 'anilist' || query == 'Naruto') {
@@ -2709,7 +2718,7 @@ class _FakeMetadataProvider implements MetadataCapability {
           provider: 'anilist',
           providerItemId: 'anilist-1',
           title: 'Naruto Vol. 1',
-          kind: kind?.toString() ?? defaultKind,
+          kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
           summary: 'A ninja candidate.',
           imageUrl: 'https://example.test/naruto.jpg',
         ),
@@ -2721,7 +2730,7 @@ class _FakeMetadataProvider implements MetadataCapability {
           provider: 'tmdb',
           providerItemId: 'tmdb-1',
           title: 'Fallback candidate',
-          kind: 'movie',
+          kind: CatalogMediaKind.movie,
           summary: 'Different result.',
           imageUrl: 'https://example.test/fallback.jpg',
           publisher: 'Studio Canal',
@@ -2736,7 +2745,7 @@ class _FakeMetadataProvider implements MetadataCapability {
         provider: name,
         providerItemId: '$name-1',
         title: displayTitle,
-        kind: kind?.toString() ?? defaultKind,
+        kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
         summary: 'Provider summary',
         imageUrl: 'https://example.test/$name.jpg',
       ),
@@ -2744,18 +2753,19 @@ class _FakeMetadataProvider implements MetadataCapability {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    Object? kind,
+    CatalogMediaKind? kind,
   }) async {
+    final mediaKind = kind ?? catalogMediaKindFromApiValue(defaultKind);
     if (providerItemId == 'musicbrainz-1' ||
-        kind == 'music' ||
+        mediaKind == CatalogMediaKind.music ||
         name == 'musicbrainz') {
-      return NormalizedProviderEnvelopeV1(
+      return ProviderMetadataEnvelope(
         provider: name,
         providerItemId: providerItemId,
-        kind: 'music',
-        normalized: {
+        kind: CatalogMediaKind.music,
+        payload: ProviderMetadataPayload({
           'title': 'Provider result Discovery',
           'series_title': 'Daft Punk',
           'publisher': 'Virgin',
@@ -2772,36 +2782,36 @@ class _FakeMetadataProvider implements MetadataCapability {
               'duration_seconds': 212,
             },
           ],
-        },
+        }),
         provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
         images: const [],
         attribution: const ProviderAttribution(required: false),
       );
     }
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: providerItemId,
-      kind: kind?.toString() ?? defaultKind,
-      normalized: {
+      kind: mediaKind,
+      payload: ProviderMetadataPayload({
         'title': 'Provider item $providerItemId',
-      },
+      }),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
       images: const [],
       attribution: const ProviderAttribution(required: false),
     );
   }
 
-  Future<NormalizedProviderEnvelopeV1?> searchByBarcode(
+  Future<ProviderMetadataEnvelope?> searchByBarcode(
     String barcode, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: '$name-$barcode',
-      kind: kind ?? defaultKind,
-      normalized: {
+      kind: kind ?? catalogMediaKindFromApiValue(defaultKind),
+      payload: ProviderMetadataPayload({
         'title': 'Barcode item $barcode',
-      },
+      }),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-18T00:00:00Z'),
       images: const [],
       attribution: const ProviderAttribution(required: false),

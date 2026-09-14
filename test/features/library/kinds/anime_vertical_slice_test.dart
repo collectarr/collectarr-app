@@ -1,27 +1,28 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/contracts/anime_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Anime Kind Vertical Slice Tests (C2)', () {
     test('AnimeMetadata serializes and deserializes full domain fields', () {
       final metadata = AnimeMetadata(
-        nativeTitle: '葬送のフリーレン',
+        nativeTitle:
+            'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',
         romajiTitle: 'Sousou no Frieren',
         englishTitle: 'Frieren: Beyond Journey\'s End',
         alternateTitles: const ['Frieren the Slayer'],
@@ -52,7 +53,8 @@ void main() {
       final json = metadata.toJson();
       final restored = AnimeMetadata.fromJson(json);
 
-      expect(restored.nativeTitle, '葬送のフリーレン');
+      expect(restored.nativeTitle,
+          'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
       expect(restored.romajiTitle, 'Sousou no Frieren');
       expect(restored.englishTitle, 'Frieren: Beyond Journey\'s End');
       expect(restored.format, AnimeFormat.tv);
@@ -69,7 +71,8 @@ void main() {
 
     test('AnimeWorkspaceProjector projects metadata and schema fields', () {
       const animeMeta = AnimeMetadata(
-        nativeTitle: '葬送のフリーレン',
+        nativeTitle:
+            'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',
         romajiTitle: 'Sousou no Frieren',
         englishTitle: 'Frieren: Beyond Journey\'s End',
         format: AnimeFormat.tv,
@@ -80,25 +83,25 @@ void main() {
         sourceMaterial: AnimeSource.manga,
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'anime_1',
-        catalogItem: const LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'anime_1',
             mediaKind: CatalogMediaKind.anime,
           ),
           kindMetadata: animeMeta,
-        ),
-        ownedItem: OwnedItem(
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'anime_1',
-            kind: 'anime',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.anime,
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = AnimeWorkspaceProjector();
@@ -110,7 +113,8 @@ void main() {
         node: node,
       );
 
-      expect(dto.metadata?.nativeTitle, '葬送のフリーレン');
+      expect(dto.metadata?.nativeTitle,
+          'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
       expect(dto.metadata?.format, AnimeFormat.tv);
       expect(dto.metadata?.season, AnimeSeason.fall);
       expect(dto.metadata?.seasonYear, 2023);
@@ -122,27 +126,30 @@ void main() {
         dto: dto,
       );
 
-      expect(AnimeKindSchema.nativeTitle.getValue(ctx), '葬送のフリーレン');
+      expect(AnimeKindSchema.nativeTitle.getValue(ctx),
+          'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
       expect(AnimeKindSchema.format.getValue(ctx), 'TV');
       expect(AnimeKindSchema.season.getValue(ctx), 'Fall');
       expect(AnimeKindSchema.seasonYear.getValue(ctx), 2023);
       expect(AnimeKindSchema.episodeCount.getValue(ctx), 28);
       expect(AnimeKindSchema.airingStatus.getValue(ctx), 'Finished Airing');
       expect(AnimeKindSchema.sourceMaterial.getValue(ctx), 'Manga');
+      expect(dto.video, isA<AnimeCatalogItem>());
     });
 
     test(
         'AnimeLibraryKindProviderMapper parses full envelope into AnimeMetadata',
         () {
       const mapper = AnimeLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: '154587',
-          kind: 'anime',
-          normalized: const {
+          kind: CatalogMediaKind.anime,
+          payload: const ProviderMetadataPayload({
             'title': 'Frieren: Beyond Journey\'s End',
-            'native_title': '葬送のフリーレン',
+            'native_title':
+                'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',
             'romaji_title': 'Sousou no Frieren',
             'format': 'tv',
             'season': 'fall',
@@ -151,7 +158,7 @@ void main() {
             'airing_status': 'finished',
             'source_material': 'manga',
             'studios': ['Madhouse'],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -160,14 +167,13 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<AnimeMetadata>());
-      final meta = item.kindMetadata as AnimeMetadata;
-      expect(meta.nativeTitle, '葬送のフリーレン');
-      expect(meta.format, AnimeFormat.tv);
-      expect(meta.season, AnimeSeason.fall);
-      expect(meta.seasonYear, 2023);
-      expect(meta.episodeCount, 28);
-      expect(meta.studios, contains('Madhouse'));
+      expect(item.nativeTitle,
+          'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
+      expect(item.format, AnimeFormat.tv);
+      expect(item.season, AnimeSeason.fall);
+      expect(item.seasonYear, 2023);
+      expect(item.episodeCount, 28);
+      expect(item.studios, contains('Madhouse'));
     });
 
     test('AnimeCatalog and AnimeEntry round-trip and preserve all kind fields',
@@ -176,7 +182,8 @@ void main() {
         'id': 'anime_frieren',
         'kind': 'anime',
         'title': 'Frieren: Beyond Journey\'s End',
-        'native_title': '葬送のフリーレン',
+        'native_title':
+            'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³',
         'romaji_title': 'Sousou no Frieren',
         'english_title': 'Frieren: Beyond Journey\'s End',
         'format': 'tv',
@@ -209,7 +216,8 @@ void main() {
       expect(catalog.id, 'anime_frieren');
       expect(catalog.mediaKind, CatalogMediaKind.anime);
       expect(catalog.title, 'Frieren: Beyond Journey\'s End');
-      expect(catalog.nativeTitle, '葬送のフリーレン');
+      expect(catalog.nativeTitle,
+          'ÃƒÂ¨Ã¢â‚¬ËœÃ‚Â¬ÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ£Ã†â€™Ã¢â‚¬Â¢ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã†â€™Ã‚Â¼ÃƒÂ£Ã†â€™Ã‚Â¬ÃƒÂ£Ã†â€™Ã‚Â³');
       expect(catalog.studio, 'Madhouse');
       expect(catalog.displayCoverUrl, 'https://example.com/frieren_thumb.jpg');
       expect(catalog.relations.first.relationType, AnimeRelationType.sequel);
@@ -224,15 +232,15 @@ void main() {
       expect(restored.studios, contains('Madhouse'));
       expect(restored.seasonYear, 2023);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'anime_frieren',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'anime_frieren',
             mediaKind: CatalogMediaKind.anime,
           ),
           kindMetadata: AnimeMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = AnimeEntry.fromShelf(shelfEntry);

@@ -2,14 +2,14 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -18,10 +18,20 @@ import 'package:flutter/material.dart';
 /// [musicVertical] selects between the album-grid layout (true) and the
 /// horizontal tracklist-style layout (false).
 LibraryCardPresentation buildMusicCardPresentation(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 }) {
+  final musicDto =
+      item.dto is MusicWorkspaceDto ? item.dto as MusicWorkspaceDto : null;
   return LibraryCardPresentation(
+    itemNumber: musicDto?.itemNumber,
+    variant: musicDto?.variant,
+    releaseDate: musicDto?.releaseDate,
+    format: musicDto?.format,
+    synopsis: musicDto?.synopsis,
+    seriesTitle: musicDto?.seriesTitle,
+    identifierCode: musicDto?.identifierCode,
+    currency: musicDto?.currency,
     compactBadges: const [],
     customCardBuilder: (context, delegate) {
       if (musicVertical) {
@@ -65,15 +75,15 @@ Widget _buildMusicHorizontalCard({
       ? delegate.selectedTitleColor.withValues(alpha: 0.82)
       : palette.textSecondary;
   final artist = musicCardArtist(item);
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final year = adapter?.releaseDate?.year.toString() ?? '';
-  final format = adapter?.referenceFormatLabel?.trim();
+  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final year = musicDto?.releaseDate?.year.toString() ?? '';
+  final format = musicDto?.referenceFormatLabel?.trim();
   final tracks = musicCardTrackCount(item);
   final duration = musicCardDuration(item);
   final metaLine = [
     if (format != null && format.isNotEmpty) format,
     if (year.isNotEmpty) year,
-  ].join(' – ');
+  ].join(' Ã¢â‚¬â€œ ');
 
   return RepaintBoundary(
     child: AnimatedContainer(
@@ -112,10 +122,10 @@ Widget _buildMusicHorizontalCard({
                       width: delegate.coverWidth,
                       child: LibraryInteractiveCover(
                         title: dto.title,
-                        itemNumber: adapter?.itemNumber,
+                        itemNumber: musicDto?.itemNumber,
                         imageUrl: dto.coverImageUrl,
                         targetCacheWidth: delegate.coverCacheWidth,
-                        ownedItemId: item.source.ownedItem?.id,
+                        ownedRef: item.source.ownedRef,
                         accentColor: delegate.accentColor,
                         fit: BoxFit.cover,
                         borderRadius: 2,
@@ -281,8 +291,8 @@ Widget _buildMusicVerticalCard({
       ? delegate.selectedTitleColor.withValues(alpha: 0.9)
       : delegate.mutedColor;
   final artist = musicCardArtist(item);
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final year = adapter?.releaseDate?.year.toString() ?? '';
+  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final year = musicDto?.releaseDate?.year.toString() ?? '';
   return RepaintBoundary(
     child: AnimatedContainer(
       duration: kAppAnimFast,
@@ -311,9 +321,9 @@ Widget _buildMusicVerticalCard({
                     Expanded(
                       child: LibraryInteractiveCover(
                         title: dto.title,
-                        itemNumber: adapter?.itemNumber,
+                        itemNumber: musicDto?.itemNumber,
                         imageUrl: dto.coverImageUrl,
-                        ownedItemId: item.source.ownedItem?.id,
+                        ownedRef: item.source.ownedRef,
                         targetCacheWidth: delegate.coverCacheWidth,
                         accentColor: delegate.accentColor,
                         fit: BoxFit.cover,
@@ -343,7 +353,7 @@ Widget _buildMusicVerticalCard({
                           [
                             if (artist != null) artist,
                             if (year.isNotEmpty) year,
-                          ].join(' – '),
+                          ].join(' Ã¢â‚¬â€œ '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:
@@ -396,7 +406,7 @@ Widget _buildMusicVerticalCard({
 
 Widget _musicScopeBadge(
   BuildContext context,
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   Color accentColor,
 ) {
   final palette = appPalette(context);
@@ -465,7 +475,7 @@ class _MusicCompactMetaPill extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 /// Returns the primary artist name for a music item.
-String? musicCardArtist(LibraryProjectionRuntime item) {
+String? musicCardArtist(LibraryProjectionView item) {
   final creators =
       _musicMetadata(item)?.creators ?? const <Map<String, dynamic>>[];
   String? fallbackName;
@@ -483,9 +493,9 @@ String? musicCardArtist(LibraryProjectionRuntime item) {
       return rawName;
     }
   }
-  final adapter =
-      item.dto is WorkspaceDtoAdapter ? item.dto as WorkspaceDtoAdapter : null;
-  final publisher = adapter?.publisher?.trim();
+  final musicDto =
+      item.dto is MusicWorkspaceDto ? item.dto as MusicWorkspaceDto : null;
+  final publisher = musicDto?.publisher?.trim();
   if (publisher != null && publisher.isNotEmpty) {
     return publisher;
   }
@@ -493,7 +503,7 @@ String? musicCardArtist(LibraryProjectionRuntime item) {
 }
 
 /// Returns a formatted duration string for the album.
-String? musicCardDuration(LibraryProjectionRuntime item) {
+String? musicCardDuration(LibraryProjectionView item) {
   final runtimeFact = _metadataFactValue(
     _metadataPresentationForEntry(item),
     'Runtime',
@@ -502,7 +512,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
     return runtimeFact;
   }
   final musicDetails = _musicMetadata(item)?.music;
-  final totalSeconds = (musicDetails?['track_count'] as num?)?.toInt();
+  final totalSeconds = (musicDetails?['duration_seconds'] as num?)?.toInt();
   if (totalSeconds == null || totalSeconds <= 0) {
     return null;
   }
@@ -516,7 +526,7 @@ String? musicCardDuration(LibraryProjectionRuntime item) {
 }
 
 /// Returns the track count for the album.
-int? musicCardTrackCount(LibraryProjectionRuntime item) {
+int? musicCardTrackCount(LibraryProjectionView item) {
   return _musicMetadata(item)?.trackCount ??
       int.tryParse(
         _metadataFactValue(
@@ -527,19 +537,18 @@ int? musicCardTrackCount(LibraryProjectionRuntime item) {
       );
 }
 
-MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
-  return metadata is MusicCatalogMetadata ? metadata : null;
+MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
+  final catalog = item.source.catalogData;
+  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
-  final runtime = defaultLibraryKindRegistry
-      .tryGet(catalogMediaKindFromValue(item.source.catalogItem?.kind));
-  if (runtime == null) return null;
-  return runtime.presentation.builder.buildMetadataPresentation(
-    singularLabel: runtime.identity.singularLabel,
+  final kindModule = defaultLibraryKindRegistry.tryGet(item.source.mediaKind);
+  if (kindModule == null) return null;
+  return kindModule.presentation.builder.buildMetadataPresentation(
+    singularLabel: kindModule.identity.singularLabel,
     item: item,
     includeIdentityFacts: true,
     tapFor: (_) => null,

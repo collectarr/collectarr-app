@@ -1,24 +1,27 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_contracts.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/add/controllers/library_add_form_options_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_state.dart';
+import 'package:collectarr_app/features/library/add/layout/library_add_dialog_layout.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_bottom_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_mode_bar.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
@@ -26,9 +29,8 @@ import 'package:collectarr_app/features/library/add/panes/library_add_search_pan
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -63,8 +65,8 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     required this.type,
     this.accent,
     this.initialQuery,
-    this.initialBarcode,
-    this.autoLookupInitialBarcode = true,
+    this.initialIdentifier,
+    this.autoLookupInitialIdentifier = true,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.manualPaneBuilder,
     this.previewPaneBuilder,
@@ -77,11 +79,11 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
     this.itemImages = const [],
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color? accent;
   final String? initialQuery;
-  final String? initialBarcode;
-  final bool autoLookupInitialBarcode;
+  final String? initialIdentifier;
+  final bool autoLookupInitialIdentifier;
   final LibraryCoverScanService coverScanService;
   final LibraryAddManualPaneBuilder? manualPaneBuilder;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
@@ -100,39 +102,33 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
 class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddSessionController _controller;
   late final LibraryAddManualDraft _manualDraft;
+  static const _formOptionsController = LibraryAddFormOptionsController();
 
   late final TextEditingController _queryController;
-  late final TextEditingController _barcodeController;
+  late final TextEditingController _identifierController;
 
   List<StorageLocation> _availableLocations = const [];
   List<String> _conditionOptions = const [];
-  List<String> _gradeOptions = const [];
   List<String> _tagOptions = const [];
 
   double? _dialogWidth;
   double? _dialogHeight;
-  static const _defaultDialogWidth = 1320.0;
-  static const _defaultDialogHeight = 860.0;
-  static const _minDialogWidth = 760.0;
-  static const _maxDialogWidth = 1800.0;
-  static const _minDialogHeight = 560.0;
-  static const _maxDialogHeight = 1200.0;
 
   double _resultsPaneWidth = 500;
 
   double _clampedResultsPaneWidth(double totalWidth) {
-    final minResultsWidth = 320.0;
-    final minPreviewWidth = 320.0;
-    final maxResultsWidth = (totalWidth - minPreviewWidth).clamp(
-      minResultsWidth,
-      totalWidth,
+    return LibraryAddDialogLayout.clampResultsPaneWidth(
+      totalWidth: totalWidth,
+      requestedWidth: _resultsPaneWidth,
     );
-    return _resultsPaneWidth.clamp(minResultsWidth, maxResultsWidth);
   }
 
   void _resizeResultsPane(double delta, double totalWidth) {
     setState(() {
-      _resultsPaneWidth = _clampedResultsPaneWidth(totalWidth) + delta;
+      _resultsPaneWidth = LibraryAddDialogLayout.clampResultsPaneWidth(
+        totalWidth: totalWidth,
+        requestedWidth: _clampedResultsPaneWidth(totalWidth) + delta,
+      );
     });
   }
 
@@ -143,8 +139,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       _resultsPaneWidth = 720;
     }
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
-    _barcodeController =
-        TextEditingController(text: widget.initialBarcode ?? '');
+    _identifierController =
+        TextEditingController(text: widget.initialIdentifier ?? '');
 
     _manualDraft = LibraryAddManualDraft(
       customFieldValues: widget.customFieldValues,
@@ -160,7 +156,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       wishlistMutations: ref.read(wishlistMutationsProvider),
       trackingMutations: ref.read(trackingMutationsProvider),
       api: ref.read(apiClientProvider),
-      catalog: CatalogCacheRepository(ref.read(localDatabaseProvider)),
+      catalog: CatalogTransportRepository(ref.read(localDatabaseProvider)),
       providerRegistry: ref.read(providerRegistryProvider).value ??
           buildDefaultProviderRegistry(),
       coverScanService: widget.coverScanService,
@@ -171,26 +167,24 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
     _controller.addListener(_onControllerStateChanged);
 
-    final editCap = widget.type.edit;
-    _conditionOptions =
-        editCap.conditions.isNotEmpty ? editCap.conditions : kGeneralConditions;
-    _gradeOptions = editCap.grades;
+    final editCap = widget.type.editPresentation;
+    _conditionOptions = editCap.conditions;
     _loadAvailableLocations();
     _loadPickListOptions();
     _loadPrefillDefaults();
 
-    if (widget.initialBarcode != null &&
-        widget.initialBarcode!.isNotEmpty &&
-        widget.autoLookupInitialBarcode) {
-      _controller.setMode(LibraryAddDialogMode.barcode);
-      _controller.updateBarcode(widget.initialBarcode!);
+    if (widget.initialIdentifier != null &&
+        widget.initialIdentifier!.isNotEmpty &&
+        widget.autoLookupInitialIdentifier) {
+      _controller.setMode(LibraryAddDialogMode.identifier);
+      _controller.updateIdentifier(widget.initialIdentifier!);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _controller.lookupBarcode(barcode: widget.initialBarcode!);
+        _controller.lookupIdentifier(identifierCode: widget.initialIdentifier!);
       });
-    } else if (widget.initialBarcode != null &&
-        widget.initialBarcode!.isNotEmpty) {
-      _controller.setMode(LibraryAddDialogMode.barcode);
-      _controller.updateBarcode(widget.initialBarcode!);
+    } else if (widget.initialIdentifier != null &&
+        widget.initialIdentifier!.isNotEmpty) {
+      _controller.setMode(LibraryAddDialogMode.identifier);
+      _controller.updateIdentifier(widget.initialIdentifier!);
     } else if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       _controller.updateQuery(widget.initialQuery!);
     }
@@ -205,10 +199,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         selection: TextSelection.collapsed(offset: state.search.query.length),
       );
     }
-    if (_barcodeController.text != state.search.barcode) {
-      _barcodeController.value = TextEditingValue(
-        text: state.search.barcode,
-        selection: TextSelection.collapsed(offset: state.search.barcode.length),
+    if (_identifierController.text != state.search.identifierCode) {
+      _identifierController.value = TextEditingValue(
+        text: state.search.identifierCode,
+        selection:
+            TextSelection.collapsed(offset: state.search.identifierCode.length),
       );
     }
     setState(() {});
@@ -228,8 +223,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _loadAvailableLocations() async {
-    final locations =
-        await LocationRepository(ref.read(localDatabaseProvider)).getAll();
+    final locations = await _formOptionsController.loadLocations(
+      ref.read(localDatabaseProvider),
+    );
     if (!mounted) return;
     setState(() {
       _availableLocations = locations;
@@ -239,15 +235,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   Future<void> _loadPrefillDefaults() async {
     final defaults = await PrefillDefaults.load();
     if (!mounted) return;
-    if (defaults.condition?.trim().isNotEmpty == true) {
-      _controller.setDefaultCondition(defaults.condition!.trim());
-    }
-    if (defaults.grade?.trim().isNotEmpty == true) {
-      _controller.setDefaultGrade(defaults.grade!.trim());
-    }
-    if (defaults.readStatus != null) {
-      _controller.setDefaultReadStatus(defaults.readStatus);
-    }
     if (defaults.tags != null) {
       _controller.setDefaultTags(defaults.tags);
     }
@@ -259,38 +246,16 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
 
   Future<void> _loadPickListOptions() async {
     final state = _controller.state;
-    final editCap = widget.type.edit;
-    final conditionDefinition =
-        editCap.vocabularies?.definitionForSuffix('condition');
-    final gradeDefinition = editCap.vocabularies?.definitionForSuffix('grade');
-    final builtInConditions = conditionDefinition == null
-        ? (editCap.conditions.isNotEmpty
-            ? editCap.conditions
-            : kGeneralConditions)
-        : [for (final value in conditionDefinition.builtIns) value.toString()];
-    final builtInGrades = gradeDefinition == null
-        ? editCap.grades
-        : [for (final value in gradeDefinition.builtIns) value.toString()];
-    final options = await loadConditionGradePickListOptions(
-      ref.read(localDatabaseProvider),
-      mediaKind: widget.type.kind.apiValue,
-      builtInConditions: builtInConditions,
-      builtInGrades: builtInGrades,
-      conditionListName: conditionDefinition?.key,
-      gradeListName: gradeDefinition?.key,
+    final options = await _formOptionsController.loadPickLists(
+      database: ref.read(localDatabaseProvider),
+      type: widget.type,
       selectedCondition: state.defaultCondition,
-      selectedGrade: state.defaultGrade,
-    );
-    final tagOptions = await loadTagPickListOptions(
-      ref.read(localDatabaseProvider),
-      mediaKind: widget.type.kind.apiValue,
-      selectedTags: splitPickListValues(state.defaultTags),
+      selectedTags: state.defaultTags,
     );
     if (!mounted) return;
     setState(() {
       _conditionOptions = options.conditions;
-      _gradeOptions = options.grades;
-      _tagOptions = tagOptions;
+      _tagOptions = options.tags;
     });
   }
 
@@ -382,7 +347,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   void dispose() {
     _manualDraft.dispose();
     _queryController.dispose();
-    _barcodeController.dispose();
+    _identifierController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -414,7 +379,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       linksController: _manualDraft.linksController,
       isAdding: state.isAdding || state.submitState.isLoading,
       defaultCondition: state.defaultCondition,
-      defaultGrade: state.defaultGrade,
       defaultLocationLabel:
           locationPathForId(_availableLocations, state.defaultLocationId),
       defaultPurchaseDate: state.defaultPurchaseDate,
@@ -442,7 +406,9 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               .where((e) => !e.deleted && e.imageData != null)
               .map((e) => ItemImage(
                     id: e.id,
-                    ownedItemId: 'draft',
+                    ownedRef: OwnedItemRef.fromKey(
+                      '${widget.type.kind.apiValue}:draft',
+                    ),
                     imageData: e.imageData!,
                     imageType: e.imageType,
                     caption: e.caption,
@@ -461,12 +427,13 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         LibraryAccentScope.accentOf(context,
             fallback: widget.type.identity.accent);
     final state = _controller.state;
-    final ownedByCatalogId = ref.watch(collectionByCatalogItemProvider);
+    final ownedByCatalogRef = ref.watch(collectionByCatalogRefProvider);
     final isWideLayout = widget.type.uiPolicy.wideDialog;
     final resultPolicy = widget.type.add.resultPolicy;
     final visibleCore = state.visibleCoreResults(
       resultPolicy,
-      isOwnedCatalogItem: (id) => ownedByCatalogId.containsKey(id),
+      isOwnedCatalogItem: (item) =>
+          ownedByCatalogRef.containsKey(item.catalogRef),
     );
     final visibleProvider = state.visibleProviderResults(resultPolicy);
     final selectedCandidate = state.selectedCandidate;
@@ -475,7 +442,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     final addCapability = widget.type.add;
     final searchContext = LibraryAddSearchContext(
       query: state.search.query,
-      barcode: state.search.barcode,
+      identifierCode: state.search.identifierCode,
       advancedFilters: state.search.advancedFilters,
     );
 
@@ -494,7 +461,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         isWideLayout: isWideLayout,
         mode: state.mode,
         queryController: _queryController,
-        barcodeController: _barcodeController,
+        identifierController: _identifierController,
         isSearching: state.search.isSearching,
         isSearchingProvider: state.search.isSearchingProvider,
         onModeChanged: (mode) {
@@ -519,8 +486,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         canScanCover: widget.type.add.chrome.canScanCover,
         isScanningCover: state.search.isScanningCover,
         onScanCover: () => _controller.scanCover(context),
-        onLookupBarcode: () => _controller.lookupBarcode(
-          barcode: _barcodeController.text,
+        onLookupIdentifier: () => _controller.lookupIdentifier(
+          identifierCode: _identifierController.text,
         ),
         onManual: () {
           _manualDraft.titleController.text = _queryController.text;
@@ -546,19 +513,21 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     return LibraryDialogScaffold(
       accent: accent,
       themeData: dialogTheme,
-      width: _dialogWidth ?? _defaultDialogWidth,
-      height: _dialogHeight ?? _defaultDialogHeight,
-      minWidth: _minDialogWidth,
-      maxWidth: _maxDialogWidth,
-      minHeight: _minDialogHeight,
-      maxHeight: _maxDialogHeight,
+      width: _dialogWidth ?? LibraryAddDialogLayout.defaultDialogWidth,
+      height: _dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight,
+      minWidth: LibraryAddDialogLayout.minDialogWidth,
+      maxWidth: LibraryAddDialogLayout.maxDialogWidth,
+      minHeight: LibraryAddDialogLayout.minDialogHeight,
+      maxHeight: LibraryAddDialogLayout.maxDialogHeight,
       onResizeWidth: (delta) => setState(() {
-        _dialogWidth = ((_dialogWidth ?? _defaultDialogWidth) + delta)
-            .clamp(_minDialogWidth, _maxDialogWidth);
+        _dialogWidth = LibraryAddDialogLayout.clampDialogWidth(
+          (_dialogWidth ?? LibraryAddDialogLayout.defaultDialogWidth) + delta,
+        );
       }),
       onResizeHeight: (delta) => setState(() {
-        _dialogHeight = ((_dialogHeight ?? _defaultDialogHeight) + delta)
-            .clamp(_minDialogHeight, _maxDialogHeight);
+        _dialogHeight = LibraryAddDialogLayout.clampDialogHeight(
+          (_dialogHeight ?? LibraryAddDialogLayout.defaultDialogHeight) + delta,
+        );
       }),
       header: widget.headerBuilder?.call(context, headerRequest) ??
           addCapability.headerBuilder?.call(context, headerRequest) ??
@@ -572,12 +541,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (widget.initialBarcode != null &&
-              widget.initialBarcode!.trim().isNotEmpty &&
-              state.mode == LibraryAddDialogMode.barcode)
-            LibraryAddBarcodePrefillBanner(
+          if (widget.initialIdentifier != null &&
+              widget.initialIdentifier!.trim().isNotEmpty &&
+              state.mode == LibraryAddDialogMode.identifier)
+            LibraryAddIdentifierPrefillBanner(
               type: widget.type,
-              barcode: widget.initialBarcode!.trim(),
+              identifierCode: widget.initialIdentifier!.trim(),
             ),
           Builder(
             builder: (scopedContext) =>
@@ -590,7 +559,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   isWideLayout: isWideLayout,
                   mode: state.mode,
                   queryController: _queryController,
-                  barcodeController: _barcodeController,
+                  identifierController: _identifierController,
                   isSearching: state.search.isBusy,
                   isSearchingProvider: state.search.isSearchingProvider,
                   onModeChanged: (mode) {
@@ -615,8 +584,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                   canScanCover: widget.type.add.chrome.canScanCover,
                   isScanningCover: state.search.isScanningCover,
                   onScanCover: () => _controller.scanCover(scopedContext),
-                  onLookupBarcode: () => _controller.lookupBarcode(
-                    barcode: _barcodeController.text,
+                  onLookupIdentifier: () => _controller.lookupIdentifier(
+                    identifierCode: _identifierController.text,
                   ),
                   onManual: () {
                     _manualDraft.titleController.text = _queryController.text;
@@ -662,7 +631,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       ),
       body: switch (state.mode) {
         LibraryAddDialogMode.search ||
-        LibraryAddDialogMode.barcode =>
+        LibraryAddDialogMode.identifier =>
           LayoutBuilder(
             builder: (context, constraints) {
               final searchPaneRequest = LibraryAddSearchPaneRequest(
@@ -680,7 +649,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                     state.selection.selectedProviderCandidateId,
                 checkedResultIds: state.selection.checkedResultIds,
                 checkedProviderIds: state.selection.checkedProviderIds,
-                ownedCatalogItemIds: ownedByCatalogId.keys.toSet(),
+                ownedCatalogRefs: ownedByCatalogRef.keys.toSet(),
                 coreMatchSummary: (item) =>
                     addCapability.search.coreMatchSummary(item, searchContext),
                 providerMatchSummary: (candidate) => addCapability.search
@@ -721,7 +690,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         searchPaneRequest.selectedProviderCandidateId,
                     checkedResultIds: searchPaneRequest.checkedResultIds,
                     checkedProviderIds: searchPaneRequest.checkedProviderIds,
-                    ownedCatalogItemIds: searchPaneRequest.ownedCatalogItemIds,
+                    ownedCatalogRefs: searchPaneRequest.ownedCatalogRefs,
                     coreMatchSummary: searchPaneRequest.coreMatchSummary,
                     providerMatchSummary:
                         searchPaneRequest.providerMatchSummary,
@@ -761,8 +730,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                         state.preview.pendingProviderPreviewIds
                             .contains(selectedCandidate.localCatalogId)) ||
                     (selectedItem != null &&
-                        state.preview.pendingHydratedResultIds
-                            .contains(selectedItem.id)),
+                        state.preview.pendingHydratedResultRefs
+                            .contains(selectedItem.catalogRef)),
                 providerLabel: widget.type.metadata.providerLabel(
                   state.search.selectedProvider,
                 ),
@@ -771,9 +740,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 addTarget: state.target,
                 referenceType: state.selection.referenceType,
                 availableBundleReleases: selectedItem == null
-                    ? const <BundleReleaseSummary>[]
-                    : state.preview.bundleReleasesByItemId[selectedItem.id] ??
-                        const <BundleReleaseSummary>[],
+                    ? const <LibraryBundleSummary>[]
+                    : state.preview.bundleReleasesByCatalogRef[
+                            selectedItem.catalogRef] ??
+                        const <LibraryBundleSummary>[],
                 selectedBundleReleaseId:
                     state.selection.selectedBundleReleaseId,
                 selectedBundleReleaseDetail:
@@ -784,8 +754,8 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
                 selectedEditionId: state.selection.selectedReferenceEditionId,
                 selectedVariantId: state.selection.selectedReferenceVariantId,
                 isLoadingBundleReleases: selectedItem != null &&
-                    state.preview.pendingBundleReleaseItemIds
-                        .contains(selectedItem.id),
+                    state.preview.pendingBundleReleaseCatalogRefs
+                        .contains(selectedItem.catalogRef),
                 isLoadingBundleReleaseDetail:
                     state.selection.selectedBundleReleaseId != null &&
                         state.preview.pendingBundleReleaseDetailIds
@@ -845,7 +815,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         final bottomBarRequest = LibraryAddBottomBarRequest(
           type: widget.type,
           conditions: _conditionOptions,
-          grades: _gradeOptions,
           defaultTags: state.defaultTags,
           accent: accent,
           selectedItem: selectedItem,
@@ -866,13 +835,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           isQueueingIngest: state.preview.isQueueingIngest,
           isAdmin: ref.watch(authControllerProvider).isAdmin,
           defaultCondition: state.defaultCondition,
-          defaultGrade: state.defaultGrade,
           defaultLocationLabel:
               locationPathForId(_availableLocations, state.defaultLocationId),
           defaultPurchaseDate: state.defaultPurchaseDate,
           onAddTargetChanged: _controller.setTarget,
           onDefaultConditionChanged: _controller.setDefaultCondition,
-          onDefaultGradeChanged: _controller.setDefaultGrade,
           onEditDefaultTagsPressed: _showDefaultTagsEditor,
           onDefaultLocationPressed: _pickDefaultLocation,
           onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,
@@ -902,7 +869,6 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               type: widget.type,
               isWideLayout: isWideLayout,
               conditions: _conditionOptions,
-              grades: _gradeOptions,
               defaultTags: state.defaultTags,
               accent: accent,
               selectedItem: selectedItem,
@@ -926,13 +892,11 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
               isQueueingIngest: state.preview.isQueueingIngest,
               isAdmin: ref.watch(authControllerProvider).isAdmin,
               defaultCondition: state.defaultCondition,
-              defaultGrade: state.defaultGrade,
               defaultLocationLabel: locationPathForId(
                   _availableLocations, state.defaultLocationId),
               defaultPurchaseDate: state.defaultPurchaseDate,
               onAddTargetChanged: _controller.setTarget,
               onDefaultConditionChanged: _controller.setDefaultCondition,
-              onDefaultGradeChanged: _controller.setDefaultGrade,
               onEditDefaultTagsPressed: _showDefaultTagsEditor,
               onDefaultLocationPressed: _pickDefaultLocation,
               onDefaultPurchaseDateChanged: _controller.setDefaultPurchaseDate,

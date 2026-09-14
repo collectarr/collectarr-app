@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
@@ -48,11 +49,9 @@ Widget buildLibraryAddHeader(
           Expanded(
             child: Text(
               title ?? 'Add ${request.type.identity.pluralLabel}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-              ),
+              style: Theme.of(context).textTheme.libraryDialogTitle.copyWith(
+                    color: Colors.white,
+                  ),
             ),
           ),
           LibrarySquareCloseButton(
@@ -156,7 +155,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
     final labels = widget.labels;
     final palette = appPalette(context);
     final isBusy = request.isSearching || request.isSearchingProvider;
-    final isBarcode = request.mode == LibraryAddDialogMode.barcode;
+    final isBarcode = request.mode == LibraryAddDialogMode.identifier;
     final isSearch = request.mode == LibraryAddDialogMode.search;
     final searchButtonLabel = labels.searchButtonLabel ??
         'Search ${request.type.identity.pluralLabel}';
@@ -182,11 +181,12 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                           : 'library-add-query-field',
                     ),
                     controller: isBarcode
-                        ? request.barcodeController
+                        ? request.identifierController
                         : request.queryController,
                     onChanged: isSearch ? request.onQueryChanged : null,
-                    onSubmitted: (_) =>
-                        isBarcode ? request.onLookupBarcode() : _handleSearch(),
+                    onSubmitted: (_) => isBarcode
+                        ? request.onLookupIdentifier()
+                        : _handleSearch(),
                     decoration: InputDecoration(
                       labelText: isBarcode
                           ? 'Barcode / UPC / ISBN'
@@ -221,7 +221,9 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                 FilledButton.icon(
                   onPressed: isBusy
                       ? null
-                      : (isBarcode ? request.onLookupBarcode : _handleSearch),
+                      : (isBarcode
+                          ? request.onLookupIdentifier
+                          : _handleSearch),
                   style: libraryAddFilledButtonStyle(request.accent),
                   icon: Icon(isBarcode ? Icons.qr_code_2 : Icons.search,
                       size: 18),
@@ -242,7 +244,7 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         icon: Icon(Icons.search, size: 18),
                       ),
                       ButtonSegment<LibraryAddDialogMode>(
-                        value: LibraryAddDialogMode.barcode,
+                        value: LibraryAddDialogMode.identifier,
                         label: Text('Barcode'),
                         icon: Icon(Icons.qr_code_2, size: 18),
                       ),
@@ -344,14 +346,14 @@ class _LibraryAddChromeModeBarState extends State<_LibraryAddChromeModeBar> {
                         children: [
                           for (final suggestion in request.suggestions)
                             () {
-                              final itemNumber = suggestion.kindMetadata
-                                  .toSyncPayload()['item_number'] as String?;
+                              final display = request.type.presentation.builder
+                                  .buildSearchResultDisplay(item: suggestion);
                               return ListTile(
                                 dense: true,
-                                title: Text(suggestion.title),
-                                subtitle: itemNumber?.trim().isNotEmpty == true
-                                    ? Text('Issue $itemNumber')
-                                    : null,
+                                title: Text(display?.title ?? suggestion.title),
+                                subtitle: display?.secondaryLine == null
+                                    ? null
+                                    : Text(display!.secondaryLine!),
                                 onTap: () =>
                                     request.onSelectSuggestion(suggestion),
                               );

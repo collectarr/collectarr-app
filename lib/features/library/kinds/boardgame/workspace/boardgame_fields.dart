@@ -1,7 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -40,7 +43,11 @@ abstract final class BoardGameKindSchema {
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = BoardGameOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is BoardGameOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -56,7 +63,7 @@ abstract final class BoardGameKindSchema {
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -89,7 +96,7 @@ abstract final class BoardGameKindSchema {
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -183,7 +190,75 @@ abstract final class BoardGameKindSchema {
   );
 }
 
+final boardgameLibraryFacetDefinitions =
+    <LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>>[
+  LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
+    id: BoardGameFacetIds.publisher,
+    label: 'Publisher',
+    extractValues: (dto) => _boardGameFacetValues([
+      ...?dto.metadata?.publishers,
+      dto.metadata?.publisher,
+      ...dto.boardgame.publishers,
+      dto.boardgame.publisher,
+      dto.publisher,
+    ]),
+  ),
+  LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
+    id: BoardGameFacetIds.designer,
+    label: 'Designer',
+    extractValues: (dto) => _boardGameFacetValues([
+      ...?dto.metadata?.designers,
+      ...dto.boardgame.designers,
+    ]),
+  ),
+  LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
+    id: BoardGameFacetIds.mechanic,
+    label: 'Mechanic',
+    extractValues: (dto) => _boardGameFacetValues([
+      ...?dto.metadata?.mechanics,
+      ...dto.boardgame.mechanics,
+    ]),
+  ),
+  LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
+    id: BoardGameFacetIds.category,
+    label: 'Category',
+    extractValues: (dto) => _boardGameFacetValues([
+      ...?dto.metadata?.categories,
+      ...dto.boardgame.categories,
+    ]),
+  ),
+  LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
+    id: BoardGameFacetIds.family,
+    label: 'Family',
+    extractValues: (dto) => _boardGameFacetValues([
+      ...?dto.metadata?.families,
+      ...dto.boardgame.families,
+    ]),
+  ),
+  LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
+    id: BoardGameFacetIds.theme,
+    label: 'Theme',
+    extractValues: (dto) => _boardGameFacetValues([
+      ...?dto.metadata?.themes,
+      ...dto.boardgame.themes,
+    ]),
+  ),
+];
+
+Iterable<String> _boardGameFacetValues(Iterable<String?> values) sync* {
+  final seen = <String>{};
+  for (final value in values) {
+    final normalized = value?.trim();
+    if (normalized == null || normalized.isEmpty || !seen.add(normalized)) {
+      continue;
+    }
+    yield normalized;
+  }
+}
+
 final boardgameLibraryFieldDefinitions = [
+  BoardGameKindSchema.status,
+  BoardGameKindSchema.cover,
   BoardGameKindSchema.title,
   BoardGameKindSchema.publisher,
   BoardGameKindSchema.designer,
@@ -192,6 +267,10 @@ final boardgameLibraryFieldDefinitions = [
   BoardGameKindSchema.location,
   BoardGameKindSchema.pricePaid,
   BoardGameKindSchema.barcode,
+  BoardGameKindSchema.rating,
+  BoardGameKindSchema.wishlist,
+  BoardGameKindSchema.updatedAt,
+  BoardGameKindSchema.addedAt,
   BoardGameKindSchema.minPlayers,
   BoardGameKindSchema.maxPlayers,
   BoardGameKindSchema.bestPlayers,
@@ -210,7 +289,7 @@ final boardGamesLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers / Designers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringListBucketValueMutator(
+    bucketValueMutator: catalogTransportStringListBucketValueMutator(
       'publishers',
       scalarMirrorKeys: ['publisher'],
     ),
@@ -353,8 +432,8 @@ final boardgameLibraryColumnDefinitions = [
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, int?>(
     BoardGameKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -370,8 +449,7 @@ final boardgameLibraryColumnDefinitions = [
     id: BoardGameFieldIds.rating,
     label: 'Rating',
     getValue: BoardGameKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, num?>(

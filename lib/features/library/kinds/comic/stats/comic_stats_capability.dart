@@ -1,6 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
 
@@ -8,35 +11,75 @@ class ComicStatsCapability implements LibraryStatsCapability {
   const ComicStatsCapability();
 
   @override
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
+    return LibraryOwnedFinancialSummary(
+      pricePaidCents: entry.pricePaidCents,
+      sellPriceCents: entry.sellPriceCents,
+      currency: entry.currency,
+    );
+  }
+
+  @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    final metadata = _comicMetadata(entry);
+    if (catalog == null || metadata == null) return null;
+    final primary =
+        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
+            .trim();
+    final secondary = (metadata.publisher ?? metadata.imprint)?.trim();
+    return LibraryStatsMetadataProjection(
+      primaryGroup: primary,
+      secondaryGroup: secondary,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
+          catalog.synopsis?.trim().isNotEmpty == true,
+      hasSecondaryMetadata: secondary?.isNotEmpty == true ||
+          metadata.physicalFormat?.trim().isNotEmpty == true,
+      hasReleaseDate:
+          metadata.releaseDate != null || catalog.releaseDate != null,
+      hasItemNumber: metadata.issueNumber?.trim().isNotEmpty == true,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) {
+    final keyComicCount = countKeyComics(state.entries);
     return [
-      if (state.keyComicCount > 0)
+      if (keyComicCount > 0)
         LibraryStatsTileDescriptor(
           icon: Icons.label_important,
           label: 'Key items',
-          value: state.keyComicCount.toString(),
+          value: keyComicCount.toString(),
         ),
     ];
+  }
+
+  static int countKeyComics(Iterable<LibraryWorkspaceSource> entries) {
+    return entries.where((entry) => entry.isOwned).where((entry) {
+      return _comicOwnedItem(entry)?.details.keyComic == true;
+    }).length;
   }
 
   @override
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) {
     final seriesGap = _seriesGapSummary(state.entries);
     final volumeGap = _numberedGapSummary(
       state.entries,
       (entry) {
-        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
-        final rawVolume = payload?['volume_number'] ??
-            (payload?['series'] as Map?)?['volume_number'];
+        final metadata = _comicMetadata(entry);
+        final rawVolume = metadata?.series?.volumeNumber;
         if (rawVolume == null) return null;
-        final volume = double.tryParse(rawVolume.toString());
+        final volume = double.tryParse(rawVolume);
         if (volume == null || volume % 1 != 0) {
           return null;
         }
@@ -72,64 +115,52 @@ class ComicStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static Map<String, int> _topCreatorCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topCreatorCounts(
+      List<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
-      (entry) => _creatorCredits(entry)
-          .map((credit) => credit['name']?.toString() ?? '')
-          .where((name) => name.trim().isNotEmpty),
+      _creatorNames,
     );
   }
 
-  static Map<String, int> _topCharacterCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topCharacterCounts(
+      List<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
       (entry) =>
           _comicMetadata(entry)
               ?.characters
               .where((name) => name.trim().isNotEmpty) ??
-          ((entry.catalogItem?.kindMetadata.toSyncPayload()['characters']
-                  as List?)
-              ?.cast<String>()
-              .where((name) => name.trim().isNotEmpty)) ??
           const <String>[],
     );
   }
 
-  static Map<String, int> _topStoryArcCounts(List<ShelfEntry> entries) {
+  static Map<String, int> _topStoryArcCounts(
+      List<LibraryWorkspaceSource> entries) {
     return _countMany(
       entries,
       (entry) =>
           _comicMetadata(entry)
               ?.storyArcs
               .where((name) => name.trim().isNotEmpty) ??
-          ((entry.catalogItem?.kindMetadata.toSyncPayload()['story_arcs']
-                  as List?)
-              ?.cast<String>()
-              .where((name) => name.trim().isNotEmpty)) ??
           const <String>[],
     );
   }
 
-  static ComicCatalogMetadata? _comicMetadata(ShelfEntry entry) {
-    final metadata = entry.catalogItem?.kindMetadata;
-    return metadata is ComicCatalogMetadata ? metadata : null;
-  }
-
-  static Iterable<Map<String, dynamic>> _creatorCredits(ShelfEntry entry) {
+  static Iterable<String> _creatorNames(LibraryWorkspaceSource entry) {
     final meta = _comicMetadata(entry);
-    if (meta != null) return meta.creators;
-    final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
-    final creators = payload?['creators'] as List?;
-    if (creators != null) {
-      return creators.whereType<Map<String, dynamic>>();
+    if (meta == null) {
+      return const <String>[];
     }
-    return const <Map<String, dynamic>>[];
+    if (meta.creatorCredits.isNotEmpty) {
+      return meta.creatorCredits.map((credit) => credit.name);
+    }
+    return meta.creators.map((credit) => credit['name']?.toString() ?? '');
   }
 
   static Map<String, int> _countMany(
-    Iterable<ShelfEntry> entries,
-    Iterable<String> Function(ShelfEntry entry) valuesFor,
+    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<String> Function(LibraryWorkspaceSource entry) valuesFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -149,19 +180,18 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return counts;
   }
 
-  static _SeriesGapSummary? _seriesGapSummary(List<ShelfEntry> entries) {
+  static _SeriesGapSummary? _seriesGapSummary(
+      List<LibraryWorkspaceSource> entries) {
     _SeriesGapSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) {
         continue;
       }
-      final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
-      final seriesTitle = ((payload?['series_title'] ??
-              (payload?['series'] as Map?)?['series_title']) as String?)
-          ?.trim();
-      final itemNumberStr = payload?['item_number'] as String?;
-      final issueNumber = _wholeIssueNumber(itemNumberStr);
+      final metadata = _comicMetadata(entry);
+      final seriesTitle =
+          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
+      final issueNumber = _wholeIssueNumber(metadata?.issueNumber);
       if (seriesTitle == null || seriesTitle.isEmpty || issueNumber == null) {
         continue;
       }
@@ -191,8 +221,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _numberedGapSummary(
-    List<ShelfEntry> entries,
-    int? Function(ShelfEntry entry) numberFor,
+    List<LibraryWorkspaceSource> entries,
+    int? Function(LibraryWorkspaceSource entry) numberFor,
   ) {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
@@ -200,10 +230,9 @@ class ComicStatsCapability implements LibraryStatsCapability {
       if (!entry.isOwned) {
         continue;
       }
-      final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
-      final seriesTitle = ((payload?['series_title'] ??
-              (payload?['series'] as Map?)?['series_title']) as String?)
-          ?.trim();
+      final metadata = _comicMetadata(entry);
+      final seriesTitle =
+          (metadata?.seriesTitle ?? metadata?.series?.seriesTitle)?.trim();
       final number = numberFor(entry);
       if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
         continue;
@@ -239,6 +268,15 @@ class ComicStatsCapability implements LibraryStatsCapability {
     }
     final match = RegExp(r"^\s*(\d+)").firstMatch(value);
     return match == null ? null : int.tryParse(match.group(1)!);
+  }
+
+  static ComicOwnedItem? _comicOwnedItem(LibraryWorkspaceSource entry) {
+    return ComicOwnedItemProjection.fromDispatch(entry.ownedItemDispatch);
+  }
+
+  static ComicMedia? _comicMetadata(LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    return catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
   }
 }
 

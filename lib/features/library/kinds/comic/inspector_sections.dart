@@ -1,11 +1,12 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/inspector/sections/links_trailers_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -13,7 +14,6 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/value/library_value_snapshot.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,20 +80,16 @@ class _ComicInspectorTab {
 
 List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
   final item = request.item;
-  final rawCatalog = item.source.catalogItem;
-  final ComicCatalogItem? catalogItem = rawCatalog is ComicCatalogItem
-      ? rawCatalog as ComicCatalogItem
-      : (rawCatalog?.kindMetadata is ComicCatalogMetadata
-          ? ComicCatalogMapper.mapMetadataToComic(
-              rawCatalog!.kindMetadata as ComicCatalogMetadata,
-              id: rawCatalog.identity.id,
-            )
-          : null);
+  final catalogItem = item.dto is ComicWorkspaceDto
+      ? (item.dto as ComicWorkspaceDto).comic
+      : null;
   final synopsis = catalogItem?.synopsis?.trim();
   final genres = catalogItem?.genres ?? const <String>[];
   final storyArcs = catalogItem?.storyArcs ?? const <String>[];
   final characters = catalogItem?.characters ?? const <String>[];
   final creators = catalogItem?.creators ?? const <Map<String, dynamic>>[];
+  final ownedItem =
+      ComicOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
 
   return [
     _ComicInspectorTab(
@@ -160,14 +156,13 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
                       _valueFacts(item, request.ownedItem, request.ownedCopies))
             ],
           ),
-          if (request.ownedItem != null) ...[
+          if (ownedItem != null) ...[
             const SizedBox(height: 8),
             LibraryDetailSection(
               title: 'Collector',
               accentColor: request.accent,
               children: [
-                LibraryDetailFieldTable(
-                    fields: _collectorFacts(request.ownedItem))
+                LibraryDetailFieldTable(fields: _collectorFacts(ownedItem))
               ],
             ),
           ],
@@ -232,13 +227,12 @@ List<_ComicInspectorTab> _comicInspectorTabs(LibraryInspectorRequest request) {
       builder: (context, ref) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_noteFacts(request.item, request.ownedItem).isNotEmpty)
+          if (_noteFacts(ownedItem).isNotEmpty)
             LibraryDetailSection(
               title: 'Notes',
               accentColor: request.accent,
               children: [
-                LibraryDetailFieldTable(
-                    fields: _noteFacts(request.item, request.ownedItem))
+                LibraryDetailFieldTable(fields: _noteFacts(ownedItem))
               ],
             ),
           if (_linkFacts(request.item).isNotEmpty) ...[
@@ -325,7 +319,7 @@ class ComicSeriesCompletenessSection extends ConsumerWidget {
       ),
       data: (items) {
         final Set<String> ownedIds = {
-          for (final owned in request.ownedCopies) owned.itemId,
+          for (final owned in request.ownedCopies) owned.ref.id.value,
         };
         final missingNumbers = _computeMissingIssues(items, ownedIds);
         final ownedCount = items
@@ -477,12 +471,10 @@ final _comicSeriesItemsProvider =
   },
 );
 
-List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
+List<LibraryDetailField> _detailFacts(LibraryProjectionView item) {
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final rawMetadata = item.source.catalogItem?.kindMetadata;
-  final publishing =
-      rawMetadata is ComicCatalogMetadata ? rawMetadata.publishing : null;
+  final adapter = dto is ComicWorkspaceDto ? dto : null;
+  final publishing = _comicMetadata(item)?.publishing;
   final rows = <LibraryDetailField>[];
   if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
@@ -503,10 +495,8 @@ List<LibraryDetailField> _detailFacts(LibraryProjectionRuntime item) {
   return rows;
 }
 
-List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
-  final rawMetadata = item.source.catalogItem?.kindMetadata;
-  final series =
-      rawMetadata is ComicCatalogMetadata ? rawMetadata.series : null;
+List<LibraryDetailField> _seriesFacts(LibraryProjectionView item) {
+  final series = _comicMetadata(item)?.series;
   final rows = <LibraryDetailField>[];
   if (series?.seriesTitle?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
@@ -531,50 +521,52 @@ List<LibraryDetailField> _seriesFacts(LibraryProjectionRuntime item) {
   return rows;
 }
 
-List<LibraryDetailField> _collectorFacts(OwnedItem? ownedItem) {
+List<LibraryDetailField> _collectorFacts(ComicOwnedItem? ownedItem) {
   if (ownedItem == null) {
     return const [];
   }
   final rows = <LibraryDetailField>[];
-  final comic = ownedItem.comicDetails;
-  if (comic?.rawOrSlabbed?.trim().isNotEmpty == true) {
+  final comic = ownedItem.details;
+  if (comic.rawOrSlabbed?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Raw / Slabbed', value: comic!.rawOrSlabbed!.trim()));
+        label: 'Raw / Slabbed', value: comic.rawOrSlabbed!.trim()));
   }
-  if (comic?.gradingCompany?.trim().isNotEmpty == true) {
+  if (comic.gradingCompany?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Grading Co.', value: comic!.gradingCompany!.trim()));
+        label: 'Grading Co.', value: comic.gradingCompany!.trim()));
   }
-  if (comic?.certificationNumber?.trim().isNotEmpty == true) {
+  if (comic.certificationNumber?.trim().isNotEmpty == true) {
     rows.add(LibraryDetailField(
-        label: 'Certification', value: comic!.certificationNumber!.trim()));
+        label: 'Certification', value: comic.certificationNumber!.trim()));
   }
-  if (comic?.keyComic == true) {
+  if (comic.keyComic) {
     rows.add(LibraryDetailField(
         label: 'Key',
-        value: comic?.keyReason?.trim().isNotEmpty == true
-            ? comic!.keyReason!.trim()
+        value: comic.keyReason?.trim().isNotEmpty == true
+            ? comic.keyReason!.trim()
             : 'Yes'));
   }
   return rows;
 }
 
 List<LibraryDetailField> _valueFacts(
-  LibraryProjectionRuntime item,
-  OwnedItem? ownedItem,
-  List<OwnedItem> ownedCopies,
+  LibraryProjectionView item,
+  OwnedItemSummary? ownedItem,
+  List<OwnedItemSummary> ownedCopies,
 ) {
   if (ownedItem == null) {
     return const [];
   }
   final effectiveOwnedCopies =
-      ownedCopies.isNotEmpty ? ownedCopies : <OwnedItem>[ownedItem];
+      ownedCopies.isNotEmpty ? ownedCopies : <OwnedItemSummary>[ownedItem];
   final snapshot = LibraryValueSnapshot.fromItem(
     item,
-    ownedItem: ownedItem,
-    providerName: item.source.ownedItem?.marketValueCents != null
-        ? 'Provider snapshot'
-        : null,
+    purchasePriceCents: item.source.pricePaidCents,
+    soldPriceCents: item.source.sellPriceCents,
+    manualEstimatedValueCents: item.source.marketValueCents,
+    ownedCurrency: item.source.currency,
+    providerName:
+        item.source.marketValueCents != null ? 'Provider snapshot' : null,
   );
 
   final rows = <LibraryDetailField>[];
@@ -646,8 +638,8 @@ List<LibraryDetailField> _valueFacts(
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItem> items,
-  int? Function(OwnedItem item) selector,
+  List<OwnedItemSummary> items,
+  int? Function(OwnedItemSummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -663,8 +655,8 @@ int? _sumOwnedValueCents(
 }
 
 String? _inspectorValueCurrency(
-  List<OwnedItem> ownedCopies,
-  OwnedItem? ownedItem,
+  List<OwnedItemSummary> ownedCopies,
+  OwnedItemSummary? ownedItem,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();
@@ -680,8 +672,7 @@ String? _inspectorValueCurrency(
 }
 
 List<LibraryDetailField> _noteFacts(
-  LibraryProjectionRuntime item,
-  OwnedItem? ownedItem,
+  ComicOwnedItem? ownedItem,
 ) {
   final rows = <LibraryDetailField>[];
   final personalNotes = ownedItem?.personalNotes?.trim();
@@ -691,7 +682,7 @@ List<LibraryDetailField> _noteFacts(
   return rows;
 }
 
-List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
+List<LibraryDetailField> _linkFacts(LibraryProjectionView item) {
   final links = _comicLinks(item);
   if (links.isEmpty) {
     return const [];
@@ -710,12 +701,15 @@ List<LibraryDetailField> _linkFacts(LibraryProjectionRuntime item) {
   ];
 }
 
-ComicCatalogMetadata? _comicMetadata(LibraryProjectionRuntime item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
-  return metadata is ComicCatalogMetadata ? metadata : null;
+ComicMedia? _comicMetadata(LibraryProjectionView item) {
+  final dto = item.dto;
+  if (dto is ComicWorkspaceDto) {
+    return dto.comic;
+  }
+  return null;
 }
 
-List<ComicLink> _comicLinks(LibraryProjectionRuntime item) =>
+List<ComicLink> _comicLinks(LibraryProjectionView item) =>
     _comicMetadata(item)?.links ?? const <ComicLink>[];
 
 List<int> _computeMissingIssues(

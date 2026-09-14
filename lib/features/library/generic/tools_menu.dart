@@ -1,7 +1,8 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
@@ -37,7 +38,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.extraActions = const [],
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryToolbarCounts counts;
   final String? selectedBucket;
   final LibraryQuickView? quickView;
@@ -68,7 +69,8 @@ class LibraryToolsButton extends StatelessWidget {
       quickViewsLabel: 'Views',
       quickViews: [
         for (final view in LibraryQuickView.values)
-          if (!view.requiresGrades || type.edit.grades.isNotEmpty)
+          if (!view.requiresGrades ||
+              type.editPresentation.collectionValueOptions.isNotEmpty)
             LibraryUtilityQuickView(
               value: view,
               label: view.label,
@@ -105,7 +107,9 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Find duplicates',
             section: 'Browse',
             onSelected: () {
-              final groups = findDuplicateShelfGroups(shelfState!.entries);
+              final groups = findDuplicateShelfGroups(
+                shelfState!.entries,
+              );
               showDuplicateItemsDialog(context, duplicateGroups: groups);
             },
           ),
@@ -251,9 +255,10 @@ class LibraryToolsButton extends StatelessWidget {
 
 void _showGenericStatsDialog(
   BuildContext context,
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
   LibraryToolbarCounts counts,
 ) {
+  final collectionValue = counts.collectionValue;
   showDialog<void>(
     context: context,
     builder: (context) => AccentAlertDialog(
@@ -275,7 +280,7 @@ void _showGenericStatsDialog(
             ],
           ),
           if (counts.totalPricePaidCents > 0 ||
-              counts.totalCoverPriceCents > 0 ||
+              counts.collectionValue != null ||
               counts.totalSellPriceCents > 0) ...[
             const SizedBox(height: 16),
             const Divider(),
@@ -295,11 +300,20 @@ void _showGenericStatsDialog(
                     counts.totalPricePaidCents,
                     counts.priceCurrency,
                   ),
-                if (counts.totalCoverPriceCents > 0)
+                if (collectionValue != null &&
+                    collectionValue.hasMixedCurrencies)
+                  _StatsChip(
+                    'Collection value',
+                    collectionValue.valuedCount,
+                  ),
+                if (collectionValue != null &&
+                    !collectionValue.hasMixedCurrencies &&
+                    collectionValue.totalValueCents != null &&
+                    collectionValue.totalValueCents! > 0)
                   _StatsChipMoney(
-                    'Cover value',
-                    counts.totalCoverPriceCents,
-                    counts.priceCurrency,
+                    'Collection value',
+                    collectionValue.totalValueCents!,
+                    collectionValue.currency,
                   ),
                 if (counts.totalSellPriceCents > 0)
                   _StatsChipMoney(

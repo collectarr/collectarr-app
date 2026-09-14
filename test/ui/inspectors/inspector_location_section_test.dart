@@ -1,11 +1,16 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_constants.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('cancel keeps the current location assignment', (tester) async {
@@ -19,20 +24,24 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'comic-1',
-            locationId: const Value('loc-1'),
-            updatedAt: DateTime.utc(2026, 5, 22),
-          ),
-        );
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        kind: 'comic',
+        locationId: 'loc-1',
+        updatedAt: DateTime.utc(2026, 5, 22),
+      )),
+    );
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: InspectorLocationSection(
-            ownedItemId: 'owned-1',
+            ownedRef: const OwnedItemRef(
+              kind: CatalogMediaKind.comic,
+              id: OwnedItemId('owned-1'),
+            ),
             db: db,
             accent: Colors.orange,
           ),
@@ -50,9 +59,7 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);
 
-    final owned = await (db.select(db.ownedItemsCache)
-          ..where((t) => t.id.equals('owned-1')))
-        .getSingle();
+    final owned = (await ComicOwnedRepository(db).listActive()).single;
 
     expect(owned.locationId, 'loc-1');
     expect(find.text('Office Shelf'), findsOneWidget);

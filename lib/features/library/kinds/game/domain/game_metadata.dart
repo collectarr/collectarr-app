@@ -1,12 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
-
-typedef GameMetadata = GameCatalogMetadata;
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
-class GameCatalogMetadata implements LibraryKindMetadataRuntime {
+class GameCatalogMetadata implements JsonEncodable {
   const GameCatalogMetadata({
     required this.title,
     this.platform,
@@ -35,10 +33,8 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.game;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
@@ -64,9 +60,10 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? priceChartingId;
   final GameValuationSet? valuations;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,
@@ -134,7 +131,7 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
     String? priceChartingId,
     GameValuationSet? valuations,
     List<Map<String, dynamic>>? creators,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
   }) {
     return GameCatalogMetadata(
       title: title ?? this.title,
@@ -186,15 +183,17 @@ class GameCatalogMetadata implements LibraryKindMetadataRuntime {
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<Object?, Object?>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     return GameCatalogMetadata(

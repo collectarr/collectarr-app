@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -16,17 +15,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 LibraryCollectionStatusScope resolveLibraryCollectionStatusScope(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
-  final status = item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
-  return switch (status) {
-    'sold' => LibraryCollectionStatusScope.sold,
-    'for_sale' => LibraryCollectionStatusScope.forSale,
-    'on_order' => LibraryCollectionStatusScope.onOrder,
-    _ when item.source.isOwned => LibraryCollectionStatusScope.inCollection,
-    _ when item.source.isWishlisted => LibraryCollectionStatusScope.wishList,
-    _ => LibraryCollectionStatusScope.notInCollection,
-  };
+  if (item.source.ownedSummary?.soldAt != null) {
+    return LibraryCollectionStatusScope.sold;
+  }
+  if (item.source.isOwned) return LibraryCollectionStatusScope.inCollection;
+  if (item.source.isWishlisted) return LibraryCollectionStatusScope.wishList;
+  return LibraryCollectionStatusScope.notInCollection;
 }
 
 class LibraryCoverTile extends ConsumerStatefulWidget {
@@ -49,7 +45,7 @@ class LibraryCoverTile extends ConsumerStatefulWidget {
     super.key,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final bool active;
   final bool selected;
   final bool selectionMode;
@@ -76,6 +72,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
   Widget build(BuildContext context) {
     final item = widget.item;
     final dto = item.dto;
+    final presentation = libraryCardPresentationForEntry(item);
     final active = widget.active;
     final selected = widget.selected;
     final density = LibraryDensityScope.maybeOf(context)?.density ??
@@ -196,11 +193,9 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
                     Expanded(
                       child: LibraryInteractiveCover(
                         title: dto.title,
-                        itemNumber: (dto is WorkspaceDtoAdapter
-                            ? (dto).itemNumber
-                            : null),
+                        itemNumber: presentation.itemNumber,
                         imageUrl: dto.coverImageUrl,
-                        ownedItemId: item.source.ownedItem?.id,
+                        ownedRef: item.source.ownedRef,
                         targetCacheWidth: targetCacheWidth,
                         accentColor: widget.accentColor,
                         fit: BoxFit.cover,
@@ -258,24 +253,19 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     );
   }
 
-  List<Widget> _auxiliaryBadges(LibraryProjectionRuntime item) {
+  List<Widget> _auxiliaryBadges(LibraryProjectionView item) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(item);
     return [
       if (dto.coverImageUrl == null || dto.coverImageUrl!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing cover',
         ),
-      if (adapter?.publisher == null || adapter!.publisher!.isEmpty)
+      if (presentation.format == null || presentation.format!.isEmpty)
         const LibraryCoverBadge(
           icon: Icons.manage_search,
           label: 'Missing metadata',
-        ),
-      if (item.source.grade?.trim().isNotEmpty == true)
-        LibraryCoverBadge(
-          icon: Icons.star_rate,
-          label: 'Grade ${item.source.grade!.trim()}',
         ),
       if (libraryHierarchyContractDiagnosticLabel(item) case final label?)
         LibraryCoverBadge(
@@ -290,7 +280,7 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     ];
   }
 
-  Widget? _scopeBadge(BuildContext context, LibraryProjectionRuntime item) {
+  Widget? _scopeBadge(BuildContext context, LibraryProjectionView item) {
     final palette = appPalette(context);
     final scope = resolveLibraryCollectionStatusScope(item);
     final iconColor = libraryCollectionStatusScopeColor(

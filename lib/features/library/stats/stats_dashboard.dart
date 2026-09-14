@@ -5,15 +5,13 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/material.dart';
 
 /// Shows a rich statistics dashboard dialog for any media type.
 Future<void> showStatsDashboardDialog(
   BuildContext context, {
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required ShelfState state,
 }) {
   return showDialog<void>(
@@ -25,7 +23,7 @@ Future<void> showStatsDashboardDialog(
 class _GenericStatsDashboard extends StatelessWidget {
   const _GenericStatsDashboard({required this.type, required this.state});
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final ShelfState state;
 
   LibraryMediaStatsLabels get _statsLabels => type.presentation.statsLabels;
@@ -43,17 +41,27 @@ class _GenericStatsDashboard extends StatelessWidget {
                 state.totalSellCents! - state.totalPaidCents!,
                 state.primaryCurrency,
               );
-    final collectionValue = state.hasMixedCoverPriceCurrencies
-        ? '${state.coverPricedCount} valued'
-        : state.totalCoverPriceCents == null || state.totalCoverPriceCents == 0
-            ? null
-            : formatMoney(state.totalCoverPriceCents, state.coverPriceCurrency);
+    final collectionValueSummary = type.value?.resolveCollectionValueSummary(
+      state.entries,
+    );
+    final collectionValue = collectionValueSummary == null
+        ? null
+        : collectionValueSummary.hasMixedCurrencies
+            ? '${collectionValueSummary.valuedCount} valued'
+            : collectionValueSummary.totalValueCents == null ||
+                    collectionValueSummary.totalValueCents == 0
+                ? null
+                : formatMoney(
+                    collectionValueSummary.totalValueCents,
+                    collectionValueSummary.currency,
+                  );
     final sellValue = state.totalSellCents == null || state.totalSellCents == 0
         ? null
         : formatMoney(state.totalSellCents, state.primaryCurrency);
-    final missingCovers =
-        state.entries.where((e) => e.catalogItem?.coverImageUrl == null).length;
     final module = type;
+    final missingCovers = state.entries
+        .where((e) => module.stats.buildMetadataProjection(e)?.hasCover != true)
+        .length;
     final missingMetadata = _missingMetadataCount(state.entries, module);
     final valueCoverage =
         state.ownedCount == 0 ? 0.0 : state.pricedCount / state.ownedCount;
@@ -161,67 +169,65 @@ class _GenericStatsDashboard extends StatelessWidget {
                           final children = <Widget>[
                             LibraryStatsRankedCard(
                               title: _seriesLabel,
-                              values: _topSeriesCounts(state.entries, module),
+                              values: _topSeriesCounts(
+                                state.entries,
+                                module,
+                              ),
                             ),
                             LibraryStatsRankedCard(
                               title: _publisherLabel,
-                              values:
-                                  _topPublisherCounts(state.entries, module),
+                              values: _topPublisherCounts(
+                                state.entries,
+                                module,
+                              ),
                             ),
-                            if (state.gradeCounts.isNotEmpty)
-                              LibraryStatsDistributionCard(
-                                title: 'Grades',
-                                values: state.gradeCounts,
-                              ),
-                            if (state.conditionCounts.isNotEmpty)
-                              LibraryStatsDistributionCard(
-                                title: 'Conditions',
-                                values: state.conditionCounts,
-                              ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Most Invested Locations',
-                                values: _topInvestedLocations(state.entries),
+                                values: _topInvestedLocations(
+                                  state.entries,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Most Invested Series',
-                                values:
-                                    _topInvestedSeries(state.entries, module),
+                                values: _topInvestedSeries(
+                                  state.entries,
+                                  module,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Top Buyers',
-                                values: _topBuyerSales(state.entries),
+                                values: _topBuyerSales(
+                                  state.entries,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
                             if (!state.hasMixedCurrencies &&
                                 state.primaryCurrency != null)
                               LibraryStatsMoneyRankedCard(
                                 title: 'Top Sales Series',
-                                values: _topSalesSeries(state.entries, module),
+                                values: _topSalesSeries(
+                                  state.entries,
+                                  module,
+                                ),
                                 currency: state.primaryCurrency,
                               ),
-                            _TrackingStatusCard(entries: state.entries),
+                            _TrackingStatusCard(
+                              entries: state.entries,
+                            ),
                             LibraryStatsHealthCard(
                               title: 'Data Health',
                               rows: [
                                 LibraryStatsHealthRow(
                                   label: 'Value coverage',
                                   fraction: valueCoverage,
-                                ),
-                                LibraryStatsHealthRow(
-                                  label: 'Graded coverage',
-                                  fraction: state.ownedCount == 0
-                                      ? 0.0
-                                      : (state.ownedCount -
-                                              state.missingGradeCount) /
-                                          state.ownedCount,
                                 ),
                                 LibraryStatsHealthRow(
                                   label: 'Metadata coverage',
@@ -288,141 +294,90 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topSeriesCounts(
-    List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    List<LibraryWorkspaceSource> entries,
+    LibraryKindRegistration module,
   ) {
     return _countBy(
       entries,
-      (e) {
-        final dto = module
-            .project(
-              source: e,
-              node: LibraryTitleNodeRef(
-                titleItemId: e.catalogItem?.id ?? e.itemId,
-              ),
-            )
-            .dto;
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.seriesTitle ?? dto.title;
-      },
+      (e) => module.stats.buildMetadataProjection(e)?.primaryGroup ?? 'Unknown',
     );
   }
 
   static Map<String, int> _topPublisherCounts(
-    List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    List<LibraryWorkspaceSource> entries,
+    LibraryKindRegistration module,
   ) {
     return _countBy(
       entries,
-      (e) {
-        final dto = module
-            .project(
-              source: e,
-              node: LibraryTitleNodeRef(
-                titleItemId: e.catalogItem?.id ?? e.itemId,
-              ),
-            )
-            .dto;
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.publisher ?? 'Unknown';
-      },
+      (e) =>
+          module.stats.buildMetadataProjection(e)?.secondaryGroup ?? 'Unknown',
     );
   }
 
   static int _missingMetadataCount(
-    List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    List<LibraryWorkspaceSource> entries,
+    LibraryKindRegistration module,
   ) {
     var count = 0;
     for (final entry in entries) {
-      final cat = entry.catalogItem;
-      if (cat == null) {
+      final projection = module.stats.buildMetadataProjection(entry);
+      if (projection == null) {
         count++;
         continue;
       }
-      final dto = module
-          .project(
-            source: entry,
-            node: LibraryTitleNodeRef(
-              titleItemId: cat.id,
-            ),
-          )
-          .dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final hasSynopsis =
-          cat.synopsis != null && cat.synopsis!.trim().isNotEmpty;
-      final hasPublisher =
-          adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty;
-      if (!hasSynopsis && !hasPublisher) {
+      if (!projection.hasSynopsis && !projection.hasSecondaryMetadata) {
         count++;
       }
     }
     return count;
   }
 
-  static Map<String, int> _topInvestedLocations(List<ShelfEntry> entries) {
+  static Map<String, int> _topInvestedLocations(
+      List<LibraryWorkspaceSource> entries) {
     return _sumBy(
       entries,
       (entry) => entry.locationPath ?? 'No location',
-      (entry) => entry.ownedItem?.pricePaidCents,
+      (entry) => entry.pricePaidCents,
     );
   }
 
   static Map<String, int> _topInvestedSeries(
-    List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    List<LibraryWorkspaceSource> entries,
+    LibraryKindRegistration module,
   ) {
     return _sumBy(
       entries,
-      (entry) {
-        final dto = module
-            .project(
-              source: entry,
-              node: LibraryTitleNodeRef(
-                titleItemId: entry.catalogItem?.id ?? entry.itemId,
-              ),
-            )
-            .dto;
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.seriesTitle ?? dto.title;
-      },
-      (entry) => entry.ownedItem?.pricePaidCents,
+      (entry) =>
+          module.stats.buildMetadataProjection(entry)?.primaryGroup ??
+          'Unknown',
+      (entry) => entry.pricePaidCents,
     );
   }
 
-  static Map<String, int> _topBuyerSales(List<ShelfEntry> entries) {
+  static Map<String, int> _topBuyerSales(List<LibraryWorkspaceSource> entries) {
     return _sumBy(
       entries,
-      (entry) => entry.ownedItem?.soldTo ?? 'Unknown buyer',
-      (entry) => entry.ownedItem?.sellPriceCents,
+      (entry) => entry.soldTo ?? 'Unknown buyer',
+      (entry) => entry.sellPriceCents,
     );
   }
 
   static Map<String, int> _topSalesSeries(
-    List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    List<LibraryWorkspaceSource> entries,
+    LibraryKindRegistration module,
   ) {
     return _sumBy(
       entries,
-      (entry) {
-        final dto = module
-            .project(
-              source: entry,
-              node: LibraryTitleNodeRef(
-                titleItemId: entry.catalogItem?.id ?? entry.itemId,
-              ),
-            )
-            .dto;
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return adapter?.seriesTitle ?? dto.title;
-      },
-      (entry) => entry.ownedItem?.sellPriceCents,
+      (entry) =>
+          module.stats.buildMetadataProjection(entry)?.primaryGroup ??
+          'Unknown',
+      (entry) => entry.sellPriceCents,
     );
   }
 
   static Map<String, int> _metadataQualityBands(
-    List<ShelfEntry> entries,
-    LibraryKindRuntime module,
+    List<LibraryWorkspaceSource> entries,
+    LibraryKindRegistration module,
   ) {
     final counts = <String, int>{
       'Strong': 0,
@@ -438,9 +393,9 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _metadataAlertCounts(
-    List<ShelfEntry> entries,
-    LibraryKindRuntime type,
-    LibraryKindRuntime module,
+    List<LibraryWorkspaceSource> entries,
+    LibraryKindRegistration type,
+    LibraryKindRegistration module,
   ) {
     final labels = libraryMediaGroupLabels(type);
     final missingPublisherLabel =
@@ -449,36 +404,27 @@ class _GenericStatsDashboard extends StatelessWidget {
         'Missing ${labels.labelFor('series', fallback: 'series').toLowerCase()}';
     final counts = <String, int>{};
     for (final entry in entries) {
-      final item = entry.catalogItem;
-      if (item == null) {
+      final projection = module.stats.buildMetadataProjection(entry);
+      if (projection == null) {
         counts['No catalog snapshot'] =
             (counts['No catalog snapshot'] ?? 0) + 1;
         continue;
       }
-      final dto = module
-          .project(
-            source: entry,
-            node: LibraryTitleNodeRef(
-              titleItemId: item.id,
-            ),
-          )
-          .dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      if (item.displayCoverUrl == null ||
-          item.displayCoverUrl!.trim().isEmpty) {
+      if (!projection.hasCover) {
         counts['Missing cover'] = (counts['Missing cover'] ?? 0) + 1;
       }
-      if (item.synopsis == null || item.synopsis!.trim().isEmpty) {
+      if (!projection.hasSynopsis) {
         counts['Missing synopsis'] = (counts['Missing synopsis'] ?? 0) + 1;
       }
-      if (adapter?.publisher == null || adapter!.publisher!.trim().isEmpty) {
+      if (!projection.hasSecondaryMetadata) {
         counts[missingPublisherLabel] =
             (counts[missingPublisherLabel] ?? 0) + 1;
       }
-      if (adapter?.seriesTitle == null || adapter!.seriesTitle!.isEmpty) {
+      if (projection.primaryGroup == null ||
+          projection.primaryGroup!.trim().isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
       }
-      if (item.id.startsWith('provider:')) {
+      if (entry.itemId.startsWith('provider:')) {
         counts['Provider placeholder'] =
             (counts['Provider placeholder'] ?? 0) + 1;
       }
@@ -486,9 +432,10 @@ class _GenericStatsDashboard extends StatelessWidget {
     return counts;
   }
 
-  static String _metadataBand(ShelfEntry entry, LibraryKindRuntime module) {
-    final item = entry.catalogItem;
-    if (item == null) {
+  static String _metadataBand(
+      LibraryWorkspaceSource entry, LibraryKindRegistration module) {
+    final projection = module.stats.buildMetadataProjection(entry);
+    if (projection == null) {
       return 'Needs work';
     }
     var score = 0;
@@ -498,30 +445,15 @@ class _GenericStatsDashboard extends StatelessWidget {
       }
     }
 
-    final dto = module
-        .project(
-          source: entry,
-          node: LibraryTitleNodeRef(
-            titleItemId: item.id,
-          ),
-        )
-        .dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-
+    add(projection.hasCover, 25);
+    add(projection.hasSynopsis, 25);
+    add(projection.hasSecondaryMetadata, 15);
+    add(projection.hasReleaseDate, 15);
     add(
-      item.displayCoverUrl != null && item.displayCoverUrl!.trim().isNotEmpty,
-      25,
+      projection.primaryGroup?.trim().isNotEmpty == true,
+      10,
     );
-    add(
-      item.synopsis != null && item.synopsis!.trim().isNotEmpty,
-      25,
-    );
-    add(adapter?.publisher != null && adapter!.publisher!.trim().isNotEmpty,
-        15);
-    add(adapter?.releaseDate != null, 15);
-    add(adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty, 10);
-    add(adapter?.itemNumber != null && adapter!.itemNumber!.trim().isNotEmpty,
-        10);
+    add(projection.hasItemNumber, 10);
 
     if (score >= 80) {
       return 'Strong';
@@ -536,8 +468,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _countBy(
-    Iterable<ShelfEntry> entries,
-    String Function(ShelfEntry entry) keyFor,
+    Iterable<LibraryWorkspaceSource> entries,
+    String Function(LibraryWorkspaceSource entry) keyFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -549,9 +481,9 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _sumBy(
-    Iterable<ShelfEntry> entries,
-    String Function(ShelfEntry entry) keyFor,
-    int? Function(ShelfEntry entry) amountFor,
+    Iterable<LibraryWorkspaceSource> entries,
+    String Function(LibraryWorkspaceSource entry) keyFor,
+    int? Function(LibraryWorkspaceSource entry) amountFor,
   ) {
     final totals = <String, int>{};
     for (final entry in entries) {
@@ -571,14 +503,14 @@ class _GenericStatsDashboard extends StatelessWidget {
 class _TrackingStatusCard extends StatelessWidget {
   const _TrackingStatusCard({required this.entries});
 
-  final List<ShelfEntry> entries;
+  final List<LibraryWorkspaceSource> entries;
 
   @override
   Widget build(BuildContext context) {
     final counts = <String, int>{};
     for (final entry in entries) {
-      final status = entry.ownedItem?.readStatus?.trim();
-      if (status != null && status.isNotEmpty) {
+      final status = entry.trackingStatusLabel.trim();
+      if (status.isNotEmpty) {
         counts[status] = (counts[status] ?? 0) + 1;
       }
     }

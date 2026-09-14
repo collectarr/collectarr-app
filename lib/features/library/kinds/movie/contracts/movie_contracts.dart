@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -172,8 +173,8 @@ final class MovieCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'movie',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.movie,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.movie,
       common: CatalogCommonDto(
@@ -195,14 +196,14 @@ final class MovieEntry {
   const MovieEntry({
     required this.catalog,
     this.ownedDetails,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final MovieCatalog catalog;
   final MovieOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
@@ -211,21 +212,25 @@ final class MovieEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory MovieEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? MovieCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : MovieCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.movie,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory MovieEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      MovieWorkspaceCatalogData data =>
+        MovieCatalog.fromJson(data.media.toSyncPayload()),
+      _ => MovieCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.movie,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return MovieEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.movieDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedDetails:
+          MovieOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

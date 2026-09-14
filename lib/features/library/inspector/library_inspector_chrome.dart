@@ -1,12 +1,11 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:flutter/material.dart';
@@ -19,14 +18,15 @@ class InspectorBackdrop extends StatelessWidget {
     this.ownedItem,
   });
 
-  final LibraryProjectionRuntime item;
-  final OwnedItem? ownedItem;
+  final LibraryProjectionView item;
+  final OwnedItemSummary? ownedItem;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final ownedItemId = resolveLibraryOwnedItemId(item, ownedItem);
+    final card = libraryCardPresentationForEntry(item);
+    final ownedRef = resolveLibraryOwnedItemRef(item, ownedItem);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -34,9 +34,9 @@ class InspectorBackdrop extends StatelessWidget {
           opacity: 0.38,
           child: LibraryCoverImage(
             title: dto.title,
-            itemNumber: (dto is WorkspaceDtoAdapter ? (dto).itemNumber : null),
+            itemNumber: card.itemNumber,
             imageUrl: dto.coverImageUrl,
-            ownedItemId: ownedItemId,
+            ownedRef: ownedRef,
           ),
         ),
         DecoratedBox(
@@ -83,8 +83,8 @@ class InspectorActionBar extends StatelessWidget {
     this.extraActions = const <Widget>[],
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
@@ -117,12 +117,10 @@ class InspectorActionBar extends StatelessWidget {
                   ),
             ),
             LibraryStatusChip(
-              icon: (item.source.isOwned || item.source.ownedItem != null)
+              icon: item.source.isOwned
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: (item.source.isOwned || item.source.ownedItem != null)
-                  ? 'Owned'
-                  : 'Catalog only',
+              label: item.source.isOwned ? 'Owned' : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
@@ -262,7 +260,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     this.includeLayoutControl = true,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final LibraryDetailsLayout detailsLayout;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
@@ -279,12 +277,12 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final seriesTitle = adapter?.seriesTitle;
-    final barcode = adapter?.barcode;
-    final releaseDate = adapter?.releaseDate;
+    final card = libraryCardPresentationForEntry(item);
+    final seriesTitle = card.seriesTitle;
+    final upc = card.identifierCode;
+    final releaseDate = card.releaseDate;
     final ebayQuery = <String>[
-      if (barcode?.trim().isNotEmpty == true) barcode!.trim(),
+      if (upc?.trim().isNotEmpty == true) upc!.trim(),
       if (seriesTitle?.trim().isNotEmpty == true) seriesTitle!.trim(),
       dto.title,
       if (releaseDate != null) releaseDate.year.toString(),

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
@@ -14,8 +14,8 @@ class InspectorPrimaryActions extends StatelessWidget {
     required this.onEdit,
   });
 
-  final LibraryProjectionRuntime item;
-  final LibraryKindRuntime type;
+  final LibraryProjectionView item;
+  final LibraryKindRegistration type;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;

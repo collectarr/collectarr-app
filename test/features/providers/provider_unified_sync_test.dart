@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -62,7 +61,7 @@ void main() {
     test('ExternalStateEngine detects clean local and remote changes', () {
       const engine = ExternalStateEngine();
 
-      const base = ProviderPersonalEntry(
+      final base = ProviderPersonalEntry(
         provider: ProviderId.aniList,
         remoteItemId: '100',
         kind: CatalogMediaKind.anime,
@@ -72,7 +71,7 @@ void main() {
       );
 
       // Remote progressed to 10
-      const remote = ProviderPersonalEntry(
+      final remote = ProviderPersonalEntry(
         provider: ProviderId.aniList,
         remoteItemId: '100',
         kind: CatalogMediaKind.anime,
@@ -97,13 +96,13 @@ void main() {
         local: local,
         localRef: const CatalogEntityRef(
           id: 'local_1',
-          kind: 'anime',
-          entityType: CatalogEntityType.work,
+          kind: CatalogMediaKind.anime,
+          entityType: CatalogEntityTypeId('work'),
         ),
       );
 
       expect(diff.hasConflicts, isFalse);
-      expect(diff.diffs.length, 3);
+      expect(diff.diffs.length, 4);
 
       final progressDiff =
           diff.diffs.firstWhere((d) => d.field == SyncField.progress);
@@ -118,6 +117,45 @@ void main() {
       final statusDiff =
           diff.diffs.firstWhere((d) => d.field == SyncField.status);
       expect(statusDiff.state, FieldDiffState.unchanged);
+    });
+
+    test('sync policy fields match engine dimensions and diff history', () {
+      const policy = ProviderSyncPolicy();
+      expect(
+        policy.toJson().keys,
+        containsAll(['status', 'rating', 'progress', 'history']),
+      );
+      expect(policy.toJson().containsKey('wishlist'), isFalse);
+
+      final base = ProviderPersonalEntry(
+        provider: ProviderId.aniList,
+        remoteItemId: 'history-1',
+        kind: CatalogMediaKind.anime,
+        startedAt: DateTime.utc(2024, 1, 1),
+        repeatCount: 1,
+        notes: 'base',
+      );
+      final remote = ProviderPersonalEntry(
+        provider: ProviderId.aniList,
+        remoteItemId: 'history-1',
+        kind: CatalogMediaKind.anime,
+        startedAt: DateTime.utc(2024, 1, 1),
+        completedAt: DateTime.utc(2024, 2, 1),
+        repeatCount: 2,
+        notes: 'remote',
+      );
+
+      final diff = const ExternalStateEngine().diffEntry(
+        remote: remote,
+        base: base,
+        local: base,
+        policy: policy,
+      );
+      final historyDiff =
+          diff.diffs.firstWhere((entry) => entry.field == SyncField.history);
+
+      expect(historyDiff.state, FieldDiffState.remoteChanged);
+      expect(historyDiff.resolvedValue, isA<ProviderHistorySnapshot>());
     });
 
     test('ExternalStateEngine flags conflicts when both sides change', () {

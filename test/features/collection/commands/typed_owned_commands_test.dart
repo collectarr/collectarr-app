@@ -1,16 +1,34 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
+import 'package:collectarr_app/test/helpers/test_owned_details.dart';
+import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_codec.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -40,91 +58,7 @@ void main() {
 
   group('Typed Owned Commands & Details', () {
     test(
-        'every registered active kind accepts valid details and rejects wrong details',
-        () async {
-      final db = LocalDatabase(NativeDatabase.memory());
-      addTearDown(db.close);
-      final container = ProviderContainer(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-      );
-      addTearDown(container.dispose);
-
-      final coordinator = container.read(collectionCommandCoordinatorProvider);
-
-      final kindDetailsMap = <CatalogMediaKind, OwnedDetailsDraft>{
-        CatalogMediaKind.comic:
-            const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-        CatalogMediaKind.manga:
-            const MangaOwnedDetailsDraft(gradingCompany: 'CBCS'),
-        CatalogMediaKind.movie: const MovieOwnedDetailsDraft(region: 'A'),
-        CatalogMediaKind.tv: const TvOwnedDetailsDraft(region: 'B'),
-        CatalogMediaKind.anime: const AnimeOwnedDetailsDraft(region: 'Free'),
-        CatalogMediaKind.game: const GameOwnedDetailsDraft(hasBox: true),
-        CatalogMediaKind.music:
-            const MusicOwnedDetailsDraft(storageDevice: 'Shelf A'),
-        CatalogMediaKind.book: const BookOwnedDetailsDraft(),
-        CatalogMediaKind.boardgame: const BoardgameOwnedDetailsDraft(),
-      };
-
-      for (final entry in kindDetailsMap.entries) {
-        final kind = entry.key;
-        final validDraft = entry.value;
-
-        final item = await coordinator.addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: kind.apiValue,
-              entityType: CatalogEntityType.ownedCopy,
-              id: 'test-${kind.apiValue}-1',
-            ),
-            common: const OwnedItemCommonDraft(),
-            details: validDraft,
-          ),
-        );
-
-        final runtime = libraryKindRuntimeForKind(kind);
-        expect(item.details, isNot(isA<GenericOwnedDetails>()));
-        expect(item.details.runtimeType,
-            runtime.defaultOwnedDetails().runtimeType);
-
-        // Mismatched details test: non-comic kind with ComicOwnedDetailsDraft
-        if (kind != CatalogMediaKind.comic && kind != CatalogMediaKind.manga) {
-          expect(
-            () => coordinator.addOwnedItem(
-              AddOwnedItemCommand(
-                catalogRef: CatalogEntityRef(
-                  kind: kind.apiValue,
-                  entityType: CatalogEntityType.ownedCopy,
-                  id: 'test-${kind.apiValue}-bad',
-                ),
-                common: const OwnedItemCommonDraft(),
-                details: const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
-              ),
-            ),
-            throwsA(isA<ArgumentError>()),
-          );
-        } else {
-          // Comic/manga kind with MovieOwnedDetailsDraft
-          expect(
-            () => coordinator.addOwnedItem(
-              AddOwnedItemCommand(
-                catalogRef: CatalogEntityRef(
-                  kind: kind.apiValue,
-                  entityType: CatalogEntityType.ownedCopy,
-                  id: 'test-${kind.apiValue}-bad',
-                ),
-                common: const OwnedItemCommonDraft(),
-                details: const MovieOwnedDetailsDraft(region: 'A'),
-              ),
-            ),
-            throwsA(isA<ArgumentError>()),
-          );
-        }
-      }
-    });
-
-    test(
-        'updating details with Patch.clear resets to kind default empty details, never GenericOwnedDetails for all 9 kinds',
+        'every registered active kind accepts valid typed details and rejects mismatched details',
         () async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
@@ -136,56 +70,112 @@ void main() {
       final coordinator = container.read(collectionCommandCoordinatorProvider);
 
       for (final kind in allActiveKinds) {
-        final initial = await coordinator.addOwnedItem(
-          AddOwnedItemCommand(
+        final validDraft = _validDetailsFor(kind);
+
+        final itemRef = await coordinator.addOwnedItem(
+          typedAddOwnedItemCommand(
             catalogRef: CatalogEntityRef(
-              kind: kind.apiValue,
-              entityType: CatalogEntityType.ownedCopy,
+              kind: kind,
+              entityType: const CatalogEntityTypeId('owned_copy'),
+              id: 'test-${kind.apiValue}-1',
+            ),
+            common: const LibraryAddCommonDraft(),
+            details: validDraft,
+          ),
+        );
+
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
+        final storedPayload =
+            await OwnedItemsRepository(db).payloadByRef(itemRef);
+        expect(storedPayload, isNotNull);
+        expect(storedPayload, isNotEmpty);
+        expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
+
+        final mismatchedDetails = _mismatchedDetailsFor(kind);
+        expect(
+          () => coordinator.addOwnedItem(
+            typedAddOwnedItemCommand(
+              catalogRef: CatalogEntityRef(
+                kind: kind,
+                entityType: const CatalogEntityTypeId('owned_copy'),
+                id: 'test-${kind.apiValue}-bad',
+              ),
+              common: const LibraryAddCommonDraft(),
+              details: mismatchedDetails,
+            ),
+          ),
+          throwsA(isA<StateError>()),
+        );
+      }
+    });
+
+    test(
+        'updating details with Patch.clear resets to kind default empty details, never TestOwnedDetails for all 9 kinds',
+        () async {
+      final db = LocalDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final container = ProviderContainer(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+      );
+      addTearDown(container.dispose);
+
+      final coordinator = container.read(collectionCommandCoordinatorProvider);
+
+      for (final kind in allActiveKinds) {
+        final initialRef = await coordinator.addOwnedItem(
+          typedAddOwnedItemCommand(
+            catalogRef: CatalogEntityRef(
+              kind: kind,
+              entityType: const CatalogEntityTypeId('owned_copy'),
               id: 'clear-test-${kind.apiValue}',
             ),
-            common: const OwnedItemCommonDraft(),
-            details: defaultDetailsDraftForKind(kind),
+            common: const LibraryAddCommonDraft(),
+            details: testKindRegistration(kind)
+                .add
+                .createInitialDraft()
+                .toOwnedDetailsDraft(),
           ),
         );
 
         final updated = await coordinator.updateOwnedItem(
-          UpdateOwnedItemCommand(
-            ownedItemId: initial.id,
-            details: const Patch.clear(),
-          ),
+          testKindRegistration(kind).ownedEdit.buildDetailsResetCommand(
+                ownedRef: OwnedItemRef(kind: kind, id: initialRef.id),
+              ),
         );
 
-        final runtime = libraryKindRuntimeForKind(kind);
-        final defaultDetails = runtime.defaultOwnedDetails();
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
 
-        expect(updated.details, isNot(isA<GenericOwnedDetails>()));
-        expect(updated.details.runtimeType, defaultDetails.runtimeType);
+        final updatedPayload =
+            await OwnedItemsRepository(db).payloadByRef(updated);
+        expect(updatedPayload, isNotNull);
+        expect(updatedPayload, isNotEmpty);
+        expect(defaultDetails, isNot(isA<TestOwnedDetails>()));
       }
     });
 
     test('default details for all 9 kinds resolves to non-generic details', () {
       for (final kind in allActiveKinds) {
-        final defaultDetails = OwnedItemDetails.defaultForKind(kind);
-        expect(defaultDetails, isNot(isA<GenericOwnedDetails>()),
-            reason: '$kind default details must not be GenericOwnedDetails');
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
+        expect(defaultDetails, isNot(isA<TestOwnedDetails>()),
+            reason: '$kind default details must not be TestOwnedDetails');
 
-        final defaultDraft = defaultDetailsDraftForKind(kind);
-        expect(defaultDraft, isNot(isA<GenericOwnedDetailsDraft>()),
-            reason: '$kind default draft must not be GenericOwnedDetailsDraft');
+        final defaultDraft = testKindRegistration(kind)
+            .add
+            .createInitialDraft()
+            .toOwnedDetailsDraft();
+        expect(defaultDraft, isNot(isA<TestOwnedDetailsDraft>()),
+            reason: '$kind default draft must not be TestOwnedDetailsDraft');
       }
     });
 
-    test('unknown kind resolves to GenericOwnedDetails cleanly', () {
-      final unknownDetails =
-          OwnedItemDetails.defaultForKind(CatalogMediaKind.unknown);
-      expect(unknownDetails, isA<GenericOwnedDetails>());
-
-      final unknownDraft = defaultDetailsDraftForKind(CatalogMediaKind.unknown);
-      expect(unknownDraft, isA<GenericOwnedDetailsDraft>());
-
-      final parsed = OwnedItemDetails.parseForKind(
-          CatalogMediaKind.unknown, {'test': 123});
-      expect(parsed, isA<GenericOwnedDetails>());
+    test('unknown kind has no owned details registration', () {
+      expect(
+        () => testKindRegistration(CatalogMediaKind.unknown),
+        throwsArgumentError,
+      );
     });
 
     test(
@@ -197,16 +187,59 @@ void main() {
       expect(book.toJson(), isEmpty);
       expect(boardgame.toJson(), isEmpty);
 
-      final parsedBook =
-          OwnedItemDetails.parseForKind(CatalogMediaKind.book, {});
-      final parsedBoardgame =
-          OwnedItemDetails.parseForKind(CatalogMediaKind.boardgame, {});
+      final parsedBook = const BookOwnedDetailsCodec().fromJson({});
+      final parsedBoardgame = const BoardgameOwnedDetailsCodec().fromJson({});
 
       expect(parsedBook, isA<BookOwnedDetails>());
       expect(parsedBoardgame, isA<BoardgameOwnedDetails>());
 
-      expect(parsedBook.toDraft(), isA<BookOwnedDetailsDraft>());
-      expect(parsedBoardgame.toDraft(), isA<BoardgameOwnedDetailsDraft>());
+      expect(
+        const BookOwnedDetailsCodec().draftFromDetails(
+          parsedBook,
+        ),
+        isA<BookOwnedDetailsDraft>(),
+      );
+      expect(
+        const BoardgameOwnedDetailsCodec().draftFromDetails(
+          parsedBoardgame,
+        ),
+        isA<BoardgameOwnedDetailsDraft>(),
+      );
     });
   });
+}
+
+JsonEncodable _validDetailsFor(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic =>
+      const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+    CatalogMediaKind.manga =>
+      const MangaOwnedDetailsDraft(gradingCompany: 'CBCS'),
+    CatalogMediaKind.movie => const MovieOwnedDetailsDraft(region: 'A'),
+    CatalogMediaKind.tv => const TvOwnedDetailsDraft(region: 'B'),
+    CatalogMediaKind.anime => const AnimeOwnedDetailsDraft(region: 'Free'),
+    CatalogMediaKind.game => const GameOwnedDetailsDraft(hasBox: true),
+    CatalogMediaKind.music =>
+      const MusicOwnedDetailsDraft(storageDevice: 'Shelf A'),
+    CatalogMediaKind.book => const BookOwnedDetailsDraft(),
+    CatalogMediaKind.boardgame => const BoardgameOwnedDetailsDraft(),
+    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
+  };
+}
+
+JsonEncodable _mismatchedDetailsFor(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic ||
+    CatalogMediaKind.manga =>
+      const MovieOwnedDetailsDraft(region: 'A'),
+    CatalogMediaKind.anime ||
+    CatalogMediaKind.boardgame ||
+    CatalogMediaKind.book ||
+    CatalogMediaKind.game ||
+    CatalogMediaKind.movie ||
+    CatalogMediaKind.music ||
+    CatalogMediaKind.tv =>
+      const ComicOwnedDetailsDraft(gradingCompany: 'CGC'),
+    CatalogMediaKind.unknown => throw ArgumentError.value(kind),
+  };
 }

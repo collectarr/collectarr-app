@@ -1,60 +1,54 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailEditorSections({
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
   required Color accent,
-  OwnedItem? ownedItem,
-  TrackingEntry? trackingEntry,
+  OwnedItemSummary? ownedItem,
+  TrackingSummary? trackingSummary,
 }) {
-  final catalogItem = item.source.catalogItem;
   return [
-    if (ownedItem != null)
-      InspectorPersonalDetailsEditor(
-        ownedItem: ownedItem,
-        accent: accent,
-      ),
-    if (trackingEntry != null)
+    if (trackingSummary != null)
       InspectorTrackingDetailsEditor(
         itemId: item.node.titleItemId,
-        mediaType: catalogItem?.kind ?? '',
-        trackingEntry: trackingEntry,
+        mediaType: item.source.mediaKind.apiValue,
+        trackingSummary: trackingSummary,
         profile: type.trackingProfile,
-        editions: catalogItem == null
-            ? const []
-            : type.presentation.builder.buildReleaseEditions(
-                item: catalogItem,
-              ),
+        trackingEditor: type.inspector.trackingEditor,
+        releases: type.presentation.builder.buildWorkspaceReleases(
+          item.source,
+        ),
         accent: accent,
       ),
   ];
 }
 
 List<Widget> buildLibraryInspectorEditorSections({
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
   required Color accent,
-  OwnedItem? ownedItem,
-  TrackingEntry? trackingEntry,
+  OwnedItemSummary? ownedItem,
+  TrackingSummary? trackingSummary,
 }) {
   return buildLibraryDetailEditorSections(
     type: type,
     item: item,
     accent: accent,
     ownedItem: ownedItem,
-    trackingEntry: trackingEntry,
+    trackingSummary: trackingSummary,
   );
 }
 
 List<Widget> buildLibraryDetailKindSections({
   required BuildContext context,
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -68,8 +62,8 @@ List<Widget> buildLibraryDetailKindSections({
 
 List<Widget> buildLibraryInspectorKindSections({
   required BuildContext context,
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
 class MoviePersonCredit {
@@ -33,10 +33,8 @@ class MoviePersonCredit {
   }
 }
 
-typedef MovieMetadata = MovieCatalogMetadata;
-
 @immutable
-class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
+class MovieCatalogMetadata implements JsonEncodable {
   const MovieCatalogMetadata({
     required this.title,
     this.originalTitle,
@@ -85,10 +83,8 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.movie;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
@@ -132,11 +128,21 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? screenRatio;
   final String? layers;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final List<MovieReleaseMetadata> releases;
   final List<CatalogEditionDto> editions;
   final Map<String, dynamic> rawPayload;
 
+  /// Optional provider valuation preserved at the provider boundary.
+  ///
+  /// Movie providers do not share a common valuation contract, so the value
+  /// remains an optional typed-domain projection of the normalized payload.
+  int? get providerValueCents =>
+      _movieIntValue(rawPayload['estimated_value_cents']) ??
+      _movieIntValue(rawPayload['market_value_cents']) ??
+      _movieIntValue(rawPayload['value_cents']);
+
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,
@@ -251,7 +257,7 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
     String? layers,
     Map<String, dynamic>? video,
     List<Map<String, dynamic>>? creators,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
     List<MovieReleaseMetadata>? releases,
     List<CatalogEditionDto>? editions,
   }) {
@@ -312,15 +318,17 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     final rawReleases = (json['releases'] as List<dynamic>?)
@@ -449,6 +457,12 @@ class MovieCatalogMetadata implements LibraryKindMetadataRuntime {
       editions: rawEditions,
     );
   }
+}
+
+int? _movieIntValue(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString().trim() ?? '');
 }
 
 @immutable

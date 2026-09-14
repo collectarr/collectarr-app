@@ -1,10 +1,13 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 
 class LibraryBulkActions {
@@ -13,170 +16,182 @@ class LibraryBulkActions {
     required this.ownedMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
+    required this.catalogSnapshots,
   });
 
   final CollectionCommandCoordinator coordinator;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
+  final CatalogSnapshotRepository catalogSnapshots;
 
   Future<void> editSelected({
-    required List<ShelfEntry> entries,
+    required List<LibraryWorkspaceSource> entries,
     required LibraryBulkEditSelection selection,
   }) async {
     final ownedEntries = [
       for (final entry in entries)
-        if (entry.ownedItem != null) entry,
+        if (entry.ownedSummary != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      final ownedItem = ownedEntries[index].ownedItem!;
-      final updateCmd = UpdateOwnedItemCommand(
-        ownedItemId: ownedItem.id,
-        condition: selection.condition != null
-            ? Patch.set(selection.condition)
-            : const Patch.unchanged(),
-        grade: selection.grade != null
-            ? Patch.set(selection.grade)
-            : const Patch.unchanged(),
-        locationId: selection.locationId != null
-            ? Patch.set(selection.locationId)
-            : const Patch.unchanged(),
-        rating: selection.rating != null
-            ? Patch.set(selection.rating)
-            : const Patch.unchanged(),
-        readStatus: selection.readStatus != null
-            ? Patch.set(selection.readStatus)
-            : const Patch.unchanged(),
-        tags: selection.tags != null
-            ? Patch.set(selection.tags)
-            : const Patch.unchanged(),
+      final entry = ownedEntries[index];
+      final ownedItem = entry.ownedSummary!;
+      final catalogRef = ownedItem.catalogRef ?? entry.catalogRef;
+      if (catalogRef == null) {
+        continue;
+      }
+      final kindModule = libraryKindRegistrationForKind(
+        catalogRef.mediaKind,
       );
-      await coordinator.updateOwnedItem(updateCmd);
+      final updateCmd = kindModule.ownedEdit.buildBulkUpdateCommand(
+        ownedRef: ownedItem.ref,
+        condition: selection.condition,
+        collectionValue: selection.collectionValue,
+        locationId: selection.locationId,
+        tags: selection.tags,
+      );
+      await coordinator.updateOwnedItem(updateCmd, syncTracking: false);
+      if (selection.rating != null || selection.readStatus != null) {
+        await trackingMutations.syncOwnedTrackingState(
+          ownedItem.ref,
+          catalogRef: catalogRef,
+          isDigital: ownedItem.isDigital,
+          targetRef: ownedItem.targetRef ?? catalogRef,
+          status: mediaTrackingStatusFromValue(selection.readStatus),
+          rating: selection.rating,
+        );
+      }
     }
   }
 
   Future<void> moveSelectedToOwned(
-    List<ShelfEntry> entries, {
+    List<LibraryWorkspaceSource> entries, {
     String? defaultCondition,
-    String? defaultGrade,
     String? defaultLocationId,
     String? defaultReadStatus,
     String? defaultTags,
   }) async {
     final entriesToOwn = [
       for (final entry in entries)
-        if (entry.ownedItem == null) entry,
+        if (entry.ownedSummary == null) entry,
     ];
     final wishlistedEntries = [
       for (final entry in entries)
-        if (entry.isWishlisted && entry.ownedItem == null) entry,
+        if (entry.isWishlisted && entry.ownedSummary == null) entry,
     ];
     for (var index = 0; index < wishlistedEntries.length; index++) {
-      final anchor = resolveLibraryMutationAnchor(
-        ownedItem: wishlistedEntries[index].ownedItem,
-        wishlistItem: wishlistedEntries[index].wishlistItem,
-      );
       await wishlistMutations.removeFromWishlist(
-        wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchorType: anchor.anchorType,
-        editionId: anchor.editionId,
-        variantId: anchor.variantId,
-        bundleReleaseId: anchor.bundleReleaseId,
+        catalogRef: wishlistedEntries[index].wishlistItem?.catalogRef,
       );
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
       final entry = entriesToOwn[index];
-      final anchor = resolveLibraryMutationAnchor(
-        ownedItem: entry.ownedItem,
-        wishlistItem: entry.wishlistItem,
+      final resolvedKind = entry.mediaKind == CatalogMediaKind.unknown
+          ? entry.wishlistItem?.catalogRef.mediaKind ??
+              entry.trackingSummary?.catalogRef.mediaKind ??
+              CatalogMediaKind.unknown
+          : entry.mediaKind;
+      final common = LibraryAddCommonDraft(
+        condition: defaultCondition,
+        locationId: defaultLocationId,
+        tags: defaultTags,
       );
-      final resolvedKindStr = entry.catalogItem?.kind ??
-          entry.wishlistItem?.catalogRef.kind ??
-          entry.trackingEntry?.catalogRef.kind;
-      final resolvedKind = catalogMediaKindFromApiValue(resolvedKindStr);
-      final addCmd = AddOwnedItemCommand(
-        catalogRef: CatalogEntityRef(
-          kind: resolvedKindStr ?? 'comic',
-          entityType: CatalogEntityType.ownedCopy,
-          id: entry.itemId,
-        ),
-        common: OwnedItemCommonDraft(
-          editionId: anchor.editionId,
-          variantId: anchor.variantId,
-          bundleReleaseId: anchor.bundleReleaseId,
-          condition: defaultCondition,
-          grade: defaultGrade,
-          locationId: defaultLocationId,
-          readStatus: defaultReadStatus,
-          tags: defaultTags,
-        ),
-        details: defaultDetailsDraftForKind(resolvedKind),
-      );
+      final catalogRef = entry.catalogRef;
+      if (catalogRef == null || resolvedKind == CatalogMediaKind.unknown) {
+        throw StateError(
+          'Cannot add selected item without a typed catalog kind: '
+          '${entry.itemId}',
+        );
+      }
+      final catalogItem =
+          await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
+      if (catalogItem == null) {
+        throw StateError(
+          'Cannot add selected item without a persisted catalog snapshot: '
+          '${entry.itemId}',
+        );
+      }
+      final addCmd =
+          libraryKindRegistrationForKind(resolvedKind).add.buildCommand(
+                catalogItem,
+                common,
+                libraryKindRegistrationForKind(resolvedKind)
+                    .add
+                    .createInitialDraft(),
+                targetRef: entry.ownedSummary?.targetRef ??
+                    entry.wishlistItem?.catalogRef ??
+                    entry.catalogRef,
+                tracking: LibraryAddTrackingDraft(
+                  readStatus: defaultReadStatus,
+                ),
+              );
       await coordinator.addOwnedItem(addCmd);
     }
   }
 
-  Future<void> moveSelectedToWishlist(List<ShelfEntry> entries) async {
+  Future<void> moveSelectedToWishlist(
+      List<LibraryWorkspaceSource> entries) async {
     for (var index = 0; index < entries.length; index++) {
+      final entry = entries[index];
+      final catalogRef = entry.catalogRef ??
+          entry.ownedSummary?.catalogRef ??
+          entry.wishlistItem?.catalogRef ??
+          entry.trackingSummary?.catalogRef;
+      if (catalogRef == null) {
+        throw StateError(
+          'Cannot move selected item to wishlist without a catalog reference: '
+          '${entry.itemId}',
+        );
+      }
       await wishlistMutations.addToWishlist(
-        entries[index].itemId,
-        fallbackKind: entries[index].catalogItem?.kind ??
-            entries[index].ownedItem?.catalogRef.kind,
+        catalogRef,
       );
     }
     final ownedEntries = [
       for (final entry in entries)
-        if (entry.ownedItem != null) entry,
+        if (entry.ownedSummary != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await ownedMutations.removeItem(ownedEntries[index].ownedItem!);
+      await ownedMutations.removeItem(ownedEntries[index].ownedSummary!.ref);
     }
   }
 
-  Future<int> duplicateSelected(List<ShelfEntry> entries) async {
+  Future<int> duplicateSelected(List<LibraryWorkspaceSource> entries) async {
     final ownedEntries = [
       for (final entry in entries)
-        if (entry.ownedItem != null) entry,
+        if (entry.ownedSummary != null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      final src = ownedEntries[index].ownedItem!;
-      final addCmd = AddOwnedItemCommand(
-        catalogRef: CatalogEntityRef(
-          kind: src.catalogRef.kind,
-          entityType: CatalogEntityType.ownedCopy,
-          id: src.itemId,
-        ),
-        common: OwnedItemCommonDraft(
-          isDigital: src.isDigital,
-          editionId: src.editionId,
-          variantId: src.variantId,
-          bundleReleaseId: src.bundleReleaseId,
-          condition: src.condition,
-          grade: src.grade,
-          purchaseDate: src.purchaseDate,
-          pricePaidCents: src.pricePaidCents,
-          currency: src.currency,
-          personalNotes: src.personalNotes,
-          quantity: src.quantity,
-          locationId: src.locationId,
-          rating: src.rating,
-          readStatus: src.readStatus,
-          startedAt: src.startedAt,
-          finishedAt: src.finishedAt,
-          tags: src.tags,
-        ),
-        details: src.details.toDraft(),
+      final entry = ownedEntries[index];
+      final sourceRef = entry.ownedSummary!.ref;
+      final tracking = entry.trackingSummary == null
+          ? null
+          : OwnedItemTrackingDraft(
+              status: entry.trackingSummary!.status,
+              rating: entry.trackingSummary!.rating,
+              startedAt: entry.trackingSummary!.startedAt,
+              finishedAt: entry.trackingSummary!.completedAt,
+              notes: entry.trackingSummary!.notes,
+            );
+      final duplicated = await ownedMutations.duplicateItem(
+        sourceRef,
+        targetRef: entry.catalogRef,
+        tracking: tracking,
       );
-      await coordinator.addOwnedItem(addCmd);
+      if (duplicated == null) {
+        throw StateError(
+          'Cannot duplicate ${sourceRef.kind.apiValue} item: ${sourceRef.key}',
+        );
+      }
     }
     return ownedEntries.length;
   }
 
-  Future<void> removeSelected(List<ShelfEntry> entries) async {
+  Future<void> removeSelected(List<LibraryWorkspaceSource> entries) async {
     final ownedEntries = [
       for (final entry in entries)
-        if (entry.ownedItem != null) entry,
+        if (entry.ownedSummary != null) entry,
     ];
     final wishlistedEntries = [
       for (final entry in entries)
@@ -184,34 +199,26 @@ class LibraryBulkActions {
     ];
     final trackedEntries = [
       for (final entry in entries)
-        if (entry.trackingEntry != null && entry.ownedItem == null) entry,
+        if (entry.trackingSummary != null && entry.ownedSummary == null) entry,
     ];
     for (var index = 0; index < ownedEntries.length; index++) {
-      await ownedMutations.removeItem(ownedEntries[index].ownedItem!);
+      await ownedMutations.removeItem(ownedEntries[index].ownedSummary!.ref);
     }
     for (var index = 0; index < wishlistedEntries.length; index++) {
-      final anchor = resolveLibraryMutationAnchor(
-        ownedItem: wishlistedEntries[index].ownedItem,
-        wishlistItem: wishlistedEntries[index].wishlistItem,
-      );
       await wishlistMutations.removeFromWishlist(
-        wishlistedEntries[index].itemId,
         wishlistItemId: wishlistedEntries[index].wishlistItem?.id,
-        anchorType: anchor.anchorType,
-        editionId: anchor.editionId,
-        variantId: anchor.variantId,
-        bundleReleaseId: anchor.bundleReleaseId,
+        catalogRef: wishlistedEntries[index].wishlistItem?.catalogRef,
       );
     }
     for (var index = 0; index < trackedEntries.length; index++) {
-      await trackingMutations.removeTrackingEntry(
-        trackedEntries[index].trackingEntry!,
+      await trackingMutations.removeTrackingByRef(
+        trackedEntries[index].trackingSummary!.ref,
       );
     }
   }
 }
 
-List<ShelfEntry> selectedShelfEntries(
+List<LibraryWorkspaceSource> selectedShelfEntries(
   List<LibraryProjectionItem> visibleItems,
   Set<String> selectedItemIds,
 ) {

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
@@ -80,7 +80,7 @@ void main() {
       ProviderScope(
         overrides: [
           syncControllerProvider.overrideWith(
-            (ref) => _FakeSyncController(ref),
+            () => _FakeSyncController(),
           ),
         ],
         child: MaterialApp(
@@ -111,5 +111,5 @@ void main() {
 }
 
 class _FakeSyncController extends SyncController {
-  _FakeSyncController(super.ref);
+  _FakeSyncController();
 }

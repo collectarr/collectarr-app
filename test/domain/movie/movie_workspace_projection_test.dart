@@ -6,15 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('movie work and release project into workspace dtos', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',
         video: const {'runtime_minutes': 136},
         kind: 'movie',
-      ),
+      ).asShelfCatalogItem),
     );
 
     final titleDto = const MovieWorkspaceProjector().projectTitle(
@@ -24,5 +24,6 @@ void main() {
 
     expect(titleDto.title, 'The Matrix');
     expect(titleDto.movie.technical.runtimeMinutes, 136);
+    expect(titleDto.media.runtimeMinutes, 136);
   });
 }

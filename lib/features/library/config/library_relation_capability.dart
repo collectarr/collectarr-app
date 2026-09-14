@@ -8,8 +8,7 @@ class LibraryRelationCapability {
     required this.openTarget,
   });
 
-  final LibraryRelationTarget? Function(LibraryProjectionRuntime item)
-      targetFor;
+  final LibraryRelationTarget? Function(LibraryProjectionView item) targetFor;
   final void Function(BuildContext context, LibraryRelationTarget target)
       openTarget;
 }

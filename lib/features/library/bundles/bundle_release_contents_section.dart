@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +25,7 @@ class BundleReleaseContentsSection extends ConsumerStatefulWidget {
 
 class _BundleReleaseContentsSectionState
     extends ConsumerState<BundleReleaseContentsSection> {
-  BundleReleaseDetail? _detail;
+  LibraryBundleDetail? _detail;
   Object? _error;
   bool _loading = false;
 
@@ -48,9 +48,10 @@ class _BundleReleaseContentsSectionState
       _error = null;
     });
     try {
-      final detail = await ref
+      final transportDetail = await ref
           .read(apiClientProvider)
           .getBundleRelease(widget.bundleReleaseId);
+      final detail = LibraryBundleDetail.fromTransport(transportDetail);
       if (!mounted) {
         return;
       }
@@ -146,13 +147,11 @@ class _BundleReleaseContentsSectionState
     );
   }
 
-  String _bundleSummary(BundleReleaseDetail detail) {
+  String _bundleSummary(LibraryBundleDetail detail) {
     final parts = <String>[
-      '${detail.contentSummary.totalItems} item${detail.contentSummary.totalItems == 1 ? '' : 's'}',
-      if (detail.contentSummary.primaryCount > 0)
-        '${detail.contentSummary.primaryCount} primary',
-      if (detail.contentSummary.bonusCount > 0)
-        '${detail.contentSummary.bonusCount} bonus',
+      '${detail.memberCount} item${detail.memberCount == 1 ? '' : 's'}',
+      if (detail.primaryMemberCount > 0) '${detail.primaryMemberCount} primary',
+      if (detail.bonusMemberCount > 0) '${detail.bonusMemberCount} bonus',
     ];
     return parts.join(' • ');
   }
@@ -165,22 +164,16 @@ class BundleReleaseContentsCard extends StatelessWidget {
     required this.accent,
   });
 
-  final BundleReleaseDetail detail;
+  final LibraryBundleDetail detail;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final groupedMembers = _groupBundleMembers(detail.members);
     final summaryParts = <String>[
-      if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
-        detail.bundleType!,
-      if (detail.packagingType != null &&
-          detail.packagingType!.trim().isNotEmpty)
-        detail.packagingType!,
-      if (detail.publisher != null && detail.publisher!.trim().isNotEmpty)
-        detail.publisher!,
-      '${detail.contentSummary.totalItems} items',
+      '${detail.memberCount} items',
+      if (detail.primaryMemberCount > 0) '${detail.primaryMemberCount} primary',
+      if (detail.bonusMemberCount > 0) '${detail.bonusMemberCount} bonus',
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -209,13 +202,10 @@ class BundleReleaseContentsCard extends StatelessWidget {
             ],
             if (detail.members.isNotEmpty) ...[
               const SizedBox(height: 10),
-              for (final group in groupedMembers) ...[
-                _BundleReleaseDiscSection(
-                  group: group,
-                  accent: accent,
-                ),
-                const SizedBox(height: 8),
-              ],
+              _BundleReleaseMembersSection(
+                members: detail.members,
+                accent: accent,
+              ),
             ],
           ],
         ),
@@ -224,34 +214,21 @@ class BundleReleaseContentsCard extends StatelessWidget {
   }
 }
 
-String _bundleMemberTitle(BundleReleaseMember member) {
-  final number = member.itemNumber;
-  if (number != null && number.trim().isNotEmpty) {
-    return '${member.title} #$number';
-  }
-  return member.title;
-}
-
-String _bundleMemberSubtitle(BundleReleaseMember member) {
+String _bundleMemberSubtitle(LibraryBundleMemberSummary member) {
   final parts = <String>[
     if (member.role.trim().isNotEmpty) member.role,
-    if (member.seriesTitle != null && member.seriesTitle!.trim().isNotEmpty)
-      member.seriesTitle!,
-    if (member.volumeName != null && member.volumeName!.trim().isNotEmpty)
-      member.volumeName!,
-    if (member.discNumber != null) 'Disc ${member.discNumber}',
     if (member.quantity > 1) 'x${member.quantity}',
   ];
   return parts.join(' • ');
 }
 
-class _BundleReleaseDiscSection extends StatelessWidget {
-  const _BundleReleaseDiscSection({
-    required this.group,
+class _BundleReleaseMembersSection extends StatelessWidget {
+  const _BundleReleaseMembersSection({
+    required this.members,
     required this.accent,
   });
 
-  final _BundleReleaseDiscGroup group;
+  final List<LibraryBundleMemberSummary> members;
   final Color accent;
 
   @override
@@ -269,14 +246,14 @@ class _BundleReleaseDiscSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              group.label,
+              'Members',
               style: TextStyle(
                 color: accent,
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 8),
-            for (final member in group.members)
+            for (final member in members)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
@@ -307,7 +284,7 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _bundleMemberTitle(member),
+                            member.title,
                             style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                           Text(
@@ -328,59 +305,4 @@ class _BundleReleaseDiscSection extends StatelessWidget {
       ),
     );
   }
-}
-
-class _BundleReleaseDiscGroup {
-  const _BundleReleaseDiscGroup({
-    required this.label,
-    required this.members,
-  });
-
-  final String label;
-  final List<BundleReleaseMember> members;
-}
-
-List<_BundleReleaseDiscGroup> _groupBundleMembers(
-  List<BundleReleaseMember> members,
-) {
-  if (members.isEmpty) {
-    return const <_BundleReleaseDiscGroup>[];
-  }
-  final grouped = <String, List<BundleReleaseMember>>{};
-  final orderedKeys = <String>[];
-  for (final member in members) {
-    final key = member.discNumber != null
-        ? 'disc:${member.discNumber}'
-        : member.discLabel != null && member.discLabel!.trim().isNotEmpty
-            ? 'label:${member.discLabel!.trim()}'
-            : 'disc:none';
-    if (!grouped.containsKey(key)) {
-      grouped[key] = <BundleReleaseMember>[];
-      orderedKeys.add(key);
-    }
-    grouped[key]!.add(member);
-  }
-  return [
-    for (final key in orderedKeys)
-      _BundleReleaseDiscGroup(
-        label: _bundleDiscLabel(grouped[key]!.first),
-        members: [...grouped[key]!]..sort((left, right) {
-            final leftSequence = left.sequenceNumber ?? 999999;
-            final rightSequence = right.sequenceNumber ?? 999999;
-            return leftSequence.compareTo(rightSequence);
-          }),
-      ),
-  ];
-}
-
-String _bundleDiscLabel(BundleReleaseMember member) {
-  final discLabel = member.discLabel?.trim();
-  if (discLabel != null && discLabel.isNotEmpty) {
-    return discLabel;
-  }
-  final discNumber = member.discNumber;
-  if (discNumber != null) {
-    return 'Disc $discNumber';
-  }
-  return 'Main contents';
 }

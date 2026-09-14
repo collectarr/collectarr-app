@@ -8,19 +8,21 @@ abstract final class LibraryPageNumberNavigationControllerOps {
     if (projection == null || state._selectedBucket == null) {
       return false;
     }
-    final runtime = state.widget.type;
-    final groupDef = runtime.fields.findGroupDefinition(
-      runtime.fields.decodeGroupId(state._activeGroupMode),
+    final kindModule = state.widget.type;
+    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
+    final groupDef = fields.findGroupDefinition(
+      fields.decodeGroupId(state._activeGroupMode),
     );
     if (groupDef == null || !groupDef.supportsJump) {
       return false;
     }
+    final workspace = libraryKindWorkspaceForKind(kindModule.kind);
     return projection.allItems.any((item) {
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
-      return runtime.groupValue(item, groupDef.id) == state._selectedBucket &&
-          _selectionSortNumber(adapter?.itemNumber) != null;
+      return workspace.groupValue(item, groupDef.id) == state._selectedBucket &&
+          _selectionSortNumber(
+                libraryCardPresentationForEntry(item).itemNumber,
+              ) !=
+              null;
     });
   }
 
@@ -65,10 +67,10 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       return null;
     }
     for (final item in bucketItemsForSelectedBucket(state, projection)) {
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
-      if (_selectionSortNumber(adapter?.itemNumber) == target) {
+      if (_selectionSortNumber(
+            libraryCardPresentationForEntry(item).itemNumber,
+          ) ==
+          target) {
         return item;
       }
     }

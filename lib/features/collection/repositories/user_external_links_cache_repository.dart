@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:drift/drift.dart';
 
@@ -7,34 +11,51 @@ class UserExternalLinksCacheRepository {
 
   final LocalDatabase _db;
 
-  Future<List<UserExternalLink>> listByItemId(String itemId) async {
+  Future<List<UserExternalLink>> listByCatalogRef(
+    CatalogEntityRef catalogRef,
+  ) async {
     final rows = await (_db.select(_db.userExternalLinksCache)
-          ..where((row) => row.itemId.equals(itemId))
           ..orderBy([
             (row) => OrderingTerm.asc(row.kind),
             (row) => OrderingTerm.asc(row.label),
             (row) => OrderingTerm.asc(row.createdAt),
           ]))
         .get();
-    return rows.map(_fromRow).toList(growable: false);
+    return rows
+        .map(_fromRow)
+        .where((link) => _sameCatalogRef(link.catalogRef, catalogRef))
+        .toList(growable: false);
   }
 
-  Future<void> replaceForItem(
-    String itemId,
+  Future<void> replaceForCatalogRef(
+    CatalogEntityRef catalogRef,
     Iterable<UserExternalLink> links,
   ) async {
+    requireKnownCatalogRef(catalogRef);
     final normalized = links.where((link) => link.url.trim().isNotEmpty);
+    for (final link in normalized) {
+      requireKnownCatalogRef(link.catalogRef, 'link.catalogRef');
+      if (link.catalogRef != catalogRef) {
+        throw ArgumentError(
+          'External link ${link.id} targets a different catalog reference.',
+        );
+      }
+    }
     await _db.transaction(() async {
-      await (_db.delete(_db.userExternalLinksCache)
-            ..where((row) => row.itemId.equals(itemId)))
-          .go();
+      final rows = await _db.select(_db.userExternalLinksCache).get();
+      for (final row in rows) {
+        final existing = _fromRow(row);
+        if (_sameCatalogRef(existing.catalogRef, catalogRef)) {
+          await (_db.delete(_db.userExternalLinksCache)
+                ..where((entry) => entry.id.equals(row.id)))
+              .go();
+        }
+      }
       for (final link in normalized) {
         await _db.into(_db.userExternalLinksCache).insert(
               UserExternalLinksCacheCompanion.insert(
                 id: link.id,
-                itemId: link.itemId,
-                editionId: Value(link.editionId),
-                variantId: Value(link.variantId),
+                catalogRefJson: jsonEncode(link.catalogRef.toJson()),
                 label: link.label,
                 url: link.url,
                 kind: link.kind,
@@ -48,16 +69,28 @@ class UserExternalLinksCacheRepository {
   }
 
   UserExternalLink _fromRow(UserExternalLinksCacheData row) {
+    final rawRef = jsonDecode(row.catalogRefJson);
+    if (rawRef is! Map) {
+      throw FormatException(
+        'External link ${row.id} contains an invalid catalog reference',
+      );
+    }
+    final catalogRef = CatalogEntityRef.fromJson(
+      Map<String, dynamic>.from(rawRef),
+    );
+    requireKnownCatalogRef(catalogRef, 'externalLink.catalogRef');
     return UserExternalLink(
       id: row.id,
-      itemId: row.itemId,
-      editionId: row.editionId,
-      variantId: row.variantId,
+      catalogRef: catalogRef,
       label: row.label,
       url: row.url,
       kind: row.kind,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
+  }
+
+  bool _sameCatalogRef(CatalogEntityRef left, CatalogEntityRef right) {
+    return left == right;
   }
 }

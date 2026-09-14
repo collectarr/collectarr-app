@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:flutter_test/flutter_test.dart';
 

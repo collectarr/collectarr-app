@@ -7,28 +7,22 @@ const kTransferableMediaFieldKeys = <String>[];
 const kTransferableReleaseFieldKeys = <String>[
   'features',
   'boxSetName',
-  'coverPriceCents',
   'packaging',
 ];
 
 const kTransferablePersonalFieldKeys = <String>[
   'condition',
-  'grade',
   'personalNotes',
   'locationId',
   'tags',
   'currency',
-  'readStatus',
   'soldTo',
   'purchaseStore',
   'pricePaidCents',
   'sellPriceCents',
   'quantity',
   'indexNumber',
-  'rating',
   'purchaseDate',
-  'startedAt',
-  'finishedAt',
   'soldAt',
 ];
 
@@ -49,7 +43,6 @@ class LibraryTransferCapability {
 
   List<TransferableField> allFields() {
     final map = <String, TransferableField>{
-      for (final field in TransferableField.universalBuiltIn) field.key: field,
       for (final field in kindFields) field.key: field,
     };
     return [

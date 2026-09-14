@@ -1,14 +1,22 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/sync/data/sync_apply_service.dart';
 
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import '../helpers/tracking_state_test_helpers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -23,32 +31,48 @@ void main() {
       client: client,
       db: db,
       queue: SyncQueueRepository(db),
-      catalog: CatalogCacheRepository(db),
-      ownedItems: OwnedItemsCacheRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      catalog: CatalogTransportRepository(db),
+      ownedPersistence: CollectarrOwnedItemPersistence(db),
+      trackingRecords: TrackingStorageRepository(
+        db,
+        codecs: collectarrTrackingStorageCodecs,
+      ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: since);
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
-    final trackingRow = await db.select(db.trackingEntriesCache).getSingle();
+    final owned = await ComicOwnedRepository(db)
+        .findById(const ComicOwnedItemId('owned-1'));
+    final typedOwnedRow = await db.select(db.comicOwnedItemsRows).getSingle();
+    final trackingRow = await readSingleTrackingState(db);
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
-    final catalogRow = await db.select(db.catalogCache).getSingle();
     final locations = await LocationRepository(db).getAll();
+    final customEpisode = await TvTrackingRepository(db)
+        .findCustomEpisodeById(const TvEpisodeId('custom-tv-1'));
     expect(client.lastPullSince, since);
     expect(result.serverTime, DateTime.utc(2026, 5, 12, 9));
     expect(result.rejectedCount, 0);
-    expect(row.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
-    expect(trackingRow.status, 'Completed');
+    expect(owned?.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
+    expect(typedOwnedRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8));
+    expect(trackingRow.statusStorageValue, 'Completed');
     expect(trackingRow.rating, 9);
     expect(wishlistRow.deletedAt?.toUtc(), DateTime.utc(2026, 5, 12, 8, 30));
-    final catalogItem =
-        await CatalogCacheRepository(db).findById(catalogRow.id);
+    final catalogItem = await CatalogSnapshotRepository(db).findByRef(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-1',
+      ),
+    );
     expect(catalogItem?.title, 'Absolute Batman');
     expect(catalogItem?.coverImageUrl, 'https://cdn.example/absolute.jpg');
     expect(catalogItem?.thumbnailImageUrl,
         'https://cdn.example/absolute-thumb.jpg');
     expect(locations.map((location) => location.id), ['room']);
     expect(locations.single.name, 'Office');
+    expect(customEpisode?.seriesId.value, 'tv-series-1');
+    expect(customEpisode?.seasonNumber, 2);
+    expect(customEpisode?.episodeNumber, 4);
+    expect(customEpisode?.title, 'The Missing Cut');
   });
 
   test('sync removes rejected stale changes and applies server state',
@@ -71,18 +95,22 @@ void main() {
       client: _RejectedSyncClient(),
       db: db,
       queue: queue,
-      catalog: CatalogCacheRepository(db),
-      ownedItems: OwnedItemsCacheRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      catalog: CatalogTransportRepository(db),
+      ownedPersistence: CollectarrOwnedItemPersistence(db),
+      trackingRecords: TrackingStorageRepository(
+        db,
+        codecs: collectarrTrackingStorageCodecs,
+      ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('android', since: DateTime.utc(2026, 5, 11));
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
+    final owned = await ComicOwnedRepository(db)
+        .findById(const ComicOwnedItemId('owned-1'));
     expect(result.rejectedCount, 1);
     expect(result.rejectedChanges.single.entityId, 'owned-1');
     expect(await queue.pendingCount(), 0);
-    expect(row.grade, '9.8');
-    expect(row.updatedAt.toUtc(), DateTime.utc(2026, 5, 12, 9));
+    expect(owned?.grade, '9.8');
+    expect(owned?.updatedAt.toUtc(), DateTime.utc(2026, 5, 12, 9));
   });
 
   test('sync push preserves tracking entry wire payload shape', () async {
@@ -98,7 +126,7 @@ void main() {
         action: 'upsert',
         payload: const {
           'item_id': 'movie-1',
-          'owned_item_id': 'owned-1',
+          'owned_ref': {'kind': 'movie', 'id': 'owned-1'},
           'edition_id': 'edition-stream',
           'variant_id': 'variant-4k',
           'source_type': 'digital',
@@ -119,9 +147,12 @@ void main() {
       client: client,
       db: db,
       queue: queue,
-      catalog: CatalogCacheRepository(db),
-      ownedItems: OwnedItemsCacheRepository(db),
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      catalog: CatalogTransportRepository(db),
+      ownedPersistence: CollectarrOwnedItemPersistence(db),
+      trackingRecords: TrackingStorageRepository(
+        db,
+        codecs: collectarrTrackingStorageCodecs,
+      ),
       wishlistItems: WishlistItemsCacheRepository(db),
     ).syncNow('desktop');
 
@@ -140,7 +171,7 @@ void main() {
       pushed['payload'],
       {
         'item_id': 'movie-1',
-        'owned_item_id': 'owned-1',
+        'owned_ref': {'kind': 'movie', 'id': 'owned-1'},
         'edition_id': 'edition-stream',
         'variant_id': 'variant-4k',
         'source_type': 'digital',
@@ -245,10 +276,30 @@ class _FakeSyncClient extends CollectarrSyncClient {
               'entity_type': 'work',
               'id': 'comic-1',
             },
-            'owned_item_id': 'owned-1',
+            'owned_ref': {'kind': 'comic', 'id': 'owned-1'},
             'source_type': 'physical',
             'status': 'Completed',
             'rating': 9,
+          },
+        },
+        {
+          'entity_type': 'custom_episode',
+          'entity_id': 'custom-tv-1',
+          'action': 'upsert',
+          'source_device_id': 'desktop',
+          'client_changed_at': '2026-05-12T08:12:00.000Z',
+          'changed_at': '2026-05-12T09:00:00.000Z',
+          'payload': {
+            'catalog_ref': {
+              'kind': 'tv',
+              'entity_type': 'work',
+              'id': 'tv-series-1',
+            },
+            'season_number': 2,
+            'episode_number': 4,
+            'title': 'The Missing Cut',
+            'overview': 'A locally authored episode',
+            'runtime_minutes': 47,
           },
         },
         {

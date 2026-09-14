@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
-// Comic candidate helper utilities (used by unified search and legacy code)
+// Comic candidate helper utilities used by unified search.
 
 class LibraryAddComicTitleIssueMetadata {
   const LibraryAddComicTitleIssueMetadata({

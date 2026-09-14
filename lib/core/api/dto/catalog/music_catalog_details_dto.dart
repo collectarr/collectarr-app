@@ -135,5 +135,3 @@ class MusicCatalogDetailsDto {
         if (composition != null) 'composition': composition,
       };
 }
-
-typedef MusicCatalogDetails = MusicCatalogDetailsDto;

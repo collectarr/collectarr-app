@@ -3,6 +3,23 @@ import 'package:flutter/material.dart';
 
 class AnimeAddManualDraft implements LibraryKindAddDraft {
   AnimeAddManualDraft({
+    TextEditingController? nativeTitleController,
+    TextEditingController? romajiTitleController,
+    TextEditingController? englishTitleController,
+    TextEditingController? alternateTitlesController,
+    TextEditingController? formatController,
+    TextEditingController? seasonController,
+    TextEditingController? seasonYearController,
+    TextEditingController? episodeCountController,
+    TextEditingController? episodeRuntimeController,
+    TextEditingController? airingStatusController,
+    TextEditingController? sourceMaterialController,
+    TextEditingController? startDateController,
+    TextEditingController? endDateController,
+    TextEditingController? studioController,
+    TextEditingController? producersController,
+    TextEditingController? licensorsController,
+    TextEditingController? themesController,
     TextEditingController? numberController,
     TextEditingController? publisherController,
     TextEditingController? yearController,
@@ -20,7 +37,32 @@ class AnimeAddManualDraft implements LibraryKindAddDraft {
     TextEditingController? countryController,
     TextEditingController? editionTitleController,
     TextEditingController? releaseDateController,
-  })  : numberController = numberController ?? TextEditingController(),
+  })  : nativeTitleController =
+            nativeTitleController ?? TextEditingController(),
+        romajiTitleController =
+            romajiTitleController ?? TextEditingController(),
+        englishTitleController =
+            englishTitleController ?? TextEditingController(),
+        alternateTitlesController =
+            alternateTitlesController ?? TextEditingController(),
+        formatController = formatController ?? TextEditingController(),
+        seasonController = seasonController ?? TextEditingController(),
+        seasonYearController = seasonYearController ?? TextEditingController(),
+        episodeCountController =
+            episodeCountController ?? TextEditingController(),
+        episodeRuntimeController =
+            episodeRuntimeController ?? TextEditingController(),
+        airingStatusController =
+            airingStatusController ?? TextEditingController(),
+        sourceMaterialController =
+            sourceMaterialController ?? TextEditingController(),
+        startDateController = startDateController ?? TextEditingController(),
+        endDateController = endDateController ?? TextEditingController(),
+        studioController = studioController ?? TextEditingController(),
+        producersController = producersController ?? TextEditingController(),
+        licensorsController = licensorsController ?? TextEditingController(),
+        themesController = themesController ?? TextEditingController(),
+        numberController = numberController ?? TextEditingController(),
         publisherController = publisherController ?? TextEditingController(),
         yearController = yearController ?? TextEditingController(),
         barcodeController = barcodeController ?? TextEditingController(),
@@ -41,6 +83,23 @@ class AnimeAddManualDraft implements LibraryKindAddDraft {
         releaseDateController =
             releaseDateController ?? TextEditingController();
 
+  final TextEditingController nativeTitleController;
+  final TextEditingController romajiTitleController;
+  final TextEditingController englishTitleController;
+  final TextEditingController alternateTitlesController;
+  final TextEditingController formatController;
+  final TextEditingController seasonController;
+  final TextEditingController seasonYearController;
+  final TextEditingController episodeCountController;
+  final TextEditingController episodeRuntimeController;
+  final TextEditingController airingStatusController;
+  final TextEditingController sourceMaterialController;
+  final TextEditingController startDateController;
+  final TextEditingController endDateController;
+  final TextEditingController studioController;
+  final TextEditingController producersController;
+  final TextEditingController licensorsController;
+  final TextEditingController themesController;
   final TextEditingController numberController;
   final TextEditingController publisherController;
   final TextEditingController yearController;
@@ -61,6 +120,23 @@ class AnimeAddManualDraft implements LibraryKindAddDraft {
 
   @override
   void dispose() {
+    nativeTitleController.dispose();
+    romajiTitleController.dispose();
+    englishTitleController.dispose();
+    alternateTitlesController.dispose();
+    formatController.dispose();
+    seasonController.dispose();
+    seasonYearController.dispose();
+    episodeCountController.dispose();
+    episodeRuntimeController.dispose();
+    airingStatusController.dispose();
+    sourceMaterialController.dispose();
+    startDateController.dispose();
+    endDateController.dispose();
+    studioController.dispose();
+    producersController.dispose();
+    licensorsController.dispose();
+    themesController.dispose();
     numberController.dispose();
     publisherController.dispose();
     yearController.dispose();

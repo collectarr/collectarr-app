@@ -21,14 +21,12 @@ class LibraryPageToolbarController {
         continue;
       }
       final normalizedTitle = title.toLowerCase();
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
-      final itemNumber = adapter?.itemNumber?.trim();
-      final publisher = adapter?.publisher?.trim();
+      final card = libraryCardPresentationForEntry(item);
+      final itemNumber = card.itemNumber?.trim();
+      final format = card.format ?? card.variant;
       final subtitleParts = <String>[
         if (itemNumber != null && itemNumber.isNotEmpty) '#$itemNumber',
-        if (publisher != null && publisher.isNotEmpty) publisher,
+        if (format != null && format.isNotEmpty) format,
       ];
       final subtitle = subtitleParts.isEmpty ? null : subtitleParts.join(' • ');
       var score = 0;
@@ -38,7 +36,7 @@ class LibraryPageToolbarController {
         score = 2;
       } else if ((itemNumber?.toLowerCase().contains(normalizedQuery) ??
               false) ||
-          (publisher?.toLowerCase().contains(normalizedQuery) ?? false)) {
+          (format?.toLowerCase().contains(normalizedQuery) ?? false)) {
         score = 1;
       }
       if (score == 0) {
@@ -234,12 +232,13 @@ class LibraryPageToolbarController {
             onScanCover: _s._coverCoordinator.scanCoverFlow,
             onDownloadAllCovers: _s._coverCoordinator.downloadAllCoversFlow,
             onShowConditionPickListEditorFlow:
-                _s.widget.type.edit.hasConditionPickList
+                _s.widget.type.editPresentation.hasConditionPickList
                     ? _s._dialogCoordinator.showConditionPickListEditorFlow
                     : null,
-            onShowGradePickListEditorFlow: _s.widget.type.edit.hasGradePickList
-                ? _s._dialogCoordinator.showGradePickListEditorFlow
-                : null,
+            onShowGradePickListEditorFlow:
+                _s.widget.type.editPresentation.hasCollectionValuePickList
+                    ? _s._dialogCoordinator.showGradePickListEditorFlow
+                    : null,
             onShowTagPickListEditorFlow:
                 _s._dialogCoordinator.showTagPickListEditorFlow,
           ),

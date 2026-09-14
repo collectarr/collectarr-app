@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/serial_library_media_presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 const mangaMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Manga identity',
@@ -16,20 +18,14 @@ const mangaMetadataLabels = LibraryMetadataLabels(
   },
 );
 
-class MangaLibraryMediaPresentationBuilder
-    extends SerialLibraryMediaPresentationBuilder {
-  const MangaLibraryMediaPresentationBuilder()
-      : super(
-          showSummary: true,
-          metadataLabels: mangaMetadataLabels,
-          itemNumberLabel: 'Chapter / Vol.',
-          publisherLabel: 'Publisher / Studio / Creator',
-          variantLabel: 'Edition / Variant / Format',
-          barcodeLabel: 'Barcode / UPC / ISBN',
-        );
-}
-
-const mangaLibraryMediaBuilder = MangaLibraryMediaPresentationBuilder();
+const mangaLibraryMediaBuilder = MangaLibraryMediaPresentationBuilder(
+  showSummary: true,
+  metadataLabels: mangaMetadataLabels,
+  itemNumberLabel: 'Chapter / Vol.',
+  publisherLabel: 'Publisher / Studio / Creator',
+  variantLabel: 'Edition / Variant / Format',
+  barcodeLabel: 'Barcode / UPC / ISBN',
+);
 
 const mangaPreviewLabels = LibraryMediaPreviewLabels(
   values: {
@@ -46,7 +42,7 @@ const mangaStatsLabels = LibraryMediaStatsLabels(
   values: {'top_series': 'Top Series', 'top_publisher': 'Top Publishers'},
 );
 
-const mangaLibraryGroupLabels = LibraryMediaGroupLabels(
+const mangaLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Series',
     'series_plural': 'Series',
@@ -62,65 +58,71 @@ const mangaLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const mangaLibraryBucketLabelOverrides = LibraryBucketLabelOverrides(
+const mangaLibraryBucketLabelOverrides = LibraryPresentationLabels(
   values: {'story_arc': 'Story arc', 'character': 'Character'},
 );
 
-final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+    value: (item) => (item.dto is MangaWorkspaceDto)
+        ? (item.dto as MangaWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
+    value: (item) => MangaOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
+    )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is MangaWorkspaceDto)
+        ? (item.dto as MangaWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+    value: (item) => (item.dto is MangaWorkspaceDto)
+        ? (item.dto as MangaWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
+    value: (item) => MangaOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
+    )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).country
+    value: (item) => (item.dto is MangaWorkspaceDto)
+        ? (item.dto as MangaWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).language
+    value: (item) => (item.dto is MangaWorkspaceDto)
+        ? (item.dto as MangaWorkspaceDto).language
         : null,
   ),
 ];
@@ -138,7 +140,7 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Series',
       'series_any': 'Any series',
@@ -151,6 +153,7 @@ final mangaLibraryMediaPresentation = LibraryMediaPresentation(
   groupLabels: mangaLibraryGroupLabels,
   builder: mangaLibraryMediaBuilder,
   bucketLabelBuilder: mangaLibraryBucketLabelBuilder,
+  cardPresentationBuilder: buildMangaCardPresentation,
   usesCompactTableLayout: true,
   previewLabels: mangaPreviewLabels,
   statsLabels: mangaStatsLabels,

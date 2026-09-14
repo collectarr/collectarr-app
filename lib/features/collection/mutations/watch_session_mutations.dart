@@ -4,8 +4,9 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -19,7 +20,7 @@ final class WatchSessionMutations {
     this.idGenerator = _defaultIdGenerator,
   });
 
-  final WatchSessionsCacheRepository watchSessions;
+  final WatchSessionsRepository watchSessions;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
@@ -28,8 +29,6 @@ final class WatchSessionMutations {
     CatalogEntityRef targetRef, {
     String? id,
     String? trackingEntryId,
-    int? seasonNumber,
-    int? episodeNumber,
     Object? sourceType,
     DateTime? watchedAt,
     String? seenWhere,
@@ -37,18 +36,18 @@ final class WatchSessionMutations {
     String? notes,
   }) async {
     final now = DateTime.now().toUtc();
-    final session = WatchSession(
-      id: id ?? idGenerator(),
-      targetRef: targetRef,
-      trackingEntryId: trackingEntryId,
-      seasonNumber: seasonNumber,
-      episodeNumber: episodeNumber,
-      sourceType: sourceType,
-      watchedAt: watchedAt ?? now,
-      seenWhere: seenWhere,
-      rating: rating,
-      notes: notes,
-      updatedAt: now,
+    final session = watchSessions.create(
+      WatchSessionCreateRequest(
+        id: id ?? idGenerator(),
+        targetRef: targetRef,
+        trackingEntryId: trackingEntryId,
+        sourceType: sourceType,
+        watchedAt: watchedAt ?? now,
+        seenWhere: seenWhere,
+        rating: rating,
+        notes: notes,
+        updatedAt: now,
+      ),
     );
 
     await mutationRunner.run(
@@ -57,7 +56,7 @@ final class WatchSessionMutations {
         await syncQueue
             .enqueue(_syncChangeForWatchSession(session, 'upsert', now));
       },
-      eventsToEmit: [WatchSessionChanged(session.id)],
+      eventsToEmit: const [WatchSessionChanged()],
     );
 
     return session;
@@ -73,7 +72,7 @@ final class WatchSessionMutations {
         await syncQueue
             .enqueue(_syncChangeForWatchSession(deleted, 'delete', now));
       },
-      eventsToEmit: [WatchSessionChanged(session.id)],
+      eventsToEmit: const [WatchSessionChanged()],
     );
   }
 
@@ -87,7 +86,7 @@ final class WatchSessionMutations {
       entityType: 'watch_session',
       entityId: session.id,
       action: action,
-      payload: session.toSyncPayload(),
+      payload: watchSessions.toSyncPayload(session),
       clientChangedAt: now,
     );
   }

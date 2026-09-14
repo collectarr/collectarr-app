@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,12 +27,61 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('MusicBrainzProvider', () {
+    test('decodes native MusicBrainz release models', () {
+      final release = MusicBrainzRelease.fromJson({
+        'id': 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+        'title': 'The Dark Side of the Moon',
+        'date': '1973-03-01',
+        'artist-credit': [
+          {
+            'artist': {
+              'id': '83d91898-7763-47d7-b03b-b92132375c47',
+              'name': 'Pink Floyd',
+            },
+          },
+        ],
+        'release-group': {
+          'id': 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+          'title': 'The Dark Side of the Moon',
+        },
+        'label-info': [
+          {
+            'catalog-number': 'SHVL 804',
+            'label': {'name': 'Harvest'},
+          },
+        ],
+        'media': [
+          {
+            'track-count': 1,
+            'format': 'Vinyl',
+            'tracks': [
+              {'position': 1, 'title': 'Speak to Me', 'length': 67000},
+            ],
+          },
+        ],
+        'cover-art-archive': {'artwork': true, 'front': true},
+        'genres': [
+          {'name': 'Progressive Rock'},
+        ],
+      });
+
+      expect(release.id, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
+      expect(release.artistCredits.single.artist?.name, 'Pink Floyd');
+      expect(release.releaseGroup?.id, 'b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
+      expect(release.labelInfo.single.catalogNumber, 'SHVL 804');
+      expect(release.labelInfo.single.label?.name, 'Harvest');
+      expect(release.media.single.tracks.single.length, 67000);
+      expect(release.coverArtArchive?.front, isTrue);
+      expect(release.genres, ['Progressive Rock']);
+      expect(release.toJson()['title'], 'The Dark Side of the Moon');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = MusicBrainzProvider();
       expect(provider.name, 'musicbrainz');
       expect(provider.descriptor.displayName, 'MusicBrainz');
-      expect(provider.descriptor.kind, 'music');
-      expect(provider.descriptor.supportedKinds, ['music']);
+      expect(provider.descriptor.kind, CatalogMediaKind.music);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.music]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '1 req/sec');
@@ -81,7 +131,7 @@ void main() {
       expect(item.provider, 'musicbrainz');
       expect(item.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
       expect(item.title, 'The Dark Side of the Moon');
-      expect(item.kind, 'music');
+      expect(item.kind, CatalogMediaKind.music);
       expect(item.summary, 'Pink Floyd · 1973-03-01 · GB');
       expect(
         item.imageUrl,
@@ -170,18 +220,17 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'musicbrainz');
       expect(envelope.providerItemId, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d');
-      expect(envelope.kind, 'music');
-      expect(envelope.normalized['title'], 'The Dark Side of the Moon');
-      expect(envelope.normalized['publisher'], 'Harvest');
-      expect(envelope.normalized['track_count'], 3);
-      expect(envelope.normalized['tracks'], hasLength(3));
-      expect(jsonObjectList(envelope.normalized['tracks'])[0]['title'],
+      expect(envelope.kind, CatalogMediaKind.music);
+      expect(envelope.payload['title'], 'The Dark Side of the Moon');
+      expect(envelope.payload['publisher'], 'Harvest');
+      expect(envelope.payload['track_count'], 3);
+      expect(envelope.payload['tracks'], hasLength(3));
+      expect(jsonObjectList(envelope.payload['tracks'])[0]['title'],
           'Speak to Me');
-      expect(
-          jsonObjectList(envelope.normalized['tracks'])[0]['duration_seconds'],
+      expect(jsonObjectList(envelope.payload['tracks'])[0]['duration_seconds'],
           67);
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Pink Floyd');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
@@ -200,7 +249,7 @@ void main() {
       );
       expect(mbFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(mbFixtureRaw as Map),
       );
 
@@ -236,18 +285,17 @@ void main() {
         'cover-art-archive': {'artwork': true, 'front': true},
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
-      expect(
-          normalized['track_count'], goldenEnvelope.normalized['track_count']);
-      expect(normalized['tracks'], goldenEnvelope.normalized['tracks']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
+      expect(normalized['track_count'], goldenEnvelope.payload['track_count']);
+      expect(normalized['tracks'], goldenEnvelope.payload['tracks']);
       expect(jsonObject(normalized['provider_ids'])['musicbrainz'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['musicbrainz']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['musicbrainz']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
       expect(jsonObjectList(normalized['creators']).first['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['role']);
     });
   });
 }

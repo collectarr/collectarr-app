@@ -1,0 +1,129 @@
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_release_media_edit_controller.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class TvReleaseMediaTab extends ConsumerWidget {
+  const TvReleaseMediaTab({
+    super.key,
+    required this.accent,
+    required this.releaseMediaEdit,
+  });
+
+  final Color accent;
+  final TvReleaseMediaEditController releaseMediaEdit;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return EditTabShell(
+      children: [
+        EditSection(
+          title: 'Release media',
+          accent: accent,
+          child: FutureBuilder<TvSeries?>(
+            future: releaseMediaEdit.tvSeriesFuture ??=
+                releaseMediaEdit.loadTvSeriesSnapshot(),
+            builder: (context, snapshot) {
+              final series = snapshot.data ?? releaseMediaEdit.tvSeriesSnapshot;
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  series == null) {
+                return const EditSectionStateMessage(
+                  message: 'Loading TV release media...',
+                  icon: Icons.hourglass_empty,
+                );
+              }
+              if (series == null) {
+                return const EditSectionStateMessage(
+                  message: 'No TV series data is available for this item yet.',
+                  icon: Icons.tv_off_outlined,
+                );
+              }
+              final media = releaseMediaEdit.tvReleaseMediaDraft.isEmpty
+                  ? releaseMediaEdit.buildFallbackTvReleaseMedia(series)
+                  : releaseMediaEdit.tvReleaseMediaDraft;
+              if (media.isEmpty) {
+                return const EditSectionStateMessage(
+                  message: 'No release media is available for this series.',
+                  icon: Icons.album_outlined,
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const EditSectionStateMessage(
+                    message:
+                        'Disc metadata is editable here; episode assignments are staged in the Episode map tab.',
+                    icon: Icons.info_outline,
+                  ),
+                  const SizedBox(height: 12),
+                  for (final disc in media)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Card(
+                        elevation: 0,
+                        color: appPalette(context).panelRaised,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.album_outlined,
+                                    size: 18,
+                                    color: appPalette(context).textMuted,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    disc.title ??
+                                        'Disc ${disc.mediaNumber ?? 1}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    'Disc ${disc.mediaNumber ?? 1}',
+                                    style: TextStyle(
+                                      color: appPalette(context).textMuted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (disc.mediaType != null) ...[
+                                const SizedBox(height: 8),
+                                Text('Format: ${disc.mediaType}'),
+                              ],
+                              if (disc.encoding != null ||
+                                  disc.resolution != null ||
+                                  disc.hdrFormat != null) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  [
+                                    if (disc.encoding != null)
+                                      'Encoding: ${disc.encoding}',
+                                    if (disc.resolution != null)
+                                      'Resolution: ${disc.resolution}',
+                                    if (disc.hdrFormat != null)
+                                      'HDR: ${disc.hdrFormat}',
+                                  ].join(', '),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}

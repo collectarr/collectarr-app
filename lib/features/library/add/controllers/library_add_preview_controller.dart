@@ -1,17 +1,20 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 
 class LibraryAddPreviewController {
   final providerPreviews = <String, AdminProviderPreview>{};
-  final hydratedResults = <String, LibraryMetadataItem>{};
-  final bundleReleasesByItemId = <String, List<BundleReleaseSummary>>{};
-  final bundleReleaseDetailsById = <String, BundleReleaseDetail>{};
+  final hydratedResultsByRef = <CatalogEntityRef, CatalogSearchCandidate>{};
+  final bundleReleasesByCatalogRef =
+      <CatalogEntityRef, List<LibraryBundleSummary>>{};
+  final bundleReleaseDetailsById = <String, LibraryBundleDetail>{};
   final queuedProviderIngests = <String, LibraryQueuedProviderIngest>{};
-  final pendingHydratedResultIds = <String>{};
-  final pendingBundleReleaseItemIds = <String>{};
+  final pendingHydratedResultRefs = <CatalogEntityRef>{};
+  final pendingBundleReleaseCatalogRefs = <CatalogEntityRef>{};
   final pendingBundleReleaseDetailIds = <String>{};
   final pendingProviderPreviewIds = <String>{};
   bool isQueueingIngest = false;
@@ -44,65 +47,68 @@ class LibraryAddPreviewController {
     queuedProviderIngests[candidateId] = ingest;
   }
 
-  LibraryMetadataItem? hydratedResultFor(String itemId) {
-    return hydratedResults[itemId];
+  CatalogSearchCandidate? hydratedResultFor(CatalogEntityRef ref) {
+    return hydratedResultsByRef[ref];
   }
 
-  bool hasHydratedResult(String itemId) {
-    return hydratedResults.containsKey(itemId);
+  bool hasHydratedResult(CatalogEntityRef ref) {
+    return hydratedResultsByRef.containsKey(ref);
   }
 
-  void setHydratedResult(String itemId, LibraryMetadataItem item) {
-    hydratedResults[itemId] = item;
-    pendingHydratedResultIds.remove(itemId);
+  void setHydratedResult(CatalogEntityRef ref, CatalogSearchCandidate item) {
+    hydratedResultsByRef[ref] = item;
+    pendingHydratedResultRefs.remove(ref);
   }
 
-  void markHydratedResultPending(String itemId) {
-    pendingHydratedResultIds.add(itemId);
+  void markHydratedResultPending(CatalogEntityRef ref) {
+    pendingHydratedResultRefs.add(ref);
   }
 
-  bool isHydratedResultPending(String itemId) {
-    return pendingHydratedResultIds.contains(itemId);
+  bool isHydratedResultPending(CatalogEntityRef ref) {
+    return pendingHydratedResultRefs.contains(ref);
   }
 
-  List<BundleReleaseSummary>? bundleReleasesFor(String itemId) {
-    return bundleReleasesByItemId[itemId];
+  List<LibraryBundleSummary>? bundleReleasesFor(CatalogEntityRef ref) {
+    return bundleReleasesByCatalogRef[ref];
   }
 
-  List<BundleReleaseSummary> bundleReleasesForItem(LibraryMetadataItem? item) {
+  List<LibraryBundleSummary> bundleReleasesForItem(
+    CatalogSearchCandidate? item,
+  ) {
     if (item == null) {
-      return const <BundleReleaseSummary>[];
+      return const <LibraryBundleSummary>[];
     }
-    return bundleReleasesByItemId[item.id] ?? const <BundleReleaseSummary>[];
+    return bundleReleasesByCatalogRef[item.catalogRef] ??
+        const <LibraryBundleSummary>[];
   }
 
   void setBundleReleases(
-    String itemId,
-    List<BundleReleaseSummary> releases,
+    CatalogEntityRef ref,
+    List<LibraryBundleSummary> releases,
   ) {
-    bundleReleasesByItemId[itemId] = List.unmodifiable(releases);
-    pendingBundleReleaseItemIds.remove(itemId);
+    bundleReleasesByCatalogRef[ref] = List.unmodifiable(releases);
+    pendingBundleReleaseCatalogRefs.remove(ref);
   }
 
-  void markBundleReleasesPending(String itemId) {
-    pendingBundleReleaseItemIds.add(itemId);
+  void markBundleReleasesPending(CatalogEntityRef ref) {
+    pendingBundleReleaseCatalogRefs.add(ref);
   }
 
-  bool isBundleReleasesPending(String itemId) {
-    return pendingBundleReleaseItemIds.contains(itemId);
+  bool isBundleReleasesPending(CatalogEntityRef ref) {
+    return pendingBundleReleaseCatalogRefs.contains(ref);
   }
 
-  BundleReleaseDetail? bundleReleaseDetailForId(String releaseId) {
+  LibraryBundleDetail? bundleReleaseDetailForId(String releaseId) {
     return bundleReleaseDetailsById[releaseId];
   }
 
-  BundleReleaseDetail? bundleReleaseDetailFor(String releaseId) {
+  LibraryBundleDetail? bundleReleaseDetailFor(String releaseId) {
     return bundleReleaseDetailsById[releaseId];
   }
 
   void setBundleReleaseDetail(
     String releaseId,
-    BundleReleaseDetail detail,
+    LibraryBundleDetail detail,
   ) {
     bundleReleaseDetailsById[releaseId] = detail;
     pendingBundleReleaseDetailIds.remove(releaseId);
@@ -123,11 +129,11 @@ class LibraryAddPreviewController {
   }
 
   void clearSelectionCaches() {
-    hydratedResults.clear();
-    bundleReleasesByItemId.clear();
+    hydratedResultsByRef.clear();
+    bundleReleasesByCatalogRef.clear();
     bundleReleaseDetailsById.clear();
-    pendingHydratedResultIds.clear();
-    pendingBundleReleaseItemIds.clear();
+    pendingHydratedResultRefs.clear();
+    pendingBundleReleaseCatalogRefs.clear();
     pendingBundleReleaseDetailIds.clear();
   }
 
@@ -138,12 +144,12 @@ class LibraryAddPreviewController {
 
   void dispose() {
     providerPreviews.clear();
-    hydratedResults.clear();
-    bundleReleasesByItemId.clear();
+    hydratedResultsByRef.clear();
+    bundleReleasesByCatalogRef.clear();
     bundleReleaseDetailsById.clear();
     queuedProviderIngests.clear();
-    pendingHydratedResultIds.clear();
-    pendingBundleReleaseItemIds.clear();
+    pendingHydratedResultRefs.clear();
+    pendingBundleReleaseCatalogRefs.clear();
     pendingBundleReleaseDetailIds.clear();
     pendingProviderPreviewIds.clear();
   }
@@ -153,12 +159,12 @@ class LibraryAddPreviewController {
 class LibraryAddPreviewState {
   const LibraryAddPreviewState({
     this.providerPreviews = const {},
-    this.hydratedResults = const {},
-    this.bundleReleasesByItemId = const {},
+    this.hydratedResultsByRef = const {},
+    this.bundleReleasesByCatalogRef = const {},
     this.bundleReleaseDetailsById = const {},
     this.queuedProviderIngests = const {},
-    this.pendingHydratedResultIds = const {},
-    this.pendingBundleReleaseItemIds = const {},
+    this.pendingHydratedResultRefs = const {},
+    this.pendingBundleReleaseCatalogRefs = const {},
     this.pendingBundleReleaseDetailIds = const {},
     this.pendingProviderPreviewIds = const {},
     this.isQueueingIngest = false,
@@ -167,12 +173,13 @@ class LibraryAddPreviewState {
   const LibraryAddPreviewState.initial() : this();
 
   final Map<String, AdminProviderPreview> providerPreviews;
-  final Map<String, LibraryMetadataItem> hydratedResults;
-  final Map<String, List<BundleReleaseSummary>> bundleReleasesByItemId;
-  final Map<String, BundleReleaseDetail> bundleReleaseDetailsById;
+  final Map<CatalogEntityRef, CatalogSearchCandidate> hydratedResultsByRef;
+  final Map<CatalogEntityRef, List<LibraryBundleSummary>>
+      bundleReleasesByCatalogRef;
+  final Map<String, LibraryBundleDetail> bundleReleaseDetailsById;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
-  final Set<String> pendingHydratedResultIds;
-  final Set<String> pendingBundleReleaseItemIds;
+  final Set<CatalogEntityRef> pendingHydratedResultRefs;
+  final Set<CatalogEntityRef> pendingBundleReleaseCatalogRefs;
   final Set<String> pendingBundleReleaseDetailIds;
   final Set<String> pendingProviderPreviewIds;
   final bool isQueueingIngest;
@@ -186,29 +193,33 @@ class LibraryAddPreviewState {
   LibraryQueuedProviderIngest? queuedProviderIngestFor(String candidateId) =>
       queuedProviderIngests[candidateId];
 
-  LibraryMetadataItem? hydratedResultFor(String itemId) =>
-      hydratedResults[itemId];
+  CatalogSearchCandidate? hydratedResultFor(CatalogEntityRef ref) =>
+      hydratedResultsByRef[ref];
 
-  bool hasHydratedResult(String itemId) => hydratedResults.containsKey(itemId);
+  bool hasHydratedResult(CatalogEntityRef ref) =>
+      hydratedResultsByRef.containsKey(ref);
 
-  bool isHydratedResultPending(String itemId) =>
-      pendingHydratedResultIds.contains(itemId);
+  bool isHydratedResultPending(CatalogEntityRef ref) =>
+      pendingHydratedResultRefs.contains(ref);
 
-  List<BundleReleaseSummary>? bundleReleasesFor(String itemId) =>
-      bundleReleasesByItemId[itemId];
+  List<LibraryBundleSummary>? bundleReleasesFor(CatalogEntityRef ref) =>
+      bundleReleasesByCatalogRef[ref];
 
-  List<BundleReleaseSummary> bundleReleasesForItem(LibraryMetadataItem? item) {
-    if (item == null) return const <BundleReleaseSummary>[];
-    return bundleReleasesByItemId[item.id] ?? const <BundleReleaseSummary>[];
+  List<LibraryBundleSummary> bundleReleasesForItem(
+    CatalogSearchCandidate? item,
+  ) {
+    if (item == null) return const <LibraryBundleSummary>[];
+    return bundleReleasesByCatalogRef[item.catalogRef] ??
+        const <LibraryBundleSummary>[];
   }
 
-  bool isBundleReleasesPending(String itemId) =>
-      pendingBundleReleaseItemIds.contains(itemId);
+  bool isBundleReleasesPending(CatalogEntityRef ref) =>
+      pendingBundleReleaseCatalogRefs.contains(ref);
 
-  BundleReleaseDetail? bundleReleaseDetailForId(String releaseId) =>
+  LibraryBundleDetail? bundleReleaseDetailForId(String releaseId) =>
       bundleReleaseDetailsById[releaseId];
 
-  BundleReleaseDetail? bundleReleaseDetailFor(String releaseId) =>
+  LibraryBundleDetail? bundleReleaseDetailFor(String releaseId) =>
       bundleReleaseDetailsById[releaseId];
 
   bool isBundleReleaseDetailPending(String releaseId) =>
@@ -216,29 +227,30 @@ class LibraryAddPreviewState {
 
   LibraryAddPreviewState copyWith({
     Map<String, AdminProviderPreview>? providerPreviews,
-    Map<String, LibraryMetadataItem>? hydratedResults,
-    Map<String, List<BundleReleaseSummary>>? bundleReleasesByItemId,
-    Map<String, BundleReleaseDetail>? bundleReleaseDetailsById,
+    Map<CatalogEntityRef, CatalogSearchCandidate>? hydratedResultsByRef,
+    Map<CatalogEntityRef, List<LibraryBundleSummary>>?
+        bundleReleasesByCatalogRef,
+    Map<String, LibraryBundleDetail>? bundleReleaseDetailsById,
     Map<String, LibraryQueuedProviderIngest>? queuedProviderIngests,
-    Set<String>? pendingHydratedResultIds,
-    Set<String>? pendingBundleReleaseItemIds,
+    Set<CatalogEntityRef>? pendingHydratedResultRefs,
+    Set<CatalogEntityRef>? pendingBundleReleaseCatalogRefs,
     Set<String>? pendingBundleReleaseDetailIds,
     Set<String>? pendingProviderPreviewIds,
     bool? isQueueingIngest,
   }) {
     return LibraryAddPreviewState(
       providerPreviews: providerPreviews ?? this.providerPreviews,
-      hydratedResults: hydratedResults ?? this.hydratedResults,
-      bundleReleasesByItemId:
-          bundleReleasesByItemId ?? this.bundleReleasesByItemId,
+      hydratedResultsByRef: hydratedResultsByRef ?? this.hydratedResultsByRef,
+      bundleReleasesByCatalogRef:
+          bundleReleasesByCatalogRef ?? this.bundleReleasesByCatalogRef,
       bundleReleaseDetailsById:
           bundleReleaseDetailsById ?? this.bundleReleaseDetailsById,
       queuedProviderIngests:
           queuedProviderIngests ?? this.queuedProviderIngests,
-      pendingHydratedResultIds:
-          pendingHydratedResultIds ?? this.pendingHydratedResultIds,
-      pendingBundleReleaseItemIds:
-          pendingBundleReleaseItemIds ?? this.pendingBundleReleaseItemIds,
+      pendingHydratedResultRefs:
+          pendingHydratedResultRefs ?? this.pendingHydratedResultRefs,
+      pendingBundleReleaseCatalogRefs: pendingBundleReleaseCatalogRefs ??
+          this.pendingBundleReleaseCatalogRefs,
       pendingBundleReleaseDetailIds:
           pendingBundleReleaseDetailIds ?? this.pendingBundleReleaseDetailIds,
       pendingProviderPreviewIds:

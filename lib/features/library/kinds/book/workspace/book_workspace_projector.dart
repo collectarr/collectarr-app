@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -12,47 +12,37 @@ final class BookWorkspaceProjector
 
   @override
   BookWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final book = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
-    BookCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is BookCatalogMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return BookWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _bookCommonProjection(source, node, catalog.book),
       personal: PersonalCopyProjection.fromShelf(source),
-      book: book,
-      metadata: metadata,
+      book: catalog.book,
+      metadata: catalog.metadata,
     );
   }
 
   @override
   BookWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final book = BookCatalogMapper.mapMetadataItemToBook(source.catalogItem!);
-    BookCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is BookCatalogMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return BookWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _bookCommonProjection(source, node, catalog.book),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-      book: book,
-      metadata: metadata,
+      book: catalog.book,
+      metadata: catalog.metadata,
     );
   }
 
   @override
   BookWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(
@@ -60,4 +50,25 @@ final class BookWorkspaceProjector
       node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
     );
   }
+}
+
+BookWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final BookWorkspaceCatalogData catalog) return catalog;
+  throw StateError('Expected BookWorkspaceCatalogData for book workspace');
+}
+
+WorkspaceCommonProjection _bookCommonProjection(
+  LibraryWorkspaceSource source,
+  LibraryNodeRef node,
+  BookCatalogItem book,
+) {
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: book.title,
+    overrideSynopsis: book.synopsis,
+    overrideReleaseDate: book.releaseDate,
+    overrideCoverImageUrl: book.coverImageUrl,
+  );
 }

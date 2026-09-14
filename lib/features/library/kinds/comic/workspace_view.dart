@@ -16,13 +16,14 @@ const double kLibraryTableRowHeight = 38;
 const double kLibraryTableSelectionRailWidth = 3;
 
 final comicsWorkspaceViewProfile = LibraryWorkspaceViewProfile(
-  runtimeResolver: () => libraryKindRuntimeForKind(CatalogMediaKind.comic),
+  kindModuleResolver: () =>
+      libraryKindRegistrationForKind(CatalogMediaKind.comic),
   defaultCoverSize: kComicsDefaultCoverSize,
   minCoverSize: kComicsMinCoverSize,
   maxCoverSize: kComicsMaxCoverSize,
   presetConfig: comicsViewPresetConfig,
   clampColumnWidth: (column, width) => clampPlannedMediaTableColumnWidth(
-    libraryKindRuntimeForKind(CatalogMediaKind.comic),
+    libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
     column,
     width,
   ),
@@ -86,8 +87,8 @@ const comicsTableColumnPresets = [
 ];
 
 bool comicInitialSortAscending(LibrarySortIdRuntime sortId) {
-  final module = libraryKindRuntimeForKind(CatalogMediaKind.comic);
-  final definition = module.fields.findSortDefinition(
+  final workspace = libraryKindWorkspaceForKind(CatalogMediaKind.comic);
+  final definition = workspace.fields.findSortDefinition(
     sortId,
   );
   return definition?.defaultAscending ?? true;
@@ -133,7 +134,7 @@ List<LibraryFieldIdRuntime> orderedComicTableColumns(
     );
 
 Set<LibraryFieldIdRuntime> defaultComicTableColumns() =>
-    Set.of(libraryKindRuntimeForKind(CatalogMediaKind.comic)
+    Set.of(libraryKindWorkspaceForKind(CatalogMediaKind.comic)
         .fields
         .defaultVisibleColumns);
 
@@ -141,8 +142,8 @@ double comicTableWidthForColumns(
   Set<LibraryFieldIdRuntime> columns,
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
-  return plannedMediaTableWidthForColumns(
-    type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
+  return standardMediaTableWidthForColumns(
+    fields: libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
     columns: columns,
     customWidths: customWidths,
   );
@@ -152,6 +153,8 @@ double comicTableColumnWidth(
   LibraryFieldIdRuntime column,
   Map<LibraryFieldIdRuntime, double> customWidths,
 ) {
-  return plannedMediaTableColumnWidth(
-      libraryKindRuntimeForKind(CatalogMediaKind.comic), column, customWidths);
+  return standardMediaTableColumnWidth(
+      libraryKindWorkspaceForKind(CatalogMediaKind.comic).fields,
+      column,
+      customWidths);
 }

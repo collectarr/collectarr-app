@@ -6,14 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('book workspace projector builds typed book dto', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         title: 'Guards! Guards!',
         publisher: 'Victor Gollancz Ltd',
         kind: 'book',
-      ),
+      ).asShelfCatalogItem),
     );
 
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -22,6 +22,6 @@ void main() {
     );
 
     expect(dto.common.title, 'Guards! Guards!');
-    expect(dto.common.publisher, 'Victor Gollancz Ltd');
+    expect(dto.publisher, 'Victor Gollancz Ltd');
   });
 }

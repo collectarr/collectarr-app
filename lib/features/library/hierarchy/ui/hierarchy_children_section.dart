@@ -51,7 +51,7 @@ class HierarchyChildrenSection extends ConsumerWidget {
           return const SizedBox.shrink();
         }
         final resolvedTitle = title ??
-            libraryKindRuntimeForKind(kind)
+            libraryKindRegistrationForKind(kind)
                 .hierarchy
                 .childrenTitle(nodes.length);
         return Column(

@@ -14,5 +14,3 @@ class GameCatalogDetailsDto {
       (toySubtype != null && toySubtype!.isNotEmpty) ||
       (toyType != null && toyType!.isNotEmpty);
 }
-
-typedef GameCatalogDetails = GameCatalogDetailsDto;

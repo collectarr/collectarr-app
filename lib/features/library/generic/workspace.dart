@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/empty_state.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
@@ -29,7 +29,7 @@ typedef LibraryItemContextMenuCallback = void Function(
 );
 
 double libraryWorkspaceGridMainAxisExtent({
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required double coverSize,
 }) {
   return coverSize * type.viewProfile.coverGridHeightFactor;
@@ -69,7 +69,7 @@ class LibraryWorkspace extends ConsumerWidget {
     this.initialCrossAxisCount,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final List<LibraryProjectionItem> items;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -105,7 +105,10 @@ class LibraryWorkspace extends ConsumerWidget {
       viewState.viewMode != LibraryViewMode.shelves &&
       selectedBucket == null &&
       (() {
-        final semantic = type.fields.decodeGroupId(groupMode).semantic;
+        final semantic = libraryKindWorkspaceForKind(type.kind)
+            .fields
+            .decodeGroupId(groupMode)
+            .semantic;
         return semantic != LibraryGroupSemantic.title &&
             semantic != LibraryGroupSemantic.ownership;
       })();
@@ -155,8 +158,8 @@ class LibraryWorkspace extends ConsumerWidget {
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
     final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
-    final runtime = type;
-    final defaultCoverSize = runtime.viewProfile.defaultCoverSize;
+    final kindModule = type;
+    final defaultCoverSize = kindModule.viewProfile.defaultCoverSize;
     final isMusicLibrary = type.uiPolicy.coverAspectRatio == 1.0;
     final density = viewState.densityPreset;
     final cardScale = defaultCoverSize > 0
@@ -354,11 +357,12 @@ class LibraryWorkspace extends ConsumerWidget {
         final palette = appPalette(context);
         final compact = type.presentation.usesCompactTableLayout;
         final density = viewState.densityPreset;
-        final runtime = type;
-        final visibleColumns = runtime.orderedTableColumns(
+        final kindModule = type;
+        final workspace = libraryKindWorkspaceForKind(kindModule.kind);
+        final visibleColumns = workspace.orderedTableColumns(
           viewState.visibleColumnIds,
         );
-        final tableWidth = runtime.tableWidthForColumns(
+        final tableWidth = workspace.tableWidthForColumns(
           viewState.visibleColumnIds,
           viewState.columnWidths,
         );
@@ -382,21 +386,21 @@ class LibraryWorkspace extends ConsumerWidget {
                         ascending: rule.ascending,
                       ),
                   ],
-                  columnWidthFor: (column) => runtime.tableColumnWidth(
-                    runtime.fields.decodeColumnId(column),
+                  columnWidthFor: (column) => workspace.tableColumnWidth(
+                    workspace.fields.decodeColumnId(column),
                     viewState.columnWidths,
                   ),
                   defaultColumnWidthFor: (column) =>
-                      runtime.defaultTableColumnWidth(
-                    runtime.fields.decodeColumnId(column),
+                      workspace.defaultTableColumnWidth(
+                    workspace.fields.decodeColumnId(column),
                   ),
-                  columnSortFor: (column) => runtime
-                      .columnSort(runtime.fields.decodeColumnId(column))
+                  columnSortFor: (column) => workspace
+                      .columnSort(workspace.fields.decodeColumnId(column))
                       ?.value,
-                  columnLabelFor: (column) => runtime
-                      .columnLabel(runtime.fields.decodeColumnId(column)),
-                  columnIsNumeric: (column) => runtime.columnIsNumeric(
-                    runtime.fields.decodeColumnId(column),
+                  columnLabelFor: (column) => workspace
+                      .columnLabel(workspace.fields.decodeColumnId(column)),
+                  columnIsNumeric: (column) => workspace.columnIsNumeric(
+                    workspace.fields.decodeColumnId(column),
                   ),
                   cellBuilder: (entry, column) => _tableCell(entry, column),
                   isSelected: _isHighlighted,
@@ -491,10 +495,12 @@ class LibraryWorkspace extends ConsumerWidget {
   }
 
   Widget _tableCell(LibraryProjectionItem item, String column) {
-    final runtime = type;
-    return runtime.buildTableCell(
+    final kindModule = type;
+    return libraryKindWorkspaceForKind(kindModule.kind).buildTableCell(
       item,
-      runtime.fields.decodeColumnId(column),
+      libraryKindWorkspaceForKind(kindModule.kind)
+          .fields
+          .decodeColumnId(column),
     );
   }
 }

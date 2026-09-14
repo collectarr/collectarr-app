@@ -60,9 +60,8 @@ class LibraryErrorState extends StatelessWidget {
                 Text(
                   details!.trim(),
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.supportingText.copyWith(
+                  style: theme.textTheme.libraryCaption.copyWith(
                     color: palette.textMuted,
-                    fontSize: 11,
                   ),
                 ),
               ],

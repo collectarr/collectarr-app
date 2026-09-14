@@ -1,9 +1,10 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
 
 class GameEditController {
@@ -14,12 +15,22 @@ class GameEditController {
     String initialPublisher = '',
     String initialReleaseDate = '',
     String initialReleaseYear = '',
+    String initialFranchise = '',
+    String initialGenres = '',
+    String initialAgeRating = '',
+    String initialLanguage = '',
+    String initialCountry = '',
   })  : platformsController = TextEditingController(text: initialPlatforms),
         developersController = TextEditingController(text: initialDevelopers),
         seriesTitleController = TextEditingController(text: initialSeriesTitle),
         publisherController = TextEditingController(text: initialPublisher),
         releaseDateController = TextEditingController(text: initialReleaseDate),
-        releaseYearController = TextEditingController(text: initialReleaseYear);
+        releaseYearController = TextEditingController(text: initialReleaseYear),
+        franchiseController = TextEditingController(text: initialFranchise),
+        genresController = TextEditingController(text: initialGenres),
+        ageRatingController = TextEditingController(text: initialAgeRating),
+        languageController = TextEditingController(text: initialLanguage),
+        countryController = TextEditingController(text: initialCountry);
 
   final TextEditingController platformsController;
   final TextEditingController developersController;
@@ -27,12 +38,17 @@ class GameEditController {
   final TextEditingController publisherController;
   final TextEditingController releaseDateController;
   final TextEditingController releaseYearController;
+  final TextEditingController franchiseController;
+  final TextEditingController genresController;
+  final TextEditingController ageRatingController;
+  final TextEditingController languageController;
+  final TextEditingController countryController;
   List<String> developerOptions = const [];
   List<String> genreOptions = const [];
   List<String> platformOptions = const [];
 
   void initialize({
-    required LibraryMetadataItem item,
+    required CatalogItemDto item,
     required LibraryEditDraft draft,
   }) {
     final meta = item.kindMetadata is GameCatalogMetadata
@@ -54,11 +70,20 @@ class GameEditController {
     publisherController.dispose();
     releaseDateController.dispose();
     releaseYearController.dispose();
+    franchiseController.dispose();
+    genresController.dispose();
+    ageRatingController.dispose();
+    languageController.dispose();
+    countryController.dispose();
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final meta = selection.item.kindMetadata is GameCatalogMetadata
-        ? (selection.item.kindMetadata as GameCatalogMetadata)
+    final meta = selection.kindItem
+            .mapTransport((transport) => transport)
+            .kindMetadata is GameCatalogMetadata
+        ? (selection.kindItem
+            .mapTransport((transport) => transport)
+            .kindMetadata as GameCatalogMetadata)
         : null;
     final platforms = splitPickListValues(platformsController.text);
 
@@ -85,24 +110,45 @@ class GameEditController {
     ];
 
     final updatedPub = emptyToNull(publisherController.text);
+    final updatedFranchise = emptyToNull(franchiseController.text);
+    final updatedAgeRating = emptyToNull(ageRatingController.text);
+    final updatedCountry = emptyToNull(countryController.text);
+    final genres = _splitValues(
+      genresController.text,
+      fallback: meta?.genres ?? const [],
+    );
+    final languages = _splitValues(
+      languageController.text,
+      fallback: meta?.languages ?? const [],
+    );
 
     final updatedMetadata = meta?.copyWith(
           platforms: platforms,
           platform: platforms.firstOrNull ?? meta.platform,
+          developers:
+              developerNames.isNotEmpty ? developerNames : meta.developers,
           creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
           series: emptyToNull(seriesTitleController.text) ?? meta.series,
           publishers: updatedPub != null ? [updatedPub] : meta.publishers,
+          franchise: updatedFranchise ?? meta.franchise,
+          genres: genres,
+          ageRating: updatedAgeRating ?? meta.ageRating,
+          languages: languages,
+          country: updatedCountry ?? meta.country,
           releaseDate: parseDate(releaseDateController.text),
         ) ??
-        selection.item.kindMetadata;
+        selection.kindItem.mapTransport((transport) => transport).kindMetadata;
 
-    final updatedItem = selection.item.copyWith(
-      kindMetadata: updatedMetadata,
+    final updatedItem = selection.kindItem.mapTransport(
+      (transport) => CatalogSearchCandidate.fromItem(
+        transport.withKindMetadata(updatedMetadata),
+      ),
     );
 
     return LibraryEditSelection(
       scope: selection.scope,
-      item: updatedItem,
+      item: updatedItem.editMetadata,
+      kindItem: updatedItem,
       personal: selection.personal,
       wishlist: selection.wishlist,
       tracking: selection.tracking,
@@ -139,4 +185,14 @@ class GameEditController {
     }
     return output;
   }
+}
+
+List<String> _splitValues(String value, {required List<String> fallback}) {
+  final values = value
+      .split(RegExp(r'[,\r\n]+'))
+      .map((entry) => entry.trim())
+      .where((entry) => entry.isNotEmpty)
+      .toSet()
+      .toList();
+  return values.isEmpty ? fallback : values;
 }

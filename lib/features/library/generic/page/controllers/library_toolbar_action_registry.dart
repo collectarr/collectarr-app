@@ -1,15 +1,16 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_actions.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
 
 class LibraryToolbarSearchContext {
@@ -54,7 +55,7 @@ class LibraryToolbarViewContext {
     required this.onTogglePinnedColumnFavorite,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryWorkspaceBrowserMode activeBrowserMode;
   final String? activeReleaseFolderTitleItemId;
 
@@ -188,28 +189,42 @@ class LibraryToolbarActionRegistry {
     required ShelfState? shelfState,
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
-    final runtime = actionContext.view.type;
-    final kindToolbarActions = runtime.toolbar?.actions ?? const [];
+    final kindModule = actionContext.view.type;
+    final kindToolbarActions = kindModule.toolbar?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);
-    final extraUtilityActions = kindToolbarActions
-        .map(
-          (descriptor) => descriptor.buildAction(
-            buildContext,
-            LibraryToolbarActionContext(
-              type: actionContext.view.type,
-              projection: projection,
-              onJumpToNumberSubmitted: projection == null
-                  ? null
-                  : (value) => actionContext.metadata.onJumpToNumberSubmitted(
-                        projection,
-                        value,
-                      ),
-              onMissingSequenceReport:
-                  actionContext.collectionActions.onMissingSequenceReport,
-            ),
-          ),
-        )
-        .toList(growable: false);
+    final kindActionContext = LibraryToolbarActionContext(
+      buildContext: buildContext,
+      type: actionContext.view.type,
+      projection: projection,
+      onJumpToNumberSubmitted: projection == null
+          ? null
+          : (value) => actionContext.metadata.onJumpToNumberSubmitted(
+                projection,
+                value,
+              ),
+      onMissingSequenceReport:
+          actionContext.collectionActions.onMissingSequenceReport,
+    );
+    final extraUtilityActions = <LibraryUtilityMenuAction>[];
+    for (final action in kindToolbarActions) {
+      if (!action.isVisible(kindActionContext)) continue;
+      final enabled = action.isEnabled(kindActionContext);
+      extraUtilityActions.add(
+        LibraryUtilityMenuAction(
+          icon: action.icon,
+          label: action.label,
+          section: 'Kind actions',
+          enabled: enabled,
+          onSelected: enabled
+              ? () => unawaited(
+                    Future<void>.sync(
+                      () => action.run(kindActionContext),
+                    ),
+                  )
+              : null,
+        ),
+      );
+    }
 
     return LibraryToolbarActions(
       onAdd: enabled(LibraryToolbarActionId.add)
@@ -231,7 +246,9 @@ class LibraryToolbarActionRegistry {
           : () {},
       onSortChanged: (String column) => actionContext.view.onUpdateViewState(
         (LibraryWorkspaceViewState next) => next.withSortColumn(
-          runtime.fields.decodeSortId(column),
+          libraryKindWorkspaceForKind(kindModule.kind)
+              .fields
+              .decodeSortId(column),
           actionContext.view.viewProfile,
         ),
       ),
@@ -285,17 +302,18 @@ class LibraryToolbarActionRegistry {
       onRandomPick: projection == null
           ? null
           : () => actionContext.grouping.onRandomPick(projection),
-      onScanCover: runtime.add.chrome.canScanCover
+      onScanCover: kindModule.add.chrome.canScanCover
           ? actionContext.adminActions.onScanCover
           : null,
-      onDownloadAllCovers: runtime.add.chrome.canScanCover && shelfState != null
-          ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
-          : null,
+      onDownloadAllCovers:
+          kindModule.add.chrome.canScanCover && shelfState != null
+              ? () => actionContext.adminActions.onDownloadAllCovers(shelfState)
+              : null,
       onSmartLists: shelfState == null
           ? null
           : () => actionContext.grouping.onSmartLists(shelfState),
       onFolders: actionContext.grouping.onShowUserFoldersFlow,
-      onReadingQueue: runtime.toolbarActionAvailability
+      onReadingQueue: kindModule.toolbarActionAvailability
               .allows(LibraryToolbarActionId.readingQueue)
           ? actionContext.grouping.onShowReadingQueueFlow
           : null,
@@ -309,7 +327,7 @@ class LibraryToolbarActionRegistry {
           : () =>
               actionContext.collectionActions.onTransferFieldData(projection),
       onReassignIndex: projection == null ||
-              !runtime.toolbarActionAvailability
+              !kindModule.toolbarActionAvailability
                   .allows(LibraryToolbarActionId.reassignIndex)
           ? null
           : () => actionContext.collectionActions.onReassignIndex(projection),
@@ -321,7 +339,7 @@ class LibraryToolbarActionRegistry {
           ? () => actionContext.collectionActions.onShareCollection(projection)
           : null,
       onCompareMetadataWithServer: (() {
-        if (projection == null || !runtime.metadata.supportsServerCompare) {
+        if (projection == null || !kindModule.metadata.supportsServerCompare) {
           return null;
         }
         final selected =

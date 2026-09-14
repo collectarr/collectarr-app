@@ -1,21 +1,21 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/contracts/tv_contracts.dart';
+import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_fields.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('TV Kind Vertical Slice Tests (C5)', () {
@@ -86,25 +86,25 @@ void main() {
         episodeRuntimeMinutes: 47,
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'tv_1',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'tv_1',
             mediaKind: CatalogMediaKind.tv,
           ),
           kindMetadata: tvMeta,
-        ),
-        ownedItem: OwnedItem(
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'tv_1',
-            kind: 'tv',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.tv,
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = TvWorkspaceProjector();
@@ -121,6 +121,7 @@ void main() {
       expect(dto.metadata?.status, 'Ended');
       expect(dto.metadata?.seasonCount, 5);
       expect(dto.metadata?.episodeCount, 62);
+      expect(dto.video, isA<TvCatalogItem>());
 
       final ctx = LibraryProjectionContext<TvWorkspaceDto>(
         source: shelfEntry,
@@ -141,12 +142,12 @@ void main() {
         'TvLibraryKindProviderMapper parses TMDb envelope into TvSeriesMetadata',
         () {
       const mapper = TvLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '1396',
-          kind: 'tv',
-          normalized: const {
+          kind: CatalogMediaKind.tv,
+          payload: const ProviderMetadataPayload({
             'title': 'Breaking Bad',
             'status': 'Ended',
             'network': 'AMC',
@@ -155,7 +156,7 @@ void main() {
             'episode_count': 62,
             'episode_runtime_minutes': 47,
             'content_rating': 'TV-MA',
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -164,13 +165,11 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<TvSeriesMetadata>());
-      final meta = item.kindMetadata as TvSeriesMetadata;
-      expect(meta.title, 'Breaking Bad');
-      expect(meta.status, 'Ended');
-      expect(meta.network, 'AMC');
-      expect(meta.seasonCount, 5);
-      expect(meta.episodeCount, 62);
+      expect(item.title, 'Breaking Bad');
+      expect(item.status, 'Ended');
+      expect(item.network, 'AMC');
+      expect(item.seasonCount, 5);
+      expect(item.episodeCount, 62);
     });
 
     test('TvCatalog and TvEntry round-trip and preserve all kind fields', () {
@@ -232,15 +231,15 @@ void main() {
       expect(restored.seasonCount, 5);
       expect(restored.network, 'AMC');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'tv_breaking_bad',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'tv_breaking_bad',
             mediaKind: CatalogMediaKind.tv,
           ),
           kindMetadata: TvSeriesMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = TvEntry.fromShelf(shelfEntry);

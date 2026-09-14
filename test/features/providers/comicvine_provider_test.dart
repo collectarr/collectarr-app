@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,13 +27,42 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('ComicVineProvider', () {
+    test('decodes issue aggregates into provider-native models', () {
+      final issue = ComicVineIssue.fromJson({
+        'id': 160294,
+        'issue_number': '1',
+        'volume': {
+          'name': 'Absolute Batman',
+          'start_year': '2024',
+          'publisher': {'name': 'DC Comics'},
+        },
+        'image': {'scale_large': 'https://example.com/cover.jpg'},
+        'person_credits': [
+          {'name': 'Scott Snyder', 'role': 'Writer'},
+        ],
+      });
+
+      expect(issue.id, '160294');
+      expect(issue.issueNumber, '1');
+      expect(issue.volume?.name, 'Absolute Batman');
+      expect(issue.volume?.startYear, 2024);
+      expect(issue.volume?.publisherName, 'DC Comics');
+      expect(issue.image?.scaleLarge, 'https://example.com/cover.jpg');
+      expect(issue.personCredits.single.name, 'Scott Snyder');
+      final volume = issue.toJson()['volume'];
+      expect(volume, isA<Map<String, dynamic>>());
+      if (volume is Map<String, dynamic>) {
+        expect(volume['name'], 'Absolute Batman');
+      }
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = ComicVineProvider();
       expect(provider.name, 'comicvine');
       expect(provider.descriptor.displayName, 'Comic Vine');
-      expect(provider.descriptor.kind, 'comic');
-      expect(
-          provider.descriptor.supportedKinds, containsAll(['comic', 'manga']));
+      expect(provider.descriptor.kind, CatalogMediaKind.comic);
+      expect(provider.descriptor.supportedKinds,
+          containsAll([CatalogMediaKind.comic, CatalogMediaKind.manga]));
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '200 req/15min');
@@ -90,7 +120,7 @@ void main() {
       expect(item.provider, 'comicvine');
       expect(item.providerItemId, '4000-160294');
       expect(item.title, 'Absolute Batman #1');
-      expect(item.kind, 'comic');
+      expect(item.kind, CatalogMediaKind.comic);
       expect(item.summary, 'Absolute Batman #1');
       expect(item.imageUrl,
           'https://comicvine.gamespot.com/a/uploads/scale_large/1/1/batman1.jpg');
@@ -155,20 +185,19 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'comicvine');
       expect(envelope.providerItemId, '4000-160294');
-      expect(envelope.kind, 'comic');
-      expect(envelope.normalized['title'], 'Absolute Batman #1');
-      expect(envelope.normalized['series_title'], 'Absolute Batman');
-      expect(envelope.normalized['item_number'], '1');
-      expect(envelope.normalized['volume_start_year'], 2024);
-      expect(envelope.normalized['publisher'], 'DC Comics');
-      expect(envelope.normalized['synopsis'],
+      expect(envelope.kind, CatalogMediaKind.comic);
+      expect(envelope.payload['title'], 'Absolute Batman #1');
+      expect(envelope.payload['series_title'], 'Absolute Batman');
+      expect(envelope.payload['item_number'], '1');
+      expect(envelope.payload['volume_start_year'], 2024);
+      expect(envelope.payload['publisher'], 'DC Comics');
+      expect(envelope.payload['synopsis'],
           contains('In this new DC Absolute universe'));
-      expect(envelope.normalized['creators'], hasLength(2));
-      expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+      expect(envelope.payload['creators'], hasLength(2));
+      expect(jsonObjectList(envelope.payload['creators'])[0]['name'],
           'Scott Snyder');
-      expect(
-          jsonObjectList(envelope.normalized['creators'])[0]['role'], 'Writer');
-      expect(envelope.normalized['variant_covers'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators'])[0]['role'], 'Writer');
+      expect(envelope.payload['variant_covers'], hasLength(1));
       expect(envelope.images, hasLength(2));
       expect(envelope.attribution.required, isTrue);
     });
@@ -186,7 +215,7 @@ void main() {
       );
       expect(cvFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(cvFixtureRaw as Map),
       );
 
@@ -222,28 +251,25 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['series_title'],
-          goldenEnvelope.normalized['series_title']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
       expect(
-          normalized['item_number'], goldenEnvelope.normalized['item_number']);
+          normalized['series_title'], goldenEnvelope.payload['series_title']);
+      expect(normalized['item_number'], goldenEnvelope.payload['item_number']);
       expect(normalized['volume_start_year'],
-          goldenEnvelope.normalized['volume_start_year']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
+          goldenEnvelope.payload['volume_start_year']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
       expect(jsonObject(normalized['provider_ids'])['comicvine'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['comicvine']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['comicvine']);
       expect(jsonObjectList(normalized['creators'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['name']);
       expect(jsonObjectList(normalized['creators'])[0]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
-      expect(
-          jsonObjectList(normalized['variant_covers'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['variant_covers'])[0]
-              ['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['role']);
+      expect(jsonObjectList(normalized['variant_covers'])[0]['name'],
+          jsonObjectList(goldenEnvelope.payload['variant_covers'])[0]['name']);
       expect(
           jsonObjectList(normalized['variant_covers'])[0]['cover_image_url'],
-          jsonObjectList(goldenEnvelope.normalized['variant_covers'])[0]
+          jsonObjectList(goldenEnvelope.payload['variant_covers'])[0]
               ['cover_image_url']);
     });
   });

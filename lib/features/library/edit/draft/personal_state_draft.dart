@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:flutter/material.dart';
 
@@ -24,14 +24,8 @@ class PersonalStateDraft {
     required this.tagOptions,
     required this.availableLocations,
     required this.selectedLocationId,
-    required this.selectedOwnedAnchorType,
-    required this.selectedEditionId,
-    required this.selectedVariantId,
-    required this.selectedBundleReleaseId,
-    required this.selectedWishlistAnchorType,
-    required this.selectedWishlistEditionId,
-    required this.selectedWishlistVariantId,
-    required this.selectedWishlistBundleReleaseId,
+    required this.selectedOwnedTargetRef,
+    required this.selectedWishlistCatalogRef,
     required this.locationChanged,
     required this.soldAt,
     required this.collectionStatus,
@@ -58,15 +52,14 @@ class PersonalStateDraft {
   List<String> tagOptions;
   List<StorageLocation> availableLocations;
   String? selectedLocationId;
-  PersonalItemAnchorType selectedOwnedAnchorType;
-  String? selectedEditionId;
-  String? selectedVariantId;
-  String? selectedBundleReleaseId;
 
-  PersonalItemAnchorType selectedWishlistAnchorType;
-  String? selectedWishlistEditionId;
-  String? selectedWishlistVariantId;
-  String? selectedWishlistBundleReleaseId;
+  /// Exact catalog target selected for this Owned copy.
+  ///
+  /// A null value means the root work/media target. The generic edit host
+  /// transports this opaque reference and never interprets entity types.
+  CatalogEntityRef? selectedOwnedTargetRef;
+
+  CatalogEntityRef? selectedWishlistCatalogRef;
 
   bool locationChanged;
   DateTime? soldAt;

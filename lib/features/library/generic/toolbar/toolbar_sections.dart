@@ -1,7 +1,8 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -88,7 +89,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.showBottomBorder = true,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
   final VoidCallback onEditColumns;
@@ -704,7 +705,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     this.onSearchTargetChanged,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final TextEditingController searchController;
   final LibraryCollectionStatusScope collectionStatusScope;
@@ -1010,7 +1011,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     this.searchActive = false,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final TextEditingController searchController;
   final Color accent;
   final LibraryToolbarCounts counts;

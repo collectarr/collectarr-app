@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
@@ -12,62 +12,68 @@ final class MovieWorkspaceProjector
 
   @override
   MovieWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final movie =
-        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
-    MovieCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is MovieCatalogMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return MovieWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _movieCommonProjection(source, node, catalog.movie),
       personal: PersonalCopyProjection.fromShelf(source),
-      movie: movie,
-      metadata: metadata,
+      movie: catalog.movie,
+      media: catalog.media,
+      metadata: catalog.metadata,
     );
   }
 
   @override
   MovieWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final movie =
-        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
-    MovieCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is MovieCatalogMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return MovieWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _movieCommonProjection(source, node, catalog.movie),
       personal: PersonalCopyProjection.fromShelf(source),
-      movie: movie,
-      metadata: metadata,
+      movie: catalog.movie,
+      media: catalog.media,
+      metadata: catalog.metadata,
     );
   }
 
   @override
   MovieWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
-    final movie =
-        VideoCatalogMapper.mapMetadataItemToVideo(source.catalogItem!);
-    MovieCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is MovieCatalogMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return MovieWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _movieCommonProjection(source, node, catalog.movie),
       personal: PersonalCopyProjection.fromShelf(source),
-      movie: movie,
-      metadata: metadata,
+      movie: catalog.movie,
+      media: catalog.media,
+      metadata: catalog.metadata,
     );
   }
+}
+
+MovieWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final MovieWorkspaceCatalogData catalog) return catalog;
+  throw StateError('Expected MovieWorkspaceCatalogData for movie workspace');
+}
+
+WorkspaceCommonProjection _movieCommonProjection(
+  LibraryWorkspaceSource source,
+  LibraryNodeRef node,
+  MovieCatalogItem movie,
+) {
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: movie.work.title,
+    overrideSynopsis: movie.work.synopsis,
+    overrideReleaseDate: movie.work.releaseDate,
+    overrideCoverImageUrl: movie.primaryRelease?.frontCoverUrl,
+  );
 }

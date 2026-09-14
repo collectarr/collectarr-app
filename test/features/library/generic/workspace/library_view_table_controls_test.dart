@@ -70,7 +70,7 @@ void main() {
     );
 
     expect(
-      find.byKey(const ValueKey('legacy-library-column-split-button')),
+      find.byKey(const ValueKey('library-column-split-button')),
       findsOneWidget,
     );
     expect(find.byKey(viewModeDropdownKey), findsOneWidget);
@@ -91,7 +91,7 @@ void main() {
     detailsDropdown.onSelected?.call(LibraryDetailsLayout.hidden);
     await tester.pump();
 
-    expect(find.byKey(const ValueKey('legacy-library-column-split-button')),
+    expect(find.byKey(const ValueKey('library-column-split-button')),
         findsNothing);
     expect(detailsLayout, LibraryDetailsLayout.hidden);
 
@@ -100,7 +100,7 @@ void main() {
 
     await tester.tap(
       find.descendant(
-        of: find.byKey(const ValueKey('legacy-library-column-split-button')),
+        of: find.byKey(const ValueKey('library-column-split-button')),
         matching: find.byIcon(Icons.keyboard_arrow_down),
       ),
     );

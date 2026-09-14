@@ -2,8 +2,10 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
@@ -83,7 +85,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   }
 
   /// Build sorted [FacetBuckets] from a bucket map.
-  /// When [allBucketLabel] is non-null an "All …" entry is prepended.
+  /// When [allBucketLabel] is non-null an "All Ã¢â‚¬Â¦" entry is prepended.
   static FacetBuckets buildFacetBuckets({
     required String signature,
     required Map<String, Set<String>> byBucket,
@@ -113,13 +115,12 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
 
   /// Fetch facet rows from the API and build [FacetBuckets].
   Future<FacetBuckets> fetchFacetBuckets({
-    required LibraryKindRuntime type,
+    required LibraryFacetModule? facets,
     required LibraryFacetIdRuntime facetId,
     required Set<String> itemIds,
     required String signature,
     String? allBucketLabel,
   }) async {
-    final facets = type.facets;
     if (facets == null) {
       return FacetBuckets(
         shelfSignature: signature,
@@ -164,6 +165,9 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
         ownedMutations: ref.read(ownedItemMutationsProvider),
         wishlistMutations: ref.read(wishlistMutationsProvider),
         trackingMutations: ref.read(trackingMutationsProvider),
+        catalogSnapshots: CatalogSnapshotRepository(
+          ref.read(localDatabaseProvider),
+        ),
       );
 
   /// Show a confirmation dialog for bulk removal and return the user's choice.
@@ -225,7 +229,7 @@ mixin LibraryPageUtilities<T extends ConsumerStatefulWidget>
   /// Show the bulk edit dialog and return the selection (null = cancelled).
   Future<LibraryBulkEditSelection?> showBulkEditDialog(
     BuildContext context, {
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required int selectedCount,
   }) {
     return showDialog<LibraryBulkEditSelection>(

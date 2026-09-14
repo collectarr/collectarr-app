@@ -3,7 +3,6 @@ import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,7 +10,7 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   test('library projection prefers structured location path', () {
-    final source = testShelfEntry(
+    final source = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
@@ -40,11 +39,11 @@ void main() {
     );
 
     expect(projection.source.locationPath, 'Office › Shelf 2 › Short Box 1');
-    expect(projection.source.ownedItem?.personalNotes, 'Newsstand copy');
+    expect(projection.source.ownedSummary?.notes, 'Newsstand copy');
   });
 
   test('library projection exposes bundle and release reference labels', () {
-    final source1 = testShelfEntry(
+    final source1 = testLibraryWorkspaceSource(
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Batman',
@@ -66,25 +65,23 @@ void main() {
       dto: dto1,
     );
 
-    final source2 = ShelfEntry(
+    final source2 = LibraryWorkspaceSource(
       itemId: 'comic-3',
-      catalogItem: LibraryMetadataItem.fromCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-3',
           kind: 'comic',
           title: 'Detective Comics',
         ),
-      ),
+      ).asShelfCatalogItem),
       wishlistItem: WishlistItem(
         id: 'wish-3',
         catalogRef: const CatalogEntityRef(
-          kind: 'comic',
-          entityType: CatalogEntityType.ownedCopy,
-          id: 'comic-3',
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('release'),
+          id: 'variant-3',
+          rootId: 'comic-3',
         ),
-        anchorType: 'variant',
-        editionId: 'edition-3',
-        variantId: 'variant-3',
         createdAt: DateTime.utc(2026, 5, 23),
         updatedAt: DateTime.utc(2026, 5, 23),
       ),

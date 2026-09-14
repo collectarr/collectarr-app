@@ -1,129 +1,61 @@
-import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
+/// Seeds only vocabulary definitions owned by a concrete kind.
+///
+/// Kind values are captured rather than replaced so checked-in built-ins and
+/// values discovered from the seeded catalog are both available.
 Future<void> seedPickLists(PickListRepository repo) async {
-  await repo.setValues('conditions', [
-    'Mint',
-    'Near Mint',
-    'Very Fine',
-    'Fine',
-    'Very Good',
-    'Good',
-    'Fair',
-    'Poor',
-  ]);
-  await repo.setValues('grades', [
-    '10.0',
-    '9.8',
-    '9.6',
-    '9.4',
-    '9.2',
-    '9.0',
-    '8.5',
-    '8.0',
-    '7.5',
-    '7.0',
-    '6.5',
-    '6.0',
-    '5.5',
-    '5.0',
-  ]);
-  await repo.setValues('physical_formats', [
-    'Single Issue',
-    'Trade Paperback',
-    'Hardcover',
-    'Omnibus',
-    'Paperback',
-    'Audiobook',
-    'DVD',
-    'Blu-ray',
-    '4K UHD',
-    'Vinyl',
-    'CD',
-    'Cassette',
-    'SACD',
-    'Board Game',
-    'Expansion',
-    'PS4',
-    'PS5',
-    'Xbox One',
-    'Xbox Series',
-    'Switch',
-    'PC',
-  ]);
-  await repo.setValues('countries', [
-    'US',
-    'GB',
-    'CA',
-    'AU',
-    'DE',
-    'FR',
-    'JP',
-    'SE',
-    'IS',
-    'EE',
-    'PL',
-  ]);
-  await repo.setValues('languages', [
-    'en',
-    'fr',
-    'de',
-    'ja',
-    'is',
-    'es',
-  ]);
-  await repo.setValues('age_ratings', [
-    'Everyone',
-    'E10+',
-    'Teen',
-    'T',
-    'M',
-    'PG',
-    'PG-13',
-    'R',
-    'TV-MA',
-    '10+',
-    '12+',
-    '14+',
-    'Adult',
-    'Mature',
-  ]);
-  await repo.setValues('genres', [
-    'action',
-    'adventure',
-    'comedy',
-    'crime',
-    'drama',
-    'fantasy',
-    'horror',
-    'mystery',
-    'romance',
-    'sci-fi',
-    'thriller',
-    'superhero',
-    'RPG',
-    'platformer',
-    'roguelike',
-    'cooperative',
-    'strategy',
-    'hip hop',
-    'jazz',
-    'electronic',
-    'rock',
-    'alternative rock',
-    'trip hop',
-  ]);
-  await repo.setValues('story_arcs', [
-    'Batman\'s Origin',
-    'Gotham\'s Reckoning',
-    'Replicant Hunt',
-    'Xenomorph Saga',
-    'Arrakis Saga',
-    'War of the Ring',
-    'Wild Hunt Pursuit',
-    'Age of Fire',
-    'Illithid Invasion',
-    'Legacy Campaign',
-    'The Human Condition',
-    'Compton Chronicles',
-  ]);
+  for (final contributor in collectarrKindPickListDefinitionContributors) {
+    if (contributor is! VocabularyPickListDefinitionContributor) continue;
+    await _seedKindVocabularies(
+      repo,
+      contributor.kind.apiValue,
+      contributor.vocabularies,
+    );
+  }
+}
+
+/// Returns the number of built-in values that every kind-owned vocabulary
+/// must contain after seeding. Empty definitions are intentionally omitted:
+/// they are populated only from catalog data or user input.
+Map<String, int> devSeedVocabularyMinimumCounts() {
+  final result = <String, int>{};
+
+  void add(Iterable<VocabularyDefinition<dynamic>> definitions) {
+    for (final definition in definitions) {
+      final count = definition.builtIns.length;
+      if (count > 0) {
+        result[definition.key] = count;
+      }
+    }
+  }
+
+  for (final contributor in collectarrKindPickListDefinitionContributors) {
+    if (contributor is! VocabularyPickListDefinitionContributor) continue;
+    add(contributor.vocabularies);
+  }
+  return result;
+}
+
+Future<void> _seedKindVocabularies(
+  PickListRepository repo,
+  String mediaKind,
+  Iterable<VocabularyDefinition<dynamic>> definitions,
+) async {
+  for (final definition in definitions) {
+    final builtIns = [
+      for (final value in definition.builtIns) value.toString(),
+    ];
+    if (builtIns.isEmpty) {
+      continue;
+    }
+    await repo.captureValues(
+      definition.key,
+      builtIns,
+      mediaKind: mediaKind,
+    );
+  }
 }

@@ -34,7 +34,7 @@ void main() {
           seriesTitle: 'Cowboy Bebop',
         ),
         editions: const [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'ed-1',
             title: 'Blu-ray Collector Edition',
             physicalFormat: 'Blu-ray',
@@ -46,15 +46,14 @@ void main() {
         },
       );
 
-      final shelf = ShelfEntry(
+      final shelf = LibraryWorkspaceSource(
         itemId: 'anime-1',
-        catalogItem: catalogItem,
-        ownedItem: testOwnedItem(
+        catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-anime-1',
           itemId: 'anime-1',
           updatedAt: DateTime.utc(2026, 5, 30),
-        ),
-        trackingEntry: null,
+        )),
         wishlistItem: null,
         locationPath: 'Shelf B / Box 2',
         watchSessions: const [],
@@ -74,13 +73,17 @@ void main() {
       );
 
       expect(item.dto.seriesTitle, 'Cowboy Bebop');
-      expect(item.source.catalogItem?.editions, hasLength(1));
+      expect(
+        catalogItem.editions,
+        hasLength(1),
+      );
     });
 
     test('AnimeMetadata serialization and deserialization roundtrip', () {
       final metadata = AnimeMetadata(
-        nativeTitle: 'カウボーイビバップ',
-        romajiTitle: 'Kaubōi Bibappu',
+        nativeTitle:
+            'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”',
+        romajiTitle: 'KaubÃ…Âi Bibappu',
         englishTitle: 'Cowboy Bebop',
         alternateTitles: const ['COWBOY BEBOP'],
         format: AnimeFormat.tv,
@@ -111,8 +114,9 @@ void main() {
       final json = metadata.toJson();
       final fromJson = AnimeMetadata.fromJson(json);
 
-      expect(fromJson.nativeTitle, 'カウボーイビバップ');
-      expect(fromJson.romajiTitle, 'Kaubōi Bibappu');
+      expect(fromJson.nativeTitle,
+          'Ã£â€šÂ«Ã£â€šÂ¦Ã£Æ’Å“Ã£Æ’Â¼Ã£â€šÂ¤Ã£Æ’â€œÃ£Æ’ÂÃ£Æ’Æ’Ã£Æ’â€”');
+      expect(fromJson.romajiTitle, 'KaubÃ…Âi Bibappu');
       expect(fromJson.englishTitle, 'Cowboy Bebop');
       expect(fromJson.format, AnimeFormat.tv);
       expect(fromJson.season, AnimeSeason.spring);
@@ -151,11 +155,12 @@ void main() {
     });
 
     test('AnimeKindModule uses Anime-owned capabilities exclusively', () {
-      expect(animeKindModule.kind, CatalogMediaKind.anime);
+      expect(animeKindModule.identity.kind, CatalogMediaKind.anime);
       expect(animeKindModule.add.kind, CatalogMediaKind.anime);
       expect(animeKindModule.add.createInitialDraft(), isA<AnimeAddDraft>());
-      expect(animeKindModule.ownedDetailsCodec, isA<AnimeOwnedDetailsCodec>());
-      expect(animeKindModule.defaultOwnedDetails(), isA<AnimeOwnedDetails>());
+      expect(const AnimeOwnedDetailsCodec(), isA<AnimeOwnedDetailsCodec>());
+      expect(const AnimeOwnedDetailsCodec().defaultDetails(),
+          isA<AnimeOwnedDetails>());
     });
   });
 }

@@ -1,10 +1,9 @@
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   testWidgets('group mode dropdown exposes favorites and folders sections', (
@@ -14,11 +13,11 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             selectedPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
-            availableModes: libraryGroupModesForType(movieKindModule),
+            availableModes: libraryGroupModesForType(const MovieRegistration()),
             initialPinnedPresets: [
               LibraryFolderPreset.single('movie.director'),
             ],
@@ -68,9 +67,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             selectedPreset: null,
-            availableModes: libraryGroupModesForType(movieKindModule),
+            availableModes: libraryGroupModesForType(const MovieRegistration()),
             initialPinnedPresets: const [],
             sidebarVisible: false,
             hasSidebarVisibilityToggle: true,
@@ -94,7 +93,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -140,7 +139,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -169,7 +168,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -204,7 +203,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             folderPreset: LibraryFolderPreset(
               modes: ['movie.director', 'movie.publisher'],
             ),
@@ -224,7 +223,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeMenuButton(
-            type: movieKindModule,
+            type: const MovieRegistration(),
             folderPreset: LibraryFolderPreset.single(
               'movie.director',
             ),
@@ -253,7 +252,7 @@ void main() {
           body: Align(
             alignment: Alignment.topLeft,
             child: LibraryGroupModeMenuButton(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               folderPreset: LibraryFolderPreset.single(
                 'movie.director',
               ),
@@ -285,9 +284,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryGroupModeDropdownMenu(
-            type: comicKindModule,
+            type: const ComicRegistration(),
             selectedPreset: LibraryFolderPreset.single('comic.publisher'),
-            availableModes: libraryGroupModesForType(comicKindModule),
+            availableModes: libraryGroupModesForType(const ComicRegistration()),
             initialPinnedPresets: [
               LibraryFolderPreset.single('comic.series'),
             ],

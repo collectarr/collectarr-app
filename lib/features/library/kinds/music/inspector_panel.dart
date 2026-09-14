@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
@@ -11,8 +12,9 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,13 +23,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-MusicCatalogMetadata? _musicMetadata(LibraryProjectionRuntime item) {
-  final metadata = item.source.catalogItem?.kindMetadata;
-  if (metadata is MusicCatalogMetadata) return metadata;
-  if (metadata != null) {
-    return MusicCatalogMetadata.fromJson(metadata.toSyncPayload());
-  }
-  return null;
+MusicCatalogMetadata? _musicMetadata(LibraryProjectionView item) {
+  final catalog = item.source.catalogData;
+  return catalog is MusicWorkspaceCatalogData ? catalog.metadata : null;
 }
 
 Widget buildMusicInspectorPanel(
@@ -176,7 +174,7 @@ class _MusicInspectorMain extends StatelessWidget {
     final totalTracks = metadata?.trackCount ?? tracks.length;
     final totalDuration = _formatTotalDuration(tracks);
     final dto = inspector.item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is MusicWorkspaceDto ? dto : null;
     final formatLabel =
         adapter?.referenceFormatLabel ?? adapter?.variant ?? '-';
 
@@ -199,7 +197,7 @@ class _MusicInspectorMain extends StatelessWidget {
                 child: LibraryInteractiveCover(
                   title: dto.title,
                   itemNumber:
-                      (dto is WorkspaceDtoAdapter ? (dto).itemNumber : null),
+                      (dto is MusicWorkspaceDto ? (dto).itemNumber : null),
                   imageUrl: dto.coverImageUrl,
                   accentColor: inspector.accent,
                 ),
@@ -217,7 +215,7 @@ class _MusicInspectorMain extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                   ),
-                  if (dto is WorkspaceDtoAdapter &&
+                  if (dto is MusicWorkspaceDto &&
                       (dto).seriesTitle?.trim().isNotEmpty == true) ...[
                     const SizedBox(height: 2),
                     Text(
@@ -326,7 +324,7 @@ class _MusicInspectorTracks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tracks =
-        _musicMetadata(inspector.item)?.tracks ?? const <CatalogTrack>[];
+        _musicMetadata(inspector.item)?.tracks ?? const <CatalogTrackDto>[];
     final groups = _groupTracksByDisc(tracks);
     if (groups.isEmpty) {
       return const SizedBox.shrink();
@@ -436,18 +434,19 @@ class _MusicProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dto = inspector.item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final adapter = dto is MusicWorkspaceDto ? dto : null;
+    final musicDto = dto is MusicWorkspaceDto ? dto : null;
     final metadata = _musicMetadata(inspector.item);
     final music = metadata?.music;
     final rows = <(String, String)>[
-      if (adapter?.publisher?.trim().isNotEmpty == true)
-        ('Label', adapter!.publisher!),
+      if (musicDto?.publisher?.trim().isNotEmpty == true)
+        ('Label', musicDto!.publisher!),
       if (music?['catalog_number']?.toString().trim().isNotEmpty == true)
         ('Catalog number', music!['catalog_number'].toString()),
       if (music?['upc']?.toString().trim().isNotEmpty == true)
         ('UPC', music!['upc'].toString()),
-      if (adapter?.barcode?.trim().isNotEmpty == true)
-        ('Barcode', adapter!.barcode!),
+      if (musicDto?.barcode?.trim().isNotEmpty == true)
+        ('Barcode', musicDto!.barcode!),
       if (adapter?.referenceFormatLabel?.trim().isNotEmpty == true ||
           adapter?.variant?.trim().isNotEmpty == true)
         ('Format', adapter?.referenceFormatLabel ?? adapter?.variant ?? '-'),
@@ -495,7 +494,9 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final source = inspector.item.source;
-    final owned = inspector.ownedItem;
+    final owned = MusicOwnedItemProjection.fromDispatch(
+      inspector.ownedItemDispatch,
+    );
     final personalRows = <(String, String)>[
       ('Index', owned?.indexNumber?.toString() ?? '-'),
       if (owned?.condition?.trim().isNotEmpty == true)
@@ -1010,10 +1011,11 @@ bool _matchesTrackTerms(CatalogTrackDto track, List<String> terms) {
   return terms.every(searchable.contains);
 }
 
-Uri? _ebayUri(LibraryProjectionRuntime item) {
+Uri? _ebayUri(LibraryProjectionView item) {
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final barcode = adapter?.barcode?.trim();
+  final adapter = dto is MusicWorkspaceDto ? dto : null;
+  final musicDto = dto is MusicWorkspaceDto ? dto : null;
+  final barcode = musicDto?.barcode?.trim();
   if (barcode == null || barcode.isEmpty) {
     return null;
   }

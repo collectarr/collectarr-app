@@ -1,10 +1,9 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 
 abstract interface class LibraryLinkedMetadataCapability {
   const LibraryLinkedMetadataCapability();
 
-  Iterable<String> candidatesForEntry(ShelfEntry source);
+  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source);
 }
 
 class DefaultLibraryLinkedMetadataCapability
@@ -12,35 +11,37 @@ class DefaultLibraryLinkedMetadataCapability
   const DefaultLibraryLinkedMetadataCapability();
 
   @override
-  Iterable<String> candidatesForEntry(ShelfEntry source) sync* {
+  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
     yield* _commonCandidates(source);
   }
 }
 
-class TypedLibraryLinkedMetadataCapability<
-        TMetadata extends LibraryKindMetadataRuntime>
+class TypedLibraryLinkedMetadataCapability<TMetadata>
     extends LibraryLinkedMetadataCapability {
-  const TypedLibraryLinkedMetadataCapability(this._metadataValues);
+  const TypedLibraryLinkedMetadataCapability(
+    this._metadataReader,
+    this._metadataValues,
+  );
 
+  final TMetadata? Function(LibraryWorkspaceSource source) _metadataReader;
   final Iterable<String?> Function(TMetadata metadata) _metadataValues;
 
   @override
-  Iterable<String> candidatesForEntry(ShelfEntry source) sync* {
+  Iterable<String> candidatesForEntry(LibraryWorkspaceSource source) sync* {
     yield* _commonCandidates(source);
-    final metadata = source.catalogItem?.kindMetadata;
-    if (metadata is TMetadata) {
+    final metadata = _metadataReader(source);
+    if (metadata != null) {
       yield* _nonEmptyStrings(_metadataValues(metadata));
     }
   }
 }
 
-Iterable<String> _commonCandidates(ShelfEntry source) sync* {
-  final item = source.catalogItem;
-  if (item == null) return;
-  yield* _nonEmptyStrings([
-    item.title,
-    ...(item.searchAliases ?? const <String>[]),
-  ]);
+Iterable<String> _commonCandidates(LibraryWorkspaceSource source) sync* {
+  final summaryTitle = source.catalogSummary?.title;
+  if (summaryTitle != null) {
+    yield* _nonEmptyStrings([summaryTitle]);
+  }
+  yield* _nonEmptyStrings(source.catalogSearchTokens);
 }
 
 Iterable<String> _nonEmptyStrings(Iterable<String?> values) sync* {

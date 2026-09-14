@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,17 +6,17 @@ import 'package:url_launcher/url_launcher.dart';
 class LibraryDetailTrailersSection extends StatelessWidget {
   const LibraryDetailTrailersSection({
     super.key,
-    required this.trailerUrls,
+    required this.links,
     required this.accent,
   });
 
-  final List<TrailerLink> trailerUrls;
+  final List<LibraryWorkspaceLinkSummary> links;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final effectiveTrailers =
-        trailerUrls.where((link) => link.isTrailerLink).toList(growable: false);
+        links.where((link) => link.isTrailer).toList(growable: false);
     if (effectiveTrailers.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -50,12 +50,13 @@ class LibraryDetailTrailersSection extends StatelessWidget {
 class _TrailerTile extends StatelessWidget {
   const _TrailerTile({required this.trailer, required this.accent});
 
-  final TrailerLink trailer;
+  final LibraryWorkspaceLinkSummary trailer;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     final isYouTube =
         trailer.url.contains('youtube.com') || trailer.url.contains('youtu.be');
     return Padding(
@@ -78,18 +79,16 @@ class _TrailerTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      trailer.title ?? 'Trailer',
-                      style: const TextStyle(
+                      trailer.displayLabel,
+                      style: theme.textTheme.libraryBody.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: 13,
                       ),
                     ),
                     if (trailer.source != null)
                       Text(
                         trailer.source!,
-                        style: TextStyle(
+                        style: theme.textTheme.libraryCaption.copyWith(
                           color: palette.textMuted,
-                          fontSize: 11,
                         ),
                       ),
                   ],

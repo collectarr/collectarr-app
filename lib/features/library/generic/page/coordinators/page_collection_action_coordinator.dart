@@ -2,17 +2,18 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/collection_actions.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class LibraryPageCollectionActionCoordinator {
     if (!_page.type.metadata.supportsServerCompare) {
       return false;
     }
-    final catalogId = item.source.catalogItem?.id ?? item.node.id;
+    final catalogId = item.source.catalogRef?.id ?? item.node.id;
     if (_isNonServerMetadataId(catalogId)) {
       return false;
     }
@@ -126,7 +127,7 @@ class LibraryPageCollectionActionCoordinator {
           await bulkEditFlow(projection);
           return;
         }
-        unawaited(_showEditDialog(item, item.source.ownedItem));
+        unawaited(_showEditDialog(item, null));
       case LibraryItemContextAction.compareMetadataWithServer:
         if (isBatchSelection) {
           return;
@@ -162,14 +163,17 @@ class LibraryPageCollectionActionCoordinator {
       case LibraryItemContextAction.removeFromWishlist:
         await runCollectionAction((a) => a.removeWishlist(item));
       case LibraryItemContextAction.removeTracking:
-        final trackingEntries = _page.ref
-                .read(trackingEntriesByCatalogItemProvider)[item.node.id] ??
-            const <TrackingEntry>[];
-        final active = resolveActiveTrackingEntry(trackingEntries, null);
+        final trackingSummaries = switch (item.source.catalogRef) {
+          final catalogRef? =>
+            _page.ref.read(trackingSummariesByCatalogRefProvider)[catalogRef] ??
+                const <TrackingSummary>[],
+          _ => const <TrackingSummary>[],
+        };
+        final active = resolveActiveTrackingSummary(trackingSummaries, null);
         if (active != null) {
           await _page.ref
               .read(trackingMutationsProvider)
-              .removeTrackingEntry(active);
+              .removeTrackingByRef(active.ref);
         }
       case LibraryItemContextAction.copyTitle:
         await Clipboard.setData(ClipboardData(text: item.dto.title));
@@ -179,12 +183,9 @@ class LibraryPageCollectionActionCoordinator {
           );
         }
       case LibraryItemContextAction.copyBarcode:
-        final adapter = item.dto is WorkspaceDtoAdapter
-            ? item.dto as WorkspaceDtoAdapter
-            : null;
-        final barcode = adapter?.barcode;
-        if (barcode != null && barcode.isNotEmpty) {
-          await Clipboard.setData(ClipboardData(text: barcode));
+        final code = libraryCardPresentationForEntry(item).identifierCode;
+        if (code != null && code.isNotEmpty) {
+          await Clipboard.setData(ClipboardData(text: code));
           if (_page.mounted) {
             ScaffoldMessenger.of(_page.context).showSnackBar(
               const SnackBar(content: Text('Barcode copied')),
@@ -195,7 +196,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   Future<void> scanBarcodeFlow() async {
-    final code = await showModalBottomSheet<String>(
+    final scannedCode = await showModalBottomSheet<ScannedCode>(
       context: _page.context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -210,8 +211,22 @@ class LibraryPageCollectionActionCoordinator {
         leadingIcon: _page.type.identity.icon,
       ),
     );
-    if (code != null && _page.mounted) {
-      await _showAddDialog(barcode: code);
+    if (scannedCode != null && _page.mounted) {
+      final barcode = resolveLibraryBarcodeForKind(
+        _page.type.kind,
+        scannedCode.value,
+      );
+      if (barcode == null) {
+        ScaffoldMessenger.of(_page.context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'This code is not supported for ${_page.type.identity.pluralLabel.toLowerCase()}.',
+            ),
+          ),
+        );
+        return;
+      }
+      await _showAddDialog(identifierCode: barcode);
     }
   }
 
@@ -258,11 +273,8 @@ class LibraryPageCollectionActionCoordinator {
     final prefill = await PrefillDefaults.load();
     await _page.bulkActions().moveSelectedToOwned(
           entries,
-          defaultCondition:
-              prefill.condition ?? _page.type.edit.defaultCondition,
-          defaultGrade: prefill.grade ?? _page.type.edit.defaultGrade,
+          defaultCondition: _page.type.editPresentation.defaultCondition,
           defaultLocationId: prefill.locationId,
-          defaultReadStatus: prefill.readStatus,
           defaultTags: prefill.tags,
         );
     _page.rebuild(_page.clearSelection);
@@ -298,7 +310,7 @@ class LibraryPageCollectionActionCoordinator {
   }
 
   Future<void> singleDuplicateFlow(LibraryProjectionItem item) async {
-    if (item.source.ownedItem == null) return;
+    if (!item.source.isOwned) return;
     await _page.bulkActions().duplicateSelected([item.source]);
     if (_page.mounted) {
       _page.invalidateShelf();

@@ -1,7 +1,5 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -9,6 +7,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_node_ref
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../../helpers/test_constants.dart';
 import '../../../helpers/test_data_factories.dart';
@@ -24,7 +23,7 @@ void main() {
               onPressed: () {
                 showLibraryFilterDialog(
                   context: context,
-                  type: musicKindModule,
+                  type: const MusicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {
@@ -62,7 +61,7 @@ void main() {
               onPressed: () {
                 showLibraryFilterDialog(
                   context: context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {
@@ -90,13 +89,13 @@ void main() {
   });
 
   test('location filter matches exact location path', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Batman',
-      ),
+      ).asShelfCatalogItem),
       locationPath: 'Office > Shelf 2 > Short Box 1',
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
@@ -133,7 +132,7 @@ void main() {
   });
 
   test('tag filter matches exact tag case-insensitively', () {
-    final source = testShelfEntry(
+    final source = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
@@ -158,6 +157,7 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(fieldValues: {'tag': 'signed'}),
+        filterDefinitions: comicKindModule.presentation.filterDefinitions,
       ),
       isTrue,
     );
@@ -165,6 +165,7 @@ void main() {
       libraryFilterMatches(
         item,
         const LibraryFilterSelection(fieldValues: {'tag': 'Exclusive'}),
+        filterDefinitions: comicKindModule.presentation.filterDefinitions,
       ),
       isFalse,
     );
@@ -182,7 +183,7 @@ void main() {
 
     final sanitizedMusic = sanitizeLibraryFilterSelectionForType(
       selection,
-      musicKindModule,
+      const MusicRegistration(),
     );
     expect(sanitizedMusic.ownershipFilter, LibraryOwnershipFilter.all);
     expect(sanitizedMusic.fieldValue('grade'), isNull);
@@ -192,7 +193,7 @@ void main() {
 
     final sanitizedComics = sanitizeLibraryFilterSelectionForType(
       selection,
-      comicKindModule,
+      const ComicRegistration(),
     );
     expect(sanitizedComics.ownershipFilter, LibraryOwnershipFilter.all);
     expect(
@@ -202,7 +203,7 @@ void main() {
   });
 
   test('filter options extract normalized tags from entries', () {
-    final source1 = testShelfEntry(
+    final source1 = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
@@ -223,7 +224,7 @@ void main() {
       dto: dto1,
     );
 
-    final source2 = testShelfEntry(
+    final source2 = testLibraryWorkspaceSource(
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Robin',
@@ -244,7 +245,10 @@ void main() {
       dto: dto2,
     );
 
-    final options = LibraryFilterOptions.fromEntries([item1, item2]);
+    final options = LibraryFilterOptions.fromEntries(
+      [item1, item2],
+      filterDefinitions: comicKindModule.presentation.filterDefinitions,
+    );
 
     expect(options.valuesFor('tag'), ['Signed', 'Sketched', 'Variant']);
   });
@@ -263,7 +267,7 @@ void main() {
               onPressed: () async {
                 selection = await showLibraryFilterDialog(
                   context: context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: LibraryFilterOptions.fromEntries(
                     const [],
@@ -271,7 +275,7 @@ void main() {
                       CustomFieldDefinition(
                         id: 'cf-location',
                         name: 'Location',
-                        fieldType: 'select',
+                        fieldType: 'singleSelect',
                         options: '["Shelf A","Shelf B"]',
                         createdAt: DateTime.utc(2026, 1, 1),
                       ),
@@ -322,7 +326,7 @@ void main() {
               onPressed: () async {
                 selection = await showLibraryFilterDialog(
                   context: context,
-                  type: comicKindModule,
+                  type: const ComicRegistration(),
                   current: LibraryFilterSelection.none,
                   options: const LibraryFilterOptions(
                     valuesByFilterId: {

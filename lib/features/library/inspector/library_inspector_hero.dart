@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +14,9 @@ class InspectorHero extends StatelessWidget {
     this.contextLabel,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
-  final OwnedItem? ownedItem;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
+  final OwnedItemSummary? ownedItem;
   final Color accent;
   final String? contextLabel;
 

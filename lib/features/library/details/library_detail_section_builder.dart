@@ -1,8 +1,9 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_catalog_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_collection_sections.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_trailers_section.dart';
@@ -13,15 +14,19 @@ import 'package:flutter/material.dart';
 
 List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
   required BuildContext context,
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
   required Color accent,
-  required OwnedItem? ownedItem,
-  required TrackingEntry? trackingEntry,
-  required List<OwnedItem> ownedCopies,
+  OwnedItemSummary? ownedSummary,
+  TrackingSummary? trackingSummary,
+  required List<OwnedItemSummary> ownedCopies,
   ValueChanged<String>? onFilterByValue,
 }) {
-  final activeBundleReleaseId = ownedItem?.bundleReleaseId;
+  final activeBundleReleaseId = type.catalogTarget
+      .parts(
+        ownedSummary?.targetRef,
+      )
+      .groupId;
 
   final sections = <LibraryDetailSectionSpec>[
     LibraryDetailSectionSpec(
@@ -36,16 +41,18 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
         ),
       ],
     ),
-    if (ownedItem != null || trackingEntry != null)
+    if (ownedSummary != null || trackingSummary != null)
       LibraryDetailSectionSpec(
         slot: LibraryDetailSectionSlot.personal,
         title: 'Personal status',
         children: [
           LibraryDetailPersonalSection(
+            type: type,
             item: item,
-            ownedItem: ownedItem,
+            ownedItemDispatch: item.source.ownedItemDispatch,
+            ownedSummary: ownedSummary,
             ownedCopies: ownedCopies,
-            trackingEntry: trackingEntry,
+            trackingSummary: trackingSummary,
             accent: accent,
             onFilterByValue: onFilterByValue,
           ),
@@ -53,8 +60,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
             type: type,
             item: item,
             accent: accent,
-            ownedItem: ownedItem,
-            trackingEntry: trackingEntry,
+            trackingSummary: trackingSummary,
           ),
         ],
       ),
@@ -103,11 +109,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       title: 'Series links',
       children: [
         LibraryDetailTrailersSection(
-          trailerUrls: item.source.catalogItem == null
-              ? const []
-              : type.presentation.builder.buildLinks(
-                  item: item.source.catalogItem!,
-                ),
+          links: type.presentation.builder.buildWorkspaceLinks(item.source),
           accent: accent,
         ),
       ],

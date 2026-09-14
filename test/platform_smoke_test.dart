@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/main.dart';
 import 'package:drift/native.dart';
@@ -16,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/secure_storage_mock.dart';
 import 'helpers/test_constants.dart';
+import 'helpers/test_data_factories.dart';
 
 /// Platform smoke tests verify critical platform-specific behaviour.
 ///
@@ -39,12 +43,12 @@ void main() {
     test('barcode camera supported on web (any platform)', () {
       expect(
         barcodeScannerCameraSupported(
-            isWeb: true, platform: TargetPlatform.windows),
+            isWeb: true, devicePlatform: TargetPlatform.windows),
         isTrue,
       );
       expect(
         barcodeScannerCameraSupported(
-            isWeb: true, platform: TargetPlatform.linux),
+            isWeb: true, devicePlatform: TargetPlatform.linux),
         isTrue,
       );
     });
@@ -75,37 +79,36 @@ void main() {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
 
-      await db.into(db.catalogCache).insert(
-            CatalogCacheCompanion.insert(
-              id: 'smoke-1',
-              kind: 'comic',
-              payloadJson: jsonEncode({
-                'id': 'smoke-1',
-                'kind': 'comic',
-                'title': 'Smoke Test Issue',
-              }),
-              cachedAt: DateTime.now(),
-            ),
-          );
+      await CatalogTransportRepository(db).upsertTransportItems([
+        testCatalogItemFromJson({
+          'id': 'smoke-1',
+          'kind': 'comic',
+          'title': 'Smoke Test Issue',
+        }),
+      ]);
 
-      final rows = await db.select(db.catalogCache).get();
-      expect(rows, hasLength(1));
-      final payload =
-          jsonDecode(rows.first.payloadJson) as Map<String, dynamic>;
-      expect(payload['title'], 'Smoke Test Issue');
+      final item = await CatalogSnapshotRepository(db).findByRef(
+        const CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+          id: 'smoke-1',
+        ),
+      );
+      expect(item, isNotNull);
+      expect(item!.title, 'Smoke Test Issue');
     });
 
     test('barcode camera NOT supported on Windows desktop', () {
       expect(
         barcodeScannerCameraSupported(
-            isWeb: false, platform: TargetPlatform.windows),
+            isWeb: false, devicePlatform: TargetPlatform.windows),
         isFalse,
       );
     });
 
     test('Windows barcode fallback message suggests manual entry', () {
       final msg = barcodeScannerUnavailableMessage(
-          isWeb: false, platform: TargetPlatform.windows);
+          isWeb: false, devicePlatform: TargetPlatform.windows);
       expect(msg, contains('Enter the barcode manually'));
     });
 
@@ -145,14 +148,14 @@ void main() {
     test('barcode camera IS supported on Android', () {
       expect(
         barcodeScannerCameraSupported(
-            isWeb: false, platform: TargetPlatform.android),
+            isWeb: false, devicePlatform: TargetPlatform.android),
         isTrue,
       );
     });
 
     test('Android barcode unavailable message is user-friendly', () {
       final msg = barcodeScannerUnavailableMessage(
-          isWeb: false, platform: TargetPlatform.android);
+          isWeb: false, devicePlatform: TargetPlatform.android);
       expect(msg, contains('Enter the barcode manually'));
     });
 

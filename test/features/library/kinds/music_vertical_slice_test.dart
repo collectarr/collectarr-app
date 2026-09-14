@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/contracts/music_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
@@ -7,15 +6,15 @@ import 'package:collectarr_app/features/library/kinds/music/provider/music_provi
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Music Kind Vertical Slice Tests (C6)', () {
@@ -112,25 +111,25 @@ void main() {
         ],
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_1',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'music_1',
             mediaKind: CatalogMediaKind.music,
           ),
           kindMetadata: musicMeta,
-        ),
-        ownedItem: OwnedItem(
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'music_1',
-            kind: 'music',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.music,
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'Near Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = MusicWorkspaceProjector();
@@ -169,12 +168,12 @@ void main() {
         'MusicLibraryKindProviderMapper parses MusicBrainz envelope into MusicCatalogMetadata',
         () {
       const mapper = MusicLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'musicbrainz',
           providerItemId: 'mb_123',
-          kind: 'music',
-          normalized: const {
+          kind: CatalogMediaKind.music,
+          payload: const ProviderMetadataPayload({
             'title': 'Abbey Road',
             'artist': 'The Beatles',
             'publisher': 'Apple Records',
@@ -188,7 +187,7 @@ void main() {
                 'media_or_disc_count': 1,
               }
             ],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -197,12 +196,10 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<MusicCatalogMetadata>());
-      final meta = item.kindMetadata as MusicCatalogMetadata;
-      expect(meta.title, 'Abbey Road');
-      expect(meta.artist, 'The Beatles');
-      expect(meta.releases.first.catalogNumber, 'PCS 7088');
-      expect(meta.releases.first.format, 'Vinyl');
+      expect(item.title, 'Abbey Road');
+      expect(item.artist, 'The Beatles');
+      expect(item.releases.first.catalogNumber, 'PCS 7088');
+      expect(item.releases.first.format, 'Vinyl');
     });
 
     test('MusicCatalog and MusicEntry round-trip and preserve all kind fields',
@@ -261,15 +258,15 @@ void main() {
       expect(restored.studio, 'Abbey Road Studios');
       expect(restored.releases.first.catalogNumber, 'SHVL 804');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'music_dsotm',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'music_dsotm',
             mediaKind: CatalogMediaKind.music,
           ),
           kindMetadata: MusicCatalogMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = MusicEntry.fromShelf(shelfEntry);

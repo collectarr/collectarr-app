@@ -4,8 +4,8 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +23,8 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = musicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = const MusicRegistration();
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-1',
         kind: 'music',
@@ -33,7 +33,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: item,
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
     );
@@ -89,8 +89,8 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = musicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = const MusicRegistration();
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-vinyl',
         kind: 'music',
@@ -100,7 +100,7 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: item,
+      item: CatalogSearchCandidate.fromItem(item),
       ownedItem: null,
       accent: Colors.deepPurple,
       physicalFormats: musicPhysicalMediaFormats,

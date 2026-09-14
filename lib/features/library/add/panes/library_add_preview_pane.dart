@@ -1,5 +1,4 @@
 import 'library_add_pane_dependencies.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 
 class LibraryAddPaneResizeDivider extends StatelessWidget {
   const LibraryAddPaneResizeDivider({super.key, this.onDragDelta});
@@ -58,11 +57,11 @@ class LibraryAddPreviewPane extends ConsumerWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddPreviewPaneBuilder? previewPaneBuilder;
-  final LibraryMetadataItem? item;
+  final CatalogSearchCandidate? item;
   final ProviderCandidate? candidate;
   final AdminProviderPreview? candidatePreview;
   final bool isFetchingPreview;
@@ -70,9 +69,9 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   final bool searched;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<LibraryBundleSummary> availableBundleReleases;
   final String? selectedBundleReleaseId;
-  final BundleReleaseDetail? selectedBundleReleaseDetail;
+  final LibraryBundleDetail? selectedBundleReleaseDetail;
   final String? selectedEditionId;
   final String? selectedVariantId;
   final bool isLoadingBundleReleases;
@@ -91,6 +90,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
         referenceType == LibraryAddReferenceType.bundleRelease
             ? selectedBundleReleaseDetail
             : null;
+    final selectedMetadata = selectedItem?.editMetadata;
     if (selectedItem == null && selectedCandidate == null) {
       return ColoredBox(
         color: palette.panel,
@@ -108,17 +108,21 @@ class LibraryAddPreviewPane extends ConsumerWidget {
       );
     }
     final title = selectedBundle?.title ??
-        selectedItem?.title ??
-        selectedCandidate!.title;
-    final itemNumber = selectedBundle == null
-        ? (selectedItem?.kindMetadata.toSyncPayload()['item_number'] as String?)
+        (selectedItem == null
+            ? selectedCandidate!.title
+            : type.presentation.builder
+                .buildAddPreviewTitle(item: selectedItem));
+    final itemNumber = selectedBundle == null && selectedItem != null
+        ? type.presentation.builder.buildAddPreviewItemNumber(
+            item: selectedItem,
+          )
         : null;
     final preview = candidatePreview;
-    final synopsis = selectedItem?.synopsis ??
+    final synopsis = selectedMetadata?.synopsis ??
         preview?.synopsis ??
         selectedCandidate?.summary;
     final coverUrl = selectedBundle?.coverImageUrl ??
-        selectedItem?.displayCoverUrl ??
+        selectedMetadata?.displayCoverUrl ??
         preview?.coverImageUrl ??
         selectedCandidate?.imageUrl;
     final rows = selectedItem == null
@@ -222,7 +226,14 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                             : 'Collectarr Core metadata',
                         style: const TextStyle(fontSize: 16),
                       ),
-                      _buildPreviewFormatBadges(selectedItem),
+                      _buildPreviewFormatBadges(
+                        selectedItem == null
+                            ? const []
+                            : type.presentation.builder
+                                .buildAddPreviewFormatBadges(
+                                item: selectedItem,
+                              ),
+                      ),
                     ],
                   ),
                 ),
@@ -305,7 +316,7 @@ class LibraryAddPreviewPane extends ConsumerWidget {
                               ],
                             )
                           else if (selectedBundle != null)
-                            _BundleReleaseDetailCard(
+                            BundleReleaseContentsCard(
                               detail: selectedBundle,
                               accent: accent,
                             )
@@ -379,32 +390,32 @@ class LibraryAddPreviewPane extends ConsumerWidget {
   }
 }
 
-class BundleReleaseDetailCard extends StatelessWidget {
-  const BundleReleaseDetailCard({
+class LibraryBundleDetailCard extends StatelessWidget {
+  const LibraryBundleDetailCard({
     super.key,
     required this.detail,
     required this.accent,
   });
 
-  final BundleReleaseDetail detail;
+  final LibraryBundleDetail detail;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    return _BundleReleaseDetailCard(
+    return _LibraryBundleDetailCard(
       detail: detail,
       accent: accent,
     );
   }
 }
 
-class _BundleReleaseDetailCard extends StatelessWidget {
-  const _BundleReleaseDetailCard({
+class _LibraryBundleDetailCard extends StatelessWidget {
+  const _LibraryBundleDetailCard({
     required this.detail,
     required this.accent,
   });
 
-  final BundleReleaseDetail detail;
+  final LibraryBundleDetail detail;
   final Color accent;
 
   @override
@@ -412,14 +423,9 @@ class _BundleReleaseDetailCard extends StatelessWidget {
     final palette = appPalette(context);
     final groupedMembers = _groupBundleMembers(detail.members);
     final summaryParts = <String>[
-      if (detail.bundleType != null && detail.bundleType!.trim().isNotEmpty)
-        detail.bundleType!,
-      if (detail.packagingType != null &&
-          detail.packagingType!.trim().isNotEmpty)
-        detail.packagingType!,
-      if (detail.publisher != null && detail.publisher!.trim().isNotEmpty)
-        detail.publisher!,
-      '${detail.contentSummary.totalItems} items',
+      '${detail.memberCount} items',
+      if (detail.primaryMemberCount > 0) '${detail.primaryMemberCount} primary',
+      if (detail.bonusMemberCount > 0) '${detail.bonusMemberCount} bonus',
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -439,7 +445,7 @@ class _BundleReleaseDetailCard extends StatelessWidget {
             if (summaryParts.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
-                summaryParts.join(' • '),
+                summaryParts.join(' Ã¢â‚¬Â¢ '),
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: 12,
@@ -482,12 +488,12 @@ class LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final LibraryMetadataItem item;
-  final List<BundleReleaseSummary> bundleReleases;
+  final CatalogSearchCandidate item;
+  final List<LibraryBundleSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
   final String? selectedVariantId;
@@ -519,20 +525,20 @@ class LibraryAddReferenceSelector extends StatelessWidget {
 }
 
 List<(String, String?)> libraryAddMetadataRowsForItem(
-  LibraryMetadataItem item,
-  LibraryKindRuntime type,
+  CatalogSearchCandidate item,
+  LibraryKindRegistration type,
 ) =>
     _metadataRowsForItem(item, type);
 
 List<(String, String?)> libraryAddMetadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
 ) =>
     _metadataRowsForCandidate(candidate, type);
 
 List<(String, String?)> libraryAddMetadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
 ) =>
     _metadataRowsForFullPreview(preview, type);
 
@@ -555,25 +561,16 @@ class LibraryAddPreviewMetadataRow extends StatelessWidget {
   }
 }
 
-String _bundleMemberTitle(BundleReleaseMember member) {
-  final number = member.itemNumber;
-  if (number != null && number.trim().isNotEmpty) {
-    return '${member.title} #$number';
-  }
+String _bundleMemberTitle(LibraryBundleMemberSummary member) {
   return member.title;
 }
 
-String _bundleMemberSubtitle(BundleReleaseMember member) {
+String _bundleMemberSubtitle(LibraryBundleMemberSummary member) {
   final parts = <String>[
     if (member.role.trim().isNotEmpty) member.role,
-    if (member.seriesTitle != null && member.seriesTitle!.trim().isNotEmpty)
-      member.seriesTitle!,
-    if (member.volumeName != null && member.volumeName!.trim().isNotEmpty)
-      member.volumeName!,
-    if (member.discNumber != null) 'Disc ${member.discNumber}',
     if (member.quantity > 1) 'x${member.quantity}',
   ];
-  return parts.join(' • ');
+  return parts.join(' Ã¢â‚¬Â¢ ');
 }
 
 class _BundleReleaseDiscSection extends StatelessWidget {
@@ -616,7 +613,7 @@ class _BundleReleaseDiscSection extends StatelessWidget {
                     SizedBox(
                       width: 28,
                       child: Text(
-                        member.sequenceNumber?.toString() ?? '•',
+                        member.sequenceNumber?.toString() ?? 'Ã¢â‚¬Â¢',
                         style: TextStyle(
                           color: palette.textMuted,
                           fontWeight: FontWeight.w700,
@@ -668,52 +665,25 @@ class _BundleReleaseDiscGroup {
   });
 
   final String label;
-  final List<BundleReleaseMember> members;
+  final List<LibraryBundleMemberSummary> members;
 }
 
 List<_BundleReleaseDiscGroup> _groupBundleMembers(
-  List<BundleReleaseMember> members,
+  List<LibraryBundleMemberSummary> members,
 ) {
   if (members.isEmpty) {
     return const <_BundleReleaseDiscGroup>[];
   }
-  final grouped = <String, List<BundleReleaseMember>>{};
-  final orderedKeys = <String>[];
-  for (final member in members) {
-    final key = member.discNumber != null
-        ? 'disc:${member.discNumber}'
-        : member.discLabel != null && member.discLabel!.trim().isNotEmpty
-            ? 'label:${member.discLabel!.trim()}'
-            : 'disc:none';
-    if (!grouped.containsKey(key)) {
-      grouped[key] = <BundleReleaseMember>[];
-      orderedKeys.add(key);
-    }
-    grouped[key]!.add(member);
-  }
   return [
-    for (final key in orderedKeys)
-      _BundleReleaseDiscGroup(
-        label: _bundleDiscLabel(grouped[key]!.first),
-        members: [...grouped[key]!]..sort((left, right) {
-            final leftSequence = left.sequenceNumber ?? 999999;
-            final rightSequence = right.sequenceNumber ?? 999999;
-            return leftSequence.compareTo(rightSequence);
-          }),
-      ),
+    _BundleReleaseDiscGroup(
+      label: 'Members',
+      members: [...members]..sort((left, right) {
+          final leftSequence = left.sequenceNumber ?? 999999;
+          final rightSequence = right.sequenceNumber ?? 999999;
+          return leftSequence.compareTo(rightSequence);
+        }),
+    ),
   ];
-}
-
-String _bundleDiscLabel(BundleReleaseMember member) {
-  final discLabel = member.discLabel?.trim();
-  if (discLabel != null && discLabel.isNotEmpty) {
-    return discLabel;
-  }
-  final discNumber = member.discNumber;
-  if (discNumber != null) {
-    return 'Disc $discNumber';
-  }
-  return 'Main contents';
 }
 
 class _LibraryAddReferenceSelector extends StatelessWidget {
@@ -734,12 +704,12 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
     required this.onBundleReleaseSelected,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final LibraryAddTarget addTarget;
   final LibraryAddReferenceType referenceType;
-  final LibraryMetadataItem item;
-  final List<BundleReleaseSummary> bundleReleases;
+  final CatalogSearchCandidate item;
+  final List<LibraryBundleSummary> bundleReleases;
   final String? selectedBundleReleaseId;
   final String? selectedEditionId;
   final String? selectedVariantId;
@@ -752,13 +722,13 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final editions = libraryKindEditions(item);
-    final editionAvailable = editions.isNotEmpty;
+    final releases = type.presentation.builder.buildReleaseOptions(item: item);
+    final releaseAvailable = releases.isNotEmpty;
     final bundleAvailable = bundleReleases.isNotEmpty;
     final selectionLocked = addTarget == LibraryAddTarget.track;
-    final selectedEdition = previewEditionForItem(item, selectedEditionId);
-    final selectedVariant = selectedVariantForEdition(
-      selectedEdition,
+    final selectedRelease = previewReleaseForItem(releases, selectedEditionId);
+    final selectedVariant = selectedVariantForRelease(
+      selectedRelease,
       selectedVariantId,
     );
     final selectionSummary = switch (addTarget) {
@@ -809,7 +779,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                     chipKey: const ValueKey('library-add-reference-edition'),
                     accent: accent,
                     selected: referenceType == LibraryAddReferenceType.edition,
-                    enabled: editionAvailable,
+                    enabled: releaseAvailable,
                     label: LibraryAddReferenceType.edition.labelForType(type),
                     onPressed: () => onReferenceTypeChanged(
                       LibraryAddReferenceType.edition,
@@ -843,8 +813,8 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
                 referenceType == LibraryAddReferenceType.edition) ...[
               const SizedBox(height: 8),
               Text(
-                _editionSummaryForSelection(
-                  selectedEdition,
+                _releaseSummaryForSelection(
+                  selectedRelease,
                   selectedVariant,
                 ),
                 style: const TextStyle(fontWeight: FontWeight.w700),
@@ -852,18 +822,18 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               const SizedBox(height: 8),
               _EditionGrid(
                 key: const ValueKey('library-add-edition-field'),
-                editions: editions,
+                releases: releases,
                 selectedEditionId: selectedEditionId,
                 accent: accent,
                 onEditionSelected: onEditionSelected,
               ),
               const SizedBox(height: 8),
-              if (selectedEdition == null)
+              if (selectedRelease == null)
                 Text(
                   'No canonical edition is attached to this item yet.',
                   style: TextStyle(color: palette.textMuted),
                 )
-              else if (selectedEdition.variants.isEmpty)
+              else if (selectedRelease.variants.isEmpty)
                 Text(
                   'This edition has no canonical variants yet, so the edition itself will be used.',
                   style: TextStyle(color: palette.textMuted),
@@ -871,7 +841,7 @@ class _LibraryAddReferenceSelector extends StatelessWidget {
               else
                 _VariantGrid(
                   key: const ValueKey('library-add-variant-field'),
-                  variants: selectedEdition.variants,
+                  variants: selectedRelease.variants,
                   selectedVariantId: selectedVariantId,
                   accent: accent,
                   onVariantSelected: onVariantSelected,
@@ -967,7 +937,7 @@ class _BundleReleaseOptionCard extends StatelessWidget {
     required this.onPressed,
   });
 
-  final BundleReleaseSummary bundle;
+  final LibraryBundleSummary bundle;
   final Color accent;
   final bool selected;
   final VoidCallback onPressed;
@@ -975,16 +945,10 @@ class _BundleReleaseOptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final releaseDate = bundle.releaseDate;
     final subtitleParts = <String>[
-      if (bundle.bundleType != null && bundle.bundleType!.trim().isNotEmpty)
-        bundle.bundleType!,
-      if (bundle.packagingType != null &&
-          bundle.packagingType!.trim().isNotEmpty)
-        bundle.packagingType!,
-      if (releaseDate != null)
-        '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
-      '${bundle.contentSummary.totalItems} items',
+      if (bundle.memberCount > 0) '${bundle.memberCount} items',
+      if (bundle.primaryMemberCount > 0) '${bundle.primaryMemberCount} primary',
+      if (bundle.bonusMemberCount > 0) '${bundle.bonusMemberCount} bonus',
     ];
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -1027,19 +991,11 @@ class _BundleReleaseOptionCard extends StatelessWidget {
                       if (subtitleParts.isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
-                          subtitleParts.join(' • '),
+                          subtitleParts.join(' Ã¢â‚¬Â¢ '),
                           style: TextStyle(
                             color: palette.textMuted,
                             fontSize: 12,
                           ),
-                        ),
-                      ],
-                      if (bundle.primaryItemTitle != null &&
-                          bundle.primaryItemTitle!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Primary: ${bundle.primaryItemTitle}',
-                          style: const TextStyle(fontSize: 12),
                         ),
                       ],
                     ],
@@ -1054,54 +1010,50 @@ class _BundleReleaseOptionCard extends StatelessWidget {
   }
 }
 
-String _editionSummaryForSelection(
-  CatalogEdition? edition,
-  CatalogVariant? variant,
+String _releaseSummaryForSelection(
+  LibraryAddReleaseOption? release,
+  LibraryAddVariantOption? variant,
 ) {
-  if (edition == null) {
+  if (release == null) {
     return 'No canonical edition is attached to this item yet.';
   }
   final parts = <String>[
-    edition.title,
+    release.title,
     if (variant?.name case final variantName?
         when variantName.trim().isNotEmpty)
       'Physical: $variantName',
-    if (edition.physicalFormatLabel != null &&
-        edition.physicalFormatLabel!.trim().isNotEmpty)
-      edition.physicalFormatLabel!,
-    if (edition.region != null && edition.region!.trim().isNotEmpty)
-      edition.region!,
-    if (edition.releaseDate != null)
-      '${edition.releaseDate!.year}-${edition.releaseDate!.month.toString().padLeft(2, '0')}-${edition.releaseDate!.day.toString().padLeft(2, '0')}',
+    if (release.formatLabel != null && release.formatLabel!.trim().isNotEmpty)
+      release.formatLabel!,
+    if (release.releaseDate != null)
+      '${release.releaseDate!.year}-${release.releaseDate!.month.toString().padLeft(2, '0')}-${release.releaseDate!.day.toString().padLeft(2, '0')}',
   ];
-  return parts.join(' • ');
+  return parts.join(' Ã¢â‚¬Â¢ ');
 }
 
-CatalogEdition? previewEditionForItem(
-  LibraryMetadataItem item,
+LibraryAddReleaseOption? previewReleaseForItem(
+  List<LibraryAddReleaseOption> releases,
   String? editionId,
 ) {
-  final editions = libraryKindEditions(item);
   final normalizedEditionId = editionId?.trim();
   if (normalizedEditionId != null && normalizedEditionId.isNotEmpty) {
-    for (final edition in editions) {
-      if (edition.id == normalizedEditionId) {
-        return edition;
+    for (final release in releases) {
+      if (release.id == normalizedEditionId) {
+        return release;
       }
     }
   }
-  return _previewPrimaryEditionForItem(item);
+  return _previewPrimaryRelease(releases);
 }
 
-CatalogVariant? selectedVariantForEdition(
-  CatalogEdition? edition,
+LibraryAddVariantOption? selectedVariantForRelease(
+  LibraryAddReleaseOption? release,
   String? variantId,
 ) {
   final normalizedVariantId = variantId?.trim();
-  if (edition != null &&
+  if (release != null &&
       normalizedVariantId != null &&
       normalizedVariantId.isNotEmpty) {
-    for (final variant in edition.variants) {
+    for (final variant in release.variants) {
       if (variant.id == normalizedVariantId) {
         return variant;
       }
@@ -1110,44 +1062,45 @@ CatalogVariant? selectedVariantForEdition(
   return null;
 }
 
-CatalogEdition? _previewPrimaryEditionForItem(LibraryMetadataItem item) {
-  final editions = libraryKindEditions(item);
-  if (editions.isEmpty) {
+LibraryAddReleaseOption? _previewPrimaryRelease(
+  List<LibraryAddReleaseOption> releases,
+) {
+  if (releases.isEmpty) {
     return null;
   }
-  for (final edition in editions) {
-    if (_previewPrimaryVariantForEdition(edition) != null) {
-      return edition;
+  for (final release in releases) {
+    if (_previewPrimaryVariantForRelease(release) != null) {
+      return release;
     }
   }
-  return editions.first;
+  return releases.first;
 }
 
-CatalogVariant? _previewPrimaryVariantForEdition(CatalogEdition? edition) {
-  if (edition == null || edition.variants.isEmpty) {
+LibraryAddVariantOption? _previewPrimaryVariantForRelease(
+    LibraryAddReleaseOption? release) {
+  if (release == null || release.variants.isEmpty) {
     return null;
   }
-  for (final variant in edition.variants) {
+  for (final variant in release.variants) {
     if (variant.isPrimary) {
       return variant;
     }
   }
-  return edition.variants.first;
+  return release.variants.first;
 }
 
-Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
-  final editions =
-      item == null ? const <CatalogEdition>[] : libraryKindEditions(item);
-  if (editions.isEmpty) return const SizedBox.shrink();
+Widget _buildPreviewFormatBadges(
+  List<(String id, String label)> formatValues,
+) {
+  if (formatValues.isEmpty) return const SizedBox.shrink();
   final seen = <String>{};
   final badges = <Widget>[];
-  for (final edition in editions) {
-    final id = edition.physicalFormat;
-    if (id == null || !seen.add(id)) continue;
+  for (final format in formatValues) {
+    if (!seen.add(format.$1)) continue;
     badges.add(
       FormatBadge.fromFormat(
-        id: id,
-        label: edition.physicalFormatLabel ?? id,
+        id: format.$1,
+        label: format.$2,
       ),
     );
   }
@@ -1160,100 +1113,21 @@ Widget _buildPreviewFormatBadges(LibraryMetadataItem? item) {
 
 List<(String, String?)> _metadataRowsForCandidate(
   ProviderCandidate candidate,
-  LibraryKindRuntime type,
-) {
-  final previewLabels = type.presentation.previewLabels;
-  return [
-    if (candidate.series?.seriesTitle != null)
-      (
-        previewLabels.labelFor('series', fallback: 'Series'),
-        candidate.series!.seriesTitle
-      ),
-    if (candidate.issueNumber != null)
-      (
-        previewLabels.labelFor('item_number', fallback: 'Number'),
-        candidate.issueNumber
-      ),
-    if (candidate.publisher != null)
-      (
-        previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        candidate.publisher
-      ),
-    if (candidate.series?.volumeStartYear != null)
-      ('Year', candidate.series!.volumeStartYear.toString()),
-    if (candidate.variantName != null)
-      (
-        previewLabels.labelFor('variant', fallback: 'Variant'),
-        candidate.variantName
-      ),
-    if (candidate.issueCount != null)
-      (
-        previewLabels.labelFor('item_count', fallback: 'Items'),
-        candidate.issueCount.toString()
-      ),
-  ];
-}
+  LibraryKindRegistration type,
+) =>
+    type.presentation.builder.buildAddPreviewMetadataRowsForCandidate(
+      candidate: candidate,
+      previewLabels: type.presentation.previewLabels,
+    );
 
 List<(String, String?)> _metadataRowsForItem(
-  LibraryMetadataItem item,
-  LibraryKindRuntime type,
-) {
-  final previewLabels = type.presentation.previewLabels;
-  final payload = item.kindMetadata.toSyncPayload();
-  final seriesMap = payload['series'] as Map?;
-  final seriesTitle =
-      (payload['series_title'] ?? seriesMap?['series_title']) as String?;
-  final publisher = (payload['publisher'] ??
-      (payload['publishing'] as Map?)?['original_publisher']) as String?;
-  final itemNumber = (payload['item_number'] ??
-      (payload['publishing'] as Map?)?['issue_number']) as String?;
-  final displayEditionLabel =
-      (payload['edition_title'] ?? payload['title_extension']) as String?;
-  final barcode = payload['barcode'] as String?;
-  final country = payload['country'] as String?;
-  final language = payload['language'] as String?;
-  final video = payload['video'] as Map?;
-  final music = payload['music'] as Map?;
-  final game = payload['game'] as Map?;
-  final publishing = payload['publishing'] as Map?;
-  final runtimeMinutes = (video?['runtime_minutes'] as num?)?.toInt();
-  final pageCount = (publishing?['page_count'] as num?)?.toInt();
-  final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
-  final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
-  final gamePlatforms = (game?['platforms'] as List<dynamic>?)
-      ?.map((e) => e.toString().trim())
-      .where((e) => e.isNotEmpty)
-      .toList();
-  return [
-    if (seriesTitle != null)
-      (previewLabels.labelFor('series', fallback: 'Series'), seriesTitle),
-    (previewLabels.labelFor('publisher', fallback: 'Publisher'), publisher),
-    (
-      'Released',
-      libraryKindReleaseDate(item) != null
-          ? '${libraryKindReleaseDate(item)!.year}-${libraryKindReleaseDate(item)!.month.toString().padLeft(2, '0')}-${libraryKindReleaseDate(item)!.day.toString().padLeft(2, '0')}'
-          : libraryKindReleaseYear(item)?.toString()
-    ),
-    if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
-    if (itemNumber != null)
-      (previewLabels.labelFor('item_number', fallback: 'Number'), itemNumber),
-    if (displayEditionLabel != null)
-      (
-        previewLabels.labelFor('variant', fallback: 'Variant'),
-        displayEditionLabel
-      ),
-    (previewLabels.labelFor('barcode', fallback: 'Barcode'), barcode),
-    if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
-      ('Catalog No.', musicCatalogNo),
-    if (gamePlatforms != null && gamePlatforms.isNotEmpty)
-      ('Platforms', gamePlatforms.join(', ')),
-    if (pageCount != null) ('Pages', pageCount.toString()),
-    if (country != null) ('Country', country),
-    if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
-      ('Release Status', musicReleaseStatus),
-    if (language != null) ('Language', language),
-  ];
-}
+  CatalogSearchCandidate item,
+  LibraryKindRegistration type,
+) =>
+    type.presentation.builder.buildAddPreviewMetadataRows(
+      item: item,
+      previewLabels: type.presentation.previewLabels,
+    );
 
 class _LibraryAddPreviewMetadataRow extends StatelessWidget {
   const _LibraryAddPreviewMetadataRow({
@@ -1296,116 +1170,32 @@ class _LibraryAddPreviewMetadataRow extends StatelessWidget {
 
 List<(String, String?)> _metadataRowsForFullPreview(
   AdminProviderPreview preview,
-  LibraryKindRuntime type,
-) {
-  final previewLabels = type.presentation.previewLabels;
-  final series = preview.series;
-  final publishing = preview.publishing;
-  final music = preview.music;
-  final video = preview.video;
-  final game = preview.game;
-  final releaseDateStr = preview.releaseDate != null
-      ? '${preview.releaseDate!.year}-${preview.releaseDate!.month.toString().padLeft(2, '0')}-${preview.releaseDate!.day.toString().padLeft(2, '0')}'
-      : null;
-  final musicCatalogNo = (music?['catalog_number'] as String?)?.trim();
-  final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
-  final gamePlatforms = (game?['platforms'] as List<dynamic>?)
-      ?.map((e) => e.toString().trim())
-      .where((e) => e.isNotEmpty)
-      .toList();
-  final videoRuntime = (video?['runtime_minutes'] as num?)?.toInt();
-  final publishingPages = publishing?.pageCount?.toString();
-  final publishingImprint = publishing?.imprint?.trim();
-  final publishingSeriesGroup = publishing?.seriesGroup?.trim();
-  return [
-    if (series?.seriesTitle != null)
-      (
-        previewLabels.labelFor('series', fallback: 'Series'),
-        series!.seriesTitle
-      ),
-    if (preview.publisher != null)
-      (
-        previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        preview.publisher
-      ),
-    if (publishingImprint != null && publishingImprint.isNotEmpty)
-      ('Imprint', publishingImprint),
-    if (releaseDateStr != null) ('Released', releaseDateStr),
-    if (series?.volumeStartYear != null)
-      ('Year', series!.volumeStartYear.toString()),
-    if (preview.itemNumber != null)
-      (
-        previewLabels.labelFor('item_number', fallback: 'Number'),
-        preview.itemNumber
-      ),
-    if (preview.barcode != null)
-      (previewLabels.labelFor('barcode', fallback: 'Barcode'), preview.barcode),
-    if (preview.isbn != null) ('ISBN', preview.isbn),
-    if (preview.country != null) ('Country', preview.country),
-    if (preview.language != null) ('Language', preview.language),
-    if (preview.physicalFormatLabel != null)
-      ('Format', preview.physicalFormatLabel),
-    if (preview.variantName != null)
-      (
-        previewLabels.labelFor('variant', fallback: 'Variant'),
-        preview.variantName
-      ),
-    if (musicCatalogNo != null && musicCatalogNo.isNotEmpty)
-      ('Catalog No.', musicCatalogNo),
-    if (gamePlatforms != null && gamePlatforms.isNotEmpty)
-      ('Platforms', gamePlatforms.join(', ')),
-    if (videoRuntime != null) ('Runtime', '$videoRuntime min'),
-    if (publishingPages != null) ('Pages', publishingPages),
-    if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
-      ('Release Status', musicReleaseStatus),
-    if (publishingSeriesGroup != null && publishingSeriesGroup.isNotEmpty)
-      ('Series Group', publishingSeriesGroup),
-  ];
-}
+  LibraryKindRegistration type,
+) =>
+    type.presentation.builder.buildAddPreviewMetadataRowsForFullPreview(
+      preview: preview,
+      previewLabels: type.presentation.previewLabels,
+    );
 
 List<_PreviewDiscoverySectionData> _discoverySections({
-  required LibraryMetadataItem? item,
+  required CatalogSearchCandidate? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
-  final payload = item?.kindMetadata.toSyncPayload();
-  final itemCreators = payload?['creators'];
-  final creators = (itemCreators is List)
-      ? itemCreators
-          .whereType<Map<dynamic, dynamic>>()
-          .map((rawCredit) {
-            final credit = Map<String, Object?>.from(rawCredit);
-            return (credit['name'] ?? credit['display_name'] ?? '').toString();
-          })
-          .where((name) => name.trim().isNotEmpty)
-          .toList(growable: false)
-      : (preview?.creators
-              .map((credit) => credit.role == null
-                  ? credit.name
-                  : '${credit.name} (${credit.role})')
-              .toList(growable: false) ??
-          const <String>[]);
+  final creators = preview?.creators
+          .map((credit) => credit.role == null
+              ? credit.name
+              : '${credit.name} (${credit.role})')
+          .toList(growable: false) ??
+      const <String>[];
   final characters =
-      (payload?['characters'] as List?)?.map((c) => c.toString()).toList() ??
-          preview?.characters ??
-          candidate?.characterPreview ??
-          const <String>[];
-  final storyArcs =
-      (payload?['story_arcs'] as List?)?.map((s) => s.toString()).toList() ??
-          preview?.storyArcs ??
-          candidate?.storyArcPreview ??
-          const <String>[];
-  final genres =
-      (payload?['genres'] as List?)?.map((g) => g.toString()).toList() ??
-          preview?.genres ??
-          const <String>[];
+      preview?.characters ?? candidate?.characterPreview ?? const <String>[];
+  final genres = preview?.genres ?? const <String>[];
 
   return [
     if (creators.isNotEmpty) _PreviewDiscoverySectionData('Creators', creators),
     if (characters.isNotEmpty)
       _PreviewDiscoverySectionData('Characters', characters),
-    if (storyArcs.isNotEmpty)
-      _PreviewDiscoverySectionData('Story Arcs', storyArcs),
     if (genres.isNotEmpty) _PreviewDiscoverySectionData('Genres', genres),
   ];
 }
@@ -1428,7 +1218,7 @@ class LibraryAddPreviewDiscoverySectionData {
 }
 
 List<LibraryAddPreviewDiscoverySectionData> libraryAddPreviewDiscoverySections({
-  required LibraryMetadataItem? item,
+  required CatalogSearchCandidate? item,
   required ProviderCandidate? candidate,
   required AdminProviderPreview? preview,
 }) {
@@ -1539,31 +1329,31 @@ class _LibraryAddPreviewDiscoverySection extends StatelessWidget {
 class _EditionGrid extends StatelessWidget {
   const _EditionGrid({
     super.key,
-    required this.editions,
+    required this.releases,
     required this.selectedEditionId,
     required this.accent,
     required this.onEditionSelected,
   });
 
-  final List<CatalogEdition> editions;
+  final List<LibraryAddReleaseOption> releases;
   final String? selectedEditionId;
   final Color accent;
   final ValueChanged<String> onEditionSelected;
 
   @override
   Widget build(BuildContext context) {
-    if (editions.isEmpty) return const SizedBox.shrink();
+    if (releases.isEmpty) return const SizedBox.shrink();
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        for (final edition in editions)
+        for (final release in releases)
           _EditionCard(
-            key: ValueKey('library-add-edition-card-${edition.id}'),
-            edition: edition,
-            selected: edition.id == selectedEditionId,
+            key: ValueKey('library-add-edition-card-${release.id}'),
+            release: release,
+            selected: release.id == selectedEditionId,
             accent: accent,
-            onTap: () => onEditionSelected(edition.id),
+            onTap: () => onEditionSelected(release.id),
           ),
       ],
     );
@@ -1573,26 +1363,22 @@ class _EditionGrid extends StatelessWidget {
 class _EditionCard extends StatelessWidget {
   const _EditionCard({
     super.key,
-    required this.edition,
+    required this.release,
     required this.selected,
     required this.accent,
     required this.onTap,
   });
 
-  final CatalogEdition edition;
+  final LibraryAddReleaseOption release;
   final bool selected;
   final Color accent;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final coverUrl = edition.variants.isNotEmpty
-        ? edition.variants.first.coverImageUrl
-        : null;
-    final barcode = edition.isbn ??
-        edition.upc ??
-        (edition.variants.isNotEmpty ? edition.variants.first.barcode : null);
-    final formatId = edition.physicalFormat;
+    final coverUrl = release.coverImageUrl;
+    final identifierCode = release.identifierCode;
+    final formatId = release.formatId;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -1622,23 +1408,23 @@ class _EditionCard extends StatelessWidget {
                       height: 120,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => _EditionPlaceholder(
-                        label: edition.title,
+                        label: release.title,
                       ),
                     )
-                  : _EditionPlaceholder(label: edition.title),
+                  : _EditionPlaceholder(label: release.title),
             ),
             const SizedBox(height: 4),
             // Format badge
             if (formatId != null)
               FormatBadge.fromFormat(
                 id: formatId,
-                label: edition.physicalFormatLabel ?? formatId,
+                label: release.formatLabel ?? formatId,
                 compact: true,
               ),
             const SizedBox(height: 2),
             // Title
             Text(
-              edition.title,
+              release.title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -1649,9 +1435,9 @@ class _EditionCard extends StatelessWidget {
               ),
             ),
             // Barcode
-            if (barcode != null)
+            if (identifierCode != null)
               Text(
-                barcode,
+                identifierCode,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -1708,7 +1494,7 @@ class _VariantGrid extends StatelessWidget {
     required this.onVariantSelected,
   });
 
-  final List<CatalogVariant> variants;
+  final List<LibraryAddVariantOption> variants;
   final String? selectedVariantId;
   final Color accent;
   final ValueChanged<String> onVariantSelected;
@@ -1744,8 +1530,8 @@ class _VariantGrid extends StatelessWidget {
                 key: ValueKey('library-add-variant-card-${variant.id}'),
                 label: variant.name,
                 coverUrl: variant.coverImageUrl,
-                barcode: variant.barcode,
-                formatId: variant.physicalFormat,
+                identifierCode: variant.identifierCode,
+                formatId: variant.formatId,
                 selected: variant.id == selectedVariantId,
                 accent: accent,
                 onTap: () => onVariantSelected(variant.id),
@@ -1765,7 +1551,7 @@ class _VariantChip extends StatelessWidget {
     required this.accent,
     required this.onTap,
     this.coverUrl,
-    this.barcode,
+    this.identifierCode,
     this.formatId,
   });
 
@@ -1774,7 +1560,7 @@ class _VariantChip extends StatelessWidget {
   final Color accent;
   final VoidCallback onTap;
   final String? coverUrl;
-  final String? barcode;
+  final String? identifierCode;
   final String? formatId;
 
   @override

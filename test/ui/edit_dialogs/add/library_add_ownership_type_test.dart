@@ -1,12 +1,12 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/provider_status_provider.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import 'support/library_add_test_harness.dart';
 
@@ -30,8 +30,8 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: movieKindModule,
-              autoLookupInitialBarcode: false,
+              type: const MovieRegistration(),
+              autoLookupInitialIdentifier: false,
             ),
           ),
         ),

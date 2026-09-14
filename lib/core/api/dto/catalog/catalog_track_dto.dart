@@ -41,5 +41,3 @@ class CatalogTrackDto {
     };
   }
 }
-
-typedef CatalogTrack = CatalogTrackDto;

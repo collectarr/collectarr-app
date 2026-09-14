@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/models/bundle_release.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 class LibraryAddSelectionController {
   LibraryAddSelectionController({LibraryAddSelectionState? state})
@@ -108,7 +108,7 @@ class LibraryAddSelectionController {
 
   void handleReferenceTypeChanged({
     required LibraryAddReferenceType value,
-    required List<BundleReleaseSummary> bundleReleases,
+    required List<LibraryBundleSummary> bundleReleases,
   }) {
     String? firstBundleId;
     if (value == LibraryAddReferenceType.bundleRelease) {
@@ -126,7 +126,7 @@ class LibraryAddSelectionController {
   }
 
   void handleReferenceEditionSelected(
-      LibraryMetadataItem? item, String? editionId) {
+      CatalogSearchCandidate? item, String? editionId) {
     if (item == null) return;
     state = state.copyWith(
       selectedReferenceEditionId: editionId,

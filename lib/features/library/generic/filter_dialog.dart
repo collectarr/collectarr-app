@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -16,7 +15,7 @@ enum LibraryOwnershipFilter { all, owned, wishlist, forSale, onOrder }
 
 String libraryOwnershipFilterLabel(
   LibraryOwnershipFilter filter, {
-  LibraryKindRuntime? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -43,7 +42,7 @@ enum LibraryTrackingStatusFilter {
 
 String libraryTrackingStatusFilterLabel(
   LibraryTrackingStatusFilter filter, {
-  LibraryKindRuntime? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -89,7 +88,7 @@ enum LibraryLoanStatusFilter { all, onLoan, available }
 
 String libraryLoanStatusFilterLabel(
   LibraryLoanStatusFilter filter, {
-  LibraryKindRuntime? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -105,7 +104,7 @@ enum LibraryDateRangeField { updated, purchased, started, finished }
 
 String libraryDateRangeFieldLabel(
   LibraryDateRangeField field, {
-  LibraryKindRuntime? type,
+  LibraryKindRegistration? type,
   Object? mediaType,
 }) {
   final labels = _libraryFilterOptionLabels(
@@ -119,12 +118,14 @@ String libraryDateRangeFieldLabel(
 }
 
 LibraryFilterOptionLabels _libraryFilterOptionLabels({
-  LibraryKindRuntime? type,
+  LibraryKindRegistration? type,
   CatalogMediaKind? mediaType,
 }) {
   return type?.presentation.filterOptionLabels ??
       (mediaType != null
-          ? libraryKindRuntimeForKind(mediaType).presentation.filterOptionLabels
+          ? libraryKindRegistrationForKind(mediaType)
+              .presentation
+              .filterOptionLabels
           : null) ??
       const LibraryFilterOptionLabels();
 }
@@ -281,20 +282,21 @@ int _fieldValuesHash(Map<String, String?> values) {
 
 LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
   LibraryFilterSelection selection,
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
 ) {
   final supportedFields = {
     for (final definition in type.presentation.filterDefinitions) definition.id,
   };
-  final editCap = type.edit;
-  final grades = editCap.grades;
-  final hasGrades = grades.isNotEmpty && supportedFields.contains('grade');
+  final editCap = type.editPresentation;
+  final collectionValues = editCap.collectionValueOptions;
+  final hasCollectionValues =
+      collectionValues.isNotEmpty && supportedFields.contains('grade');
   final fieldValues = <String, String?>{};
   for (final entry in selection.fieldValues.entries) {
     if (!supportedFields.contains(entry.key)) {
       continue;
     }
-    if (entry.key == 'grade' && !hasGrades) {
+    if (entry.key == 'grade' && !hasCollectionValues) {
       continue;
     }
     fieldValues[entry.key] = entry.value;
@@ -328,8 +330,8 @@ class LibraryFilterOptions {
   List<String> valuesFor(String id) => valuesByFilterId[id] ?? const [];
 
   factory LibraryFilterOptions.fromEntries(
-    List<LibraryProjectionRuntime> entries, {
-    Iterable<LibraryFilterDefinition<dynamic>> filterDefinitions = const [],
+    List<LibraryProjectionView> entries, {
+    Iterable<LibraryFilterDefinition<Object?>> filterDefinitions = const [],
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
@@ -368,18 +370,9 @@ class LibraryFilterOptions {
       if (source.locationPath?.trim().isNotEmpty == true) {
         addValue('location', source.locationPath);
       }
-      for (final tag in splitPickListValues(source.tags)) {
-        addValue('tag', tag);
-      }
-      if (source.grade?.trim().isNotEmpty == true) {
-        addValue('grade', source.grade);
-      }
-      if (source.condition?.trim().isNotEmpty == true) {
-        addValue('condition', source.condition);
-      }
-      final ownedItemId = source.ownedItem?.id;
-      if (ownedItemId != null) {
-        final values = customFieldValuesByDefinitionByItem[ownedItemId];
+      final ownedRefKey = source.ownedRef?.key;
+      if (ownedRefKey != null) {
+        final values = customFieldValuesByDefinitionByItem[ownedRefKey];
         if (values != null) {
           for (final fieldEntry in values.entries) {
             final normalizedValues = parseCustomFieldMultiValues(
@@ -434,9 +427,9 @@ Set<String> _customFieldPresetOptions(CustomFieldDefinition definition) {
 
 /// Returns true if the item matches the active filter selection.
 bool libraryFilterMatches(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   LibraryFilterSelection filters, {
-  Iterable<LibraryFilterDefinition<dynamic>> filterDefinitions = const [],
+  Iterable<LibraryFilterDefinition<Object?>> filterDefinitions = const [],
 }) {
   final source = item.source;
   if (filters.ownershipFilter == LibraryOwnershipFilter.owned &&
@@ -447,30 +440,12 @@ bool libraryFilterMatches(
       !source.isWishlisted) {
     return false;
   }
-  if (filters.ownershipFilter == LibraryOwnershipFilter.forSale &&
-      !(source.isOwned && source.ownedItem?.collectionStatus == 'for_sale')) {
-    return false;
-  }
-  if (filters.ownershipFilter == LibraryOwnershipFilter.onOrder &&
-      !(source.isOwned && source.ownedItem?.collectionStatus == 'on_order')) {
-    return false;
-  }
   final location = filters.fieldValue('location');
   if (location != null && item.source.locationPath?.trim() != location) {
     return false;
   }
-  final tag = filters.fieldValue('tag');
-  if (tag != null && !_entryHasTag(source.tags, tag)) {
-    return false;
-  }
-  final condition = filters.fieldValue('condition');
-  if (condition != null && source.condition?.trim() != condition) {
-    return false;
-  }
   for (final definition in filterDefinitions) {
-    if (definition.id == 'location' ||
-        definition.id == 'tag' ||
-        definition.id == 'condition') {
+    if (definition.id == 'location') {
       continue;
     }
     final selectedValue = filters.fieldValue(definition.id);
@@ -479,7 +454,9 @@ bool libraryFilterMatches(
     }
   }
   if (filters.missingCover && item.dto.coverImageUrl != null) return false;
-  if (filters.missingMetadata && item.source.catalogItem != null) return false;
+  if (filters.missingMetadata && item.source.catalogSummary != null) {
+    return false;
+  }
   return true;
 }
 
@@ -487,7 +464,7 @@ bool libraryFilterMatches(
 /// if the user cancels.
 Future<LibraryFilterSelection?> showLibraryFilterDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required LibraryFilterSelection current,
   required LibraryFilterOptions options,
 }) {
@@ -508,7 +485,7 @@ class _LibraryFilterDialog extends StatefulWidget {
     required this.options,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryFilterSelection initial;
   final LibraryFilterOptions options;
 
@@ -846,7 +823,7 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
   }
 
   _DetailFilterFieldSpec _buildDetailFilterFieldSpec({
-    required LibraryFilterDefinition<dynamic> definition,
+    required LibraryFilterDefinition<Object?> definition,
   }) {
     final values = widget.options.valuesFor(definition.id);
     final options = [
@@ -952,19 +929,6 @@ class _LibraryFilterDialogState extends State<_LibraryFilterDialog> {
     }
     return values;
   }
-}
-
-bool _entryHasTag(String? rawTags, String filterTag) {
-  final normalizedFilter = filterTag.trim().toLowerCase();
-  if (normalizedFilter.isEmpty) {
-    return true;
-  }
-  for (final tag in splitPickListValues(rawTags)) {
-    if (tag.trim().toLowerCase() == normalizedFilter) {
-      return true;
-    }
-  }
-  return false;
 }
 
 class _FilterDropdown extends StatelessWidget {

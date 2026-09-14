@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
@@ -40,7 +40,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     this.onBoxSelectionChanged,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final List<GroupShelfEntry> groups;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -72,8 +72,11 @@ class LibraryGroupedShelfView extends StatelessWidget {
       return emptyBuilder(context);
     }
     final presentation = groups.first.presentation;
-    final showGroupProgress = type.groupModeSupportsCompletion(
-      type.fields.decodeGroupId(groups.first.groupMode),
+    final showGroupProgress =
+        libraryKindWorkspaceForKind(type.kind).groupModeSupportsCompletion(
+      libraryKindWorkspaceForKind(type.kind)
+          .fields
+          .decodeGroupId(groups.first.groupMode),
     );
     return switch (presentation) {
       LibraryGroupPresentation.folderGrid =>

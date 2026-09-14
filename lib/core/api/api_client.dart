@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/models/auth_session.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/core/models/season.dart';
+import 'package:collectarr_app/core/api/dto/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_search_hit.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
@@ -120,6 +120,32 @@ class ApiClient {
     );
   }
 
+  /// Returns only the identity and display summary needed by cross-kind UI.
+  Future<List<CatalogSearchHit>> searchHits(
+    String query, {
+    CatalogMediaKind? kind,
+    String? series,
+    String? issueNumber,
+    String? publisher,
+    int? year,
+    String? barcode,
+    int? limit,
+  }) async {
+    final rows = await search(
+      query,
+      kind: kind?.apiValue,
+      series: series,
+      issueNumber: issueNumber,
+      publisher: publisher,
+      year: year,
+      barcode: barcode,
+      limit: limit,
+    );
+    return [
+      for (final row in rows) CatalogSearchHit.fromJson(row),
+    ];
+  }
+
   Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query,
   ) async {
@@ -127,7 +153,7 @@ class ApiClient {
   }
 
   Future<TypedMetadataResponse> getTypedMetadataItem({
-    required String kind,
+    required CatalogMediaKind kind,
     required String id,
   }) async {
     return _catalogApi.getTypedMetadataItem(kind: kind, id: id);
@@ -185,34 +211,6 @@ class ApiClient {
     return _catalogApi.getTvReleaseMediaItemDto(id);
   }
 
-  Future<List<Season>> getTvSeriesSeasons(String seriesId) async {
-    final seasons = await getTvSeriesSeasonsDto(seriesId);
-    return seasons
-        .map(
-          (season) => Season(
-            seasonNumber: season.seasonNumber ?? 0,
-            title: season.title,
-            providerItemId: season.id,
-            overview: season.description,
-            airDate: season.releaseDate?.toIso8601String(),
-            episodeCount: season.episodeCount,
-            posterUrl: season.coverImageUrl,
-            episodes: [
-              for (final episode in season.episodes)
-                Episode(
-                  episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-                  title: episode.title,
-                  providerItemId: episode.id,
-                  overview: episode.description,
-                  airDate: episode.releaseDate?.toIso8601String(),
-                  runtimeMinutes: episode.runtimeMinutes,
-                ),
-            ],
-          ),
-        )
-        .toList(growable: false);
-  }
-
   Future<BookWorkDto> getBookWorkDto(String id) {
     return _catalogApi.getBookWorkDto(id);
   }
@@ -243,24 +241,6 @@ class ApiClient {
 
   Future<MusicTrackDto> getMusicTrackDto(String id) {
     return _catalogApi.getMusicTrackDto(id);
-  }
-
-  Future<List<Season>> getItemVolumes(
-    String itemId, {
-    String? kind,
-  }) async {
-    final normalizedKind = kind?.trim().toLowerCase();
-    final encodedId = Uri.encodeComponent(itemId);
-    if (normalizedKind == 'manga') {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/metadata/manga/works/$encodedId',
-      );
-      return _volumesFromMangaRaw(response.data?['chapters']);
-    }
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/metadata/books/works/$encodedId',
-    );
-    return _volumesFromBookRaw(response.data?['editions']);
   }
 
   Future<BundleReleaseDetail> getBundleRelease(String bundleReleaseId) async {
@@ -336,7 +316,7 @@ class ApiClient {
     String? audienceRating,
     List<String>? genres,
     List<String>? platforms,
-    List<CatalogTrack>? tracks,
+    List<CatalogTrackDto>? tracks,
     List<Map<String, dynamic>>? creators,
     List<String>? characters,
     List<String>? storyArcs,
@@ -346,8 +326,8 @@ class ApiClient {
     String? audioTracks,
     String? subtitles,
     String? layers,
-    List<TrailerLink>? trailerUrls,
-    List<TrailerLink>? externalLinks,
+    List<TrailerLinkDto>? trailerUrls,
+    List<TrailerLinkDto>? externalLinks,
     String? crossover,
     String? plotSummary,
     String? plotDescription,
@@ -410,6 +390,20 @@ class ApiClient {
       thumbnailImageUrl: thumbnailImageUrl,
       includeNulls: includeNulls,
       explicitFields: explicitFields,
+    );
+  }
+
+  /// Sends a kind-owned correction patch without interpreting its fields in
+  /// the generic Library orchestration layer.
+  Future<AdminMetadataItem> adminUpdateCatalogItemFields({
+    required String kind,
+    required String id,
+    required Map<String, Object?> fields,
+  }) {
+    return _adminApi.adminUpdateCatalogItemFields(
+      kind: kind,
+      id: id,
+      fields: fields,
     );
   }
 
@@ -495,83 +489,6 @@ class ApiClient {
       query: query,
       kind: kind,
     );
-  }
-
-  List<Season> _volumesFromBookRaw(dynamic raw) {
-    if (raw is! List) {
-      return const <Season>[];
-    }
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .toList(growable: false)
-        .asMap()
-        .entries
-        .map(
-      (entry) {
-        final edition = entry.value;
-        return Season(
-          seasonNumber: edition['volume_number'] as int? ?? entry.key + 1,
-          title: _seasonStringValue(
-            edition['title'],
-            'Edition ${entry.key + 1}',
-          ),
-          providerItemId: edition['id']?.toString(),
-          overview: edition['description']?.toString(),
-          airDate: edition['release_date']?.toString(),
-          episodeCount: (edition['variants'] as List<dynamic>?)?.length,
-          posterUrl: edition['cover_image_url']?.toString() ??
-              edition['thumbnail_image_url']?.toString(),
-        );
-      },
-    ).toList(growable: false);
-  }
-
-  List<Season> _volumesFromMangaRaw(dynamic raw) {
-    if (raw is! List) {
-      return const <Season>[];
-    }
-    return raw
-        .whereType<Map<String, dynamic>>()
-        .toList(growable: false)
-        .asMap()
-        .entries
-        .map(
-      (entry) {
-        final chapter = entry.value;
-        final chapterNumber =
-            chapter['chapter_number'] as int? ?? entry.key + 1;
-        final chapterTitle = _seasonStringValue(
-          chapter['chapter_title'],
-          'Chapter $chapterNumber',
-        );
-        return Season(
-          seasonNumber: chapter['volume_number'] as int? ?? chapterNumber,
-          title: _seasonStringValue(
-            chapter['volume_title'],
-            'Volume $chapterNumber',
-          ),
-          providerItemId: chapter['id']?.toString(),
-          overview: chapter['summary']?.toString(),
-          airDate: chapter['release_date']?.toString(),
-          episodeCount: 1,
-          episodes: [
-            Episode(
-              episodeNumber: chapterNumber,
-              title: chapterTitle,
-              providerItemId: chapter['id']?.toString(),
-              overview: chapter['summary']?.toString(),
-              airDate: chapter['release_date']?.toString(),
-              pageCount: chapter['page_count'] as int?,
-            ),
-          ],
-        );
-      },
-    ).toList(growable: false);
-  }
-
-  String _seasonStringValue(dynamic value, String fallback) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? fallback : text;
   }
 
   Future<AdminProviderIngestResult> adminProviderIngest({

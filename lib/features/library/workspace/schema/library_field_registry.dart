@@ -116,19 +116,12 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
   LibraryGroupDefinition<dynamic, TDto, Object?>? findGroupDefinition(
       LibraryGroupIdRuntime id) {
-    final raw = id.value;
-    var normalized = raw.trim();
-    if (normalized.startsWith('group.')) {
-      normalized = normalized.substring(6);
-    }
-    final direct = _findGroupDefinitionByValue(normalized);
-    if (direct != null) return direct;
-    return null;
+    return _findGroupDefinitionByValue(id.value);
   }
 
   int compareEntries(
-    LibraryProjectionRuntime left,
-    LibraryProjectionRuntime right,
+    LibraryProjectionView left,
+    LibraryProjectionView right,
     LibrarySortIdRuntime sortId,
   ) {
     final sortDef = findSortDefinition(sortId);
@@ -149,16 +142,31 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibrarySortIdRuntime decodeSortId(String raw) {
     final direct = _findSortDefinitionByValue(raw);
     if (direct != null) return direct.id;
-    final decoded = preferenceCodec.decodeSort(raw);
-    final def =
-        decoded == null ? null : _findSortDefinitionByValue(decoded.value);
-    if (def != null) return def.id;
+    final trimmed = raw.trim();
+    final normalized = trimmed.startsWith('sort.')
+        ? trimmed.substring('sort.'.length)
+        : trimmed;
+    final namespaced = _findSortDefinitionByValue('$kindNamespace.$normalized');
+    if (namespaced != null) return namespaced.id;
     return DynamicLibrarySortId(raw);
   }
 
   LibraryGroupIdRuntime decodeGroupId(String raw) {
-    final normalized =
-        raw.trim().startsWith('group.') ? raw.trim().substring(6) : raw.trim();
+    final trimmed = raw.trim();
+    final normalized = trimmed.startsWith('group.')
+        ? trimmed.substring('group.'.length)
+        : trimmed;
+    // Prefer the kind-owned definition before collapsing a namespaced
+    // semantic alias to the structural shared ID. A book.location group must
+    // resolve to the Book registry entry, not the generic `location` ID.
+    final direct = _findGroupDefinitionByValue(normalized);
+    if (direct != null) return direct.id;
+    // Older route/query payloads may omit the kind namespace. Resolve that
+    // spelling against the owning registry before treating it as a shared
+    // structural identifier (for example `publisher` -> `book.publisher`).
+    final namespaced =
+        _findGroupDefinitionByValue('$kindNamespace.$normalized');
+    if (namespaced != null) return namespaced.id;
     final sharedGroup = switch (normalized) {
       'title' => LibraryStandardGroupIds.title,
       'location' => LibraryStandardGroupIds.location,
@@ -170,27 +178,24 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     if (sharedGroup != null) {
       return sharedGroup;
     }
-    final direct = _findGroupDefinitionByValue(normalized);
-    if (direct != null) return direct.id;
-    final decoded = preferenceCodec.decodeGroup(normalized);
-    final def =
-        decoded == null ? null : _findGroupDefinitionByValue(decoded.value);
-    if (def != null) return def.id;
     return DynamicLibraryGroupId(raw);
   }
 
   LibraryFieldIdRuntime decodeColumnId(String raw) {
     final direct = _findColumnDefinitionByValue(raw);
     if (direct != null) return direct.id;
-    final decoded = preferenceCodec.decodeColumn(raw);
-    final def =
-        decoded == null ? null : _findColumnDefinitionByValue(decoded.value);
-    if (def != null) return def.id;
+    final trimmed = raw.trim();
+    final normalized = trimmed.startsWith('field.')
+        ? trimmed.substring('field.'.length)
+        : trimmed;
+    final namespaced =
+        _findColumnDefinitionByValue('$kindNamespace.$normalized');
+    if (namespaced != null) return namespaced.id;
     return DynamicLibraryFieldId(raw);
   }
 
   Object? getGroupValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   ) {
     final groupDef = findGroupDefinition(groupId);
@@ -204,7 +209,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   String? getGroupSequenceValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryGroupIdRuntime groupId,
   ) {
     final groupDef = findGroupDefinition(groupId);
@@ -221,7 +226,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   Object? getColumnValue(
-    LibraryProjectionRuntime item,
+    LibraryProjectionView item,
     LibraryFieldIdRuntime columnId,
   ) {
     final columnDef = findColumnDefinition(columnId);
@@ -235,7 +240,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   void sortEntries(
-    List<LibraryProjectionRuntime> items,
+    List<LibraryProjectionView> items,
     LibrarySortIdRuntime sortId, {
     required bool ascending,
   }) {
@@ -267,10 +272,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     for (final definition in columns) {
       if (definition.id.value == value) return definition;
     }
-    final qualifiedValue = '$kindNamespace.$value';
-    for (final definition in columns) {
-      if (definition.id.value == qualifiedValue) return definition;
-    }
     return null;
   }
 
@@ -280,10 +281,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     for (final definition in sorts) {
       if (definition.id.value == value) return definition;
     }
-    final qualifiedValue = '$kindNamespace.$value';
-    for (final definition in sorts) {
-      if (definition.id.value == qualifiedValue) return definition;
-    }
     return null;
   }
 
@@ -291,10 +288,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       String value) {
     for (final definition in groups) {
       if (definition.id.value == value) return definition;
-    }
-    final qualifiedValue = '$kindNamespace.$value';
-    for (final definition in groups) {
-      if (definition.id.value == qualifiedValue) return definition;
     }
     return null;
   }

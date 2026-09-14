@@ -1,8 +1,9 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -13,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class LibraryBulkEditSelection {
   const LibraryBulkEditSelection({
     this.condition,
-    this.grade,
+    this.collectionValue,
     this.applyLocation = false,
     this.locationId,
     this.tags,
@@ -22,7 +23,7 @@ class LibraryBulkEditSelection {
   });
 
   final String? condition;
-  final String? grade;
+  final String? collectionValue;
   final bool applyLocation;
   final String? locationId;
   final String? tags;
@@ -37,7 +38,7 @@ class LibraryBulkEditDialog extends ConsumerStatefulWidget {
     required this.selectedCount,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final int selectedCount;
 
   @override
@@ -47,7 +48,7 @@ class LibraryBulkEditDialog extends ConsumerStatefulWidget {
 
 class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   String? _condition;
-  String? _grade;
+  String? _collectionValue;
   String? _readStatus;
   int? _rating;
   final _tagsController = TextEditingController();
@@ -61,9 +62,9 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   @override
   void initState() {
     super.initState();
-    final editCapability = widget.type.edit;
+    final editCapability = widget.type.editPresentation;
     _conditionOptions = editCapability.conditions;
-    _gradeOptions = editCapability.grades;
+    _gradeOptions = editCapability.collectionValueOptions;
     _loadAvailableLocations();
     _loadPickListOptions();
   }
@@ -114,7 +115,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
               ],
               if (grades.isNotEmpty) ...[
                 DropdownButtonFormField<String>(
-                  initialValue: _grade,
+                  initialValue: _collectionValue,
                   dropdownColor: palette.panelRaised,
                   borderRadius: kAppMenuBorderRadius,
                   decoration: const InputDecoration(
@@ -129,7 +130,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                   ],
                   onChanged: (value) {
                     setState(
-                      () => _grade =
+                      () => _collectionValue =
                           value == null || value.isEmpty ? null : value,
                     );
                   },
@@ -183,7 +184,8 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
                   for (var i = 1; i <= 5; i++)
                     DropdownMenuItem(
                       value: i,
-                      child: Text('${'★' * i}${'☆' * (5 - i)}'),
+                      child: Text(
+                          '${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â¦' * i}${'ÃƒÂ¢Ã‹Å“Ã¢â‚¬Â ' * (5 - i)}'),
                     ),
                 ],
                 onChanged: (value) {
@@ -204,7 +206,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
           onPressed: () => Navigator.of(context).pop(
             LibraryBulkEditSelection(
               condition: _condition,
-              grade: _grade,
+              collectionValue: _collectionValue,
               applyLocation: _applyLocation,
               locationId: _locationId,
               tags: _emptyToNull(_tagsController.text),
@@ -233,7 +235,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
   }
 
   Future<void> _loadPickListOptions() async {
-    final editCapability = widget.type.edit;
+    final editCapability = widget.type.editPresentation;
     final conditionDefinition =
         editCapability.vocabularies?.definitionForSuffix('condition');
     final gradeDefinition =
@@ -242,7 +244,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
         ? editCapability.conditions
         : [for (final value in conditionDefinition.builtIns) value.toString()];
     final builtInGrades = gradeDefinition == null
-        ? editCapability.grades
+        ? editCapability.collectionValueOptions
         : [for (final value in gradeDefinition.builtIns) value.toString()];
     final options = await loadConditionGradePickListOptions(
       ref.read(localDatabaseProvider),
@@ -252,7 +254,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
       conditionListName: conditionDefinition?.key,
       gradeListName: gradeDefinition?.key,
       selectedCondition: _condition,
-      selectedGrade: _grade,
+      selectedGrade: _collectionValue,
     );
     final tagOptions = await loadTagPickListOptions(
       ref.read(localDatabaseProvider),

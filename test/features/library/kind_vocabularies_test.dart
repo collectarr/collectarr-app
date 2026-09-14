@@ -12,8 +12,9 @@ import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -90,11 +91,10 @@ void main() {
       final projector = ComicVocabularies.publisher.valuesFrom;
 
       expect(projector, isNotNull);
-      expect(
-          projector!(const EmptyKindMetadata(CatalogMediaKind.game)), isEmpty);
+      expect(projector!(const Object()), isEmpty);
       expect(
         projector(
-          const ComicCatalogMetadata(
+          const ComicMedia(
             title: 'Typed Comic',
             publisher: 'Image Comics',
           ),
@@ -103,7 +103,7 @@ void main() {
       );
     });
 
-    test('typed projectors preserve legacy nested catalog fields', () {
+    test('typed projectors preserve nested catalog fields', () {
       expect(
         MovieVocabularies.distributor.valuesFrom!(
           const MovieCatalogMetadata(
@@ -157,9 +157,9 @@ void main() {
       ];
 
       for (final kind in kinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime.kind, kind, reason: 'Runtime for $kind should exist');
-        final vocCapability = runtime.edit.vocabularies;
+        final vocCapability = runtime.editPresentation.vocabularies;
         expect(vocCapability, isNotNull,
             reason: 'Vocabulary capability for $kind should be set');
         expect(vocCapability!.definitions, isNotEmpty,

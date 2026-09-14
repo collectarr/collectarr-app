@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/contracts/boardgame_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
@@ -7,15 +6,15 @@ import 'package:collectarr_app/features/library/kinds/boardgame/provider/boardga
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_fields.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('BoardGame Kind Vertical Slice Tests (C3)', () {
@@ -82,25 +81,25 @@ void main() {
         bggRank: 1,
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_1',
-        catalogItem: const LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'bg_1',
             mediaKind: CatalogMediaKind.boardgame,
           ),
           kindMetadata: bgMeta,
-        ),
-        ownedItem: OwnedItem(
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'bg_1',
-            kind: 'boardgame',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.boardgame,
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = BoardGameWorkspaceProjector();
@@ -139,12 +138,12 @@ void main() {
         'BoardGameLibraryKindProviderMapper parses BGG envelope into BoardGameMetadata',
         () {
       const mapper = BoardGameLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'bgg',
           providerItemId: '224517',
-          kind: 'boardgame',
-          normalized: const {
+          kind: CatalogMediaKind.boardgame,
+          payload: const ProviderMetadataPayload({
             'title': 'Brass: Birmingham',
             'year_published': 2018,
             'min_players': 2,
@@ -156,7 +155,7 @@ void main() {
             'bgg_rating': 8.6,
             'bgg_rank': 1,
             'designers': ['Gavan Brown', 'Martin Wallace'],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -165,15 +164,13 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<BoardGameMetadata>());
-      final meta = item.kindMetadata as BoardGameMetadata;
-      expect(meta.title, 'Brass: Birmingham');
-      expect(meta.yearPublished, 2018);
-      expect(meta.minPlayers, 2);
-      expect(meta.maxPlayers, 4);
-      expect(meta.bestPlayers, '3-4');
-      expect(meta.bggRank, 1);
-      expect(meta.designers, contains('Martin Wallace'));
+      expect(item.title, 'Brass: Birmingham');
+      expect(item.yearPublished, 2018);
+      expect(item.minPlayers, 2);
+      expect(item.maxPlayers, 4);
+      expect(item.bestPlayers, '3-4');
+      expect(item.bggRank, 1);
+      expect(item.designers, contains('Martin Wallace'));
     });
 
     test(
@@ -224,15 +221,15 @@ void main() {
       expect(restored.yearPublished, 2018);
       expect(restored.complexityWeight, 3.9);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'bg_brass_birmingham',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'bg_brass_birmingham',
             mediaKind: CatalogMediaKind.boardgame,
           ),
           kindMetadata: BoardGameMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = BoardGameEntry.fromShelf(shelfEntry);

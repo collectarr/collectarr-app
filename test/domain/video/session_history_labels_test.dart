@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/watch_history_section.dart';
+import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,20 +9,30 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('sessionHistoryLabelsForKind', () {
     test('reading kinds map to read labels', () {
-      for (final kind in ['comic', 'manga', 'book']) {
+      for (final kind in [
+        CatalogMediaKind.comic,
+        CatalogMediaKind.manga,
+        CatalogMediaKind.book,
+      ]) {
         expect(sessionHistoryLabelsForKind(kind), SessionHistoryLabels.read);
       }
     });
 
     test('music maps to listen, games map to play', () {
-      expect(sessionHistoryLabelsForKind('music'), SessionHistoryLabels.listen);
-      expect(sessionHistoryLabelsForKind('game'), SessionHistoryLabels.play);
-      expect(
-          sessionHistoryLabelsForKind('boardgame'), SessionHistoryLabels.play);
+      expect(sessionHistoryLabelsForKind(CatalogMediaKind.music),
+          SessionHistoryLabels.listen);
+      expect(sessionHistoryLabelsForKind(CatalogMediaKind.game),
+          SessionHistoryLabels.play);
+      expect(sessionHistoryLabelsForKind(CatalogMediaKind.boardgame),
+          SessionHistoryLabels.play);
     });
 
     test('video kinds fall back to watch labels', () {
-      for (final kind in ['movie', 'tv', 'anime']) {
+      for (final kind in [
+        CatalogMediaKind.movie,
+        CatalogMediaKind.tv,
+        CatalogMediaKind.anime,
+      ]) {
         expect(sessionHistoryLabelsForKind(kind), SessionHistoryLabels.watch);
       }
     });
@@ -32,14 +42,24 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          watchSessionsByItemProvider.overrideWithValue(
-            const <String, List<WatchSession>>{},
+          watchSessionsByCatalogRefProvider(
+            const CatalogEntityRef(
+              kind: CatalogMediaKind.book,
+              entityType: CatalogEntityTypeId('work'),
+              id: 'book-1',
+            ),
+          ).overrideWithValue(
+            const <WatchSession>[],
           ),
         ],
         child: const MaterialApp(
           home: Scaffold(
             body: WatchHistorySection(
-              itemId: 'book-1',
+              catalogRef: CatalogEntityRef(
+                kind: CatalogMediaKind.book,
+                entityType: CatalogEntityTypeId('work'),
+                id: 'book-1',
+              ),
               accent: Colors.teal,
               labels: SessionHistoryLabels.read,
             ),
@@ -58,8 +78,8 @@ void main() {
     final session = WatchSession(
       id: 'session-1',
       targetRef: const CatalogEntityRef(
-        kind: 'book',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.book,
+        entityType: CatalogEntityTypeId('work'),
         id: 'book-1',
       ),
       watchedAt: DateTime.utc(2026, 5, 14),
@@ -69,16 +89,24 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          watchSessionsByItemProvider.overrideWithValue(
-            <String, List<WatchSession>>{
-              'book-1': [session],
-            },
+          watchSessionsByCatalogRefProvider(
+            const CatalogEntityRef(
+              kind: CatalogMediaKind.book,
+              entityType: CatalogEntityTypeId('work'),
+              id: 'book-1',
+            ),
+          ).overrideWithValue(
+            [session],
           ),
         ],
         child: const MaterialApp(
           home: Scaffold(
             body: WatchHistorySection(
-              itemId: 'book-1',
+              catalogRef: CatalogEntityRef(
+                kind: CatalogMediaKind.book,
+                entityType: CatalogEntityTypeId('work'),
+                id: 'book-1',
+              ),
               accent: Colors.teal,
               labels: SessionHistoryLabels.read,
             ),

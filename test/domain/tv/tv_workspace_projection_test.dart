@@ -7,14 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('tv workspace projections build series season episode and release nodes',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'series-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'series-1',
         title: 'Cowboy Bebop',
         synopsis: 'A space western.',
         kind: 'tv',
-      ),
+      ).asShelfCatalogItem),
     );
 
     final dto = const TvWorkspaceProjector().projectTitle(
@@ -23,6 +23,6 @@ void main() {
     );
 
     expect(dto.title, 'Cowboy Bebop');
-    expect(source.catalogItem?.kind, 'tv');
+    expect(source.catalogData?.kind.apiValue, 'tv');
   });
 }

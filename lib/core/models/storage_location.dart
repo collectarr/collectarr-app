@@ -13,7 +13,7 @@ class StorageLocation {
   final String? description;
   final int sortOrder;
 
-  Map<String, dynamic> toSyncPayload() {
+  Map<String, Object?> toSyncPayload() {
     return {
       'name': name,
       'parent_id': parentId,
@@ -24,7 +24,7 @@ class StorageLocation {
 
   factory StorageLocation.fromSyncPayload(
     String id,
-    Map<String, dynamic> payload,
+    Map<String, Object?> payload,
   ) {
     return StorageLocation(
       id: id,

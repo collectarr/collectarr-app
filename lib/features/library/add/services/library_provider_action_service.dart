@@ -1,10 +1,10 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 class LibraryProviderActionService {
   const LibraryProviderActionService();
@@ -31,21 +31,23 @@ class LibraryProviderActionService {
 
   Future<void> proposeMetadata({
     required ApiClient api,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required ProviderCandidate candidate,
-    required LibraryMetadataItem proposalItem,
+    required CatalogSearchCandidate proposalItem,
   }) {
     return createAndRecordLibraryMetadataProposal(
       api: api,
-      type: type,
+      kind: type.kind,
+      defaultProvider: type.metadata.defaultProviderId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
       query: proposalItem.title,
       title: proposalItem.title,
       summary: proposalItem.synopsis ?? candidate.summary,
       imageUrl: proposalItem.displayCoverUrl,
-      metadataPayload:
-          LibraryMetadataTransportCodec.toSyncPayload(proposalItem),
+      metadataPayload: proposalItem.mapTransport(
+        (transport) => transport.toSyncPayload(),
+      ),
       source: 'Add ${type.identity.pluralLabel} provider result',
     );
   }

@@ -19,19 +19,25 @@
 
 .EXAMPLE
     .\scripts\run_web_for_copilot.ps1 -NoOpen
+
+.EXAMPLE
+    .\scripts\run_web_for_copilot.ps1 -Seed -Route /libraries
 #>
 [CmdletBinding()]
 param(
     [ValidateSet('chrome', 'edge')]
     [string]$Device = 'chrome',
 
+    [ValidateRange(1, 65535)]
     [int]$Port = 7357,
 
     [string]$HostName = '127.0.0.1',
 
     [string]$Route = '/libraries',
 
-    [switch]$NoOpen
+    [switch]$NoOpen,
+
+    [switch]$Seed
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,6 +45,9 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 
 if (-not (Get-Command flutter -ErrorAction SilentlyContinue)) {
     throw "Flutter is not available in PATH."
+}
+if ($Seed -and -not (Get-Command dart -ErrorAction SilentlyContinue)) {
+    throw "Dart is not available in PATH; cannot seed the local database."
 }
 
 $routePath = if ([string]::IsNullOrWhiteSpace($Route)) { '/libraries' } else { $Route }
@@ -51,6 +60,19 @@ $url = "http://$HostName`:$Port/#$routePath"
 Write-Host "[web] Project: $projectRoot" -ForegroundColor Cyan
 Write-Host "[web] URL:     $url" -ForegroundColor Cyan
 Write-Host "[web] Device:  $Device" -ForegroundColor Cyan
+
+if ($Seed) {
+    Write-Host "[web] Seeding typed-kind development fixture..." -ForegroundColor Cyan
+    Push-Location $projectRoot
+    try {
+        & dart run scripts/seed_local_db.dart
+        if ($LASTEXITCODE -ne 0) {
+            throw "typed-kind seed failed with exit code $LASTEXITCODE."
+        }
+    } finally {
+        Pop-Location
+    }
+}
 
 $flutterArgs = @(
     'run',

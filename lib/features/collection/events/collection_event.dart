@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 
 @immutable
 sealed class CollectionEvent {
@@ -6,136 +8,127 @@ sealed class CollectionEvent {
 }
 
 final class OwnedItemAdded extends CollectionEvent {
-  const OwnedItemAdded(this.ownedItemId);
-  final String ownedItemId;
+  const OwnedItemAdded(this.ownedRef);
+  final OwnedItemRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OwnedItemAdded &&
           runtimeType == other.runtimeType &&
-          ownedItemId == other.ownedItemId;
+          ownedRef == other.ownedRef;
 
   @override
-  int get hashCode => ownedItemId.hashCode;
+  int get hashCode => ownedRef.hashCode;
 }
 
 final class OwnedItemUpdated extends CollectionEvent {
-  const OwnedItemUpdated(this.ownedItemId);
-  final String ownedItemId;
+  const OwnedItemUpdated(this.ownedRef);
+  final OwnedItemRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OwnedItemUpdated &&
           runtimeType == other.runtimeType &&
-          ownedItemId == other.ownedItemId;
+          ownedRef == other.ownedRef;
 
   @override
-  int get hashCode => ownedItemId.hashCode;
+  int get hashCode => ownedRef.hashCode;
 }
 
 final class OwnedItemRemoved extends CollectionEvent {
-  const OwnedItemRemoved(this.ownedItemId);
-  final String ownedItemId;
+  const OwnedItemRemoved(this.ownedRef);
+  final OwnedItemRef ownedRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OwnedItemRemoved &&
           runtimeType == other.runtimeType &&
-          ownedItemId == other.ownedItemId;
+          ownedRef == other.ownedRef;
 
   @override
-  int get hashCode => ownedItemId.hashCode;
+  int get hashCode => ownedRef.hashCode;
 }
 
 final class CatalogItemChanged extends CollectionEvent {
-  const CatalogItemChanged(this.catalogItemId);
-  final String catalogItemId;
+  const CatalogItemChanged(this.catalogRef);
+  final CatalogEntityRef catalogRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is CatalogItemChanged &&
           runtimeType == other.runtimeType &&
-          catalogItemId == other.catalogItemId;
+          catalogRef == other.catalogRef;
 
   @override
-  int get hashCode => catalogItemId.hashCode;
+  int get hashCode => catalogRef.hashCode;
 }
 
 final class WishlistChanged extends CollectionEvent {
-  const WishlistChanged(this.catalogItemId);
-  final String catalogItemId;
+  const WishlistChanged(this.catalogRef);
+  final CatalogEntityRef catalogRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is WishlistChanged &&
           runtimeType == other.runtimeType &&
-          catalogItemId == other.catalogItemId;
+          catalogRef == other.catalogRef;
 
   @override
-  int get hashCode => catalogItemId.hashCode;
+  int get hashCode => catalogRef.hashCode;
 }
 
 final class TrackingChanged extends CollectionEvent {
-  const TrackingChanged(this.trackingEntryId);
-  final String trackingEntryId;
+  const TrackingChanged();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TrackingChanged &&
-          runtimeType == other.runtimeType &&
-          trackingEntryId == other.trackingEntryId;
+      other is TrackingChanged && runtimeType == other.runtimeType;
 
   @override
-  int get hashCode => trackingEntryId.hashCode;
+  int get hashCode => runtimeType.hashCode;
 }
 
 final class WatchSessionChanged extends CollectionEvent {
-  const WatchSessionChanged(this.watchSessionId);
-  final String watchSessionId;
+  const WatchSessionChanged();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WatchSessionChanged &&
-          runtimeType == other.runtimeType &&
-          watchSessionId == other.watchSessionId;
+      other is WatchSessionChanged && runtimeType == other.runtimeType;
 
   @override
-  int get hashCode => watchSessionId.hashCode;
+  int get hashCode => runtimeType.hashCode;
 }
 
 final class MetadataOverrideChanged extends CollectionEvent {
-  const MetadataOverrideChanged(this.itemId);
-  final String itemId;
+  const MetadataOverrideChanged(this.catalogRef);
+  final CatalogEntityRef catalogRef;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MetadataOverrideChanged &&
           runtimeType == other.runtimeType &&
-          itemId == other.itemId;
+          catalogRef == other.catalogRef;
 
   @override
-  int get hashCode => itemId.hashCode;
+  int get hashCode => catalogRef.hashCode;
 }
 
 final class CustomEpisodeChanged extends CollectionEvent {
-  const CustomEpisodeChanged(this.customEpisodeId);
-  final String customEpisodeId;
+  const CustomEpisodeChanged();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CustomEpisodeChanged &&
-          runtimeType == other.runtimeType &&
-          customEpisodeId == other.customEpisodeId;
+      other is CustomEpisodeChanged && runtimeType == other.runtimeType;
 
   @override
-  int get hashCode => customEpisodeId.hashCode;
+  int get hashCode => runtimeType.hashCode;
 }

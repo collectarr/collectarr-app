@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart'
     show formatMoney;
 import 'package:collectarr_app/ui/theme/app_theme.dart';

@@ -1,12 +1,12 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/shell/library_add_chrome.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/add_bottom_bar.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_kind_bottom_bar.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/error_banner.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -32,7 +32,7 @@ Widget buildMovieAddModeBar(
       searchButtonLabel: 'Search Movies',
     ),
   );
-  if (request.type.addChrome.videoKindFilterOptions.isEmpty ||
+  if (request.type.addChrome.kindFilterOptions.isEmpty ||
       request.mode != LibraryAddDialogMode.search) {
     return baseModeBar;
   }
@@ -51,8 +51,7 @@ Widget buildMovieAddModeBar(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: Row(
             children: [
-              for (final opt
-                  in request.type.addChrome.videoKindFilterOptions) ...[
+              for (final opt in request.type.addChrome.kindFilterOptions) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: Row(
@@ -151,25 +150,31 @@ Widget buildMovieAddSearchPane(
                         final title = isCore ? item.title : candidate!.title;
                         final coverUrl =
                             isCore ? item.displayCoverUrl : candidate!.imageUrl;
-                        final publisher = (item?.kindMetadata
-                                .toSyncPayload()['publisher'] as String?) ??
-                            ((item?.kindMetadata.toSyncPayload()['publishing']
+                        final publisher = (item
+                                ?.mapTransport((transport) => transport)
+                                .payload['publisher'] as String?) ??
+                            ((item
+                                    ?.mapTransport((transport) => transport)
+                                    .payload['publishing']
                                 as Map?)?['original_publisher'] as String?);
                         final subtitle = isCore
                             ? [
-                                if (libraryKindReleaseYear(item) != null)
-                                  libraryKindReleaseYear(item).toString(),
+                                if ((item.releaseYear ??
+                                        item.releaseDate?.year) !=
+                                    null)
+                                  (item.releaseYear ?? item.releaseDate?.year)
+                                      .toString(),
                                 if (publisher != null &&
                                     publisher.trim().isNotEmpty)
                                   publisher.trim(),
-                              ].whereType<String>().join(' · ')
+                              ].whereType<String>().join(' Ãƒâ€šÃ‚Â· ')
                             : [
                                 request.type.metadata
                                     .providerLabel(candidate!.provider),
                                 if (candidate.summary?.trim().isNotEmpty ==
                                     true)
                                   candidate.summary,
-                              ].whereType<String>().join(' · ');
+                              ].whereType<String>().join(' Ãƒâ€šÃ‚Â· ');
                         final matchSummary = isCore
                             ? request.coreMatchSummary?.call(item)
                             : request.providerMatchSummary?.call(candidate!);
@@ -300,8 +305,8 @@ Widget buildMovieAddSearchPane(
                                       ),
                                     ],
                                     if (isCore &&
-                                        request.ownedCatalogItemIds
-                                            .contains(item.id)) ...[
+                                        request.ownedCatalogRefs
+                                            .contains(item.catalogRef)) ...[
                                       const SizedBox(height: 5),
                                       const LibraryAddResultBadge(
                                           'In collection'),
@@ -324,13 +329,13 @@ Widget buildMovieAddBottomBar(
   BuildContext context,
   LibraryAddBottomBarRequest request,
 ) {
-  return buildKindAddBottomBar(context, request);
+  return buildLibraryAddKindBottomBar(context, request);
 }
 
 class _MovieSearchGridEntry {
   const _MovieSearchGridEntry.core(this.item) : candidate = null;
   const _MovieSearchGridEntry.provider(this.candidate) : item = null;
 
-  final LibraryMetadataItem? item;
+  final CatalogSearchCandidate? item;
   final ProviderCandidate? candidate;
 }

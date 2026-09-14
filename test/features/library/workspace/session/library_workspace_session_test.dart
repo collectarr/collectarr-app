@@ -51,9 +51,9 @@ void main() {
       expect(state.filters.searchQuery, 'Spider-Man');
       expect(state.filters.searchDraft, 'Spider-Man');
 
-      // Verifies sync with legacy downstream filters provider
-      final legacyFilters = container.read(libraryFiltersProvider(key));
-      expect(legacyFilters.searchQuery, 'Spider-Man');
+      // Verifies synchronization with the filters provider.
+      final filters = container.read(libraryFiltersProvider(key));
+      expect(filters.searchQuery, 'Spider-Man');
 
       controller.clearSearch();
       state = container.read(libraryWorkspaceSessionProvider(key));
@@ -61,15 +61,15 @@ void main() {
       expect(state.filters.searchDraft, isEmpty);
     });
 
-    test('sort and group actions update state and legacy providers', () {
+    test('sort and group actions update state and providers', () {
       controller.setSort(ComicSortIds.pricePaid, ascending: false);
       var state = container.read(libraryWorkspaceSessionProvider(key));
       expect(state.filters.sortId, ComicSortIds.pricePaid);
       expect(state.filters.sortAscending, false);
 
-      var legacyFilters = container.read(libraryFiltersProvider(key));
-      expect(legacyFilters.sortId, ComicSortIds.pricePaid);
-      expect(legacyFilters.sortAscending, false);
+      var filters = container.read(libraryFiltersProvider(key));
+      expect(filters.sortId, ComicSortIds.pricePaid);
+      expect(filters.sortAscending, false);
 
       controller.toggleSortDirection();
       state = container.read(libraryWorkspaceSessionProvider(key));
@@ -114,8 +114,8 @@ void main() {
       var state = container.read(libraryWorkspaceSessionProvider(key));
       expect(state.view.viewMode, LibraryViewMode.list);
 
-      var legacyView = container.read(libraryViewConfigProvider(key));
-      expect(legacyView.viewMode, LibraryViewMode.list);
+      var view = container.read(libraryViewConfigProvider(key));
+      expect(view.viewMode, LibraryViewMode.list);
 
       controller.setCoverSize(240.0);
       state = container.read(libraryWorkspaceSessionProvider(key));
@@ -249,10 +249,10 @@ void main() {
       expect(state.view.viewMode, LibraryViewMode.list);
       expect(state.view.coverSize, 220.0);
 
-      final legacyFilters = container.read(libraryFiltersProvider(key));
-      expect(legacyFilters.searchQuery, 'Batman');
-      final legacyView = container.read(libraryViewConfigProvider(key));
-      expect(legacyView.viewMode, LibraryViewMode.list);
+      final filters = container.read(libraryFiltersProvider(key));
+      expect(filters.searchQuery, 'Batman');
+      final view = container.read(libraryViewConfigProvider(key));
+      expect(view.viewMode, LibraryViewMode.list);
     });
   });
 }

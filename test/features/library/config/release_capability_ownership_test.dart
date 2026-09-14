@@ -1,8 +1,12 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/release/anime_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/movie/release/movie_release_projection_capability.dart';
+import 'package:collectarr_app/features/library/kinds/tv/release/tv_release_projection_capability.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_browser_scope.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -12,20 +16,19 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('Release Capability Ownership Contract Tests', () {
-    test(
-        'movie, tv, and anime kind specs register VideoReleaseProjectionCapability',
+    test('movie, tv, and anime kinds register concrete release capabilities',
         () {
       expect(
         movieKindModule.releaseCapability,
-        isA<VideoReleaseProjectionCapability>(),
+        isA<MovieReleaseProjectionCapability>(),
       );
       expect(
         tvKindModule.releaseCapability,
-        isA<VideoReleaseProjectionCapability>(),
+        isA<TvReleaseProjectionCapability>(),
       );
       expect(
         animeKindModule.releaseCapability,
-        isA<VideoReleaseProjectionCapability>(),
+        isA<AnimeReleaseProjectionCapability>(),
       );
     });
 
@@ -43,18 +46,17 @@ void main() {
         () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Comic 1',
-            ),
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
         primaryCurrency: null,
@@ -64,37 +66,35 @@ void main() {
       expect(
         () => libraryItemsForShelf(
           shelf,
-          comicKindModule,
+          libraryKindRegistrationForKind(CatalogMediaKind.comic),
           browserMode: LibraryWorkspaceBrowserMode.releases,
         ),
         throwsA(isA<UnsupportedError>()),
       );
     });
 
-    test(
-        'supported kind projects releases successfully with VideoReleaseProjectionCapability',
+    test('supported kind projects releases through its concrete capability',
         () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'movie-1',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'movie-1',
               kind: 'movie',
               title: 'Inception',
               editions: [
-                const CatalogEdition(
+                const CatalogEditionDto(
                   id: 'ed-1',
                   title: '4K Ultra HD',
                   publisher: 'Warner Bros',
                 ),
               ],
-            ),
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
         primaryCurrency: null,
@@ -103,7 +103,7 @@ void main() {
 
       final items = libraryItemsForShelf(
         shelf,
-        movieKindModule,
+        libraryKindRegistrationForKind(CatalogMediaKind.movie),
         browserMode: LibraryWorkspaceBrowserMode.releases,
       );
 
@@ -111,7 +111,7 @@ void main() {
       expect(items.first.dto.title, 'Inception');
       expect(items.first.node, isA<LibraryReleaseNodeRef>());
       final releaseNode = items.first.node as LibraryReleaseNodeRef;
-      expect(releaseNode.edition.title, '4K Ultra HD');
+      expect(releaseNode.release.title, '4K Ultra HD');
     });
 
     test('kinds without release capability do not open release folder on open',
@@ -128,7 +128,7 @@ void main() {
         movieKindModule.hierarchy.shouldOpenReleaseFolderOnOpen(
           browserMode: LibraryWorkspaceBrowserMode.media,
           browseScope: LibraryBrowserScope.title,
-          hasReleaseCapability: movieKindModule.releaseCapability != null,
+          hasReleaseCapability: true,
         ),
         isTrue,
       );

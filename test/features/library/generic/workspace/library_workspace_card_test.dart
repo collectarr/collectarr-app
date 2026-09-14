@@ -16,24 +16,24 @@ void main() {
   testWidgets('workspace card renders catalog and personal state',
       (tester) async {
     var tapped = false;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Invincible Iron Man, Vol. 2',
         itemNumber: '13A',
         publisher: 'Marvel Comics',
         barcode: '759606083060141',
-      ),
-      ownedItem: testOwnedItem(
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-1',
         itemId: 'comic-1',
         grade: '9.4',
         condition: 'Near Mint',
         pricePaidCents: 399,
         currency: 'USD',
-      ),
+      )),
       wishlistItem: testWishlistItem(id: 'wish-1', itemId: 'comic-1'),
       locationPath: 'Box 6',
     );
@@ -72,24 +72,24 @@ void main() {
     expect(tapped, isTrue);
     expect(find.text('#13A'), findsWidgets);
     expect(find.textContaining('Marvel Comics'), findsOneWidget);
-    expect(find.text('Near Mint'), findsOneWidget);
+    expect(find.text('Near Mint'), findsNothing);
     expect(find.text('Wishlist'), findsOneWidget);
   });
 
   testWidgets('workspace card renders music release details', (tester) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
         publisher: 'Virgin',
-      ),
-      ownedItem: testOwnedItem(
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-m1',
         itemId: 'music-1',
         personalNotes: 'Japanese pressing',
-      ),
+      )),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -127,14 +127,15 @@ void main() {
 
   testWidgets('workspace card renders video runtime and game platforms',
       (tester) async {
-    final sourceMovie = ShelfEntry(
+    final sourceMovie = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Dune',
-      ),
-      ownedItem: testOwnedItem(id: 'om1', itemId: 'movie-1'),
+      ).asShelfCatalogItem),
+      ownedSummary:
+          testOwnedSummary(testOwnedItem(id: 'om1', itemId: 'movie-1')),
     );
     const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dtoMovie = const MovieWorkspaceProjector().projectTitle(
@@ -147,14 +148,15 @@ void main() {
       dto: dtoMovie,
     );
 
-    final sourceGame = ShelfEntry(
+    final sourceGame = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'Mario Kart 8 Deluxe',
-      ),
-      ownedItem: testOwnedItem(id: 'og1', itemId: 'game-1'),
+      ).asShelfCatalogItem),
+      ownedSummary:
+          testOwnedSummary(testOwnedItem(id: 'og1', itemId: 'game-1')),
     );
     const nodeGame = LibraryTitleNodeRef(titleItemId: 'game-1');
     final dtoGame = const GameWorkspaceProjector().projectTitle(

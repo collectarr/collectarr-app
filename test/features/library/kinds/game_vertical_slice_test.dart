@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:collectarr_app/features/library/kinds/game/contracts/game_contracts.dart';
@@ -9,15 +8,15 @@ import 'package:collectarr_app/features/library/kinds/game/provider/game_provide
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Game Kind Vertical Slice Tests (C7)', () {
@@ -123,25 +122,25 @@ void main() {
         ),
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_1',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'game_1',
             mediaKind: CatalogMediaKind.game,
           ),
           kindMetadata: gameMeta,
-        ),
-        ownedItem: OwnedItem(
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'game_1',
-            kind: 'game',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.game,
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'CIB',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = GameWorkspaceProjector();
@@ -184,12 +183,12 @@ void main() {
         'GameLibraryKindProviderMapper parses IGDB envelope into GameCatalogMetadata',
         () {
       const mapper = GameLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'igdb',
           providerItemId: '1234',
-          kind: 'game',
-          normalized: const {
+          kind: CatalogMediaKind.game,
+          payload: const ProviderMetadataPayload({
             'title': 'Super Mario 64',
             'platform': 'Nintendo 64',
             'franchise': 'Super Mario',
@@ -218,7 +217,7 @@ void main() {
                 'captured_at': '2026-08-20T00:00:00.000Z'
               },
             },
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -227,12 +226,10 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<GameCatalogMetadata>());
-      final meta = item.kindMetadata as GameCatalogMetadata;
-      expect(meta.title, 'Super Mario 64');
-      expect(meta.franchise, 'Super Mario');
-      expect(meta.ageRating, 'ESRB: E');
-      expect(meta.valuations?.cib?.amountCents, 9000);
+      expect(item.title, 'Super Mario 64');
+      expect(item.franchise, 'Super Mario');
+      expect(item.ageRating, 'ESRB: E');
+      expect(item.valuations?.cib?.amountCents, 9000);
     });
 
     test('GameCatalog and GameEntry round-trip and preserve all kind fields',
@@ -289,15 +286,15 @@ void main() {
       expect(restored.developers, contains('Nintendo EAD'));
       expect(restored.valuations?.cib?.amountCents, 12000);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'game_zelda_oot',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'game_zelda_oot',
             mediaKind: CatalogMediaKind.game,
           ),
           kindMetadata: GameCatalogMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = GameEntry.fromShelf(shelfEntry);

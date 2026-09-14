@@ -53,17 +53,12 @@ class LibraryMetadataProviderOption {
   final String id;
   final String label;
   final String? description;
-  final Set<String> supportedKinds;
+  final Set<CatalogMediaKind> supportedKinds;
   final bool requiresApiKey;
   final LibraryMetadataProviderUsagePolicy? usagePolicy;
 
   bool supportsKind(CatalogMediaKind kind) {
-    return supportedKinds.isEmpty || supportedKinds.contains(kind.apiValue);
-  }
-
-  bool supportsRawKind(String kind) {
-    return supportedKinds.isEmpty ||
-        supportedKinds.contains(kind.trim().toLowerCase());
+    return supportedKinds.isEmpty || supportedKinds.contains(kind);
   }
 }
 

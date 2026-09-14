@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +25,7 @@ enum LibraryItemContextAction {
 Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
   required BuildContext context,
   required Offset position,
-  required LibraryProjectionRuntime item,
+  required LibraryProjectionView item,
   required Color accent,
   int selectedCount = 1,
   bool supportsMetadataCompare = false,
@@ -156,9 +156,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               Icons.content_copy,
               'Copy title',
             ),
-            if (item.dto is WorkspaceDtoAdapter &&
-                (item.dto as WorkspaceDtoAdapter).barcode != null &&
-                (item.dto as WorkspaceDtoAdapter).barcode!.isNotEmpty)
+            if (libraryCardPresentationForEntry(item).identifierCode != null)
               _item(
                 context,
                 LibraryItemContextAction.copyBarcode,

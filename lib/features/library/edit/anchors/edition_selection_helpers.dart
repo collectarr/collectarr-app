@@ -6,12 +6,12 @@ class LibraryEditionSelection {
     required this.variant,
   });
 
-  final CatalogEdition? edition;
-  final CatalogVariant? variant;
+  final CatalogEditionDto? edition;
+  final CatalogVariantDto? variant;
 }
 
 LibraryEditionSelection resolveLibraryEditionSelection(
-  List<CatalogEdition> editions, {
+  List<CatalogEditionDto> editions, {
   String? editionId,
   String? editionTitle,
   String? variantId,
@@ -34,8 +34,8 @@ LibraryEditionSelection resolveLibraryEditionSelection(
   );
 }
 
-CatalogVariant? resolveVariantForEdition(
-  CatalogEdition? edition, {
+CatalogVariantDto? resolveVariantForEdition(
+  CatalogEditionDto? edition, {
   String? variantId,
   String? variantName,
 }) {
@@ -66,8 +66,8 @@ CatalogVariant? resolveVariantForEdition(
   return edition.variants.first;
 }
 
-CatalogEdition? _resolveEdition(
-  List<CatalogEdition> editions, {
+CatalogEditionDto? _resolveEdition(
+  List<CatalogEditionDto> editions, {
   String? editionId,
   String? editionTitle,
   String? variantId,

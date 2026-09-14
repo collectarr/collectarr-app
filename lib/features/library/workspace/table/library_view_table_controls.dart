@@ -35,7 +35,7 @@ class LibraryViewTableControls extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           if (state.canEditColumns)
-            _LibraryLegacyColumnLauncher(state: state, callbacks: callbacks)
+            _LibraryColumnLauncher(state: state, callbacks: callbacks)
           else
             Tooltip(
               message: 'Select columns',
@@ -65,10 +65,10 @@ class LibraryViewTableControls extends StatelessWidget {
   }
 }
 
-enum _LegacyColumnLauncherAction { manage }
+enum _ColumnLauncherAction { manage }
 
-class _LibraryLegacyColumnLauncher extends StatelessWidget {
-  const _LibraryLegacyColumnLauncher({
+class _LibraryColumnLauncher extends StatelessWidget {
+  const _LibraryColumnLauncher({
     required this.state,
     required this.callbacks,
   });
@@ -92,14 +92,14 @@ class _LibraryLegacyColumnLauncher extends StatelessWidget {
               : null,
         ),
       const LibraryDenseMenuEntry<Object>(
-        value: _LegacyColumnLauncherAction.manage,
+        value: _ColumnLauncherAction.manage,
         label: 'Manage columns',
         icon: Icons.tune,
       ),
     ];
 
     return LibraryDenseSplitButton<Object>(
-      key: const ValueKey('legacy-library-column-split-button'),
+      key: const ValueKey('library-column-split-button'),
       label: state.activeColumnFavoriteLabel ?? 'Custom columns',
       icon: Icons.view_column_outlined,
       onPressed: callbacks.onEditColumns,

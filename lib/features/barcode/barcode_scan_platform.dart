@@ -1,18 +1,43 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import 'scanned_code.dart';
+
 String normalizeScannedBarcode(String value) {
-  return value.trim().replaceAll(RegExp(r'[\s-]+'), '').toUpperCase();
+  return normalizeScannedCode(value);
+}
+
+ScannedCode? scannedCodeFromBarcode(Barcode barcode) {
+  final rawValue = barcode.rawValue;
+  if (rawValue == null) return null;
+  return ScannedCode.tryFromRaw(
+    rawValue,
+    symbology: scannedCodeSymbologyFromFormat(barcode.format),
+  );
+}
+
+ScannedCodeSymbology scannedCodeSymbologyFromFormat(BarcodeFormat format) {
+  return switch (format) {
+    BarcodeFormat.ean8 => ScannedCodeSymbology.ean8,
+    BarcodeFormat.ean13 => ScannedCodeSymbology.ean13,
+    BarcodeFormat.upcA => ScannedCodeSymbology.upcA,
+    BarcodeFormat.upcE => ScannedCodeSymbology.upcE,
+    BarcodeFormat.code128 => ScannedCodeSymbology.code128,
+    BarcodeFormat.code39 => ScannedCodeSymbology.code39,
+    BarcodeFormat.itf14 => ScannedCodeSymbology.itf14,
+    BarcodeFormat.qrCode => ScannedCodeSymbology.qrCode,
+    _ => ScannedCodeSymbology.unknown,
+  };
 }
 
 bool barcodeScannerCameraSupported({
   bool isWeb = kIsWeb,
-  TargetPlatform? platform,
+  TargetPlatform? devicePlatform,
 }) {
   if (isWeb) {
     return true;
   }
-  return switch (platform ?? defaultTargetPlatform) {
+  return switch (devicePlatform ?? defaultTargetPlatform) {
     TargetPlatform.android ||
     TargetPlatform.iOS ||
     TargetPlatform.macOS =>
@@ -26,12 +51,12 @@ bool barcodeScannerCameraSupported({
 
 String barcodeScannerUnavailableMessage({
   bool isWeb = kIsWeb,
-  TargetPlatform? platform,
+  TargetPlatform? devicePlatform,
 }) {
   if (isWeb) {
     return 'Camera access is unavailable in this browser. Enter the barcode manually.';
   }
-  return switch (platform ?? defaultTargetPlatform) {
+  return switch (devicePlatform ?? defaultTargetPlatform) {
     TargetPlatform.windows ||
     TargetPlatform.linux ||
     TargetPlatform.fuchsia =>

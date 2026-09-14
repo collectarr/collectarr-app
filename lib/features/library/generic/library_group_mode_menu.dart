@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -20,7 +20,7 @@ class _ManageFavoritesRequest {
 
 Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required List<String> availableModes,
   List<LibraryFolderPreset> initialFavorites = const [],
 }) {
@@ -51,7 +51,7 @@ class LibraryGroupModeMenuButton extends StatefulWidget {
     this.availableModes,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryFolderPreset? folderPreset;
   final Color accent;
   final IconData icon;
@@ -259,9 +259,13 @@ class _LibraryGroupModeMenuButtonState
       for (final preset in widget.pinnedFolderPresets)
         if (preset.modes.every((m) =>
             modes.contains(m) ||
-            widget.type.fields.findGroupDefinition(
-                  widget.type.fields.decodeGroupId(m),
-                ) !=
+            libraryKindWorkspaceForKind(widget.type.kind)
+                    .fields
+                    .findGroupDefinition(
+                      libraryKindWorkspaceForKind(widget.type.kind)
+                          .fields
+                          .decodeGroupId(m),
+                    ) !=
                 null))
           genericFolderPresetLabel(preset, widget.type),
     ];
@@ -296,7 +300,7 @@ class LibraryGroupModeDropdownMenu extends StatefulWidget {
     this.onSelected,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryFolderPreset? selectedPreset;
   final List<String> availableModes;
   final List<LibraryFolderPreset> initialPinnedPresets;
@@ -328,7 +332,7 @@ class _LibraryGroupModeDropdownMenuState
   }
 
   bool _isModeMatching(String m1, String m2) {
-    final fields = widget.type.fields;
+    final fields = libraryKindWorkspaceForKind(widget.type.kind).fields;
     return fields.decodeGroupId(m1).sameIdentityAs(fields.decodeGroupId(m2));
   }
 
@@ -370,9 +374,13 @@ class _LibraryGroupModeDropdownMenuState
       for (final preset in _pinnedPresets)
         if (preset.modes.every((m) =>
             widget.availableModes.contains(m) ||
-            widget.type.fields.findGroupDefinition(
-                  widget.type.fields.decodeGroupId(m),
-                ) !=
+            libraryKindWorkspaceForKind(widget.type.kind)
+                    .fields
+                    .findGroupDefinition(
+                      libraryKindWorkspaceForKind(widget.type.kind)
+                          .fields
+                          .decodeGroupId(m),
+                    ) !=
                 null))
           preset,
     ];
@@ -637,7 +645,7 @@ class _GroupModeFavoritesDialog extends StatefulWidget {
     required this.initialFavorites,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final List<String> availableModes;
   final List<LibraryFolderPreset> initialFavorites;
 

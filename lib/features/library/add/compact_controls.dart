@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/utils/text_utils.dart'
     show formatCompactDate;
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 

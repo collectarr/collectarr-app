@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
@@ -12,24 +12,33 @@ final class CollectionCommandCoordinator {
   final OwnedItemMutations ownedMutations;
   final TrackingMutations trackingMutations;
 
-  Future<OwnedItem> addOwnedItem(
+  Future<OwnedItemRef> addOwnedItem(
     AddOwnedItemCommand command, {
     bool syncTracking = true,
   }) async {
     final item = await ownedMutations.addOwnedItem(command);
     if (syncTracking) {
-      await trackingMutations.syncOwnedTrackingEntry(item);
+      final tracking = command.tracking;
+      await trackingMutations.syncOwnedTrackingState(
+        item,
+        targetRef: command.targetRef,
+        status: tracking?.status,
+        rating: tracking?.rating,
+        startedAt: tracking?.startedAt,
+        finishedAt: tracking?.finishedAt,
+        notes: tracking?.notes,
+      );
     }
     return item;
   }
 
-  Future<OwnedItem> updateOwnedItem(
-    UpdateOwnedItemCommand command, {
+  Future<OwnedItemRef> updateOwnedItem(
+    OwnedItemUpdateRequest command, {
     bool syncTracking = true,
   }) async {
     final item = await ownedMutations.updateOwnedItem(command);
     if (syncTracking) {
-      await trackingMutations.syncOwnedTrackingEntry(item);
+      await trackingMutations.syncOwnedTrackingState(item);
     }
     return item;
   }

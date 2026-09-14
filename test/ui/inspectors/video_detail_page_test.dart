@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -8,28 +9,48 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
+  OwnedItemSummary movieOwnedSummary({
+    required String id,
+    required String itemId,
+  }) {
+    return OwnedItemSummary(
+      ref: OwnedItemRef(
+        kind: CatalogMediaKind.movie,
+        id: OwnedItemId(id),
+      ),
+      title: 'Spirited Away',
+      catalogRef: CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: const CatalogEntityTypeId('edition'),
+        id: 'edition-4k',
+        rootId: itemId,
+      ),
+    );
+  }
+
   testWidgets('double tap on a video card opens the release browser',
       (tester) async {
     tester.view.physicalSize = kDesktopTestSize;
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = movieKindModule;
-    final source1 = ShelfEntry(
+    const type = MovieRegistration();
+    final source1 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -50,22 +71,20 @@ void main() {
             ],
           ),
         ],
-      ),
-      ownedItem: testOwnedItem(
+      ).asShelfCatalogItem),
+      ownedSummary: movieOwnedSummary(
         id: 'owned-1',
         itemId: 'movie-1',
-        editionId: 'edition-4k',
-        quantity: 1,
-        updatedAt: DateTime.utc(2026, 5, 25, 10),
       ),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = movieKindModule.project(source: source1, node: node1);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
+        .project(source: source1, node: node1);
 
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedItem: null,
+      ownedSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -113,20 +132,17 @@ void main() {
         overrides: [
           collectionProvider.overrideWith(
             (ref) async => [
-              testOwnedItem(
+              movieOwnedSummary(
                 id: 'owned-1',
                 itemId: 'movie-1',
-                editionId: 'edition-4k',
-                quantity: 1,
-                updatedAt: DateTime.utc(2026, 5, 25, 10),
               ),
             ],
           ),
           wishlistProvider.overrideWith(
             (ref) async => const <WishlistItem>[],
           ),
-          watchSessionsByItemProvider.overrideWith(
-            (ref) => const <String, List<WatchSession>>{},
+          watchSessionsProvider.overrideWith(
+            (ref) async => const <WatchSession>[],
           ),
         ],
         child: MaterialApp.router(routerConfig: router),
@@ -153,10 +169,10 @@ void main() {
     tester.view.devicePixelRatio = kDesktopTestDPR;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final type = movieKindModule;
-    final source2 = ShelfEntry(
+    const type = MovieRegistration();
+    final source2 = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Sen to Chihiro no Kamikakushi',
@@ -177,27 +193,27 @@ void main() {
             ],
           ),
         ],
-      ),
+      ).asShelfCatalogItem),
       wishlistItem: WishlistItem(
         id: 'wishlist-1',
         catalogRef: const CatalogEntityRef(
-          kind: 'movie',
-          entityType: CatalogEntityType.ownedCopy,
-          id: 'movie-1',
+          kind: CatalogMediaKind.movie,
+          entityType: CatalogEntityTypeId('edition'),
+          id: 'edition-4k',
+          rootId: 'movie-1',
         ),
-        anchorType: 'edition',
-        editionId: 'edition-4k',
         createdAt: DateTime.utc(2026, 5, 25, 9),
         updatedAt: DateTime.utc(2026, 5, 25, 10),
       ),
     );
     const node2 = LibraryTitleNodeRef(titleItemId: 'movie-1');
-    final item = movieKindModule.project(source: source2, node: node2);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
+        .project(source: source2, node: node2);
 
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedItem: null,
+      ownedSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -244,26 +260,25 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <OwnedItem>[],
+            (ref) async => const <OwnedItemSummary>[],
           ),
           wishlistProvider.overrideWith(
             (ref) async => [
               WishlistItem(
                 id: 'wishlist-1',
                 catalogRef: const CatalogEntityRef(
-                  kind: 'movie',
-                  entityType: CatalogEntityType.ownedCopy,
-                  id: 'movie-1',
+                  kind: CatalogMediaKind.movie,
+                  entityType: CatalogEntityTypeId('edition'),
+                  id: 'edition-4k',
+                  rootId: 'movie-1',
                 ),
-                anchorType: 'edition',
-                editionId: 'edition-4k',
                 createdAt: DateTime.utc(2026, 5, 25, 9),
                 updatedAt: DateTime.utc(2026, 5, 25, 10),
               ),
             ],
           ),
-          watchSessionsByItemProvider.overrideWith(
-            (ref) => const <String, List<WatchSession>>{},
+          watchSessionsProvider.overrideWith(
+            (ref) async => const <WatchSession>[],
           ),
         ],
         child: MaterialApp.router(routerConfig: router),
@@ -282,23 +297,24 @@ void main() {
 
   testWidgets('release browser explains when core has no releases yet',
       (tester) async {
-    final type = movieKindModule;
-    final source3 = ShelfEntry(
+    const type = MovieRegistration();
+    final source3 = LibraryWorkspaceSource(
       itemId: 'movie-2',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-2',
         kind: 'movie',
         title: 'Castle in the Sky',
         displayTitle: 'Castle in the Sky',
-      ),
+      ).asShelfCatalogItem),
     );
     const node3 = LibraryTitleNodeRef(titleItemId: 'movie-2');
-    final item = movieKindModule.project(source: source3, node: node3);
+    final item = libraryKindWorkspaceForKind(CatalogMediaKind.movie)
+        .project(source: source3, node: node3);
 
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      ownedItem: null,
+      ownedSummary: null,
       accent: Colors.orange,
       onAddOwned: () {},
       onRemoveOwned: () {},
@@ -344,10 +360,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          collectionProvider.overrideWith((ref) async => const <OwnedItem>[]),
+          collectionProvider.overrideWith(
+            (ref) async => const <OwnedItemSummary>[],
+          ),
           wishlistProvider.overrideWith((ref) async => const <WishlistItem>[]),
-          watchSessionsByItemProvider.overrideWith(
-            (ref) => const <String, List<WatchSession>>{},
+          watchSessionsProvider.overrideWith(
+            (ref) async => const <WatchSession>[],
           ),
         ],
         child: MaterialApp.router(routerConfig: router),

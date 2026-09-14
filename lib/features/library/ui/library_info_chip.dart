@@ -23,6 +23,7 @@ class LibraryInfoChip extends StatelessWidget {
     final resolvedForeground = foreground ?? palette.textPrimary;
     final resolvedBackground = background ?? palette.surface;
     final resolvedBorder = borderColor ?? palette.divider;
+    final theme = Theme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: resolvedBackground,
@@ -40,9 +41,8 @@ class LibraryInfoChip extends StatelessWidget {
             ],
             Text(
               label,
-              style: TextStyle(
+              style: theme.textTheme.libraryCaption.copyWith(
                 color: resolvedForeground,
-                fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
             ),

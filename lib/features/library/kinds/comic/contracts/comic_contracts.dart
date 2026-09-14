@@ -1,11 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_release.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_release.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -285,8 +287,8 @@ final class ComicCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'comic',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.comic,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.comic,
       common: CatalogCommonDto(
@@ -319,38 +321,43 @@ final class ComicCatalog {
 final class ComicEntry {
   const ComicEntry({
     required this.catalog,
-    this.ownedDetails,
-    this.trackingEntry,
+    this.ownedItem,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final ComicCatalog catalog;
-  final ComicOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final ComicOwnedItem? ownedItem;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
   String get id => catalog.id;
   String get title => catalog.title;
-  bool get isOwned => ownedDetails != null;
+  ComicOwnedDetails? get ownedDetails => ownedItem?.details;
+  bool get isOwned => ownedItem != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory ComicEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? ComicCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : ComicCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.comic,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory ComicEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      ComicWorkspaceCatalogData data =>
+        ComicCatalog.fromJson(data.comic.toSyncPayload()),
+      _ => ComicCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.comic,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return ComicEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.comicDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedItem: ComicOwnedItemProjection.fromDispatch(
+        shelf.ownedItemDispatch,
+      ),
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

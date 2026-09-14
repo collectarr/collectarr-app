@@ -1,16 +1,19 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-import '../../domain/models/normalized_provider_envelope_v1.dart';
+import '../../../../core/models/catalog_media_kind.dart';
+
+import '../../transport/provider_metadata_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_image_ref.dart';
 import '../../domain/models/provider_provenance.dart';
-import '../../domain/models/provider_search_result.dart';
+import '../../transport/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/mangadex_manga.dart';
 
 class MangaDexProvider extends ProviderAdapter {
   MangaDexProvider({
@@ -31,8 +34,8 @@ class MangaDexProvider extends ProviderAdapter {
   static const ProviderDescriptor mangadexDescriptor = ProviderDescriptor(
     name: 'mangadex',
     displayName: 'MangaDex',
-    kind: 'manga',
-    supportedKinds: ['manga'],
+    kind: CatalogMediaKind.manga,
+    supportedKinds: [CatalogMediaKind.manga],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: false,
@@ -60,7 +63,7 @@ class MangaDexProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -86,8 +89,8 @@ class MangaDexProvider extends ProviderAdapter {
     final results = <ProviderSearchResult>[];
     for (final item in resultsList.take(limit)) {
       if (item is! Map) continue;
-      final itemMap = Map<String, dynamic>.from(item);
-      final searchResult = _searchResultFromItem(itemMap);
+      final manga = MangaDexManga.fromJson(Map<String, dynamic>.from(item));
+      final searchResult = _searchResultFromManga(manga);
       if (searchResult.providerItemId.isNotEmpty) {
         results.add(searchResult);
       }
@@ -96,9 +99,9 @@ class MangaDexProvider extends ProviderAdapter {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     final mangaId = providerItemId.trim();
     if (mangaId.isEmpty) {
@@ -132,7 +135,8 @@ class MangaDexProvider extends ProviderAdapter {
     }
 
     final raw = Map<String, dynamic>.from(manga);
-    final normalized = normalize(raw);
+    final typedManga = MangaDexManga.fromJson(raw);
+    final normalized = normalizeManga(typedManga);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -148,12 +152,12 @@ class MangaDexProvider extends ProviderAdapter {
       );
     }
 
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: mangaId,
-      kind: 'manga',
-      normalized: normalized,
+      kind: CatalogMediaKind.manga,
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://mangadex.org/title/$mangaId',
@@ -171,17 +175,18 @@ class MangaDexProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final attrs = data['attributes'] is Map
-        ? Map<String, dynamic>.from(data['attributes'] as Map)
-        : const <String, dynamic>{};
-    final mangaId = _optionalText(data['id']);
-    final title = _extractTitle(attrs) ?? 'Unknown';
-    final relationships = data['relationships'];
-    final creators = _extractCreators(relationships);
-    final genres = _extractTags(attrs['tags']);
-    final coverUrl = _extractCoverUrl(mangaId, relationships);
-    final synopsis = _extractDescription(attrs['description']);
-    final publisher = _optionalText(attrs['publisher']);
+    return normalizeManga(MangaDexManga.fromJson(data));
+  }
+
+  Map<String, dynamic> normalizeManga(MangaDexManga manga) {
+    final attrs = manga.attributes;
+    final mangaId = manga.id;
+    final title = _extractTitle(attrs?.title) ?? 'Unknown';
+    final creators = _extractCreators(manga.relationships);
+    final genres = _extractTags(attrs?.tags ?? const []);
+    final coverUrl = _extractCoverUrl(manga);
+    final synopsis = _extractDescription(attrs?.description);
+    final publisher = _optionalText(attrs?.publisher);
 
     final providerIds = <String, String>{};
     if (mangaId != null && mangaId.isNotEmpty) {
@@ -210,15 +215,13 @@ class MangaDexProvider extends ProviderAdapter {
     };
   }
 
-  ProviderSearchResult _searchResultFromItem(Map<String, dynamic> item) {
-    final attrs = item['attributes'] is Map
-        ? Map<String, dynamic>.from(item['attributes'] as Map)
-        : const <String, dynamic>{};
-    final title = _extractTitle(attrs) ?? 'Unknown';
-    final mangaId = _optionalText(item['id']) ?? '';
-    final statusText = _optionalText(attrs['status']);
-    final year = attrs['year']?.toString();
-    final demographic = _optionalText(attrs['publicationDemographic']);
+  ProviderSearchResult _searchResultFromManga(MangaDexManga manga) {
+    final attrs = manga.attributes;
+    final title = _extractTitle(attrs?.title) ?? 'Unknown';
+    final mangaId = manga.id ?? '';
+    final statusText = attrs?.status;
+    final year = attrs?.year?.toString();
+    final demographic = attrs?.publicationDemographic;
 
     final summaryParts = <String>[
       if (demographic != null && demographic.isNotEmpty) demographic,
@@ -230,74 +233,48 @@ class MangaDexProvider extends ProviderAdapter {
       provider: name,
       providerItemId: mangaId,
       title: title,
-      kind: 'manga',
+      kind: CatalogMediaKind.manga,
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-      imageUrl: _extractCoverUrl(mangaId, item['relationships']),
+      imageUrl: _extractCoverUrl(manga),
     );
   }
 
-  String? _extractTitle(Map<String, dynamic> attrs) {
-    final titleMap = attrs['title'];
-    if (titleMap is Map) {
-      final en = _optionalText(titleMap['en']);
-      if (en != null && en.isNotEmpty) return en;
-      final jaro = _optionalText(titleMap['ja-ro']);
-      if (jaro != null && jaro.isNotEmpty) return jaro;
-      final ja = _optionalText(titleMap['ja']);
-      if (ja != null && ja.isNotEmpty) return ja;
-      for (final value in titleMap.values) {
-        final valText = _optionalText(value);
-        if (valText != null && valText.isNotEmpty) return valText;
-      }
-    }
-    return null;
+  String? _extractTitle(MangaDexLocalizedText? title) {
+    return title?.preferred;
   }
 
-  String? _extractDescription(dynamic value) {
-    if (value is Map) {
-      final en = _optionalText(value['en']);
-      if (en != null && en.isNotEmpty) return en;
-      for (final val in value.values) {
-        final valText = _optionalText(val);
-        if (valText != null && valText.isNotEmpty) return valText;
-      }
-    } else if (value != null) {
-      return _optionalText(value);
-    }
-    return null;
+  String? _extractDescription(MangaDexLocalizedText? description) {
+    return description?.preferred;
   }
 
-  String? _extractCoverUrl(String? mangaId, dynamic relationships) {
-    if (mangaId == null || mangaId.isEmpty || relationships is! List) {
+  String? _extractCoverUrl(MangaDexManga manga) {
+    final mangaId = manga.id;
+    final relationships = manga.relationships;
+    if (mangaId == null || mangaId.isEmpty) {
       return null;
     }
 
     for (final rel in relationships) {
-      if (rel is! Map) continue;
-      if (rel['type'] == 'cover_art') {
-        final attrs = rel['attributes'];
-        if (attrs is Map) {
-          final fileName = _optionalText(attrs['fileName']);
-          if (fileName != null && fileName.isNotEmpty) {
-            return '$uploadsBaseUrl/covers/$mangaId/$fileName.256.jpg';
-          }
+      if (rel.type == 'cover_art') {
+        final fileName = rel.fileName;
+        if (fileName != null && fileName.isNotEmpty) {
+          return '$uploadsBaseUrl/covers/$mangaId/$fileName.256.jpg';
         }
       }
     }
     return null;
   }
 
-  List<Map<String, dynamic>> _extractCreators(dynamic relationships) {
-    if (relationships is! List) return [];
+  List<Map<String, dynamic>> _extractCreators(
+    List<MangaDexRelationship> relationships,
+  ) {
     final creators = <Map<String, dynamic>>[];
 
     for (final rel in relationships) {
-      if (rel is! Map) continue;
-      final relType = rel['type']?.toString();
+      final relType = rel.type;
       if (relType != 'author' && relType != 'artist') continue;
 
-      final attrs = rel['attributes'];
-      final name = attrs is Map ? _optionalText(attrs['name']) : null;
+      final name = rel.name;
       if (name != null && name.isNotEmpty) {
         final role = relType == 'author' ? 'Author' : 'Artist';
         creators.add(<String, dynamic>{
@@ -310,21 +287,12 @@ class MangaDexProvider extends ProviderAdapter {
     return creators;
   }
 
-  List<String> _extractTags(dynamic tags) {
-    if (tags is! List) return [];
+  List<String> _extractTags(List<MangaDexTag> tags) {
     final tagList = <String>[];
     for (final tag in tags) {
-      if (tag is! Map) continue;
-      final attrsPayload = tag['attributes'];
-      if (attrsPayload is Map) {
-        final attrs = Map<String, dynamic>.from(attrsPayload);
-        final namePayload = attrs['name'];
-        final nameMap =
-            namePayload is Map ? Map<String, dynamic>.from(namePayload) : null;
-        final name = _optionalText(nameMap?['en']);
-        if (name != null && name.isNotEmpty) {
-          tagList.add(name);
-        }
+      final name = tag.name?.preferred;
+      if (name != null && name.isNotEmpty) {
+        tagList.add(name);
       }
     }
     return tagList;

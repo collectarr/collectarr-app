@@ -5,9 +5,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Server diagnostics that were previously only available in the deprecated web
-/// admin: a backend health probe and a barcode lookup. Migrated into the Flutter
-/// admin dashboard so it stays the single admin surface.
+/// Server diagnostics exposed by the Flutter admin dashboard: a backend health
+/// probe and a barcode lookup.
 class AdminDiagnosticsPanel extends ConsumerStatefulWidget {
   const AdminDiagnosticsPanel({super.key});
 

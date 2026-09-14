@@ -1,18 +1,26 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_v1_schema.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('collection csv exports and parses owned shelf rows', () {
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final exported = csv.exportShelf([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man, "Vol. 1"',
@@ -24,8 +32,8 @@ void main() {
           publisher: 'Marvel',
           releaseDate: DateTime.utc(1963, 3, 1),
           barcode: '071486024576',
-        )),
-        ownedItem: testOwnedItem(
+        )).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -48,6 +56,32 @@ void main() {
           readStatus: 'Read',
           tags: 'spider,key',
           updatedAt: DateTime.utc(2026, 5, 12),
+        )),
+        ownedItemDispatch:
+            testComicOwnedItemDispatchFrom(testComicOwnedItemFrom(testOwnedItem(
+          id: 'owned-1',
+          itemId: 'comic-1',
+          condition: 'Near Mint',
+          grade: '9.8',
+          indexNumber: 1310,
+          coverPriceCents: 399,
+          rawOrSlabbed: 'Raw',
+          gradingCompany: 'CGC',
+          graderNotes: 'Clean press',
+          signedBy: 'Stan Lee',
+          keyComic: true,
+          keyReason: 'First appearance',
+          tags: 'spider,key',
+          updatedAt: DateTime.utc(2026, 5, 12),
+        ))),
+        trackingSummary: TrackingSummary(
+          id: 'tracking-1',
+          catalogRef: testCatalogRef('comic-1', kind: 'comic'),
+          ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
+          status: MediaTrackingStatus.completed,
+          rating: 5,
+          updatedAt: DateTime.utc(2026, 5, 12),
+          deletedAt: null,
         ),
         locationPath: 'Office › Shelf A › Short Box 6',
       ),
@@ -58,38 +92,48 @@ void main() {
 
     final rows = csv.parse(exported);
     expect(rows.single.itemId, 'comic-1');
-    expect(rows.single.kind, 'comic');
+    expect(rows.single.mediaKind, CatalogMediaKind.comic);
     expect(rows.single.title, 'Spider-Man, "Vol. 1"');
-    expect(rows.single.itemNumber, '1');
-    expect(rows.single.variant, 'Newsstand');
-    expect(rows.single.editionTitle, 'Direct market edition');
-    expect(rows.single.physicalFormat, 'single-issue');
-    expect(rows.single.physicalFormatLabel, 'Single Issue');
-    expect(rows.single.publisher, 'Marvel');
-    expect(rows.single.releaseDate, DateTime.utc(1963, 3, 1));
-    expect(rows.single.barcode, '071486024576');
+    expect(rows.single.kindCatalogCells, [
+      'comic-1',
+      'comic',
+      'Spider-Man, "Vol. 1"',
+      '1',
+      'Newsstand',
+      'Direct market edition',
+      'single-issue',
+      'Single Issue',
+      'Marvel',
+      '1963-03-01',
+      '071486024576',
+    ]);
     expect(rows.single.isOwned, isTrue);
-    expect(rows.single.condition, 'Near Mint');
-    expect(rows.single.grade, '9.8');
-    expect(rows.single.pricePaidCents, 1299);
-    expect(rows.single.notes, 'Signed copy');
-    expect(rows.single.quantity, 2);
-    expect(rows.single.locationId, 'Office › Shelf A › Short Box 6');
-    expect(rows.single.indexNumber, 1310);
-    expect(rows.single.coverPriceCents, 399);
-    expect(rows.single.rawOrSlabbed, 'Raw');
-    expect(rows.single.gradingCompany, 'CGC');
-    expect(rows.single.graderNotes, 'Clean press');
-    expect(rows.single.signedBy, 'Stan Lee');
-    expect(rows.single.keyComic, isTrue);
-    expect(rows.single.keyReason, 'First appearance');
-    expect(rows.single.rating, 5);
-    expect(rows.single.readStatus, 'Read');
-    expect(rows.single.tags, 'spider,key');
+    expect(rows.single.personal.condition, 'Near Mint');
+    expect(rows.single.kindOwnedCells.first, '9.8');
+    expect(rows.single.personal.pricePaidCents, 1299);
+    expect(rows.single.personal.notes, 'Signed copy');
+    expect(rows.single.personal.quantity, 2);
+    expect(rows.single.personal.locationId, 'Office › Shelf A › Short Box 6');
+    expect(rows.single.personal.indexNumber, 1310);
+    expect(rows.single.kindOwnedCells, [
+      '9.8',
+      '399',
+      'Raw',
+      'CGC',
+      'Clean press',
+      'Stan Lee',
+      '',
+      '',
+      'true',
+      'First appearance',
+    ]);
+    expect(rows.single.tracking.rating, 5);
+    expect(rows.single.tracking.status, 'Completed');
+    expect(rows.single.personal.tags, 'spider,key');
   });
 
   test('collection csv round-trips typed custom field values', () {
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final defs = [
       CustomFieldDefinition(
         id: 'cf-1',
@@ -106,26 +150,28 @@ void main() {
     ];
     final exported = csv.exportShelf(
       [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'book-1',
-          catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+          catalogData: testWorkspaceCatalogData(
+              testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'book-1',
             kind: 'book',
             title: 'Test Book',
-          )),
-          ownedItem: testOwnedItem(
+          )).asShelfCatalogItem),
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'book-1',
+            kind: 'book',
             updatedAt: DateTime.utc(2026, 5, 12),
-          ),
+          )),
         ),
       ],
       customFieldDefinitions: defs,
       customFieldValuesByItem: {
-        'owned-1': [
+        'book:owned-1': [
           CustomFieldValue(
             id: 'val-1',
-            targetId: 'owned-1',
+            targetId: 'book:owned-1',
             targetScope: CustomFieldTargetScope.ownedCopy,
             fieldDefinitionId: 'cf-1',
             value: 'Purchase',
@@ -133,7 +179,7 @@ void main() {
           ),
           CustomFieldValue(
             id: 'val-2',
-            targetId: 'owned-1',
+            targetId: 'book:owned-1',
             targetScope: CustomFieldTargetScope.ownedCopy,
             fieldDefinitionId: 'cf-2',
             value: '["Hardcover","Digital"]',
@@ -154,11 +200,50 @@ void main() {
     );
   });
 
+  test('collection csv exports typed tracking values before collection columns',
+      () {
+    final source = LibraryWorkspaceSource(
+      itemId: 'book-1',
+      catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
+        testCatalogItem(id: 'book-1', kind: 'book', title: 'Example Book'),
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        rating: 3,
+        readStatus: 'completed',
+        startedAt: DateTime.utc(2020, 1, 1),
+        finishedAt: DateTime.utc(2020, 1, 2),
+        updatedAt: DateTime.utc(2026, 1, 1),
+      )),
+      trackingSummary: TrackingSummary(
+        id: 'tracking-1',
+        catalogRef: testCatalogRef('book-1', kind: 'book'),
+        ownedRef: OwnedItemRef.fromKey('book:owned-1'),
+        status: MediaTrackingStatus.inProgress,
+        rating: 8,
+        startedAt: DateTime.utc(2026, 1, 3),
+        updatedAt: DateTime.utc(2026, 1, 3),
+      ),
+    );
+
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles)
+            .exportShelf([source]));
+
+    expect(rows.single.tracking.rating, 8);
+    expect(rows.single.tracking.status, 'In progress');
+    expect(rows.single.tracking.startedAt, DateTime.utc(2026, 1, 3));
+    expect(rows.single.tracking.finishedAt, isNull);
+  });
+
   test('collection csv exports clz-friendly shelf rows', () {
-    final exported = CollectionCsv().exportClzFriendlyShelf([
-      ShelfEntry(
+    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles)
+        .exportClzFriendlyShelf([
+      LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'The Amazing Spider-Man, Vol. 2',
@@ -167,8 +252,8 @@ void main() {
           releaseDate: DateTime.utc(2005, 7, 1),
           barcode: '75960604716152011',
           variant: 'Regular Cover',
-        )),
-        ownedItem: testOwnedItem(
+        )).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Very Fine',
@@ -178,7 +263,7 @@ void main() {
           quantity: 1,
           locationId: 'loc-box-6',
           updatedAt: DateTime.utc(2026, 5, 12),
-        ),
+        )),
         locationPath: 'Office › Shelf A › Box 6',
       ),
     ]);
@@ -192,10 +277,12 @@ void main() {
   });
 
   test('collection csv exports media-aware clz-friendly headers', () {
-    final exported = CollectionCsv().exportClzFriendlyShelf([
-      ShelfEntry(
+    final exported = CollectionCsvCodec(profiles: collectionCsvKindProfiles)
+        .exportClzFriendlyShelf([
+      LibraryWorkspaceSource(
         itemId: 'movie-1',
-        catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItemWithKindMetadata(testCatalogItem(
           id: 'movie-1',
           kind: 'movie',
           title: 'Blade Runner',
@@ -207,13 +294,13 @@ void main() {
           editionTitle: 'Final Cut 4K release',
           physicalFormat: '4k-uhd',
           physicalFormatLabel: '4K UHD',
-        )),
-        ownedItem: testOwnedItem(
+        )).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'movie-1',
           quantity: 1,
           updatedAt: DateTime.utc(2026, 5, 15),
-        ),
+        )),
       ),
     ]);
 
@@ -224,19 +311,27 @@ void main() {
     expect(exported, contains('UPC / Barcode'));
     expect(exported, contains('Physical Format'));
 
-    final rows = CollectionCsv().parse(exported);
-    expect(rows.single.kind, 'movie');
+    final rows =
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(exported);
+    expect(rows.single.mediaKind, CatalogMediaKind.movie);
     expect(rows.single.title, 'Blade Runner');
-    expect(rows.single.itemNumber, 'Final Cut');
-    expect(rows.single.variant, '4K UHD');
-    expect(rows.single.editionTitle, 'Final Cut 4K release');
-    expect(rows.single.physicalFormat, '4k-uhd');
-    expect(rows.single.physicalFormatLabel, '4K UHD');
-    expect(rows.single.publisher, 'Warner Bros.');
+    expect(rows.single.kindCatalogCells, [
+      'movie-1',
+      'movie',
+      'Blade Runner',
+      'Final Cut',
+      '4K UHD',
+      'Final Cut 4K release',
+      '4k-uhd',
+      '4K UHD',
+      'Warner Bros.',
+      '1982-06-25',
+      '883929087129',
+    ]);
   });
 
   test('collection csv parses clz-style aliases and money fields', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -278,71 +373,108 @@ void main() {
     expect(rows.single.itemId, 'comic-1');
     expect(rows.single.status, 'owned');
     expect(rows.single.title, 'The Amazing Spider-Man, Vol. 2');
-    expect(rows.single.itemNumber, '520');
-    expect(rows.single.variant, 'Direct Edition');
-    expect(rows.single.publisher, 'Marvel Comics');
-    expect(rows.single.releaseDate, DateTime.utc(2005, 7, 1));
-    expect(rows.single.grade, '7.5');
-    expect(rows.single.condition, 'Very Fine');
-    expect(rows.single.pricePaidCents, 900);
-    expect(rows.single.locationId, 'loc-box-6');
-    expect(rows.single.readStatus, 'Read');
-    expect(rows.single.keyComic, isTrue);
-    expect(rows.single.notes, 'CLZ import');
+    expect(rows.single.kindCatalogCells[3], '520');
+    expect(rows.single.kindCatalogCells[4], 'Direct Edition');
+    expect(rows.single.kindCatalogCells[8], 'Marvel Comics');
+    expect(rows.single.kindCatalogCells[9], '2005-07-01');
+    expect(rows.single.kindOwnedCells.first, '7.5');
+    expect(rows.single.personal.condition, 'Very Fine');
+    expect(rows.single.personal.pricePaidCents, 900);
+    expect(rows.single.personal.locationId, 'loc-box-6');
+    expect(rows.single.tracking.status, 'Read');
+    expect(rows.single.kindOwnedCells[8], 'true');
+    expect(rows.single.personal.notes, 'CLZ import');
   });
 
-  test('collection csv parses structured location ids directly', () {
-    final rows = CollectionCsv().parse(
+  test('collection csv receives Comic-only CLZ aliases from the kind', () {
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
-          'item_id',
-          'status',
-          'title',
-          'location_id',
+          'Core ComicID',
+          'Issue Number',
+          'Raw / Slabbed',
+          'Grading Company',
+          'Key Comic',
+          'Key Reason',
+          'Collection Status',
         ],
-        ['comic-1', 'owned', 'Test', 'loc-short-box-6'],
+        [
+          'comic-1',
+          '1',
+          'Slabbed',
+          'CGC',
+          'Yes',
+          'First appearance',
+          'In Collection',
+        ],
       ]),
     );
 
     expect(rows.single.itemId, 'comic-1');
-    expect(rows.single.locationId, 'loc-short-box-6');
+    expect(rows.single.mediaKind, CatalogMediaKind.comic);
+    expect(rows.single.kindCatalogCells[3], '1');
+    expect(rows.single.kindOwnedCells[2], 'Slabbed');
+    expect(rows.single.kindOwnedCells[3], 'CGC');
+    expect(rows.single.kindOwnedCells[8], 'true');
+    expect(rows.single.kindOwnedCells[9], 'First appearance');
+  });
+
+  test('collection csv parses structured location ids directly', () {
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
+      const CsvEncoder(lineDelimiter: '\n').convert([
+        [
+          'item_id',
+          'kind',
+          'status',
+          'title',
+          'location_id',
+        ],
+        ['comic-1', 'comic', 'owned', 'Test', 'loc-short-box-6'],
+      ]),
+    );
+
+    expect(rows.single.itemId, 'comic-1');
+    expect(rows.single.personal.locationId, 'loc-short-box-6');
   });
 
   test('collection csv parses decimal and thousands money separators', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
-          'Collectarr Item ID',
-          'Series',
-          'Collection Status',
+          'item_id',
+          'kind',
+          'title',
+          'status',
           'Purchase Price',
           'Cover Price',
         ],
         [
           'comic-1',
+          'comic',
           'US formatted price',
-          'In Collection',
+          'owned',
           r'$1,234.56',
           r'$2,500',
         ],
         [
           'comic-2',
+          'comic',
           'EU formatted price',
-          'In Collection',
+          'owned',
           '€1.234,56',
           '€2.500',
         ],
       ]),
     );
 
-    expect(rows[0].pricePaidCents, 123456);
-    expect(rows[0].coverPriceCents, 250000);
-    expect(rows[1].pricePaidCents, 123456);
-    expect(rows[1].coverPriceCents, 250000);
+    expect(rows[0].personal.pricePaidCents, 123456);
+    expect(rows[0].kindOwnedCells[1], '250000');
+    expect(rows[1].personal.pricePaidCents, 123456);
+    expect(rows[1].kindOwnedCells[1], '250000');
   });
 
   test('collection csv keeps clz rows without collectarr ids for matching', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
           'Collectarr Item ID',
@@ -364,50 +496,122 @@ void main() {
     expect(rows, hasLength(1));
     expect(rows.single.itemId, isEmpty);
     expect(rows.single.title, 'The Amazing Spider-Man, Vol. 2');
-    expect(rows.single.itemNumber, '520');
-    expect(rows.single.barcode, '75960604716152011');
+    expect(rows.single.kindCatalogCells[3], '520');
+    expect(rows.single.kindCatalogCells[10], '75960604716152011');
     expect(rows.single.isOwned, isTrue);
   });
 
   test('collection csv parses quoted newlines', () {
-    final values = List<String>.filled(CollectionCsv.header.length, '');
-    values[CollectionCsv.header.indexOf('item_id')] = 'comic-1';
-    values[CollectionCsv.header.indexOf('kind')] = 'comic';
-    values[CollectionCsv.header.indexOf('title')] = 'Title';
-    values[CollectionCsv.header.indexOf('item_number')] = '1';
-    values[CollectionCsv.header.indexOf('status')] = 'owned';
-    values[CollectionCsv.header.indexOf('notes')] =
+    final values = List<String>.filled(
+      CollectionCsvV1Schema.header.length,
+      '',
+    );
+    values[CollectionCsvV1Schema.header.indexOf('catalog_ref')] = jsonEncode(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'comic-1',
+      ).toJson(),
+    );
+    values[CollectionCsvV1Schema.header.indexOf('kind')] = 'comic';
+    values[CollectionCsvV1Schema.header.indexOf('title')] = 'Title';
+    values[CollectionCsvV1Schema.header.indexOf('status')] = 'owned';
+    values[CollectionCsvV1Schema.header.indexOf('notes')] =
         'Line one\nLine two with "quote"';
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
-        CollectionCsv.header,
+        CollectionCsvV1Schema.header,
         values,
       ]),
     );
 
     expect(rows, hasLength(1));
     expect(rows.single.itemId, 'comic-1');
-    expect(rows.single.notes, 'Line one\nLine two with "quote"');
+    expect(rows.single.personal.notes, 'Line one\nLine two with "quote"');
+  });
+
+  test('mixed collection csv uses structural refs without rich union columns',
+      () {
+    final comicRef = const CatalogEntityRef(
+      kind: CatalogMediaKind.comic,
+      entityType: CatalogEntityTypeId('issue'),
+      id: 'issue-1',
+      rootId: 'comic-work-1',
+      parentId: 'comic-edition-1',
+    );
+    final bookRef = const CatalogEntityRef(
+      kind: CatalogMediaKind.book,
+      entityType: CatalogEntityTypeId('edition'),
+      id: 'book-edition-1',
+      rootId: 'book-work-1',
+    );
+    final exported =
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf([
+      LibraryWorkspaceSource(
+        itemId: 'issue-1',
+        catalogSummary: CatalogDisplaySummary(
+          ref: comicRef,
+          kind: CatalogMediaKind.comic,
+          title: 'Comic issue',
+        ),
+      ),
+      LibraryWorkspaceSource(
+        itemId: 'book-edition-1',
+        catalogSummary: CatalogDisplaySummary(
+          ref: bookRef,
+          kind: CatalogMediaKind.book,
+          title: 'Book edition',
+        ),
+      ),
+    ]);
+
+    expect(exported.split('\n').first, contains('catalog_ref'));
+    expect(exported.split('\n').first, isNot(contains('publisher')));
+
+    final rows =
+        CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(exported);
+    expect(rows, hasLength(2));
+    expect(rows[0].catalogRef, comicRef);
+    expect(rows[1].catalogRef, bookRef);
+    expect(rows[0].itemId, 'issue-1');
+    expect(rows[1].itemId, 'book-edition-1');
+    expect(rows[0].kindCatalogCells, hasLength(11));
+    expect(rows[0].kindOwnedCells, isEmpty);
   });
 
   test('collection csv parses non-iso date formats', () {
-    final rows = CollectionCsv().parse(
+    final rows = CollectionCsvCodec(profiles: collectionCsvKindProfiles).parse(
       const CsvEncoder(lineDelimiter: '\n').convert([
         [
-          'Collectarr Item ID',
-          'Series',
-          'Collection Status',
-          'Release Date',
-          'Purchase Date',
+          'item_id',
+          'kind',
+          'title',
+          'status',
+          'release_date',
+          'purchase_date',
         ],
-        ['comic-1', 'US date', 'In Collection', '05/11/2026', '5/12/26'],
-        ['comic-2', 'Day first date', 'In Collection', '31/12/2025', ''],
+        [
+          'comic-1',
+          'comic',
+          'US date',
+          'owned',
+          '05/11/2026',
+          '5/12/26',
+        ],
+        [
+          'comic-2',
+          'comic',
+          'Day first date',
+          'owned',
+          '31/12/2025',
+          '',
+        ],
       ]),
     );
 
-    expect(rows[0].releaseDate, DateTime.utc(2026, 5, 11));
-    expect(rows[0].purchaseDate, DateTime.utc(2026, 5, 12));
-    expect(rows[1].releaseDate, DateTime.utc(2025, 12, 31));
+    expect(rows[0].personal.purchaseDate, DateTime.utc(2026, 5, 12));
+    expect(rows[0].kindCatalogCells, hasLength(11));
+    expect(rows[1].kindCatalogCells, hasLength(11));
   });
 
   test('csv export includes custom field columns', () {
@@ -426,10 +630,10 @@ void main() {
       ),
     ];
     final cfValues = {
-      'owned-1': [
+      'comic:owned-1': [
         CustomFieldValue(
           id: 'v1',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'Shelf A',
@@ -437,7 +641,7 @@ void main() {
         ),
         CustomFieldValue(
           id: 'v2',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-2',
           value: '9',
@@ -446,22 +650,23 @@ void main() {
       ],
     };
 
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final exported = csv.exportShelf(
       [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+          catalogData: testWorkspaceCatalogData(
+              testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          )),
-          ownedItem: testOwnedItem(
+          )).asShelfCatalogItem),
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             quantity: 1,
             updatedAt: DateTime.utc(2026, 1, 1),
-          ),
+          )),
         ),
       ],
       customFieldDefinitions: defs,
@@ -475,7 +680,7 @@ void main() {
   });
 
   test('csv parse extracts cf_ columns into customFieldValues', () {
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final rows = csv.parse(
       const CsvEncoder().convert([
         ['item_id', 'status', 'title', 'cf_Location', 'cf_Score'],
@@ -498,10 +703,10 @@ void main() {
       ),
     ];
     final cfValues = {
-      'owned-1': [
+      'comic:owned-1': [
         CustomFieldValue(
           id: 'v1',
-          targetId: 'owned-1',
+          targetId: 'comic:owned-1',
           targetScope: CustomFieldTargetScope.ownedCopy,
           fieldDefinitionId: 'def-1',
           value: 'Special note, with comma',
@@ -510,22 +715,23 @@ void main() {
       ],
     };
 
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final exported = csv.exportShelf(
       [
-        ShelfEntry(
+        LibraryWorkspaceSource(
           itemId: 'comic-1',
-          catalogItem: LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+          catalogData: testWorkspaceCatalogData(
+              testCatalogItemWithKindMetadata(testCatalogItem(
             id: 'comic-1',
             kind: 'comic',
             title: 'Test',
-          )),
-          ownedItem: testOwnedItem(
+          )).asShelfCatalogItem),
+          ownedSummary: testOwnedSummary(testOwnedItem(
             id: 'owned-1',
             itemId: 'comic-1',
             quantity: 1,
             updatedAt: DateTime.utc(2026, 1, 1),
-          ),
+          )),
         ),
       ],
       customFieldDefinitions: defs,

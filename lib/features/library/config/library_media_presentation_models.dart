@@ -12,3 +12,5 @@ export 'package:collectarr_app/features/library/config/presentation/library_filt
 export 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 export 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
 export 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+export 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';

@@ -442,7 +442,7 @@ class _CustomFieldEditorState extends State<_CustomFieldEditor> {
                     value: null,
                     child: Text('All libraries'),
                   ),
-                  for (final type in defaultLibraryKindRegistry.allRuntimes)
+                  for (final type in defaultLibraryKindRegistry.allModules)
                     DropdownMenuItem<String>(
                       value: type.kind.apiValue,
                       child: Text(type.identity.singularLabel),
@@ -539,7 +539,7 @@ String _mediaKindLabel(String? kind) {
     return 'All libraries';
   }
   final normalized = kind.trim().toLowerCase();
-  for (final type in defaultLibraryKindRegistry.allRuntimes) {
+  for (final type in defaultLibraryKindRegistry.allModules) {
     if (type.kind.apiValue == normalized) {
       return type.identity.singularLabel;
     }

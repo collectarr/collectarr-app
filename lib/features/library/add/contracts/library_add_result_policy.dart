@@ -1,8 +1,9 @@
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 typedef LibraryAddCoreResultVisibilityPredicate = bool Function(
-  LibraryMetadataItem item,
+  CatalogSearchCandidate item,
   LibraryAddResultPolicyContext context,
 );
 
@@ -16,7 +17,7 @@ typedef LibraryAddProviderCandidateGroupPredicate = bool Function(
 );
 
 typedef LibraryAddCoreGroupTitleBuilder = String Function(
-  LibraryMetadataItem item,
+  CatalogSearchCandidate item,
 );
 
 typedef LibraryAddProviderGroupTitleBuilder = String Function(
@@ -61,12 +62,12 @@ class LibraryAddResultPolicyState {
 class LibraryAddResultPolicyContext {
   const LibraryAddResultPolicyContext({
     required this.state,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     required this.defaultValues,
   });
 
   final LibraryAddResultPolicyState state;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final Map<String, bool> defaultValues;
 
   bool optionIsEnabled(String id) {
@@ -101,25 +102,25 @@ class LibraryAddResultPolicy {
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,
-    Set<String> ownedCatalogItemIds = const {},
+    Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
     return LibraryAddResultPolicyContext(
       state: state,
-      ownedCatalogItemIds: ownedCatalogItemIds,
+      ownedCatalogRefs: ownedCatalogRefs,
       defaultValues: {
         for (final option in options) option.id: option.initialValue,
       },
     );
   }
 
-  List<LibraryMetadataItem> filterCoreResults({
-    required List<LibraryMetadataItem> items,
+  List<CatalogSearchCandidate> filterCoreResults({
+    required List<CatalogSearchCandidate> items,
     required LibraryAddResultPolicyState state,
-    Set<String> ownedCatalogItemIds = const {},
+    Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
     final resultContext = context(
       state: state,
-      ownedCatalogItemIds: ownedCatalogItemIds,
+      ownedCatalogRefs: ownedCatalogRefs,
     );
     final predicate = coreResultVisibility;
     if (predicate == null) {
@@ -133,11 +134,11 @@ class LibraryAddResultPolicy {
   List<ProviderCandidate> filterProviderResults({
     required List<ProviderCandidate> candidates,
     required LibraryAddResultPolicyState state,
-    Set<String> ownedCatalogItemIds = const {},
+    Set<CatalogEntityRef> ownedCatalogRefs = const {},
   }) {
     final resultContext = context(
       state: state,
-      ownedCatalogItemIds: ownedCatalogItemIds,
+      ownedCatalogRefs: ownedCatalogRefs,
     );
     final predicate = providerResultVisibility;
     if (predicate == null) {
@@ -153,7 +154,7 @@ class LibraryAddResultPolicy {
     return predicate == null ? false : predicate(candidate);
   }
 
-  String coreGroupTitle(LibraryMetadataItem item) {
+  String coreGroupTitle(CatalogSearchCandidate item) {
     final builder = coreGroupTitleBuilder;
     final title = builder == null ? null : builder(item).trim();
     return title == null || title.isEmpty ? item.title : title;

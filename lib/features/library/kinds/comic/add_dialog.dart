@@ -42,7 +42,7 @@ class ComicLibraryAddDialog extends StatelessWidget {
       type: request.type,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
       headerBuilder: buildComicAddHeader,
       modeBarBuilder: buildComicAddModeBar,
       searchPaneBuilder: buildComicAddSearchPane,

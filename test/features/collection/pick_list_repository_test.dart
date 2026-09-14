@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

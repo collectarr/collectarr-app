@@ -1,4 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/calendar/calendar_ics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,7 +15,11 @@ void main() {
           kind: CalendarEventKind.releaseDate,
           date: DateTime(2026, 5, 14),
           title: 'Absolute Batman',
-          itemId: 'comic-1',
+          catalogRef: const CatalogEntityRef(
+            kind: CatalogMediaKind.comic,
+            entityType: CatalogEntityTypeId('work'),
+            id: 'comic-1',
+          ),
         ),
       ],
       now: fixedNow,
@@ -31,7 +38,12 @@ void main() {
           kind: CalendarEventKind.finished,
           date: DateTime(2026, 5, 14),
           title: 'Dune',
-          itemId: 'movie-9',
+          eventId: 'owned-finished:movie-9',
+          catalogRef: const CatalogEntityRef(
+            kind: CatalogMediaKind.movie,
+            entityType: CatalogEntityTypeId('work'),
+            id: 'movie-9',
+          ),
         ),
       ],
       now: fixedNow,
@@ -42,7 +54,7 @@ void main() {
     expect(ics, contains('DTSTART;VALUE=DATE:20260514\r\n'));
     expect(ics, contains('DTSTAMP:20260624T190530Z\r\n'));
     expect(ics, contains('SUMMARY:Finished: Dune\r\n'));
-    expect(ics, contains('UID:finished-20260514-movie-9-dune@collectarr\r\n'));
+    expect(ics, contains('UID:owned-finished:movie-9@collectarr\r\n'));
   });
 
   test('escapes special characters and includes the subtitle', () {
@@ -53,7 +65,10 @@ void main() {
           date: DateTime(2026, 7, 1),
           title: 'Saga, Vol. 1; Deluxe',
           subtitle: 'Loaned to Bob',
-          ownedItemId: 'owned-3',
+          ownedRef: const OwnedItemRef(
+            kind: CatalogMediaKind.comic,
+            id: OwnedItemId('owned-3'),
+          ),
         ),
       ],
       now: fixedNow,
@@ -70,13 +85,21 @@ void main() {
           kind: CalendarEventKind.purchased,
           date: DateTime(2026, 1, 2),
           title: 'A',
-          itemId: 'a',
+          catalogRef: const CatalogEntityRef(
+            kind: CatalogMediaKind.comic,
+            entityType: CatalogEntityTypeId('work'),
+            id: 'a',
+          ),
         ),
         CalendarEvent(
           kind: CalendarEventKind.watched,
           date: DateTime(2026, 1, 3),
           title: 'B',
-          itemId: 'b',
+          catalogRef: const CatalogEntityRef(
+            kind: CatalogMediaKind.comic,
+            entityType: CatalogEntityTypeId('work'),
+            id: 'b',
+          ),
         ),
       ],
       now: fixedNow,
@@ -94,7 +117,11 @@ void main() {
           kind: CalendarEventKind.releaseDate,
           date: DateTime(2026, 1, 2),
           title: longTitle,
-          itemId: 'long',
+          catalogRef: const CatalogEntityRef(
+            kind: CatalogMediaKind.comic,
+            entityType: CatalogEntityTypeId('work'),
+            id: 'long',
+          ),
         ),
       ],
       now: fixedNow,

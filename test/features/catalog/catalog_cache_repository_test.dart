@@ -1,27 +1,29 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/test_data_factories.dart';
 
 void main() {
   late LocalDatabase db;
-  late CatalogCacheRepository catalog;
+  late CatalogTransportRepository catalog;
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
-    catalog = CatalogCacheRepository(db);
+    catalog = CatalogTransportRepository(db);
   });
 
   tearDown(() => db.close());
 
   test('upsertAll captures single-value catalog vocabulary and comic series',
       () async {
-    await catalog.upsertAll([
+    await catalog.upsertTransportItems([
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -79,16 +81,16 @@ void main() {
     expect(series.single.itemCount, 1);
   });
 
-  test('upsertMetadataItems captures vocabulary from decoded metadata',
+  test('upsert transport items captures vocabulary from decoded metadata',
       () async {
     final item = testCatalogItem(
       id: 'comic-decoded-1',
       kind: 'comic',
       publisher: 'Image Comics',
       physicalFormatLabel: 'Hardcover',
-    ).toLibraryMetadataItem();
+    );
 
-    await catalog.upsertMetadataItems([item]);
+    await catalog.upsertTransportItems([item]);
 
     final pickLists = PickListRepository(db);
     expect(
@@ -105,5 +107,44 @@ void main() {
       ),
       contains('Hardcover'),
     );
+  });
+
+  test('upsertAll preserves the complete typed TV graph payload', () async {
+    await catalog.upsertTransportItems([
+      testCatalogItem(
+        id: 'tv-graph-1',
+        kind: 'tv',
+        title: 'Typed Graph Fixture',
+        payload: {
+          'seasons': [
+            {
+              'id': 'tv-graph-1-season-1',
+              'series_id': 'tv-graph-1',
+              'season_number': 1,
+              'title': 'Season One',
+              'episodes': [
+                {
+                  'id': 'tv-graph-1-episode-1',
+                  'series_id': 'tv-graph-1',
+                  'season_id': 'tv-graph-1-season-1',
+                  'season_number': 1,
+                  'episode_number': 1,
+                  'episode_title': 'Pilot',
+                },
+              ],
+            },
+          ],
+        },
+      ),
+    ]);
+
+    final seasons = await TvRepository(db).seasonsFor(
+      const TvSeriesId('tv-graph-1'),
+    );
+    expect(seasons, hasLength(1));
+    expect(seasons.single.id, 'tv-graph-1-season-1');
+    expect(seasons.single.episodes, hasLength(1));
+    expect(seasons.single.episodes.single.id, 'tv-graph-1-episode-1');
+    expect(seasons.single.episodes.single.title, 'Pilot');
   });
 }

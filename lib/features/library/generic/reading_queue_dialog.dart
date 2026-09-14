@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -12,8 +14,9 @@ Future<void> showReadingQueueDialog({
   required BuildContext context,
   required LocalDatabase db,
   required String mediaKind,
-  required Iterable<OwnedItem> ownedItems,
-  required Map<String, CatalogItem> catalogItemsById,
+  required Iterable<OwnedItemSummary> ownedItems,
+  Iterable<TrackingSummary> trackingSummaries = const [],
+  required Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef,
   ValueChanged<String>? onSelectItem,
 }) {
   return showDialog<void>(
@@ -22,7 +25,8 @@ Future<void> showReadingQueueDialog({
       db: db,
       mediaKind: mediaKind,
       ownedItems: ownedItems.toList(growable: false),
-      catalogItemsById: catalogItemsById,
+      trackingSummaries: trackingSummaries.toList(growable: false),
+      catalogSummariesByRef: catalogSummariesByRef,
       onSelectItem: onSelectItem,
     ),
   );
@@ -33,14 +37,16 @@ class _ReadingQueueDialog extends StatefulWidget {
     required this.db,
     required this.mediaKind,
     required this.ownedItems,
-    required this.catalogItemsById,
+    required this.trackingSummaries,
+    required this.catalogSummariesByRef,
     this.onSelectItem,
   });
 
   final LocalDatabase db;
   final String mediaKind;
-  final List<OwnedItem> ownedItems;
-  final Map<String, CatalogItem> catalogItemsById;
+  final List<OwnedItemSummary> ownedItems;
+  final List<TrackingSummary> trackingSummaries;
+  final Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef;
   final ValueChanged<String>? onSelectItem;
 
   @override
@@ -66,25 +72,39 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
   Future<void> _load() async {
     final repo = ReadingQueueRepository(widget.db);
-    final queueIds = await repo.getQueue();
-    final ownedById = {
-      for (final item in widget.ownedItems)
-        if (!item.isDeleted) item.id: item,
+    final queueRefs = await repo.getQueue();
+    final ownedByRef = {
+      for (final item in widget.ownedItems) item.ref: item,
+    };
+    final trackingByOwnedRef = {
+      for (final entry in widget.trackingSummaries)
+        if (!entry.isDeleted && entry.ownedRef != null) entry.ownedRef!: entry,
+    };
+    final trackingByCatalogRef = {
+      for (final entry in widget.trackingSummaries)
+        if (!entry.isDeleted) entry.catalogRef.rootScope: entry,
     };
     final entries = <_ReadingQueueDialogEntry>[];
-    for (final queuedId in queueIds) {
-      final ownedItem = ownedById[queuedId];
-      if (ownedItem == null) {
+    for (final queuedRef in queueRefs) {
+      final summary = ownedByRef[queuedRef];
+      if (summary == null) {
         continue;
       }
-      final catalogItem = widget.catalogItemsById[ownedItem.itemId];
-      if (catalogItem == null || catalogItem.kind != widget.mediaKind) {
+      final catalogRef = summary.catalogRef;
+      if (catalogRef == null) {
+        continue;
+      }
+      final catalogSummary = widget.catalogSummariesByRef[catalogRef];
+      if (catalogSummary == null ||
+          catalogSummary.kind.apiValue != widget.mediaKind) {
         continue;
       }
       entries.add(
         _ReadingQueueDialogEntry(
-          ownedItem: ownedItem,
-          catalogItem: catalogItem,
+          summary: summary,
+          catalogSummary: catalogSummary,
+          trackingSummary: trackingByOwnedRef[summary.ref] ??
+              trackingByCatalogRef[catalogRef.rootScope],
         ),
       );
     }
@@ -102,14 +122,14 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     int newPosition,
   ) async {
     await ReadingQueueRepository(widget.db).moveToPosition(
-      entry.ownedItem.id,
+      entry.summary.ref,
       newPosition,
     );
     await _load();
   }
 
   Future<void> _remove(_ReadingQueueDialogEntry entry) async {
-    await ReadingQueueRepository(widget.db).removeFromQueue(entry.ownedItem.id);
+    await ReadingQueueRepository(widget.db).removeFromQueue(entry.summary.ref);
     await _load();
   }
 
@@ -128,7 +148,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       ..insert(clampedIndex, movedEntry);
 
     final fullWithoutMoved = [..._entries]
-      ..removeWhere((entry) => entry.ownedItem.id == movedEntry.ownedItem.id);
+      ..removeWhere((entry) => entry.summary.ref != movedEntry.summary.ref);
     final predecessor =
         clampedIndex > 0 ? reorderedFiltered[clampedIndex - 1] : null;
     final successor = clampedIndex < reorderedFiltered.length - 1
@@ -138,11 +158,11 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     int targetIndex;
     if (predecessor != null) {
       targetIndex = fullWithoutMoved.indexWhere(
-              (entry) => entry.ownedItem.id == predecessor.ownedItem.id) +
+              (entry) => entry.summary.ref == predecessor.summary.ref) +
           1;
     } else if (successor != null) {
       targetIndex = fullWithoutMoved
-          .indexWhere((entry) => entry.ownedItem.id == successor.ownedItem.id);
+          .indexWhere((entry) => entry.summary.ref == successor.summary.ref);
     } else {
       targetIndex = 0;
     }
@@ -152,7 +172,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
   void _openItem(_ReadingQueueDialogEntry entry) {
     Navigator.of(context).pop();
-    widget.onSelectItem?.call(entry.ownedItem.itemId);
+    widget.onSelectItem?.call(entry.catalogSummary.id);
   }
 
   List<_ReadingQueueDialogEntry> get _filteredEntries {
@@ -168,9 +188,9 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
   bool _matchesQuery(_ReadingQueueDialogEntry entry, String query) {
     final fields = [
       entry.label,
-      entry.catalogItem.payload['publisher']?.toString(),
-      entry.ownedItem.readStatus,
-      entry.ownedItem.personalNotes,
+      entry.trackingSummary?.statusStorageValue,
+      entry.summary.notes,
+      entry.summary.hasNotes ? 'notes' : null,
     ];
     for (final field in fields) {
       final normalized = field?.trim().toLowerCase();
@@ -205,7 +225,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         onPressed: () => Navigator.of(context).pop(),
         child: const Text('Close'),
       ),
-      child: SizedBox(
+      body: SizedBox(
         width: 560,
         height: 460,
         child: _loading
@@ -226,7 +246,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.search),
                           labelText: 'Filter queue',
-                          hintText: 'Title, publisher, status, notes',
+                          hintText: 'Title, status, notes',
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -263,32 +283,23 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
                                 itemBuilder: (context, index) {
                                   final entry = filteredEntries[index];
                                   final details = <String>[];
-                                  final publisher = entry
-                                      .catalogItem.payload['publisher']
-                                      ?.toString()
-                                      .trim();
-                                  if (publisher != null &&
-                                      publisher.isNotEmpty) {
-                                    details.add(publisher);
-                                  }
-                                  final readStatus =
-                                      entry.ownedItem.readStatus?.trim();
+                                  final readStatus = entry
+                                      .trackingSummary?.statusStorageValue
+                                      ?.trim();
                                   if (readStatus != null &&
                                       readStatus.isNotEmpty) {
                                     details.add(readStatus);
                                   }
-                                  final notes =
-                                      entry.ownedItem.personalNotes?.trim();
-                                  if (notes != null && notes.isNotEmpty) {
+                                  if (entry.summary.hasNotes) {
                                     details.add('Has notes');
                                   }
                                   final queuePosition = _entries.indexWhere(
                                           (e) =>
-                                              e.ownedItem.id ==
-                                              entry.ownedItem.id) +
+                                              e.summary.ref ==
+                                              entry.summary.ref) +
                                       1;
                                   return Material(
-                                    key: ValueKey(entry.ownedItem.id),
+                                    key: ValueKey(entry.summary.ref),
                                     color: Colors.transparent,
                                     child: ListTile(
                                       leading: CircleAvatar(
@@ -343,21 +354,16 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
 class _ReadingQueueDialogEntry {
   const _ReadingQueueDialogEntry({
-    required this.ownedItem,
-    required this.catalogItem,
+    required this.summary,
+    required this.catalogSummary,
+    this.trackingSummary,
   });
 
-  final OwnedItem ownedItem;
-  final CatalogItem catalogItem;
+  final OwnedItemSummary summary;
+  final CatalogDisplaySummary catalogSummary;
+  final TrackingSummary? trackingSummary;
 
   String get label {
-    final payload = catalogItem.payload;
-    final rawNum =
-        (payload['item_number'] ?? payload['itemNumber'])?.toString();
-    final itemNumber = rawNum?.trim();
-    if (itemNumber == null || itemNumber.isEmpty) {
-      return catalogItem.title;
-    }
-    return '${catalogItem.title} #$itemNumber';
+    return catalogSummary.title;
   }
 }

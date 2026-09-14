@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -13,7 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
 import '../../helpers/secure_storage_mock.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../helpers/test_data_factories.dart';
+import '../../helpers/tracking_state_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -42,18 +44,20 @@ void main() {
             sortOrder: const Value(2),
           ),
         );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'movie-1',
-            locationId: const Value('loc-a'),
-            updatedAt: DateTime.utc(2026, 5, 23),
-          ),
-        );
+    await MovieOwnedRepository(db).upsert(
+      testMovieOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'movie-1',
+        kind: 'movie',
+        locationId: 'loc-a',
+        updatedAt: DateTime.utc(2026, 5, 23),
+      )),
+    );
 
     final ownedItem = testOwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
+      kind: 'movie',
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
@@ -64,7 +68,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorPersonalDetailsEditor(
-              ownedItem: ownedItem,
+              ownedItem: testOwnedSummary(ownedItem),
               accent: Colors.orange,
             ),
           ),
@@ -85,7 +89,7 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
     await pumpUntilSettled(tester);
 
-    final updated = await db.select(db.ownedItemsCache).getSingle();
+    final updated = (await MovieOwnedRepository(db).listActive()).single;
     expect(updated.locationId, 'loc-b');
   });
 
@@ -99,19 +103,18 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.trackingEntriesCache).insert(
-          TrackingEntriesCacheCompanion.insert(
-            id: 'tracking-1',
-            itemId: 'movie-1',
-            sourceType: const Value('digital'),
-            status: const Value('Plan to watch'),
-            rating: const Value(7),
-            startedAt: Value(DateTime.utc(2026, 5, 20)),
-            editionId: const Value('edition-stream'),
-            variantId: const Value('variant-hd'),
-            updatedAt: DateTime.utc(2026, 5, 23),
-          ),
-        );
+    final trackingRepository = trackingRecordTestRepository(db);
+    await trackingRepository.upsertStorageRecord(
+      trackingRepository.create(
+        id: 'tracking-1',
+        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        sourceType: 'digital',
+        status: 'Plan to watch',
+        rating: 7,
+        startedAt: DateTime.utc(2026, 5, 20),
+        updatedAt: DateTime.utc(2026, 5, 23),
+      ),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -121,27 +124,26 @@ void main() {
             body: InspectorTrackingDetailsEditor(
               itemId: 'movie-1',
               mediaType: 'movie',
-              trackingEntry: TrackingEntry(
-                id: 'tracking-1',
-                catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-                editionId: 'edition-stream',
-                variantId: 'variant-hd',
-                sourceType: 'digital',
-                status: 'Plan to watch',
-                rating: 7,
-                startedAt: DateTime.utc(2026, 5, 20),
-                updatedAt: DateTime.utc(2026, 5, 23),
+              trackingSummary: trackingSummaryFromRecord(
+                MovieTrackingState(
+                  id: 'tracking-1',
+                  catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+                  sourceType: 'digital',
+                  status: 'Plan to watch',
+                  rating: 7,
+                  startedAt: DateTime.utc(2026, 5, 20),
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                ),
               ),
-              profile: videoTrackingProfile,
-              editions: const [
-                CatalogEdition(
+              profile: movieTrackingProfile,
+              releases: const [
+                LibraryWorkspaceReleaseSummary(
                   id: 'edition-stream',
                   title: 'Streaming',
                   variants: [
-                    CatalogVariant(
+                    LibraryWorkspaceVariantSummary(
                       id: 'variant-hd',
                       name: 'HD',
-                      isPrimary: true,
                     ),
                   ],
                 ),
@@ -161,11 +163,10 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply tracking changes'));
     await pumpUntilSettled(tester);
 
-    final updated = await db.select(db.trackingEntriesCache).getSingle();
-    expect(updated.sourceType, 'digital');
+    final updated = await readSingleTrackingState(db);
+    expect(updated.sourceTypeApiValue, 'digital');
     expect(updated.rating, 7);
-    expect(updated.editionId, 'edition-stream');
-    expect(updated.variantId, 'variant-hd');
+    expect(updated.catalogRef.id, 'variant-hd');
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
   });
 
@@ -180,22 +181,21 @@ void main() {
           body: StatefulBuilder(
             builder: (context, setState) {
               return buildTrackingEditionBrowserForTesting(
-                editions: const [
-                  CatalogEdition(
+                releases: const [
+                  LibraryWorkspaceReleaseSummary(
                     id: 'edition-hc',
                     title: 'Hardcover',
-                    physicalFormatLabel: 'HC',
-                    publisher: 'Image',
+                    formatLabel: 'HC',
                     variants: [
-                      CatalogVariant(
+                      LibraryWorkspaceVariantSummary(
                         id: 'variant-blue',
                         name: 'Blue foil',
-                        physicalFormatLabel: 'Foil',
+                        formatLabel: 'Foil',
                       ),
-                      CatalogVariant(
+                      LibraryWorkspaceVariantSummary(
                         id: 'variant-red',
                         name: 'Red foil',
-                        physicalFormatLabel: 'Foil',
+                        formatLabel: 'Foil',
                       ),
                     ],
                   ),

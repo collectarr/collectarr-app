@@ -110,11 +110,8 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
   @override
   Widget build(BuildContext context) {
     final resolvedDensity = widget.density ?? LibraryDensityScope.of(context);
-    final densityScale = switch (resolvedDensity) {
-      LibraryDensity.comfortable => 1.0,
-      LibraryDensity.compact => 0.9,
-      LibraryDensity.dense => 0.8,
-    };
+    final densityMetrics = resolvedDensity.metrics;
+    final densityScale = densityMetrics.scale;
     final resolvedHeaderHeight = widget.headerHeight * densityScale;
     final resolvedRowHeight = widget.rowHeight * densityScale;
     final resolvedColumnSpacing = widget.columnSpacing * densityScale;

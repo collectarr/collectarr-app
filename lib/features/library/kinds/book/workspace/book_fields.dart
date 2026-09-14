@@ -1,7 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -47,7 +50,11 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = BookOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is BookOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -75,7 +82,7 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -101,7 +108,7 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -133,7 +140,7 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.readStatus,
     label: 'Read Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -210,10 +217,56 @@ abstract final class BookKindSchema {
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.signedBy,
     label: 'Signed By',
-    getValue: (context) => context.source.ownedItem?.signedBy,
+    getValue: (context) {
+      final owned = BookOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is BookOwnedItem ? owned.details.signedBy : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 }
+
+final bookLibraryFacetDefinitions =
+    <LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>>[
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.author,
+    label: 'Author',
+    extractValues: (dto) =>
+        dto.metadata?.authors ??
+        [
+          if (dto.author case final author?) author,
+        ],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.publisher,
+    label: 'Publisher',
+    extractValues: (dto) => [
+      if (dto.publisher case final publisher?) publisher,
+    ],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.genre,
+    label: 'Genre',
+    extractValues: (dto) => dto.metadata?.genres ?? const <String>[],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.format,
+    label: 'Format',
+    extractValues: (dto) => [
+      if (dto.format case final format?) format,
+    ],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.subject,
+    label: 'Subject',
+    extractValues: (dto) => dto.metadata?.subjects ?? const <String>[],
+  ),
+  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+    id: BookFacetIds.translator,
+    label: 'Translator',
+    extractValues: (dto) => dto.metadata?.translators ?? const <String>[],
+  ),
+];
 
 final bookLibraryFieldDefinitions = [
   BookKindSchema.title,
@@ -226,6 +279,11 @@ final bookLibraryFieldDefinitions = [
   BookKindSchema.series,
   BookKindSchema.releaseDate,
   BookKindSchema.pricePaid,
+  BookKindSchema.rating,
+  BookKindSchema.wishlist,
+  BookKindSchema.updatedAt,
+  BookKindSchema.addedAt,
+  BookKindSchema.readStatus,
   BookKindSchema.subtitle,
   BookKindSchema.format,
   BookKindSchema.translator,
@@ -238,6 +296,8 @@ final bookLibraryFieldDefinitions = [
   BookKindSchema.dewey,
   BookKindSchema.locClassification,
   BookKindSchema.signedBy,
+  BookKindSchema.status,
+  BookKindSchema.cover,
 ];
 
 final bookLibraryGroupDefinitions = [
@@ -251,9 +311,9 @@ final bookLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['original_publisher'],
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
+      ['publisher', 'original_publisher'],
+      nestedContainerKey: 'publishing',
       nestedValueKey: 'original_publisher',
     ),
   ),
@@ -372,7 +432,7 @@ final bookLibraryColumnDefinitions = [
     id: BookFieldIds.readStatus,
     label: 'Read Status',
     getValue: BookKindSchema.readStatus.getValue,
-    cellValue: (context) => Text(context.source.ownedItem?.readStatus ?? ''),
+    cellValue: (context) => Text(context.dto.personal.trackingStatus ?? ''),
     group: 'Personal',
     defaultWidth: 100,
   ),
@@ -380,8 +440,7 @@ final bookLibraryColumnDefinitions = [
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: BookKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     group: 'Personal',
     defaultWidth: 80,
   ),
@@ -392,8 +451,8 @@ final bookLibraryColumnDefinitions = [
   ),
   columnFromField<BookKind, BookWorkspaceDto, int?>(
     BookKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,

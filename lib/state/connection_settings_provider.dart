@@ -1,20 +1,27 @@
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
-import 'package:flutter_riverpod/legacy.dart';
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final connectionSettingsProvider =
-    StateNotifierProvider<ConnectionSettingsController, ConnectionSettings>(
-  (ref) => ConnectionSettingsController()..load(),
+    NotifierProvider<ConnectionSettingsController, ConnectionSettings>(
+  ConnectionSettingsController.new,
 );
 
-class ConnectionSettingsController extends StateNotifier<ConnectionSettings> {
+class ConnectionSettingsController extends Notifier<ConnectionSettings> {
   ConnectionSettingsController({ConnectionSettingsStore? store, Uri? launchUri})
       : _store = store ?? ConnectionSettingsStore(),
-        _launchUri = launchUri ?? Uri.base,
-        super(const ConnectionSettings());
+        _launchUri = launchUri ?? Uri.base;
 
   final ConnectionSettingsStore _store;
   final Uri _launchUri;
+
+  @override
+  ConnectionSettings build() {
+    unawaited(load());
+    return const ConnectionSettings();
+  }
 
   Future<void> load() async {
     if (_shouldResetFromLaunchUri()) {

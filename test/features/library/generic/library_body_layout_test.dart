@@ -10,18 +10,18 @@ void main() {
     required LibraryViewMode mode,
     required double coverSize,
   }) {
-    final runtime = comicKindModule;
+    final workspace = comicKindWorkspace;
     return LibraryWorkspaceViewState(
       viewMode: mode,
       detailsLayout: LibraryDetailsLayout.right,
       isSidebarVisible: true,
-      sortId: runtime.fields.decodeSortId('title'),
+      sortId: workspace.fields.decodeSortId('title'),
       sortAscending: true,
       coverSize: coverSize,
       sidebarWidth: kLibrarySidebarDefaultWidth,
       detailsWidth: kLibraryDetailsDefaultWidth,
       detailsHeight: kLibraryDetailsDefaultHeight,
-      visibleColumnIds: {runtime.fields.decodeColumnId('title')},
+      visibleColumnIds: {workspace.fields.decodeColumnId('title')},
       columnWidths: const {},
     );
   }

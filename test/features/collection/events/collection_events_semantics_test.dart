@@ -1,17 +1,24 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -39,37 +46,42 @@ void main() {
       events: eventBus,
     );
 
-    final ownedRepo = OwnedItemsCacheRepository(db);
+    final ownedRepo = OwnedItemsRepository(db);
     final wishlistRepo = WishlistItemsCacheRepository(db);
-    final catalogRepo = CatalogCacheRepository(db);
-    final trackingRepo = TrackingEntriesCacheRepository(db);
-    final trackingUnitsRepo = TrackingUnitsCacheRepository(db);
-    final watchSessionsRepo = WatchSessionsCacheRepository(db);
+    final catalogRepo = CatalogTransportRepository(db);
+    final trackingRepo = TrackingStorageRepository(
+      db,
+      codecs: collectarrTrackingStorageCodecs,
+    );
+    final trackingUnitsRepo = TrackingUnitStorageRepository(
+      db,
+      codecs: collectarrTrackingUnitStorageCodecs,
+    );
+    final watchSessionsRepo = WatchSessionsRepository(
+      db,
+      codecs: collectarrWatchSessionCodecs,
+    );
     final syncQueueRepo = SyncQueueRepository(db);
 
     ownedMutations = OwnedItemMutations(
       ownedItems: ownedRepo,
       wishlist: wishlistRepo,
-      catalogCache: catalogRepo,
-      trackingEntries: trackingRepo,
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );
 
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
-      catalogCache: catalogRepo,
-      trackingEntries: trackingRepo,
-      trackingUnits: trackingUnitsRepo,
+      catalogTransport: catalogRepo,
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );
 
     trackingMutations = TrackingMutations(
-      trackingEntries: trackingRepo,
+      trackingRecords: trackingRepo,
       trackingUnits: trackingUnitsRepo,
       watchSessions: watchSessionsRepo,
-      catalogCache: catalogRepo,
       syncQueue: syncQueueRepo,
       mutationRunner: runner,
     );
@@ -85,38 +97,40 @@ void main() {
     final sub = eventBus.stream.listen(events.add);
 
     final item = await ownedMutations.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-100', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
 
     await Future<void>.delayed(Duration.zero);
-    expect(events, [OwnedItemAdded(item.id)]);
+    expect(events, [OwnedItemAdded(item)]);
     await sub.cancel();
   });
 
   test(
       'add owned item with matching wishlist entry emits OwnedItemAdded and WishlistChanged',
       () async {
-    await wishlistMutations.addToWishlist('movie-200', fallbackKind: 'movie');
+    await wishlistMutations.addToWishlist(
+      testCatalogRef('movie-200', kind: 'movie'),
+    );
 
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);
 
     final item = await ownedMutations.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-200', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
 
     await Future<void>.delayed(Duration.zero);
     expect(events, [
-      OwnedItemAdded(item.id),
-      const WishlistChanged('movie-200'),
+      OwnedItemAdded(item),
+      WishlistChanged(testCatalogRef('movie-200', kind: 'movie')),
     ]);
     await sub.cancel();
   });
@@ -130,9 +144,14 @@ void main() {
         action: () async {
           throw Exception('Database mutation failed');
         },
-        eventsToEmit: const [
-          OwnedItemAdded('should-not-emit'),
-          WishlistChanged('should-not-emit'),
+        eventsToEmit: [
+          OwnedItemAdded(
+            const OwnedItemRef(
+              kind: CatalogMediaKind.movie,
+              id: OwnedItemId('should-not-emit'),
+            ),
+          ),
+          WishlistChanged(testCatalogRef('should-not-emit', kind: 'movie')),
         ],
       ),
       throwsA(isA<Exception>()),
@@ -144,23 +163,32 @@ void main() {
   });
 
   test('remove tracking emits TrackingChanged only', () async {
-    await trackingMutations.upsertTrackingEntry(
+    await trackingMutations.upsertTrackingState(
       TrackingTarget.catalog(testCatalogRef('book-300', kind: 'book')),
       sourceType: TrackingSourceType.digital,
       status: MediaTrackingStatus.inProgress,
     );
 
-    final entries = await TrackingEntriesCacheRepository(db)
-        .findActiveByItemIds(['book-300']);
-    final trackingEntry = entries.single;
+    final entries = await TrackingStorageRepository(
+      db,
+      codecs: collectarrTrackingStorageCodecs,
+    ).findActiveStorageRecordsByCatalogRoots([
+      testCatalogRef('book-300', kind: 'book'),
+    ]);
+    final trackingRecord = entries.single;
 
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);
 
-    await trackingMutations.removeTrackingEntry(trackingEntry);
+    await trackingMutations.removeTrackingByRef(
+      TrackingStateRef(
+        kind: trackingRecord.catalogRef.mediaKind,
+        id: trackingRecord.id,
+      ),
+    );
 
     await Future<void>.delayed(Duration.zero);
-    expect(events, [TrackingChanged(trackingEntry.id)]);
+    expect(events, const [TrackingChanged()]);
     await sub.cancel();
   });
 }

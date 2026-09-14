@@ -1,21 +1,23 @@
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/contributors_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
+import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_upcoming_episodes_section.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/watch_history_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/hierarchy/tv_upcoming_episodes_section.dart';
+import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildTvInspectorSections(
@@ -36,24 +38,20 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 ) {
   final item = request.item;
   final dto = item.dto;
-  final catalogItem = item.source.catalogItem;
+  final catalog = item.source.catalogData;
+  final metadata = catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
   final seriesRef = CatalogEntityRef(
-    kind: request.type.kind.apiValue,
-    entityType: CatalogEntityType.work,
+    kind: request.type.kind,
+    entityType: const CatalogEntityTypeId('work'),
     id: item.node.titleItemId,
   );
-  final rawEditions =
-      ((catalogItem?.kindMetadata.toSyncPayload()['editions'] as List?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
-              .toList() ??
-          const <CatalogEdition>[]);
+  final rawEditions = metadata?.editions ?? const [];
   final releaseOptions = [
     for (final edition in rawEditions)
       WatchHistoryTargetOption(
         ref: CatalogEntityRef(
           kind: seriesRef.kind,
-          entityType: CatalogEntityType.release,
+          entityType: const CatalogEntityTypeId('release'),
           id: '${seriesRef.id}:release:${edition.id}',
         ),
         label: edition.title.isEmpty ? edition.id : edition.title,
@@ -65,28 +63,18 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       ),
   ];
 
-  final tvLinks = (catalogItem?.kindMetadata is TvSeriesMetadata
-          ? (catalogItem!.kindMetadata as TvSeriesMetadata).links
-          : (catalogItem?.kindMetadata.toSyncPayload()['trailer_urls'] as List?)
-              ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e)))
-              .toList()) ??
-      const <TrailerLink>[];
+  final tvLinks = metadata?.links ?? const <TrailerLinkDto>[];
 
-  final ownedItem = request.ownedItem;
-  final trackingEntry = request.trackingEntry;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+  final ownedItem =
+      TvOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
+  final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Display title', value: dto.title),
-    if (adapter?.publisher?.trim().isNotEmpty == true)
-      LibraryDetailField(label: 'Studio', value: adapter!.publisher!),
+    if (tvDto?.publisher?.trim().isNotEmpty == true)
+      LibraryDetailField(label: 'Studio', value: tvDto!.publisher!),
     LibraryDetailField(label: 'Releases', value: rawEditions.length.toString()),
     if (ownedItem?.condition?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Condition', value: ownedItem!.condition!),
-    if (trackingEntry?.episodeRatings.isNotEmpty == true)
-      LibraryDetailField(
-          label: 'Rated episodes',
-          value: trackingEntry!.episodeRatings.length.toString()),
     if (tvLinks.isNotEmpty)
       LibraryDetailField(label: 'Trailers', value: tvLinks.length.toString()),
   ];
@@ -131,6 +119,11 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
           accent: request.accent,
         ),
         const SizedBox(height: 8),
+        TvEpisodeRatingDisplaySection(
+          itemId: item.node.titleItemId,
+          accent: request.accent,
+        ),
+        const SizedBox(height: 8),
         InspectorReleasesSection(request: request),
       ],
     ),
@@ -150,18 +143,18 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       slot: LibraryDetailSectionSlot.links,
       title: 'Links / trailers',
       children: [
-        VideoExternalLinksSection(
+        LibraryExternalLinksSection(
           title: 'External links',
           links: tvLinks,
           accent: request.accent,
         ),
         const SizedBox(height: 8),
         LibraryDetailUserLinksSection(
-          itemId: request.item.node.titleItemId,
+          catalogRef: seriesRef,
           accent: request.accent,
         ),
         const SizedBox(height: 8),
-        VideoUpcomingEpisodesSection(
+        TvUpcomingEpisodesSection(
           seriesRef: seriesRef,
           accent: request.accent,
         ),

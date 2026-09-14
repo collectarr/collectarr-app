@@ -1,20 +1,20 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 
-abstract interface class LibraryProjectionRuntime<
+abstract interface class LibraryProjectionView<
     TDto extends LibraryWorkspaceDto> {
-  ShelfEntry get source;
+  LibraryWorkspaceSource get source;
   LibraryNodeRef get node;
   List<String> get customFieldBadges;
   TDto get dto;
 }
 
 final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
-    implements LibraryProjectionRuntime<TDto> {
+    implements LibraryProjectionView<TDto> {
   const LibraryProjectionItem({
     required this.source,
     required this.node,
@@ -23,16 +23,17 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
   });
 
   static LibraryProjectionItem<LibraryWorkspaceDto> fromShelf(
-    ShelfEntry source,
-    LibraryKindRuntime type, {
+    LibraryWorkspaceSource source,
+    LibraryKindRegistration type, {
     List<String> customFieldBadges = const <String>[],
   }) {
-    final item = source.catalogItem!;
-    final node = LibraryTitleNodeRef(titleItemId: item.id);
-    final dto = type.projector.projectTitle(
-      source: source,
-      node: node,
+    final node = LibraryTitleNodeRef(
+      titleItemId: source.catalogRef?.id ?? source.itemId,
     );
+    final dto = libraryKindWorkspaceForKind(type.kind).projector.projectTitle(
+          source: source,
+          node: node,
+        );
     return LibraryProjectionItem<LibraryWorkspaceDto>(
       source: source,
       node: node,
@@ -42,7 +43,7 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  final ShelfEntry source;
+  final LibraryWorkspaceSource source;
   @override
   final LibraryNodeRef node;
   @override
@@ -52,20 +53,21 @@ final class LibraryProjectionItem<TDto extends LibraryWorkspaceDto>
 }
 
 Set<String> customFieldTargetIds({
-  required ShelfEntry source,
+  required LibraryWorkspaceSource source,
   required LibraryNodeRef node,
 }) {
   return {
-    if (source.ownedItem case final owned?) owned.id,
-    if (source.catalogItem case final catalog?) catalog.id,
+    if (source.ownedSummary case final owned?) owned.ref.key,
+    if (source.ownedRef case final owned?) owned.key,
+    if (source.catalogRef case final catalog?) catalog.id,
     node.titleItemId,
     if (node case LibraryReleaseNodeRef(:final releaseId)) releaseId,
     if (node
         case LibraryCopyNodeRef(
-          :final ownedItemId,
+          :final ownedRef,
           :final copyId,
         )) ...[
-      ownedItemId,
+      ownedRef.key,
       if (copyId != null) copyId,
     ],
   };
@@ -73,7 +75,7 @@ Set<String> customFieldTargetIds({
 
 List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   ShelfState shelf,
-  LibraryKindRuntime type, {
+  LibraryKindRegistration type, {
   List<CustomFieldDefinition> customFieldDefinitions = const [],
   Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
       const {},
@@ -82,6 +84,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   String? releaseFolderTitleItemId,
 }) {
   final kind = type.kind;
+  final workspace = libraryKindWorkspaceForKind(kind);
   if (browserMode == LibraryWorkspaceBrowserMode.releases) {
     final releaseCap = type.releaseCapability;
     if (releaseCap == null) {
@@ -91,12 +94,11 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
     }
     return [
       for (final source in shelf.entries)
-        if (source.catalogItem != null &&
-            source.catalogItem!.kind == kind.apiValue)
+        if (source.catalogRef?.mediaKind == kind)
           ...releaseCap.projectReleases(
             source: source,
             type: type,
-            projector: type.projector,
+            projector: workspace.projector,
             customFieldDefinitions: customFieldDefinitions,
             customFieldValuesByDefinitionByItem:
                 customFieldValuesByDefinitionByItem,
@@ -107,15 +109,18 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
   }
   return [
     for (final source in shelf.entries)
-      if (source.catalogItem != null &&
-          source.catalogItem!.kind == kind.apiValue)
+      if (source.catalogRef?.mediaKind == kind)
         type.titleCapability.projectTitle(
           source: source,
-          node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
-          projector: type.projector,
+          node: LibraryTitleNodeRef(
+            titleItemId: source.catalogRef?.id ?? source.itemId,
+          ),
+          projector: workspace.projector,
           customFieldBadges: customFieldBadgesForNode(
             source: source,
-            node: LibraryTitleNodeRef(titleItemId: source.catalogItem!.id),
+            node: LibraryTitleNodeRef(
+              titleItemId: source.catalogRef?.id ?? source.itemId,
+            ),
             customFieldDefinitions: customFieldDefinitions,
             customFieldValuesByDefinitionByItem:
                 customFieldValuesByDefinitionByItem,
@@ -126,7 +131,7 @@ List<LibraryProjectionItem<LibraryWorkspaceDto>> libraryItemsForShelf(
 }
 
 List<String> customFieldBadgesForNode({
-  required ShelfEntry source,
+  required LibraryWorkspaceSource source,
   required LibraryNodeRef node,
   required List<CustomFieldDefinition> customFieldDefinitions,
   required Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,

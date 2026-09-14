@@ -5,7 +5,7 @@ class LibraryProjectionService {
 
   LibraryProjection build({
     required ShelfState shelf,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
     LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.media,
     String? releaseFolderTitleItemId,
@@ -25,13 +25,13 @@ class LibraryProjectionService {
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<String> activeLoanOwnedItemIds = const {},
+    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
-    final runtime = type;
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
     final projectionQuery = LibraryProjectionQuery(
       searchQuery: query,
-      groupId: runtime.fields.decodeGroupId(groupMode),
+      groupId: fields.decodeGroupId(groupMode),
       selectedBucket: selectedBucket,
       selectedItemId: selectedItemId,
       quickView: quickView,

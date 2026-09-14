@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_history_snapshot.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:flutter/foundation.dart';
@@ -74,7 +75,7 @@ class ExternalStateEngine {
     final diffs = <FieldDiff<dynamic>>[];
 
     // Status
-    if (policy.status != SyncDirection.disabled) {
+    if (policy.allowsPull(SyncField.status)) {
       diffs.add(_computeDiff<ProviderEntryStatus>(
         field: SyncField.status,
         base: base?.status,
@@ -85,7 +86,7 @@ class ExternalStateEngine {
     }
 
     // Rating
-    if (policy.rating != SyncDirection.disabled) {
+    if (policy.allowsPull(SyncField.rating)) {
       diffs.add(_computeDiff<double>(
         field: SyncField.rating,
         base: base?.rating,
@@ -96,12 +97,24 @@ class ExternalStateEngine {
     }
 
     // Progress
-    if (policy.progress != SyncDirection.disabled) {
+    if (policy.allowsPull(SyncField.progress)) {
       diffs.add(_computeDiff<int>(
         field: SyncField.progress,
         base: base?.progress,
         local: local?.progress,
         remote: remote.progress,
+        mode: mode,
+      ));
+    }
+
+    // History is one logical sync field even though it is represented by
+    // several timestamps/counters on ProviderPersonalEntry.
+    if (policy.allowsPull(SyncField.history)) {
+      diffs.add(_computeDiff<ProviderHistorySnapshot>(
+        field: SyncField.history,
+        base: _historyOf(base),
+        local: _historyOf(local),
+        remote: _historyOf(remote),
         mode: mode,
       ));
     }
@@ -112,6 +125,16 @@ class ExternalStateEngine {
       link: link,
       diffs: diffs,
       mode: mode,
+    );
+  }
+
+  ProviderHistorySnapshot? _historyOf(ProviderPersonalEntry? entry) {
+    if (entry == null) return null;
+    return ProviderHistorySnapshot(
+      startedAt: entry.startedAt,
+      completedAt: entry.completedAt,
+      repeatCount: entry.repeatCount,
+      notes: entry.notes,
     );
   }
 

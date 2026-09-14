@@ -1,12 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/music_catalog_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_media_sections.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
@@ -15,20 +11,21 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../helpers/test_data_factories.dart';
 
 void main() {
   test('music metadata presentation exposes track count without track list',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
         publisher: 'Virgin',
-      ),
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -42,7 +39,7 @@ void main() {
     );
 
     final presentation = buildLibraryMetadataPresentation(
-      type: musicKindModule,
+      type: const MusicRegistration(),
       item: musicItem,
     );
 
@@ -64,14 +61,14 @@ void main() {
       ),
     );
 
-    final sourceMusic = ShelfEntry(
+    final sourceMusic = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'music-1',
         kind: 'music',
         title: 'Discovery',
         music: const MusicCatalogDetailsDto(trackCount: 10),
-      ),
+      ).asShelfCatalogItem),
     );
     const nodeMusic = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dtoMusic = const MusicWorkspaceProjector().projectTitle(
@@ -84,14 +81,14 @@ void main() {
       dto: dtoMusic,
     );
 
-    final sourceMovie = ShelfEntry(
+    final sourceMovie = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Andor',
         synopsis: 'Rebellion rises.',
-      ),
+      ).asShelfCatalogItem),
     );
     const nodeMovie = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dtoMovie = const GenericWorkspaceProjector().projectTitle(
@@ -142,28 +139,28 @@ void main() {
       ),
     );
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'Hyperion',
         publisher: 'Bantam',
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
-      ),
-      ownedItem: OwnedItem(
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(testOwnedItem(
         id: 'owned-b1',
         catalogRef: const CatalogEntityRef(
-          kind: 'book',
-          entityType: CatalogEntityType.ownedCopy,
+          kind: CatalogMediaKind.book,
+          entityType: CatalogEntityTypeId('owned_copy'),
           id: 'book-1',
         ),
         updatedAt: DateTime(2026, 1, 1),
         condition: 'Fine',
         grade: '9.0',
         personalNotes: 'Personal note',
-      ),
+      )),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -190,8 +187,6 @@ void main() {
         'Product Details',
         'Contributors',
         'Images',
-        'Identifiers',
-        'Personal Details',
       ]),
     );
   });

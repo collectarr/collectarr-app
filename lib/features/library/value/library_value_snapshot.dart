@@ -1,8 +1,5 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 class LibraryValueHistoryEntry {
   const LibraryValueHistoryEntry({
@@ -31,35 +28,35 @@ class LibraryValueSnapshot {
   });
 
   factory LibraryValueSnapshot.fromItem(
-    LibraryProjectionRuntime item, {
-    OwnedItem? ownedItem,
+    LibraryProjectionView item, {
+    int? purchasePriceCents,
+    int? soldPriceCents,
+    int? manualEstimatedValueCents,
+    String? ownedCurrency,
     String? providerName,
     DateTime? providerUpdatedAt,
     int? providerValueCents,
   }) {
-    final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final currency = ownedItem?.currency?.trim().isNotEmpty == true
-        ? ownedItem!.currency!.trim()
-        : adapter?.currency?.trim().isNotEmpty == true
-            ? adapter!.currency!.trim()
+    final currency = ownedCurrency?.trim().isNotEmpty == true
+        ? ownedCurrency!.trim()
+        : item.source.currency?.trim().isNotEmpty == true
+            ? item.source.currency!.trim()
             : null;
     final providerVal = providerValueCents ??
         defaultLibraryKindRegistry
             .tryGet(
-              item.source.catalogItem?.mediaKind ?? CatalogMediaKind.unknown,
+              item.source.mediaKind,
             )
             ?.value
             ?.resolveProviderValueCents(item);
-    final manualValue = ownedItem?.marketValueCents;
+    final manualValue = manualEstimatedValueCents;
     final currentValue = providerVal ?? manualValue;
     return LibraryValueSnapshot(
-      purchasePriceCents: ownedItem?.pricePaidCents,
-      soldPriceCents: ownedItem?.sellPriceCents,
+      purchasePriceCents: purchasePriceCents,
+      soldPriceCents: soldPriceCents,
       manualEstimatedValueCents: manualValue,
       providerValueCents: providerVal,
-      insuranceValueCents:
-          currentValue ?? manualValue ?? ownedItem?.pricePaidCents,
+      insuranceValueCents: currentValue ?? manualValue ?? purchasePriceCents,
       currency: currency,
       providerName: providerName,
       providerUpdatedAt: providerUpdatedAt,

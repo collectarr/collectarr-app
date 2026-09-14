@@ -1,8 +1,9 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'dart:math' as math;
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
@@ -11,8 +12,8 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/workspace.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -159,7 +160,7 @@ class LibraryBody extends StatelessWidget {
     this.onFolderTreeNodeExpandedToggled,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryProjection projection;
   final LibraryWorkspaceViewState viewState;
   final String? selectedId;
@@ -217,7 +218,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onRemoveOwned;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
   final ValueChanged<LibraryProjectionItem> onRemoveWishlist;
-  final void Function(LibraryProjectionItem item, OwnedItem? ownedItem)
+  final void Function(LibraryProjectionItem item, OwnedItemSummary? ownedItem)
       onEditItem;
   final Widget? workspaceOverride;
   final LibraryItemContextMenuCallback? onItemContextMenu;
@@ -262,13 +263,13 @@ class LibraryBody extends StatelessWidget {
           selectedBucketLabel: resolvedSelectedBucket,
           ancestorScopeDepth: sidebarAncestorScopeLabels.length,
         );
-        final runtime = type;
+        final kindModule = type;
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(
           preferredLayout: viewState.detailsLayout,
           compact: compact,
           hasSelection: selected != null,
           hideWhenSelectionEmpty:
-              runtime.viewProfile.hideDetailsWhenSelectionEmpty,
+              kindModule.viewProfile.hideDetailsWhenSelectionEmpty,
         );
         final requestedDetailsWidth = clampLibraryPaneWidth(
           viewState.detailsWidth,
@@ -310,8 +311,8 @@ class LibraryBody extends StatelessWidget {
             LibraryCtrlScrollZoom(
               viewMode: viewState.viewMode,
               coverSize: viewState.coverSize,
-              minCoverSize: runtime.viewProfile.minCoverSize,
-              maxCoverSize: runtime.viewProfile.maxCoverSize,
+              minCoverSize: kindModule.viewProfile.minCoverSize,
+              maxCoverSize: kindModule.viewProfile.maxCoverSize,
               onCoverSizeChanged: onCoverSizeChanged,
               child: LibraryWorkspace(
                 type: type,
@@ -333,7 +334,7 @@ class LibraryBody extends StatelessWidget {
                 onActivateItem: onActivateItem,
                 onToggleSelectionItem: onToggleSelectionItem,
                 onOpenItem: onOpenItem,
-                onEditItem: (item) => onEditItem(item, item.source.ownedItem),
+                onEditItem: (item) => onEditItem(item, null),
                 onBoxSelectionChanged: onBoxSelectionChanged,
                 collapsedGroupBuckets: collapsedGroupBuckets,
                 onGroupBucketCollapsedToggled:
@@ -359,13 +360,14 @@ class LibraryBody extends StatelessWidget {
         final details = LibraryInspector(
           type: type,
           item: selected,
-          ownedItem: selected?.source.ownedItem,
+          ownedItem: null,
+          ownedItemDispatch: selected?.source.ownedItemDispatch,
           detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,
           accent: accent,
           contextLabel: inspectorContextLabel,
           onAddOwned: selected == null ? null : () => onAddOwned(selected),
-          onRemoveOwned: selected?.source.ownedItem == null
+          onRemoveOwned: selected?.source.isOwned != true
               ? null
               : () => onRemoveOwned(selected!),
           onAddWishlist:
@@ -373,9 +375,7 @@ class LibraryBody extends StatelessWidget {
           onRemoveWishlist: selected?.source.isWishlisted != true
               ? null
               : () => onRemoveWishlist(selected!),
-          onEdit: selected == null
-              ? null
-              : (ownedItem) => onEditItem(selected, ownedItem),
+          onEdit: selected == null ? null : (_) => onEditItem(selected, null),
           onDetailsLayoutChanged: onDetailsLayoutChanged,
           onFilterByValue: onFilterByValue,
           searchQuery: searchQuery,

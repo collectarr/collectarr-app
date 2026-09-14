@@ -23,7 +23,7 @@ class LibraryGroupBucket {
   /// Human-readable label shown in section headers.
   final String label;
 
-  final List<LibraryProjectionRuntime> entries;
+  final List<LibraryProjectionView> entries;
 
   int get count => entries.length;
   bool get isEmpty => entries.isEmpty;
@@ -41,9 +41,9 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     .family<List<LibraryGroupBucket>, LibraryWorkspaceKey>((ref, key) {
   final controller = StreamController<List<LibraryGroupBucket>>();
 
-  void emit(List<LibraryProjectionRuntime> items) {
+  void emit(List<LibraryProjectionView> items) {
     final filters = ref.read(libraryFiltersProvider(key));
-    final module = libraryKindRuntimeForKind(key.kind);
+    final workspace = libraryKindWorkspaceForKind(key.kind);
     final groupId = filters.groupId;
 
     if (groupId == null) {
@@ -53,7 +53,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
       return;
     }
 
-    final groupDef = module.fields.findGroupDefinition(
+    final groupDef = workspace.fields.findGroupDefinition(
       groupId,
     );
     if (groupDef == null) {
@@ -64,9 +64,9 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     }
 
     // Group items by the bucket key returned by the group definition.
-    final bucketMap = <String, List<LibraryProjectionRuntime>>{};
+    final bucketMap = <String, List<LibraryProjectionView>>{};
     for (final item in items) {
-      final raw = module.groupValue(item, groupDef.id);
+      final raw = workspace.groupValue(item, groupDef.id);
       final bucketKey = _bucketKeyFor(raw);
       bucketMap.putIfAbsent(bucketKey, () => []).add(item);
     }
@@ -89,8 +89,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
   }
 
   // Emit when the display list changes.
-  final listenerEntries =
-      ref.listen<AsyncValue<List<LibraryProjectionRuntime>>>(
+  final listenerEntries = ref.listen<AsyncValue<List<LibraryProjectionView>>>(
     libraryDisplayListProvider(key),
     (_, next) {
       next.whenData(emit);

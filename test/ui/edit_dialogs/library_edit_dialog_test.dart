@@ -1,24 +1,23 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -30,106 +29,11 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   setUpAll(() {
-    collectarrKindModules;
+    collectarrKindRegistrationsList;
   });
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-  });
-
-  testWidgets(
-      'media scope hides release and personal tabs on default edit builder',
-      (tester) async {
-    tester.view.physicalSize = const Size(1100, 860);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    final type = LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
-      projector: const GenericWorkspaceProjector(),
-      ownedDetailsCodec: const GenericOwnedDetailsCodec(),
-      fields: genericKindModule.fields,
-      identity: const LibraryKindIdentity(
-        kind: CatalogMediaKind.unknown,
-        singularLabel: 'Item',
-        pluralLabel: 'Items',
-        title: 'Generic',
-        icon: Icons.category_outlined,
-        accent: Colors.red,
-        preferencePrefix: 'generic-test',
-      ),
-      metadata: genericKindModule.metadata,
-      hierarchy: const LibraryHierarchyCapability(
-        supportsMediaReleaseSplit: true,
-      ),
-      inspector: genericKindModule.inspector,
-      transfer: genericKindModule.transfer,
-      presentation: genericLibraryMediaPresentation,
-      trackingProfile: readingTrackingProfile,
-      add: genericKindModule.add,
-      edit: genericKindModule.edit,
-    );
-
-    final item = LibraryMetadataItem.fromCatalogItem(
-      testCatalogItem(
-        id: 'movie-default-1',
-        kind: 'movie',
-        title: 'Blade Runner',
-        releaseDate: DateTime.utc(1982, 6, 25),
-      ),
-    );
-    final ownedItem = testOwnedItem(
-      id: 'owned-default-1',
-      itemId: 'movie-default-1',
-      condition: 'Good',
-      pricePaidCents: 1999,
-      currency: 'USD',
-      quantity: 1,
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-          home: Builder(
-            builder: (context) => Scaffold(
-              body: FilledButton(
-                onPressed: () {
-                  showDialog<void>(
-                    context: context,
-                    builder: (context) => LibraryEditRenderer(
-                      type: type,
-                      item: item,
-                      ownedItem: ownedItem,
-                      accent: Colors.red,
-                      scope: LibraryEditScope.media,
-                    ),
-                  );
-                },
-                child: const Text('Open media scope'),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open media scope'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Main'), findsOneWidget);
-    expect(find.text('Cover'), findsOneWidget);
-    expect(find.text('Synopsis'), findsOneWidget);
-    expect(find.text('Value'), findsNothing);
-    expect(find.text('Personal'), findsNothing);
-    expect(find.text('Sold'), findsNothing);
-    expect(find.text('Tracking'), findsNothing);
-    expect(find.text('Condition'), findsNothing);
-    expect(find.text('Purchase date'), findsNothing);
-    expect(find.text('Display title'), findsOneWidget);
   });
 
   testWidgets(
@@ -157,8 +61,8 @@ void main() {
           ),
         );
 
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-1',
       kind: 'movie',
       title: 'Blade Runner',
@@ -168,18 +72,18 @@ void main() {
       variant: 'DVD',
       barcode: '883929087129',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(id: 'variant-dvd', name: 'DVD', isPrimary: true),
+            CatalogVariantDto(id: 'variant-dvd', name: 'DVD', isPrimary: true),
           ],
         ),
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-steelbook',
           title: 'Steelbook',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
                 id: 'variant-4k', name: '4K Variant', isPrimary: true),
           ],
         ),
@@ -188,6 +92,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-1',
       itemId: 'movie-1',
+      kind: 'movie',
       editionId: 'edition-standard',
       variantId: 'variant-dvd',
       condition: 'Good',
@@ -197,12 +102,10 @@ void main() {
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 15),
     );
-    final trackingEntry = TrackingEntry(
+    final trackingRecord = MovieTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-      ownedItemId: 'owned-1',
-      editionId: 'edition-steelbook',
-      variantId: 'variant-4k',
+      ownedRef: OwnedItemRef.fromKey('movie:owned-1'),
       sourceType: 'physical',
       status: 'In progress',
       rating: 9,
@@ -223,11 +126,14 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
-                      trackingEntry: trackingEntry,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      trackingSummary:
+                          trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -282,8 +188,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     // Verify the dialog returned the edited values
-    expect(selection?.item.title, 'Blade Runner: Final Cut');
-    expect(selection?.item.payload['barcode'], '883929087129');
+    expect(selection!.kindItem.title, 'Blade Runner: Final Cut');
+    expect(
+        selection!.kindItem
+            .mapTransport((transport) => transport)
+            .payload['barcode'],
+        '883929087129');
     expect(selection?.personal?.locationId, 'loc-b');
     expect(selection?.personal?.locationChanged, isTrue);
     expect(selection?.personal?.pricePaidCents, 999);
@@ -303,25 +213,25 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-edition-1',
       kind: 'movie',
       title: 'Blade Runner',
       variant: 'DVD',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(id: 'variant-dvd', name: 'DVD', isPrimary: true),
+            CatalogVariantDto(id: 'variant-dvd', name: 'DVD', isPrimary: true),
           ],
         ),
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-steelbook',
           title: 'Steelbook',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
                 id: 'variant-4k', name: '4K Variant', isPrimary: true),
           ],
         ),
@@ -347,10 +257,12 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -390,9 +302,15 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchorType, 'edition');
-    expect(selection?.personal?.editionId, 'edition-steelbook');
-    expect(selection?.personal?.variantId, isNull);
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      'edition',
+    );
+    expect(selection?.personal?.targetRef?.id, 'edition-steelbook');
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      isNot('release'),
+    );
   }, skip: true);
 
   testWidgets('movie edit dialog hides book-style publishing fields', (
@@ -405,8 +323,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-publishing-1',
         kind: 'movie',
@@ -432,10 +350,11 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -472,8 +391,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-readonly-1',
         kind: 'movie',
@@ -497,10 +416,11 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -574,8 +494,8 @@ void main() {
           ),
         );
 
-    final type = comicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -636,8 +556,10 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.deepOrange,
                     ),
                   );
@@ -747,9 +669,13 @@ void main() {
     await tester.ensureVisible(find.text('Value', skipOffstage: false).last);
     await tester.tap(find.text('Value', skipOffstage: false).last);
     await pumpUntilSettled(tester);
-    expect(find.text('Cover price'), findsOneWidget);
     expect(find.text('Price paid'), findsOneWidget);
     expect(find.text('My value'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Owned', skipOffstage: false).first);
+    await tester.tap(find.text('Owned', skipOffstage: false).first);
+    await pumpUntilSettled(tester);
+    expect(find.text('Cover price'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Personal', skipOffstage: false).last);
     await tester.tap(find.text('Personal', skipOffstage: false).last);
@@ -780,7 +706,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = selection?.item.payload;
+    final payload =
+        selection?.kindItem.mapTransport((transport) => transport).payload;
     expect(payload?['edition_title'], 'Deluxe Edition');
     expect(selection?.item.titleExtension, isNull);
     final seriesMap = payload?['series'] as Map?;
@@ -805,8 +732,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-1',
         kind: 'book',
@@ -835,7 +762,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.orange,
                     ),
@@ -864,7 +791,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.item.title, 'The Fellowship of the Ring');
+    expect(selection!.item.title, 'The Fellowship of the Ring');
   });
 
   testWidgets(
@@ -877,8 +804,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-preserve-1',
         kind: 'book',
@@ -905,7 +832,7 @@ void main() {
           {'name': 'Random Contributor', 'role': 'Consultant'},
         ],
         trailerUrls: const [
-          TrailerLink(
+          TrailerLinkDto(
             url: 'https://www.goodreads.com/book/show/29579.Foundation',
             title: 'Goodreads',
             description: 'Goodreads',
@@ -919,6 +846,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-book-preserve-1',
       itemId: 'book-preserve-1',
+      kind: 'book',
       quantity: 1,
       signedBy: 'Isaac Asimov',
       ownerLabel: 'Andrei',
@@ -927,7 +855,7 @@ void main() {
       collectionStatus: 'for_sale',
       updatedAt: DateTime.utc(2026, 6, 1),
     );
-    final trackingEntry = TrackingEntry(
+    final trackingRecord = BookTrackingState(
       id: 'tracking-book-preserve-1',
       catalogRef: testCatalogRef('book-preserve-1', kind: 'book'),
       sourceType: 'physical',
@@ -951,9 +879,11 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
-                      trackingEntry: trackingEntry,
+                      item: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
+                      trackingSummary:
+                          trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.orange,
                     ),
                   );
@@ -972,13 +902,16 @@ void main() {
     await tester.tap(find.text('Save').last);
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.signedBy, 'Isaac Asimov');
+    final bookPayload =
+        selection?.ownedUpdatePayload as BookOwnedItemUpdatePayload?;
+    expect(bookPayload?.details.valueOrNull()?.signedBy, 'Isaac Asimov');
     expect(selection?.personal?.ownerLabel, 'Andrei');
     expect(selection?.personal?.purchaseStore, 'Vintage Store');
     expect(selection?.personal?.collectionStatus, 'for_sale');
     expect(selection?.personal?.marketValueCents, 2599);
 
-    final savedItem = selection?.item;
+    final savedItem =
+        selection?.kindItem.mapTransport((transport) => transport);
     final payload = savedItem?.payload;
     final pubMap = payload?['publishing'] as Map?;
     expect(pubMap?['publication_place'], 'New York');
@@ -1023,8 +956,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'book-links-1',
         kind: 'book',
@@ -1045,7 +978,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.orange,
                     ),
@@ -1081,7 +1014,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final savedItem = selection!.item;
+    final savedItem =
+        selection!.kindItem.mapTransport((transport) => transport);
     expect(savedItem.trailerUrls, hasLength(1));
     expect(savedItem.trailerUrls.first.kind, 'external');
     expect(savedItem.trailerUrls.first.url,
@@ -1099,18 +1033,18 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-tracked-1',
       kind: 'movie',
       title: 'Dune',
       variant: 'Blu-ray',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-digital',
           title: 'Digital',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
               id: 'variant-stream',
               name: 'Streaming',
               isPrimary: true,
@@ -1119,11 +1053,9 @@ void main() {
         ),
       ],
     ));
-    final trackingEntry = TrackingEntry(
+    final trackingRecord = MovieTrackingState(
       id: 'tracking-digital-1',
       catalogRef: testCatalogRef('movie-tracked-1', kind: 'movie'),
-      editionId: 'edition-digital',
-      variantId: 'variant-stream',
       sourceType: 'digital',
       status: 'Planned',
       rating: 8,
@@ -1144,11 +1076,13 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
-                      trackingEntry: trackingEntry,
+                      trackingSummary:
+                          trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.teal,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -1174,8 +1108,12 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.personal, isNull);
-    expect(selection?.tracking?.editionId, 'edition-digital');
-    expect(selection?.tracking?.variantId, 'variant-stream');
+    // A tracking record carries its own structural target. The generic edit
+    // host must not infer a release/variant target from the catalog snapshot.
+    expect(selection?.tracking?.targetRef?.entityType.apiValue, 'work');
+    expect(selection?.tracking?.targetRef?.id, 'movie-tracked-1');
+    expect(selection?.tracking?.targetRef?.rootId, isNull);
+    expect(selection?.tracking?.targetRef?.parentId, isNull);
     expect(selection?.tracking?.readStatus, 'Planned');
     expect(selection?.tracking?.rating, 8);
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 1));
@@ -1190,17 +1128,17 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-bundle-1',
       kind: 'movie',
       title: 'Alien Anthology',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(
+            CatalogVariantDto(
                 id: 'variant-bluray', name: 'Blu-ray', isPrimary: true)
           ],
         ),
@@ -1226,22 +1164,20 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.blue,
-                      availableBundleReleases: const [
-                        BundleReleaseSummary(
-                          id: 'bundle-1',
-                          kind: 'movie',
-                          title: 'Alien Anthology Box Set',
-                          publisher: 'Fox',
-                          coverImageUrl: null,
-                          thumbnailImageUrl: null,
-                          contentSummary: BundleReleaseContentSummary(
-                            totalItems: 4,
-                            primaryCount: 4,
-                            bonusCount: 0,
+                      wishlistTargetOptions: [
+                        CatalogTargetOption(
+                          ref: CatalogEntityRef(
+                            kind: CatalogMediaKind.movie,
+                            entityType: CatalogEntityTypeId('bundle_release'),
+                            id: 'bundle-1',
+                            rootId: 'movie-bundle-1',
                           ),
+                          label: 'Bundle release',
                         ),
                       ],
                     ),
@@ -1271,10 +1207,12 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchorType, 'bundle_release');
-    expect(selection?.personal?.bundleReleaseId, 'bundle-1');
-    expect(selection?.tracking?.editionId, isNull);
-    expect(selection?.tracking?.variantId, isNull);
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      'bundle_release',
+    );
+    expect(selection?.personal?.targetRef?.id, 'bundle-1');
+    expect(selection?.tracking?.targetRef, isNull);
   }, skip: true);
 
   testWidgets(
@@ -1287,8 +1225,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-bundle-existing-1',
         kind: 'movie',
@@ -1298,7 +1236,12 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-bundle-existing-1',
       itemId: 'movie-bundle-existing-1',
-      anchorType: 'bundle_release',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId('bundle_release'),
+        id: 'bundle-existing-1',
+        rootId: 'movie-bundle-existing-1',
+      ),
       bundleReleaseId: 'bundle-existing-1',
       updatedAt: DateTime.utc(2026, 5, 31),
     );
@@ -1316,8 +1259,10 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.orange,
                     ),
                   );
@@ -1344,8 +1289,11 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.personal?.anchorType, 'bundle_release');
-    expect(selection?.personal?.bundleReleaseId, 'bundle-existing-1');
+    expect(
+      selection?.personal?.targetRef?.entityType.apiValue,
+      'bundle_release',
+    );
+    expect(selection?.personal?.targetRef?.id, 'bundle-existing-1');
   }, skip: true);
 
   testWidgets(
@@ -1366,8 +1314,8 @@ void main() {
           ),
         );
 
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'movie-digital-1',
         kind: 'movie',
@@ -1379,6 +1327,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-digital-1',
       itemId: 'movie-digital-1',
+      kind: 'movie',
       condition: 'Mint',
       grade: '10',
       locationId: 'loc-digital',
@@ -1398,10 +1347,12 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.teal,
-                      physicalFormats: videoPhysicalMediaFormats,
+                      physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
@@ -1434,7 +1385,6 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection?.personal?.condition, isNull);
-    expect(selection?.personal?.grade, isNull);
     expect(selection?.personal?.locationId, isNull);
     expect(selection?.personal?.locationChanged, isFalse);
   });
@@ -1448,17 +1398,17 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = movieKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(testCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.movie);
+    final item = testCatalogItemWithKindMetadata(testCatalogItem(
       id: 'movie-wishlist-1',
       kind: 'movie',
       title: 'Akira',
       editions: const [
-        CatalogEdition(
+        CatalogEditionDto(
           id: 'edition-standard',
           title: 'Standard',
           variants: [
-            CatalogVariant(id: 'variant-4k', name: '4K', isPrimary: true)
+            CatalogVariantDto(id: 'variant-4k', name: '4K', isPrimary: true)
           ],
         ),
       ],
@@ -1483,23 +1433,28 @@ void main() {
                     context: context,
                     builder: (context) => LibraryEditRenderer(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item).editMetadata,
+                      kindItem: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       wishlistItem: wishlistItem,
                       accent: Colors.purple,
-                      availableBundleReleases: const [
-                        BundleReleaseSummary(
-                          id: 'bundle-akira',
-                          kind: 'movie',
-                          title: 'Akira Collector Box',
-                          publisher: 'GKIDS',
-                          coverImageUrl: null,
-                          thumbnailImageUrl: null,
-                          contentSummary: BundleReleaseContentSummary(
-                            totalItems: 3,
-                            primaryCount: 1,
-                            bonusCount: 2,
+                      wishlistTargetOptions: [
+                        CatalogTargetOption(
+                          ref: CatalogEntityRef(
+                            kind: CatalogMediaKind.movie,
+                            entityType: CatalogEntityTypeId('work'),
+                            id: 'movie-wishlist-1',
                           ),
+                          label: 'Item / Work',
+                        ),
+                        CatalogTargetOption(
+                          ref: CatalogEntityRef(
+                            kind: CatalogMediaKind.movie,
+                            entityType: CatalogEntityTypeId('bundle_release'),
+                            id: 'bundle-akira',
+                            rootId: 'movie-wishlist-1',
+                          ),
+                          label: 'Bundle release',
                         ),
                       ],
                     ),
@@ -1521,7 +1476,7 @@ void main() {
     await tester.tap(personalTab);
     await pumpUntilSettled(tester);
     await tester
-        .tap(find.byKey(const Key('library-edit-wishlist-anchor-field')));
+        .tap(find.byKey(const Key('library-edit-wishlist-target-field')));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Bundle release').last);
     await pumpUntilSettled(tester);
@@ -1539,8 +1494,12 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.wishlist?.anchorType, 'bundle_release');
-    expect(selection?.wishlist?.bundleReleaseId, 'bundle-akira');
+    expect(
+      selection?.wishlist?.catalogRef.entityType,
+      const CatalogEntityTypeId('bundle_release'),
+    );
+    expect(selection?.wishlist?.catalogRef.id, 'bundle-akira');
+    expect(selection?.wishlist?.catalogRef.rootId, 'movie-wishlist-1');
     expect(selection?.wishlist?.targetPriceCents, 5499);
     expect(selection?.wishlist?.currency, 'USD');
     expect(selection?.wishlist?.notes, 'Need the collector box.');
@@ -1562,8 +1521,8 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    final type = musicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-1',
         kind: 'music',
@@ -1601,6 +1560,7 @@ void main() {
     final ownedItem = testOwnedItem(
       id: 'owned-music-1',
       itemId: 'music-1',
+      kind: 'music',
       quantity: 1,
       updatedAt: DateTime.utc(2026, 5, 23),
       locationId: 'loc-music',
@@ -1619,8 +1579,9 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
-                      ownedItem: ownedItem,
+                      item: CatalogSearchCandidate.fromItem(item),
+                      ownedItem: testOwnedSummary(ownedItem),
+                      ownedItemDispatch: testOwnedItemDispatchFrom(ownedItem),
                       accent: Colors.cyan,
                       physicalFormats: musicPhysicalMediaFormats,
                     ),
@@ -1664,7 +1625,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final payload = selection?.item.payload;
+    final payload =
+        selection?.kindItem.mapTransport((transport) => transport).payload;
     final seriesMap = payload?['series'] as Map?;
     final musicMap = payload?['music'] as Map?;
     expect(seriesMap?['series_title'], 'cAd');
@@ -1686,8 +1648,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = gameKindModule;
-    final item = LibraryMetadataItem.fromMetadataMap(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.game);
+    final item = testCatalogItemFromJson(
       {
         'id': 'game-1',
         'kind': 'game',
@@ -1718,7 +1680,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                     ),
@@ -1747,7 +1709,8 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    final itemPayload = selection?.item.payload;
+    final itemPayload =
+        selection?.kindItem.mapTransport((transport) => transport).payload;
     final gameMap = itemPayload?['game'] as Map?;
     expect(
         gameMap?['platforms'] ?? itemPayload?['platforms'], ['PlayStation 5']);
@@ -1762,8 +1725,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = gameKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.game);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'game-1',
         kind: 'game',
@@ -1789,7 +1752,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.red,
                       scope: LibraryEditScope.all,
@@ -1829,8 +1792,8 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = boardGameKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.boardgame);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'bg-1',
         kind: 'boardgame',
@@ -1853,7 +1816,7 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: item,
+                      item: CatalogSearchCandidate.fromItem(item),
                       ownedItem: null,
                       accent: Colors.brown,
                       scope: LibraryEditScope.all,
@@ -1892,7 +1855,7 @@ void main() {
 
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = comicKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -1908,11 +1871,13 @@ void main() {
                     context: context,
                     request: LibraryEditDialogRequest(
                       type: type,
-                      item: LibraryMetadataItem.fromCatalogItem(
-                        testCatalogItem(
-                          id: 'comic-1',
-                          kind: 'comic',
-                          title: 'Batman: Year One',
+                      item: CatalogSearchCandidate.fromItem(
+                        testCatalogItemWithKindMetadata(
+                          testCatalogItem(
+                            id: 'comic-1',
+                            kind: 'comic',
+                            title: 'Batman: Year One',
+                          ),
                         ),
                       ),
                       ownedItem: null,

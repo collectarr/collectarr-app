@@ -1,22 +1,23 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account_context.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_descriptor.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_image_ref.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
-import 'package:collectarr_app/features/providers/domain/models/provider_search_result.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
+import 'package:collectarr_app/features/providers/transport/provider_search_result.dart';
 
 abstract interface class MetadataCapability {
   Future<List<ProviderSearchResult>> search(
     String query, {
-    covariant Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   });
 
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    covariant Object? kind,
+    CatalogMediaKind? kind,
   });
 }
 
@@ -44,8 +45,14 @@ abstract interface class PersonalListWriteCapability {
   });
 }
 
-abstract interface class FileImportCapability {
-  Future<List<ProviderPersonalEntry>> parseFile(
+/// Reads provider-owned personal-list exports into the provider-neutral
+/// [ProviderPersonalEntry] projection.
+///
+/// This contract deliberately does not cover catalog metadata imports. Those
+/// imports are owned by the relevant kind integration and are not exposed as
+/// a provider-wide connector capability.
+abstract interface class PersonalListFileImportCapability {
+  Future<List<ProviderPersonalEntry>> parsePersonalListFile(
     String content, {
     String? filename,
   });
@@ -58,8 +65,6 @@ abstract interface class IdentityCapability {
   });
 }
 
-typedef ExternalIdResolverCapability = IdentityCapability;
-
 abstract interface class ImageCapability {
   Future<List<ProviderImageRef>> fetchImages(
     String remoteItemId, {
@@ -68,7 +73,7 @@ abstract interface class ImageCapability {
 }
 
 abstract interface class BarcodeCapability {
-  Future<NormalizedProviderEnvelopeV1?> lookupByBarcode(
+  Future<ProviderMetadataEnvelope?> lookupByBarcode(
     String barcode, {
     CatalogMediaKind? kind,
   });
@@ -81,7 +86,7 @@ final class ProviderConnector implements MetadataCapability {
     this.metadata,
     this.personalRead,
     this.personalWrite,
-    this.fileImport,
+    this.personalListFileImport,
     this.identity,
     this.images,
     this.barcode,
@@ -92,7 +97,7 @@ final class ProviderConnector implements MetadataCapability {
   final MetadataCapability? metadata;
   final PersonalListReadCapability? personalRead;
   final PersonalListWriteCapability? personalWrite;
-  final FileImportCapability? fileImport;
+  final PersonalListFileImportCapability? personalListFileImport;
   final IdentityCapability? identity;
   final ImageCapability? images;
   final BarcodeCapability? barcode;
@@ -105,41 +110,59 @@ final class ProviderConnector implements MetadataCapability {
   bool get supportsMetadata => metadata != null;
   bool get supportsPersonalRead => personalRead != null;
   bool get supportsPersonalWrite => personalWrite != null;
-  bool get supportsFileImport => fileImport != null;
+  bool get supportsPersonalListFileImport => personalListFileImport != null;
   bool get supportsIdentity => identity != null;
   bool get supportsImages => images != null;
   bool get supportsBarcode => barcode != null;
   bool get supportsBidirectionalSync =>
       personalRead != null && personalWrite != null;
 
-  bool get canImport => supportsFileImport;
+  Future<List<ProviderSearchHit>> searchHits(
+    String query, {
+    CatalogMediaKind? kind,
+    int limit = 25,
+  }) async {
+    final results = await search(query, kind: kind, limit: limit);
+    return [
+      for (final result in results)
+        if (result.providerItemId.trim().isNotEmpty)
+          ProviderSearchHit(
+            providerId: id,
+            kind: result.kind,
+            remoteId: result.providerItemId,
+            title: result.title,
+            subtitle: result.summary,
+            imageUrl: result.imageUrl,
+          ),
+    ];
+  }
+
+  bool get canImportPersonalList => supportsPersonalListFileImport;
   bool get canPull => supportsPersonalRead;
   bool get canPush => supportsPersonalWrite;
 
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) {
     final meta = metadata;
     if (meta == null) {
       return Future.value(const []);
     }
-    final effectiveKind = kind is CatalogMediaKind ? kind.apiValue : kind;
-    return meta.search(query, kind: effectiveKind, limit: limit);
+    return meta.search(query, kind: kind, limit: limit);
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    Object? kind,
+    CatalogMediaKind? kind,
   }) {
     final meta = metadata;
     if (meta == null) {
       throw StateError('Provider $id does not support metadata capability');
     }
-    final effectiveKind = kind is CatalogMediaKind ? kind.apiValue : kind;
-    return meta.fetchItem(providerItemId, kind: effectiveKind);
+    return meta.fetchItem(providerItemId, kind: kind);
   }
 }

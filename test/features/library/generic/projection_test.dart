@@ -23,10 +23,11 @@ void main() {
   });
 
   test('music grouping fallbacks use unknown artist and label buckets', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'music-1',
-      catalogItem:
-          testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1'),
+      catalogData: testWorkspaceCatalogData(
+          testCatalogItem(id: 'music-1', kind: 'music', title: 'Album 1')
+              .asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'music-1');
     final dto = const MusicWorkspaceProjector().projectTitle(
@@ -43,15 +44,16 @@ void main() {
   });
 
   test('comic series group definition extracts series title', () {
-    final source1 = ShelfEntry(
+    final source1 = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga #1',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
-      ),
-      ownedItem: testOwnedItem(id: 'o1', itemId: 'comic-1'),
+      ).asShelfCatalogItem),
+      ownedSummary:
+          testOwnedSummary(testOwnedItem(id: 'o1', itemId: 'comic-1')),
     );
     const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final dto1 = const ComicWorkspaceProjector().projectTitle(
@@ -59,8 +61,8 @@ void main() {
       node: node1,
     );
 
-    final groupDef = comicKindModule.fields.findGroupDefinition(
-      comicKindModule.fields.decodeGroupId('comic.series'),
+    final groupDef = comicKindWorkspace.fields.findGroupDefinition(
+      comicKindWorkspace.fields.decodeGroupId('comic.series'),
     );
     expect(groupDef, isNotNull);
     final ctx = LibraryProjectionContext<ComicWorkspaceDto>(

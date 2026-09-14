@@ -1,10 +1,17 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_edit_dialog.dart';
@@ -15,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../helpers/test_data_factories.dart';
+import '../../../../helpers/tracking_state_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -52,34 +60,35 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-        common: const OwnedItemCommonDraft(locationId: 'loc-a'),
+        common: const LibraryAddCommonDraft(locationId: 'loc-a'),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
-    final owned = testOwnedItem(
-      id: row.id,
-      itemId: row.itemId,
-      locationId: row.locationId,
-      updatedAt: row.updatedAt,
-    );
+    final row = (await MovieOwnedRepository(db).listActive()).single;
     final actions = buildActions();
 
     await actions.editSelected(
-      entries: [ShelfEntry(itemId: 'movie-1', ownedItem: owned)],
+      entries: [
+        LibraryWorkspaceSource(
+          itemId: 'movie-1',
+          ownedSummary: MovieOwnedItemProjection.toSummary(row),
+          ownedItemDispatch: testMovieOwnedItemDispatchFrom(row),
+        ),
+      ],
       selection: const LibraryBulkEditSelection(
         applyLocation: true,
         locationId: 'loc-b',
       ),
     );
 
-    final updated = await db.select(db.ownedItemsCache).getSingle();
+    final updated = (await MovieOwnedRepository(db).listActive()).single;
     expect(updated.locationId, 'loc-b');
   });
 
@@ -101,34 +110,40 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
 
-    final row = await db.select(db.ownedItemsCache).getSingle();
-    final owned = testOwnedItem(
-      id: row.id,
-      itemId: row.itemId,
-      updatedAt: row.updatedAt,
-    );
+    final row = (await MovieOwnedRepository(db).listActive()).single;
     final actions = buildActions();
 
     await actions.moveSelectedToWishlist([
-      ShelfEntry(itemId: 'movie-1', ownedItem: owned),
+      LibraryWorkspaceSource(
+        itemId: 'movie-1',
+        ownedSummary: MovieOwnedItemProjection.toSummary(row),
+        ownedItemDispatch: testMovieOwnedItemDispatchFrom(row),
+      ),
     ]);
 
-    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final deletedOwned =
+        await MovieOwnedRepository(db).findById(MovieOwnedItemId(row.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
 
-    expect(ownedRows.single.deletedAt, isNotNull);
+    expect(deletedOwned?.deletedAt, isNotNull);
     expect(wishlistRows, hasLength(1));
-    expect(wishlistRows.single.itemId, 'movie-1');
+    expect(
+      CatalogEntityRef.fromJson(
+        jsonDecode(wishlistRows.single.catalogRefJson) as Map<String, dynamic>,
+      ).id,
+      'movie-1',
+    );
     expect(wishlistRows.single.deletedAt, isNull);
   });
 
@@ -150,80 +165,81 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
     await coordinator.addOwnedItem(
-      AddOwnedItemCommand(
+      typedAddOwnedItemCommand(
         catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-        common: const OwnedItemCommonDraft(),
+        common: const LibraryAddCommonDraft(),
         details: const MovieOwnedDetailsDraft(),
       ),
     );
-    await wishlistMutations.addToWishlist('movie-2', fallbackKind: 'movie');
-    await trackingMutations.upsertTrackingEntry(
+    await wishlistMutations.addToWishlist(
+      testCatalogRef('movie-2', kind: 'movie'),
+    );
+    await trackingMutations.upsertTrackingState(
       TrackingTarget.catalog(testCatalogRef('movie-3', kind: 'movie')),
       sourceType: TrackingSourceType.streaming,
       status: MediaTrackingStatus.completed,
     );
 
-    final ownedRow = await db.select(db.ownedItemsCache).getSingle();
+    final ownedRow = (await MovieOwnedRepository(db).listActive()).single;
     final wishlistRow = await db.select(db.wishlistItemsCache).getSingle();
-    final trackingRow = (await db.select(db.trackingEntriesCache).get())
-        .firstWhere((row) => row.itemId == 'movie-3');
+    final trackingRow = (await readTrackingStates(db))
+        .firstWhere((row) => row.catalogRef.id == 'movie-3');
     final actions = buildActions();
 
     await actions.removeSelected([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-1',
-        ownedItem: testOwnedItem(
-          id: ownedRow.id,
-          itemId: ownedRow.itemId,
-          updatedAt: ownedRow.updatedAt,
-        ),
+        ownedSummary: MovieOwnedItemProjection.toSummary(ownedRow),
+        ownedItemDispatch: testMovieOwnedItemDispatchFrom(ownedRow),
       ),
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-2',
         wishlistItem: WishlistItem(
           id: wishlistRow.id,
-          catalogRef: testCatalogRef(wishlistRow.itemId, kind: 'movie'),
+          catalogRef: CatalogEntityRef.fromJson(
+            jsonDecode(wishlistRow.catalogRefJson) as Map<String, dynamic>,
+          ),
           createdAt: wishlistRow.createdAt,
           updatedAt: wishlistRow.updatedAt,
         ),
       ),
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-3',
-        trackingEntry: TrackingEntry(
+        trackingSummary: TrackingSummary(
           id: trackingRow.id,
-          catalogRef: testCatalogRef(trackingRow.itemId, kind: 'movie'),
-          ownedItemId: trackingRow.ownedItemId,
-          editionId: trackingRow.editionId,
-          variantId: trackingRow.variantId,
-          bundleReleaseId: trackingRow.bundleReleaseId,
-          sourceType: trackingRow.sourceType,
-          status: trackingRow.status,
+          catalogRef: trackingRow.catalogRef,
+          ownedRef: trackingRow.ownedRef,
+          sourceType:
+              trackingSourceTypeFromValue(trackingRow.sourceTypeApiValue),
+          status:
+              mediaTrackingStatusFromValue(trackingRow.statusStorageValue) ??
+                  MediaTrackingStatus.none,
           rating: trackingRow.rating,
           startedAt: trackingRow.startedAt,
-          finishedAt: trackingRow.finishedAt,
-          progressCurrent: trackingRow.progressCurrent,
-          progressTotal: trackingRow.progressTotal,
-          timesCompleted: trackingRow.timesCompleted,
+          completedAt: trackingRow.finishedAt,
           notes: trackingRow.notes,
-          seasonNumber: trackingRow.seasonNumber,
-          episodeNumber: trackingRow.episodeNumber,
           updatedAt: trackingRow.updatedAt,
           deletedAt: trackingRow.deletedAt,
         ),
       ),
     ]);
 
-    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final deletedOwned = await MovieOwnedRepository(db)
+        .findById(MovieOwnedItemId(ownedRow.id.value));
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
-    final trackingRows = await db.select(db.trackingEntriesCache).get();
+    final deletedTracking =
+        await trackingRecordTestRepository(db).findStorageRecordByRef(
+      TrackingStateRef(kind: CatalogMediaKind.movie, id: trackingRow.id),
+    );
 
-    expect(ownedRows.single.deletedAt, isNotNull);
+    expect(deletedOwned?.deletedAt, isNotNull);
     expect(wishlistRows.single.deletedAt, isNotNull);
     expect(
-      trackingRows.firstWhere((r) => r.itemId == 'movie-3').deletedAt,
+      deletedTracking?.deletedAt,
       isNotNull,
     );
   });
@@ -246,41 +262,66 @@ void main() {
           ownedMutations: container.read(ownedItemMutationsProvider),
           wishlistMutations: wishlistMutations,
           trackingMutations: trackingMutations,
+          catalogSnapshots: CatalogSnapshotRepository(db),
         );
 
-    await wishlistMutations.addToWishlist('movie-1',
-        fallbackKind: 'movie', editionId: 'edition-4k');
-    await wishlistMutations.addToWishlist('movie-1',
-        fallbackKind: 'movie', editionId: 'edition-bluray');
+    await wishlistMutations.addToWishlist(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId('edition'),
+        id: 'edition-4k',
+        rootId: 'movie-1',
+      ),
+    );
+    await wishlistMutations.addToWishlist(
+      const CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId('edition'),
+        id: 'edition-bluray',
+        rootId: 'movie-1',
+      ),
+    );
 
     final rows = await db.select(db.wishlistItemsCache).get();
-    final row4k = rows.firstWhere((row) => row.editionId == 'edition-4k');
+    final row4k = rows.firstWhere(
+      (row) =>
+          CatalogEntityRef.fromJson(
+            jsonDecode(row.catalogRefJson) as Map<String, dynamic>,
+          ).id ==
+          'edition-4k',
+    );
     final actions = buildActions();
 
     await actions.moveSelectedToOwned([
-      ShelfEntry(
+      LibraryWorkspaceSource(
         itemId: 'movie-1',
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItem(id: 'movie-1', kind: 'movie').asShelfCatalogItem),
         wishlistItem: WishlistItem(
           id: row4k.id,
-          catalogRef: testCatalogRef(row4k.itemId, kind: 'movie'),
-          anchorType: row4k.anchorType,
-          editionId: row4k.editionId,
-          variantId: row4k.variantId,
-          bundleReleaseId: row4k.bundleReleaseId,
+          catalogRef: CatalogEntityRef.fromJson(
+            jsonDecode(row4k.catalogRefJson) as Map<String, dynamic>,
+          ),
           createdAt: row4k.createdAt,
           updatedAt: row4k.updatedAt,
         ),
       ),
     ]);
 
-    final ownedRows = await db.select(db.ownedItemsCache).get();
+    final ownedRows = await MovieOwnedRepository(db).listActive();
     final wishlistRows = await db.select(db.wishlistItemsCache).get();
     final activeWishlistRows =
         wishlistRows.where((row) => row.deletedAt == null).toList();
 
     expect(ownedRows, hasLength(1));
-    expect(ownedRows.single.editionId, 'edition-4k');
+    expect(ownedRows.single.targetRef?.id, 'edition-4k');
     expect(activeWishlistRows, hasLength(1));
-    expect(activeWishlistRows.single.editionId, 'edition-bluray');
+    expect(
+      CatalogEntityRef.fromJson(
+        jsonDecode(activeWishlistRows.single.catalogRefJson)
+            as Map<String, dynamic>,
+      ).id,
+      'edition-bluray',
+    );
   });
 }

@@ -1,17 +1,24 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'game_edit_controller.dart';
 
-class GameEditDraft extends KindEditDraft {
+class GameEditDraft extends LibraryEditKindDraft {
   GameEditDraft({
+    this.ownedItem,
     required this.gameCompleteness,
     required this.gameHasBox,
     required this.gameHasManual,
@@ -20,6 +27,8 @@ class GameEditDraft extends KindEditDraft {
     required this.gameValueIsLocked,
     required this.gameEdit,
   });
+
+  final GameOwnedItem? ownedItem;
 
   String? gameCompleteness;
   bool? gameHasBox;
@@ -31,7 +40,7 @@ class GameEditDraft extends KindEditDraft {
   final GameEditController gameEdit;
 
   @override
-  OwnedDetailsDraft toDetailsDraft() => GameOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => GameOwnedDetailsDraft(
         completeness: gameCompleteness,
         hasBox: gameHasBox,
         hasManual: gameHasManual,
@@ -41,21 +50,93 @@ class GameEditDraft extends KindEditDraft {
       );
 
   @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
+
+  @override
+  GameOwnedItemUpdatePayload buildOwnedUpdatePayload({
+    required OwnedItemRef ownedRef,
+    required PersonalStateDraft personal,
+  }) {
+    final targetRef = personal.selectedOwnedTargetRef;
+    return GameOwnedItemUpdatePayload(
+      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
+      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+      isDigital: const Patch.unchanged(),
+      marketValueCents: const Patch.unchanged(),
+      indexNumber: const Patch.unchanged(),
+      condition: personal.conditionController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.conditionController.text.trim()),
+      grade: personal.gradeController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.gradeController.text.trim()),
+      purchaseDate: personal.purchaseDateController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseDate(personal.purchaseDateController.text)),
+      pricePaidCents: personal.priceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.priceController.text)),
+      currency: personal.currencyController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.currencyController.text.trim()),
+      personalNotes: personal.notesController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.notesController.text.trim()),
+      locationId: personal.selectedLocationId != null
+          ? Patch.set(personal.selectedLocationId)
+          : const Patch.clear(),
+      purchaseStore: personal.purchaseStoreController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.purchaseStoreController.text.trim()),
+      collectionStatus: personal.collectionStatus != null
+          ? Patch.set(personal.collectionStatus)
+          : const Patch.clear(),
+      tags: personal.tagsController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.tagsController.text.trim()),
+      soldAt: personal.soldAt != null
+          ? Patch.set(personal.soldAt)
+          : const Patch.clear(),
+      sellPriceCents: personal.sellPriceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.sellPriceController.text)),
+      soldTo: personal.soldToController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.soldToController.text.trim()),
+      details: Patch.set(toDetailsDraft() as GameOwnedDetailsDraft),
+    );
+  }
+
+  @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = gameEdit.applySelectionEdits(selection);
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          gameCompleteness: gameCompleteness,
-          gameHasBox: gameHasBox,
-          gameHasManual: gameHasManual,
-          gamePriceChartingId: gamePriceChartingId,
-          gameCoreRegion: gameCoreRegion,
-          gameValueIsLocked: gameValueIsLocked,
-        ),
-      );
-    }
-    return result;
+    return gameEdit.applySelectionEdits(selection);
   }
 
   @override
@@ -64,15 +145,18 @@ class GameEditDraft extends KindEditDraft {
   }
 }
 
-KindEditDraft createGameEditDraft({
-  required LibraryMetadataItem item,
-  OwnedItem? ownedItem,
-  TrackingEntry? trackingEntry,
+LibraryEditKindDraft createGameEditDraft({
+  required CatalogSearchCandidate item,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final game = ownedItem?.gameDetails;
-  final meta = item.kindMetadata is GameCatalogMetadata
-      ? item.kindMetadata as GameCatalogMetadata
+  final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final game = owned?.details;
+  final meta = item.mapTransport((transport) => transport).kindMetadata
+          is GameCatalogMetadata
+      ? item.mapTransport((transport) => transport).kindMetadata
+          as GameCatalogMetadata
       : null;
   final developerNames = (meta?.creators ?? const <Map<String, dynamic>>[])
       .where((c) =>
@@ -89,9 +173,15 @@ KindEditDraft createGameEditDraft({
     initialReleaseDate:
         meta?.releaseDate != null ? formatDate(meta!.releaseDate!) : '',
     initialReleaseYear: meta?.releaseDate?.year.toString() ?? '',
+    initialFranchise: meta?.franchise ?? '',
+    initialGenres: meta?.genres.join(', ') ?? '',
+    initialAgeRating: meta?.ageRating ?? '',
+    initialLanguage: meta?.languages.join(', ') ?? '',
+    initialCountry: meta?.country ?? '',
   );
 
   return GameEditDraft(
+    ownedItem: owned,
     gameCompleteness: game?.completeness,
     gameHasBox: game?.hasBox,
     gameHasManual: game?.hasManual,

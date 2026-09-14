@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -21,20 +21,24 @@ import 'package:collectarr_app/features/library/add/models/library_add_reference
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_summary.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_preview_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_proposal_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_provider_flow_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
+import 'package:collectarr_app/features/library/add/services/library_provider_add_coordinator.dart';
+import 'package:collectarr_app/features/library/add/services/library_provider_add_request.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_launcher.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
@@ -45,7 +49,7 @@ class LibraryAddSessionController
     extends ValueNotifier<LibraryAddSessionState> {
   LibraryAddSessionController({
     required this.kind,
-    LibraryKindRuntime? type,
+    LibraryKindRegistration? type,
     required this.ownedMutations,
     required this.wishlistMutations,
     required this.trackingMutations,
@@ -54,6 +58,7 @@ class LibraryAddSessionController
     this.providerRegistry,
     this.coverScanService = const LocalLibraryCoverScanService(),
     this.workflowService = const LibraryAddWorkflowService(),
+    this.providerAddCoordinator = const LibraryProviderAddCoordinator(),
     this.providerActionService = const LibraryProviderActionService(),
     this.providerOrchestrationService =
         const LibraryProviderOrchestrationService(),
@@ -61,7 +66,7 @@ class LibraryAddSessionController
     this.proposalFlowService = const LibraryAddProposalFlowService(),
     this.onAuthSessionExpired,
     LibraryAddSessionState? initialState,
-  })  : _runtime = type,
+  })  : _kindModule = type,
         super(
           initialState ??
               LibraryAddSessionState(
@@ -70,42 +75,66 @@ class LibraryAddSessionController
                 search: LibraryAddSearchState.initial(
                   selectedProvider:
                       type?.metadata.defaultSupportedOption(kind)?.id ??
-                          libraryKindRuntimeForKind(kind)
+                          libraryKindRegistrationForKind(kind)
                               .metadata
                               .defaultSupportedOption(kind)
                               ?.id ??
-                          libraryKindRuntimeForKind(kind)
+                          libraryKindRegistrationForKind(kind)
                               .metadata
                               .defaultProviderId,
-                  advancedFilters: libraryKindRuntimeForKind(kind)
+                  advancedFilters: libraryKindRegistrationForKind(kind)
                       .add
                       .search
                       .initialAdvancedFilters,
                 ),
                 selection: LibraryAddSelectionState(
-                  resultPolicyState: libraryKindRuntimeForKind(kind)
+                  resultPolicyState: libraryKindRegistrationForKind(kind)
                       .add
                       .resultPolicy
                       .initialState,
                 ),
                 preview: const LibraryAddPreviewState.initial(),
                 commonDraft: const LibraryAddCommonDraft(),
-                manualDraft:
-                    libraryKindRuntimeForKind(kind).add.createInitialDraft(),
+                trackingDraft: const LibraryAddTrackingDraft(),
+                manualDraft: libraryKindRegistrationForKind(kind)
+                    .add
+                    .createInitialDraft(),
                 submitState: const AsyncValue.data(null),
+                defaultCondition: (type ?? libraryKindRegistrationForKind(kind))
+                    .editPresentation
+                    .defaultCondition,
               ),
         );
 
   final CatalogMediaKind kind;
-  final LibraryKindRuntime? _runtime;
+  final LibraryKindRegistration? _kindModule;
   final OwnedItemMutations ownedMutations;
   final WishlistMutations wishlistMutations;
   final TrackingMutations trackingMutations;
+
+  Future<void> _addOwnedItemWithTracking(AddOwnedItemCommand command) async {
+    final ownedItem = await ownedMutations.addOwnedItem(command);
+    final tracking = command.tracking;
+    if (tracking == null) {
+      return;
+    }
+    await trackingMutations.syncOwnedTrackingState(
+      ownedItem,
+      targetRef: command.targetRef,
+      status: tracking.status,
+      rating: tracking.rating,
+      startedAt: tracking.startedAt,
+      finishedAt: tracking.finishedAt,
+      notes: tracking.notes,
+    );
+  }
+
   final ApiClient? api;
-  final CatalogCacheRepository? catalog;
-  final ProviderRegistry? providerRegistry;
+  final CatalogTransportRepository? catalog;
+  final ProviderConnectorRegistry? providerRegistry;
   final LibraryCoverScanService coverScanService;
   final LibraryAddWorkflowService workflowService;
+  final LibraryProviderAddCoordinator providerAddCoordinator;
   final LibraryProviderActionService providerActionService;
   final LibraryProviderOrchestrationService providerOrchestrationService;
   final LibraryAddProviderFlowService providerFlowService;
@@ -113,7 +142,8 @@ class LibraryAddSessionController
   final Future<bool> Function(Object error, String action)?
       onAuthSessionExpired;
 
-  LibraryKindRuntime get type => _runtime ?? libraryKindRuntimeForKind(kind);
+  LibraryKindRegistration get type =>
+      _kindModule ?? libraryKindRegistrationForKind(kind);
 
   Timer? _searchDebounceTimer;
   Timer? _autocompleteTimer;
@@ -126,13 +156,39 @@ class LibraryAddSessionController
   LibraryAddSessionState get state => value;
   set state(LibraryAddSessionState newState) => value = newState;
 
+  CatalogEntityRef _selectedWishlistRef(CatalogSearchCandidate item) {
+    final selection = state.selection;
+    return libraryKindRegistrationForKind(item.mediaKind).catalogTarget.resolve(
+          item.catalogRef,
+          LibraryCatalogTargetSelection(
+            referenceType: selection.referenceType,
+            firstId: selection.selectedReferenceEditionId,
+            secondId: selection.selectedReferenceVariantId,
+            groupId: selection.selectedBundleReleaseId,
+          ),
+        );
+  }
+
+  CatalogEntityRef _selectedTargetRef(CatalogSearchCandidate item) {
+    final selection = state.selection;
+    return libraryKindRegistrationForKind(item.mediaKind).catalogTarget.resolve(
+          item.catalogRef,
+          LibraryCatalogTargetSelection(
+            referenceType: selection.referenceType,
+            firstId: selection.selectedReferenceEditionId,
+            secondId: selection.selectedReferenceVariantId,
+            groupId: selection.selectedBundleReleaseId,
+          ),
+        );
+  }
+
   LibraryAddSearchCapability get _searchCapability =>
-      libraryKindRuntimeForKind(kind).add.search;
+      libraryKindRegistrationForKind(kind).add.search;
 
   LibraryAddSearchContext _searchContext({String? query}) {
     return LibraryAddSearchContext(
       query: query ?? state.search.query,
-      barcode: state.search.barcode,
+      identifierCode: state.search.identifierCode,
       advancedFilters: state.search.advancedFilters,
     );
   }
@@ -178,9 +234,9 @@ class LibraryAddSessionController
     }
   }
 
-  void updateBarcode(String barcode) {
+  void updateIdentifier(String identifierCode) {
     state = state.copyWith(
-      search: state.search.copyWith(barcode: barcode),
+      search: state.search.copyWith(identifierCode: identifierCode),
     );
   }
 
@@ -238,7 +294,7 @@ class LibraryAddSessionController
     }
   }
 
-  void selectSuggestion(LibraryMetadataItem item) {
+  void selectSuggestion(CatalogSearchCandidate item) {
     state = state.copyWith(
       search: state.search.copyWith(
         query: item.title,
@@ -612,10 +668,14 @@ class LibraryAddSessionController
   void selectReferenceEdition(String editionId) {
     final item = state.selectedItem;
     if (item == null) return;
-    final selectedEdition = previewEditionForItem(item, editionId);
+    final releases = libraryKindRegistrationForKind(item.mediaKind)
+        .presentation
+        .builder
+        .buildReleaseOptions(item: item);
+    final selectedRelease = previewReleaseForItem(releases, editionId);
     state = state.copyWith(
       selection: state.selection.copyWith(
-        selectedReferenceEditionId: selectedEdition?.id,
+        selectedReferenceEditionId: selectedRelease?.id,
         clearSelectedReferenceVariantId: true,
       ),
     );
@@ -669,10 +729,10 @@ class LibraryAddSessionController
     );
   }
 
-  Future<void> lookupBarcode({String? barcode}) async {
-    final code = barcode?.trim().isNotEmpty == true
-        ? barcode!.trim()
-        : state.search.barcode.trim();
+  Future<void> lookupIdentifier({String? identifierCode}) async {
+    var code = identifierCode?.trim().isNotEmpty == true
+        ? identifierCode!.trim()
+        : state.search.identifierCode.trim();
     if (code.isEmpty) {
       state = state.copyWith(
         search: state.search.copyWith(
@@ -682,11 +742,25 @@ class LibraryAddSessionController
       return;
     }
 
+    final resolvedBarcode = resolveLibraryBarcodeForKind(type.kind, code);
+    if (resolvedBarcode == null) {
+      state = state.copyWith(
+        mode: LibraryAddDialogMode.identifier,
+        search: state.search.copyWith(
+          identifierCode: code,
+          error:
+              'This code is not supported for ${type.identity.pluralLabel.toLowerCase()}.',
+        ),
+      );
+      return;
+    }
+    code = resolvedBarcode;
+
     final searchGeneration = state.search.coreSearchGeneration + 1;
     state = state.copyWith(
-      mode: LibraryAddDialogMode.barcode,
+      mode: LibraryAddDialogMode.identifier,
       search: state.search.copyWith(
-        barcode: code,
+        identifierCode: code,
         isSearching: true,
         clearError: true,
         coreSearchGeneration: searchGeneration,
@@ -711,11 +785,11 @@ class LibraryAddSessionController
     }
 
     try {
-      final lookupResult = await runLibraryAddBarcodeLookup(
+      final lookupResult = await runLibraryAddIdentifierLookup(
         api: api!,
         type: type,
         catalog: catalog!,
-        barcode: code,
+        identifierCode: code,
         timeout: _coreSearchTimeout,
         providerSearchAvailable:
             type.metadata.supportedProvidersForKind(type.kind).isNotEmpty,
@@ -886,12 +960,7 @@ class LibraryAddSessionController
 
   Future<void> _ensureSelectedResultLoaded(String itemId) async {
     if (api == null) return;
-    if (state.preview.hasHydratedResult(itemId) ||
-        state.preview.isHydratedResultPending(itemId)) {
-      return;
-    }
-
-    LibraryMetadataItem? selected;
+    CatalogSearchCandidate? selected;
     for (final item in state.search.results) {
       if (item.id == itemId) {
         selected = item;
@@ -899,76 +968,72 @@ class LibraryAddSessionController
       }
     }
     if (selected == null) return;
+    final catalogRef = selected.catalogRef;
+    if (state.preview.hasHydratedResult(catalogRef) ||
+        state.preview.isHydratedResultPending(catalogRef)) {
+      return;
+    }
 
     final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<String>.from(state.preview.pendingHydratedResultIds)
-      ..add(itemId);
+    final pending = Set<CatalogEntityRef>.from(
+      state.preview.pendingHydratedResultRefs,
+    )..add(catalogRef);
     state = state.copyWith(
-      preview: state.preview.copyWith(pendingHydratedResultIds: pending),
+      preview: state.preview.copyWith(pendingHydratedResultRefs: pending),
     );
 
     try {
-      final hydrated = await api!
+      final CatalogSearchCandidate hydrated = await api!
           .getTypedMetadataItem(
-        kind: selected.kind,
+        kind: selected.mediaKind,
         id: itemId,
       )
-          .then((dto) {
-        final raw = mergeHydratedProviderAddResultRaw(
-          raw: <String, dynamic>{
+          .then<CatalogSearchCandidate>((dto) {
+        final item = mergeHydratedProviderAddResult(
+          hydrated: CatalogSearchCandidate.fromJson({
             ...dto.raw,
             'id': dto.id,
             'title': dto.title,
             'kind': dto.kind,
-          },
+          }),
           sourceSelection: selected!,
         );
-        return CatalogItem.fromJson(raw);
+        return type.add.catalogCandidateFromCoreItem(item);
       });
 
       if (searchGen != state.search.coreSearchGeneration) return;
 
-      final hydratedItem =
-          LibraryMetadataTransportCodec.fromCatalogItem(hydrated);
+      final hydratedItem = hydrated;
       final mergedCoverImageUrl = hydratedItem.displayCoverUrl != null
           ? hydratedItem.coverImageUrl
           : selected.coverImageUrl;
       final mergedThumbnailImageUrl = hydratedItem.displayCoverUrl != null
           ? hydratedItem.thumbnailImageUrl
           : selected.thumbnailImageUrl ?? selected.coverImageUrl;
-      final hydratedPayload = hydratedItem.kindMetadata.toSyncPayload();
-      final hydratedEditionsPayload = hydratedPayload['editions'] as List?;
-      final selectedEditionsPayload =
-          selected.kindMetadata.toSyncPayload()['editions'] as List?;
-      final mergedPayload = {
-        ...hydratedPayload,
-        if (mergedCoverImageUrl != null) 'cover_image_url': mergedCoverImageUrl,
-        if (mergedThumbnailImageUrl != null)
-          'thumbnail_image_url': mergedThumbnailImageUrl,
-        if ((hydratedEditionsPayload == null ||
-                hydratedEditionsPayload.isEmpty) &&
-            selectedEditionsPayload != null &&
-            selectedEditionsPayload.isNotEmpty)
-          'editions': selectedEditionsPayload,
-      };
-      final mergedItem = LibraryMetadataItem(
-        identity: hydratedItem.identity,
-        kindMetadata: LibraryKindMetadataDecoders.decode(
-          hydratedItem.mediaKind,
-          mergedPayload,
-        ),
+      final hydratedEditions =
+          hydratedItem.mapTransport((transport) => transport.editions);
+      final selectedEditions =
+          selected.mapTransport((transport) => transport.editions);
+      final mergedEditions =
+          hydratedEditions.isEmpty ? selectedEditions : hydratedEditions;
+      final mergedItem = hydratedItem.copyWith(
+        coverImageUrl: mergedCoverImageUrl ?? hydratedItem.coverImageUrl,
+        thumbnailImageUrl:
+            mergedThumbnailImageUrl ?? hydratedItem.thumbnailImageUrl,
+        editions: mergedEditions,
       );
 
-      final hydratedMap =
-          Map<String, LibraryMetadataItem>.from(state.preview.hydratedResults);
-      hydratedMap[itemId] = mergedItem;
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingHydratedResultIds)
-            ..remove(itemId);
+      final hydratedMap = Map<CatalogEntityRef, CatalogSearchCandidate>.from(
+        state.preview.hydratedResultsByRef,
+      );
+      hydratedMap[catalogRef] = mergedItem;
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingHydratedResultRefs,
+      )..remove(catalogRef);
       state = state.copyWith(
         preview: state.preview.copyWith(
-          hydratedResults: hydratedMap,
-          pendingHydratedResultIds: pendingUpdated,
+          hydratedResultsByRef: hydratedMap,
+          pendingHydratedResultRefs: pendingUpdated,
         ),
       );
     } catch (error, stackTrace) {
@@ -978,12 +1043,12 @@ class LibraryAddSessionController
         error: error,
         stackTrace: stackTrace,
       );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingHydratedResultIds)
-            ..remove(itemId);
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingHydratedResultRefs,
+      )..remove(catalogRef);
       state = state.copyWith(
         preview: state.preview.copyWith(
-          pendingHydratedResultIds: pendingUpdated,
+          pendingHydratedResultRefs: pendingUpdated,
         ),
       );
     }
@@ -991,16 +1056,23 @@ class LibraryAddSessionController
 
   Future<void> _ensureBundleReleasesLoaded(String itemId) async {
     if (api == null) return;
-    if (state.preview.bundleReleasesByItemId.containsKey(itemId) ||
-        state.preview.isBundleReleasesPending(itemId)) {
+    final selected =
+        state.search.results.where((item) => item.id == itemId).firstOrNull;
+    if (selected == null) return;
+    final catalogRef = selected.catalogRef;
+    if (state.preview.bundleReleasesByCatalogRef.containsKey(catalogRef) ||
+        state.preview.isBundleReleasesPending(catalogRef)) {
       return;
     }
 
     final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<String>.from(state.preview.pendingBundleReleaseItemIds)
-      ..add(itemId);
+    final pending = Set<CatalogEntityRef>.from(
+      state.preview.pendingBundleReleaseCatalogRefs,
+    )..add(catalogRef);
     state = state.copyWith(
-      preview: state.preview.copyWith(pendingBundleReleaseItemIds: pending),
+      preview: state.preview.copyWith(
+        pendingBundleReleaseCatalogRefs: pending,
+      ),
     );
 
     try {
@@ -1009,18 +1081,22 @@ class LibraryAddSessionController
 
       final firstBundleId = state.selection.selectedBundleReleaseId ??
           (bundleReleases.isNotEmpty ? bundleReleases.first.id : null);
-      final releasesMap = Map<String, List<BundleReleaseSummary>>.from(
-        state.preview.bundleReleasesByItemId,
+      final releasesMap =
+          Map<CatalogEntityRef, List<LibraryBundleSummary>>.from(
+        state.preview.bundleReleasesByCatalogRef,
       );
-      releasesMap[itemId] = List.unmodifiable(bundleReleases);
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseItemIds)
-            ..remove(itemId);
+      releasesMap[catalogRef] = [
+        for (final bundle in bundleReleases)
+          LibraryBundleSummary.fromTransport(bundle),
+      ];
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingBundleReleaseCatalogRefs,
+      )..remove(catalogRef);
 
       state = state.copyWith(
         preview: state.preview.copyWith(
-          bundleReleasesByItemId: releasesMap,
-          pendingBundleReleaseItemIds: pendingUpdated,
+          bundleReleasesByCatalogRef: releasesMap,
+          pendingBundleReleaseCatalogRefs: pendingUpdated,
         ),
         selection: state.selection.referenceType ==
                 LibraryAddReferenceType.bundleRelease
@@ -1040,12 +1116,12 @@ class LibraryAddSessionController
         error: error,
         stackTrace: stackTrace,
       );
-      final pendingUpdated =
-          Set<String>.from(state.preview.pendingBundleReleaseItemIds)
-            ..remove(itemId);
+      final pendingUpdated = Set<CatalogEntityRef>.from(
+        state.preview.pendingBundleReleaseCatalogRefs,
+      )..remove(catalogRef);
       state = state.copyWith(
         preview: state.preview.copyWith(
-          pendingBundleReleaseItemIds: pendingUpdated,
+          pendingBundleReleaseCatalogRefs: pendingUpdated,
         ),
       );
     }
@@ -1070,10 +1146,11 @@ class LibraryAddSessionController
       final bundleRelease = await api!.getBundleRelease(bundleReleaseId);
       if (searchGen != state.search.coreSearchGeneration) return;
 
-      final detailsMap = Map<String, BundleReleaseDetail>.from(
+      final detailsMap = Map<String, LibraryBundleDetail>.from(
         state.preview.bundleReleaseDetailsById,
       );
-      detailsMap[bundleReleaseId] = bundleRelease;
+      detailsMap[bundleReleaseId] =
+          LibraryBundleDetail.fromTransport(bundleRelease);
       final pendingUpdated =
           Set<String>.from(state.preview.pendingBundleReleaseDetailIds)
             ..remove(bundleReleaseId);
@@ -1181,6 +1258,11 @@ class LibraryAddSessionController
     state = state.copyWith(commonDraft: update(state.commonDraft));
   }
 
+  void updateTrackingDraft(
+      LibraryAddTrackingDraft Function(LibraryAddTrackingDraft) update) {
+    state = state.copyWith(trackingDraft: update(state.trackingDraft));
+  }
+
   void updateKindDraft(
       LibraryAddKindDraft Function(LibraryAddKindDraft) update) {
     state = state.copyWith(manualDraft: update(state.manualDraft));
@@ -1188,10 +1270,6 @@ class LibraryAddSessionController
 
   void setDefaultCondition(String condition) {
     state = state.copyWith(defaultCondition: condition);
-  }
-
-  void setDefaultGrade(String grade) {
-    state = state.copyWith(defaultGrade: grade);
   }
 
   void setDefaultPurchaseDate(DateTime? date) {
@@ -1229,30 +1307,34 @@ class LibraryAddSessionController
     );
   }
 
-  Future<bool> submitSelectedItem(LibraryMetadataItem item) async {
+  Future<bool> submitSelectedItem(CatalogSearchCandidate item) async {
     if (state.isAdding || state.submitState.isLoading) return false;
     state = state.copyWith(
       isAdding: true,
       submitState: const AsyncValue.loading(),
     );
     try {
-      final capability = libraryKindRuntimeForKind(kind).add;
+      final capability = libraryKindRegistrationForKind(kind).add;
       final command = capability.buildCommand(
         item,
         state.commonDraft,
         state.manualDraft,
+        targetRef: _selectedTargetRef(item),
+        tracking: state.trackingDraft,
       );
 
       switch (state.target) {
         case LibraryAddTarget.owned:
-          await ownedMutations.addOwnedItem(command);
+          await _addOwnedItemWithTracking(command);
         case LibraryAddTarget.wishlist:
           await wishlistMutations.addToWishlist(
-            item.id,
-            fallbackKind: item.kind,
+            _selectedWishlistRef(item),
           );
         case LibraryAddTarget.track:
-          await trackingMutations.addLocalOnlyTrackingEntry(item);
+          await trackingMutations.addLocalOnlyTrackingState(
+            item.catalogRef,
+            targetRef: _selectedTargetRef(item),
+          );
       }
 
       state = state.copyWith(
@@ -1296,48 +1378,43 @@ class LibraryAddSessionController
             kind,
           );
 
-          await workflowService.addProviderCandidate(
-            context: context,
-            api: api!,
-            isAdmin: isAdmin,
-            type: type,
-            candidate: selectedCandidate,
-            target: state.target,
-            mounted: true,
-            isAdding: false,
-            rebuild: (_) {},
-            setIsAdding: (_) {},
-            setError: (msg) => state =
-                state.copyWith(search: state.search.copyWith(error: msg)),
-            onSuccess: (_) {},
-            isMissingBearerTokenError: _isMissingBearerTokenError,
-            catalog: catalog!,
-            ownedMutations: ownedMutations,
-            wishlistMutations: wishlistMutations,
-            trackingMutations: trackingMutations,
-            physicalFormats: physicalFormats,
-            previewState: previewController,
-            providerActionService: providerActionService,
-            providerOrchestrationService: providerOrchestrationService,
-            providerMapper: type.providerMapper?.buildCorrections ??
-                ((
-                        {required LibraryMetadataItem edited,
-                        required LibraryMetadataItem preview}) =>
-                    const <String, Object?>{}),
-            visibleProviderResults: () => state.visibleProviderResults(
-              type.add.resultPolicy,
-            ),
-            showEditDialog: (ctx, req) =>
-                showLibraryEditDialog(context: ctx, request: req),
-            clearRejectedMetadataSession: _handleAuthExpiration,
-            referenceType: state.selection.referenceType,
-            defaults: LibraryAddDefaults(
-              condition: state.defaultCondition,
-              grade: state.defaultGrade,
-              purchaseDate: state.defaultPurchaseDate,
-              locationId: state.defaultLocationId,
-              readStatus: state.defaultReadStatus,
-              tags: state.defaultTags,
+          await providerAddCoordinator.addProviderCandidate(
+            LibraryProviderAddRequest(
+              api: api!,
+              isAdmin: isAdmin,
+              type: type,
+              candidate: selectedCandidate,
+              target: state.target,
+              accent: LibraryAccentScope.accentOf(context),
+              dependencies: LibraryProviderAddDependencies(
+                catalog: catalog!,
+                ownedMutations: ownedMutations,
+                wishlistMutations: wishlistMutations,
+                trackingMutations: trackingMutations,
+                physicalFormats: physicalFormats,
+                previewState: previewController,
+                providerActionService: providerActionService,
+                providerOrchestrationService: providerOrchestrationService,
+                providerMapper: _providerCorrectionsForKind(type.kind),
+                visibleProviderResults: () => state.visibleProviderResults(
+                  type.add.resultPolicy,
+                ),
+                showEditDialog: (req) =>
+                    showLibraryEditDialog(context: context, request: req),
+                closeEditDialog: () => Navigator.of(context).pop(),
+                clearRejectedMetadataSession: _handleAuthExpiration,
+              ),
+              referenceType: state.selection.referenceType,
+              defaults: LibraryAddDefaults(
+                condition: state.defaultCondition,
+                purchaseDate: state.defaultPurchaseDate,
+                locationId: state.defaultLocationId,
+                readStatus: state.defaultReadStatus,
+                tags: state.defaultTags,
+              ),
+              reportError: (message) => state = state.copyWith(
+                search: state.search.copyWith(error: message),
+              ),
             ),
           );
         } else {
@@ -1349,29 +1426,37 @@ class LibraryAddSessionController
                   preview,
                   itemId: selectedCandidate.localCatalogId,
                 )
-              : selectedCandidate.placeholderItem();
+              : type.add.catalogCandidateFromProviderCandidate(
+                  selectedCandidate,
+                );
 
           if (catalog != null) {
-            await catalog!.upsertMetadataItems([metadataItem]);
+            await catalog!.upsertTransports(
+              [metadataItem.toImportTransport()],
+            );
           }
 
-          final capability = libraryKindRuntimeForKind(kind).add;
+          final capability = libraryKindRegistrationForKind(kind).add;
           final command = capability.buildCommand(
             metadataItem,
             state.commonDraft,
             state.manualDraft,
+            targetRef: _selectedTargetRef(metadataItem),
+            tracking: state.trackingDraft,
           );
 
           switch (state.target) {
             case LibraryAddTarget.owned:
-              await ownedMutations.addOwnedItem(command);
+              await _addOwnedItemWithTracking(command);
             case LibraryAddTarget.wishlist:
               await wishlistMutations.addToWishlist(
-                metadataItem.id,
-                fallbackKind: metadataItem.kind,
+                _selectedWishlistRef(metadataItem),
               );
             case LibraryAddTarget.track:
-              await trackingMutations.addLocalOnlyTrackingEntry(metadataItem);
+              await trackingMutations.addLocalOnlyTrackingState(
+                metadataItem.catalogRef,
+                targetRef: _selectedTargetRef(metadataItem),
+              );
           }
         }
       } else if (checkedResults.isNotEmpty) {
@@ -1379,49 +1464,56 @@ class LibraryAddSessionController
             .where((item) => checkedResults.contains(item.id))
             .toList();
         if (catalog != null) {
-          await workflowService.addItems(
-            mounted: true,
-            isAdding: false,
-            rebuild: (_) {},
-            setIsAdding: (_) {},
-            setError: (msg) => state =
-                state.copyWith(search: state.search.copyWith(error: msg)),
-            onSuccess: (_) {},
-            catalog: catalog!,
-            ownedMutations: ownedMutations,
-            wishlistMutations: wishlistMutations,
-            trackingMutations: trackingMutations,
-            items: itemsToAdd,
-            target: state.target,
-            referenceType: state.selection.referenceType,
-            defaults: LibraryAddDefaults(
-              condition: state.defaultCondition,
-              grade: state.defaultGrade,
-              purchaseDate: state.defaultPurchaseDate,
-              locationId: state.defaultLocationId,
-              readStatus: state.defaultReadStatus,
-              tags: state.defaultTags,
+          await const LibraryAddCoordinator().add(
+            LibraryAddBatchRequest(
+              dependencies: LibraryAddMutationDependencies(
+                catalog: catalog!,
+                ownedMutations: ownedMutations,
+                wishlistMutations: wishlistMutations,
+                trackingMutations: trackingMutations,
+              ),
+              items: itemsToAdd,
+              target: state.target,
+              trackingDraft: LibraryAddTrackingDraft(
+                rating: state.trackingDraft.rating,
+                readStatus:
+                    state.defaultReadStatus ?? state.trackingDraft.readStatus,
+                startedAt: state.trackingDraft.startedAt,
+                finishedAt: state.trackingDraft.finishedAt,
+              ),
+              referenceType: state.selection.referenceType,
+              defaults: LibraryAddDefaults(
+                condition: state.defaultCondition,
+                purchaseDate: state.defaultPurchaseDate,
+                locationId: state.defaultLocationId,
+                readStatus: state.defaultReadStatus,
+                tags: state.defaultTags,
+              ),
             ),
           );
         }
       } else if (selectedResult != null) {
-        final capability = libraryKindRuntimeForKind(kind).add;
+        final capability = libraryKindRegistrationForKind(kind).add;
         final command = capability.buildCommand(
           selectedResult,
           state.commonDraft,
           state.manualDraft,
+          targetRef: _selectedTargetRef(selectedResult),
+          tracking: state.trackingDraft,
         );
 
         switch (state.target) {
           case LibraryAddTarget.owned:
-            await ownedMutations.addOwnedItem(command);
+            await _addOwnedItemWithTracking(command);
           case LibraryAddTarget.wishlist:
             await wishlistMutations.addToWishlist(
-              selectedResult.id,
-              fallbackKind: selectedResult.kind,
+              _selectedWishlistRef(selectedResult),
             );
           case LibraryAddTarget.track:
-            await trackingMutations.addLocalOnlyTrackingEntry(selectedResult);
+            await trackingMutations.addLocalOnlyTrackingState(
+              selectedResult.catalogRef,
+              targetRef: _selectedTargetRef(selectedResult),
+            );
         }
       }
 
@@ -1486,12 +1578,15 @@ class LibraryAddSessionController
       ),
       selection: LibraryAddSelectionState(
         resultPolicyState:
-            libraryKindRuntimeForKind(kind).add.resultPolicy.initialState,
+            libraryKindRegistrationForKind(kind).add.resultPolicy.initialState,
       ),
       preview: const LibraryAddPreviewState.initial(),
       commonDraft: const LibraryAddCommonDraft(),
-      manualDraft: libraryKindRuntimeForKind(kind).add.createInitialDraft(),
+      trackingDraft: const LibraryAddTrackingDraft(),
+      manualDraft:
+          libraryKindRegistrationForKind(kind).add.createInitialDraft(),
       submitState: const AsyncValue.data(null),
+      defaultCondition: type.editPresentation.defaultCondition,
     );
   }
 
@@ -1501,4 +1596,23 @@ class LibraryAddSessionController
     _autocompleteTimer?.cancel();
     super.dispose();
   }
+}
+
+ProviderCorrectionPatch _emptyProviderCorrections({
+  required CatalogSearchCandidate edited,
+  required CatalogSearchCandidate preview,
+}) =>
+    const ProviderCorrectionPatch.empty();
+
+BuildProviderCorrections _providerCorrectionsForKind(CatalogMediaKind kind) {
+  final builder = libraryKindProviderCorrectionBuilderForKind(kind);
+  if (builder == null) return _emptyProviderCorrections;
+  return ({
+    required CatalogSearchCandidate edited,
+    required CatalogSearchCandidate preview,
+  }) =>
+      builder(
+        preview: preview,
+        edited: edited,
+      );
 }

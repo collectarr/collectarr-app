@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
@@ -12,19 +12,20 @@ import 'package:flutter/material.dart';
 /// - On medium/expanded viewports: Shows a modal or embedded presentation.
 Future<void> showAdaptiveItemDetail({
   required BuildContext context,
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
-  required OwnedItem? ownedItem,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
+  required OwnedItemSummary? ownedSummary,
   required Color accent,
   required VoidCallback? onAddOwned,
   required VoidCallback? onRemoveOwned,
   required VoidCallback? onAddWishlist,
   required VoidCallback? onRemoveWishlist,
-  required void Function(OwnedItem? ownedItem)? onEdit,
+  required void Function(OwnedItemSummary? ownedItem)? onEdit,
   ValueChanged<String>? onFilterByValue,
 }) {
   final windowClass = AppWindowClass.of(context);
-  final title = item.source.catalogItem?.title ?? type.identity.singularLabel;
+  final title =
+      item.source.catalogSummary?.title ?? type.identity.singularLabel;
   final kind = LibraryAccentScope.of(context).kind;
 
   if (windowClass.isCompact) {
@@ -41,8 +42,10 @@ Future<void> showAdaptiveItemDetail({
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: Theme.of(pageContext)
+                    .textTheme
+                    .libraryDetailTitle
+                    .copyWith(fontWeight: FontWeight.w700),
               ),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
@@ -54,14 +57,14 @@ Future<void> showAdaptiveItemDetail({
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     tooltip: 'Edit item',
-                    onPressed: () => onEdit(ownedItem),
+                    onPressed: () => onEdit(ownedSummary),
                   ),
               ],
             ),
             body: LibraryDetailPage(
               type: type,
               item: item,
-              ownedItem: ownedItem,
+              ownedSummary: ownedSummary,
               accent: accent,
               onAddOwned: onAddOwned,
               onRemoveOwned: onRemoveOwned,
@@ -100,10 +103,10 @@ Future<void> showAdaptiveItemDetail({
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(sheetContext)
+                            .textTheme
+                            .libraryDetailTitle
+                            .copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
                     IconButton(
@@ -118,7 +121,7 @@ Future<void> showAdaptiveItemDetail({
                 child: LibraryDetailPage(
                   type: type,
                   item: item,
-                  ownedItem: ownedItem,
+                  ownedSummary: ownedSummary,
                   accent: accent,
                   onAddOwned: onAddOwned,
                   onRemoveOwned: onRemoveOwned,

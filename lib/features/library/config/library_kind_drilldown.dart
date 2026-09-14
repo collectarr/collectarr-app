@@ -1,26 +1,26 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 
 bool canOpenKindDrilldown(
-  LibraryKindRuntime type,
-  LibraryProjectionRuntime item,
+  LibraryKindRegistration type,
+  LibraryProjectionView item,
 ) {
   return type.presentation.builder.canOpenKindDrilldown(item);
 }
 
 Widget? buildLibraryKindDrilldown({
   required BuildContext context,
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime selectedItem,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView selectedItem,
   required Color accent,
   required double coverSize,
   required VoidCallback onBack,
   required Future<void> Function() onRefreshFromCore,
   required VoidCallback onOpenTitleDetails,
-  required List<OwnedItem> ownedCopies,
+  required List<OwnedItemSummary> ownedCopies,
   required List<WishlistItem> wishlistItems,
   required String? selectedReleaseId,
   required void Function(String releaseId) onSelectRelease,
@@ -37,6 +37,6 @@ Widget? buildLibraryKindDrilldown({
     wishlistItems: wishlistItems,
     selectedReleaseId: selectedReleaseId,
     onSelectRelease: onSelectRelease,
-    projector: type.projector,
+    projector: libraryKindWorkspaceForKind(type.kind).projector,
   );
 }

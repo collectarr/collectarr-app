@@ -4,7 +4,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_search_debounce_provider.dart';
 import 'package:collectarr_app/features/library/workspace/state/library_workspace_providers.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import '../../../../helpers/test_data_factories.dart';
 
@@ -78,14 +77,15 @@ void main() {
 
       final mockShelfState = ShelfState(
         entries: [
-          testShelfEntry(itemId: '1', kind: 'comic', title: 'Batman #1'),
-          testShelfEntry(
+          testLibraryWorkspaceSource(
+              itemId: '1', kind: 'comic', title: 'Batman #1'),
+          testLibraryWorkspaceSource(
               itemId: '2', kind: 'comic', title: 'Amazing Spider-Man #1'),
-          testShelfEntry(itemId: '3', kind: 'music', title: 'Random Album'),
+          testLibraryWorkspaceSource(
+              itemId: '3', kind: 'music', title: 'Random Album'),
         ],
         ownedCount: 3,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
         primaryCurrency: 'USD',
@@ -137,14 +137,15 @@ void main() {
 
       final mockShelfState = ShelfState(
         entries: [
-          testShelfEntry(itemId: '1', kind: 'comic', title: 'Batman #1'),
-          testShelfEntry(itemId: '2', kind: 'comic', title: 'Batman #2'),
-          testShelfEntry(
+          testLibraryWorkspaceSource(
+              itemId: '1', kind: 'comic', title: 'Batman #1'),
+          testLibraryWorkspaceSource(
+              itemId: '2', kind: 'comic', title: 'Batman #2'),
+          testLibraryWorkspaceSource(
               itemId: '3', kind: 'comic', title: 'Amazing Spider-Man #1'),
         ],
         ownedCount: 3,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
         primaryCurrency: 'USD',
@@ -184,26 +185,6 @@ void main() {
     });
   });
 
-  group('LibraryWorkspaceIntentNotifier Tests', () {
-    test(
-        'intent dispatcher delegates mutations to both filters and view config',
-        () {
-      final key = LibraryWorkspaceKey(kind: CatalogMediaKind.comic);
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      final intent = container.read(libraryWorkspaceIntentProvider(key));
-      intent.setViewMode(LibraryViewMode.list);
-      intent.setSort(ComicSortIds.rating);
-
-      final viewConfig = container.read(libraryViewConfigProvider(key));
-      final filters = container.read(libraryFiltersProvider(key));
-
-      expect(viewConfig.viewMode, equals(LibraryViewMode.list));
-      expect(filters.sortId, equals(ComicSortIds.rating));
-    });
-  });
-
   group('libraryLocalFacetValuesProvider Tests', () {
     test('extracts unique sorted publisher values from shelf entries',
         () async {
@@ -211,31 +192,30 @@ void main() {
 
       final mockShelfState = ShelfState(
         entries: [
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: '1',
             kind: 'comic',
             title: 'Batman #1',
-            catalogItem:
-                testCatalogItem(id: '1', kind: 'comic', publisher: 'DC Comics'),
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
+                id: '1', kind: 'comic', publisher: 'DC Comics')),
           ),
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: '2',
             kind: 'comic',
             title: 'Spider-Man #1',
-            catalogItem:
-                testCatalogItem(id: '2', kind: 'comic', publisher: 'Marvel'),
+            catalogData: testWorkspaceCatalogData(
+                testCatalogItem(id: '2', kind: 'comic', publisher: 'Marvel')),
           ),
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: '3',
             kind: 'comic',
             title: 'Batman #2',
-            catalogItem:
-                testCatalogItem(id: '3', kind: 'comic', publisher: 'DC Comics'),
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
+                id: '3', kind: 'comic', publisher: 'DC Comics')),
           ),
         ],
         ownedCount: 3,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
         primaryCurrency: 'USD',

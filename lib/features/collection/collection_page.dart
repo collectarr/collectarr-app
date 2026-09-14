@@ -1,22 +1,18 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/core/models/season.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/collection/shelf_volumes_provider.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
 import 'package:dio/dio.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -31,7 +27,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 part 'collection_page_import.dart';
 part 'collection_page_shelf.dart';
 
-enum _ShelfFilter { all, owned, wishlist, overdue, missingGrade, notes }
+enum _ShelfFilter { all, owned, wishlist, overdue, notes }
 
 class CollectionPage extends ConsumerStatefulWidget {
   const CollectionPage({
@@ -57,9 +53,11 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(shelfProvider);
-    final overdueOwnedItemIds = ref
-        .watch(overdueLoanOwnedItemIdsProvider)
-        .maybeWhen(data: (value) => value, orElse: () => const <String>{});
+    final overdueOwnedRefs =
+        ref.watch(overdueLoanOwnedItemIdsProvider).maybeWhen(
+              data: (value) => value,
+              orElse: () => const <OwnedItemRef>{},
+            );
     final accent = LibraryAccentScope.accentOf(context);
     final animationDuration = LibraryAccentScope.animationDurationOf(context);
     return Scaffold(
@@ -73,7 +71,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Import collection',
+            tooltip: 'Import…',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
                     state.entries,
@@ -84,7 +82,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
             icon: const Icon(Icons.upload_file),
           ),
           IconButton(
-            tooltip: 'Export collection',
+            tooltip: 'Export…',
             onPressed: shelf.maybeWhen(
               data: (state) => () => _showImportExportWizard(
                     state.entries,
@@ -98,14 +96,14 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       ),
       body: shelf.when(
         data: (state) {
-          final entries = _filteredEntries(state.entries, overdueOwnedItemIds);
+          final entries = _filteredEntries(state.entries, overdueOwnedRefs);
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
                 child: _ShelfHeader(
                   state: state,
                   filter: filter,
-                  overdueCount: overdueOwnedItemIds.length,
+                  overdueCount: overdueOwnedRefs.length,
                   onFilterChanged: (value) => setState(() => filter = value),
                 ),
               ),
@@ -121,7 +119,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                     itemCount: entries.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
-                      return _ShelfEntryRow(
+                      return _LibraryWorkspaceSourceRow(
                         entry: entries[index],
                         onRemoveOwned: () => _removeOwned(entries[index]),
                         onRemoveWishlist: () => _removeWishlist(entries[index]),
@@ -140,9 +138,9 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     );
   }
 
-  List<ShelfEntry> _filteredEntries(
-    List<ShelfEntry> entries,
-    Set<String> overdueOwnedItemIds,
+  List<LibraryWorkspaceSource> _filteredEntries(
+    List<LibraryWorkspaceSource> entries,
+    Set<OwnedItemRef> overdueOwnedRefs,
   ) {
     return switch (filter) {
       _ShelfFilter.all => entries,
@@ -150,35 +148,37 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         entries.where((entry) => entry.isOwned).toList(growable: false),
       _ShelfFilter.wishlist =>
         entries.where((entry) => entry.isWishlisted).toList(growable: false),
-      _ShelfFilter.overdue => entries
-          .where((entry) => overdueOwnedItemIds.contains(entry.ownedItem?.id))
-          .toList(growable: false),
-      _ShelfFilter.missingGrade =>
-        entries.where((entry) => entry.isMissingGrade).toList(growable: false),
+      _ShelfFilter.overdue => entries.where((entry) {
+          final ref = entry.ownedSummary?.ref;
+          return ref != null && overdueOwnedRefs.contains(ref);
+        }).toList(growable: false),
       _ShelfFilter.notes =>
         entries.where((entry) => entry.hasNotes).toList(growable: false),
     };
   }
 
-  Future<void> _removeOwned(ShelfEntry entry) async {
-    final ownedItem = entry.ownedItem;
-    if (ownedItem == null) {
+  Future<void> _removeOwned(LibraryWorkspaceSource entry) async {
+    final ownedRef = entry.ownedSummary?.ref;
+    if (ownedRef == null) {
       return;
     }
-    await ref.read(ownedItemMutationsProvider).removeItem(ownedItem);
+    await ref.read(ownedItemMutationsProvider).removeItem(ownedRef);
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _removeWishlist(ShelfEntry entry) async {
-    if (!entry.isWishlisted) {
+  Future<void> _removeWishlist(LibraryWorkspaceSource entry) async {
+    final catalogRef = entry.catalogRef;
+    if (!entry.isWishlisted || catalogRef == null) {
       return;
     }
-    await ref.read(wishlistMutationsProvider).removeFromWishlist(entry.itemId);
+    await ref
+        .read(wishlistMutationsProvider)
+        .removeFromWishlist(catalogRef: catalogRef);
     ref.invalidate(shelfProvider);
   }
 
   Future<void> _showImportExportWizard(
-    List<ShelfEntry> entries, {
+    List<LibraryWorkspaceSource> entries, {
     required int initialIndex,
   }) async {
     final db = ref.read(localDatabaseProvider);
@@ -192,9 +192,11 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
       context: context,
       builder: (context) => ImportExportWizardDialog(
         entries: entries,
+        profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,
+        additionalExports: libraryExportPreviewArtifacts(entries),
       ),
     );
     if (!mounted || imported == null) {

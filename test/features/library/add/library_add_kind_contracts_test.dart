@@ -1,9 +1,18 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_draft.dart';
@@ -13,16 +22,174 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.da
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
+import 'package:collectarr_app/test/helpers/test_owned_details.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_pane.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_visual_primitives.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/config/owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_item_create_payload.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+void _expectDuplicatedOwnedFields(Object owned) {
+  switch (owned) {
+    case AnimeOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case BoardGameOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case BookOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case ComicOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case GameOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case MangaOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case MovieOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case MusicOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    case TvOwnedItem item:
+      _expectOwnedFields(item.condition, item.grade, item.personalNotes,
+          item.purchaseStore, item.collectionStatus, item.quantity);
+    default:
+      fail('Unexpected non-kind Owned value: ${owned.runtimeType}');
+  }
+}
+
+Object _buildOwnedFromCreatePayload(
+  OwnedItemCreatePayload payload, {
+  required CatalogEntityRef resolvedCatalogRef,
+  required String id,
+  required DateTime createdAt,
+  required bool? existingIsDigital,
+}) {
+  return switch (payload) {
+    AnimeOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    BoardgameOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    BookOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    ComicOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    GameOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    MangaOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    MovieOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    MusicOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    TvOwnedItemCreatePayload value => value.toOwnedItem(
+        resolvedCatalogRef: resolvedCatalogRef,
+        id: id,
+        createdAt: createdAt,
+        existingIsDigital: existingIsDigital,
+        ownerUserId: null,
+        ownerLabel: null,
+      ),
+    _ => throw StateError(
+        'Unsupported Owned create payload: ${payload.runtimeType}',
+      ),
+  };
+}
+
+void _expectOwnedFields(
+  String? condition,
+  String? grade,
+  String? personalNotes,
+  String? purchaseStore,
+  String? collectionStatus,
+  int quantity,
+) {
+  expect(condition, 'Near Mint');
+  expect(grade, '9.8');
+  expect(personalNotes, 'Collection note');
+  expect(purchaseStore, 'Typed Store');
+  expect(collectionStatus, 'Complete');
+  expect(quantity, 2);
+}
 
 void main() {
   const activeKinds = [
@@ -41,7 +208,7 @@ void main() {
     test('all 9 active kinds have explicit add capability and correct drafts',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -53,72 +220,120 @@ void main() {
                 '$kind capability must explicitly match kind (no unknown fallback)');
 
         final initialDraft = addCap.createInitialDraft();
-        expect(initialDraft, isNot(isA<GenericAddDraft>()),
-            reason: '$kind must not produce a GenericAddDraft');
         expect(initialDraft.kind, kind,
             reason: '$kind initialDraft.kind must strictly match $kind');
 
-        switch (kind) {
-          case CatalogMediaKind.comic:
-            expect(initialDraft, isA<ComicAddDraft>());
-          case CatalogMediaKind.manga:
-            expect(initialDraft, isA<MangaAddDraft>());
-          case CatalogMediaKind.movie:
-            expect(initialDraft, isA<MovieAddDraft>());
-          case CatalogMediaKind.tv:
-            expect(initialDraft, isA<TvAddDraft>());
-          case CatalogMediaKind.anime:
-            expect(initialDraft, isA<AnimeAddDraft>());
-          case CatalogMediaKind.book:
-            expect(initialDraft, isA<BookAddDraft>());
-          case CatalogMediaKind.game:
-            expect(initialDraft, isA<GameAddDraft>());
-          case CatalogMediaKind.boardgame:
-            expect(initialDraft, isA<BoardGameAddDraft>());
-          case CatalogMediaKind.music:
-            expect(initialDraft, isA<MusicAddDraft>());
-          case CatalogMediaKind.unknown:
-            fail('Unknown kind is not an active kind');
-        }
+        expect(
+          initialDraft.runtimeType,
+          _expectedAddDraftType(kind),
+          reason: '$kind must expose its concrete add draft type',
+        );
 
         final item = testCatalogItem(
           id: '${kind.apiValue}-test-1',
           kind: kind.apiValue,
           title: 'Test Item',
         );
-        const common = LibraryAddCommonDraft(condition: 'Near Mint', rating: 9);
+        const common = LibraryAddCommonDraft(
+          condition: 'Near Mint',
+          personalNotes: 'Collection note',
+          purchaseStore: 'Typed Store',
+          collectionStatus: 'Complete',
+          quantity: 2,
+        );
+        final typedDraft = switch (kind) {
+          CatalogMediaKind.anime => AnimeAddDraft(grade: '9.8'),
+          CatalogMediaKind.boardgame => BoardgameAddDraft(grade: '9.8'),
+          CatalogMediaKind.book => BookAddDraft(grade: '9.8'),
+          CatalogMediaKind.comic => ComicAddDraft(grade: '9.8'),
+          CatalogMediaKind.game => GameAddDraft(grade: '9.8'),
+          CatalogMediaKind.manga => MangaAddDraft(grade: '9.8'),
+          CatalogMediaKind.movie => MovieAddDraft(grade: '9.8'),
+          CatalogMediaKind.music => MusicAddDraft(grade: '9.8'),
+          CatalogMediaKind.tv => TvAddDraft(grade: '9.8'),
+          CatalogMediaKind.unknown => initialDraft,
+        };
 
-        final metadataItem = LibraryMetadataItem.fromCatalogItem(item);
-        final command = addCap.buildCommand(metadataItem, common, initialDraft);
+        final metadataItem = testCatalogItemWithKindMetadata(item);
+        final selectedTarget = CatalogEntityRef(
+          kind: kind,
+          entityType: const CatalogEntityTypeId('edition'),
+          id: 'edition-${kind.apiValue}',
+          rootId: item.id,
+        );
+        final command = addCap.buildCommand(
+          CatalogSearchCandidate.fromItem(metadataItem),
+          common,
+          typedDraft,
+          targetRef: libraryKindRegistrationForKind(kind).catalogTarget.resolve(
+                metadataItem.catalogRef,
+                LibraryCatalogTargetSelection(
+                  referenceType: LibraryAddReferenceType.edition,
+                  firstId: selectedTarget.entityType.apiValue == 'edition'
+                      ? selectedTarget.id
+                      : null,
+                  secondId: selectedTarget.entityType.apiValue == 'release'
+                      ? selectedTarget.id
+                      : null,
+                ),
+              ),
+          tracking: const LibraryAddTrackingDraft(rating: 9),
+        );
         expect(command.catalogRef.id, item.id);
-        expect(command.common.condition, 'Near Mint');
-        expect(command.common.rating, 9);
-        expect(command.details, isNot(isA<GenericOwnedDetailsDraft>()),
-            reason:
-                '$kind command details must not be GenericOwnedDetailsDraft');
+        expect(command.targetRef?.id, 'edition-${kind.apiValue}');
+        expect(command.tracking?.rating, 9);
+        expect(command.tracking?.notes, isNull);
+        expect(command.typedPayload, isNotNull,
+            reason: '$kind must build a kind-owned Owned create payload');
+        expect(command.typedPayload.catalogRef.kind.apiValue, kind.apiValue,
+            reason: '$kind payload must retain its owning kind');
+        expect(runtime.ownedEdit.ownedIndexUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned Owned index payload');
+        expect(runtime.ownedEdit.ownedConditionValueUpdatePayloadBuilder,
+            isNotNull,
+            reason: '$kind must build a kind-owned condition/grade payload');
+        expect(runtime.ownedEdit.ownedBulkUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned bulk payload');
+        expect(runtime.ownedEdit.ownedPersonalDetailsUpdatePayloadBuilder,
+            isNotNull,
+            reason: '$kind must build a kind-owned personal payload');
+        expect(runtime.ownedEdit.ownedTransferUpdatePayloadBuilder, isNotNull,
+            reason: '$kind must build a kind-owned transfer payload');
 
-        switch (kind) {
-          case CatalogMediaKind.comic:
-            expect(command.details, isA<ComicOwnedDetailsDraft>());
-          case CatalogMediaKind.manga:
-            expect(command.details, isA<MangaOwnedDetailsDraft>());
-          case CatalogMediaKind.movie:
-            expect(command.details, isA<MovieOwnedDetailsDraft>());
-          case CatalogMediaKind.tv:
-            expect(command.details, isA<TvOwnedDetailsDraft>());
-          case CatalogMediaKind.anime:
-            expect(command.details, isA<AnimeOwnedDetailsDraft>());
-          case CatalogMediaKind.book:
-            expect(command.details, isA<BookOwnedDetailsDraft>());
-          case CatalogMediaKind.game:
-            expect(command.details, isA<GameOwnedDetailsDraft>());
-          case CatalogMediaKind.boardgame:
-            expect(command.details, isA<BoardgameOwnedDetailsDraft>());
-          case CatalogMediaKind.music:
-            expect(command.details, isA<MusicOwnedDetailsDraft>());
-          case CatalogMediaKind.unknown:
-            fail('Unknown kind is not an active kind');
-        }
+        final existing = _buildOwnedFromCreatePayload(
+          command.typedPayload,
+          resolvedCatalogRef: command.catalogRef,
+          id: 'existing-${kind.apiValue}',
+          createdAt: DateTime.utc(2026, 1, 1),
+          existingIsDigital: metadataItem.physicalFormat == 'digital',
+        );
+        final duplicatePayload = collectarrOwnedCreatePayloadFromTyped(
+          kind,
+          existing,
+        );
+        expect(duplicatePayload.catalogRef.kind,
+            command.typedPayload.catalogRef.kind,
+            reason: '$kind must support typed Owned duplication');
+        expect(
+            duplicatePayload.catalogRef.id, command.typedPayload.catalogRef.id,
+            reason: '$kind duplication must preserve its catalog target');
+        final duplicatedOwned = _buildOwnedFromCreatePayload(
+          duplicatePayload,
+          resolvedCatalogRef: duplicatePayload.catalogRef,
+          id: 'duplicate-${kind.apiValue}',
+          createdAt: DateTime.utc(2026, 1, 2),
+          existingIsDigital: metadataItem.physicalFormat == 'digital',
+        );
+        _expectDuplicatedOwnedFields(duplicatedOwned);
+        expect(command.typedPayload.detailsDraft,
+            isNot(isA<TestOwnedDetailsDraft>()),
+            reason: '$kind command details must not be TestOwnedDetailsDraft');
+
+        expect(
+          command.typedPayload.detailsDraft.runtimeType,
+          _expectedOwnedDetailsDraftType(kind),
+          reason: '$kind must expose its concrete owned details draft type',
+        );
       }
     });
 
@@ -126,22 +341,58 @@ void main() {
         'no supported kind resolves to unknown or generic fallback in registry',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime.kind, isNot(CatalogMediaKind.unknown));
         expect(runtime.add.kind, isNot(CatalogMediaKind.unknown));
-        expect(runtime.add.createInitialDraft(), isNot(isA<GenericAddDraft>()));
+      }
+    });
+
+    test('all kinds own Add release and format presentation', () {
+      for (final kind in activeKinds) {
+        final module = testKindRegistration(kind);
+        final item = CatalogSearchCandidate.fromItem(
+          testCatalogItem(
+            id: '${kind.apiValue}-format-test',
+            kind: kind.apiValue,
+            editions: const [
+              CatalogEditionDto(
+                id: 'edition-1',
+                title: 'Primary edition',
+                physicalFormat: 'format-one',
+                physicalFormatLabel: 'Format One',
+              ),
+              CatalogEditionDto(
+                id: 'edition-2',
+                title: 'Duplicate format edition',
+                physicalFormat: 'format-one',
+                physicalFormatLabel: 'Format One',
+              ),
+            ],
+          ),
+        );
+
+        expect(
+          module.presentation.builder.buildReleaseOptions(item: item),
+          hasLength(2),
+          reason: '$kind must own Add release selection data',
+        );
+        expect(
+          module.presentation.builder.buildAddPreviewFormatBadges(item: item),
+          [("format-one", "Format One")],
+          reason: '$kind must own Add format badge semantics',
+        );
       }
     });
 
     testWidgets('ComicAddManualPane uses standard visual primitives',
         (tester) async {
-      final comicRuntime = libraryKindRuntimeForKind(CatalogMediaKind.comic);
+      final comicRuntime = testKindRegistration(CatalogMediaKind.comic);
       final draft = comicRuntime.add.createManualDraft() as ComicAddManualDraft;
 
       final request = LibraryAddManualPaneRequest(
         kind: CatalogMediaKind.comic,
         accent: Colors.blue,
-        type: comicKindModule,
+        type: const ComicRegistration(),
         manualDraft: draft,
         titleController: TextEditingController(text: 'Batman'),
         tagsController: TextEditingController(),
@@ -156,7 +407,6 @@ void main() {
         linksController: TextEditingController(),
         isAdding: false,
         defaultCondition: 'Near Mint',
-        defaultGrade: '9.4',
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,
@@ -176,12 +426,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(LibraryFormSection), findsNWidgets(2));
-      expect(find.byType(LibraryResponsiveFormRow), findsWidgets);
+      expect(find.byType(LibraryFormSection), findsOneWidget);
+      expect(
+          find.byType(AddSchemaRenderer<ComicAddManualDraft>), findsOneWidget);
       expect(find.byType(LibraryAddManualActionBar), findsOneWidget);
       expect(find.text('Main'), findsOneWidget);
       expect(find.text('Collector'), findsOneWidget);
-      expect(find.text('Series'), findsOneWidget);
+      expect(find.text('Series'), findsNWidgets(2));
       expect(find.text('Issue No.'), findsOneWidget);
       expect(find.text('Variant'), findsOneWidget);
       expect(find.text('Raw / Slabbed'), findsOneWidget);
@@ -189,4 +440,34 @@ void main() {
       expect(find.text('Certification No.'), findsOneWidget);
     });
   });
+}
+
+Type _expectedAddDraftType(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic => ComicAddDraft,
+    CatalogMediaKind.manga => MangaAddDraft,
+    CatalogMediaKind.movie => MovieAddDraft,
+    CatalogMediaKind.tv => TvAddDraft,
+    CatalogMediaKind.anime => AnimeAddDraft,
+    CatalogMediaKind.book => BookAddDraft,
+    CatalogMediaKind.game => GameAddDraft,
+    CatalogMediaKind.boardgame => BoardgameAddDraft,
+    CatalogMediaKind.music => MusicAddDraft,
+    CatalogMediaKind.unknown => Object,
+  };
+}
+
+Type _expectedOwnedDetailsDraftType(CatalogMediaKind kind) {
+  return switch (kind) {
+    CatalogMediaKind.comic => ComicOwnedDetailsDraft,
+    CatalogMediaKind.manga => MangaOwnedDetailsDraft,
+    CatalogMediaKind.movie => MovieOwnedDetailsDraft,
+    CatalogMediaKind.tv => TvOwnedDetailsDraft,
+    CatalogMediaKind.anime => AnimeOwnedDetailsDraft,
+    CatalogMediaKind.book => BookOwnedDetailsDraft,
+    CatalogMediaKind.game => GameOwnedDetailsDraft,
+    CatalogMediaKind.boardgame => BoardgameOwnedDetailsDraft,
+    CatalogMediaKind.music => MusicOwnedDetailsDraft,
+    CatalogMediaKind.unknown => Object,
+  };
 }

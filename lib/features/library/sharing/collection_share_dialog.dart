@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
-import 'package:csv/csv.dart';
+import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:file_selector/file_selector.dart';
 
 /// Shows a dialog to share the current collection view.
@@ -16,7 +16,7 @@ import 'package:file_selector/file_selector.dart';
 Future<void> showCollectionShareDialog({
   required BuildContext context,
   required String title,
-  required List<LibraryProjectionRuntime> items,
+  required List<LibraryProjectionView> items,
 }) {
   return showDialog<void>(
     context: context,
@@ -31,7 +31,7 @@ class _CollectionShareDialog extends StatelessWidget {
   });
 
   final String title;
-  final List<LibraryProjectionRuntime> items;
+  final List<LibraryProjectionView> items;
 
   @override
   Widget build(BuildContext context) {
@@ -108,12 +108,11 @@ class _CollectionShareDialog extends StatelessWidget {
     buffer.writeln(title);
     buffer.writeln('─' * title.length);
     for (final item in items) {
-      final dto = item.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final parts = <String>[dto.title];
-      if (adapter?.itemNumber != null) parts.add('#${adapter!.itemNumber}');
-      if (adapter?.seriesTitle != null) parts.add('(${adapter!.seriesTitle})');
-      buffer.writeln(parts.join(' '));
+      final ref = item.source.catalogRef;
+      final reference = ref == null ? item.node.id : _referenceLabel(ref);
+      buffer.writeln(
+        '${item.dto.title} [${item.source.mediaKind.apiValue}: $reference]',
+      );
     }
     Clipboard.setData(ClipboardData(text: buffer.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -124,21 +123,10 @@ class _CollectionShareDialog extends StatelessWidget {
 
   void _copyAsCsv(BuildContext context) {
     final rows = <List<String>>[
-      ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
-      ...items.map((item) {
-        final dto = item.dto;
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return [
-          dto.title,
-          adapter?.itemNumber ?? '',
-          adapter?.seriesTitle ?? '',
-          adapter?.publisher ?? '',
-          item.source.condition ?? '',
-          adapter?.barcode ?? '',
-        ];
-      }),
+      _structuralHeaders,
+      ...items.map(_structuralRow),
     ];
-    final csv = const CsvEncoder().convert(rows);
+    final csv = const CsvWriter().write(rows);
     Clipboard.setData(ClipboardData(text: csv));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Copied as CSV')),
@@ -147,19 +135,7 @@ class _CollectionShareDialog extends StatelessWidget {
   }
 
   void _copyAsJson(BuildContext context) {
-    final data = items.map((item) {
-      final dto = item.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final condition = item.source.condition;
-      return {
-        'title': dto.title,
-        if (adapter?.itemNumber != null) 'issue': adapter!.itemNumber,
-        if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
-        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
-        if (condition != null) 'condition': condition,
-        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
-      };
-    }).toList();
+    final data = items.map(_structuralJson).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
     Clipboard.setData(ClipboardData(text: json));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -170,38 +146,15 @@ class _CollectionShareDialog extends StatelessWidget {
 
   Future<void> _saveCsvToFile(BuildContext context) async {
     final rows = <List<String>>[
-      ['Title', 'Issue', 'Series', 'Publisher', 'Condition', 'Barcode'],
-      ...items.map((item) {
-        final dto = item.dto;
-        final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-        return [
-          dto.title,
-          adapter?.itemNumber ?? '',
-          adapter?.seriesTitle ?? '',
-          adapter?.publisher ?? '',
-          item.source.condition ?? '',
-          adapter?.barcode ?? '',
-        ];
-      }),
+      _structuralHeaders,
+      ...items.map(_structuralRow),
     ];
-    final csv = const CsvEncoder().convert(rows);
+    final csv = const CsvWriter().write(rows);
     await _saveToFile(context, csv, 'csv');
   }
 
   Future<void> _saveJsonToFile(BuildContext context) async {
-    final data = items.map((item) {
-      final dto = item.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final condition = item.source.condition;
-      return {
-        'title': dto.title,
-        if (adapter?.itemNumber != null) 'issue': adapter!.itemNumber,
-        if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
-        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
-        if (condition != null) 'condition': condition,
-        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
-      };
-    }).toList();
+    final data = items.map(_structuralJson).toList();
     final json = const JsonEncoder.withIndent('  ').convert(data);
     await _saveToFile(context, json, 'json');
   }
@@ -240,15 +193,11 @@ class _CollectionShareDialog extends StatelessWidget {
     final rows = StringBuffer();
     for (var i = 0; i < items.length; i++) {
       final item = items[i];
-      final dto = item.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
       rows.writeln('<tr>');
       rows.writeln('  <td>${i + 1}</td>');
-      rows.writeln('  <td>${_htmlEscape(dto.title)}</td>');
-      rows.writeln('  <td>${_htmlEscape(adapter?.itemNumber ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(adapter?.seriesTitle ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(adapter?.publisher ?? '')}</td>');
-      rows.writeln('  <td>${_htmlEscape(item.source.condition ?? '')}</td>');
+      for (final value in _structuralRow(item)) {
+        rows.writeln('  <td>${_htmlEscape(value)}</td>');
+      }
       rows.writeln('</tr>');
     }
     final html = '''<!DOCTYPE html>
@@ -272,7 +221,7 @@ class _CollectionShareDialog extends StatelessWidget {
 <h1>$escapedTitle</h1>
 <p class="count">${items.length} items</p>
 <table>
-<thead><tr><th>#</th><th>Title</th><th>Issue</th><th>Series</th><th>Publisher</th><th>Condition</th></tr></thead>
+<thead><tr><th>#</th><th>Title</th><th>Kind</th><th>Reference</th><th>Owned</th><th>Wishlist</th><th>Quantity</th><th>Location</th></tr></thead>
 <tbody>
 ${rows.toString()}</tbody>
 </table>
@@ -306,6 +255,45 @@ ${rows.toString()}</tbody>
       }
     }
   }
+
+  static const _structuralHeaders = <String>[
+    'Title',
+    'Kind',
+    'Reference',
+    'Owned',
+    'Wishlist',
+    'Quantity',
+    'Location',
+  ];
+
+  List<String> _structuralRow(LibraryProjectionView item) {
+    final ref = item.source.catalogRef;
+    return [
+      item.dto.title,
+      item.source.mediaKind.apiValue,
+      ref == null ? item.node.id : _referenceLabel(ref),
+      item.source.isOwned.toString(),
+      item.source.isWishlisted.toString(),
+      item.source.quantity.toString(),
+      item.source.locationPath ?? '',
+    ];
+  }
+
+  Map<String, Object?> _structuralJson(LibraryProjectionView item) {
+    final ref = item.source.catalogRef;
+    return {
+      'title': item.dto.title,
+      'kind': item.source.mediaKind.apiValue,
+      'reference': ref?.toJson() ?? item.node.id,
+      'owned': item.source.isOwned,
+      'wishlist': item.source.isWishlisted,
+      'quantity': item.source.quantity,
+      if (item.source.locationPath case final location?) 'location': location,
+    };
+  }
+
+  static String _referenceLabel(CatalogEntityRef ref) =>
+      '${ref.kind.apiValue}:${ref.entityType.apiValue}:${ref.id}';
 
   static String _htmlEscape(String text) {
     return text

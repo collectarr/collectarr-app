@@ -3,12 +3,11 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class BookCatalogMapper {
   const BookCatalogMapper._();
 
-  /// Maps Core API / Cache transport DTO [CatalogItemDto] to domain [BookCatalogItem].
+  /// Maps the catalog transport projection to domain [BookCatalogItem].
   static BookCatalogItem mapDtoToBook(CatalogItemDto dto) {
     final payload = dto.toSyncPayload();
     final seriesDetails = (payload['series'] as Map?) ?? payload;
@@ -144,14 +143,14 @@ class BookCatalogMapper {
 
   /// Maps projected item directly to domain [BookCatalogItem].
 
-  /// Maps [LibraryMetadataItem] directly to domain [BookCatalogItem].
-  static BookCatalogItem mapMetadataItemToBook(LibraryMetadataItem item) {
+  /// Maps [CatalogItemDto] directly to domain [BookCatalogItem].
+  static BookCatalogItem mapMetadataItemToBook(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
     final BookCatalogMetadata metadata;
     if (rawMetadata is BookCatalogMetadata) {
       metadata = rawMetadata;
     } else {
-      metadata = BookCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+      metadata = BookCatalogMetadata.fromJson(item.payload);
     }
 
     final seriesDetails = metadata.series;
@@ -211,11 +210,30 @@ class BookCatalogMapper {
           (edition) => BookRelease(
             id: edition.id,
             title: edition.title,
+            titleValue: edition.title,
+            displayTitle: edition.title,
+            ageRating: edition.ageRating,
+            audioLengthMinutes: edition.audioLengthMinutes ??
+                edition.audiobook?.durationMinutes,
+            binding: edition.binding,
+            contributors: edition.contributors,
+            coverImageKey: edition.coverImageKey,
             publisher: edition.publisher,
+            distributor: edition.distributor,
+            description: edition.description,
+            editionStatement: edition.editionStatement,
             isbn: edition.isbn,
+            identifiers: edition.identifiers,
+            imprint: edition.imprint,
+            upc: edition.upc,
             releaseDate: edition.publicationDate,
+            releaseStatus: edition.releaseStatus,
             physicalFormat: edition.format,
-            physicalFormatLabel: edition.format,
+            physicalFormatLabel: edition.physicalFormatLabel ?? edition.format,
+            coverImageUrl: edition.coverImageUrl,
+            thumbnailImageUrl: edition.thumbnailImageUrl,
+            dimensions: edition.dimensions,
+            variants: edition.variants,
             firstEdition: edition.firstEdition,
           ),
         )

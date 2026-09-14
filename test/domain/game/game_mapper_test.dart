@@ -36,19 +36,23 @@ void main() {
       publisher: 'Nintendo',
     );
 
-    final shelf = ShelfEntry(
+    final owned = testOwnedItem(
+      id: 'owned-game-10',
       itemId: 'game-10',
-      catalogItem: catalogItem,
-      ownedItem: testOwnedItem(
-        id: 'owned-game-10',
-        itemId: 'game-10',
-        kind: 'game',
-        gameCompleteness: 'CIB',
-        gameHasBox: true,
-        gameHasManual: true,
-        gamePriceChartingId: 'pc-12345',
-        gameCoreRegion: 'NTSC-U',
-        gameValueIsLocked: true,
+      kind: 'game',
+      gameCompleteness: 'CIB',
+      gameHasBox: true,
+      gameHasManual: true,
+      gamePriceChartingId: 'pc-12345',
+      gameCoreRegion: 'NTSC-U',
+      gameValueIsLocked: true,
+    );
+    final shelf = LibraryWorkspaceSource(
+      itemId: 'game-10',
+      catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(owned),
+      ownedItemDispatch: testGameOwnedItemDispatchFrom(
+        GameOwnedItem.fromJson(owned.toJson()),
       ),
     );
 
@@ -141,10 +145,11 @@ void main() {
   });
 
   test('gameKindModule registers dedicated Game capabilities', () {
-    expect(gameKindModule.kind, CatalogMediaKind.game);
+    expect(gameKindModule.identity.kind, CatalogMediaKind.game);
     expect(gameKindModule.add.kind, CatalogMediaKind.game);
     expect(gameKindModule.add.createInitialDraft(), isA<GameAddDraft>());
-    expect(gameKindModule.ownedDetailsCodec, isA<GameOwnedDetailsCodec>());
-    expect(gameKindModule.defaultOwnedDetails(), isA<GameOwnedDetails>());
+    expect(const GameOwnedDetailsCodec(), isA<GameOwnedDetailsCodec>());
+    expect(const GameOwnedDetailsCodec().defaultDetails(),
+        isA<GameOwnedDetails>());
   });
 }

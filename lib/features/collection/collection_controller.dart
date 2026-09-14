@@ -1,58 +1,65 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final collectionProvider = FutureProvider<List<OwnedItem>>((ref) async {
-  final cache = OwnedItemsCacheRepository(ref.watch(localDatabaseProvider));
-  return cache.listActive();
+final collectionProvider = FutureProvider<List<OwnedItemSummary>>((ref) async {
+  final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
+  return cache.listActiveSummaries();
 });
 
-final collectionByCatalogItemProvider = Provider<Map<String, OwnedItem>>((ref) {
-  final collection = ref.watch(collectionProvider);
+final collectionByCatalogRefProvider =
+    Provider<Map<CatalogEntityRef, OwnedItemSummary>>((ref) {
+  final collection = ref.watch(collectionSummariesProvider);
   return collection.maybeWhen(
     data: (items) => {
       for (final item in items)
-        if (!item.isDeleted) item.catalogRef.id: item,
+        if (!item.isDeleted && item.catalogRef != null) item.catalogRef!: item,
     },
-    orElse: () => const {},
+    orElse: () => const <CatalogEntityRef, OwnedItemSummary>{},
   );
 });
 
-final trackingEntriesProvider =
-    FutureProvider<List<TrackingEntry>>((ref) async {
-  final cache =
-      TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
-  return cache.listActive();
+final collectionSummariesProvider =
+    FutureProvider<List<OwnedItemSummary>>((ref) async {
+  final cache = OwnedItemsRepository(ref.watch(localDatabaseProvider));
+  return cache.listActiveSummaries();
 });
 
-final trackingEntriesByCatalogItemProvider =
-    Provider<Map<String, List<TrackingEntry>>>((ref) {
-  final tracking = ref.watch(trackingEntriesProvider);
+/// Structural tracking projection for mixed/global consumers.
+///
+/// Collection/Shelf/Activity must not carry the full tracking aggregate.
+final trackingSummariesProvider =
+    FutureProvider<List<TrackingSummary>>((ref) async {
+  return TrackingSummaryRepository(ref.watch(localDatabaseProvider))
+      .listActive();
+});
+
+final trackingSummariesByCatalogRefProvider =
+    Provider<Map<CatalogEntityRef, List<TrackingSummary>>>((ref) {
+  final tracking = ref.watch(trackingSummariesProvider);
   return tracking.maybeWhen(
     data: (items) {
-      final grouped = <String, List<TrackingEntry>>{};
+      final grouped = <CatalogEntityRef, List<TrackingSummary>>{};
       for (final item in items) {
-        if (item.isDeleted) {
-          continue;
-        }
+        if (item.isDeleted) continue;
         grouped
-            .putIfAbsent(item.catalogRef.id, () => <TrackingEntry>[])
+            .putIfAbsent(item.catalogRef, () => <TrackingSummary>[])
             .add(item);
       }
       for (final entries in grouped.values) {
@@ -60,123 +67,86 @@ final trackingEntriesByCatalogItemProvider =
       }
       return grouped;
     },
-    orElse: () => const <String, List<TrackingEntry>>{},
+    orElse: () => const <CatalogEntityRef, List<TrackingSummary>>{},
   );
 });
 
-final trackingUnitsProvider = FutureProvider<List<TrackingUnit>>((ref) async {
-  final cache = TrackingUnitsCacheRepository(ref.watch(localDatabaseProvider));
+final trackingUnitsProvider =
+    FutureProvider<List<TrackingUnitSummary>>((ref) async {
+  final cache = TrackingUnitStorageRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrTrackingUnitStorageCodecs,
+  );
   return cache.listActive();
 });
 
-final trackingUnitsByCatalogItemProvider =
-    Provider<Map<String, List<TrackingUnit>>>((ref) {
+final trackingUnitsByCatalogRefMapProvider =
+    Provider<Map<CatalogEntityRef, List<TrackingUnitSummary>>>((ref) {
   final tracking = ref.watch(trackingUnitsProvider);
   return tracking.maybeWhen(
     data: (items) {
-      final grouped = <String, List<TrackingUnit>>{};
+      final grouped = <CatalogEntityRef, List<TrackingUnitSummary>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
         }
         grouped
-            .putIfAbsent(item.targetRef.id, () => <TrackingUnit>[])
+            .putIfAbsent(item.targetRef, () => <TrackingUnitSummary>[])
             .add(item);
       }
       for (final entries in grouped.values) {
-        entries.sort((a, b) {
-          final seasonCompare =
-              (a.seasonNumber ?? 0).compareTo(b.seasonNumber ?? 0);
-          if (seasonCompare != 0) {
-            return seasonCompare;
-          }
-          final episodeCompare =
-              (a.episodeNumber ?? 0).compareTo(b.episodeNumber ?? 0);
-          if (episodeCompare != 0) {
-            return episodeCompare;
-          }
-          final volumeCompare =
-              (a.volumeNumber ?? 0).compareTo(b.volumeNumber ?? 0);
-          if (volumeCompare != 0) {
-            return volumeCompare;
-          }
-          final chapterCompare =
-              (a.chapterNumber ?? 0).compareTo(b.chapterNumber ?? 0);
-          if (chapterCompare != 0) {
-            return chapterCompare;
-          }
-          return a.updatedAt.compareTo(b.updatedAt);
-        });
+        entries.sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
       }
       return grouped;
     },
-    orElse: () => const <String, List<TrackingUnit>>{},
+    orElse: () => const <CatalogEntityRef, List<TrackingUnitSummary>>{},
   );
 });
 
 final trackingUnitsByCatalogRefProvider =
-    Provider.family<List<TrackingUnit>, CatalogEntityRef>((ref, catalogRef) {
-  return ref.watch(trackingUnitsByCatalogItemProvider)[catalogRef.id] ??
-      const <TrackingUnit>[];
+    Provider.family<List<TrackingUnitSummary>, CatalogEntityRef>(
+        (ref, catalogRef) {
+  return ref.watch(trackingUnitsByCatalogRefMapProvider)[catalogRef] ??
+      const <TrackingUnitSummary>[];
 });
 
-final wishlistByCatalogItemProvider =
-    Provider<Map<String, List<WishlistItem>>>((ref) {
+final wishlistByCatalogRefProvider =
+    Provider<Map<CatalogEntityRef, List<WishlistItem>>>((ref) {
   final wishlist = ref.watch(wishlistProvider);
   return wishlist.maybeWhen(
     data: (items) {
-      final grouped = <String, List<WishlistItem>>{};
+      final grouped = <CatalogEntityRef, List<WishlistItem>>{};
       for (final item in items) {
         if (item.isDeleted) {
           continue;
         }
-        grouped
-            .putIfAbsent(item.catalogRef.id, () => <WishlistItem>[])
-            .add(item);
+        grouped.putIfAbsent(item.catalogRef, () => <WishlistItem>[]).add(item);
       }
       for (final entries in grouped.values) {
         entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
       }
       return grouped;
     },
-    orElse: () => const <String, List<WishlistItem>>{},
+    orElse: () => const <CatalogEntityRef, List<WishlistItem>>{},
   );
 });
 
-final wishlistIdsProvider = FutureProvider<Set<String>>((ref) async {
+final wishlistRefsProvider = FutureProvider<Set<CatalogEntityRef>>((ref) async {
   final cache = WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
   final items = await cache.listActive();
   return {
     for (final item in items)
-      if (!item.isDeleted) item.catalogRef.id,
+      if (!item.isDeleted) item.catalogRef,
   };
 });
 
 final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
   final db = ref.watch(localDatabaseProvider);
-  final cache = WatchSessionsCacheRepository(db);
-  return cache.listActive();
-});
-
-final watchSessionsByItemProvider =
-    Provider<Map<String, List<WatchSession>>>((ref) {
-  final sessions = ref.watch(watchSessionsProvider);
-  return sessions.maybeWhen(
-    data: (items) {
-      final grouped = <String, List<WatchSession>>{};
-      for (final session in items) {
-        if (session.isDeleted) continue;
-        grouped
-            .putIfAbsent(session.targetRef.id, () => <WatchSession>[])
-            .add(session);
-      }
-      for (final entries in grouped.values) {
-        entries.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
-      }
-      return grouped;
-    },
-    orElse: () => const <String, List<WatchSession>>{},
+  final repository = WatchSessionsRepository(
+    db,
+    codecs: collectarrWatchSessionCodecs,
   );
+  return repository.listActive();
 });
 
 final watchSessionsByCatalogRefProvider =
@@ -184,13 +154,9 @@ final watchSessionsByCatalogRefProvider =
   final sessions = ref.watch(watchSessionsProvider);
   return sessions.maybeWhen(
     data: (items) {
-      final rootPrefix = _catalogRefSessionPrefix(catalogRef);
+      final codec = _watchSessionCodecFor(catalogRef.mediaKind);
       final matched = items.where((session) {
-        final targetId = session.targetRef.id;
-        return targetId == catalogRef.id ||
-            targetId.startsWith(rootPrefix) ||
-            (catalogRef.entityType == CatalogEntityType.work &&
-                targetId.startsWith('${catalogRef.id}:release:'));
+        return codec?.matchesCatalogScope(session, catalogRef) ?? false;
       }).toList(growable: false);
       matched.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
       return matched;
@@ -199,14 +165,11 @@ final watchSessionsByCatalogRefProvider =
   );
 });
 
-String _catalogRefSessionPrefix(CatalogEntityRef catalogRef) {
-  return switch (catalogRef.entityType) {
-    CatalogEntityType.work => '${catalogRef.id}:season:',
-    CatalogEntityType.season => '${catalogRef.id}:episode:',
-    CatalogEntityType.episode => '${catalogRef.id}:',
-    CatalogEntityType.release => '${catalogRef.id}:',
-    _ => '${catalogRef.id}:',
-  };
+WatchSessionCodec? _watchSessionCodecFor(CatalogMediaKind kind) {
+  for (final codec in collectarrWatchSessionCodecs) {
+    if (codec.kind == kind) return codec;
+  }
+  return null;
 }
 
 final metadataOverridesProvider =
@@ -216,59 +179,26 @@ final metadataOverridesProvider =
 });
 
 final metadataOverridesByItemProvider =
-    Provider<Map<String, List<UserMetadataOverride>>>((ref) {
+    Provider<Map<CatalogEntityRef, List<UserMetadataOverride>>>((ref) {
   final overrides = ref.watch(metadataOverridesProvider);
   return overrides.maybeWhen(
     data: (items) {
-      final grouped = <String, List<UserMetadataOverride>>{};
+      final grouped = <CatalogEntityRef, List<UserMetadataOverride>>{};
       for (final o in items) {
         if (o.isDeleted) continue;
-        grouped.putIfAbsent(o.itemId, () => <UserMetadataOverride>[]).add(o);
+        grouped.putIfAbsent(o.targetRef, () => <UserMetadataOverride>[]).add(o);
       }
       return grouped;
     },
-    orElse: () => const <String, List<UserMetadataOverride>>{},
+    orElse: () => const <CatalogEntityRef, List<UserMetadataOverride>>{},
   );
 });
 
 final userExternalLinksByItemProvider =
-    FutureProvider.family<List<UserExternalLink>, String>((ref, itemId) async {
-  final db = ref.watch(localDatabaseProvider);
-  return UserExternalLinksCacheRepository(db).listByItemId(itemId);
-});
-
-final customEpisodesByItemProvider =
-    FutureProvider.family<Map<int, List<CustomEpisode>>, String>(
-        (ref, itemId) async {
-  final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesCacheRepository(db).listByItemIdGrouped(itemId);
-});
-
-final customEpisodesByCatalogRefProvider =
-    FutureProvider.family<Map<int, List<CustomEpisode>>, CatalogEntityRef>(
+    FutureProvider.family<List<UserExternalLink>, CatalogEntityRef>(
         (ref, catalogRef) async {
   final db = ref.watch(localDatabaseProvider);
-  return CustomEpisodesCacheRepository(db).listByItemIdGrouped(catalogRef.id);
-});
-
-/// Groups owned items by box set name for summary display.
-final boxSetGroupsProvider = Provider<Map<String, List<OwnedItem>>>((ref) {
-  final collection = ref.watch(collectionProvider);
-  return collection.maybeWhen(
-    data: (items) {
-      final grouped = <String, List<OwnedItem>>{};
-      for (final item in items) {
-        if (item.isDeleted) continue;
-        final videoDetails = item.videoLikeDetails;
-        final name = videoDetails?.boxSetName;
-        if (name != null && name.isNotEmpty) {
-          grouped.putIfAbsent(name, () => <OwnedItem>[]).add(item);
-        }
-      }
-      return grouped;
-    },
-    orElse: () => const <String, List<OwnedItem>>{},
-  );
+  return UserExternalLinksCacheRepository(db).listByCatalogRef(catalogRef);
 });
 
 final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {

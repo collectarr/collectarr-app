@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
@@ -35,7 +37,7 @@ const musicStatsLabels = LibraryMediaStatsLabels(
   values: {'top_series': 'Top Artists', 'top_publisher': 'Top Labels'},
 );
 
-const musicLibraryGroupLabels = LibraryMediaGroupLabels(
+const musicLibraryGroupLabels = LibraryPresentationLabels(
   values: {
     'series': 'Artist',
     'series_plural': 'Artists',
@@ -47,63 +49,69 @@ const musicLibraryGroupLabels = LibraryMediaGroupLabels(
   },
 );
 
-const musicLibraryBucketLabelOverrides = LibraryBucketLabelOverrides();
+const musicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
-final musicLibraryFilterDefinitions = <LibraryFilterDefinition<dynamic>>[
-  LibraryFilterDefinition<dynamic>(
+final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  LibraryFilterDefinition<Object?>(
     id: 'series',
     label: 'Artist',
     anyLabel: 'Any artist',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).seriesTitle
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).seriesTitle
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
+    value: (item) => MusicOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
+    )?.tags?.split(','),
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'publisher',
     label: 'Label',
     anyLabel: 'Any label',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).publisher
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).publisher
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).releaseDate?.year.toString()
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).releaseDate?.year.toString()
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
+    value: (item) => MusicOwnedItemProjection.fromDispatch(
+      item.source.ownedItemDispatch,
+    )?.condition,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).country
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).country
         : null,
   ),
-  LibraryFilterDefinition<dynamic>(
+  LibraryFilterDefinition<Object?>(
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
-    value: (item) => (item.dto is WorkspaceDtoAdapter)
-        ? (item.dto as WorkspaceDtoAdapter).language
+    value: (item) => (item.dto is MusicWorkspaceDto)
+        ? (item.dto as MusicWorkspaceDto).language
         : null,
   ),
 ];
@@ -121,7 +129,7 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
     queryHint: 'Enter album, artist, release, or label...',
     emptySearchMessage: 'Enter an album, artist, release, or label.',
   ),
-  filterLabels: const LibraryMediaFilterLabels(
+  filterLabels: const LibraryPresentationLabels(
     values: {
       'series': 'Artist',
       'series_any': 'Any artist',
@@ -134,9 +142,10 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   groupLabels: musicLibraryGroupLabels,
   builder: musicLibraryMediaBuilder,
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
+  cardPresentationBuilder: buildMusicCardPresentation,
   compactBucketIcon: Icons.person_2_outlined,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,
   filterDefinitions: musicLibraryFilterDefinitions,
-  referenceLabels: const LibraryReferenceLabels(values: {'item': 'Album'}),
+  referenceLabels: const LibraryPresentationLabels(values: {'item': 'Album'}),
 );

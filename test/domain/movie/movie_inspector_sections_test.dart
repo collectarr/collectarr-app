@@ -3,25 +3,25 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/inspector_sections.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   testWidgets('movie inspector composes movie-specific sections',
       (tester) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         title: 'The Matrix',
         synopsis: 'A hacker discovers reality is a simulation.',
         kind: 'movie',
-      ),
+      ).asShelfCatalogItem),
     );
 
     final node = const LibraryTitleNodeRef(titleItemId: 'movie-1');
@@ -37,10 +37,9 @@ void main() {
     );
 
     final request = LibraryInspectorRequest(
-      type: movieKindModule,
+      type: const MovieRegistration(),
       item: item,
       ownedItem: null,
-      trackingEntry: null,
       accent: Colors.green,
     );
 

@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_search_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 const comicAddHideOwnedOptionId = 'comic.hide-owned';
 const comicAddHideVariantsOptionId = 'comic.hide-variants';
@@ -31,7 +31,7 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   ],
   coreResultVisibility: (item, context) {
     if (context.optionIsEnabled(comicAddHideOwnedOptionId) &&
-        context.ownedCatalogItemIds.contains(item.id)) {
+        context.ownedCatalogRefs.contains(item.catalogRef)) {
       return false;
     }
     if (context.optionIsEnabled(comicAddHideVariantsOptionId) &&
@@ -50,15 +50,14 @@ final comicAddResultPolicy = LibraryAddResultPolicy(
   providerCandidateComparator: compareComicIssueCandidates,
 );
 
-bool _comicItemIsVariant(LibraryMetadataItem item) {
-  final metadata = item.kindMetadata;
-  return metadata is ComicCatalogMetadata &&
-      metadata.variant?.trim().isNotEmpty == true;
+bool _comicItemIsVariant(CatalogSearchCandidate item) {
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  return metadata is ComicMedia && metadata.variant?.trim().isNotEmpty == true;
 }
 
-String _comicGroupTitle(LibraryMetadataItem item) {
-  final metadata = item.kindMetadata;
-  if (metadata is ComicCatalogMetadata) {
+String _comicGroupTitle(CatalogSearchCandidate item) {
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
+  if (metadata is ComicMedia) {
     final seriesTitle =
         metadata.seriesTitle?.trim() ?? metadata.series?.seriesTitle?.trim();
     if (seriesTitle != null && seriesTitle.isNotEmpty) {

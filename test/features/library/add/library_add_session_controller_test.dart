@@ -1,33 +1,49 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'dart:convert';
+
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import '../../../helpers/test_data_factories.dart';
+import '../../../helpers/tracking_state_test_helpers.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_session_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_shared.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_search_operations.dart';
+import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_result_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -45,32 +61,37 @@ void main() {
       database: db,
       events: CollectionEventBus(),
     );
-    final catalogCache = CatalogCacheRepository(db);
+    final catalogCache = CatalogTransportRepository(db);
 
     ownedMutations = OwnedItemMutations(
-      ownedItems: OwnedItemsCacheRepository(db),
+      ownedItems: OwnedItemsRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
-      catalogCache: catalogCache,
-      trackingEntries: TrackingEntriesCacheRepository(db),
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
 
     wishlistMutations = WishlistMutations(
       wishlist: WishlistItemsCacheRepository(db),
-      catalogCache: catalogCache,
-      trackingEntries: TrackingEntriesCacheRepository(db),
-      trackingUnits: TrackingUnitsCacheRepository(db),
+      catalogTransport: catalogCache,
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
 
     trackingMutations = TrackingMutations(
-      trackingEntries: TrackingEntriesCacheRepository(db),
-      trackingUnits: TrackingUnitsCacheRepository(db),
-      watchSessions: WatchSessionsCacheRepository(db),
-      catalogCache: catalogCache,
-      ownedItems: OwnedItemsCacheRepository(db),
+      trackingRecords: TrackingStorageRepository(
+        db,
+        codecs: collectarrTrackingStorageCodecs,
+      ),
+      trackingUnits: TrackingUnitStorageRepository(
+        db,
+        codecs: collectarrTrackingUnitStorageCodecs,
+      ),
+      watchSessions: WatchSessionsRepository(
+        db,
+        codecs: collectarrWatchSessionCodecs,
+      ),
+      ownedItems: OwnedItemsRepository(db),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
@@ -112,11 +133,12 @@ void main() {
     });
 
     test('manual draft editing updates state', () {
-      controller.updateCommonDraft(
-        (c) => c.copyWith(condition: 'Mint', rating: 9),
+      controller.updateCommonDraft((c) => c.copyWith(condition: 'Mint'));
+      controller.updateTrackingDraft(
+        (tracking) => tracking.copyWith(rating: 9),
       );
       expect(controller.state.commonDraft.condition, 'Mint');
-      expect(controller.state.commonDraft.rating, 9);
+      expect(controller.state.trackingDraft.rating, 9);
 
       controller.updateKindDraft(
         (k) => (k as ComicAddDraft).copyWith(gradingCompany: 'CGC'),
@@ -140,7 +162,7 @@ void main() {
     test(
         'submits selected item to owned items using capability command building',
         () async {
-      final item = LibraryMetadataItem.fromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-sub-1',
           kind: 'comic',
@@ -148,16 +170,18 @@ void main() {
         ),
       );
 
-      final success = await controller.submitSelectedItem(item);
+      final success = await controller.submitSelectedItem(
+        CatalogSearchCandidate.fromItem(item),
+      );
       expect(success, true);
 
-      final owned = await db.select(db.ownedItemsCache).getSingle();
+      final owned = (await ComicOwnedRepository(db).listActive()).single;
       expect(owned.itemId, 'comic-sub-1');
     });
 
     test('submits item to wishlist target', () async {
       controller.setTarget(LibraryAddTarget.wishlist);
-      final item = LibraryMetadataItem.fromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-wish-1',
           kind: 'comic',
@@ -165,16 +189,23 @@ void main() {
         ),
       );
 
-      final success = await controller.submitSelectedItem(item);
+      final success = await controller.submitSelectedItem(
+        CatalogSearchCandidate.fromItem(item),
+      );
       expect(success, true);
 
       final wishlist = await db.select(db.wishlistItemsCache).getSingle();
-      expect(wishlist.itemId, 'comic-wish-1');
+      expect(
+        CatalogEntityRef.fromJson(
+          jsonDecode(wishlist.catalogRefJson) as Map<String, dynamic>,
+        ).id,
+        'comic-wish-1',
+      );
     });
 
     test('submits item to tracking target', () async {
       controller.setTarget(LibraryAddTarget.track);
-      final item = LibraryMetadataItem.fromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'comic-track-1',
           kind: 'comic',
@@ -182,11 +213,13 @@ void main() {
         ),
       );
 
-      final success = await controller.submitSelectedItem(item);
+      final success = await controller.submitSelectedItem(
+        CatalogSearchCandidate.fromItem(item),
+      );
       expect(success, true);
 
-      final tracking = await db.select(db.trackingEntriesCache).getSingle();
-      expect(tracking.itemId, 'comic-track-1');
+      final tracking = await readSingleTrackingState(db);
+      expect(tracking.catalogRef.id, 'comic-track-1');
     });
 
     test('toggleCheckedResult and toggleCheckedProvider update selection', () {
@@ -248,13 +281,13 @@ void main() {
     });
 
     test('selectSuggestion updates query and selects suggestion', () {
-      final suggestion = LibraryMetadataItem.fromMetadataMap({
+      final suggestion = testCatalogItemFromJson({
         'id': 'sugg-1',
         'kind': 'comic',
         'title': 'Daredevil',
       });
 
-      controller.selectSuggestion(suggestion);
+      controller.selectSuggestion(CatalogSearchCandidate.fromItem(suggestion));
 
       expect(controller.state.search.query, 'Daredevil');
       expect(controller.state.selection.selectedResultId, 'sugg-1');
@@ -282,7 +315,6 @@ void main() {
     test('defaults configuration updates state', () {
       final now = DateTime.now();
       controller.setDefaultCondition('Fine');
-      controller.setDefaultGrade('9.8');
       controller.setDefaultPurchaseDate(now);
       controller.setDefaultLocationId('loc-1');
       controller.setDefaultReadStatus('read');
@@ -290,7 +322,6 @@ void main() {
       controller.setPhysicalFormatId('cgc_slab');
 
       expect(controller.state.defaultCondition, 'Fine');
-      expect(controller.state.defaultGrade, '9.8');
       expect(controller.state.defaultPurchaseDate, now);
       expect(controller.state.defaultLocationId, 'loc-1');
       expect(controller.state.defaultReadStatus, 'read');
@@ -301,70 +332,102 @@ void main() {
 
   group('Kind-Specific Add Draft to Command Capability Tests', () {
     test('ComicAddDraft produces valid AddOwnedItemCommand', () {
-      final item = LibraryMetadataItem.fromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'c1', kind: 'comic', title: 'Comic 1'),
       );
-      const common = LibraryAddCommonDraft(condition: 'NM', rating: 10);
+      const common = LibraryAddCommonDraft(condition: 'NM');
       const draft = ComicAddDraft(gradingCompany: 'CBCS', signedBy: 'Stan Lee');
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.comic).add;
-      final command = cap.buildCommand(item, common, draft);
+      final cap = libraryKindRegistrationForKind(CatalogMediaKind.comic).add;
+      final command = cap.buildCommand(
+        CatalogSearchCandidate.fromItem(item),
+        common,
+        draft,
+        tracking: const LibraryAddTrackingDraft(rating: 10),
+      );
 
       expect(command.catalogRef.id, 'c1');
-      expect(command.common.condition, 'NM');
-      expect(command.details.toDetails().comic?.gradingCompany, 'CBCS');
-      expect(command.details.toDetails().comic?.signedBy, 'Stan Lee');
+      final details =
+          (command.typedPayload.detailsDraft as ComicOwnedDetailsDraft)
+              .toDetails();
+      expect(details, isA<ComicOwnedDetails>());
+      expect((details).gradingCompany, 'CBCS');
+      expect(details.signedBy, 'Stan Lee');
     });
 
     test('MovieAddDraft produces valid AddOwnedItemCommand', () {
-      final item = LibraryMetadataItem.fromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'v1', kind: 'movie', title: 'Video 1'),
       );
       const common = LibraryAddCommonDraft(condition: 'New');
       const draft = MovieAddDraft(packaging: 'SteelBook', region: 'Region A');
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.movie).add;
-      final command = cap.buildCommand(item, common, draft);
+      final cap = libraryKindRegistrationForKind(CatalogMediaKind.movie).add;
+      final command = cap.buildCommand(
+        CatalogSearchCandidate.fromItem(item),
+        common,
+        draft,
+      );
 
       expect(command.catalogRef.id, 'v1');
-      expect(command.details.toDetails().movie?.packaging, 'SteelBook');
-      expect(command.details.toDetails().movie?.region, 'Region A');
+      final details =
+          (command.typedPayload.detailsDraft as MovieOwnedDetailsDraft)
+              .toDetails();
+      expect(details, isA<MovieOwnedDetails>());
+      expect((details).packaging, 'SteelBook');
+      expect(details.region, 'Region A');
     });
 
     test('GameAddDraft produces valid AddOwnedItemCommand', () {
-      final item = LibraryMetadataItem.fromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'g1', kind: 'game', title: 'Game 1'),
       );
       const common = LibraryAddCommonDraft(quantity: 2);
       const draft = GameAddDraft(completeness: 'CIB', hasBox: true);
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.game).add;
-      final command = cap.buildCommand(item, common, draft);
+      final cap = libraryKindRegistrationForKind(CatalogMediaKind.game).add;
+      final command = cap.buildCommand(
+        CatalogSearchCandidate.fromItem(item),
+        common,
+        draft,
+      );
 
       expect(command.catalogRef.id, 'g1');
-      expect(command.details.toDetails().game?.completeness, 'CIB');
-      expect(command.details.toDetails().game?.hasBox, true);
+      final details =
+          (command.typedPayload.detailsDraft as GameOwnedDetailsDraft)
+              .toDetails();
+      expect(details, isA<GameOwnedDetails>());
+      expect((details).completeness, 'CIB');
+      expect(details.hasBox, true);
     });
 
     test('MusicAddDraft produces valid AddOwnedItemCommand', () {
-      final item = LibraryMetadataItem.fromCatalogItem(
+      final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'm1', kind: 'music', title: 'Music 1'),
       );
       const common = LibraryAddCommonDraft();
       const draft = MusicAddDraft(storageDevice: 'Shelf A', storageSlot: '12');
 
-      final cap = libraryKindRuntimeForKind(CatalogMediaKind.music).add;
-      final command = cap.buildCommand(item, common, draft);
+      final cap = libraryKindRegistrationForKind(CatalogMediaKind.music).add;
+      final command = cap.buildCommand(
+        CatalogSearchCandidate.fromItem(item),
+        common,
+        draft,
+      );
 
       expect(command.catalogRef.id, 'm1');
-      expect(command.details.toDetails().music?.storageDevice, 'Shelf A');
-      expect(command.details.toDetails().music?.storageSlot, '12');
+      final details =
+          (command.typedPayload.detailsDraft as MusicOwnedDetailsDraft)
+              .toDetails();
+      expect(details, isA<MusicOwnedDetails>());
+      expect((details).storageDevice, 'Shelf A');
+      expect(details.storageSlot, '12');
     });
 
     test(
-        'runLibraryAddProviderSearch uses ProviderRegistry and isolates broken provider',
+        'runLibraryAddProviderSearch uses ProviderConnectorRegistry and isolates broken provider',
         () async {
-      final registry = InMemoryProviderRegistry();
+      final registry = InMemoryProviderConnectorRegistry();
 
       final goodProvider = _MockProvider(
         name: 'good_prov',
@@ -374,7 +437,7 @@ void main() {
             provider: 'good_prov',
             providerItemId: 'item-good-1',
             title: 'Good Result for $query',
-            kind: 'comic',
+            kind: CatalogMediaKind.comic,
           ),
         ],
       );
@@ -398,10 +461,10 @@ void main() {
       );
 
       final results = await runLibraryAddProviderSearch(
-        type: libraryKindRuntimeForKind(CatalogMediaKind.comic),
+        type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
         provider: 'all',
         query: 'Batman',
-        ranking: libraryKindRuntimeForKind(CatalogMediaKind.comic)
+        ranking: libraryKindRegistrationForKind(CatalogMediaKind.comic)
             .add
             .search
             .ranking,
@@ -416,10 +479,74 @@ void main() {
       sessionController.dispose();
     });
 
-    test(
-        'selectProviderCandidate fetches preview from ProviderRegistry and converts via mapper',
+    test('Comic provider search preserves structured candidate semantics',
         () async {
-      final registry = InMemoryProviderRegistry();
+      final registry = InMemoryProviderConnectorRegistry();
+      final provider = _MockProvider(
+        name: 'gcd',
+        kind: 'comic',
+        searchHandler: (query, {kind, limit = 25}) async => [
+          const ProviderSearchResult(
+            provider: 'gcd',
+            providerItemId: '2663120',
+            title: 'Absolute Batman #1',
+            kind: CatalogMediaKind.comic,
+            summary: 'December 2024 Ã‚Â· 4.99 USD',
+            candidateType: 'issue',
+            seriesTitle: 'Absolute Batman',
+            issueNumber: '1',
+            volumeStartYear: 2024,
+            publisher: 'DC Comics',
+          ),
+          const ProviderSearchResult(
+            provider: 'gcd',
+            providerItemId: '2665653',
+            title: 'Absolute Batman #1 [Cardstock Variant]',
+            kind: CatalogMediaKind.comic,
+            candidateType: 'variant',
+            seriesTitle: 'Absolute Batman',
+            issueNumber: '1',
+            variantName: 'Cardstock Variant',
+            isVariant: true,
+          ),
+        ],
+      );
+      registry.register(provider.toConnector());
+
+      final results = await runLibraryAddProviderSearch(
+        type: libraryKindRegistrationForKind(CatalogMediaKind.comic),
+        provider: 'gcd',
+        query: 'Absolute Batman',
+        ranking: libraryKindRegistrationForKind(CatalogMediaKind.comic)
+            .add
+            .search
+            .ranking,
+        searchContext: LibraryAddSearchContext(query: 'Absolute Batman'),
+        providerRegistry: registry,
+      );
+
+      expect(results, hasLength(2));
+      expect(results.first.series?.seriesTitle, 'Absolute Batman');
+      expect(results.first.issueNumber, '1');
+      expect(results.first.candidateType, 'issue');
+      expect(results.first.publisher, 'DC Comics');
+      expect(results.last.variantName, 'Cardstock Variant');
+      expect(results.last.isVariant, isTrue);
+
+      final state = const LibraryAddResultPolicyState(
+        values: {comicAddHideVariantsOptionId: true},
+      );
+      final visible = comicAddResultPolicy.filterProviderResults(
+        candidates: results,
+        state: state,
+      );
+      expect(visible.map((candidate) => candidate.providerItemId), ['2663120']);
+    });
+
+    test(
+        'selectProviderCandidate fetches preview from ProviderConnectorRegistry and converts via mapper',
+        () async {
+      final registry = InMemoryProviderConnectorRegistry();
 
       final testProvider = _MockProvider(
         name: 'test_prov',
@@ -429,15 +556,15 @@ void main() {
             provider: 'test_prov',
             providerItemId: 'book-42',
             title: 'Hitchhiker Guide',
-            kind: 'book',
+            kind: CatalogMediaKind.book,
           ),
         ],
-        fetchHandler: (id, {kind}) async => NormalizedProviderEnvelopeV1(
+        fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(
           schemaVersion: 'v1',
           provider: 'test_prov',
           providerItemId: id,
-          kind: 'book',
-          normalized: {
+          kind: CatalogMediaKind.book,
+          payload: ProviderMetadataPayload({
             'title': 'The Hitchhiker\'s Guide to the Galaxy',
             'publisher': 'Pan Books',
             'synopsis': 'Don\'t Panic.',
@@ -446,7 +573,7 @@ void main() {
               {'name': 'Douglas Adams', 'role': 'Author'}
             ],
             'page_count': 224,
-          },
+          }),
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
             sourceUrl: 'https://example.com/books/42',
@@ -475,7 +602,7 @@ void main() {
         provider: 'test_prov',
         providerItemId: 'book-42',
         title: 'The Hitchhiker\'s Guide to the Galaxy',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
       );
 
       sessionController.state = sessionController.state.copyWith(
@@ -503,7 +630,7 @@ void main() {
     test(
         'submitCurrentSelection performs local add without Core ingest using deterministic provisional identity',
         () async {
-      final registry = InMemoryProviderRegistry();
+      final registry = InMemoryProviderConnectorRegistry();
 
       final comicProvider = _MockProvider(
         name: 'comic_prov',
@@ -513,15 +640,15 @@ void main() {
             provider: 'comic_prov',
             providerItemId: 'c-99',
             title: 'Action Comics #1',
-            kind: 'comic',
+            kind: CatalogMediaKind.comic,
           ),
         ],
-        fetchHandler: (id, {kind}) async => NormalizedProviderEnvelopeV1(
+        fetchHandler: (id, {kind}) async => ProviderMetadataEnvelope(
           schemaVersion: 'v1',
           provider: 'comic_prov',
           providerItemId: id,
-          kind: 'comic',
-          normalized: {
+          kind: CatalogMediaKind.comic,
+          payload: ProviderMetadataPayload({
             'title': 'Action Comics #1',
             'publisher': 'DC Comics',
             'synopsis': 'The first appearance of Superman.',
@@ -530,7 +657,7 @@ void main() {
               {'name': 'Jerry Siegel', 'role': 'Writer'},
               {'name': 'Joe Shuster', 'role': 'Artist'},
             ],
-          },
+          }),
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
             sourceUrl: 'https://example.com/comics/99',
@@ -547,7 +674,7 @@ void main() {
 
       registry.register(comicProvider.toConnector());
 
-      final catalog = CatalogCacheRepository(db);
+      final catalog = CatalogTransportRepository(db);
 
       final sessionController = LibraryAddSessionController(
         kind: CatalogMediaKind.comic,
@@ -562,7 +689,7 @@ void main() {
         provider: 'comic_prov',
         providerItemId: 'c-99',
         title: 'Action Comics #1',
-        kind: 'comic',
+        kind: CatalogMediaKind.comic,
         publisher: 'DC Comics',
       );
 
@@ -587,16 +714,25 @@ void main() {
 
       // Verify item exists in local database and catalog cache with deterministic provisional identity
       final expectedProvisionalId = candidate.localCatalogId;
-      final cachedItem = await catalog.findById(expectedProvisionalId);
+      final cachedItem = await CatalogSnapshotRepository(db).findByRef(
+        CatalogEntityRef(
+          kind: candidate.kind,
+          entityType: const CatalogEntityTypeId('work'),
+          id: expectedProvisionalId,
+        ),
+      );
       expect(cachedItem, isNotNull);
       expect(cachedItem!.id, expectedProvisionalId);
       expect(cachedItem.title, 'Action Comics #1');
       expect(cachedItem.payload['publisher'], 'DC Comics');
 
       // Verify owned item record exists in DB
-      final ownedItem = await db.managers.ownedItemsCache
-          .filter((f) => f.itemId.equals(expectedProvisionalId))
-          .getSingleOrNull();
+      final ownedItems = await ComicOwnedRepository(db).listActive();
+      final matchingOwnedItems = ownedItems.where(
+        (item) => item.itemId == expectedProvisionalId,
+      );
+      final ownedItem =
+          matchingOwnedItems.isEmpty ? null : matchingOwnedItems.first;
       expect(ownedItem, isNotNull);
       expect(ownedItem!.itemId, expectedProvisionalId);
 
@@ -617,16 +753,16 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   final String name;
   final String kind;
   final Future<List<ProviderSearchResult>> Function(String query,
-      {String? kind, int limit})? searchHandler;
-  final Future<NormalizedProviderEnvelopeV1> Function(String id,
-      {String? kind})? fetchHandler;
+      {CatalogMediaKind? kind, int limit})? searchHandler;
+  final Future<ProviderMetadataEnvelope> Function(String id,
+      {CatalogMediaKind? kind})? fetchHandler;
 
   @override
   ProviderDescriptor get descriptor => ProviderDescriptor(
         name: name,
         displayName: name,
-        kind: kind,
-        supportedKinds: [kind],
+        kind: catalogMediaKindFromApiValue(kind),
+        supportedKinds: [catalogMediaKindFromApiValue(kind)],
         supportsSearch: true,
         supportsIngest: true,
       );
@@ -640,22 +776,22 @@ class _MockProvider implements MetadataProvider, MetadataCapability {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     if (searchHandler != null) {
-      return searchHandler!(query, kind: kind?.toString(), limit: limit);
+      return searchHandler!(query, kind: kind, limit: limit);
     }
     return [];
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    Object? kind,
+    CatalogMediaKind? kind,
   }) async {
     if (fetchHandler != null) {
-      return fetchHandler!(providerItemId, kind: kind?.toString());
+      return fetchHandler!(providerItemId, kind: kind);
     }
     throw UnimplementedError();
   }

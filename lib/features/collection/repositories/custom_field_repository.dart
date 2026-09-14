@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
 class CustomFieldRepository {
@@ -40,6 +42,7 @@ class CustomFieldRepository {
   }
 
   Future<void> upsertDefinition(CustomFieldDefinition def) {
+    _validateDefinition(def);
     return _db.into(_db.customFieldDefinitionsCache).insert(
           CustomFieldDefinitionsCacheCompanion.insert(
             id: def.id,
@@ -67,22 +70,14 @@ class CustomFieldRepository {
   // --- Values ---
 
   Future<List<CustomFieldValue>> listValuesForTarget({
-    CatalogEntityRef? catalogRef,
-    String? targetId,
-    CustomFieldTargetScope? targetScope,
+    required String targetId,
+    required CustomFieldTargetScope targetScope,
   }) async {
-    final resolvedTargetId = targetId ?? catalogRef?.id;
-    final resolvedTargetScope =
-        targetScope ?? _targetScopeForCatalogRef(catalogRef);
-    if (resolvedTargetId == null || resolvedTargetScope == null) {
-      throw ArgumentError(
-        'listValuesForTarget requires either catalogRef or targetId + targetScope',
-      );
-    }
+    _requireTarget(targetId, targetScope);
     final rows = await (_db.select(_db.customFieldValuesCache)
           ..where((row) =>
-              row.targetId.equals(resolvedTargetId) &
-              row.targetScope.equals(resolvedTargetScope.apiValue)))
+              row.targetId.equals(targetId) &
+              row.targetScope.equals(targetScope.apiValue)))
         .get();
     return rows.map(_valueFromRow).toList(growable: false);
   }
@@ -103,6 +98,7 @@ class CustomFieldRepository {
   }
 
   Future<void> upsertValueForTarget(CustomFieldValue fieldValue) {
+    _validateValue(fieldValue);
     return _db.into(_db.customFieldValuesCache).insert(
           CustomFieldValuesCacheCompanion.insert(
             id: fieldValue.id,
@@ -121,6 +117,9 @@ class CustomFieldRepository {
 
   Future<void> upsertValues(List<CustomFieldValue> values) async {
     if (values.isEmpty) return;
+    for (final value in values) {
+      _validateValue(value);
+    }
     await _db.batch((batch) {
       batch.insertAll(
         _db.customFieldValuesCache,
@@ -143,22 +142,14 @@ class CustomFieldRepository {
   }
 
   Future<void> deleteValuesForTarget({
-    CatalogEntityRef? catalogRef,
-    String? targetId,
-    CustomFieldTargetScope? targetScope,
+    required String targetId,
+    required CustomFieldTargetScope targetScope,
   }) async {
-    final resolvedTargetId = targetId ?? catalogRef?.id;
-    final resolvedTargetScope =
-        targetScope ?? _targetScopeForCatalogRef(catalogRef);
-    if (resolvedTargetId == null || resolvedTargetScope == null) {
-      throw ArgumentError(
-        'deleteValuesForTarget requires either catalogRef or targetId + targetScope',
-      );
-    }
+    _requireTarget(targetId, targetScope);
     await (_db.delete(_db.customFieldValuesCache)
           ..where((row) =>
-              row.targetId.equals(resolvedTargetId) &
-              row.targetScope.equals(resolvedTargetScope.apiValue)))
+              row.targetId.equals(targetId) &
+              row.targetScope.equals(targetScope.apiValue)))
         .go();
   }
 
@@ -177,38 +168,80 @@ class CustomFieldRepository {
   }
 
   CustomFieldValue _valueFromRow(CustomFieldValuesCacheData row) {
+    final targetScope = CustomFieldTargetScope.fromApiValue(row.targetScope);
+    _requireTarget(row.targetId, targetScope);
+    final catalogRefJson = row.catalogRefJson;
+    CatalogEntityRef? catalogRef;
+    if (catalogRefJson != null) {
+      final decoded = jsonDecode(catalogRefJson);
+      if (decoded is! Map) {
+        throw const FormatException(
+            'catalogRefJson must contain a JSON object');
+      }
+      catalogRef = CatalogEntityRef.fromJson(
+        Map<String, dynamic>.from(decoded),
+      );
+      requireKnownCatalogRef(catalogRef, 'customField.catalogRef');
+    }
     return CustomFieldValue(
       id: row.id,
       targetId: row.targetId,
-      targetScope: CustomFieldTargetScope.fromApiValue(row.targetScope),
-      catalogRef: row.catalogRefJson == null
-          ? null
-          : CatalogEntityRef.fromJson(
-              jsonDecode(row.catalogRefJson!) as Map<String, dynamic>,
-            ),
+      targetScope: targetScope,
+      catalogRef: catalogRef,
       fieldDefinitionId: row.fieldDefinitionId,
       value: row.value,
       updatedAt: row.updatedAt,
     );
   }
 
-  CustomFieldTargetScope? _targetScopeForCatalogRef(CatalogEntityRef? ref) {
-    if (ref == null) {
-      return null;
+  void _requireTarget(String targetId, CustomFieldTargetScope targetScope) {
+    if (targetId.trim().isEmpty || targetScope == CustomFieldTargetScope.all) {
+      throw ArgumentError(
+        'Custom field target requires a non-empty id and an explicit scope.',
+      );
     }
-    return switch (ref.entityType) {
-      CatalogEntityType.work => CustomFieldTargetScope.work,
-      CatalogEntityType.season => CustomFieldTargetScope.work,
-      CatalogEntityType.edition => CustomFieldTargetScope.edition,
-      CatalogEntityType.release => CustomFieldTargetScope.release,
-      CatalogEntityType.issue => CustomFieldTargetScope.issue,
-      CatalogEntityType.episode => CustomFieldTargetScope.episode,
-      CatalogEntityType.track => CustomFieldTargetScope.track,
-      CatalogEntityType.ownedCopy ||
-      CatalogEntityType.copy =>
-        CustomFieldTargetScope.ownedCopy,
-      CatalogEntityType.trackingEntry => CustomFieldTargetScope.trackingEntry,
-      CatalogEntityType.bundleRelease || CatalogEntityType.unknown => null,
-    };
+    if (targetScope == CustomFieldTargetScope.ownedCopy) {
+      final ownedRef = OwnedItemRef.fromKey(targetId);
+      requireKnownOwnedRef(ownedRef, 'customField.ownedRef');
+    }
+  }
+
+  void _validateDefinition(CustomFieldDefinition definition) {
+    if (definition.id.trim().isEmpty || definition.name.trim().isEmpty) {
+      throw ArgumentError(
+        'Custom field definitions require non-empty id and name.',
+      );
+    }
+    final rawKind = definition.mediaKind?.trim();
+    if (rawKind != null && rawKind.isNotEmpty) {
+      if (catalogMediaKindFromApiValue(rawKind).isUnknown) {
+        throw ArgumentError.value(
+          rawKind,
+          'definition.mediaKind',
+          'Custom field definition has an unknown media kind.',
+        );
+      }
+    }
+  }
+
+  void _validateValue(CustomFieldValue value) {
+    _requireTarget(value.targetId, value.targetScope);
+    if (value.id.trim().isEmpty) {
+      throw ArgumentError.value(
+        value.id,
+        'fieldValue.id',
+        'Custom field value id must not be empty.',
+      );
+    }
+    if (value.fieldDefinitionId.trim().isEmpty) {
+      throw ArgumentError.value(
+        value.fieldDefinitionId,
+        'fieldValue.fieldDefinitionId',
+        'Custom field definition id must not be empty.',
+      );
+    }
+    if (value.catalogRef != null) {
+      requireKnownCatalogRef(value.catalogRef!, 'fieldValue.catalogRef');
+    }
   }
 }

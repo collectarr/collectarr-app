@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +11,7 @@ class LibraryMetadataCreditsList extends StatelessWidget {
   });
 
   final String title;
-  final List<Map<String, dynamic>> credits;
+  final List<JsonMap> credits;
   final ValueChanged<String>? onValueTap;
 
   @override
@@ -48,7 +49,7 @@ class _LibraryMetadataCreditRow extends StatelessWidget {
     this.onTap,
   });
 
-  final Map<String, dynamic> credit;
+  final JsonMap credit;
   final VoidCallback? onTap;
 
   @override

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/storage_details.dart';
 
 const Object _musicDetailsUnset = Object();
@@ -44,7 +44,7 @@ class MusicMatrixRunout {
 }
 
 @immutable
-class MusicOwnedDetails extends OwnedItemDetails {
+class MusicOwnedDetails implements JsonEncodable {
   const MusicOwnedDetails({
     this.storage = const StorageDetails(),
     String? storageDevice,
@@ -71,17 +71,18 @@ class MusicOwnedDetails extends OwnedItemDetails {
         if (storageSlot != null) 'storage_slot': storageSlot,
         if (signedBy != null) 'signed_by': signedBy,
         if (lastCleanedDate != null)
-          'last_cleaned_date': lastCleanedDate!.toIso8601String(),
+          'last_cleaned_date': lastCleanedDate!.toUtc().toIso8601String(),
         if (matrixRunouts.isNotEmpty)
           'matrix_runouts': matrixRunouts.map((e) => e.toJson()).toList(),
       };
 
   factory MusicOwnedDetails.fromJson(Map<String, dynamic> json) {
+    final lastCleanedDate = json['last_cleaned_date'];
     return MusicOwnedDetails(
       storage: StorageDetails.fromJson(json),
       signedBy: json['signed_by'] as String?,
-      lastCleanedDate: json['last_cleaned_date'] != null
-          ? DateTime.tryParse(json['last_cleaned_date'] as String)
+      lastCleanedDate: lastCleanedDate is String
+          ? DateTime.tryParse(lastCleanedDate)?.toUtc()
           : null,
       matrixRunouts: (json['matrix_runouts'] as List<dynamic>?)
               ?.map(

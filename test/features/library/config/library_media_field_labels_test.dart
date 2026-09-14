@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('video libraries use physical edition terminology', () {
-    final labels = libraryMediaPreviewLabels(movieKindModule);
+    final labels = libraryMediaPreviewLabels(const MovieRegistration());
     expect(labels.labelFor('publisher'), 'Studio');
     expect(labels.labelFor('variant'), 'Format / Edition');
     expect(labels.labelFor('barcode'), 'UPC / Barcode');
@@ -12,19 +12,26 @@ void main() {
   });
 
   test('books and games use media-specific barcode and edition labels', () {
-    expect(libraryMediaPreviewLabels(bookKindModule).labelFor('barcode'),
+    expect(
+        libraryMediaPreviewLabels(const BookRegistration()).labelFor('barcode'),
         'ISBN / Barcode');
-    expect(libraryMediaPreviewLabels(bookKindModule).labelFor('variant'),
+    expect(
+        libraryMediaPreviewLabels(const BookRegistration()).labelFor('variant'),
         'Edition / Binding');
-    expect(libraryMediaPreviewLabels(gameKindModule).labelFor('variant'),
+    expect(
+        libraryMediaPreviewLabels(const GameRegistration()).labelFor('variant'),
         'Platform / Edition');
-    expect(libraryMediaPreviewLabels(gameKindModule).labelFor('publisher'),
+    expect(
+        libraryMediaPreviewLabels(const GameRegistration())
+            .labelFor('publisher'),
         'Publisher / Studio');
   });
 
   test('music search labels use artist terminology', () {
-    final musicLabels = libraryMediaSearchFieldLabels(musicKindModule);
-    final movieLabels = libraryMediaSearchFieldLabels(movieKindModule);
+    final musicLabels =
+        libraryMediaSearchFieldLabels(const MusicRegistration());
+    final movieLabels =
+        libraryMediaSearchFieldLabels(const MovieRegistration());
 
     expect(musicLabels.queryHint, 'Enter album, artist, release, or label...');
     expect(musicLabels.emptySearchMessage,
@@ -33,9 +40,9 @@ void main() {
   });
 
   test('filter labels vary by media type', () {
-    final musicLabels = libraryMediaFilterLabels(musicKindModule);
-    final movieLabels = libraryMediaFilterLabels(movieKindModule);
-    final gameLabels = libraryMediaFilterLabels(gameKindModule);
+    final musicLabels = libraryMediaFilterLabels(const MusicRegistration());
+    final movieLabels = libraryMediaFilterLabels(const MovieRegistration());
+    final gameLabels = libraryMediaFilterLabels(const GameRegistration());
 
     expect(musicLabels.labelFor('series'), 'Artist');
     expect(musicLabels.labelFor('series_any'), 'Any artist');
@@ -46,8 +53,8 @@ void main() {
   });
 
   test('group labels vary by media type', () {
-    final musicLabels = libraryMediaGroupLabels(musicKindModule);
-    final movieLabels = libraryMediaGroupLabels(movieKindModule);
+    final musicLabels = libraryMediaGroupLabels(const MusicRegistration());
+    final movieLabels = libraryMediaGroupLabels(const MovieRegistration());
 
     expect(musicLabels.labelFor('series'), 'Artist');
     expect(musicLabels.labelFor('series_plural'), 'Artists');
@@ -61,9 +68,9 @@ void main() {
   });
 
   test('preview labels vary by media type', () {
-    final musicLabels = libraryMediaPreviewLabels(musicKindModule);
-    final movieLabels = libraryMediaPreviewLabels(movieKindModule);
-    final bookLabels = libraryMediaPreviewLabels(bookKindModule);
+    final musicLabels = libraryMediaPreviewLabels(const MusicRegistration());
+    final movieLabels = libraryMediaPreviewLabels(const MovieRegistration());
+    final bookLabels = libraryMediaPreviewLabels(const BookRegistration());
 
     expect(musicLabels.labelFor('series'), 'Artist');
     expect(musicLabels.labelFor('item_count'), 'Releases');

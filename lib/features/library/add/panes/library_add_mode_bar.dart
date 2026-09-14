@@ -1,16 +1,15 @@
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'library_add_pane_dependencies.dart';
 
-class LibraryAddBarcodePrefillBanner extends StatelessWidget {
-  const LibraryAddBarcodePrefillBanner({
+class LibraryAddIdentifierPrefillBanner extends StatelessWidget {
+  const LibraryAddIdentifierPrefillBanner({
     super.key,
     required this.type,
-    required this.barcode,
+    required this.identifierCode,
   });
 
-  final LibraryKindRuntime type;
-  final String barcode;
+  final LibraryKindRegistration type;
+  final String identifierCode;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class LibraryAddBarcodePrefillBanner extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Barcode $barcode is prefilled for ${type.identity.pluralLabel.toLowerCase()}. Search Core or add it manually with the same code.',
+                'Barcode $identifierCode is prefilled for ${type.identity.pluralLabel.toLowerCase()}. Search Core or add it manually with the same code.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -53,7 +52,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.isWideLayout,
     required this.mode,
     required this.queryController,
-    required this.barcodeController,
+    required this.identifierController,
     required this.isSearching,
     required this.isSearchingProvider,
     required this.onModeChanged,
@@ -66,7 +65,7 @@ class LibraryAddModeBar extends StatefulWidget {
     required this.canScanCover,
     required this.isScanningCover,
     required this.onScanCover,
-    required this.onLookupBarcode,
+    required this.onLookupIdentifier,
     required this.onManual,
     required this.showAdvanced,
     required this.onToggleAdvanced,
@@ -76,25 +75,25 @@ class LibraryAddModeBar extends StatefulWidget {
     this.kindSpecificPaneBuilder,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final bool isWideLayout;
   final LibraryAddDialogMode mode;
   final TextEditingController queryController;
-  final TextEditingController barcodeController;
+  final TextEditingController identifierController;
   final bool isSearching;
   final bool isSearchingProvider;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
   final VoidCallback onSearch;
   final ValueChanged<String> onQueryChanged;
-  final List<LibraryMetadataItem> suggestions;
+  final List<CatalogSearchCandidate> suggestions;
   final bool showSuggestions;
-  final ValueChanged<LibraryMetadataItem> onSelectSuggestion;
+  final ValueChanged<CatalogSearchCandidate> onSelectSuggestion;
   final VoidCallback onDismissSuggestions;
   final bool canScanCover;
   final bool isScanningCover;
   final VoidCallback onScanCover;
-  final VoidCallback onLookupBarcode;
+  final VoidCallback onLookupIdentifier;
   final VoidCallback onManual;
   final bool showAdvanced;
   final VoidCallback onToggleAdvanced;
@@ -176,7 +175,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       isWideLayout: widget.isWideLayout,
       mode: widget.mode,
       queryController: widget.queryController,
-      barcodeController: widget.barcodeController,
+      identifierController: widget.identifierController,
       isSearching: widget.isSearching,
       isSearchingProvider: widget.isSearchingProvider,
       onModeChanged: widget.onModeChanged,
@@ -189,7 +188,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       canScanCover: widget.canScanCover,
       isScanningCover: widget.isScanningCover,
       onScanCover: widget.onScanCover,
-      onLookupBarcode: widget.onLookupBarcode,
+      onLookupIdentifier: widget.onLookupIdentifier,
       onManual: widget.onManual,
       showAdvanced: widget.showAdvanced,
       onToggleAdvanced: widget.onToggleAdvanced,
@@ -234,7 +233,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       label: 'Barcode',
                       accent: widget.accent,
                       onPressed: () =>
-                          widget.onModeChanged(LibraryAddDialogMode.barcode),
+                          widget.onModeChanged(LibraryAddDialogMode.identifier),
                     ),
                     _LibraryAddModeActionButton(
                       icon: Icons.edit_note,
@@ -254,7 +253,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                           onSearch: (_) => _handleSearch(),
                           onChanged: widget.onQueryChanged,
                           onScanBarcode: () => widget
-                              .onModeChanged(LibraryAddDialogMode.barcode),
+                              .onModeChanged(LibraryAddDialogMode.identifier),
                           onScanCover:
                               widget.canScanCover ? widget.onScanCover : null,
                           selectionColor: widget.accent,
@@ -270,13 +269,14 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       isBusy: widget.isSearching,
                       onPressed: isBusy ? null : _handleSearch,
                     ),
-                  ] else if (widget.mode == LibraryAddDialogMode.barcode) ...[
+                  ] else if (widget.mode ==
+                      LibraryAddDialogMode.identifier) ...[
                     _LibraryAddModeButton(
                       label: 'Lookup',
                       icon: Icons.manage_search,
                       accent: widget.accent,
                       isBusy: widget.isSearching,
-                      onPressed: isBusy ? null : widget.onLookupBarcode,
+                      onPressed: isBusy ? null : widget.onLookupIdentifier,
                     ),
                     const SizedBox(width: 6),
                     _LibraryAddModeActionButton(
@@ -298,11 +298,11 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                         alignment: Alignment.centerRight,
                         child: _LibraryAddModeTextField(
                           fieldKey: const ValueKey('library-add-barcode-field'),
-                          controller: widget.barcodeController,
+                          controller: widget.identifierController,
                           label: 'Barcode / UPC / ISBN',
                           hintText: 'Scan or enter barcode / UPC / ISBN...',
                           keyboardType: TextInputType.number,
-                          onSubmitted: widget.onLookupBarcode,
+                          onSubmitted: widget.onLookupIdentifier,
                         ),
                       ),
                     ),
@@ -371,7 +371,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
               mode: widget.mode,
               onModeChanged: widget.onModeChanged,
               onManual: widget.onManual,
-              onScan: () => widget.onModeChanged(LibraryAddDialogMode.barcode),
+              onScan: () =>
+                  widget.onModeChanged(LibraryAddDialogMode.identifier),
             ),
             const SizedBox(height: 7),
             switch (widget.mode) {
@@ -395,7 +396,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                             onSearch: (_) => _handleSearch(),
                             onChanged: widget.onQueryChanged,
                             onScanBarcode: () => widget
-                                .onModeChanged(LibraryAddDialogMode.barcode),
+                                .onModeChanged(LibraryAddDialogMode.identifier),
                             onScanCover:
                                 widget.canScanCover ? widget.onScanCover : null,
                             selectionColor: widget.accent,
@@ -431,16 +432,16 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       ),
                   ],
                 ),
-              LibraryAddDialogMode.barcode => Row(
+              LibraryAddDialogMode.identifier => Row(
                   children: [
                     Expanded(
                       child: _LibraryAddModeTextField(
                         fieldKey: const ValueKey('library-add-barcode-field'),
-                        controller: widget.barcodeController,
+                        controller: widget.identifierController,
                         label: 'Barcode / UPC / ISBN',
                         hintText: 'Scan or enter barcode / UPC / ISBN...',
                         keyboardType: TextInputType.number,
-                        onSubmitted: widget.onLookupBarcode,
+                        onSubmitted: widget.onLookupIdentifier,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -449,7 +450,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                       icon: Icons.manage_search,
                       accent: widget.accent,
                       isBusy: widget.isSearching,
-                      onPressed: isBusy ? null : widget.onLookupBarcode,
+                      onPressed: isBusy ? null : widget.onLookupIdentifier,
                     ),
                   ],
                 ),
@@ -497,7 +498,7 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
     required this.onScan,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final LibraryAddDialogMode mode;
   final ValueChanged<LibraryAddDialogMode> onModeChanged;
@@ -542,8 +543,8 @@ class _LibraryAddModeTabStrip extends StatelessWidget {
                     icon: Icons.qr_code_2,
                     label: 'Barcode',
                     accent: accent,
-                    selected: mode == LibraryAddDialogMode.barcode,
-                    onTap: () => onModeChanged(LibraryAddDialogMode.barcode),
+                    selected: mode == LibraryAddDialogMode.identifier,
+                    onTap: () => onModeChanged(LibraryAddDialogMode.identifier),
                   ),
                 ],
               ),
@@ -884,9 +885,9 @@ class _SuggestionDropdown extends StatelessWidget {
     required this.onDismiss,
   });
 
-  final List<LibraryMetadataItem> suggestions;
+  final List<CatalogSearchCandidate> suggestions;
   final Color accent;
-  final ValueChanged<LibraryMetadataItem> onSelect;
+  final ValueChanged<CatalogSearchCandidate> onSelect;
   final VoidCallback onDismiss;
 
   @override
@@ -925,18 +926,18 @@ class _SuggestionTile extends StatelessWidget {
     required this.onTap,
   });
 
-  final LibraryMetadataItem item;
+  final CatalogSearchCandidate item;
   final Color accent;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final year = libraryKindReleaseYear(item);
+    final year = item.releaseYear ?? item.releaseDate?.year;
     final subtitle = [
       if (year != null) year.toString(),
       item.mediaKind.apiValue,
-    ].join(' · ');
+    ].join(' Ã‚Â· ');
     return InkWell(
       onTap: onTap,
       child: Padding(

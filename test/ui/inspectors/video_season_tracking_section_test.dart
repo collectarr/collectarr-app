@@ -1,10 +1,11 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_detail_page.dart';
+import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -15,9 +16,11 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import '../../helpers/tracking_state_test_helpers.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -32,17 +35,17 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final api = _VideoSeasonApiClient();
-    final type = tvKindModule;
+    const type = TvRegistration();
     const itemId = '00000000-0000-0000-0000-000000000001';
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: itemId,
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: itemId,
         kind: 'tv',
         title: 'Cowboy Bebop',
         displayTitle: 'Cowboy Bebop',
-      ),
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: itemId);
     final dto = const GenericWorkspaceProjector()
@@ -56,11 +59,11 @@ void main() {
           apiClientProvider.overrideWithValue(api),
         ],
         child: MaterialApp(
-          home: VideoLibraryDetailPage(
+          home: LibraryReleaseDetailPage(
             request: LibraryDetailPageRequest(
               type: type,
               item: tvItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -87,43 +90,32 @@ void main() {
     await tester.tap(find.text('E1 • Asteroid Blues'));
     await pumpUntilSettled(tester);
 
-    final units = await db.select(db.trackingUnitsCache).get();
-    expect(units, hasLength(1));
-    expect(units.single.itemId, itemId);
-    expect(units.single.seasonNumber, 1);
-    expect(units.single.episodeNumber, 1);
-    expect(units.single.deletedAt, isNull);
+    final videoUnits = await db.select(db.tvTrackingUnitRows).get();
+    expect(videoUnits, hasLength(1));
+    expect(
+      CatalogEntityRef.fromJson(
+        Map<String, Object?>.from(
+          jsonDecode(videoUnits.single.targetRefJson) as Map,
+        ),
+      ).id,
+      itemId,
+    );
+    expect(videoUnits.single.seasonNumber, 1);
+    expect(videoUnits.single.episodeNumber, 1);
+    expect(videoUnits.single.deletedAt, isNull);
 
-    final entries = await db.select(db.trackingEntriesCache).get();
+    final entries = await readTrackingStates(db);
+    final tvTrackingStates = await db.select(db.tvTrackingRows).get();
     expect(entries, hasLength(1));
-    expect(entries.single.itemId, itemId);
-    expect(entries.single.progressCurrent, 1);
-    expect(entries.single.seasonNumber, 1);
-    expect(entries.single.episodeNumber, 1);
+    expect(
+      entries.single.catalogRef.id,
+      itemId,
+    );
+    expect(entries.single.progress.current, 1);
+    expect(tvTrackingStates, hasLength(1));
+    expect(tvTrackingStates.single.seasonNumber, 1);
+    expect(tvTrackingStates.single.episodeNumber, 1);
   }, skip: true);
 }
 
-class _VideoSeasonApiClient extends ApiClient {
-  @override
-  Future<List<Season>> getTvSeriesSeasons(String seriesId) async {
-    return [
-      Season(
-        seasonNumber: 1,
-        title: 'Season 1',
-        episodeCount: 2,
-        episodes: [
-          Episode(
-            episodeNumber: 1,
-            title: 'Asteroid Blues',
-            runtimeMinutes: 24,
-          ),
-          Episode(
-            episodeNumber: 2,
-            title: 'Stray Dog Strut',
-            runtimeMinutes: 24,
-          ),
-        ],
-      ),
-    ];
-  }
-}
+class _VideoSeasonApiClient extends ApiClient {}

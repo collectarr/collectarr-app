@@ -1,5 +1,72 @@
 # Outside-Kinds Generic Audit
 
+> Current code checkpoint: `8f739e24e` (2026-09-14). AST architecture
+> violations: **0**; complexity reports: **403** informational; fatal Flutter
+> analyzer: **0 issues**. TMDb semantic mapping is now contributed by Movie,
+> TV and Anime integrations; common custom-episode domain code was deleted and
+> TV/Anime seed, UI and sync paths are typed. Add bundle choices cross the host
+> as a structural summary only. This file preserves historical audit detail;
+> the current branch audit is the source of truth for remaining debt.
+
+> Updated checkpoint: `8f739e24e` (2026-09-14). AST architecture violations: **0**; complexity reports: **403** informational; `flutter analyze --fatal-warnings --fatal-infos`: **0 issues**. Shared workspace card/flow/carousel chrome consumes kind-owned structural projections, generic Library/Shelf actions resolve catalog transport by refs, workspace repository/bucket/metadata paths use schema-v1 transport, and all nine workspace projectors decode transport only inside the owning kind. TV/Anime hierarchy semantics remain kind-owned; global Activity/Calendar consume lifecycle-only sessions and structural summaries. Historical audit detail below is not an active implementation plan.
+
+> Current checkpoint: `f1cf410c` (2026-09-11). AST architecture violations: **0**. Complexity-budget reports: **400** informational reports. Kind metadata decoding is capability-owned; catalog mixed repositories now use `CatalogKindTransportBoundary` and explicit `upsertTransportItems` writes; Owned mutations, Collection CSV import, sync apply/retry, dev-seed writes, and Library Owned workspace transport use structural refs/payloads with concrete generated kind dispatch. The public registry now stores concrete kind registrations behind a tiny identity boundary and isolates navigation in `LibraryKindNavigationRegistration`; the obsolete `LibraryKindModule`/`LibraryKindSpec` facade names are gone and per-kind wiring is composition-only. Feature-specific capability maps are generated and cover all nine active kinds. Add/Edit/provider search share `CatalogSearchCandidate`; Core DTO access remains callback-boundary only. All nine provider mappers and Add projections decode typed metadata before creating candidates; Add no longer constructs catalog DTOs directly. Provider Add ingest/dialog lifecycle is isolated in `LibraryProviderAddCoordinator`; the latest focused catalog/collection boundary, provider/vertical, and expanded all-kind registry/Add batches pass; full CI baseline remains pending.
+>
+> Schema policy remains version 1; no compatibility-upgrade path is being added. Remaining debt is tracked by the current branch audit.
+
+
+> Historical audit record. Do not use the old `main` revision and symbol
+> inventory below as historical audit detail. Current completed work and
+> remaining violations are maintained in the current branch audit and
+> current-branch audit; the latest checkpoint is `9f346eae` with 0 AST violations and 402
+> informational complexity reports. The `PersonalItemAnchor` domain object is
+> now deleted; mixed Shelf also no longer carries full common Owned/Tracking
+> aggregates. Shelf catalog snapshots now use complete typed refs in memory,
+> and concrete kind switches replace several generic registry lookups in
+> production dispatch and test contracts. TMDb import protocol and state now
+> live under provider infrastructure, and Settings is only a host/configuration
+> surface. Only
+> explicit v1 serialization compatibility remains. The latest code-only
+> checkpoint is `5153043d`: tracking-unit persistence is now kind-owned and the
+> universal unit table is deleted. The preceding `bacfea29` schema-v1 tracking rows now require serialized
+> structural refs, no longer store redundant `itemId` fallback columns, and
+> use `(kind,id)` keys; tracking removal/retry uses structural refs,
+> CSV kind dispatch is typed in memory, and all nine tracking codecs own concrete tracking
+> entry creation/reconstruction and Collection CSV/mutation creation dispatches
+> through those codecs. Catalog snapshot retry and Add transport kind
+> dispatch are ref-keyed/typed in memory, with no AST violations.
+>
+> Latest code checkpoint: `036898b4` removes stale `runtime`/`kindRuntime` naming
+> from typed Library workspace/navigation entrypoints; 38 focused tests passed.
+> The preceding code checkpoint `5acd3b88` updates all nine dev-seed contributors and
+> validators from `trackingEntries` to `trackingLifecycles`, preserving the v1
+> `tracking_entry` wire/DB key. The preceding batch removes the remaining `TrackingEntry`
+> compatibility vocabulary from lifecycle refs, mutation/editor callbacks,
+> kind tracking factories, tests, and registry generation. Collection import is
+> now an orchestration host and owned writes are executable operations rather
+> than a mixed `(kind, Object)` list; the v1 wire/DB identifier is unchanged.
+> The production common `OwnedItem<TDetails>` aggregate
+> and reverse summary adapter are deleted; generic Owned edit boundaries remain
+> summary-only;
+> each kind seeds its edit state from its concrete aggregate and transfer
+> fallbacks no longer accept common Owned values. The generic inspector boundary
+> is summary-only;
+> mixed Shelf/workspace/filter/report/share paths no
+> longer read common Owned semantics; CSV condition/index/tag values now come
+> from all nine typed projections. Generic video release/drilldown and bulk-action
+> paths now consume `OwnedItemSummary`; generic transfer-patch construction no longer types
+> its updated value as `OwnedItem`; all common-to-kind reverse Owned projection
+> APIs are removed; catalog transport codecs are explicitly
+> transport-named; all nine kind edit factories and the edit renderer consume
+> concrete Owned aggregates after dispatch. Kind workspace, CSV, presentation,
+> inspector, edit, and contract consumers now read concrete Owned aggregates
+> after dispatch.
+> Generic edit/action hosts remain the next compatibility surface. The generic
+> transfer host owns file/UI mechanics and structural refs/opaque typed values
+> at the schema-v1 callback boundary; each kind owns transfer decoding and
+> patch semantics. AST violations remain at **0**; the checker reports **403**
+> informational complexity findings.
+
 This is the PR 0 rebaseline and full ownership audit for `main` at `eac0e7c7` (2026-08-24). The scan covers
 `lib/features/library/**`, excluding `lib/features/library/kinds/**`. Textual matches
 such as widget names and user-facing labels are recorded as false positives unless
@@ -326,3 +393,12 @@ Run Core `pytest` and its repository checks whenever Core DTOs, provider transpo
 or sync persistence are changed. No PR is complete while compatibility wrappers are
 merely deprecated, while a generic fallback still decides kind semantics, or while
 the new path is covered only by positive tests without architecture-negative tests.
+## Checkpoint — 2026-09-11 (`a0ec1440`)
+
+Tracking persistence is now a genuine kind-owned boundary. Collection only
+orchestrates typed codecs and exposes structural summaries to mixed screens;
+the deleted universal tracking cache tables and repositories are not replaced
+with JSON unions. Remaining outside-kind tracking work is limited to keeping
+`TrackingLifecycle` and `TrackingUnitSummary` structural at mutation/sync/editor
+boundaries. AST architecture violations: **0**; complexity reports: **403**
+informational. This docs update is intentionally uncommitted.

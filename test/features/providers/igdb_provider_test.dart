@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,12 +27,62 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('IGDBProvider', () {
+    test('decodes native game payload models', () {
+      final game = IgdbGame.fromJson({
+        'id': 1942,
+        'name': 'The Witcher 3: Wild Hunt',
+        'summary': 'A role-playing game.',
+        'storyline': 'Geralt searches for Ciri.',
+        'first_release_date': 1431993600,
+        'cover': {
+          'id': 42,
+          'url': '//images.igdb.com/igdb/image/upload/t_thumb/co1.jpg'
+        },
+        'genres': [
+          {'id': 12, 'name': 'Role-playing (RPG)'},
+        ],
+        'involved_companies': [
+          {
+            'developer': true,
+            'publisher': false,
+            'company': {'id': 1, 'name': 'CD Projekt Red'},
+          },
+        ],
+        'platforms': [
+          {'id': 6, 'name': 'PC'},
+        ],
+        'game_modes': [
+          {'id': 1, 'name': 'Single player'},
+        ],
+        'age_ratings': [
+          {'rating': 18, 'category': 1},
+        ],
+        'total_rating': 92.5,
+        'slug': 'the-witcher-3-wild-hunt',
+      });
+
+      expect(game.id, 1942);
+      expect(game.name, 'The Witcher 3: Wild Hunt');
+      expect(game.cover?.url, contains('co1.jpg'));
+      expect(game.genres.single.name, 'Role-playing (RPG)');
+      expect(game.involvedCompanies.single.company?.name, 'CD Projekt Red');
+      expect(game.involvedCompanies.single.developer, isTrue);
+      expect(game.platforms.single.name, 'PC');
+      expect(game.gameModes.single.name, 'Single player');
+      expect(game.ageRatings.single.rating, 18);
+      expect(game.totalRating, 92.5);
+      expect(game.toJson()['slug'], 'the-witcher-3-wild-hunt');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = IGDBProvider();
       expect(provider.name, 'igdb');
       expect(provider.descriptor.displayName, 'IGDB');
-      expect(provider.descriptor.kind, 'game');
-      expect(provider.descriptor.supportedKinds, contains('game'));
+      expect(provider.descriptor.kind, CatalogMediaKind.game);
+      expect(
+        provider.descriptor.supportedKinds,
+        contains(CatalogMediaKind.game),
+      );
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '4 req/sec');
@@ -95,7 +146,7 @@ void main() {
       expect(item.provider, 'igdb');
       expect(item.providerItemId, '1942');
       expect(item.title, 'The Witcher 3: Wild Hunt');
-      expect(item.kind, 'game');
+      expect(item.kind, CatalogMediaKind.game);
       expect(item.summary, '2015-05-19 · PC, PlayStation 4');
       expect(item.imageUrl,
           'https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg');
@@ -158,13 +209,13 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'igdb');
       expect(envelope.providerItemId, '1942');
-      expect(envelope.kind, 'game');
-      expect(envelope.normalized['title'], 'The Witcher 3: Wild Hunt');
-      expect(envelope.normalized['publisher'], 'CD PROJEKT RED');
-      expect(envelope.normalized['audience_rating'], '92.0');
-      expect(envelope.normalized['genres'],
+      expect(envelope.kind, CatalogMediaKind.game);
+      expect(envelope.payload['title'], 'The Witcher 3: Wild Hunt');
+      expect(envelope.payload['publisher'], 'CD PROJEKT RED');
+      expect(envelope.payload['audience_rating'], '92.0');
+      expect(envelope.payload['genres'],
           containsAll(['Role-playing (RPG)', 'Adventure']));
-      expect(envelope.normalized['platforms'],
+      expect(envelope.payload['platforms'],
           containsAll(['PC', 'PlayStation 4', 'Xbox One', 'Nintendo Switch']));
       expect(envelope.images, hasLength(1));
       expect(envelope.images[0].url,
@@ -185,7 +236,7 @@ void main() {
       );
       expect(igdbFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(igdbFixtureRaw as Map),
       );
 
@@ -217,17 +268,17 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
-      expect(normalized['platforms'], goldenEnvelope.normalized['platforms']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
+      expect(normalized['platforms'], goldenEnvelope.payload['platforms']);
       expect(normalized['audience_rating'],
-          goldenEnvelope.normalized['audience_rating']);
+          goldenEnvelope.payload['audience_rating']);
       expect(normalized['cover_image_url'],
-          goldenEnvelope.normalized['cover_image_url']);
+          goldenEnvelope.payload['cover_image_url']);
       expect(jsonObject(normalized['provider_ids'])['igdb'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['igdb']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['igdb']);
     });
   });
 }

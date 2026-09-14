@@ -105,16 +105,16 @@ extension _PageKindHooks on GenericLibraryPageState {
 
   List<String> get _scopeAvailableGroupModes {
     return [
-      for (final groupId
-          in widget.type.availableGroupIdsForBrowserMode(_activeBrowserMode))
+      for (final groupId in libraryKindWorkspaceForKind(widget.type.kind)
+          .availableGroupIdsForBrowserMode(_activeBrowserMode))
         groupId.value,
     ];
   }
 
   List<String> get _scopeAvailableSortColumns {
     return [
-      for (final sortId
-          in widget.type.availableSortIdsForBrowserMode(_activeBrowserMode))
+      for (final sortId in libraryKindWorkspaceForKind(widget.type.kind)
+          .availableSortIdsForBrowserMode(_activeBrowserMode))
         sortId.value,
     ];
   }

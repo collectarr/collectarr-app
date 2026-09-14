@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';

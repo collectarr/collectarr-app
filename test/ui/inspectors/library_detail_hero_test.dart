@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
@@ -29,27 +30,27 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-only-1',
-            ownedItemId: 'owned-1',
+            ownedRefKey: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
           ),
         );
 
-    final type = bookKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
     final owned = testOwnedItem(
       id: 'owned-1',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Fellowship of the Ring',
-      ),
-      ownedItem: owned,
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -70,7 +71,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: owned,
+              ownedItem: testOwnedItemSummary(owned),
               accent: Colors.orange,
             ),
           ),
@@ -94,7 +95,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            ownedItemId: 'owned-1',
+            ownedRefKey: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -103,27 +104,27 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            ownedItemId: 'owned-1',
+            ownedRefKey: 'book:owned-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
           ),
         );
 
-    final type = bookKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
     final owned = testOwnedItem(
       id: 'owned-1',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Two Towers',
-      ),
-      ownedItem: owned,
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(owned),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -144,7 +145,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: owned,
+              ownedItem: testOwnedItemSummary(owned),
               accent: Colors.orange,
             ),
           ),
@@ -161,10 +162,10 @@ void main() {
   testWidgets('detail hero shows a book author spotlight when creators exist', (
     tester,
   ) async {
-    final type = bookKindModule;
-    final source = ShelfEntry(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Return of the King',
@@ -174,7 +175,7 @@ void main() {
             'role': 'Author',
           },
         ],
-      ),
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -212,7 +213,7 @@ void main() {
       'detail hero shows collection value totals when multiple copies exist', (
     tester,
   ) async {
-    final type = bookKindModule;
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
     final owned1 = testOwnedItem(
       id: 'owned-1',
       itemId: 'book-1',
@@ -229,14 +230,14 @@ void main() {
       currency: 'USD',
       updatedAt: DateTime.utc(2026, 5, 22),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Hobbit',
-      ),
-      ownedItem: owned1,
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(owned1),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -256,8 +257,11 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              ownedItem: owned1,
-              ownedCopies: [owned1, owned2],
+              ownedItem: testOwnedItemSummary(owned1),
+              ownedCopies: [
+                testOwnedItemSummary(owned1),
+                testOwnedItemSummary(owned2),
+              ],
               accent: Colors.orange,
             ),
           ),

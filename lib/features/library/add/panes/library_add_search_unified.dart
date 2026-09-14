@@ -1,12 +1,12 @@
 import 'library_add_pane_dependencies.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 // ---------------------------------------------------------------------------
 // Unified grouped search results.
 //
-// Merges Core results (LibraryMetadataItem) and Provider candidates
+// Merges Core transport results and Provider candidates
 // (ProviderCandidate) into series groups, displayed collapsed by default
 // so the user picks a series first, then drills down into individual items.
 // ---------------------------------------------------------------------------
@@ -17,7 +17,6 @@ class LibraryAddUnifiedSearchGroup {
   const LibraryAddUnifiedSearchGroup({
     required this.key,
     required this.title,
-    this.publisher,
     this.year,
     this.coverUrl,
     this.coreItems = const [],
@@ -28,10 +27,9 @@ class LibraryAddUnifiedSearchGroup {
 
   final String key;
   final String title;
-  final String? publisher;
   final int? year;
   final String? coverUrl;
-  final List<LibraryMetadataItem> coreItems;
+  final List<CatalogSearchCandidate> coreItems;
   final ProviderCandidate? groupCandidate;
   final List<ProviderCandidate> providerItems;
   final Set<String> sources;
@@ -51,22 +49,21 @@ class LibraryAddUnifiedSearchGroup {
 /// then Core items are merged into matching groups or added as new groups
 /// at the top.
 List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
-  required List<LibraryMetadataItem> coreResults,
+  required List<CatalogSearchCandidate> coreResults,
   required List<ProviderCandidate> providerResults,
   required LibraryAddResultPolicy resultPolicy,
 }) {
   final orderedKeys = <String>[];
   final titles = <String, String>{};
-  final publishers = <String, String?>{};
   final years = <String, int?>{};
   final coverUrls = <String, String?>{};
-  final coreItems = <String, List<LibraryMetadataItem>>{};
+  final coreItems = <String, List<CatalogSearchCandidate>>{};
   final groupCandidates = <String, ProviderCandidate>{};
   final providerItemsMap = <String, List<ProviderCandidate>>{};
   final sourceSets = <String, Set<String>>{};
 
   // -- index used to merge Core items into existing Provider groups ----------
-  // Maps lowercase title → first key that uses that title.
+  // Maps lowercase title Ã¢â€ â€™ first key that uses that title.
   final titleIndex = <String, String>{};
 
   void ensureKey(String key, String title) {
@@ -87,8 +84,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     ensureKey(key, groupTitle);
 
     sourceSets[key]!.add(candidate.provider);
-    publishers[key] ??= candidate.publisher;
-    years[key] ??= candidate.series?.volumeStartYear;
     coverUrls[key] ??= candidate.imageUrl;
 
     if (resultPolicy.isProviderGroupCandidate(candidate)) {
@@ -98,7 +93,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
     }
   }
 
-  // 2. Process Core results — merge into a matching Provider group when the
+  // 2. Process Core results Ã¢â‚¬â€ merge into a matching Provider group when the
   //    titles match, otherwise create a Core-only group at the front.
   final coreOnlyKeys = <String>[];
   for (final item in coreResults) {
@@ -118,11 +113,7 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
       ensureKey(key, groupTitle);
       coreItems[key]!.add(item);
       sourceSets[key]!.add('core');
-      final payload = item.kindMetadata.toSyncPayload();
-      final publisher = (payload['publisher'] ??
-          (payload['publishing'] as Map?)?['original_publisher']) as String?;
-      publishers[key] ??= publisher;
-      years[key] ??= libraryKindReleaseYear(item);
+      years[key] ??= item.releaseYear ?? item.releaseDate?.year;
       coverUrls[key] ??= item.displayCoverUrl;
     }
   }
@@ -146,7 +137,6 @@ List<LibraryAddUnifiedSearchGroup> buildUnifiedGroups({
         LibraryAddUnifiedSearchGroup(
           key: key,
           title: titles[key]!,
-          publisher: publishers[key],
           year: years[key],
           coverUrl: coverUrls[key],
           coreItems: coreItems[key]!,
@@ -168,7 +158,7 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     required this.queuedProviderIngests,
     required this.providerLabel,
     required this.onSelectResult,
@@ -179,20 +169,20 @@ class LibraryAddUnifiedGroupNode extends StatefulWidget {
     this.providerMatchSummary,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryAddUnifiedSearchGroup group;
   final Color accent;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String Function(String providerId) providerLabel;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
   final ValueChanged<String> onToggleResultCheck;
   final ValueChanged<String> onToggleProviderCheck;
-  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
 
   @override
@@ -242,7 +232,7 @@ class LibraryAddUnifiedGroupNodeState
     final palette = appPalette(context);
     final group = widget.group;
 
-    // Singleton groups (one item, no series candidate) — show inline.
+    // Singleton groups (one item, no series candidate) Ã¢â‚¬â€ show inline.
     if (group.isSingleton) {
       if (group.coreItems.length == 1) {
         return SearchResultTile(
@@ -252,8 +242,8 @@ class LibraryAddUnifiedGroupNodeState
           matchSummary: widget.coreMatchSummary,
           selected: group.coreItems.first.id == widget.selectedResultId,
           checked: widget.checkedResultIds.contains(group.coreItems.first.id),
-          isOwned:
-              widget.ownedCatalogItemIds.contains(group.coreItems.first.id),
+          isOwned: widget.ownedCatalogRefs
+              .contains(group.coreItems.first.catalogRef),
           onSelect: () => widget.onSelectResult(group.coreItems.first.id),
           onToggleCheck: () =>
               widget.onToggleResultCheck(group.coreItems.first.id),
@@ -299,13 +289,11 @@ class LibraryAddUnifiedGroupNodeState
       }
     }
 
-    // Multi-item group — collapsed by default.
+    // Multi-item group Ã¢â‚¬â€ collapsed by default.
     final highlighted = _hasSelectedChild;
     final subtitleParts = <String>[
       for (final src in group.sources)
         src == 'core' ? 'Core' : widget.providerLabel(src),
-      if (group.publisher != null && group.publisher!.trim().isNotEmpty)
-        group.publisher!,
       if (group.year != null) group.year.toString(),
       '${group.childCount} ${group.childCount == 1 ? 'item' : 'items'}',
     ];
@@ -365,7 +353,7 @@ class LibraryAddUnifiedGroupNodeState
                         if (subtitleParts.isNotEmpty) ...[
                           const SizedBox(height: 3),
                           Text(
-                            subtitleParts.join(' · '),
+                            subtitleParts.join(' Ã‚Â· '),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -426,8 +414,9 @@ class LibraryAddUnifiedGroupNodeState
               accent: widget.accent,
               selected: group.coreItems[i].id == widget.selectedResultId,
               checked: widget.checkedResultIds.contains(group.coreItems[i].id),
-              isOwned:
-                  widget.ownedCatalogItemIds.contains(group.coreItems[i].id),
+              isOwned: widget.ownedCatalogRefs.contains(
+                group.coreItems[i].catalogRef,
+              ),
               onSelect: () => widget.onSelectResult(group.coreItems[i].id),
               onToggleCheck: () =>
                   widget.onToggleResultCheck(group.coreItems[i].id),
@@ -569,8 +558,8 @@ class _UnifiedCoreChildTile extends StatelessWidget {
     required this.onToggleCheck,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryMetadataItem item;
+  final LibraryKindRegistration type;
+  final CatalogSearchCandidate item;
   final Color accent;
   final bool selected;
   final bool checked;
@@ -587,16 +576,14 @@ class _UnifiedCoreChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final displayTitle = _coreChildDisplayTitle(item);
-    final payload = item.kindMetadata.toSyncPayload();
-    final publisher = (payload['publisher'] ??
-        (payload['publishing'] as Map?)?['original_publisher']) as String?;
-    final physicalFormatLabel = payload['physical_format_label'] as String?;
+    final display = type.presentation.builder.buildSearchResultDisplay(
+      item: item,
+    );
+    final displayTitle = display?.title ?? item.title;
     final subtitleParts = <String>[
-      if (publisher != null) publisher,
-      if (libraryKindReleaseYear(item) != null)
-        libraryKindReleaseYear(item).toString(),
-      if (physicalFormatLabel != null) physicalFormatLabel,
+      if (display?.secondaryLine case final subtitle?
+          when subtitle.trim().isNotEmpty)
+        subtitle,
     ];
     return Material(
       color: selected ? palette.selection : Colors.transparent,
@@ -653,7 +640,7 @@ class _UnifiedCoreChildTile extends StatelessWidget {
                           ],
                           Expanded(
                             child: Text(
-                              subtitleParts.join(' · '),
+                              subtitleParts.join(' Ã‚Â· '),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -678,16 +665,6 @@ class _UnifiedCoreChildTile extends StatelessWidget {
       ),
     );
   }
-}
-
-String _coreChildDisplayTitle(LibraryMetadataItem item) {
-  final itemNumber = (item.kindMetadata.toSyncPayload()['item_number'] ??
-      (item.kindMetadata.toSyncPayload()['publishing']
-          as Map?)?['issue_number']) as String?;
-  if (itemNumber != null && itemNumber.trim().isNotEmpty) {
-    return '${item.title} #$itemNumber';
-  }
-  return item.title;
 }
 
 class _UnifiedProviderChildTile extends StatelessWidget {
@@ -716,11 +693,11 @@ class _UnifiedProviderChildTile extends StatelessWidget {
             ? Colors.white
             : palette.textPrimary;
     final selectedSecondary = selectedForeground.withValues(alpha: 0.72);
-    final displayTitle = _providerChildDisplayTitle(candidate);
+    final displayTitle = candidate.title;
     final subtitleParts = <String>[
       providerLabel,
-      if (candidate.publisher != null && candidate.publisher!.trim().isNotEmpty)
-        candidate.publisher!,
+      if (candidate.summary?.trim() case final summary? when summary.isNotEmpty)
+        summary,
     ];
     return Material(
       color: selected ? palette.selection : Colors.transparent,
@@ -766,7 +743,7 @@ class _UnifiedProviderChildTile extends StatelessWidget {
                             '${queuedIngest!.shortId}',
                           ),
                         Text(
-                          subtitleParts.skip(1).join(' · '),
+                          subtitleParts.skip(1).join(' Ã‚Â· '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -789,16 +766,4 @@ class _UnifiedProviderChildTile extends StatelessWidget {
       ),
     );
   }
-}
-
-String _providerChildDisplayTitle(ProviderCandidate candidate) {
-  final issueNumber = candidate.issueNumber?.trim();
-  if (issueNumber != null && issueNumber.isNotEmpty) {
-    final seriesTitle = candidate.series?.seriesTitle?.trim();
-    if (seriesTitle != null && seriesTitle.isNotEmpty) {
-      return '$seriesTitle #$issueNumber';
-    }
-    return '${candidate.title} #$issueNumber';
-  }
-  return candidate.title;
 }

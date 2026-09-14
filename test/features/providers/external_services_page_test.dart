@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
@@ -38,9 +39,9 @@ class _MockPersonalReadWrite
   }) async {}
 }
 
-class _MockFileImport implements FileImportCapability {
+class _MockPersonalListFileImport implements PersonalListFileImportCapability {
   @override
-  Future<List<ProviderPersonalEntry>> parseFile(String content,
+  Future<List<ProviderPersonalEntry>> parsePersonalListFile(String content,
           {String? filename}) async =>
       [];
 }
@@ -50,19 +51,19 @@ void main() {
     testWidgets('renders connectors and derives dynamic capability chips',
         (tester) async {
       final mockReadWrite = _MockPersonalReadWrite();
-      final mockImport = _MockFileImport();
+      final mockImport = _MockPersonalListFileImport();
 
       final aniListConnector = ProviderConnector(
         id: ProviderId.aniList,
         descriptor: const ProviderDescriptor(
           name: 'anilist',
           displayName: 'AniList',
-          kind: 'anime',
-          supportedKinds: ['anime', 'manga'],
+          kind: CatalogMediaKind.anime,
+          supportedKinds: [CatalogMediaKind.anime, CatalogMediaKind.manga],
         ),
         personalRead: mockReadWrite,
         personalWrite: mockReadWrite,
-        fileImport: mockImport,
+        personalListFileImport: mockImport,
       );
 
       final openLibraryConnector = ProviderConnector(
@@ -70,7 +71,7 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'openlibrary',
           displayName: 'Open Library',
-          kind: 'book',
+          kind: CatalogMediaKind.book,
         ),
       );
 
@@ -110,7 +111,7 @@ void main() {
       expect(find.text('Open Library'), findsOneWidget);
 
       // Verify dynamically derived capability chips for AniList
-      expect(find.text('File Import'), findsOneWidget);
+      expect(find.text('Personal list import'), findsOneWidget);
       expect(find.text('Pull Sync'), findsOneWidget);
       expect(find.text('Push Sync'), findsOneWidget);
       expect(find.text('2-Way Sync'), findsOneWidget);

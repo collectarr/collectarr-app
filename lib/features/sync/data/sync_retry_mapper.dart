@@ -1,13 +1,19 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
+import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class SyncRetryMapper {
@@ -21,18 +27,26 @@ class SyncRetryMapper {
   }) async {
     switch (change.entityType) {
       case 'owned_item':
-        final item = await OwnedItemsCacheRepository(db).findById(
-          change.entityId,
+        final rawCatalogRef = change.localPayload?['catalog_ref'];
+        if (rawCatalogRef is! Map) return null;
+        final catalogRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawCatalogRef),
         );
-        if (item == null) {
+        final ownedRef = OwnedItemRef(
+          kind: catalogRef.mediaKind,
+          id: OwnedItemId(change.entityId),
+        );
+        final serialized =
+            await CollectarrOwnedItemPersistence(db).syncPayloadByRef(ownedRef);
+        if (serialized == null) {
           return null;
         }
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: item.id,
-          action: item.isDeleted ? 'delete' : 'upsert',
-          payload: item.toSyncPayload(),
+          entityId: change.entityId,
+          action: serialized.isDeleted ? 'delete' : 'upsert',
+          payload: serialized.payload,
           clientChangedAt: changedAt,
         );
       case 'wishlist_item':
@@ -51,22 +65,45 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'tracking_entry':
-        final item = await TrackingEntriesCacheRepository(db).findById(
-          change.entityId,
+        final trackingPayload = change.localPayload ?? change.servicePayload;
+        final rawCatalogRef = trackingPayload?['catalog_ref'];
+        if (rawCatalogRef is! Map) return null;
+        final trackingCatalogRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawCatalogRef),
         );
-        if (item == null) {
+        final tracking = await TrackingStorageRepository(
+          db,
+          codecs: collectarrTrackingStorageCodecs,
+        ).syncPayloadByRef(
+          TrackingStateRef(
+            kind: trackingCatalogRef.mediaKind,
+            id: change.entityId,
+          ),
+        );
+        if (tracking == null) {
           return null;
         }
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: item.id,
-          action: item.isDeleted ? 'delete' : 'upsert',
-          payload: item.toSyncPayload(),
+          entityId: tracking.ref.id,
+          action: tracking.isDeleted ? 'delete' : 'upsert',
+          payload: tracking.payload,
           clientChangedAt: changedAt,
         );
       case 'library_item_snapshot':
-        final item = await CatalogCacheRepository(db).findById(change.entityId);
+        final payload = change.localPayload ?? change.servicePayload;
+        final rawKind = payload?['kind'];
+        if (rawKind is! String || rawKind.trim().isEmpty) {
+          return null;
+        }
+        final catalogRef = CatalogEntityRef(
+          kind: catalogMediaKindFromApiValue(rawKind),
+          entityType: CatalogEntityTypeId.root,
+          id: change.entityId,
+        );
+        final item =
+            await CatalogSnapshotRepository(db).findCandidateByRef(catalogRef);
         if (item == null) {
           return null;
         }
@@ -79,8 +116,22 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'watch_session':
-        final session = await WatchSessionsCacheRepository(db).findById(
-          change.entityId,
+        final watchSessionPayload =
+            change.localPayload ?? change.servicePayload;
+        final rawTargetRef = watchSessionPayload?['catalog_ref'] ??
+            watchSessionPayload?['target_ref'];
+        if (rawTargetRef is! Map) return null;
+        final targetRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawTargetRef),
+        );
+        final session = await WatchSessionsRepository(
+          db,
+          codecs: collectarrWatchSessionCodecs,
+        ).findByRef(
+          WatchSessionRef(
+            kind: targetRef.mediaKind,
+            id: change.entityId,
+          ),
         );
         if (session == null) {
           return null;
@@ -90,7 +141,10 @@ class SyncRetryMapper {
           entityType: change.entityType,
           entityId: session.id,
           action: session.isDeleted ? 'delete' : 'upsert',
-          payload: session.toSyncPayload(),
+          payload: WatchSessionsRepository(
+            db,
+            codecs: collectarrWatchSessionCodecs,
+          ).toSyncPayload(session),
           clientChangedAt: changedAt,
         );
       case 'metadata_override':
@@ -110,18 +164,24 @@ class SyncRetryMapper {
           clientChangedAt: changedAt,
         );
       case 'custom_episode':
-        final episode = await CustomEpisodesCacheRepository(db).findById(
-          change.entityId,
+        final customEpisodePayload =
+            change.localPayload ?? change.servicePayload;
+        final rawSeriesRef = customEpisodePayload?['catalog_ref'];
+        if (rawSeriesRef is! Map) return null;
+        final seriesRef = CatalogEntityRef.fromJson(
+          Map<String, dynamic>.from(rawSeriesRef),
         );
-        if (episode == null) {
+        final codec = _customEpisodeCodecFor(seriesRef.mediaKind);
+        final record = await codec.readSyncRecord(db, change.entityId);
+        if (record == null) {
           return null;
         }
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: episode.id,
-          action: episode.isDeleted ? 'delete' : 'upsert',
-          payload: episode.toSyncPayload(),
+          entityId: change.entityId,
+          action: record.isDeleted ? 'delete' : 'upsert',
+          payload: record.payload,
           clientChangedAt: changedAt,
         );
       case 'location':
@@ -181,5 +241,16 @@ class SyncRetryMapper {
       default:
         return null;
     }
+  }
+
+  static CustomEpisodeSyncCodec _customEpisodeCodecFor(
+    CatalogMediaKind kind,
+  ) {
+    for (final codec in collectarrCustomEpisodeSyncCodecs) {
+      if (codec.kind == kind) return codec;
+    }
+    throw UnsupportedError(
+      'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
+    );
   }
 }

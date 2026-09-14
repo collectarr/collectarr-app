@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 const Object _gameDetailsUnset = Object();
 
 @immutable
-class GameOwnedDetails extends OwnedItemDetails {
+class GameOwnedDetails implements JsonEncodable {
   const GameOwnedDetails({
     this.completeness,
     this.hasBox,

@@ -1,25 +1,29 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/custom_episode.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/collectarr_sync_client.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
+import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -38,8 +42,8 @@ class SyncApplyService {
     required this.db,
     required this.queue,
     required this.catalog,
-    required this.ownedItems,
-    required this.trackingEntries,
+    required this.ownedPersistence,
+    required this.trackingRecords,
     required this.wishlistItems,
     LocationRepository? locations,
   }) : locations = locations ?? LocationRepository(db);
@@ -47,9 +51,9 @@ class SyncApplyService {
   final CollectarrSyncClient client;
   final LocalDatabase db;
   final SyncQueueRepository queue;
-  final CatalogCacheRepository catalog;
-  final OwnedItemsCacheRepository ownedItems;
-  final TrackingEntriesCacheRepository trackingEntries;
+  final CatalogTransportRepository catalog;
+  final CollectarrOwnedItemPersistence ownedPersistence;
+  final TrackingStorageRepository trackingRecords;
   final WishlistItemsCacheRepository wishlistItems;
   final LocationRepository locations;
 
@@ -79,20 +83,21 @@ class SyncApplyService {
     );
   }
 
-  Future<void> _applyEntities(List<Map<String, dynamic>> entities) async {
-    final catalogSnapshots = <CatalogItem>[];
+  Future<void> _applyEntities(List<JsonMap> entities) async {
+    final catalogItems = <CatalogImportTransport>[];
     final locationUpserts = <StorageLocation>[];
     final locationDeletes = <String>[];
-    final owned = <OwnedItem>[];
-    final tracking = <TrackingEntry>[];
+    final ownedPayloads = <_OwnedSyncPayload>[];
+    final tracking = <TrackingStorageSyncInput>[];
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
     final metadataOverrides = <UserMetadataOverride>[];
-    final customEpisodes = <CustomEpisode>[];
-    final pickListUpserts = <Map<String, dynamic>>[];
+    final customEpisodes = <_CustomEpisodeSyncInput>[];
+    final pickListUpserts = <JsonMap>[];
     final pickListDeletes = <String>[];
-    // Collect image data from snapshots keyed by item ID.
-    final imageDataByItemId = <String, String>{};
+    // Collect image data from snapshots keyed by the complete catalog ref.
+    // Equal IDs are valid across kinds and must never overwrite one another.
+    final imageDataByCatalogRef = <CatalogEntityRef, String>{};
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
       if (type == 'location') {
@@ -104,16 +109,17 @@ class SyncApplyService {
       }
       if (type == 'library_item_snapshot' && entity['action'] == 'upsert') {
         final item = _catalogItemFromEntity(entity);
-        catalogSnapshots.add(item);
-        if (item.coverImageData != null) {
-          imageDataByItemId[item.id] = item.coverImageData!;
+        catalogItems.add(item);
+        final coverImageData = item.payload['cover_image_data'] as String?;
+        if (coverImageData != null) {
+          imageDataByCatalogRef[item.ref] = coverImageData;
         }
       }
       if (type == 'owned_item') {
-        owned.add(_ownedItemFromEntity(entity));
+        ownedPayloads.add(_ownedPayloadFromEntity(entity));
       }
       if (type == 'tracking_entry') {
-        tracking.add(_trackingEntryFromEntity(entity));
+        tracking.add(_trackingRecordFromEntity(entity));
       }
       if (type == 'wishlist_item') {
         wishlist.add(_wishlistItemFromEntity(entity));
@@ -125,7 +131,7 @@ class SyncApplyService {
         metadataOverrides.add(_metadataOverrideFromEntity(entity));
       }
       if (type == 'custom_episode') {
-        customEpisodes.add(_customEpisodeFromEntity(entity));
+        customEpisodes.add(_customEpisodeSyncInputFromEntity(entity));
       }
       if (type == 'pick_list_value') {
         if (entity['action'] == 'delete') {
@@ -139,22 +145,34 @@ class SyncApplyService {
       }
     }
     await db.transaction(() async {
-      await catalog.upsertAll(catalogSnapshots);
+      await catalog.upsertTransports(catalogItems);
       for (final location in locationUpserts) {
         await locations.applySyncedUpsert(location);
       }
-      await ownedItems.upsertAll(owned);
-      await trackingEntries.upsertAll(tracking);
+      for (final item in ownedPayloads) {
+        await ownedPersistence.replaceFromPayload(item.kind, item.payload);
+      }
+      await trackingRecords.upsertSyncPayloads(tracking);
       await wishlistItems.upsertAll(wishlist);
       if (watchSessions.isNotEmpty) {
-        await WatchSessionsCacheRepository(db).upsertAll(watchSessions);
+        await WatchSessionsRepository(
+          db,
+          codecs: collectarrWatchSessionCodecs,
+        ).upsertAll(watchSessions);
       }
       if (metadataOverrides.isNotEmpty) {
         await UserMetadataOverridesCacheRepository(db)
             .upsertAll(metadataOverrides);
       }
-      if (customEpisodes.isNotEmpty) {
-        await CustomEpisodesCacheRepository(db).upsertAll(customEpisodes);
+      for (final customEpisode in customEpisodes) {
+        final codec = _customEpisodeCodecFor(customEpisode.payload);
+        await codec.applySyncPayload(
+          db,
+          payload: customEpisode.payload,
+          id: customEpisode.id,
+          updatedAt: customEpisode.updatedAt,
+          deletedAt: customEpisode.deletedAt,
+        );
       }
       if (pickListUpserts.isNotEmpty || pickListDeletes.isNotEmpty) {
         await _applyPickListValues(pickListUpserts, pickListDeletes);
@@ -166,20 +184,25 @@ class SyncApplyService {
 
     // Store image bytes outside the main transaction so data sync completes
     // first and images are processed in the background.
-    if (imageDataByItemId.isNotEmpty && owned.isNotEmpty) {
+    if (imageDataByCatalogRef.isNotEmpty && ownedPayloads.isNotEmpty) {
       final imagesRepo = ItemImagesCacheRepository(db);
-      final ownedByItemId = <String, String>{};
-      for (final item in owned) {
-        ownedByItemId[item.itemId] = item.id;
+      final ownedByCatalogRef = <CatalogEntityRef, OwnedItemRef>{};
+      for (final item in ownedPayloads) {
+        final rawCatalogRef = item.payload['catalog_ref'];
+        if (rawCatalogRef is! Map) continue;
+        final catalogRef = CatalogEntityRef.fromJson(
+          JsonMap.from(rawCatalogRef),
+        );
+        ownedByCatalogRef[catalogRef] = item.ref;
       }
-      for (final entry in imageDataByItemId.entries) {
-        final ownedItemId = ownedByItemId[entry.key];
-        if (ownedItemId == null) continue;
+      for (final entry in imageDataByCatalogRef.entries) {
+        final ownedRef = ownedByCatalogRef[entry.key];
+        if (ownedRef == null) continue;
         final deterministicId =
-            _uuid.v5(Namespace.url.value, '$ownedItemId:front_cover');
+            _uuid.v5(Namespace.url.value, '${ownedRef.key}:front_cover');
         await imagesRepo.upsert(
           id: deterministicId,
-          ownedItemId: ownedItemId,
+          ownedRef: ownedRef,
           imageType: 'front_cover',
           imageData: base64Decode(entry.value),
         );
@@ -188,7 +211,7 @@ class SyncApplyService {
   }
 
   Future<void> _applyPickListValues(
-    List<Map<String, dynamic>> upserts,
+    List<JsonMap> upserts,
     List<String> deletes,
   ) async {
     if (upserts.isNotEmpty) {
@@ -219,18 +242,22 @@ class SyncApplyService {
   // Entity deserializers
   // ---------------------------------------------------------------------------
 
-  CatalogItem _catalogItemFromEntity(Map<String, dynamic> entity) {
+  CatalogImportTransport _catalogItemFromEntity(
+    JsonMap entity,
+  ) {
     final type = entity['entity_type'] as String;
     if (type != 'library_item_snapshot') {
       throw FormatException('Expected library_item_snapshot entity, got $type');
     }
-    return CatalogItem.fromJson({
-      ..._payload(entity),
-      'id': entity['entity_id'],
-    });
+    return catalog.transportFromSyncPayload(
+      id: entity['entity_id'] as String,
+      payload: _payload(entity),
+    );
   }
 
-  OwnedItem _ownedItemFromEntity(Map<String, dynamic> entity) {
+  _OwnedSyncPayload _ownedPayloadFromEntity(
+    JsonMap entity,
+  ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -238,16 +265,34 @@ class SyncApplyService {
     if (type != 'owned_item') {
       throw FormatException('Expected owned_item entity, got $type');
     }
-    return OwnedItem.fromJson({
+    final rawCatalogRef = payload['catalog_ref'];
+    if (rawCatalogRef is! Map) {
+      throw const FormatException(
+        'Owned item sync payload is missing catalog_ref',
+      );
+    }
+    final catalogRef = CatalogEntityRef.fromJson(
+      JsonMap.from(rawCatalogRef),
+    );
+    final kind = catalogRef.mediaKind;
+    final normalizedPayload = {
       ...payload,
       'id': entity['entity_id'],
       'created_at': payload['created_at'] ?? entity['client_changed_at'],
       'updated_at': entity['client_changed_at'],
       'deleted_at': deletedAt,
-    });
+    };
+    return (
+      kind: kind,
+      ref: OwnedItemRef.fromJson({
+        'kind': kind.apiValue,
+        'id': entity['entity_id'],
+      }),
+      payload: normalizedPayload,
+    );
   }
 
-  WishlistItem _wishlistItemFromEntity(Map<String, dynamic> entity) {
+  WishlistItem _wishlistItemFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -264,7 +309,7 @@ class SyncApplyService {
     });
   }
 
-  TrackingEntry _trackingEntryFromEntity(Map<String, dynamic> entity) {
+  TrackingStorageSyncInput _trackingRecordFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -272,15 +317,25 @@ class SyncApplyService {
     if (type != 'tracking_entry') {
       throw FormatException('Expected tracking_entry entity, got $type');
     }
-    return TrackingEntry.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
-    });
+    final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
+    if (rawRef is! Map) {
+      throw const FormatException(
+        'Tracking entry sync payload is missing catalog_ref',
+      );
+    }
+    final catalogRef = CatalogEntityRef.fromJson(JsonMap.from(rawRef));
+    return TrackingStorageSyncInput(
+      ref: TrackingStateRef(
+        kind: catalogRef.mediaKind,
+        id: entity['entity_id'] as String,
+      ),
+      payload: payload,
+      updatedAt: DateTime.parse(entity['client_changed_at'] as String),
+      deletedAt: deletedAt == null ? null : DateTime.parse(deletedAt as String),
+    );
   }
 
-  WatchSession _watchSessionFromEntity(Map<String, dynamic> entity) {
+  WatchSession _watchSessionFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -288,16 +343,32 @@ class SyncApplyService {
     if (type != 'watch_session') {
       throw FormatException('Expected watch_session entity, got $type');
     }
-    return WatchSession.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
-    });
+    final rawRef = payload['target_ref'] ?? payload['catalog_ref'];
+    final kind = rawRef is Map
+        ? catalogMediaKindFromValue(rawRef['kind'])
+        : CatalogMediaKind.unknown;
+    final codec = kind.isUnknown
+        ? null
+        : collectarrWatchSessionCodecs.cast<WatchSessionCodec?>().firstWhere(
+              (candidate) => candidate?.kind == kind,
+              orElse: () => null,
+            );
+    if (codec != null) {
+      return codec.fromSyncPayload(
+        payload: payload,
+        id: entity['entity_id'] as String,
+        updatedAt: DateTime.parse(entity['client_changed_at'] as String),
+        deletedAt:
+            deletedAt == null ? null : DateTime.parse(deletedAt as String),
+      );
+    }
+    throw UnsupportedError(
+      'No kind-owned watch-session codec is registered for ${kind.apiValue}',
+    );
   }
 
   UserMetadataOverride _metadataOverrideFromEntity(
-    Map<String, dynamic> entity,
+    JsonMap entity,
   ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
@@ -314,7 +385,9 @@ class SyncApplyService {
     });
   }
 
-  CustomEpisode _customEpisodeFromEntity(Map<String, dynamic> entity) {
+  _CustomEpisodeSyncInput _customEpisodeSyncInputFromEntity(
+    JsonMap entity,
+  ) {
     final type = entity['entity_type'] as String;
     final action = entity['action'] as String;
     final payload = _payload(entity);
@@ -322,15 +395,28 @@ class SyncApplyService {
     if (type != 'custom_episode') {
       throw FormatException('Expected custom_episode entity, got $type');
     }
-    return CustomEpisode.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'updated_at': entity['client_changed_at'],
-      'deleted_at': deletedAt,
-    });
+    return _CustomEpisodeSyncInput(
+      id: entity['entity_id'] as String,
+      payload: payload,
+      updatedAt: DateTime.parse(entity['client_changed_at'] as String),
+      deletedAt: deletedAt == null ? null : DateTime.parse(deletedAt as String),
+    );
   }
 
-  StorageLocation _locationFromEntity(Map<String, dynamic> entity) {
+  CustomEpisodeSyncCodec _customEpisodeCodecFor(JsonMap payload) {
+    final rawRef = payload['catalog_ref'];
+    final kind = rawRef is Map
+        ? catalogMediaKindFromValue(rawRef['kind'])
+        : CatalogMediaKind.unknown;
+    for (final codec in collectarrCustomEpisodeSyncCodecs) {
+      if (codec.kind == kind) return codec;
+    }
+    throw UnsupportedError(
+      'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
+    );
+  }
+
+  StorageLocation _locationFromEntity(JsonMap entity) {
     final type = entity['entity_type'] as String;
     if (type != 'location') {
       throw FormatException('Expected location entity, got $type');
@@ -345,7 +431,7 @@ class SyncApplyService {
   // Response parsing helpers
   // ---------------------------------------------------------------------------
 
-  Set<String> _acceptedKeys(Map<String, dynamic> response) {
+  Set<String> _acceptedKeys(JsonMap response) {
     final accepted = response['accepted'];
     if (accepted is! List) {
       throw const FormatException(
@@ -353,8 +439,8 @@ class SyncApplyService {
       );
     }
     return accepted
-        .whereType<Map<dynamic, dynamic>>()
-        .map((item) => item.cast<String, dynamic>())
+        .whereType<Map<Object?, Object?>>()
+        .map((item) => JsonMap.from(item.cast<String, Object?>()))
         .where(
           (item) =>
               item['entity_type'] is String && item['entity_id'] is String,
@@ -364,7 +450,7 @@ class SyncApplyService {
   }
 
   List<SyncRejectedChange> _rejectedChanges(
-    Map<String, dynamic> response,
+    JsonMap response,
     List<SyncChange> pending,
   ) {
     final rejected = response['rejected'];
@@ -379,8 +465,8 @@ class SyncApplyService {
     final pendingByKey = {
       for (final change in pending) _changeKey(change): change,
     };
-    return rejected.whereType<Map<dynamic, dynamic>>().map((item) {
-      final json = item.cast<String, dynamic>();
+    return rejected.whereType<Map<Object?, Object?>>().map((item) {
+      final json = JsonMap.from(item.cast<String, Object?>());
       final key = '${json['entity_type']}:${json['entity_id']}';
       return SyncRejectedChange.fromJson(
         json,
@@ -389,26 +475,26 @@ class SyncApplyService {
     }).toList(growable: false);
   }
 
-  List<Map<String, dynamic>> _entities(Map<String, dynamic> response) {
+  List<JsonMap> _entities(JsonMap response) {
     final entities = response['entities'];
     if (entities is! List) {
       throw const FormatException('Sync pull response is missing entities');
     }
     return entities
-        .whereType<Map<dynamic, dynamic>>()
-        .map((item) => item.cast<String, dynamic>())
+        .whereType<Map<Object?, Object?>>()
+        .map((item) => JsonMap.from(item.cast<String, Object?>()))
         .toList(growable: false);
   }
 
-  Map<String, dynamic> _payload(Map<String, dynamic> entity) {
+  JsonMap _payload(JsonMap entity) {
     final payload = entity['payload'];
     if (payload is! Map) {
       throw const FormatException('Sync entity is missing payload');
     }
-    return payload.cast<String, dynamic>();
+    return JsonMap.from(payload.cast<String, Object?>());
   }
 
-  DateTime _serverTime(Map<String, dynamic> response) {
+  DateTime _serverTime(JsonMap response) {
     final value = response['server_time'];
     if (value is! String) {
       throw const FormatException('Sync response is missing server_time');
@@ -419,4 +505,24 @@ class SyncApplyService {
   String _changeKey(SyncChange change) {
     return '${change.entityType}:${change.entityId}';
   }
+}
+
+typedef _OwnedSyncPayload = ({
+  CatalogMediaKind kind,
+  OwnedItemRef ref,
+  JsonMap payload,
+});
+
+final class _CustomEpisodeSyncInput {
+  const _CustomEpisodeSyncInput({
+    required this.id,
+    required this.payload,
+    required this.updatedAt,
+    required this.deletedAt,
+  });
+
+  final String id;
+  final JsonMap payload;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
 }

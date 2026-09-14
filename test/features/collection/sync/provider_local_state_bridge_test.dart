@@ -1,0 +1,74 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+
+void main() {
+  test('reads provider fields from a persistent tracking entry', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final catalog = CatalogTransportRepository(db);
+    final tracking = TrackingStorageRepository(
+      db,
+      codecs: collectarrTrackingStorageCodecs,
+    );
+    final bridge = ProviderLocalStateBridge(
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
+      trackingSummaries: TrackingSummaryRepository(db),
+      wishlist: WishlistItemsCacheRepository(db),
+    );
+    final item = testCatalogItem(
+      id: 'movie-1',
+      kind: 'movie',
+      title: 'A Movie',
+    );
+    await catalog.upsertTransportItems([item]);
+    const localRef = CatalogEntityRef(
+      id: 'movie-1',
+      kind: CatalogMediaKind.movie,
+      entityType: CatalogEntityTypeId('work'),
+    );
+    const siblingRef = CatalogEntityRef(
+      kind: CatalogMediaKind.movie,
+      entityType: CatalogEntityTypeId('work'),
+      id: 'movie-1',
+      rootId: 'different-root',
+    );
+    expect(bridge.matches(localRef, siblingRef), isFalse);
+    await tracking.upsertStorageRecord(
+      MovieTrackingState(
+        id: 'tracking-1',
+        catalogRef: localRef,
+        status: MediaTrackingStatus.completed,
+        rating: 8,
+        progressCurrent: 1,
+        progressTotal: 1,
+        timesCompleted: 2,
+        notes: 'Finished',
+        updatedAt: DateTime.utc(2026, 6, 1),
+        deletedAt: null,
+      ),
+    );
+
+    final entry = await bridge.read(localRef);
+
+    expect(entry, isNotNull);
+    expect(entry!.title, 'A Movie');
+    expect(entry.status?.name, 'completed');
+    expect(entry.rating, 80);
+    expect(entry.progress, 1);
+    expect(entry.totalProgress, 1);
+    expect(entry.repeatCount, 2);
+    expect(entry.notes, 'Finished');
+  });
+}

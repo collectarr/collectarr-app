@@ -1,19 +1,183 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';
 
-List<CatalogItem> boardgameSeedCatalogItems() => [
-      testCatalogItem(
+final boardgameDevSeedContributor =
+    TypedDevSeedKindContributor<BoardGameOwnedItem>(
+  kind: CatalogMediaKind.boardgame,
+  catalogDefaults: DevSeedCatalogDefaults(
+    includePublishingDetails: false,
+    paperType: null,
+    originalLanguage: 'en',
+    pageCount: 1,
+    coverPriceCents: 4499,
+    runtimeMinutes: 0,
+    ageRating: 'PG',
+    audienceRating: '10+',
+    enrichPayload: enrichBoardgameSeedPayload,
+  ),
+  catalogItems: boardgameSeedCatalogItems,
+  enrichItem: enrichBoardgameSeedItem,
+  validateCatalog: validateBoardgameSeedCatalog,
+  validateCatalogGraph: validateBoardgameSeedCatalogGraph,
+  validateBarcode: seedValidateStandardBarcode,
+  ownedItemsTyped: boardgameSeedOwnedItems,
+  ownedSummaryTyped: BoardGameOwnedItemProjection.toSummary,
+  validateOwnedTyped: validateBoardgameSeedOwned,
+  seedOwnedTyped: (db, now) =>
+      BoardGameOwnedRepository(db).upsertAll(boardgameSeedOwnedItems(now)),
+  trackingRecords: boardgameSeedTrackingStates,
+  seedDatabase: seedBoardgameDatabase,
+);
+
+void enrichBoardgameSeedPayload(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+) {
+  payload.putIfAbsent('bgg_rank', () => 1);
+  payload.putIfAbsent('bgg_rating', () => 7.5);
+  payload.putIfAbsent('play_count', () => 5);
+  payload.putIfAbsent(
+    'last_played',
+    () => item.releaseDate?.toUtc().toIso8601String(),
+  );
+  payload.putIfAbsent('favorite_player_count', () => 4);
+  payload.putIfAbsent(
+    'player_stats',
+    () => <Map<String, dynamic>>[
+      {'players': 2, 'rating': 7.0},
+    ],
+  );
+}
+
+List<String> validateBoardgameSeedCatalog(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final payload = item.payload;
+  seedRequirePositiveInt(issues, prefix, 'bgg_rank', payload['bgg_rank']);
+  seedRequirePositiveNumber(
+      issues, prefix, 'bgg_rating', payload['bgg_rating']);
+  seedRequireCreatorList(issues, prefix, payload['creators']);
+  seedRequirePlayerStats(issues, prefix, payload['player_stats']);
+  return issues;
+}
+
+List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
+  final issues = <String>[];
+  final prefix = '${item.kind}/${item.id}';
+  final editions = seedRequireObjectList(
+    issues,
+    prefix,
+    'editions',
+    item.payload['editions'],
+  );
+  seedValidateChildren(
+    issues,
+    prefix,
+    'editions',
+    editions,
+    kind: CatalogMediaKind.boardgame,
+    parentId: item.id,
+    parentKey: 'work_id',
+    titleKey: 'edition_title',
+  );
+  for (var index = 0; index < editions.length; index++) {
+    final edition = editions[index];
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'editions[$index].min_players',
+      edition['min_players'],
+    );
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'editions[$index].max_players',
+      edition['max_players'],
+    );
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'editions[$index].playing_time_minutes',
+      edition['playing_time_minutes'],
+    );
+  }
+  return issues;
+}
+
+List<String> validateBoardgameSeedOwned(BoardGameOwnedItem item) {
+  final issues = <String>[];
+  final prefix = '${item.catalogRef.kind}/${item.id}';
+  final details = item.details;
+  seedRequireText(
+      issues, prefix, 'boardgame.edition_language', details.editionLanguage);
+  seedRequireText(
+      issues, prefix, 'boardgame.edition_region', details.editionRegion);
+  seedRequireText(issues, prefix, 'boardgame.component_condition',
+      details.componentCondition);
+  seedRequireText(issues, prefix, 'boardgame.component_completeness',
+      details.componentCompleteness);
+  return issues;
+}
+
+Future<void> seedBoardgameDatabase(
+  LocalDatabase db,
+  Iterable<CatalogItemDto> items,
+  DateTime now,
+) async {
+  await BoardGamePlaySessionRepository(db).upsertAll(
+    boardgameSeedPlaySessions(now),
+  );
+}
+
+CatalogItemDto enrichBoardgameSeedItem(CatalogItemDto item) {
+  final editions = [
+    for (final edition in seedEditionPayloads(item))
+      {
+        ...edition,
+        'id': edition['id']?.toString() ?? '${item.id}-edition-01',
+        'kind': 'boardgame',
+        'work_id': item.id,
+        'edition_title': edition['title'] ?? item.editionTitle ?? item.title,
+        'format': edition['format'] ?? item.physicalFormat ?? 'Board Game',
+        'publisher': edition['publisher'] ?? item.publisher,
+        'barcode': edition['barcode'] ?? item.barcode,
+        'country': edition['country'] ?? item.payload['country'],
+        'language': edition['language'] ?? item.payload['language'],
+        'age_rating': edition['age_rating'] ?? item.payload['age_rating'],
+        'release_date': edition['release_date'] ??
+            item.releaseDate?.toUtc().toIso8601String(),
+        'release_status': edition['release_status'] ?? 'released',
+        'min_players': edition['min_players'] ?? 1,
+        'max_players': edition['max_players'] ?? 4,
+        'playing_time_minutes': edition['playing_time_minutes'] ?? 90,
+      },
+  ];
+  return withSeedPayload(item, {'editions': editions});
+}
+
+List<CatalogItemDto> boardgameSeedCatalogItems() => [
+      seedCatalogItem(
         id: 'seed-boardgame-01',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Gloomhaven',
         synopsis:
             'A cooperative dungeon-crawling board game with branching narrative and tactical combat.',
         publisher: 'Cephalofair Games',
+        barcode: '700300000013',
         releaseYear: 2017,
         releaseDate: DateTime.utc(2017, 4, 1),
         editionTitle: '2nd Printing',
@@ -35,12 +199,13 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Brute', 'Spellweaver', 'Scoundrel'],
         genres: ['cooperative', 'dungeon crawl', 'tactical'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-02',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Gloomhaven: Jaws of the Lion',
         synopsis: 'A standalone prequel to Gloomhaven with simplified rules.',
         publisher: 'Cephalofair Games',
+        barcode: '700300000020',
         releaseYear: 2020,
         releaseDate: DateTime.utc(2020, 6, 18),
         sortKey: 'gloomhaven-0002',
@@ -54,12 +219,13 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Valrath Red Guard', 'Inox Hatchet'],
         genres: ['cooperative', 'dungeon crawl'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-03',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Wingspan',
         synopsis: 'A competitive bird-collection engine-building board game.',
         publisher: 'Stonemaier Games',
+        barcode: '700300000037',
         releaseYear: 2019,
         releaseDate: DateTime.utc(2019, 3, 8),
         ageRating: '10+',
@@ -73,13 +239,14 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['engine building', 'card game', 'nature'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-04',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Pandemic',
         synopsis:
             'A cooperative game where players work together to stop global outbreaks.',
         publisher: 'Z-Man Games',
+        barcode: '700300000044',
         releaseYear: 2008,
         releaseDate: DateTime.utc(2008, 1, 1),
         sortKey: 'pandemic-0001',
@@ -89,13 +256,14 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Medic', 'Scientist', 'Researcher'],
         genres: ['cooperative', 'strategy'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-05',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Pandemic Legacy: Season 1',
         synopsis:
             'A legacy-style Pandemic where each game permanently alters the board.',
         publisher: 'Z-Man Games',
+        barcode: '700300000051',
         releaseYear: 2015,
         releaseDate: DateTime.utc(2015, 10, 8),
         sortKey: 'pandemic-0002',
@@ -110,13 +278,14 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         storyArcs: ['Legacy Campaign'],
         genres: ['cooperative', 'legacy', 'campaign'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-06',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Terraforming Mars',
         synopsis:
             'Corporations compete to terraform Mars by raising temperature, oxygen, and ocean coverage.',
         publisher: 'FryxGames',
+        barcode: '700300000068',
         releaseYear: 2016,
         releaseDate: DateTime.utc(2016, 10, 1),
         ageRating: '12+',
@@ -131,13 +300,14 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['engine building', 'science', 'corporate'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-07',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Spirit Island',
         synopsis:
             'Spirits of the land work together to drive off colonizing invaders.',
         publisher: 'Greater Than Games',
+        barcode: '700300000075',
         releaseYear: 2017,
         releaseDate: DateTime.utc(2017, 9, 22),
         sortKey: 'spirit-island-0001',
@@ -150,13 +320,14 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['cooperative', 'strategy', 'asymmetric'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-08',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Root',
         synopsis:
             'An asymmetric war game where woodland factions battle for control of a vast forest.',
         publisher: 'Leder Games',
+        barcode: '700300000082',
         releaseYear: 2018,
         releaseDate: DateTime.utc(2018, 8, 1),
         ageRating: '10+',
@@ -177,13 +348,14 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['asymmetric', 'war game', 'area control'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-09',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Brass: Birmingham',
         synopsis:
             'Build industries and networks in Birmingham during the industrial revolution.',
         publisher: 'Roxley Games',
+        barcode: '700300000099',
         releaseYear: 2018,
         releaseDate: DateTime.utc(2018, 12, 1),
         country: 'CA',
@@ -194,13 +366,14 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         ],
         genres: ['economic', 'network building', 'industrial'],
       ),
-      testCatalogItem(
+      seedCatalogItem(
         id: 'seed-boardgame-10',
-        kind: 'boardgame',
+        kind: CatalogMediaKind.boardgame,
         title: 'Scythe',
         synopsis:
             'An alternate-history 1920s strategy game featuring mechs and farming.',
         publisher: 'Stonemaier Games',
+        barcode: '700300000105',
         releaseYear: 2016,
         releaseDate: DateTime.utc(2016, 8, 18),
         ageRating: '14+',
@@ -216,36 +389,184 @@ List<CatalogItem> boardgameSeedCatalogItems() => [
         characters: ['Anna & Wojtek', 'Gunter & Nacht'],
         genres: ['strategy', 'area control', 'alternate history'],
       ),
-    ];
-
-List<OwnedItem> boardgameSeedOwnedItems(DateTime now) => [
-      OwnedItem(
-        id: 'seed-owned-bg-01',
-        catalogRef: seedCatalogRef('seed-boardgame-01'),
-        createdAt: now.subtract(const Duration(days: 600)),
-        updatedAt: now,
-        isDigital: false,
-        condition: 'Very Good',
-        purchaseDate: DateTime.utc(2019, 8, 1),
-        pricePaidCents: 14000,
-        currency: 'USD',
-        personalNotes: 'All characters unlocked',
-        rating: 9,
-        readStatus: 'inProgress',
-        purchaseStore: 'Miniature Market',
+      seedCatalogItem(
+        id: 'seed-boardgame-11',
+        kind: CatalogMediaKind.boardgame,
+        title: 'Azul',
+        synopsis:
+            'A tile-drafting game about decorating the walls of the Royal Palace of Evora.',
+        publisher: 'Plan B Games',
+        barcode: '700300000112',
+        releaseYear: 2017,
+        releaseDate: DateTime.utc(2017, 10, 1),
+        ageRating: '8+',
+        sortKey: 'azul-0001',
+        creators: [
+          {'name': 'Michael Kiesling', 'role': 'designer'},
+        ],
+        genres: ['abstract', 'tile placement', 'pattern building'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-12',
+        kind: CatalogMediaKind.boardgame,
+        title: '7 Wonders',
+        synopsis:
+            'A civilization card game where players develop a city and its wonder across three ages.',
+        publisher: 'Repos Production',
+        barcode: '700300000129',
+        releaseYear: 2010,
+        releaseDate: DateTime.utc(2010, 10, 1),
+        ageRating: '10+',
+        sortKey: '7-wonders-0001',
+        creators: [
+          {'name': 'Antoine Bauza', 'role': 'designer'},
+        ],
+        genres: ['card drafting', 'civilization', 'strategy'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-13',
+        kind: CatalogMediaKind.boardgame,
+        title: 'Catan',
+        synopsis:
+            'Players collect resources and build settlements, roads, and cities on the island of Catan.',
+        publisher: 'Catan Studio',
+        barcode: '700300000136',
+        releaseYear: 1995,
+        releaseDate: DateTime.utc(1995, 1, 1),
+        ageRating: '10+',
+        sortKey: 'catan-0001',
+        creators: [
+          {'name': 'Klaus Teuber', 'role': 'designer'},
+        ],
+        genres: ['trading', 'negotiation', 'strategy'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-14',
+        kind: CatalogMediaKind.boardgame,
+        title: 'Ticket to Ride',
+        synopsis:
+            'A railway adventure where players claim routes and connect cities across a growing map.',
+        publisher: 'Days of Wonder',
+        barcode: '700300000143',
+        releaseYear: 2004,
+        releaseDate: DateTime.utc(2004, 5, 1),
+        ageRating: '8+',
+        sortKey: 'ticket-to-ride-0001',
+        creators: [
+          {'name': 'Alan R. Moon', 'role': 'designer'},
+        ],
+        genres: ['route building', 'family', 'strategy'],
+      ),
+      seedCatalogItem(
+        id: 'seed-boardgame-15',
+        kind: CatalogMediaKind.boardgame,
+        title: 'Everdell',
+        synopsis:
+            'A woodland worker-placement game about building a thriving city of critters.',
+        publisher: 'Starling Games',
+        barcode: '700300000150',
+        releaseYear: 2018,
+        releaseDate: DateTime.utc(2018, 3, 1),
+        ageRating: '10+',
+        sortKey: 'everdell-0001',
+        creators: [
+          {'name': 'James A. Wilson', 'role': 'designer'},
+        ],
+        genres: ['worker placement', 'tableau building', 'strategy'],
       ),
     ];
 
-List<TrackingEntry> boardgameSeedTrackingEntries(DateTime now) => [
-      TrackingEntry(
-        id: 'seed-track-06',
-        catalogRef: seedCatalogRef('seed-boardgame-01'),
-        ownedItemId: 'seed-owned-bg-01',
-        sourceType: TrackingSourceType.physical,
-        status: MediaTrackingStatus.paused,
-        progressCurrent: 35,
-        progressTotal: 95,
-        notes: 'Scenario 35, paused for summer',
-        updatedAt: now,
-      ),
+List<BoardGameOwnedItem> boardgameSeedOwnedItems(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        BoardGameOwnedItem(
+          // Keep a deterministic first ID so repeated seed runs remain
+          // idempotent.
+          id: BoardGameOwnedItemId(
+            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          ),
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.boardgame,
+            'seed-boardgame-${seedOrdinal2(i)}',
+          ),
+          createdAt: now.subtract(Duration(days: 600 - (i * 25))),
+          updatedAt: now,
+          isDigital: false,
+          condition: i.isEven ? 'Near Mint' : 'Very Good',
+          details: BoardgameOwnedDetails(
+            editionLanguage: 'English',
+            editionRegion: 'US',
+            componentCondition: i.isEven ? 'Near Mint' : 'Very Good',
+            componentCompleteness:
+                i == 1 ? 'Complete' : 'Complete with inserts',
+            missingPiecesNotes: i == 1 ? null : 'No missing components',
+            isSleeved: i.isOdd,
+            hasCustomInsert: i == 1,
+            hasPaintedMiniatures: i <= 4,
+            storageNotes: i == 1 ? 'Dedicated board-game cabinet' : null,
+          ),
+          purchaseDate: DateTime.utc(2017 + i, i % 12 + 1, 1),
+          pricePaidCents: i == 1 ? 14000 : 4500 + (i * 250),
+          currency: 'USD',
+          personalNotes: i == 1
+              ? 'All characters unlocked.'
+              : 'Complete retail copy with rulebook and components.',
+          quantity: 1,
+          purchaseStore: i.isEven ? 'Local Game Store' : 'Miniature Market',
+          collectionStatus: 'collected',
+        ),
+    ];
+
+List<TrackingStorageRecord> boardgameSeedTrackingStates(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        BoardGameTrackingState(
+          // Keep a deterministic first tracking ID for idempotent seed runs.
+          id: i == 1
+              ? 'seed-track-06'
+              : 'seed-track-boardgame-${seedOrdinal2(i)}',
+          catalogRef: seedCatalogRef(
+            CatalogMediaKind.boardgame,
+            'seed-boardgame-${seedOrdinal2(i)}',
+          ),
+          ownedRef: seedOwnedRef(
+            CatalogMediaKind.boardgame,
+            i == 1 ? 'seed-owned-bg-01' : 'seed-owned-bg-${seedOrdinal2(i)}',
+          ),
+          sourceType: TrackingSourceType.physical,
+          status: i == 1
+              ? MediaTrackingStatus.paused
+              : (i <= 6
+                  ? MediaTrackingStatus.completed
+                  : MediaTrackingStatus.inProgress),
+          progressCurrent: i == 1 ? 35 : (i <= 6 ? 1 : 0),
+          progressTotal: i == 1 ? 95 : 1,
+          rating: 7 + (i % 4),
+          startedAt: DateTime.utc(2024, i % 12 + 1, 5),
+          finishedAt: i == 1 ? null : DateTime.utc(2024, i % 12 + 1, 20),
+          notes: i == 1
+              ? 'Scenario 35, paused for summer.'
+              : 'Played with friends.',
+          updatedAt: now,
+        ),
+    ];
+
+List<BoardGamePlaySession> boardgameSeedPlaySessions(DateTime now) => [
+      for (var i = 1; i <= 15; i++)
+        BoardGamePlaySession(
+          id: 'seed-play-boardgame-${seedOrdinal2(i)}',
+          boardGameId: 'seed-boardgame-${seedOrdinal2(i)}',
+          date: now.subtract(Duration(days: i * 4)),
+          players: const ['Alex', 'Sam', 'Mara'],
+          winner: i.isEven ? 'Sam' : 'Alex',
+          scores: [
+            BoardGamePlayerScore(
+              playerName: i.isEven ? 'Sam' : 'Alex',
+              score: 80 + i,
+              isWinner: true,
+            ),
+            const BoardGamePlayerScore(playerName: 'Mara', score: 64),
+          ],
+          durationMinutes: 60 + i * 5,
+          location: i.isEven ? 'Game night' : 'Living room',
+          notes: i == 1 ? 'Seed play session with complete score data.' : null,
+        ),
     ];

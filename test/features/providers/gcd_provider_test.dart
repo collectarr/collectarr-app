@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,12 +27,32 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('GCDProvider', () {
+    test('decodes issue and story payloads into provider-native models', () {
+      final issue = GcdIssue.fromJson({
+        'id': 12345,
+        'publisher': {'name': 'Marvel Comics'},
+        'story_set': [
+          {
+            'script': 'David Michelinie',
+            'characters': 'Spider-Man; Venom',
+          },
+        ],
+      });
+
+      expect(issue.id, '12345');
+      expect(issue.publisherName, 'Marvel Comics');
+      expect(issue.stories, hasLength(1));
+      expect(issue.stories.single.script, 'David Michelinie');
+      expect(issue.stories.single.characters, 'Spider-Man; Venom');
+      expect(issue.toJson()['publisher_name'], 'Marvel Comics');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = GCDProvider();
       expect(provider.name, 'gcd');
       expect(provider.descriptor.displayName, 'Grand Comics Database');
-      expect(provider.descriptor.kind, 'comic');
-      expect(provider.descriptor.supportedKinds, ['comic']);
+      expect(provider.descriptor.kind, CatalogMediaKind.comic);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.comic]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '2 req/sec');
@@ -84,7 +105,7 @@ void main() {
       expect(item.provider, 'gcd');
       expect(item.providerItemId, '12345');
       expect(item.title, 'The Amazing Spider-Man (1963 series) #300');
-      expect(item.kind, 'comic');
+      expect(item.kind, CatalogMediaKind.comic);
       expect(item.summary, 'May 1988 · 1.50 USD');
       expect(
           item.imageUrl, 'https://www.comics.org/media/img/covers/12345.jpg');
@@ -133,23 +154,22 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'gcd');
       expect(envelope.providerItemId, '12345');
-      expect(envelope.kind, 'comic');
-      expect(envelope.normalized['title'], 'The Amazing Spider-Man #300');
-      expect(envelope.normalized['series_title'], 'The Amazing Spider-Man');
-      expect(envelope.normalized['item_number'], '300');
-      expect(envelope.normalized['publisher'], 'Marvel Comics');
-      expect(envelope.normalized['synopsis'],
+      expect(envelope.kind, CatalogMediaKind.comic);
+      expect(envelope.payload['title'], 'The Amazing Spider-Man #300');
+      expect(envelope.payload['series_title'], 'The Amazing Spider-Man');
+      expect(envelope.payload['item_number'], '300');
+      expect(envelope.payload['publisher'], 'Marvel Comics');
+      expect(envelope.payload['synopsis'],
           contains('Venom makes his first full appearance.'));
-      expect(envelope.normalized['creators'], hasLength(2));
-      expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+      expect(envelope.payload['creators'], hasLength(2));
+      expect(jsonObjectList(envelope.payload['creators'])[0]['name'],
           'David Michelinie');
-      expect(
-          jsonObjectList(envelope.normalized['creators'])[0]['role'], 'writer');
-      expect(jsonObjectList(envelope.normalized['creators'])[1]['name'],
+      expect(jsonObjectList(envelope.payload['creators'])[0]['role'], 'writer');
+      expect(jsonObjectList(envelope.payload['creators'])[1]['name'],
           'Todd McFarlane');
-      expect(jsonObjectList(envelope.normalized['creators'])[1]['role'],
-          'penciller');
-      expect(envelope.normalized['characters'], hasLength(2));
+      expect(
+          jsonObjectList(envelope.payload['creators'])[1]['role'], 'penciller');
+      expect(envelope.payload['characters'], hasLength(2));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -167,7 +187,7 @@ void main() {
       );
       expect(gcdFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(gcdFixtureRaw as Map),
       );
 
@@ -189,29 +209,28 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['series_title'],
-          goldenEnvelope.normalized['series_title']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
       expect(
-          normalized['item_number'], goldenEnvelope.normalized['item_number']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
+          normalized['series_title'], goldenEnvelope.payload['series_title']);
+      expect(normalized['item_number'], goldenEnvelope.payload['item_number']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
       expect(normalized['cover_image_url'],
-          goldenEnvelope.normalized['cover_image_url']);
+          goldenEnvelope.payload['cover_image_url']);
       expect(jsonObject(normalized['provider_ids'])['gcd'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['gcd']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['gcd']);
       expect(jsonObjectList(normalized['creators'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['name']);
       expect(jsonObjectList(normalized['creators'])[0]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['role']);
       expect(jsonObjectList(normalized['creators'])[1]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[1]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[1]['name']);
       expect(jsonObjectList(normalized['creators'])[1]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[1]['role']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[1]['role']);
       expect(jsonObjectList(normalized['characters'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['characters'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['characters'])[0]['name']);
       expect(jsonObjectList(normalized['characters'])[1]['name'],
-          jsonObjectList(goldenEnvelope.normalized['characters'])[1]['name']);
+          jsonObjectList(goldenEnvelope.payload['characters'])[1]['name']);
     });
   });
 }

@@ -1,45 +1,54 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/season.dart';
-import 'package:collectarr_app/core/models/tracking_unit.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_progress_presenter.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 CatalogEntityRef _ref() {
   return const CatalogEntityRef(
-    kind: 'tv',
-    entityType: CatalogEntityType.work,
+    kind: CatalogMediaKind.tv,
+    entityType: CatalogEntityTypeId('work'),
     id: 'series-1',
   );
 }
 
-Season _season({
+TvSeason _season({
   required int seasonNumber,
-  required List<Episode> episodes,
+  required List<TvEpisode> episodes,
 }) {
-  return Season(
+  return TvSeason(
+    id: 'season-$seasonNumber',
+    seriesId: 'series-1',
     seasonNumber: seasonNumber,
     title: 'Season $seasonNumber',
     episodes: episodes,
   );
 }
 
-Episode _episode({
+TvEpisode _episode({
   required int number,
   String? airDate,
 }) {
-  return Episode(
-    episodeNumber: number,
+  return TvEpisode(
+    id: 'episode-$number',
+    seriesId: 'series-1',
+    seasonId: 'season-1',
+    seasonNumber: 1,
+    episodeNumber: number.toDouble(),
     title: 'Episode $number',
-    airDate: airDate,
+    airDate: airDate == null ? null : DateTime.tryParse(airDate),
   );
 }
 
-TrackingUnit _trackedEpisode(int seasonNumber, int episodeNumber, DateTime at) {
-  return TrackingUnit(
+TrackingUnitSummary _trackedEpisode(
+    int seasonNumber, int episodeNumber, DateTime at) {
+  return TvTrackingUnit(
     id: '$seasonNumber-$episodeNumber',
     targetRef: _ref(),
-    unitType: TrackingUnitType.episode,
     seasonNumber: seasonNumber,
     episodeNumber: episodeNumber,
     completedAt: at,
@@ -48,8 +57,9 @@ TrackingUnit _trackedEpisode(int seasonNumber, int episodeNumber, DateTime at) {
 }
 
 WatchSession _watchSession(int seasonNumber, int episodeNumber, DateTime at) {
-  return WatchSession(
+  return TvWatchSession(
     id: '$seasonNumber-$episodeNumber',
+    seriesId: TvSeriesId('series-1'),
     targetRef: _ref(),
     watchedAt: at,
     updatedAt: at,

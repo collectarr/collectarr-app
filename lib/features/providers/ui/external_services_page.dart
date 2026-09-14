@@ -208,8 +208,9 @@ class _ExternalServicesPageState extends ConsumerState<ExternalServicesPage> {
               children: [
                 if (connector.supportsMetadata)
                   _capabilityChip('Metadata', Icons.search, palette),
-                if (connector.canImport)
-                  _capabilityChip('File Import', Icons.file_upload, palette),
+                if (connector.canImportPersonalList)
+                  _capabilityChip(
+                      'Personal list import', Icons.file_upload, palette),
                 if (connector.canPull)
                   _capabilityChip('Pull Sync', Icons.download, palette),
                 if (connector.canPush)

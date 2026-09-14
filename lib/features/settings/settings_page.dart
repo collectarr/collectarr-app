@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
@@ -15,20 +15,17 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
-import 'package:collectarr_app/features/collection/csv/collection_csv.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
-import 'package:collectarr_app/features/settings/import_job_provider.dart';
-import 'package:collectarr_app/features/imports/framework/import_review_panel.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_job_provider.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings_widgets.dart';
+import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/manga/manga_kind_module.dart';
-import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
-import 'package:collectarr_app/features/settings/tmdb_import_settings.dart';
-import 'package:collectarr_app/features/settings/tmdb_pending_import_store.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_settings.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
@@ -39,6 +36,7 @@ import 'package:collectarr_app/features/library/metadata/metadata_proposal_store
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/providers/ui/external_services_page.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -57,7 +55,6 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -624,6 +621,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   onPressed: () => showPickListManagerDialog(
                     context: context,
                     db: ref.read(localDatabaseProvider),
+                    registry: defaultPickListRegistry,
                   ),
                   icon: const Icon(Icons.tune),
                   label: const Text('Manage pick lists'),
@@ -834,9 +832,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 'Import your collection and tracking data from external services.',
               ),
               const SizedBox(height: 12),
-              const _ImportJobsPanel(),
+              const TmdbImportJobsPanel(),
               const SizedBox(height: 12),
-              const _TmdbPendingImportsPanel(),
+              const TmdbPendingImportsPanel(),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: () {
@@ -1176,7 +1174,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _scanPairingQr(BuildContext context) async {
-    final scanned = await showModalBottomSheet<String>(
+    final scanned = await showModalBottomSheet<ScannedCode>(
       context: context,
       isScrollControlled: true,
       builder: (context) => const BarcodeScanSheet(
@@ -1188,10 +1186,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         leadingIcon: Icons.qr_code_scanner,
       ),
     );
-    if (scanned == null || scanned.isEmpty || !mounted) {
+    if (scanned == null || scanned.value.isEmpty || !mounted) {
       return;
     }
-    await _applyPairingCode(scanned);
+    await _applyPairingCode(scanned.value);
   }
 
   Future<void> _applyPairingCode(String code) async {
@@ -1378,7 +1376,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
     final cfValues = await cfRepo.listAllValues();
-    final csv = CollectionCsv();
+    final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final data = clzFriendly
         ? csv.exportClzFriendlyShelf(
             state.entries,
@@ -1415,6 +1413,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder: (context) => ImportExportWizardDialog(
         entries: state.entries,
+        profiles: collectionCsvKindProfiles,
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,

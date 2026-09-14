@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 @immutable
 class MusicTrackMetadata {
@@ -133,10 +133,8 @@ class MusicReleaseMetadata {
   }
 }
 
-typedef MusicMetadata = MusicCatalogMetadata;
-
 @immutable
-class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
+class MusicCatalogMetadata implements JsonEncodable {
   const MusicCatalogMetadata({
     required this.title,
     this.artist,
@@ -168,10 +166,8 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.music;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
@@ -186,7 +182,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   final int? trackCount;
   final List<CatalogTrackDto> tracks;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final String? synopsis;
   final CatalogSeriesDetailsDto? series;
   final Map<String, dynamic>? music;
@@ -203,6 +199,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
   final String? language;
   final Map<String, dynamic> rawPayload;
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,
@@ -272,7 +269,7 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
     int? trackCount,
     List<CatalogTrackDto>? tracks,
     List<Map<String, dynamic>>? creators,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
     String? synopsis,
     CatalogSeriesDetailsDto? series,
     Map<String, dynamic>? music,
@@ -322,15 +319,17 @@ class MusicCatalogMetadata implements LibraryKindMetadataRuntime {
 
   factory MusicCatalogMetadata.fromJson(Map<String, dynamic> json) {
     final rawPayload = Map<String, dynamic>.from(json);
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     final rawCreators = (json['creators'] as List<dynamic>?)

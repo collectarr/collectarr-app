@@ -1,8 +1,10 @@
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_display_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_display_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -12,10 +14,10 @@ export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_preference_codec.dart';
 
 /// Default video display level for the TV kind (shows season-level by default).
-const tvDefaultVideoDisplayLevel = VideoDisplayLevel.season;
+const tvDefaultVideoDisplayLevel = TvDisplayLevel.season;
 
 /// Default video grouping for the TV kind (no grouping by default).
-const tvDefaultVideoGrouping = VideoGroupingDefault.none;
+const tvDefaultVideoGrouping = TvGroupingDefault.none;
 
 /// Single source of truth schema for TV kind fields.
 abstract final class TvKindSchema {
@@ -47,7 +49,11 @@ abstract final class TvKindSchema {
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned =
+          TvOwnedItemProjection.fromDispatch(context.source.ownedItemDispatch);
+      return owned is TvOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -62,7 +68,7 @@ abstract final class TvKindSchema {
   static final pricePaid = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -92,7 +98,7 @@ abstract final class TvKindSchema {
   static final rating = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -123,7 +129,7 @@ abstract final class TvKindSchema {
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.watchStatus,
     label: 'Watch Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -131,49 +137,49 @@ abstract final class TvKindSchema {
   static final firstAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.firstAirDate,
     label: 'First Air Date',
-    getValue: (dto) => dto.metadata?.firstAirDate,
+    getValue: (dto) => dto.firstAirDate,
   );
 
   static final lastAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.lastAirDate,
     label: 'Last Air Date',
-    getValue: (dto) => dto.metadata?.lastAirDate,
+    getValue: (dto) => dto.lastAirDate,
   );
 
   static final tvStatus = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.tvStatus,
     label: 'Series Status',
-    getValue: (dto) => dto.metadata?.status,
+    getValue: (dto) => dto.tvStatus,
   );
 
   static final streamingService = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.streamingService,
     label: 'Streamer',
-    getValue: (dto) => dto.metadata?.streamingService,
+    getValue: (dto) => dto.streamingService,
   );
 
   static final contentRating = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.contentRating,
     label: 'Content Rating',
-    getValue: (dto) => dto.metadata?.contentRating,
+    getValue: (dto) => dto.contentRating,
   );
 
   static final seasonCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.seasonCount,
     label: 'Seasons',
-    getValue: (dto) => dto.metadata?.seasonCount,
+    getValue: (dto) => dto.seasonCount,
   );
 
   static final episodeCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeCount,
     label: 'Episodes',
-    getValue: (dto) => dto.metadata?.episodeCount,
+    getValue: (dto) => dto.episodeCount,
   );
 
   static final episodeRuntimeMinutes = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeRuntimeMinutes,
     label: 'Episode Runtime (m)',
-    getValue: (dto) => dto.metadata?.episodeRuntimeMinutes,
+    getValue: (dto) => dto.episodeRuntimeMinutes,
   );
 }
 
@@ -202,9 +208,8 @@ final tvLibraryGroupDefinitions = [
     sidebarTitle: 'Networks',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['network', 'studio'],
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
+      ['publisher', 'network', 'studio'],
     ),
   ),
   groupFromField<TvKind, TvWorkspaceDto, String?>(
@@ -349,8 +354,8 @@ final tvLibraryColumnDefinitions = [
   ),
   columnFromField<TvKind, TvWorkspaceDto, int?>(
     TvKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -366,8 +371,7 @@ final tvLibraryColumnDefinitions = [
     id: TvFieldIds.rating,
     label: 'Rating',
     getValue: TvKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<TvKind, TvWorkspaceDto, String?>(

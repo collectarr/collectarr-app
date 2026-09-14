@@ -1,45 +1,91 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/config/collection_defaults.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
+export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
+export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
 
-typedef KindEditDraftFactory = KindEditDraft Function({
-  required LibraryMetadataItem item,
-  OwnedItem? ownedItem,
-  TrackingEntry? trackingEntry,
+typedef LibraryEditKindDraftFactory = LibraryEditKindDraft Function({
+  required CatalogSearchCandidate item,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 });
 
-/// Encapsulates edit dialogs, edit chrome, field config, condition/grade options,
-/// kind-owned draft creation, and update command building.
-class LibraryEditCapability {
-  const LibraryEditCapability({
+typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
+    OwnedItemRef ownedRef, int indexNumber);
+
+typedef LibraryOwnedConditionValueUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(OwnedItemRef ownedRef, String? condition, String? collectionValue);
+
+typedef LibraryOwnedCollectionValueReader = String? Function(
+  LibraryOwnedItemDispatch? ownedItem,
+);
+
+typedef LibraryOwnedFormatHint = ({String? format, String? label});
+
+typedef LibraryOwnedFormatHintResolver = LibraryOwnedFormatHint Function(
+  CatalogSearchCandidate item,
+);
+
+typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
+  OwnedItemRef ownedRef,
+  String? condition,
+  String? collectionValue,
+  String? locationId,
+  String? tags,
+);
+
+typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(
+  OwnedItemRef ownedRef,
+  DateTime? purchaseDate,
+  int? pricePaidCents,
+  String? currency,
+  String? personalNotes,
+  String? purchaseStore,
+  bool locationChanged,
+  String? locationId,
+);
+
+typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
+    Function(
+  OwnedItemRef ownedRef,
+  Object updated,
+);
+
+typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
+    Function();
+
+/// Presentation-only configuration for the shared edit host.
+///
+/// This object contains no draft construction or Owned mutation behavior.
+final class LibraryEditPresentationCapability {
+  const LibraryEditPresentationCapability({
     this.editDialogBuilder,
     this.mediaEditDialogBuilder,
     this.releaseEditDialogBuilder,
-    this.presentation = const LibraryEditPresentation(
-      builder: DefaultLibraryEditPresentationBuilder(),
-    ),
+    required this.presentation,
     this.editChrome = const LibraryEditChromeConfig(),
     this.vocabularies,
-    this.conditions = kGeneralConditions,
-    this.grades = const [],
-    this.defaultCondition,
-    this.defaultGrade,
-    this.createDraft = createGenericEditDraft,
+    required this.conditions,
+    this.collectionValueOptions = const [],
+    required this.defaultCondition,
+    required this.defaultCollectionValue,
   });
 
   final LibraryEditDialogBuilder? editDialogBuilder;
@@ -49,79 +95,256 @@ class LibraryEditCapability {
   final LibraryEditChromeConfig editChrome;
   final LibraryKindVocabularyCapability? vocabularies;
   final List<String> conditions;
-  final List<String> grades;
-  final String? defaultCondition;
-  final String? defaultGrade;
-  final KindEditDraftFactory createDraft;
+  final List<String> collectionValueOptions;
+  final String defaultCondition;
+  final String defaultCollectionValue;
 
   bool get hasConditionPickList => conditions.isNotEmpty;
-  bool get hasGradePickList => grades.isNotEmpty;
+  bool get hasCollectionValuePickList => collectionValueOptions.isNotEmpty;
+}
 
-  OwnedDetailsDraft buildDetailsDraft(KindEditDraft kindDraft) =>
+/// Kind-owned draft construction and typed edit-result assembly.
+final class LibraryEditDraftCapability {
+  const LibraryEditDraftCapability({required this.createDraft});
+
+  final LibraryEditKindDraftFactory createDraft;
+
+  JsonEncodable buildDetailsDraft(LibraryEditKindDraft kindDraft) =>
       kindDraft.toDetailsDraft();
 
-  UpdateOwnedItemCommand buildUpdateCommand({
-    required LibraryEditDraft session,
-    required String ownedItemId,
-    required KindEditDraft kindDraft,
+  OwnedItemUpdateRequest buildUpdateCommand({
+    required PersonalStateDraft personal,
+    required OwnedItemRef ownedRef,
+    required LibraryEditKindDraft kindDraft,
   }) {
-    final personal = session.personal;
-    final tracking = session.tracking;
     return UpdateOwnedItemCommand(
-      ownedItemId: ownedItemId,
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
-      condition: personal.conditionController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.conditionController.text.trim()),
-      grade: personal.gradeController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.gradeController.text.trim()),
-      purchaseDate: personal.purchaseDateController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseDate(personal.purchaseDateController.text)),
-      pricePaidCents: personal.priceController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseMoneyCents(personal.priceController.text)),
-      currency: personal.currencyController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.currencyController.text.trim()),
-      personalNotes: personal.notesController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.notesController.text.trim()),
-      locationId: personal.selectedLocationId != null
-          ? Patch.set(personal.selectedLocationId)
-          : const Patch.clear(),
-      purchaseStore: personal.purchaseStoreController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.purchaseStoreController.text.trim()),
-      collectionStatus: personal.collectionStatus != null
-          ? Patch.set(personal.collectionStatus)
-          : const Patch.clear(),
-      tags: personal.tagsController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.tagsController.text.trim()),
-      rating: tracking.ratingController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseInt(tracking.ratingController.text)),
-      readStatus: tracking.trackingController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(tracking.trackingController.text.trim()),
-      startedAt: tracking.startedAt != null
-          ? Patch.set(tracking.startedAt)
-          : const Patch.clear(),
-      finishedAt: tracking.finishedAt != null
-          ? Patch.set(tracking.finishedAt)
-          : const Patch.clear(),
-      soldAt: personal.soldAt != null
-          ? Patch.set(personal.soldAt)
-          : const Patch.clear(),
-      sellPriceCents: personal.sellPriceController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(parseMoneyCents(personal.sellPriceController.text)),
-      soldTo: personal.soldToController.text.trim().isEmpty
-          ? const Patch.clear()
-          : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(buildDetailsDraft(kindDraft)),
+      ownedRef: ownedRef,
+      payload: kindDraft.buildOwnedUpdatePayload(
+        ownedRef: ownedRef,
+        personal: personal,
+      ),
     );
   }
+}
+
+/// Kind-owned Owned field semantics and mutation payload builders.
+final class LibraryOwnedEditCapability {
+  const LibraryOwnedEditCapability({
+    required this.ownedCollectionValueReader,
+    required this.ownedDigitalFlagResolver,
+    required this.ownedFormatHintResolver,
+    this.ownedIndexUpdatePayloadBuilder,
+    this.ownedConditionValueUpdatePayloadBuilder,
+    this.ownedBulkUpdatePayloadBuilder,
+    this.ownedPersonalDetailsUpdatePayloadBuilder,
+    this.ownedTransferUpdatePayloadBuilder,
+    this.ownedDetailsResetPayloadBuilder,
+  });
+
+  final LibraryOwnedCollectionValueReader ownedCollectionValueReader;
+  final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
+  final LibraryOwnedFormatHintResolver ownedFormatHintResolver;
+  final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
+  final LibraryOwnedConditionValueUpdatePayloadBuilder?
+      ownedConditionValueUpdatePayloadBuilder;
+  final LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder;
+  final LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
+      ownedPersonalDetailsUpdatePayloadBuilder;
+  final LibraryOwnedTransferUpdatePayloadBuilder?
+      ownedTransferUpdatePayloadBuilder;
+  final LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder;
+
+  String? readOwnedCollectionValue(LibraryOwnedItemDispatch? ownedItem) =>
+      ownedCollectionValueReader(ownedItem);
+
+  LibraryOwnedFormatHint resolveOwnedFormatHint(
+    CatalogSearchCandidate item,
+  ) =>
+      ownedFormatHintResolver(item);
+
+  bool? resolveOwnedDigitalFlag(
+    OwnedItemSummary? ownedItem,
+    List<LibraryAddReleaseOption> releases, {
+    String? fallbackFormat,
+    String? fallbackLabel,
+    Iterable<PhysicalMediaFormat> formats = const [],
+  }) {
+    return ownedDigitalFlagResolver(
+      ownedItem,
+      releases,
+      fallbackFormat: fallbackFormat,
+      fallbackLabel: fallbackLabel,
+      formats: formats,
+    );
+  }
+
+  UpdateOwnedItemCommand buildIndexUpdateCommand({
+    required OwnedItemRef ownedRef,
+    required int indexNumber,
+  }) {
+    final builder = ownedIndexUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned index update builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedRef: ownedRef,
+      payload: builder(ownedRef, indexNumber),
+    );
+  }
+
+  UpdateOwnedItemCommand buildConditionValueUpdateCommand({
+    required OwnedItemRef ownedRef,
+    required String? condition,
+    required String? collectionValue,
+  }) {
+    final builder = ownedConditionValueUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError(
+        'No typed Owned condition/value update builder is registered.',
+      );
+    }
+    return UpdateOwnedItemCommand(
+      ownedRef: ownedRef,
+      payload: builder(ownedRef, condition, collectionValue),
+    );
+  }
+
+  UpdateOwnedItemCommand buildBulkUpdateCommand({
+    required OwnedItemRef ownedRef,
+    required String? condition,
+    required String? collectionValue,
+    required String? locationId,
+    required String? tags,
+  }) {
+    final builder = ownedBulkUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned bulk update builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedRef: ownedRef,
+      payload: builder(
+        ownedRef,
+        condition,
+        collectionValue,
+        locationId,
+        tags,
+      ),
+    );
+  }
+
+  UpdateOwnedItemCommand buildPersonalDetailsUpdateCommand({
+    required OwnedItemRef ownedRef,
+    required DateTime? purchaseDate,
+    required int? pricePaidCents,
+    required String? currency,
+    required String? personalNotes,
+    required String? purchaseStore,
+    required bool locationChanged,
+    required String? locationId,
+  }) {
+    final builder = ownedPersonalDetailsUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError(
+        'No typed Owned personal details update builder is registered.',
+      );
+    }
+    return UpdateOwnedItemCommand(
+      ownedRef: ownedRef,
+      payload: builder(
+        ownedRef,
+        purchaseDate,
+        pricePaidCents,
+        currency,
+        personalNotes,
+        purchaseStore,
+        locationChanged,
+        locationId,
+      ),
+    );
+  }
+
+  UpdateOwnedItemCommand buildTransferUpdateCommand({
+    required OwnedItemRef ownedRef,
+    required Object updated,
+  }) {
+    final builder = ownedTransferUpdatePayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned transfer update builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedRef: ownedRef,
+      payload: builder(ownedRef, updated),
+    );
+  }
+
+  UpdateOwnedItemCommand buildDetailsResetCommand({
+    required OwnedItemRef ownedRef,
+  }) {
+    final builder = ownedDetailsResetPayloadBuilder;
+    if (builder == null) {
+      throw StateError('No typed Owned details reset builder is registered.');
+    }
+    return UpdateOwnedItemCommand(
+      ownedRef: ownedRef,
+      payload: builder(),
+    );
+  }
+}
+
+/// Internal kind composition object. Consumers must select one of the three
+/// narrow capabilities; this type is never exposed by the public registry.
+final class LibraryEditCapabilitySet {
+  LibraryEditCapabilitySet({
+    LibraryEditDialogBuilder? editDialogBuilder,
+    LibraryEditDialogBuilder? mediaEditDialogBuilder,
+    LibraryEditDialogBuilder? releaseEditDialogBuilder,
+    required LibraryEditPresentation presentation,
+    required LibraryEditKindDraftFactory createDraft,
+    required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
+    required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
+    required LibraryOwnedFormatHintResolver ownedFormatHintResolver,
+    required List<String> conditions,
+    required String defaultCondition,
+    required String defaultCollectionValue,
+    List<String> collectionValueOptions = const [],
+    LibraryEditChromeConfig editChrome = const LibraryEditChromeConfig(),
+    LibraryKindVocabularyCapability? vocabularies,
+    LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder,
+    LibraryOwnedConditionValueUpdatePayloadBuilder?
+        ownedConditionValueUpdatePayloadBuilder,
+    LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder,
+    LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
+        ownedPersonalDetailsUpdatePayloadBuilder,
+    LibraryOwnedTransferUpdatePayloadBuilder? ownedTransferUpdatePayloadBuilder,
+    LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder,
+  })  : presentationCapability = LibraryEditPresentationCapability(
+          editDialogBuilder: editDialogBuilder,
+          mediaEditDialogBuilder: mediaEditDialogBuilder,
+          releaseEditDialogBuilder: releaseEditDialogBuilder,
+          presentation: presentation,
+          editChrome: editChrome,
+          vocabularies: vocabularies,
+          conditions: conditions,
+          collectionValueOptions: collectionValueOptions,
+          defaultCondition: defaultCondition,
+          defaultCollectionValue: defaultCollectionValue,
+        ),
+        draft = LibraryEditDraftCapability(createDraft: createDraft),
+        owned = LibraryOwnedEditCapability(
+          ownedCollectionValueReader: ownedCollectionValueReader,
+          ownedDigitalFlagResolver: ownedDigitalFlagResolver,
+          ownedFormatHintResolver: ownedFormatHintResolver,
+          ownedIndexUpdatePayloadBuilder: ownedIndexUpdatePayloadBuilder,
+          ownedConditionValueUpdatePayloadBuilder:
+              ownedConditionValueUpdatePayloadBuilder,
+          ownedBulkUpdatePayloadBuilder: ownedBulkUpdatePayloadBuilder,
+          ownedPersonalDetailsUpdatePayloadBuilder:
+              ownedPersonalDetailsUpdatePayloadBuilder,
+          ownedTransferUpdatePayloadBuilder: ownedTransferUpdatePayloadBuilder,
+          ownedDetailsResetPayloadBuilder: ownedDetailsResetPayloadBuilder,
+        );
+
+  final LibraryEditPresentationCapability presentationCapability;
+  final LibraryEditDraftCapability draft;
+  final LibraryOwnedEditCapability owned;
 }

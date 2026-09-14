@@ -27,10 +27,9 @@ class LibrarySectionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final resolvedPadding = padding ??
-        EdgeInsets.all(density == LibraryDensity.comfortable ? 12 : 10);
-    final resolvedMargin =
-        margin ?? const EdgeInsets.only(bottom: kLibrarySectionGap);
+    final metrics = density.metrics;
+    final resolvedPadding = padding ?? metrics.panelInsets;
+    final resolvedMargin = margin ?? EdgeInsets.only(bottom: metrics.gapMd);
     return Container(
       margin: resolvedMargin,
       padding: resolvedPadding,
@@ -52,7 +51,7 @@ class LibrarySectionPanel extends StatelessWidget {
               child: title ?? const SizedBox.shrink(),
             ),
             if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
-              const SizedBox(height: kLibrarySectionTitleGap),
+              SizedBox(height: metrics.gapXs),
               Text(
                 subtitle!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -61,7 +60,7 @@ class LibrarySectionPanel extends StatelessWidget {
                     ),
               ),
             ],
-            const SizedBox(height: kLibrarySectionBodyGap),
+            SizedBox(height: metrics.gapSm),
           ],
           child,
         ],

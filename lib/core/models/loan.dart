@@ -1,10 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 
 class Loan {
   const Loan({
     required this.id,
-    required this.ownedItemId,
-    this.catalogRef,
+    required this.ownedRef,
     required this.borrowerName,
     required this.lentDate,
     this.dueDate,
@@ -13,8 +13,10 @@ class Loan {
   });
 
   final String id;
-  final String ownedItemId;
-  final CatalogEntityRef? catalogRef;
+
+  /// Structural reference to the lent copy. Loan code never interprets the
+  /// referenced kind's domain details.
+  final OwnedItemRef ownedRef;
   final String borrowerName;
   final DateTime lentDate;
   final DateTime? dueDate;
@@ -27,14 +29,18 @@ class Loan {
     return isActive && dueDate != null && now.isAfter(dueDate!);
   }
 
-  factory Loan.fromJson(Map<String, dynamic> json) {
+  factory Loan.fromJson(Map<String, Object?> json) {
+    final ownedPayload = json['owned_ref'];
+    if (ownedPayload is! Map) {
+      throw const FormatException('Loan.owned_ref is required');
+    }
+    final ownedRef = OwnedItemRef.fromJson(
+      Map<String, Object?>.from(ownedPayload),
+    );
+    requireKnownOwnedRef(ownedRef, 'loan.ownedRef');
     return Loan(
       id: _requiredString(json, 'id'),
-      ownedItemId: _requiredString(json, 'owned_item_id'),
-      catalogRef: json['catalog_ref'] is Map<String, dynamic>
-          ? CatalogEntityRef.fromJson(
-              json['catalog_ref'] as Map<String, dynamic>)
-          : null,
+      ownedRef: ownedRef,
       borrowerName: _requiredString(json, 'borrower_name'),
       lentDate: _requiredDate(json, 'lent_date'),
       dueDate: _optionalDate(json, 'due_date'),
@@ -43,7 +49,7 @@ class Loan {
     );
   }
 
-  static String _requiredString(Map<String, dynamic> json, String key) {
+  static String _requiredString(Map<String, Object?> json, String key) {
     final value = json[key];
     if (value is String && value.isNotEmpty) {
       return value;
@@ -51,7 +57,7 @@ class Loan {
     throw StateError('Loan.$key is required and must be a non-empty string');
   }
 
-  static DateTime _requiredDate(Map<String, dynamic> json, String key) {
+  static DateTime _requiredDate(Map<String, Object?> json, String key) {
     final parsed = _optionalDate(json, key);
     if (parsed != null) {
       return parsed;
@@ -59,7 +65,7 @@ class Loan {
     throw StateError('Loan.$key is required and must be an ISO-8601 date');
   }
 
-  static DateTime? _optionalDate(Map<String, dynamic> json, String key) {
+  static DateTime? _optionalDate(Map<String, Object?> json, String key) {
     final value = json[key];
     if (value is! String || value.isEmpty) {
       return null;
@@ -67,10 +73,9 @@ class Loan {
     return DateTime.tryParse(value);
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object?> toJson() {
     return {
-      'owned_item_id': ownedItemId,
-      if (catalogRef != null) 'catalog_ref': catalogRef!.toJson(),
+      'owned_ref': ownedRef.toJson(),
       'borrower_name': borrowerName,
       'lent_date':
           '${lentDate.year}-${lentDate.month.toString().padLeft(2, '0')}-${lentDate.day.toString().padLeft(2, '0')}',
@@ -82,7 +87,7 @@ class Loan {
   }
 
   Loan copyWith({
-    CatalogEntityRef? catalogRef,
+    OwnedItemRef? ownedRef,
     String? borrowerName,
     DateTime? dueDate,
     DateTime? returnedDate,
@@ -90,8 +95,7 @@ class Loan {
   }) {
     return Loan(
       id: id,
-      ownedItemId: ownedItemId,
-      catalogRef: catalogRef ?? this.catalogRef,
+      ownedRef: ownedRef ?? this.ownedRef,
       borrowerName: borrowerName ?? this.borrowerName,
       lentDate: lentDate,
       dueDate: dueDate ?? this.dueDate,

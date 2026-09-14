@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -51,27 +51,27 @@ abstract class LibraryKindBrowserDelegate {
   }
 
   bool canOpenItemDetailDrilldown(
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryProjectionItem item,
   ) {
     return false;
   }
 
   void openItemDetailDrilldown(
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryProjectionItem item,
   ) {}
 
   Widget? buildWorkspaceOverride({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryProjection projection,
     required LibraryProjectionItem selectedItem,
     required LibraryWorkspaceViewState viewState,
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     return null;
@@ -79,14 +79,14 @@ abstract class LibraryKindBrowserDelegate {
 
   Widget? buildDrilldown({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryProjectionItem selectedItem,
     required double coverSize,
     required Color accent,
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> ownedCopies,
+    required List<OwnedItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
   }) {
     return buildLibraryKindDrilldown(

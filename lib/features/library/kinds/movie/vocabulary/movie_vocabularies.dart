@@ -1,8 +1,14 @@
-import 'package:collectarr_app/features/collection/vocabulary/vocabulary_definition.dart';
-import 'package:collectarr_app/features/collection/vocabulary/vocabulary_id.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
 
 abstract final class MovieVocabularyIds {
+  static const condition = VocabularyId<String>('movie.condition');
   static const physicalFormat = VocabularyId<String>('movie.physical_format');
   static const region = VocabularyId<String>('movie.region');
   static const packaging = VocabularyId<String>('movie.packaging');
@@ -14,6 +20,131 @@ abstract final class MovieVocabularyIds {
 }
 
 abstract final class MovieVocabularies {
+  static Future<int> countOwnedValue(
+    LocalDatabase db,
+    String semanticName,
+    String normalizedValue,
+  ) {
+    return countPickListOwnedValues(
+      items: MovieOwnedRepository(db).listActive(),
+      normalizedValue: normalizedValue,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+    );
+  }
+
+  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+  ) {
+    return previewPickListOwnedMerge(
+      items: MovieOwnedRepository(db).listActive(),
+      idFrom: (item) => item.id.value,
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      normalizedSourceValues: normalizedSourceValues,
+    );
+  }
+
+  static Future<void> applyOwnedMerge(
+    LocalDatabase db,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    return applyPickListOwnedMerge(
+      items: MovieOwnedRepository(db).listActive(),
+      valuesFrom: (item) => _ownedValues(item, semanticName),
+      replaceValue: (item, sources, target) =>
+          _replaceOwnedValue(item, semanticName, sources, target),
+      save: MovieOwnedRepository(db).upsert,
+      normalizedSourceValues: normalizedSourceValues,
+      targetValue: targetValue,
+    );
+  }
+
+  static MovieOwnedItem _replaceOwnedValue(
+    MovieOwnedItem item,
+    String semanticName,
+    Set<String> normalizedSourceValues,
+    String targetValue,
+  ) {
+    switch (semanticName) {
+      case 'condition':
+        return item.copyWith(condition: targetValue);
+      case 'grade':
+        return item.copyWith(grade: targetValue);
+      case 'purchase_store':
+        return item.copyWith(purchaseStore: targetValue);
+      case 'sold_to':
+        return item.copyWith(soldTo: targetValue);
+      case 'collection_status':
+        return item.copyWith(collectionStatus: targetValue);
+      case 'tags':
+        return item.copyWith(
+          tags: replacePickListDelimitedValue(
+            item.tags,
+            normalizedSourceValues,
+            targetValue,
+          ),
+        );
+    }
+    final key = switch (semanticName) {
+      'features' => 'features',
+      'region' => 'region',
+      'packaging' => 'packaging',
+      'distributor' => 'distributor',
+      _ => null,
+    };
+    if (key == null) return item;
+    final details = item.details.toJson()..[key] = targetValue;
+    return item.copyWith(details: MovieOwnedDetails.fromJson(details));
+  }
+
+  static Iterable<String?> _ownedValues(
+    MovieOwnedItem item,
+    String semanticName,
+  ) sync* {
+    final standard = switch (semanticName) {
+      'condition' => item.condition,
+      'grade' => item.grade,
+      'purchase_store' => item.purchaseStore,
+      'sold_to' => item.soldTo,
+      'collection_status' => item.collectionStatus,
+      _ => null,
+    };
+    if (standard != null) {
+      yield standard;
+      return;
+    }
+    if (semanticName == 'tags') {
+      yield* item.tags?.split(',') ?? const <String>[];
+      return;
+    }
+    final key = switch (semanticName) {
+      'features' => 'features',
+      'region' => 'region',
+      'packaging' => 'packaging',
+      'distributor' => 'distributor',
+      _ => null,
+    };
+    if (key != null) {
+      yield* pickListTextValues(item.details.toJson()[key]);
+    }
+  }
+
+  static const condition = VocabularyDefinition<String>(
+    id: MovieVocabularyIds.condition,
+    label: 'Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor',
+    ],
+  );
+
   static const physicalFormat = VocabularyDefinition<String>(
     id: MovieVocabularyIds.physicalFormat,
     label: 'Format',
@@ -160,6 +291,7 @@ abstract final class MovieVocabularies {
   );
 
   static const all = <VocabularyDefinition<dynamic>>[
+    condition,
     physicalFormat,
     region,
     packaging,

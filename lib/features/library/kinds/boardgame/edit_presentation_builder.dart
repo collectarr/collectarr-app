@@ -1,12 +1,16 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
+import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 const _boardGameTabs0 = LibraryEditTabSpec(
@@ -60,16 +64,34 @@ const _boardGameReleaseIdentityTab = LibraryEditTabSpec(
   sectionIds: ['release_identity'],
 );
 
+const _boardGameOwnedTab = LibraryEditTabSpec(
+  id: 'owned',
+  icon: Icons.inventory_2,
+  label: 'Owned',
+);
+
 const _boardGameCombinedTabs = [
   _boardGameTabs0,
+  _boardGameOwnedTab,
   _boardGameReleaseIdentityTab,
   ..._boardGameSecondaryTabs,
 ];
 
 class BoardGameLibraryEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const BoardGameLibraryEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _boardGameTabs,
           trackedTabs: _boardGameTabs,
           catalogTabs: _boardGameTabs,
@@ -82,10 +104,39 @@ Widget? buildBoardGameCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryMetadataItem item,
+  required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
+  if (tabId == 'owned') {
+    final kindDraft = draft.kindDetails;
+    if (kindDraft is! BoardGameEditDraft) {
+      throw StateError(
+          'Expected BoardGameEditDraft for BoardGame owned editing');
+    }
+    final detailsDraft =
+        kindDraft.toDetailsDraft() as BoardgameOwnedDetailsDraft;
+    final details = detailsDraft.toDetails();
+    return EditSchemaRenderer<BoardgameOwnedDetails, BoardGameEditDraft>(
+      schema: boardGameOwnedEditSchema,
+      model: details,
+      draft: kindDraft,
+      showTabBar: false,
+      showFooter: false,
+      onSave: (_) {},
+      onCancel: () {},
+    );
+  }
   if (tabId == 'release') {
+    final kindDraft = draft.kindDetails;
+    if (kindDraft is! BoardGameEditDraft) {
+      throw StateError(
+        'Expected BoardGameEditDraft for BoardGame release editing',
+      );
+    }
+    final physicalFormatOptions = <String>{
+      for (final format in draft.physicalFormats) format.label,
+      ...BoardGameVocabularies.format.builtIns,
+    }.toList(growable: false);
     return EditTabShell(
       children: [
         EditSection(
@@ -95,22 +146,17 @@ Widget? buildBoardGameCustomTabView({
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LibraryReleaseIdentityFields(
-                editionTitleController: TextEditingController(
-                  text: libraryKindTitleExtension(item) ?? '',
-                ),
-                variantController: TextEditingController(),
-                barcodeController: TextEditingController(),
-                releaseDateController:
-                    (draft.kindDetails as BoardGameEditDraft?)
-                            ?.releaseDateController ??
-                        TextEditingController(),
-                releaseYearController:
-                    (draft.kindDetails as BoardGameEditDraft?)
-                            ?.releaseYearController ??
-                        TextEditingController(),
-                physicalFormatController: TextEditingController(),
-                physicalFormatOptions: const [],
-                onPhysicalFormatChanged: (_) {},
+                editionTitleController: kindDraft.editionTitleController,
+                variantController: kindDraft.variantController,
+                barcodeController: kindDraft.barcodeController,
+                releaseDateController: kindDraft.releaseDateController,
+                releaseYearController: kindDraft.releaseYearController,
+                physicalFormatController: kindDraft.physicalFormatController,
+                physicalFormatOptions: physicalFormatOptions,
+                onPhysicalFormatChanged: (value) {
+                  kindDraft.physicalFormatController.text = value ?? '';
+                  markDirty();
+                },
                 editionTitleLabel: 'Edition title',
                 variantLabel: 'Variant',
                 barcodeLabel: 'UPC / Barcode',
@@ -126,9 +172,20 @@ Widget? buildBoardGameCustomTabView({
 }
 
 class BoardGameLibraryCombinedEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const BoardGameLibraryCombinedEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _boardGameCombinedTabs,
           trackedTabs: _boardGameCombinedTabs,
           catalogTabs: _boardGameCombinedTabs,

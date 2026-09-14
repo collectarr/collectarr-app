@@ -1,30 +1,63 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:flutter/material.dart';
 
 class GameStatsCapability implements LibraryStatsCapability {
   const GameStatsCapability();
 
   @override
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
+    return LibraryOwnedFinancialSummary(
+      pricePaidCents: entry.pricePaidCents,
+      sellPriceCents: entry.sellPriceCents,
+      currency: entry.currency,
+    );
+  }
+
+  @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    final metadata = _metadata(entry);
+    if (catalog == null || metadata == null) return null;
+    final secondary =
+        (metadata.publishers.firstOrNull ?? metadata.developers.firstOrNull)
+            ?.trim();
+    return LibraryStatsMetadataProjection(
+      primaryGroup:
+          (metadata.series ?? metadata.franchise ?? metadata.title).trim(),
+      secondaryGroup: secondary,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
+          catalog.synopsis?.trim().isNotEmpty == true,
+      hasSecondaryMetadata: secondary?.isNotEmpty == true ||
+          metadata.platforms.isNotEmpty ||
+          metadata.physicalFormat?.trim().isNotEmpty == true,
+      hasReleaseDate:
+          metadata.releaseDate != null || catalog.releaseDate != null,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
-  ) {
-    return [
-      if (state.keyComicCount > 0)
-        LibraryStatsTileDescriptor(
-          icon: Icons.label_important,
-          label: 'Key items',
-          value: state.keyComicCount.toString(),
-        ),
-    ];
-  }
+    LibraryKindRegistration type,
+  ) =>
+      const [];
 
   @override
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) =>
       const [];
+
+  static GameCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
+  }
 }

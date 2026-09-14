@@ -1,18 +1,26 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final class GenericWorkspaceDto extends WorkspaceDtoAdapter {
+final class GenericWorkspaceDto implements LibraryWorkspaceDto {
   GenericWorkspaceDto({
     required this.common,
     required this.personal,
   });
 
-  @override
   final WorkspaceCommonProjection common;
-  @override
   final PersonalCopyProjection personal;
+
+  @override
+  String get title => common.title;
+
+  @override
+  String? get coverImageUrl => common.coverImageUrl;
+
+  @override
+  Iterable<String> get searchTokens => const <String>[];
 }
 
 final class GenericWorkspaceProjector
@@ -21,23 +29,23 @@ final class GenericWorkspaceProjector
 
   @override
   GenericWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
     return GenericWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: WorkspaceCommonProjection.fromStructuralShelf(source, node),
       personal: PersonalCopyProjection.fromShelf(source),
     );
   }
 
   @override
   GenericWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
     return GenericWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: WorkspaceCommonProjection.fromStructuralShelf(source, node),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
     );
@@ -45,7 +53,7 @@ final class GenericWorkspaceProjector
 
   @override
   GenericWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(

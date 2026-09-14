@@ -1,12 +1,13 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -28,10 +29,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   var _filter = _LoanFilter.active;
   var _loading = true;
   List<Loan> _loans = const [];
-  Map<String, OwnedItem> _ownedById = const {};
-  Map<String, List<OwnedItem>> _ownedByCatalogId = const {};
-  Map<String, CatalogItem> _catalogById = const {};
-  Map<String, String> _locationLabelsById = const {};
+  Map<OwnedItemRef, OwnedItemSummary> _ownedByRef = const {};
+  Map<CatalogEntityRef, List<OwnedItemSummary>> _ownedByCatalogRef = const {};
 
   @override
   void initState() {
@@ -52,39 +51,52 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     });
     final db = ref.read(localDatabaseProvider);
     final loansRepo = LoanRepository(db);
-    final ownedRepo = OwnedItemsCacheRepository(db);
-    final catalogRepo = CatalogCacheRepository(db);
+    final ownedRepo = OwnedItemsRepository(db);
     final locationRepo = LocationRepository(db);
 
     final loans = await loansRepo.getAllLoans();
-    final ownedItems = await ownedRepo.listActive();
-    final catalogIds = ownedItems.map((item) => item.catalogRef.id);
-    final catalogById = await catalogRepo.findByIds(catalogIds);
+    final ownedItems = await ownedRepo.listActiveSummaries();
+    final catalogRefs =
+        ownedItems.map((item) => item.catalogRef).whereType<CatalogEntityRef>();
+    final catalogByRef =
+        await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
     final locations = await locationRepo.getAll();
     final locationLabelsById = {
       for (final location in locations)
         location.id: location.fullPath(locations),
     };
-    final ownedById = {
-      for (final item in ownedItems) item.id: item,
-    };
-    final ownedByCatalogId = <String, List<OwnedItem>>{};
-    for (final item in ownedItems) {
-      ownedByCatalogId.putIfAbsent(item.itemId, () => <OwnedItem>[]).add(item);
+    final summaries = [
+      for (final item in ownedItems)
+        item.copyWith(
+          title: item.catalogRef == null
+              ? item.title
+              : catalogByRef[item.catalogRef!]?.title ?? item.title,
+          imageUrl: item.catalogRef == null
+              ? null
+              : catalogByRef[item.catalogRef!]?.imageUrl,
+          locationLabel: item.locationLabel == null
+              ? null
+              : locationLabelsById[item.locationLabel!],
+        ),
+    ];
+    final ownedByCatalogRef = <CatalogEntityRef, List<OwnedItemSummary>>{};
+    for (final item in summaries) {
+      final catalogRef = item.catalogRef;
+      if (catalogRef != null) {
+        ownedByCatalogRef
+            .putIfAbsent(catalogRef, () => <OwnedItemSummary>[])
+            .add(item);
+      }
     }
-    for (final copies in ownedByCatalogId.values) {
-      copies.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    }
-
     if (!mounted) {
       return;
     }
     setState(() {
       _loans = loans;
-      _ownedById = ownedById;
-      _ownedByCatalogId = ownedByCatalogId;
-      _catalogById = catalogById;
-      _locationLabelsById = locationLabelsById;
+      _ownedByRef = {
+        for (final item in summaries) item.ref: item,
+      };
+      _ownedByCatalogRef = ownedByCatalogRef;
       _loading = false;
     });
   }
@@ -107,12 +119,11 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       if (query.isEmpty) {
         return true;
       }
-      final owned = _ownedById[loan.ownedItemId];
-      final title =
-          owned == null ? '' : _catalogById[owned.itemId]?.title ?? '';
+      final owned = _ownedByRef[loan.ownedRef];
+      final title = owned?.title ?? '';
       return loan.borrowerName.toLowerCase().contains(query) ||
           (loan.notes ?? '').toLowerCase().contains(query) ||
-          loan.ownedItemId.toLowerCase().contains(query) ||
+          loan.ownedRef.id.value.toLowerCase().contains(query) ||
           title.toLowerCase().contains(query);
     }).toList(growable: false);
     filtered.sort((a, b) {
@@ -140,20 +151,18 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       return;
     }
     setState(() {
-      _barcodeController.text = barcodes.first;
+      _barcodeController.text = barcodes.first.value;
     });
   }
 
-  Future<OwnedItem?> _resolveOwnedItemFromBarcode(String barcode) async {
-    final catalog =
-        await CatalogCacheRepository(ref.read(localDatabaseProvider))
-            .findByBarcode(barcode);
+  Future<OwnedItemSummary?> _resolveOwnedItemFromBarcode(String barcode) async {
+    final catalog = await CatalogLookupRepository(
+      ref.read(localDatabaseProvider),
+    ).resolve(CatalogLookupQuery(value: barcode));
     if (catalog == null) {
       return null;
     }
-    final ownedItems = _ownedByCatalogId[catalog.id] ??
-        await OwnedItemsCacheRepository(ref.read(localDatabaseProvider))
-            .findActiveByItemIds([catalog.id]);
+    final ownedItems = _ownedByCatalogRef[catalog.ref] ?? const [];
     if (ownedItems.isEmpty) {
       return null;
     }
@@ -163,14 +172,13 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     return _pickOwnedItem(ownedItems, catalog.title);
   }
 
-  Future<OwnedItem?> _pickOwnedItem(
-      List<OwnedItem> ownedItems, String title) async {
-    return showDialog<OwnedItem>(
+  Future<OwnedItemSummary?> _pickOwnedItem(
+      List<OwnedItemSummary> ownedItems, String title) async {
+    return showDialog<OwnedItemSummary>(
       context: context,
       builder: (context) => _OwnedItemPickerDialog(
         title: title,
         ownedItems: ownedItems,
-        locationLabelsById: _locationLabelsById,
       ),
     );
   }
@@ -211,7 +219,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       return;
     }
     final activeLoans = _loans
-        .where((loan) => loan.ownedItemId == ownedItem.id && loan.isActive)
+        .where((loan) => loan.ownedRef == ownedItem.ref && loan.isActive)
         .toList();
     if (activeLoans.isEmpty) {
       showAppToast(context, 'No active loan found for that item.',
@@ -220,8 +228,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     }
     final loan = activeLoans.length == 1
         ? activeLoans.single
-        : await _pickLoan(activeLoans,
-            _catalogById[ownedItem.itemId]?.title ?? ownedItem.itemId);
+        : await _pickLoan(activeLoans, ownedItem.title);
     if (loan == null || !mounted) {
       return;
     }
@@ -239,9 +246,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     );
   }
 
-  Future<void> _createLoan(OwnedItem ownedItem) async {
-    final catalogTitle =
-        _catalogById[ownedItem.itemId]?.title ?? ownedItem.itemId;
+  Future<void> _createLoan(OwnedItemSummary ownedItem) async {
+    final catalogTitle = ownedItem.title;
     final draft = await showDialog<_LoanDraft>(
       context: context,
       builder: (context) => _LoanCreateDialog(
@@ -256,8 +262,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     await repo.create(
       Loan(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
-        ownedItemId: ownedItem.id,
-        catalogRef: ownedItem.catalogRef,
+        ownedRef: ownedItem.ref,
         borrowerName: draft.borrowerName,
         lentDate: draft.lentDate,
         dueDate: draft.dueDate,
@@ -339,7 +344,6 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
                         child: _LoanRow(
                           loan: loan,
                           title: _loanTitle(loan),
-                          barcode: _loanBarcode(loan),
                           accent: accent,
                           isOverdue: loan.isOverdueAt(now),
                           onReturn:
@@ -354,18 +358,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   String _loanTitle(Loan loan) {
-    final owned = _ownedById[loan.ownedItemId];
-    return owned == null
-        ? 'Unknown item'
-        : _catalogById[owned.itemId]?.title ?? owned.itemId;
-  }
-
-  String? _loanBarcode(Loan loan) {
-    final owned = _ownedById[loan.ownedItemId];
-    if (owned == null) {
-      return null;
-    }
-    return _catalogById[owned.itemId]?.payload['barcode'] as String?;
+    final owned = _ownedByRef[loan.ownedRef];
+    return owned?.title ?? 'Unknown item';
   }
 }
 
@@ -529,7 +523,6 @@ class _LoanRow extends StatelessWidget {
   const _LoanRow({
     required this.loan,
     required this.title,
-    required this.barcode,
     required this.accent,
     required this.isOverdue,
     required this.onReturn,
@@ -538,7 +531,6 @@ class _LoanRow extends StatelessWidget {
 
   final Loan loan;
   final String title;
-  final String? barcode;
   final Color accent;
   final bool isOverdue;
   final VoidCallback? onReturn;
@@ -613,7 +605,6 @@ class _LoanRow extends StatelessWidget {
                   _MiniChip(label: 'lent ${_fmt(loan.lentDate)}'),
                   if (loan.returnedDate != null)
                     _MiniChip(label: 'returned ${_fmt(loan.returnedDate!)}'),
-                  if (barcode != null) _MiniChip(label: barcode!),
                 ],
               ),
               if (loan.notes != null && loan.notes!.trim().isNotEmpty) ...[
@@ -700,7 +691,6 @@ class _LoanRow extends StatelessWidget {
             if (loan.returnedDate != null)
               _MiniChip(label: 'returned ${_fmt(loan.returnedDate!)}'),
             _MiniChip(label: 'lent ${_fmt(loan.lentDate)}'),
-            if (barcode != null) _MiniChip(label: barcode!),
             if (loan.notes != null && loan.notes!.trim().isNotEmpty)
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 340),
@@ -733,12 +723,10 @@ class _OwnedItemPickerDialog extends StatelessWidget {
   const _OwnedItemPickerDialog({
     required this.title,
     required this.ownedItems,
-    required this.locationLabelsById,
   });
 
   final String title;
-  final List<OwnedItem> ownedItems;
-  final Map<String, String> locationLabelsById;
+  final List<OwnedItemSummary> ownedItems;
 
   @override
   Widget build(BuildContext context) {
@@ -752,13 +740,11 @@ class _OwnedItemPickerDialog extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             final item = ownedItems[index];
-            final location = locationLabelsById[item.locationId];
             return ListTile(
-              title: Text(item.condition ?? item.id),
+              title: Text(item.ownerLabel ?? 'Copy ${item.ref.id.value}'),
               subtitle: Text([
-                if (item.grade != null) item.grade!,
-                if (location != null) location,
-                if (item.purchaseDate != null) _fmt(item.purchaseDate!),
+                if (item.locationLabel != null) item.locationLabel!,
+                item.ref.id.value,
               ].where((value) => value.isNotEmpty).join(' · ')),
               onTap: () => Navigator.of(context).pop(item),
             );

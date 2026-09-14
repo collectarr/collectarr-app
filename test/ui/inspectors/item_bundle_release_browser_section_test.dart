@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/features/library/bundles/item_bundle_release_browser_section.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter/material.dart';
@@ -43,10 +43,10 @@ void main() {
     expect(find.text('1 collected edition'), findsOneWidget);
     expect(find.text('Akira Omnibus (3 items)'), findsOneWidget);
     expect(find.text('Akira Omnibus'), findsWidgets);
-    expect(
-        find.text('Box Set • Slipcase • Kodansha • 3 items'), findsOneWidget);
-    expect(find.text('Volume 1 #1'), findsOneWidget);
-    expect(find.text('Volume 2 #2'), findsOneWidget);
+    expect(find.textContaining('3 items'), findsWidgets);
+    expect(find.text('Members'), findsOneWidget);
+    expect(find.text('Volume 1'), findsOneWidget);
+    expect(find.text('Volume 2'), findsOneWidget);
   });
 }
 

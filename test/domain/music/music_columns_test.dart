@@ -4,44 +4,47 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final musicRuntime = musicKindModule;
+  final musicWorkspace = musicKindWorkspace;
   LibraryFieldIdRuntime field(String value) =>
-      musicRuntime.fields.decodeColumnId(value);
+      musicWorkspace.fields.decodeColumnId(value);
 
   test('music workspace exposes album-specific columns', () {
     expect(
-      plannedMediaTableColumnLabelForType(musicKindModule, field('artist')),
+      standardMediaTableColumnLabelForType(
+          musicWorkspace.fields, field('artist')),
       'Artist',
     );
     expect(
-      plannedMediaTableColumnLabelForType(
-        musicKindModule,
+      standardMediaTableColumnLabelForType(
+        musicWorkspace.fields,
         field('front_cover'),
       ),
       'Front Cover',
     );
     expect(
-      plannedMediaTableColumnLabelForType(
-        musicKindModule,
+      standardMediaTableColumnLabelForType(
+        musicWorkspace.fields,
         field('back_cover'),
       ),
       'Back Cover',
     );
-    expect(plannedMediaTableColumnLabelForType(musicKindModule, field('album')),
+    expect(
+        standardMediaTableColumnLabelForType(
+            musicWorkspace.fields, field('album')),
         'Album');
     expect(
-      plannedMediaTableColumnLabelForType(
-        musicKindModule,
+      standardMediaTableColumnLabelForType(
+        musicWorkspace.fields,
         field('catalog_number'),
       ),
       'Catalog Number',
     );
     expect(
-        plannedMediaTableColumnLabelForType(
-            musicKindModule, field('disc_count')),
+        standardMediaTableColumnLabelForType(
+            musicWorkspace.fields, field('disc_count')),
         'Disc Count');
     expect(
-      musicRuntime.fields.defaultVisibleColumns.map((column) => column.value),
+      musicWorkspace.fields.defaultVisibleColumns.map((column) => column.value),
       containsAll([
         'music.artist',
         'music.title',

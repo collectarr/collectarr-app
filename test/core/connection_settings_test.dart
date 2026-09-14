@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/settings/connection_presets.dart';
 import 'package:collectarr_app/core/settings/connection_settings_store.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -51,19 +52,25 @@ void main() {
       'collectarr.settings.sync_base_url': 'http://sync.local',
       'collectarr.settings.sync_key': 'secret',
     });
-    final controller = ConnectionSettingsController(
-      launchUri: Uri.parse('http://localhost:8083/?resetConnection=1'),
+    final container = ProviderContainer(
+      overrides: [
+        connectionSettingsProvider.overrideWith(
+          () => ConnectionSettingsController(
+            launchUri: Uri.parse('http://localhost:8083/?resetConnection=1'),
+          ),
+        ),
+      ],
     );
+    addTearDown(container.dispose);
+    final controller = container.read(connectionSettingsProvider.notifier);
 
     await controller.load();
+    final settings = container.read(connectionSettingsProvider);
 
-    expect(
-      controller.state.metadataBaseUrl,
-      ConnectionSettings.defaultMetadataBaseUrl,
-    );
-    expect(controller.state.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
-    expect(controller.state.syncKey, ConnectionSettings.defaultSyncKey);
-    expect(controller.state.isLoaded, isTrue);
+    expect(settings.metadataBaseUrl, ConnectionSettings.defaultMetadataBaseUrl);
+    expect(settings.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
+    expect(settings.syncKey, ConnectionSettings.defaultSyncKey);
+    expect(settings.isLoaded, isTrue);
   });
 
   test('connection settings can be reset from a recovery hash route URL',
@@ -73,19 +80,27 @@ void main() {
       'collectarr.settings.sync_base_url': 'http://sync.local',
       'collectarr.settings.sync_key': 'secret',
     });
-    final controller = ConnectionSettingsController(
-      launchUri: Uri.parse('http://localhost:8083/#/auth?resetConnection=1'),
+    final container = ProviderContainer(
+      overrides: [
+        connectionSettingsProvider.overrideWith(
+          () => ConnectionSettingsController(
+            launchUri: Uri.parse(
+              'http://localhost:8083/#/auth?resetConnection=1',
+            ),
+          ),
+        ),
+      ],
     );
+    addTearDown(container.dispose);
+    final controller = container.read(connectionSettingsProvider.notifier);
 
     await controller.load();
+    final settings = container.read(connectionSettingsProvider);
 
-    expect(
-      controller.state.metadataBaseUrl,
-      ConnectionSettings.defaultMetadataBaseUrl,
-    );
-    expect(controller.state.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
-    expect(controller.state.syncKey, ConnectionSettings.defaultSyncKey);
-    expect(controller.state.isLoaded, isTrue);
+    expect(settings.metadataBaseUrl, ConnectionSettings.defaultMetadataBaseUrl);
+    expect(settings.syncBaseUrl, ConnectionSettings.defaultSyncBaseUrl);
+    expect(settings.syncKey, ConnectionSettings.defaultSyncKey);
+    expect(settings.isLoaded, isTrue);
   });
 
   test('connection pairing code round trips endpoint settings', () {

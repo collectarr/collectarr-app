@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -12,51 +12,37 @@ final class GameWorkspaceProjector
 
   @override
   GameWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final game = GameCatalogMapper.mapMetadataItemToGame(source.catalogItem!);
-    GameCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is GameCatalogMetadata) {
-      metadata = km;
-    } else if (km != null) {
-      metadata = GameCatalogMetadata.fromJson(km.toSyncPayload());
-    }
+    final catalog = _catalogFor(source);
     return GameWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _gameCommonProjection(source, node, catalog.game),
       personal: PersonalCopyProjection.fromShelf(source),
-      game: game,
-      metadata: metadata,
+      game: catalog.game,
+      metadata: catalog.metadata,
     );
   }
 
   @override
   GameWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    final game = GameCatalogMapper.mapMetadataItemToGame(source.catalogItem!);
-    GameCatalogMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is GameCatalogMetadata) {
-      metadata = km;
-    } else if (km != null) {
-      metadata = GameCatalogMetadata.fromJson(km.toSyncPayload());
-    }
+    final catalog = _catalogFor(source);
     return GameWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _gameCommonProjection(source, node, catalog.game),
       personal:
           PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
-      game: game,
-      metadata: metadata,
+      game: catalog.game,
+      metadata: catalog.metadata,
     );
   }
 
   @override
   GameWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     return projectTitle(
@@ -64,4 +50,25 @@ final class GameWorkspaceProjector
       node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
     );
   }
+}
+
+GameWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final GameWorkspaceCatalogData catalog) return catalog;
+  throw StateError('Expected GameWorkspaceCatalogData for game workspace');
+}
+
+WorkspaceCommonProjection _gameCommonProjection(
+  LibraryWorkspaceSource source,
+  LibraryNodeRef node,
+  GameCatalogItem game,
+) {
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: game.title,
+    overrideSynopsis: game.synopsis,
+    overrideReleaseDate: game.releaseDate,
+    overrideCoverImageUrl: game.coverImageUrl,
+  );
 }

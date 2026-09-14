@@ -24,7 +24,7 @@ class LibraryShelfView<T> extends StatelessWidget {
   });
 
   final List<T> items;
-  final LibraryProjectionRuntime Function(T item) entryOf;
+  final LibraryProjectionView Function(T item) entryOf;
   final bool Function(T item) isActive;
   final bool Function(T item) isSelected;
   final bool selectionEnabled;
@@ -108,7 +108,7 @@ class _ShelfRow<T> extends StatelessWidget {
   });
 
   final List<T> books;
-  final LibraryProjectionRuntime Function(T item) entryOf;
+  final LibraryProjectionView Function(T item) entryOf;
   final bool Function(T item) isActive;
   final bool Function(T item) isSelected;
   final bool selectionEnabled;

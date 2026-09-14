@@ -1,26 +1,11 @@
 import 'dart:io';
+import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/add/contracts/library_add_capability.dart';
-import 'package:collectarr_app/features/library/kinds/generic/add/generic_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/generic/generic_kind_module.dart';
-import 'package:collectarr_app/features/library/config/generic_library_media_presentation.dart';
-import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/generic/ownership/generic_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
-import 'package:collectarr_app/features/library/kinds/generic/workspace/generic_fields.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 import '../../tool/check_library_kind_boundaries.dart';
 
@@ -46,6 +31,49 @@ void main() {
       reason:
           'The obsolete file catalog_item_types.dart should not be imported. '
           'Import canonical domain/DTO models directly instead.',
+    );
+  });
+
+  test('library has no generic pseudo-kind or root hierarchy aliases', () {
+    const obsoletePaths = [
+      'lib/features/library/kinds/generic/generic_kind_module.dart',
+      'lib/features/library/seasons_section.dart',
+      'lib/features/library/volumes_section.dart',
+    ];
+
+    expect(
+      obsoletePaths.where((path) => File(path).existsSync()),
+      isEmpty,
+      reason:
+          'Generic pseudo-kind and root hierarchy aliases must stay deleted.',
+    );
+
+    final libraryDir = Directory('lib/features/library');
+    final forbiddenSymbols = <String>[
+      'genericKindModule',
+      'GenericRegistration',
+      'SeasonsSection',
+      'VolumesSection',
+    ];
+    final staleReferences = <String>[];
+
+    for (final entity in libraryDir.listSync(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.dart')) {
+        continue;
+      }
+      final content = entity.readAsStringSync();
+      for (final symbol in forbiddenSymbols) {
+        if (RegExp(r'\b' + RegExp.escape(symbol) + r'\b').hasMatch(content)) {
+          staleReferences.add('${entity.path}: $symbol');
+        }
+      }
+    }
+
+    expect(
+      staleReferences,
+      isEmpty,
+      reason: 'Library code must dispatch unknown kinds by failure and use '
+          'kind-owned hierarchy contributions instead of root aliases.',
     );
   });
 
@@ -106,10 +134,69 @@ class TestStats {}
     );
     parseResult.unit.accept(visitor);
     expect(visitor.violations, isNotEmpty);
+    expect(visitor.violations.first, contains('TK001'));
     expect(
       visitor.violations.first,
       contains('Forbidden import of kind-specific module'),
     );
+  });
+
+  test('architecture boundary checker allows structural owned projections', () {
+    final repoRoot = Directory.current.path;
+    const testCode = '''
+class OwnedItemSummary {
+  final String? subtitle;
+  const OwnedItemSummary(this.subtitle);
+}
+''';
+    final relativePath = 'lib/core/models/owned_item_projection.dart';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(repoRoot, relativePath),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(repoRoot, relativePath),
+      relativePath: relativePath,
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile(relativePath),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: repoRoot,
+      sourceContent: testCode,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isEmpty);
+  });
+
+  test('architecture boundary checker allows structural event kind switches',
+      () {
+    const testCode = '''
+enum ActivityEventKind { added, removed }
+
+String label(ActivityEventKind kind) => switch (kind) {
+  ActivityEventKind.added => 'Added',
+  ActivityEventKind.removed => 'Removed',
+};
+''';
+    final relativePath = 'lib/core/models/activity_event.dart';
+    final parseResult = parseString(
+      content: testCode,
+      path: p.join(Directory.current.path, relativePath),
+      throwIfDiagnostics: false,
+    );
+    final visitor = ArchitectureRuleVisitor(
+      filePath: p.join(Directory.current.path, relativePath),
+      relativePath: relativePath,
+      lineInfo: parseResult.lineInfo,
+      isBoundaryFile: isBoundaryFile(relativePath),
+      isRegistryFile: false,
+      kindName: null,
+      repoRoot: Directory.current.path,
+      sourceContent: testCode,
+    );
+    parseResult.unit.accept(visitor);
+    expect(visitor.violations, isEmpty);
   });
 
   test(
@@ -146,12 +233,12 @@ class TestValue {}
     );
   });
   test(
-      'architecture boundary checker rejects generic referencing concrete ComicMetadata',
+      'architecture boundary checker rejects generic referencing concrete ComicMedia',
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class GenericClass {
-  void doSomething(ComicMetadata metadata) {}
+  void doSomething(ComicMedia metadata) {}
 }
 ''';
     final parseResult = parseString(
@@ -247,6 +334,38 @@ void checkKind(CatalogMediaKind kind) {
     );
   });
 
+  test('architecture boundary checker rejects CatalogMediaKind switch by type',
+      () {
+    const testCode = '''
+String label(CatalogMediaKind mediaType) {
+  switch (mediaType) {
+    case CatalogMediaKind.movie:
+      return 'movie';
+    default:
+      return 'other';
+  }
+}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/library/generic/generic_test.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Forbidden CatalogMediaKind switch statement')),
+    );
+  });
+
+  test('architecture checker has no migration exception registry', () {
+    final source =
+        File('tool/architecture/architecture_checker.dart').readAsStringSync();
+    expect(source, isNot(contains('migration_exceptions')));
+    expect(source, isNot(contains('architectureExceptionPaths')));
+  });
+
   test(
       'architecture boundary checker rejects dynamic registry in generic boundary code',
       () {
@@ -280,6 +399,196 @@ class GenericFieldHandler {
       visitor.violations
           .any((v) => v.contains('LibraryFieldRegistry<dynamic>')),
       isTrue,
+    );
+  });
+
+  test('architecture boundary checker rejects provider importing a kind', () {
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+
+class TestProvider {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/providers/domain/test_provider.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Provider code must not import kind-specific modules'),
+      ),
+    );
+  });
+
+  test(
+      'architecture boundary checker rejects generated DTO in shared kind code',
+      () {
+    const testCode = '''
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+
+class SharedProvider {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath:
+          'lib/features/library/kinds/comic/providers/test_provider.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Generated Core DTO import must stay inside the owning kind'),
+      ),
+    );
+  });
+
+  test('architecture boundary checker rejects generic metadata maps', () {
+    const testCode = '''
+final Map<String, dynamic> metadata = <String, dynamic>{};
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/library/generic/test_metadata.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Generic metadata map must be classified'),
+      ),
+    );
+  });
+
+  test('architecture boundary checker rejects dynamic catalog objects', () {
+    const testCode = '''
+dynamic catalogItem;
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/library/generic/test_catalog.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Dynamic catalog/metadata object must be replaced'),
+      ),
+    );
+  });
+
+  test(
+      'whole-repository boundary checker rejects kind imports from feature hosts',
+      () {
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
+
+class CalendarHost {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/calendar/calendar_host.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Forbidden import of kind-specific module')),
+    );
+  });
+
+  test(
+      'whole-repository boundary checker rejects Core DTOs from generic mappers',
+      () {
+    const testCode = '''
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
+
+class GenericMapper {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/core/api/mappers/generic_mapper.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Generated Core DTO import must stay inside')),
+    );
+  });
+
+  test('whole-repository boundary checker rejects semantic fields in settings',
+      () {
+    const testCode = '''
+class SettingsMetadata {
+  String? get isbn => null;
+}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/settings/settings_metadata.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(contains('Forbidden contextual semantic declaration "isbn"')),
+    );
+  });
+
+  test('composition roots may wire kind modules', () {
+    const testCode = '''
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+
+class DatabaseCompositionRoot {}
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/core/db/local_database.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(visitor.visitor.violations, isEmpty);
+  });
+
+  test('architecture boundary checker rejects erased runtime types', () {
+    const testCode = '''
+CatalogItemDto item;
+LibraryMetadataItem metadata;
+LibraryCatalogItemView view;
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: testCode,
+      relativePath: 'lib/features/library/generic/test_runtime_types.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Erased runtime type "CatalogItemDto"'),
+      ),
+    );
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Erased runtime type "LibraryMetadataItem"'),
+      ),
+    );
+    expect(
+      visitor.visitor.violations,
+      contains(
+        contains('Erased runtime type "LibraryCatalogItemView"'),
+      ),
     );
   });
 
@@ -317,89 +626,40 @@ class ComicFeature {}
     );
   });
 
-  test(
-      'extensibility: custom fake kind "foo" registers and operates without generic library edits',
-      () {
-    final fooKindModule =
-        LibraryKindSpec<GenericWorkspaceDto, GenericOwnedDetails>(
-      projector: const GenericWorkspaceProjector(),
-      ownedDetailsCodec: const GenericOwnedDetailsCodec(),
-      fields: genericLibraryKindSchema.toRegistry(),
-      identity: const LibraryKindIdentity(
-        kind: CatalogMediaKind.unknown,
-        singularLabel: 'Foo',
-        pluralLabel: 'Foos',
-        title: 'Foo',
-        icon: Icons.extension,
-        accent: Color(0xFF673AB7),
-        preferencePrefix: 'foo',
-      ),
-      metadata: const LibraryMetadataCapability(
-        defaultProviderId: '',
-        providers: [],
-      ),
-      hierarchy: const LibraryHierarchyCapability(),
-      inspector: const LibraryInspectorCapability(),
-      transfer: const LibraryTransferCapability(),
-      presentation: genericLibraryMediaPresentation,
-      trackingProfile: readingTrackingProfile,
-      add: StandardLibraryAddCapability<GenericAddDraft>(
-        kind: CatalogMediaKind.unknown,
-        initialDraftBuilder: GenericAddDraft.new,
-        search: genericKindModule.add.search,
-      ),
-      edit: const LibraryEditCapability(),
-      buildCardPresentation: (item, {required musicVertical}) =>
-          const LibraryCardPresentation(),
-    );
-
-    // Verify operations through the generic interface
-    expect(fooKindModule.identity.title, equals('Foo'));
-    expect(fooKindModule.identity.singularLabel, equals('Foo'));
-    expect(fooKindModule.identity.pluralLabel, equals('Foos'));
-
-    final entry = ShelfEntry(
-      itemId: 'foo-1',
-      catalogItem: LibraryMetadataItem.fromMetadataMap({
-        'id': 'foo-1',
-        'kind': 'unknown',
-        'title': 'Foo Item 1',
-      }),
-      ownedItem: OwnedItem(
-        id: 'owned-foo-1',
-        catalogRef: const CatalogEntityRef(
-          entityType: CatalogEntityType.work,
-          kind: 'unknown',
-          id: 'foo-1',
-        ),
-        updatedAt: DateTime.utc(2026, 1, 1),
-      ),
-    );
-
-    final projection = fooKindModule.project(
-      source: entry,
-      node: const LibraryTitleNodeRef(titleItemId: 'foo-1'),
-    );
-
-    expect(projection.dto.title, equals('Foo Item 1'));
+  test('unknown kinds have no production registration', () {
     expect(
-      fooKindModule.stats.buildSummaryTiles(
-        const ShelfState(
-          entries: [],
-          ownedCount: 0,
-          wishlistCount: 0,
-          missingGradeCount: 0,
-          keyComicCount: 0,
-          pricedCount: 0,
-          totalPaidCents: 0,
-          primaryCurrency: 'USD',
-          hasMixedCurrencies: false,
-          soldCount: 0,
-          totalSellCents: 0,
-        ),
-        fooKindModule,
-      ),
-      isEmpty,
+      () => libraryKindRegistrationForKind(CatalogMediaKind.unknown),
+      throwsArgumentError,
+    );
+    expect(
+      () => libraryKindRegistrationForKind(CatalogMediaKind.unknown),
+      throwsArgumentError,
     );
   });
+}
+
+({ArchitectureRuleVisitor visitor, CompilationUnit unit})
+    _visitorForArchitectureTest({
+  required String code,
+  required String relativePath,
+}) {
+  final repoRoot = Directory.current.path;
+  final filePath = p.join(repoRoot, relativePath);
+  final parseResult = parseString(
+    content: code,
+    path: filePath,
+    throwIfDiagnostics: false,
+  );
+  final visitor = ArchitectureRuleVisitor(
+    filePath: filePath,
+    relativePath: relativePath,
+    lineInfo: parseResult.lineInfo,
+    isBoundaryFile: isBoundaryFile(relativePath),
+    isRegistryFile:
+        relativePath.startsWith('lib/features/library/kinds/registry/'),
+    kindName: null,
+    repoRoot: repoRoot,
+    sourceContent: code,
+  );
+  return (visitor: visitor, unit: parseResult.unit);
 }

@@ -8,7 +8,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _authTokenKey = 'collectarr.auth.token';
@@ -71,18 +70,20 @@ class AuthState {
   }
 }
 
-class AuthController extends StateNotifier<AuthState> {
-  AuthController(this.ref) : super(const AuthState(isRestoring: true)) {
-    _startRestoreSession();
-  }
+class AuthController extends Notifier<AuthState> {
+  AuthController();
 
-  final Ref ref;
+  @override
+  AuthState build() {
+    unawaited(_startRestoreSession());
+    return const AuthState(isRestoring: true);
+  }
 
   Future<void> _startRestoreSession() async {
     try {
       await _restoreSession().timeout(_authRestoreTimeout);
     } on TimeoutException catch (error, stackTrace) {
-      if (!mounted) {
+      if (!ref.mounted) {
         return;
       }
       logRecoverableError(
@@ -228,7 +229,7 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> _restoreSession() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = await _readStoredToken(prefs);
+      final token = await _readStoredToken();
       final userId = prefs.getString(_authUserIdKey);
       final email = prefs.getString(_authEmailKey);
       final isAdmin = prefs.getBool(_authIsAdminKey) ?? false;
@@ -271,7 +272,7 @@ class AuthController extends StateNotifier<AuthState> {
         state = AuthState(userId: userId, email: email);
       }
     } catch (error) {
-      if (!mounted) {
+      if (!ref.mounted) {
         return;
       }
       ref.read(apiAuthTokenProvider.notifier).set(null);
@@ -287,19 +288,7 @@ class AuthController extends StateNotifier<AuthState> {
     final email = session.user.email;
     final isAdmin = session.user.isAdmin;
     final prefs = await SharedPreferences.getInstance();
-    try {
-      await _authSecureStorage.write(key: _authTokenKey, value: token);
-      await prefs.remove(_authTokenKey);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'auth',
-        message:
-            'Failed to write secure token; falling back to shared preferences.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      await prefs.setString(_authTokenKey, token);
-    }
+    await _authSecureStorage.write(key: _authTokenKey, value: token);
     if (userId != null && userId.isNotEmpty) {
       await prefs.setString(_authUserIdKey, userId);
     }
@@ -347,39 +336,20 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
-  Future<String?> _readStoredToken(SharedPreferences prefs) async {
+  Future<String?> _readStoredToken() async {
     try {
-      final secureToken = await _authSecureStorage
+      return await _authSecureStorage
           .read(key: _authTokenKey)
           .timeout(_secureStorageReadTimeout);
-      if (secureToken != null && secureToken.isNotEmpty) {
-        return secureToken;
-      }
     } catch (error, stackTrace) {
       logRecoverableError(
         source: 'auth',
-        message:
-            'Failed to read secure token within the restore window; falling back to legacy token.',
+        message: 'Failed to read secure token within the restore window.',
         error: error,
         stackTrace: stackTrace,
       );
-    }
-    final legacyToken = prefs.getString(_authTokenKey);
-    if (legacyToken == null || legacyToken.isEmpty) {
       return null;
     }
-    try {
-      await _authSecureStorage.write(key: _authTokenKey, value: legacyToken);
-      await prefs.remove(_authTokenKey);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'auth',
-        message: 'Failed to migrate legacy token into secure storage.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-    return legacyToken;
   }
 }
 
@@ -483,6 +453,4 @@ String _cleanError(String? message) {
 }
 
 final authControllerProvider =
-    StateNotifierProvider<AuthController, AuthState>((ref) {
-  return AuthController(ref);
-});
+    NotifierProvider<AuthController, AuthState>(AuthController.new);

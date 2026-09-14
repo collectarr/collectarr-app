@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,13 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('saves updates and deletes table column presets', () async {
     SharedPreferences.setMockInitialValues({});
-    final store = LibraryColumnPresetStore(comicKindModule);
+    final store = LibraryColumnPresetStore(const ComicRegistration());
 
     final saved = await store.savePreset(
       label: 'My Value View',
       columns: const {
-        'status',
-        'price',
+        'comic.status',
+        'comic.price_paid',
       },
     );
 
@@ -24,8 +24,8 @@ void main() {
     final updated = await store.savePreset(
       label: 'my value view',
       columns: const {
-        'status',
-        'grade',
+        'comic.status',
+        'comic.grade',
       },
     );
 

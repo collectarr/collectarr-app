@@ -1,5 +1,6 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:flutter/material.dart';
 
 class LibraryEmptyState extends StatelessWidget {
@@ -13,7 +14,7 @@ class LibraryEmptyState extends StatelessWidget {
     required this.onClearFilter,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final IconData icon;
   final Color accent;
   final bool hasActiveFilter;
@@ -120,7 +121,7 @@ class LibraryEmptyState extends StatelessWidget {
   }
 }
 
-String _emptyStateSummary(LibraryKindRuntime type) {
+String _emptyStateSummary(LibraryKindRegistration type) {
   final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
   if (supportedProviders.isEmpty) {
     return 'No providers are registered for this library yet.';

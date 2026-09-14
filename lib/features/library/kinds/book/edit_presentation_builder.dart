@@ -1,5 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/book_custom_tab_builder.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 List<String> _bookReleasePersonalSections(
@@ -16,9 +20,20 @@ List<String> _bookReleasePersonalSections(
 }
 
 class BookLibraryMediaEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const BookLibraryMediaEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: const [
             LibraryEditTabSpec(
               id: 'main',
@@ -137,13 +152,36 @@ class BookLibraryMediaEditPresentationBuilder
               label: 'Links',
             ),
           ],
+          customTabBuilder: buildBookCustomTabView,
         );
+
+  @override
+  String buildDialogTitle({
+    required CatalogEditMetadata item,
+    CatalogSearchCandidate? kindItem,
+  }) {
+    String? creator;
+    final candidate = kindItem;
+    if (candidate != null) {
+      creator = candidate.mapTransport((transport) {
+        final metadata = transport.kindMetadata;
+        if (metadata is! BookCatalogMetadata) return null;
+        for (final credit in metadata.creators) {
+          final name = credit['name']?.toString().trim();
+          if (name != null && name.isNotEmpty) return name;
+        }
+        return null;
+      });
+    }
+    final baseTitle = super.buildDialogTitle(item: item, kindItem: kindItem);
+    return creator == null ? baseTitle : '$baseTitle / $creator';
+  }
 
   @override
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    return const [
+    return [
       LibraryEditTabSpec(
         id: 'main',
         icon: Icons.menu_book,
@@ -186,29 +224,31 @@ class BookLibraryMediaEditPresentationBuilder
         label: 'Links',
         sectionIds: ['book_identifiers_links'],
       ),
+      if (context.isOwned)
+        const LibraryEditTabSpec(
+          id: 'owned',
+          icon: Icons.inventory_2,
+          label: 'Owned',
+        ),
     ];
-  }
-
-  @override
-  LibraryEditFooterSpec buildFooter({
-    required LibraryEditPresentationContext context,
-  }) {
-    return LibraryEditFooterSpec(
-      fieldIds: [
-        'book_title',
-        'book_volume',
-        'title_sort',
-        'series_tags',
-        if (context.isOwned) 'user_tags',
-      ],
-    );
   }
 }
 
 class BookLibraryReleaseEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const BookLibraryReleaseEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: const [
             LibraryEditTabSpec(
               id: 'details',
@@ -373,20 +413,5 @@ class BookLibraryReleaseEditPresentationBuilder
           ),
         ],
     };
-  }
-
-  @override
-  LibraryEditFooterSpec buildFooter({
-    required LibraryEditPresentationContext context,
-  }) {
-    return LibraryEditFooterSpec(
-      fieldIds: [
-        'book_title',
-        'book_volume',
-        'title_sort',
-        'series_tags',
-        if (context.isOwned) 'user_tags',
-      ],
-    );
   }
 }

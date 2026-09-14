@@ -1,10 +1,17 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_merge_service.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   late LocalDatabase db;
@@ -12,7 +19,10 @@ void main() {
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
-    repo = PickListRepository(db);
+    repo = PickListRepository(
+      db,
+      contributors: defaultPickListDefinitionContributors,
+    );
   });
 
   tearDown(() => db.close());
@@ -82,14 +92,18 @@ void main() {
             sortOrder: const Value(0),
           ),
         );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'item-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 1, 1),
-          ),
-        );
+    await ComicOwnedRepository(db).upsert(
+      ComicOwnedItem(
+        id: ComicOwnedItemId('owned-1'),
+        catalogRef: CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: const CatalogEntityTypeId('owned_copy'),
+          id: 'item-1',
+        ),
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 1, 1),
+      ),
+    );
 
     expect(await repo.listNames(), ['condition']);
     final counts = await repo.usageCounts(listName: 'condition');
@@ -119,19 +133,14 @@ void main() {
             sortOrder: const Value(0),
           ),
         );
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'catalog-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'catalog-1',
-              'kind': 'comic',
-              'title': 'Saga',
-              'publisher': 'Image Comics',
-            }),
-            cachedAt: DateTime.utc(2026, 1, 1),
-          ),
-        );
+    await CatalogTransportRepository(db).upsertTransportItems([
+      testCatalogItemFromJson({
+        'id': 'catalog-1',
+        'kind': 'comic',
+        'title': 'Saga',
+        'publisher': 'Image Comics',
+      }),
+    ]);
 
     final counts = await repo.usageCounts(
       listName: 'comic.publisher',
@@ -139,5 +148,41 @@ void main() {
     );
 
     expect(counts['publisher-1'], 1);
+  });
+
+  test('owned value merge dispatches to the typed kind repository', () async {
+    await ComicOwnedRepository(db).upsert(
+      ComicOwnedItem(
+        id: const ComicOwnedItemId('owned-merge-1'),
+        catalogRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('owned_copy'),
+          id: 'item-merge-1',
+        ),
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 1, 1),
+      ),
+    );
+
+    final service = PickListMergeService(
+      db,
+      contributors: defaultPickListDefinitionContributors,
+    );
+    final preview = await service.previewMerge(
+      listName: 'condition',
+      sourceValues: ['Near Mint'],
+      targetValue: 'Fine',
+      mediaKind: 'comic',
+    );
+
+    expect(preview.affectedCount, 1);
+    await service.applyMerge(preview);
+
+    expect(
+      (await ComicOwnedRepository(db)
+              .findById(const ComicOwnedItemId('owned-merge-1')))
+          ?.condition,
+      'Fine',
+    );
   });
 }

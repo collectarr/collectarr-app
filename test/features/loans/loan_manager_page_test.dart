@@ -1,12 +1,13 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('loan manager renders on desktop and filters loans',
@@ -27,34 +29,31 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Action Comics #1',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'comic-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
+    await CatalogTransportRepository(db).upsertTransportItems([
+      testCatalogItemFromJson({
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Action Comics #1',
+      }),
+    ]);
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 1),
+      )),
+    );
 
     final loanRepo = LoanRepository(db);
     await loanRepo.create(
       Loan(
         id: 'loan-1',
-        ownedItemId: 'owned-1',
-        catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-1'),
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId('owned-1'),
+        ),
         borrowerName: 'Alice',
         lentDate: DateTime.utc(2026, 5, 1),
         dueDate: DateTime.utc(2026, 5, 15),
@@ -87,34 +86,31 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-2',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-2',
-              'kind': 'comic',
-              'title': 'Detective Comics #27',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'comic-2',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 1),
-          ),
-        );
+    await CatalogTransportRepository(db).upsertTransportItems([
+      testCatalogItemFromJson({
+        'id': 'comic-2',
+        'kind': 'comic',
+        'title': 'Detective Comics #27',
+      }),
+    ]);
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
+        id: 'owned-2',
+        itemId: 'comic-2',
+        kind: 'comic',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 1),
+      )),
+    );
 
     final loanRepo = LoanRepository(db);
     await loanRepo.create(
       Loan(
         id: 'loan-2',
-        ownedItemId: 'owned-2',
-        catalogRef: const CatalogEntityRef(
-            entityType: CatalogEntityType.work, kind: 'comic', id: 'comic-2'),
+        ownedRef: const OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId('owned-2'),
+        ),
         borrowerName: 'Bob',
         lentDate: DateTime.utc(2020, 1, 1),
         dueDate: DateTime.utc(2020, 1, 15),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -7,9 +8,9 @@ import 'package:collectarr_app/features/library/generic/toolbar/library_toolbar_
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_sections.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
@@ -215,7 +216,7 @@ class LibraryToolbar extends StatelessWidget {
         onGroupPresentationChanged = actions.onGroupPresentationChanged,
         includeDesktopSecondaryBand = config.includeDesktopSecondaryBand;
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final TextEditingController searchController;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;

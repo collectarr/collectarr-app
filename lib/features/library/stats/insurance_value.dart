@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/catalog/catalog_replacement_value_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -37,41 +40,31 @@ class InsuranceValueRepository {
 
   final LocalDatabase _db;
 
-  Future<InsuranceValueSummary> getSummary({String? mediaKind}) async {
-    final whereKindOwned =
-        mediaKind != null ? " AND c.kind = '$mediaKind'" : '';
-    final joinCatalog = mediaKind != null
-        ? ' INNER JOIN catalog_cache c ON o.item_id = c.id'
-        : '';
+  Future<InsuranceValueSummary> getSummary(
+      {CatalogMediaKind? mediaKind}) async {
+    final ownedRows = await OwnedItemsRepository(_db).listActiveSummaries();
+    final filteredRows = mediaKind == null
+        ? ownedRows
+        : ownedRows.where((row) => row.ref.kind == mediaKind).toList();
+    final totalItems = filteredRows.length;
+    final pricedRows = filteredRows
+        .where((row) => row.pricePaidCents != null)
+        .toList(growable: false);
+    final itemsWithValue = pricedRows.length;
+    final totalPaid = pricedRows.fold<int>(
+      0,
+      (total, row) => total + (row.pricePaidCents ?? 0),
+    );
 
-    // Count total owned items
-    final countResult = await _db
-        .customSelect(
-          'SELECT COUNT(*) as cnt FROM owned_items_cache o$joinCatalog WHERE o.deleted_at IS NULL$whereKindOwned',
-        )
-        .getSingle();
-    final totalItems = countResult.data['cnt'] as int;
-
-    // Sum price_paid_cents
-    final paidResult = await _db
-        .customSelect(
-          'SELECT COUNT(*) as cnt, COALESCE(SUM(o.price_paid_cents), 0) as total '
-          'FROM owned_items_cache o$joinCatalog WHERE o.deleted_at IS NULL AND o.price_paid_cents IS NOT NULL$whereKindOwned',
-        )
-        .getSingle();
-    final itemsWithValue = paidResult.data['cnt'] as int;
-    final totalPaid = paidResult.data['total'] as int;
-
-    // Sum cover_price_cents from catalog
-    final coverResult = await _db
-        .customSelect(
-          'SELECT COALESCE(SUM(c.cover_price_cents), 0) as total '
-          'FROM owned_items_cache o '
-          'INNER JOIN catalog_cache c ON o.item_id = c.id '
-          'WHERE o.deleted_at IS NULL AND c.cover_price_cents IS NOT NULL$whereKindOwned',
-        )
-        .getSingle();
-    final totalCoverPrice = coverResult.data['total'] as int;
+    final replacementValues = await CatalogReplacementValueRepository(_db)
+        .findByRefs(filteredRows
+            .map((row) => row.catalogRef)
+            .whereType<CatalogEntityRef>());
+    final totalCoverPrice = filteredRows.fold<int>(0, (total, row) {
+      final catalogRef = row.catalogRef;
+      return total +
+          (catalogRef == null ? 0 : replacementValues[catalogRef] ?? 0);
+    });
 
     return InsuranceValueSummary(
       totalItems: totalItems,

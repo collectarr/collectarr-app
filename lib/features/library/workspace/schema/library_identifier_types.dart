@@ -270,8 +270,3 @@ final class DynamicLibraryFacetId implements LibraryFacetIdRuntime {
   @override
   String toString() => value;
 }
-
-/// Strongly typed column identifier (alias for [LibraryFieldId]).
-typedef LibraryColumnId<TKind, TValue> = LibraryFieldId<TKind, TValue>;
-typedef LibraryColumnIdRuntime = LibraryFieldIdRuntime;
-typedef DynamicLibraryColumnId = DynamicLibraryFieldId;

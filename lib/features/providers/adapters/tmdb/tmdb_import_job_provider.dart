@@ -1,0 +1,1185 @@
+import 'dart:async';
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+import 'package:collectarr_app/core/logging/recoverable_error.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/imports/framework/import_models.dart';
+import 'package:collectarr_app/features/imports/framework/import_runner.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_tracking_import_contribution.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_kind_contribution.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
+import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_account.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
+import 'package:collectarr_app/features/imports/personal_lists/anime_list_import_service.dart';
+import 'package:collectarr_app/features/imports/personal_lists/provider_csv_import_service.dart';
+import 'package:collectarr_app/features/providers/domain/imports/provider_import_history_store.dart';
+import 'package:collectarr_app/features/providers/domain/imports/provider_import_history.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_pending_import_store.dart';
+import 'package:collectarr_app/state/api_provider.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+enum ImportJobPhase { fetching, matching, importing, done, failed }
+
+class ImportJobState {
+  const ImportJobState({
+    required this.id,
+    required this.provider,
+    required this.label,
+    this.phase = ImportJobPhase.fetching,
+    this.total = 0,
+    this.processed = 0,
+    this.matched = 0,
+    this.imported = 0,
+    this.unmatched = 0,
+    this.proposed = 0,
+    this.keptLocal = 0,
+    this.skipped = 0,
+    this.error,
+    required this.startedAt,
+    this.finishedAt,
+  });
+
+  final String id;
+  final ProviderId provider;
+  final String label;
+  final ImportJobPhase phase;
+  final int total;
+  final int processed;
+  final int matched;
+  final int imported;
+  final int unmatched;
+  final int proposed;
+  final int keptLocal;
+  final int skipped;
+  final String? error;
+  final DateTime startedAt;
+  final DateTime? finishedAt;
+
+  bool get isActive =>
+      phase == ImportJobPhase.fetching ||
+      phase == ImportJobPhase.matching ||
+      phase == ImportJobPhase.importing;
+
+  double get progress => total > 0 ? processed / total : 0;
+
+  String get phaseLabel => switch (phase) {
+        ImportJobPhase.fetching => 'Fetching…',
+        ImportJobPhase.matching => 'Matching…',
+        ImportJobPhase.importing => 'Importing…',
+        ImportJobPhase.done => 'Done',
+        ImportJobPhase.failed => 'Failed',
+      };
+
+  String get summary {
+    if (phase == ImportJobPhase.failed) return error ?? 'Import failed';
+    if (phase == ImportJobPhase.done) {
+      final parts = <String>[];
+      if (imported > 0) parts.add('$imported imported');
+      if (proposed > 0) parts.add('$proposed proposed');
+      if (keptLocal > 0) parts.add('$keptLocal kept local');
+      if (skipped > 0) parts.add('$skipped skipped');
+      return parts.isEmpty ? 'No items processed' : parts.join(' · ');
+    }
+    if (total > 0) return '$processed / $total';
+    return phaseLabel;
+  }
+
+  ImportJobState copyWith({
+    ImportJobPhase? phase,
+    int? total,
+    int? processed,
+    int? matched,
+    int? imported,
+    int? unmatched,
+    int? proposed,
+    int? keptLocal,
+    int? skipped,
+    String? error,
+    DateTime? finishedAt,
+  }) {
+    return ImportJobState(
+      id: id,
+      provider: provider,
+      label: label,
+      phase: phase ?? this.phase,
+      total: total ?? this.total,
+      processed: processed ?? this.processed,
+      matched: matched ?? this.matched,
+      imported: imported ?? this.imported,
+      unmatched: unmatched ?? this.unmatched,
+      proposed: proposed ?? this.proposed,
+      keptLocal: keptLocal ?? this.keptLocal,
+      skipped: skipped ?? this.skipped,
+      error: error ?? this.error,
+      startedAt: startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+    );
+  }
+}
+
+class ImportJobsNotifier extends Notifier<List<ImportJobState>> {
+  @override
+  List<ImportJobState> build() => const [];
+
+  static const _unmatchedConcurrency = 4;
+  final TmdbImportService _service = TmdbImportService();
+  final AnimeListImportService _animeListService =
+      const AnimeListImportService();
+  final ProviderCsvImportService _providerCsvService =
+      const ProviderCsvImportService();
+  final TmdbPendingImportStore _pendingStore = const TmdbPendingImportStore();
+  final ProviderImportHistoryStore _historyStore =
+      const ProviderImportHistoryStore();
+
+  void _updateJob(String id, ImportJobState Function(ImportJobState) update) {
+    state = [
+      for (final job in state)
+        if (job.id == id) update(job) else job,
+    ];
+  }
+
+  void dismissJob(String id) {
+    state = [
+      for (final job in state)
+        if (job.id != id) job,
+    ];
+  }
+
+  Future<void> startTmdbAccountImport({
+    required TmdbImportCredentials credentials,
+    required TmdbImportCollection collection,
+    required bool keepUnmatchedLocally,
+  }) async {
+    final normalizedCredentials = credentials.normalized();
+    final accountId = _tmdbProviderAccountId(normalizedCredentials.accountId);
+    final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
+    state = [
+      ...state,
+      ImportJobState(
+        id: jobId,
+        provider: ProviderId.tmdb,
+        label: 'TMDB · ${collection.label}',
+        startedAt: DateTime.now(),
+      ),
+    ];
+
+    try {
+      // Phase 1: Fetch from TMDB API
+      final entries =
+          await _service.fetchCollection(normalizedCredentials, collection);
+      await _ensureTmdbAccount(normalizedCredentials, accountId);
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.matching,
+                total: entries.length,
+              ));
+
+      // Phase 2 & 3: Match + Import
+      await _matchAndImport(
+        jobId: jobId,
+        collection: collection,
+        entries: entries,
+        sourceLabel: 'TMDB account sync',
+        keepUnmatchedLocally: keepUnmatchedLocally,
+        apiKey: normalizedCredentials.apiKey,
+        accountId: accountId,
+        origin: MutationOrigin.externalProvider(ProviderId.tmdb, accountId),
+      );
+    } catch (error) {
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.failed,
+                error: _describeError(error),
+                finishedAt: DateTime.now(),
+              ));
+    }
+  }
+
+  Future<void> startTmdbFileImport({
+    required Uint8List bytes,
+    required String fileName,
+    required TmdbImportCollection collection,
+    required bool keepUnmatchedLocally,
+    String? apiKey,
+    String? accountId,
+  }) async {
+    final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
+    state = [
+      ...state,
+      ImportJobState(
+        id: jobId,
+        provider: ProviderId.tmdb,
+        label: 'TMDB · $fileName',
+        startedAt: DateTime.now(),
+      ),
+    ];
+
+    try {
+      // Phase 1: Parse file
+      final entries = _service.parseCollectionFileBytes(
+        bytes,
+        fileName: fileName,
+        collection: collection,
+      );
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.matching,
+                total: entries.length,
+              ));
+
+      // Phase 2 & 3: Match + Import
+      await _matchAndImport(
+        jobId: jobId,
+        collection: collection,
+        entries: entries,
+        sourceLabel: fileName,
+        keepUnmatchedLocally: keepUnmatchedLocally,
+        apiKey: apiKey,
+        accountId: accountId,
+        origin: MutationOrigin.fileImport,
+      );
+    } catch (error) {
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                phase: ImportJobPhase.failed,
+                error: _describeError(error),
+                finishedAt: DateTime.now(),
+              ));
+    }
+  }
+
+  Future<void> startAnimeListFileImport({
+    required Uint8List bytes,
+    required String fileName,
+    required ProviderId provider,
+    required bool keepUnmatchedLocally,
+    String? accountId,
+  }) async {
+    final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
+    state = [
+      ...state,
+      ImportJobState(
+        id: jobId,
+        provider: provider,
+        label: '${provider.label} · $fileName',
+        startedAt: DateTime.now(),
+      ),
+    ];
+
+    try {
+      final rows = _animeListService.parseFileBytes(
+        bytes,
+        fileName: fileName,
+        provider: provider,
+      );
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.matching,
+          total: rows.length,
+        ),
+      );
+      await _matchAndImportEntries(
+        jobId: jobId,
+        provider: provider,
+        entries: rows,
+        sourceLabel: fileName,
+        keepUnmatchedLocally: keepUnmatchedLocally,
+        accountId: accountId,
+        origin: MutationOrigin.fileImport,
+      );
+    } catch (error) {
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.failed,
+          error: _describeError(error),
+          finishedAt: DateTime.now(),
+        ),
+      );
+    }
+  }
+
+  Future<void> startProviderCsvFileImport({
+    required Uint8List bytes,
+    required String fileName,
+    required ProviderId provider,
+    required bool keepUnmatchedLocally,
+    String? accountId,
+  }) async {
+    final jobId = DateTime.now().toUtc().microsecondsSinceEpoch.toString();
+    state = [
+      ...state,
+      ImportJobState(
+        id: jobId,
+        provider: provider,
+        label: '${provider.label} · $fileName',
+        startedAt: DateTime.now(),
+      ),
+    ];
+
+    try {
+      final rows = _providerCsvService.parseFileBytes(
+        bytes,
+        fileName: fileName,
+        provider: provider,
+      );
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.matching,
+          total: rows.length,
+        ),
+      );
+      await _matchAndImportEntries(
+        jobId: jobId,
+        provider: provider,
+        entries: rows,
+        sourceLabel: fileName,
+        keepUnmatchedLocally: keepUnmatchedLocally,
+        accountId: accountId,
+        origin: MutationOrigin.fileImport,
+      );
+    } catch (error) {
+      _updateJob(
+        jobId,
+        (j) => j.copyWith(
+          phase: ImportJobPhase.failed,
+          error: _describeError(error),
+          finishedAt: DateTime.now(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _matchAndImportEntries({
+    required String jobId,
+    required ProviderId provider,
+    required List<ProviderPersonalEntry> entries,
+    required String sourceLabel,
+    required bool keepUnmatchedLocally,
+    String? accountId,
+    MutationOrigin origin = MutationOrigin.fileImport,
+  }) async {
+    accountId = await _validatedAccountId(provider, accountId);
+    final api = ref.read(apiClientProvider);
+    final catalogMutations = ref.read(catalogTransportMutationsProvider);
+    final wishlistMutations = ref.read(wishlistMutationsProvider);
+    final trackingMutations = ref.read(trackingMutationsProvider);
+    _updateJob(
+      jobId,
+      (j) => j.copyWith(
+        phase: ImportJobPhase.matching,
+        total: entries.length,
+        matched: 0,
+        unmatched: 0,
+        processed: 0,
+      ),
+    );
+
+    final matchedItems = <String, CatalogSearchCandidate>{};
+    var matchedCount = 0;
+    var unmatchedCount = 0;
+    var importedCount = 0;
+    var keptLocalCount = 0;
+    var skippedCount = 0;
+
+    final runner = ImportRunner(
+      matcher: (entry) async {
+        final kind = _resolvedKindForEntry(entry);
+        CatalogSearchCandidate? item;
+        if (kind != null) {
+          final year = entry.startedAt?.year ?? entry.completedAt?.year;
+          final candidates = await searchLibraryMetadataCandidates(
+            api,
+            kind,
+            query: entry.title ?? '',
+            year: year,
+            limit: 10,
+          );
+          item = _bestImportMatch(entry, candidates);
+        }
+
+        if (item == null) {
+          unmatchedCount++;
+          _updateJob(
+            jobId,
+            (j) => j.copyWith(unmatched: unmatchedCount),
+          );
+          return ImportMapping.unmatched(entry);
+        }
+
+        matchedItems[entry.remoteItemId] = item;
+        matchedCount++;
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(matched: matchedCount),
+        );
+        return ImportMapping.matched(entry, item.summary.ref);
+      },
+      applier: (mapping, config) async {
+        final item = matchedItems[mapping.entry.remoteItemId];
+        if (item == null) return ImportRowOutcome.skipped;
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(phase: ImportJobPhase.importing),
+        );
+        await catalogMutations.upsertTransport(
+          item.toImportTransport(),
+          origin: config.origin,
+        );
+        await _applyEntry(
+          catalogMutations: catalogMutations,
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+          catalogRef: item.summary.ref,
+          entry: mapping.entry,
+          origin: config.origin,
+        );
+        await _linkImportedEntry(
+          accountId: accountId,
+          localEntityRef: item.summary.ref,
+          entry: mapping.entry,
+        );
+        importedCount++;
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(
+            phase: ImportJobPhase.importing,
+            processed: importedCount + keptLocalCount + skippedCount,
+            imported: importedCount,
+            keptLocal: keptLocalCount,
+            skipped: skippedCount,
+          ),
+        );
+        return ImportRowOutcome.imported;
+      },
+      unmatchedHandler: (entry, config) async {
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(phase: ImportJobPhase.importing),
+        );
+        if (keepUnmatchedLocally) {
+          final localItem = _syntheticImportCatalogItem(provider, entry);
+          await _applyLocalOnlyEntry(
+            catalogMutations: catalogMutations,
+            wishlistMutations: wishlistMutations,
+            trackingMutations: trackingMutations,
+            item: localItem,
+            catalogRef: localItem.catalogRef,
+            entry: entry,
+            origin: config.origin,
+          );
+          await _linkImportedEntry(
+            accountId: accountId,
+            localEntityRef: localItem.catalogRef,
+            entry: entry,
+          );
+          keptLocalCount++;
+        } else {
+          skippedCount++;
+        }
+        _updateJob(
+          jobId,
+          (j) => j.copyWith(
+            phase: ImportJobPhase.importing,
+            processed: importedCount + keptLocalCount + skippedCount,
+            imported: importedCount,
+            keptLocal: keptLocalCount,
+            skipped: skippedCount,
+          ),
+        );
+      },
+    );
+
+    final result = await runner.run(
+      entries,
+      ImportRunConfig(
+        provider: provider,
+        collectionLabel: '${provider.label} import',
+        sourceLabel: sourceLabel,
+        origin: origin,
+      ),
+    );
+
+    await _historyStore.append(
+      ProviderImportHistoryEntry(
+        id: DateTime.now().toUtc().microsecondsSinceEpoch.toString(),
+        provider: provider,
+        status: ProviderImportHistoryStatus.success,
+        collectionLabel: '${provider.label} import',
+        sourceLabel: sourceLabel,
+        message: _buildResultMessage(
+          importedCount,
+          0,
+          keptLocalCount,
+          skippedCount,
+        ),
+        createdAt: DateTime.now().toUtc(),
+        rows: result.rows,
+        matched: matchedCount,
+        unmatched: unmatchedCount,
+        imported: importedCount,
+        proposed: 0,
+        keptLocal: keptLocalCount,
+      ),
+    );
+
+    _updateJob(
+      jobId,
+      (j) => j.copyWith(
+        phase: ImportJobPhase.done,
+        processed: result.rows,
+        imported: importedCount,
+        keptLocal: keptLocalCount,
+        skipped: skippedCount,
+        finishedAt: DateTime.now(),
+      ),
+    );
+  }
+
+  Future<void> _matchAndImport({
+    required String jobId,
+    required TmdbImportCollection collection,
+    required List<TmdbImportEntry> entries,
+    required String sourceLabel,
+    required bool keepUnmatchedLocally,
+    String? apiKey,
+    String? accountId,
+    required MutationOrigin origin,
+  }) async {
+    accountId = await _validatedAccountId(ProviderId.tmdb, accountId);
+    final api = ref.read(apiClientProvider);
+
+    final catalogCandidatesById = <String, CatalogSearchCandidate>{};
+
+    // Phase 2: Match against catalog
+    final preview = await _service.previewImport(
+      collection: collection,
+      entries: entries,
+      searchCatalog: (entry) async {
+        final kind = _resolvedKindForTmdbEntry(entry);
+        final items = await searchLibraryMetadata(
+          api,
+          kind,
+          query: entry.title,
+          year: entry.releaseYear,
+          limit: 10,
+        );
+        for (final item in items) {
+          catalogCandidatesById[item.id] = item;
+        }
+        return [
+          for (final item in items)
+            TmdbCatalogMatchCandidate(
+              id: item.id,
+              kind: item.kind,
+              title: item.title,
+              releaseYear: item.releaseYear,
+              searchAliases: item.searchAliases ?? const <String>[],
+            ),
+        ];
+      },
+    );
+
+    final matchedCount =
+        preview.matches.where((m) => m.catalogCandidate != null).length;
+    final unmatchedCount =
+        preview.matches.where((m) => m.catalogCandidate == null).length;
+
+    _updateJob(
+        jobId,
+        (j) => j.copyWith(
+              phase: ImportJobPhase.importing,
+              total: preview.matches.length,
+              matched: matchedCount,
+              unmatched: unmatchedCount,
+              processed: 0,
+            ));
+
+    // Phase 3: Import
+    Map<String, TmdbImportEntry> enrichmentCache = const {};
+    try {
+      enrichmentCache = await _service.batchEnrichEntries(
+        api: api,
+        entries: entries,
+      );
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'tmdb_import',
+        message: 'Server-side batch enrichment failed. Falling back.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final catalogMutations = ref.read(catalogTransportMutationsProvider);
+    final wishlistMutations = ref.read(wishlistMutationsProvider);
+    final trackingMutations = ref.read(trackingMutationsProvider);
+    var importedCount = 0;
+    var proposedCount = 0;
+    var keptLocalCount = 0;
+    var skippedCount = 0;
+    final unmatchedMatches = <TmdbImportMatch>[];
+
+    for (final match in preview.matches) {
+      final candidate = match.catalogCandidate;
+      final item =
+          candidate == null ? null : catalogCandidatesById[candidate.id];
+      if (item != null) {
+        final enrichedEntry = _enrichFromCache(
+          match.entry,
+          enrichmentCache,
+          apiKey,
+        );
+        final enriched = await enrichedEntry;
+        final contribution = contributionForTmdbImportEntry(enriched);
+        final mergedCandidate = contribution.mergeMatchedCatalogItem(
+          item,
+          enriched,
+        );
+        if (contribution.hasMeaningfulChanges(item, mergedCandidate)) {
+          await catalogMutations.upsertTransport(
+            mergedCandidate.toImportTransport(),
+            origin: origin,
+          );
+        }
+        if (match.entry.collection.isRated) {
+          await trackingMutations.upsertTrackingState(
+            TrackingTarget.catalog(item.catalogRef),
+            sourceType: TrackingSourceType.streaming,
+            status: MediaTrackingStatus.completed,
+            rating: _normalizedRating(match.entry.rating),
+            timesCompleted: 1,
+            origin: origin,
+          );
+        } else {
+          await wishlistMutations.addToWishlist(
+            item.catalogRef,
+            origin: origin,
+          );
+        }
+        await _importTvSeasons(
+          catalogMutations: catalogMutations,
+          wishlistMutations: wishlistMutations,
+          trackingMutations: trackingMutations,
+          seriesEntry: enriched,
+          apiKey: apiKey,
+          origin: origin,
+        );
+        await _linkImportedEntry(
+          accountId: accountId,
+          localEntityRef: item.catalogRef,
+          entry: providerPersonalEntryForTmdbImport(enriched),
+        );
+        importedCount += 1;
+      } else if (keepUnmatchedLocally) {
+        unmatchedMatches.add(match);
+      } else {
+        skippedCount += 1;
+      }
+
+      _updateJob(
+          jobId,
+          (j) => j.copyWith(
+                processed:
+                    importedCount + skippedCount + unmatchedMatches.length,
+                imported: importedCount,
+                skipped: skippedCount,
+              ));
+    }
+
+    // Process unmatched
+    if (unmatchedMatches.isNotEmpty) {
+      final queue = List<TmdbImportMatch>.from(unmatchedMatches);
+      Future<void> worker() async {
+        while (queue.isNotEmpty) {
+          final match = queue.removeLast();
+          final enriched = await _enrichFromCache(
+            match.entry,
+            enrichmentCache,
+            apiKey,
+          );
+          final kind = _resolvedKindForTmdbEntry(enriched);
+          try {
+            final truncatedQuery = enriched.query.length > 255
+                ? enriched.query.substring(0, 255)
+                : enriched.query;
+            final truncatedTitle = enriched.title.length > 255
+                ? enriched.title.substring(0, 255)
+                : enriched.title;
+            final response = await createAndRecordLibraryMetadataProposal(
+              api: api,
+              kind: kind,
+              defaultProvider: 'tmdb',
+              provider: 'tmdb',
+              providerItemId: enriched.tmdbId.toString(),
+              query: truncatedQuery,
+              title: truncatedTitle,
+              summary: enriched.overview,
+              imageUrl: enriched.posterUrl,
+              metadataPayload: enriched.rawPayload,
+              source: 'TMDB import',
+            );
+            proposedCount += 1;
+
+            final localItem = contributionForTmdbImportEntry(enriched)
+                .localSyntheticCatalogItem(enriched);
+            if (enriched.collection.isRated) {
+              await catalogMutations.upsertTransport(
+                localItem.toImportTransport(),
+                origin: origin,
+              );
+              await trackingMutations.addLocalOnlyTrackingState(
+                localItem.catalogRef,
+                sourceType: TrackingSourceType.streaming,
+                status: MediaTrackingStatus.completed,
+                rating: _normalizedRating(enriched.rating),
+                timesCompleted: 1,
+                origin: origin,
+              );
+            } else {
+              await wishlistMutations.addLocalOnlyCatalog(
+                localItem.toImportTransport(),
+                origin: origin,
+              );
+            }
+            await _importTvSeasons(
+              catalogMutations: catalogMutations,
+              wishlistMutations: wishlistMutations,
+              trackingMutations: trackingMutations,
+              seriesEntry: enriched,
+              apiKey: apiKey,
+              origin: origin,
+            );
+            await _linkImportedEntry(
+              accountId: accountId,
+              localEntityRef: localItem.catalogRef,
+              entry: providerPersonalEntryForTmdbImport(enriched),
+            );
+            await _pendingStore.upsert(
+              TmdbPendingImportRecord(
+                localItemId: localItem.id,
+                entry: enriched,
+                createdAt: DateTime.now().toUtc(),
+                proposalServerId: response['id']?.toString(),
+              ),
+            );
+            keptLocalCount += 1;
+          } catch (error, stackTrace) {
+            logRecoverableError(
+              source: 'tmdb_import',
+              message:
+                  'Failed to create metadata proposal for ${enriched.title}.',
+              error: error,
+              stackTrace: stackTrace,
+            );
+            skippedCount += 1;
+          }
+
+          _updateJob(
+              jobId,
+              (j) => j.copyWith(
+                    processed: importedCount + proposedCount + skippedCount,
+                    imported: importedCount,
+                    proposed: proposedCount,
+                    keptLocal: keptLocalCount,
+                    skipped: skippedCount,
+                  ));
+        }
+      }
+
+      await Future.wait([
+        for (var i = 0; i < math.min(_unmatchedConcurrency, queue.length); i++)
+          worker(),
+      ]);
+    }
+
+    // Record history
+    await _historyStore.append(
+      ProviderImportHistoryEntry(
+        id: DateTime.now().toUtc().microsecondsSinceEpoch.toString(),
+        provider: ProviderId.tmdb,
+        status: ProviderImportHistoryStatus.success,
+        collectionLabel: collection.label,
+        sourceLabel: sourceLabel,
+        message: _buildResultMessage(
+          importedCount,
+          proposedCount,
+          keptLocalCount,
+          skippedCount,
+        ),
+        createdAt: DateTime.now().toUtc(),
+        rows: preview.matches.length,
+        matched: matchedCount,
+        unmatched: unmatchedCount,
+        imported: importedCount,
+        proposed: proposedCount,
+        keptLocal: keptLocalCount,
+      ),
+    );
+
+    _updateJob(
+        jobId,
+        (j) => j.copyWith(
+              phase: ImportJobPhase.done,
+              processed: preview.matches.length,
+              imported: importedCount,
+              proposed: proposedCount,
+              keptLocal: keptLocalCount,
+              skipped: skippedCount,
+              finishedAt: DateTime.now(),
+            ));
+  }
+
+  String _tmdbProviderAccountId(String remoteAccountId) {
+    return 'tmdb:${remoteAccountId.trim()}';
+  }
+
+  Future<void> _ensureTmdbAccount(
+    TmdbImportCredentials credentials,
+    String accountId,
+  ) async {
+    final accountStore = ref.read(providerAccountStoreProvider);
+    final existing = await accountStore.getAccount(accountId);
+    await accountStore.saveAccount(
+      ProviderAccount(
+        id: accountId,
+        provider: ProviderId.tmdb,
+        displayName: existing?.displayName ??
+            'TMDb account ${credentials.accountId.trim()}',
+        authType: ProviderAuthType.apiKey,
+        remoteAccountId: credentials.accountId.trim(),
+        remoteHandle: existing?.remoteHandle,
+        username: existing?.username,
+        avatarUrl: existing?.avatarUrl,
+        connectedAt: existing?.connectedAt ?? DateTime.now().toUtc(),
+        lastSyncAt: existing?.lastSyncAt,
+        enabledCapabilities:
+            existing?.enabledCapabilities ?? const {'personalRead'},
+        syncPolicy: existing?.syncPolicy ?? const ProviderSyncPolicy(),
+      ),
+    );
+  }
+
+  Future<void> _linkImportedEntry({
+    required String? accountId,
+    required CatalogEntityRef localEntityRef,
+    required ProviderPersonalEntry entry,
+  }) async {
+    if (accountId == null) return;
+    final linkStore = ref.read(providerLinkStoreProvider);
+    await linkStore.saveLink(
+      ProviderItemLink.fromImportedEntry(
+        accountId: accountId,
+        localEntityRef: localEntityRef,
+        entry: entry,
+      ),
+    );
+  }
+
+  Future<String?> _validatedAccountId(
+    ProviderId provider,
+    String? accountId,
+  ) async {
+    if (accountId == null) return null;
+    final account =
+        await ref.read(providerAccountStoreProvider).getAccount(accountId);
+    if (account == null || account.provider != provider) {
+      throw StateError(
+        'Provider account $accountId is not available for ${provider.value}',
+      );
+    }
+    return accountId;
+  }
+
+  Future<TmdbImportEntry> _enrichFromCache(
+    TmdbImportEntry entry,
+    Map<String, TmdbImportEntry> cache,
+    String? apiKey,
+  ) async {
+    final pid = entry.mediaType.providerItemId(entry.tmdbId);
+    final cached = cache[pid];
+    if (cached != null) return cached;
+    if (apiKey == null || apiKey.trim().isEmpty) return entry;
+    try {
+      return await _service.enrichEntry(apiKey: apiKey, entry: entry);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'tmdb_import',
+        message: 'Failed to enrich TMDB entry ${entry.tmdbId}.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return entry;
+    }
+  }
+
+  CatalogMediaKind _resolvedKindForTmdbEntry(TmdbImportEntry entry) {
+    return contributionForTmdbImportEntry(entry).kind;
+  }
+
+  Future<void> _importTvSeasons({
+    required CatalogTransportMutations catalogMutations,
+    required WishlistMutations wishlistMutations,
+    required TrackingMutations trackingMutations,
+    required TmdbImportEntry seriesEntry,
+    required String? apiKey,
+    required MutationOrigin origin,
+  }) async {
+    if (seriesEntry.mediaType != TmdbMediaType.tv) {
+      return;
+    }
+    final seasonEntries = await _seasonEntriesFor(seriesEntry, apiKey);
+    if (seasonEntries.isEmpty) {
+      return;
+    }
+    for (final seasonEntry in seasonEntries) {
+      final seasonItem = contributionForTmdbImportKind(CatalogMediaKind.tv)
+          .localSyntheticSeasonCatalogItem(seriesEntry, seasonEntry);
+      final seasonNumber =
+          (seasonEntry.rawPayload['season_number'] as num?)?.toInt();
+      if (seriesEntry.collection.isRated) {
+        await catalogMutations.upsertTransport(
+          seasonItem.toImportTransport(),
+          origin: origin,
+        );
+        final contribution =
+            tmdbTrackingImportContributionForKind(CatalogMediaKind.tv);
+        if (contribution == null) {
+          throw StateError(
+            'No TMDB tracking contribution is registered for TV.',
+          );
+        }
+        await contribution.addLocalOnlySeasonEntry(
+          trackingMutations,
+          seasonItem,
+          sourceType: TrackingSourceType.streaming,
+          status: MediaTrackingStatus.completed,
+          rating: _normalizedRating(seriesEntry.rating),
+          timesCompleted: 1,
+          seasonNumber: seasonNumber,
+          origin: origin,
+        );
+      } else {
+        await wishlistMutations.addLocalOnlyCatalog(
+          seasonItem.toImportTransport(),
+          origin: origin,
+        );
+      }
+    }
+  }
+
+  Future<List<TmdbImportEntry>> _seasonEntriesFor(
+    TmdbImportEntry entry,
+    String? apiKey,
+  ) async {
+    final direct = _service.seasonEntriesFor(entry);
+    if (direct.isNotEmpty || apiKey == null || apiKey.trim().isEmpty) {
+      return direct;
+    }
+    try {
+      final detailed = await _service.enrichEntry(apiKey: apiKey, entry: entry);
+      return _service.seasonEntriesFor(detailed);
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'tmdb_import',
+        message: 'Failed to load seasons for ${entry.title}.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return const <TmdbImportEntry>[];
+    }
+  }
+
+  int? _normalizedRating(num? value) {
+    if (value == null) return null;
+    return value.round().clamp(1, 10);
+  }
+
+  CatalogMediaKind? _resolvedKindForEntry(ProviderPersonalEntry entry) {
+    if (entry.kind.isUnknown) {
+      return null;
+    }
+    return entry.kind;
+  }
+
+  CatalogSearchCandidate? _bestImportMatch(
+    ProviderPersonalEntry entry,
+    List<CatalogSearchCandidate> candidates,
+  ) {
+    if (candidates.isEmpty) {
+      return null;
+    }
+    final title = entry.title ?? '';
+    final normalizedTitle = title.trim().toLowerCase();
+    for (final candidate in candidates) {
+      final names = <String?>[candidate.title, candidate.subtitle];
+      if (names.whereType<String>().any(
+            (name) => name.trim().toLowerCase() == normalizedTitle,
+          )) {
+        return candidate;
+      }
+    }
+    return candidates.first;
+  }
+
+  Future<void> _applyEntry({
+    required CatalogTransportMutations catalogMutations,
+    required WishlistMutations wishlistMutations,
+    required TrackingMutations trackingMutations,
+    required CatalogEntityRef catalogRef,
+    required ProviderPersonalEntry entry,
+    required MutationOrigin origin,
+  }) async {
+    final trackingStatus = _trackingStatusForEntry(entry);
+    if (trackingStatus == null) {
+      await wishlistMutations.addToWishlist(
+        catalogRef,
+        origin: origin,
+      );
+      return;
+    }
+    await trackingMutations.upsertTrackingState(
+      TrackingTarget.catalog(catalogRef),
+      sourceType: TrackingSourceType.streaming,
+      status: trackingStatus,
+      rating: entry.rating == null || entry.rating == 0
+          ? null
+          : (entry.rating! / 10).round().clamp(1, 10),
+      startedAt: entry.startedAt,
+      finishedAt: entry.completedAt,
+      progressCurrent: entry.progress,
+      timesCompleted:
+          trackingStatus == MediaTrackingStatus.completed ? 1 : null,
+      origin: origin,
+    );
+  }
+
+  Future<void> _applyLocalOnlyEntry({
+    required CatalogTransportMutations catalogMutations,
+    required WishlistMutations wishlistMutations,
+    required TrackingMutations trackingMutations,
+    required CatalogSearchCandidate item,
+    required CatalogEntityRef catalogRef,
+    required ProviderPersonalEntry entry,
+    required MutationOrigin origin,
+  }) async {
+    final trackingStatus = _trackingStatusForEntry(entry);
+    if (trackingStatus == null) {
+      await wishlistMutations.addLocalOnlyCatalog(
+        item.toImportTransport(),
+        origin: origin,
+      );
+      return;
+    }
+    await catalogMutations.upsertTransport(
+      item.toImportTransport(),
+      origin: origin,
+    );
+    await trackingMutations.addLocalOnlyTrackingState(
+      catalogRef,
+      sourceType: TrackingSourceType.streaming,
+      status: trackingStatus,
+      rating: entry.rating == null || entry.rating == 0
+          ? null
+          : (entry.rating! / 10).round().clamp(1, 10),
+      startedAt: entry.startedAt,
+      finishedAt: entry.completedAt,
+      progressCurrent: entry.progress,
+      timesCompleted:
+          trackingStatus == MediaTrackingStatus.completed ? 1 : null,
+      allowEmpty: true,
+      origin: origin,
+    );
+  }
+
+  CatalogSearchCandidate _syntheticImportCatalogItem(
+    ProviderId provider,
+    ProviderPersonalEntry entry,
+  ) {
+    final title = entry.title ?? 'Untitled';
+    final sourceKey = entry.remoteItemId.trim().isEmpty
+        ? title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        : entry.remoteItemId.trim();
+    return CatalogSearchCandidate.fromJson({
+      'id': '${provider.storageValue}-local:$sourceKey',
+      'kind': entry.kind.apiValue,
+      'title': title,
+      'display_title': title,
+      'localized_title': title,
+      'original_title': title,
+      'search_aliases': [title],
+      if (entry.startedAt != null || entry.completedAt != null)
+        'release_date':
+            (entry.startedAt ?? entry.completedAt)!.toIso8601String(),
+    });
+  }
+
+  MediaTrackingStatus? _trackingStatusForEntry(ProviderPersonalEntry entry) {
+    return switch (entry.status) {
+      ProviderEntryStatus.completed => MediaTrackingStatus.completed,
+      ProviderEntryStatus.current ||
+      ProviderEntryStatus.repeating =>
+        MediaTrackingStatus.inProgress,
+      ProviderEntryStatus.paused => MediaTrackingStatus.paused,
+      ProviderEntryStatus.dropped => MediaTrackingStatus.dropped,
+      ProviderEntryStatus.planning ||
+      null =>
+        entry.progress != null && entry.progress! > 0
+            ? MediaTrackingStatus.inProgress
+            : null,
+    };
+  }
+
+  String _describeError(Object error) {
+    if (error case DioException dioError) {
+      final statusCode = dioError.response?.statusCode;
+      if (statusCode == 401) {
+        return 'TMDB credentials rejected. Check API key, account ID, and session ID.';
+      }
+      if (statusCode != null) return 'Request failed with status $statusCode.';
+      if (dioError.type == DioExceptionType.connectionTimeout ||
+          dioError.type == DioExceptionType.receiveTimeout) {
+        return 'TMDB took too long to respond.';
+      }
+      return 'Couldn\'t reach TMDB.';
+    }
+    return error.toString();
+  }
+
+  String _buildResultMessage(
+    int imported,
+    int proposed,
+    int keptLocal,
+    int skipped,
+  ) {
+    final parts = <String>['Imported $imported items.'];
+    if (proposed > 0) parts.add('Sent $proposed metadata proposals.');
+    if (keptLocal > 0) parts.add('Kept $keptLocal unmatched locally.');
+    if (skipped > 0) parts.add('Skipped $skipped unmatched rows.');
+    return parts.join(' ');
+  }
+}
+
+final importJobsProvider =
+    NotifierProvider<ImportJobsNotifier, List<ImportJobState>>(
+  ImportJobsNotifier.new,
+);

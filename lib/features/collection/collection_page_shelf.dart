@@ -35,16 +35,6 @@ class _ShelfHeader extends StatelessWidget {
         value: state.wishlistCount.toString(),
       ),
       _ShelfStatCard(
-        icon: Icons.key_outlined,
-        label: 'Key comics',
-        value: state.keyComicCount.toString(),
-      ),
-      _ShelfStatCard(
-        icon: Icons.verified_outlined,
-        label: 'Missing grade',
-        value: state.missingGradeCount.toString(),
-      ),
-      _ShelfStatCard(
         icon: Icons.payments_outlined,
         label: 'Paid',
         value: _totalPaidLabel(state),
@@ -121,14 +111,6 @@ class _ShelfHeader extends StatelessWidget {
                   value: _ShelfFilter.overdue,
                   icon: Icon(Icons.warning_amber_rounded),
                   label: Text('Overdue', key: ValueKey('shelf-filter-overdue')),
-                ),
-                ButtonSegment(
-                  value: _ShelfFilter.missingGrade,
-                  icon: Icon(Icons.rule_outlined),
-                  label: Text(
-                    'Missing grade',
-                    key: ValueKey('shelf-filter-missing-grade'),
-                  ),
                 ),
                 ButtonSegment(
                   value: _ShelfFilter.notes,
@@ -211,23 +193,9 @@ class _ShelfDistributionPanel extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _DistributionGroup(title: 'Grades', values: state.gradeCounts),
-            _DistributionGroup(
-              title: 'Conditions',
-              values: state.conditionCounts,
-            ),
-            _DistributionGroup(
-              title: 'Read status',
-              values: state.readStatusCounts,
-            ),
             _DistributionGroup(
               title: 'Locations',
               values: state.locationCounts,
-            ),
-            _DistributionGroup(
-              title: 'Top series',
-              values: state.seriesCounts,
-              maxItems: 6,
             ),
           ],
         ),
@@ -240,12 +208,10 @@ class _DistributionGroup extends StatelessWidget {
   const _DistributionGroup({
     required this.title,
     required this.values,
-    this.maxItems,
   });
 
   final String title;
   final Map<String, int> values;
-  final int? maxItems;
 
   @override
   Widget build(BuildContext context) {
@@ -257,9 +223,6 @@ class _DistributionGroup extends StatelessWidget {
         }
         return a.key.toLowerCase().compareTo(b.key.toLowerCase());
       });
-    final visible = maxItems == null
-        ? sorted
-        : sorted.take(maxItems!).toList(growable: false);
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 220),
       child: Column(
@@ -275,7 +238,7 @@ class _DistributionGroup extends StatelessWidget {
               if (values.isEmpty)
                 const Chip(label: Text('None'))
               else
-                for (final entry in visible)
+                for (final entry in sorted)
                   Chip(label: Text('${entry.key}: ${entry.value}')),
             ],
           ),
@@ -337,32 +300,37 @@ class _ShelfStatCard extends StatelessWidget {
   }
 }
 
-class _ShelfEntryRow extends ConsumerStatefulWidget {
-  const _ShelfEntryRow({
+class _LibraryWorkspaceSourceRow extends ConsumerStatefulWidget {
+  const _LibraryWorkspaceSourceRow({
     required this.entry,
     required this.onRemoveOwned,
     required this.onRemoveWishlist,
   });
 
-  final ShelfEntry entry;
+  final LibraryWorkspaceSource entry;
   final VoidCallback onRemoveOwned;
   final VoidCallback onRemoveWishlist;
 
   @override
-  ConsumerState<_ShelfEntryRow> createState() => _ShelfEntryRowState();
+  ConsumerState<_LibraryWorkspaceSourceRow> createState() =>
+      _LibraryWorkspaceSourceRowState();
 }
 
-class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
+class _LibraryWorkspaceSourceRowState
+    extends ConsumerState<_LibraryWorkspaceSourceRow> {
   bool _volumesExpanded = false;
-
-  bool get _isManga => widget.entry.catalogItem?.kind == 'manga';
 
   @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
     final colorScheme = Theme.of(context).colorScheme;
-    final owned = entry.ownedItem;
+    final owned = entry.ownedSummary;
     final wishlist = entry.wishlistItem;
+    final kindShelfExtension = libraryShelfExtensionForEntry(
+      entry,
+      expanded: _volumesExpanded,
+      onToggle: () => setState(() => _volumesExpanded = !_volumesExpanded),
+    );
     return Material(
       color: colorScheme.surface,
       borderRadius: BorderRadius.circular(8),
@@ -395,19 +363,15 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
                         runSpacing: 6,
                         children: [
                           if (entry.isOwned)
-                            _ShelfChip(
+                            const _ShelfChip(
                               icon: Icons.inventory_2,
-                              label: owned?.condition ?? 'Owned',
+                              label: 'Owned',
                             ),
                           if (entry.isWishlisted)
                             const _ShelfChip(
                               icon: Icons.star,
                               label: 'Wishlist',
                             ),
-                          _ShelfChip(
-                            icon: Icons.verified_outlined,
-                            label: owned?.grade ?? 'Ungraded',
-                          ),
                           if (owned?.pricePaidCents != null &&
                               owned?.currency != null)
                             _ShelfChip(
@@ -428,10 +392,10 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
                             ),
                         ],
                       ),
-                      if (owned?.personalNotes?.trim().isNotEmpty ?? false) ...[
+                      if (owned?.notes?.trim().isNotEmpty ?? false) ...[
                         const SizedBox(height: 6),
                         Text(
-                          owned!.personalNotes!,
+                          owned!.notes!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodySmall,
@@ -478,210 +442,12 @@ class _ShelfEntryRowState extends ConsumerState<_ShelfEntryRow> {
                 ),
               ],
             ),
-            if (_isManga) ...[
+            if (kindShelfExtension != null) ...[
               const SizedBox(height: 6),
-              _ShelfVolumesToggle(
-                expanded: _volumesExpanded,
-                onToggle: () =>
-                    setState(() => _volumesExpanded = !_volumesExpanded),
-              ),
+              kindShelfExtension,
             ],
-            if (_isManga && _volumesExpanded)
-              _ShelfVolumesPanel(itemId: entry.itemId),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ShelfVolumesToggle extends StatelessWidget {
-  const _ShelfVolumesToggle({
-    required this.expanded,
-    required this.onToggle,
-  });
-
-  final bool expanded;
-  final VoidCallback onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(4),
-      onTap: onToggle,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              expanded ? Icons.expand_less : Icons.expand_more,
-              size: 18,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              expanded ? 'Hide volumes' : 'Show volumes',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ShelfVolumesPanel extends ConsumerWidget {
-  const _ShelfVolumesPanel({required this.itemId});
-
-  final String itemId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final volumesAsync = ref.watch(
-      shelfVolumesProvider(
-        (itemId: itemId, canHydrateFromCore: true),
-      ),
-    );
-    return volumesAsync.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Center(
-            child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        )),
-      ),
-      error: (_, __) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(
-          'Could not load volumes',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ),
-      data: (volumes) {
-        if (volumes.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              'No volumes available',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          );
-        }
-        return Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: volumes.map((v) => _ShelfVolumeTile(volume: v)).toList(),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ShelfVolumeTile extends StatefulWidget {
-  const _ShelfVolumeTile({required this.volume});
-
-  final Season volume;
-
-  @override
-  State<_ShelfVolumeTile> createState() => _ShelfVolumeTileState();
-}
-
-class _ShelfVolumeTileState extends State<_ShelfVolumeTile> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final volume = widget.volume;
-    return Column(
-      children: [
-        ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-          leading: volume.posterUrl != null
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: CachedNetworkImage(
-                    imageUrl: volume.posterUrl!,
-                    width: 32,
-                    height: 48,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              : const Icon(Icons.menu_book, size: 20),
-          title: Text(
-            volume.title,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          subtitle: Text(
-            [
-              if (volume.episodeCount != null)
-                '${volume.episodeCount} chapters',
-              if (volume.airDate != null) volume.airDate!,
-            ].join(' · '),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          trailing: volume.episodes.isNotEmpty
-              ? Icon(
-                  _expanded ? Icons.expand_less : Icons.expand_more,
-                  size: 18,
-                )
-              : null,
-          onTap: volume.episodes.isNotEmpty
-              ? () => setState(() => _expanded = !_expanded)
-              : null,
-        ),
-        if (_expanded && volume.episodes.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(left: 40, right: 8, bottom: 4),
-            child: Column(
-              children: volume.episodes
-                  .map((ch) => _ShelfChapterRow(chapter: ch))
-                  .toList(),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ShelfChapterRow extends StatelessWidget {
-  const _ShelfChapterRow({required this.chapter});
-
-  final Episode chapter;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 32,
-            child: Text(
-              'Ch. ${chapter.episodeNumber}',
-              style: Theme.of(context).textTheme.labelSmall,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              chapter.title,
-              style: Theme.of(context).textTheme.bodySmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (chapter.pageCount != null || chapter.runtimeMinutes != null)
-            Text(
-              '${chapter.pageCount ?? chapter.runtimeMinutes}p',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-        ],
       ),
     );
   }
@@ -692,12 +458,12 @@ enum _ShelfAction { removeOwned, removeWishlist }
 class _ShelfCover extends StatelessWidget {
   const _ShelfCover({required this.entry});
 
-  final ShelfEntry entry;
+  final LibraryWorkspaceSource entry;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final title = entry.catalogItem?.title ?? 'Item';
+    final title = entry.catalogSummary?.title ?? 'Item';
     final initials = title
         .split(RegExp(r'\s+'))
         .where((word) => word.isNotEmpty)

@@ -34,17 +34,7 @@ enum CustomFieldValueType {
         return type;
       }
     }
-    return switch (normalized) {
-      'bool' => CustomFieldValueType.boolean,
-      'select' => CustomFieldValueType.singleSelect,
-      'single-select' => CustomFieldValueType.singleSelect,
-      'multi-select' => CustomFieldValueType.multiSelect,
-      'long_text' => CustomFieldValueType.longText,
-      'single_select' => CustomFieldValueType.singleSelect,
-      'multi_select' => CustomFieldValueType.multiSelect,
-      'yesno' => CustomFieldValueType.boolean,
-      _ => CustomFieldValueType.text,
-    };
+    return CustomFieldValueType.text;
   }
 }
 
@@ -56,7 +46,7 @@ enum CustomFieldTargetScope {
   episode('episode'),
   track('track'),
   ownedCopy('ownedCopy'),
-  trackingEntry('trackingEntry'),
+  trackingRecord('trackingEntry'),
   media('media'),
   all('all');
 
@@ -94,8 +84,7 @@ class CustomFieldDefinition {
   final String name;
   final String fieldType; // see CustomFieldValueType
   final String? mediaKind; // null = all media types
-  final String?
-      editScope; // legacy column; now stores custom field target scope
+  final String? editScope; // custom field target scope
   final int sortOrder;
   final String? options; // JSON array for select type
   final DateTime createdAt;
@@ -278,15 +267,15 @@ class CustomFieldValue {
   final String? value;
   final DateTime updatedAt;
 
-  factory CustomFieldValue.fromJson(Map<String, dynamic> json) {
+  factory CustomFieldValue.fromJson(Map<String, Object?> json) {
     return CustomFieldValue(
       id: json['id'] as String,
       targetId: json['target_id'] as String,
       targetScope:
           CustomFieldTargetScope.fromApiValue(json['target_scope'] as String?),
-      catalogRef: json['catalog_ref'] is Map<String, dynamic>
+      catalogRef: json['catalog_ref'] is Map
           ? CatalogEntityRef.fromJson(
-              json['catalog_ref'] as Map<String, dynamic>)
+              Map<String, Object?>.from(json['catalog_ref'] as Map))
           : null,
       fieldDefinitionId: json['field_definition_id'] as String,
       value: json['value'] as String?,
@@ -294,7 +283,7 @@ class CustomFieldValue {
     );
   }
 
-  Map<String, dynamic> toSyncPayload() {
+  Map<String, Object?> toSyncPayload() {
     return {
       'target_id': targetId,
       'target_scope': targetScope.apiValue,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -101,7 +102,7 @@ class LibraryRouteState {
     );
   }
 
-  Uri toUri(Uri baseUri, {required LibraryKindRuntime type}) {
+  Uri toUri(Uri baseUri, {required LibraryKindRegistration type}) {
     final kind = type.kind.apiValue;
     final params = <String, String>{kindKey: kind.trim().toLowerCase()};
     final trimmedQuery = _trimmed(searchQuery);
@@ -149,21 +150,23 @@ class LibraryRouteState {
     return baseUri.replace(queryParameters: params);
   }
 
-  LibraryRouteState filteredForType(LibraryKindRuntime type) {
+  LibraryRouteState filteredForType(LibraryKindRegistration type) {
     final expectedKind = type.kind.apiValue;
     final routeKind = kind?.trim().toLowerCase();
     if (routeKind != null && routeKind != expectedKind) {
       return LibraryRouteState(kind: expectedKind);
     }
-    final runtime = type;
-    final allowedGroupModes =
-        runtime.availableGroupIds.map((groupId) => groupId.value).toSet();
+    final kindModule = type;
+    final allowedGroupModes = libraryKindWorkspaceForKind(kindModule.kind)
+        .availableGroupIds
+        .map((groupId) => groupId.value)
+        .toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns =
-        runtime.fields.sorts.map((d) => d.id.value).toSet();
+    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
+    final allowedSortColumns = fields.sorts.map((d) => d.id.value).toSet();
     final filteredSortRules = sortRules == null
         ? null
         : [
@@ -171,9 +174,7 @@ class LibraryRouteState {
               if (allowedSortColumns.contains(rule.column)) rule,
           ];
     final resolvedGroupDef = groupMode != null
-        ? runtime.fields.findGroupDefinition(
-            runtime.fields.decodeGroupId(groupMode!),
-          )
+        ? fields.findGroupDefinition(fields.decodeGroupId(groupMode!))
         : null;
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null &&
@@ -209,7 +210,7 @@ class LibraryRouteState {
 
   static String? _encodeSortRules(
     List<LibrarySortRule>? rules,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) {
     if (rules == null || rules.isEmpty) {
       return null;
@@ -237,24 +238,14 @@ class LibraryRouteState {
           ? null
           : segment.substring(separatorIndex + 1).trim().toLowerCase();
 
-      final legacyParts = segment.split('.');
-      final legacyColumnToken =
-          legacyParts.length == 2 ? legacyParts.first.trim() : null;
-
-      final resolvedColumn = _sortColumnFromToken(
-        columnToken ?? legacyColumnToken,
-      );
+      final resolvedColumn = _sortColumnFromToken(columnToken);
       if (resolvedColumn == null) {
         continue;
       }
       decoded.add(
         LibrarySortRule(
           column: resolvedColumn,
-          ascending: (direction ??
-                  (legacyParts.length == 2
-                      ? legacyParts.last.trim().toLowerCase()
-                      : 'asc')) !=
-              'desc',
+          ascending: direction != 'desc',
         ),
       );
     }
@@ -266,12 +257,12 @@ class LibraryRouteState {
     if (trimmed == null) {
       return null;
     }
-    // Sort column IDs are plain snake_case strings — return the token directly
-    return trimmed.split('.').last;
+    // Sort column IDs are plain snake_case strings Ã¢â‚¬â€ return the token directly
+    return trimmed;
   }
 
   static LibraryFolderPreset? _decodeFolderPreset(String? rawValue,
-      [LibraryKindRuntime? type]) {
+      [LibraryKindRegistration? type]) {
     final trimmedValue = _trimmed(rawValue);
     if (trimmedValue == null) {
       return null;
@@ -287,7 +278,7 @@ class LibraryRouteState {
     if (!selection.hasActiveFilters) {
       return null;
     }
-    final payload = <String, dynamic>{
+    final payload = JsonMap.from({
       if (selection.ownershipFilter != LibraryOwnershipFilter.all)
         'ownership': selection.ownershipFilter.name,
       if (selection.trackingStatusFilter != LibraryTrackingStatusFilter.all)
@@ -311,7 +302,7 @@ class LibraryRouteState {
         },
       if (selection.missingCover) 'missingCover': true,
       if (selection.missingMetadata) 'missingMetadata': true,
-    };
+    });
     return base64Url.encode(utf8.encode(jsonEncode(payload)));
   }
 
@@ -400,12 +391,13 @@ String _normalizeFilterFieldId(String id) {
 
 LibraryQuickView? sanitizeLibraryQuickViewForType(
   LibraryQuickView? quickView,
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
 ) {
   if (quickView == null) {
     return null;
   }
-  if (quickView.requiresGrades && type.edit.grades.isEmpty) {
+  if (quickView.requiresGrades &&
+      type.editPresentation.collectionValueOptions.isEmpty) {
     return null;
   }
   return quickView;

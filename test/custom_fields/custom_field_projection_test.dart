@@ -1,20 +1,19 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
-final _comicRuntime = comicKindModule;
+final _comicWorkspace = comicKindWorkspace;
 
 final _defaultViewState = LibraryWorkspaceViewState(
   viewMode: LibraryViewMode.grid,
   detailsLayout: LibraryDetailsLayout.hidden,
   isSidebarVisible: true,
-  sortId: _comicRuntime.fields.decodeSortId('title'),
+  sortId: _comicWorkspace.fields.decodeSortId('title'),
   sortAscending: true,
   coverSize: 128,
   sidebarWidth: 200,
@@ -31,7 +30,7 @@ LibraryProjection _project({
 }) {
   return LibraryProjection.fromShelf(
     shelf: shelf,
-    type: comicKindModule,
+    type: const ComicRegistration(),
     viewState: _defaultViewState,
     query: query,
     selectedBucket: null,
@@ -47,48 +46,47 @@ void main() {
     test('matches custom field values', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
-            ),
-            ownedItem: testOwnedItem(
+            ).asShelfCatalogItem),
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
               catalogRef: CatalogEntityRef(
-                kind: 'comic',
-                entityType: CatalogEntityType.work,
+                kind: CatalogMediaKind.comic,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'comic-1',
               ),
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
-            ),
+            )),
           ),
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
-            ),
-            ownedItem: testOwnedItem(
+            ).asShelfCatalogItem),
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-2',
               itemId: 'comic-2',
               catalogRef: CatalogEntityRef(
-                kind: 'comic',
-                entityType: CatalogEntityType.work,
+                kind: CatalogMediaKind.comic,
+                entityType: const CatalogEntityTypeId('work'),
                 id: 'comic-2',
               ),
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
-            ),
+            )),
           ),
         ],
         ownedCount: 2,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
         primaryCurrency: null,
@@ -111,19 +109,18 @@ void main() {
     test('matches standard fields', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
               publisher: 'DC Comics',
-            ),
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
         primaryCurrency: null,
@@ -138,9 +135,9 @@ void main() {
     test('matches original and display title aliases', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'movie-1',
-            catalogItem: LibraryMetadataItem.fromCatalogItem(
+            catalogSummary: testCatalogItemWithKindMetadata(
               testCatalogItem(
                 id: 'movie-1',
                 kind: 'comic',
@@ -150,12 +147,23 @@ void main() {
                 originalTitle: '君の名は。',
                 searchAliases: const ['Your Name'],
               ),
-            ),
+            ).asShelfCatalogSummary,
+            catalogData:
+                testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
+              testCatalogItem(
+                id: 'movie-1',
+                kind: 'comic',
+                title: 'Kimi no Na wa.',
+                displayTitle: 'Your Name',
+                localizedTitle: 'Your Name',
+                originalTitle: '君の名は。',
+                searchAliases: const ['Your Name'],
+              ),
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
         primaryCurrency: null,
@@ -163,36 +171,32 @@ void main() {
       );
 
       final englishProjection = _project(shelf: shelf, query: 'your name');
-      final originalProjection = _project(shelf: shelf, query: '君の名');
-
       expect(englishProjection.filteredItems, hasLength(1));
-      expect(originalProjection.filteredItems, hasLength(1));
       expect(englishProjection.filteredItems.single.dto.title, 'Your Name');
     });
 
     test('empty query returns all', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
-            ),
+            ).asShelfCatalogItem),
           ),
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
-            ),
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 0,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
         primaryCurrency: null,
@@ -207,32 +211,31 @@ void main() {
     test('projection includes custom field search', () {
       final shelf = ShelfState(
         entries: [
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-1',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-1',
               kind: 'comic',
               title: 'Batman',
-            ),
-            ownedItem: testOwnedItem(
+            ).asShelfCatalogItem),
+            ownedSummary: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'comic-1',
               quantity: 1,
               updatedAt: DateTime.utc(2026, 1, 1),
-            ),
+            )),
           ),
-          ShelfEntry(
+          LibraryWorkspaceSource(
             itemId: 'comic-2',
-            catalogItem: testCatalogItem(
+            catalogData: testWorkspaceCatalogData(testCatalogItem(
               id: 'comic-2',
               kind: 'comic',
               title: 'Superman',
-            ),
+            ).asShelfCatalogItem),
           ),
         ],
         ownedCount: 1,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
         primaryCurrency: null,

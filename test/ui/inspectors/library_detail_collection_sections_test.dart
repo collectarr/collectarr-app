@@ -22,14 +22,14 @@ void main() {
       currency: 'USD',
       updatedAt: DateTime.utc(2026, 5, 22),
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Blade Runner 2049',
-      ),
-      ownedItem: owned1,
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(owned1),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(
@@ -47,9 +47,9 @@ void main() {
         home: Scaffold(
           body: LibraryDetailPersonalSection(
             item: movieItem,
-            ownedItem: owned1,
+            ownedSummary: testOwnedItemSummary(owned1),
             ownedCopies: [
-              testOwnedItem(
+              testOwnedItemSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'movie-1',
                 purchaseDate: DateTime.utc(2026, 5, 11),
@@ -60,15 +60,15 @@ void main() {
                 soldTo: 'Local shop',
                 currency: 'USD',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
-              testOwnedItem(
+              )),
+              testOwnedItemSummary(testOwnedItem(
                 id: 'owned-2',
                 itemId: 'movie-1',
                 pricePaidCents: 999,
                 marketValueCents: 2499,
                 currency: 'USD',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
             ],
             accent: Colors.blue,
           ),

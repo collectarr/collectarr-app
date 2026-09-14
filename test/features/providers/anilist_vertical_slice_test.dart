@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/adapters/anilist/anilist_sync_adapter.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
@@ -170,8 +169,8 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'anilist',
           displayName: 'AniList',
-          kind: 'anime',
-          supportedKinds: ['anime', 'manga'],
+          kind: CatalogMediaKind.anime,
+          supportedKinds: [CatalogMediaKind.anime, CatalogMediaKind.manga],
         ),
         personalRead: syncAdapter,
         personalWrite: syncAdapter,
@@ -214,8 +213,8 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-work-21',
-        kind: 'anime',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.anime,
+        entityType: CatalogEntityTypeId('work'),
       );
 
       // Pre-link catalog item
@@ -276,8 +275,8 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-work-21',
-        kind: 'anime',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.anime,
+        entityType: CatalogEntityTypeId('work'),
       );
 
       await coordinator.linkImportedItem(

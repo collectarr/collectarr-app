@@ -1,21 +1,23 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_unsupported_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
+import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:flutter/widgets.dart';
 
 export 'library_add_result_policy.dart';
@@ -25,7 +27,7 @@ typedef LibraryAddAdvancedFilterDescriptorsBuilder
   LibraryAddModeBarRequest request,
 );
 
-typedef LibraryAddCoreSearchInputBuilder = LibraryMetadataSearchInput Function(
+typedef LibraryAddCoreSearchInputBuilder = MetadataSearchQuery Function(
   LibraryAddSearchContext context, {
   required int limit,
 });
@@ -34,9 +36,18 @@ typedef LibraryAddProviderQueryBuilder = String Function(
   LibraryAddSearchContext context,
 );
 
-typedef LibraryAddProviderKindOverridesBuilder = Iterable<String> Function(
+typedef LibraryAddProviderKindOverridesBuilder = Iterable<LibraryAddSearchScope>
+    Function(
   LibraryAddSearchContext context,
 );
+
+typedef LibraryAddProviderSearchBuilder = Future<List<ProviderCandidate>>
+    Function(
+  ProviderConnector provider, {
+  required String query,
+  required CatalogMediaKind kind,
+  required int limit,
+});
 
 typedef LibraryAddSearchInputPredicate = bool Function(
   LibraryAddSearchContext context,
@@ -50,6 +61,26 @@ typedef LibraryAddMatchSummaryBuilder<T> = String? Function(
   LibraryAddSearchContext context,
 );
 
+typedef LibraryAddOwnedPayloadBuilder<TDraft extends LibraryAddKindDraft>
+    = OwnedItemCreatePayload Function(
+  CatalogSearchCandidate item,
+  LibraryAddCommonDraft common,
+  TDraft draft,
+  JsonEncodable details, {
+  String? kindValue,
+});
+
+typedef LibraryAddDigitalCopyFlagBuilder = bool? Function(
+  CatalogSearchCandidate item,
+);
+
+typedef LibraryAddProviderCandidateProjection = CatalogSearchCandidate Function(
+    ProviderCandidate candidate);
+
+typedef LibraryAddCoreCatalogProjection = CatalogSearchCandidate Function(
+  CatalogSearchCandidate item,
+);
+
 class LibraryAddSearchCapability {
   const LibraryAddSearchCapability({
     this.initialAdvancedFilters = const {},
@@ -59,6 +90,7 @@ class LibraryAddSearchCapability {
     required this.ranking,
     this.searchInputPredicate,
     this.providerKindOverridesBuilder,
+    this.providerSearchBuilder,
     this.kindSpecificPaneBuilder,
     this.coverScanQueryBuilder,
     this.coverScanFilterValuesBuilder,
@@ -74,17 +106,46 @@ class LibraryAddSearchCapability {
   final LibraryAddSearchRanking ranking;
   final LibraryAddSearchInputPredicate? searchInputPredicate;
   final LibraryAddProviderKindOverridesBuilder? providerKindOverridesBuilder;
+  final LibraryAddProviderSearchBuilder? providerSearchBuilder;
   final Widget Function(BuildContext context, LibraryAddModeBarRequest request)?
       kindSpecificPaneBuilder;
   final String? Function(LibraryCoverScanResult result)? coverScanQueryBuilder;
   final LibraryAddCoverScanFilterValuesBuilder? coverScanFilterValuesBuilder;
-  final LibraryAddMatchSummaryBuilder<LibraryMetadataItem>?
+  final LibraryAddMatchSummaryBuilder<CatalogSearchCandidate>?
       coreMatchSummaryBuilder;
   final LibraryAddMatchSummaryBuilder<ProviderCandidate>?
       providerMatchSummaryBuilder;
 
-  Iterable<String> providerKindOverrides(LibraryAddSearchContext context) =>
+  Iterable<LibraryAddSearchScope> providerKindOverrides(
+    LibraryAddSearchContext context,
+  ) =>
       providerKindOverridesBuilder?.call(context) ?? const [];
+
+  Future<List<ProviderCandidate>> searchProvider(
+    ProviderConnector provider, {
+    required String query,
+    required CatalogMediaKind kind,
+    int limit = 25,
+  }) async {
+    final customSearch = providerSearchBuilder;
+    if (customSearch != null) {
+      return customSearch(
+        provider,
+        query: query,
+        kind: kind,
+        limit: limit,
+      );
+    }
+
+    final hits = await provider.searchHits(query, kind: kind, limit: limit);
+    return [
+      for (final hit in hits)
+        ProviderCandidate.fromSearchHit(
+          hit,
+          provider: provider.descriptor.name,
+        ),
+    ];
+  }
 
   bool hasSearchInput(LibraryAddSearchContext context) =>
       searchInputPredicate?.call(context) ?? context.hasAnyInput;
@@ -98,7 +159,7 @@ class LibraryAddSearchCapability {
       coverScanFilterValuesBuilder?.call(result) ?? const {};
 
   String? coreMatchSummary(
-    LibraryMetadataItem item,
+    CatalogSearchCandidate item,
     LibraryAddSearchContext context,
   ) {
     final custom = coreMatchSummaryBuilder?.call(item, context);
@@ -147,16 +208,35 @@ abstract interface class LibraryAddCapability<
   LibraryAddSearchCapability get search;
   LibraryAddResultPolicy get resultPolicy;
 
+  CatalogSearchCandidate catalogCandidateFromProviderCandidate(
+    ProviderCandidate candidate,
+  );
+
+  CatalogSearchCandidate catalogCandidateFromCoreItem(
+    CatalogSearchCandidate item,
+  );
+
+  bool? digitalCopyFlag(CatalogSearchCandidate item) => null;
+
   Widget? buildPreviewPane(
     BuildContext context,
     LibraryAddPreviewPaneRequest request,
   );
 
-  AddOwnedItemCommand buildCommand(
-    LibraryMetadataItem item,
+  AddOwnedItemCommand buildCommand(CatalogSearchCandidate item,
+      LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+      {CatalogEntityRef? targetRef,
+      LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()});
+
+  AddOwnedItemCommand buildCommandFromDetails(
+    CatalogSearchCandidate item,
     LibraryAddCommonDraft common,
-    LibraryAddKindDraft draft,
-  );
+    JsonEncodable details, {
+    LibraryAddKindDraft? draft,
+    CatalogEntityRef? targetRef,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+    String? kindValue,
+  });
 }
 
 class _EmptyKindAddDraft implements LibraryKindAddDraft {
@@ -180,6 +260,10 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     this.dialogLauncher,
     this.chrome = const LibraryAddChromeConfig(),
     required this.search,
+    this.ownedPayloadBuilder,
+    this.digitalCopyFlagBuilder,
+    required this.providerCandidateProjectionBuilder,
+    required this.coreCatalogProjectionBuilder,
     this.resultPolicy = const LibraryAddResultPolicy.identity(),
   });
 
@@ -206,11 +290,32 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
   final LibraryAddChromeConfig chrome;
   @override
   final LibraryAddSearchCapability search;
+  final LibraryAddOwnedPayloadBuilder<TDraft>? ownedPayloadBuilder;
+  final LibraryAddDigitalCopyFlagBuilder? digitalCopyFlagBuilder;
+  final LibraryAddProviderCandidateProjection
+      providerCandidateProjectionBuilder;
+  final LibraryAddCoreCatalogProjection coreCatalogProjectionBuilder;
   @override
   final LibraryAddResultPolicy resultPolicy;
 
   @override
   TDraft createInitialDraft() => initialDraftBuilder();
+
+  @override
+  bool? digitalCopyFlag(CatalogSearchCandidate item) =>
+      digitalCopyFlagBuilder?.call(item);
+
+  @override
+  CatalogSearchCandidate catalogCandidateFromProviderCandidate(
+    ProviderCandidate candidate,
+  ) =>
+      providerCandidateProjectionBuilder(candidate);
+
+  @override
+  CatalogSearchCandidate catalogCandidateFromCoreItem(
+    CatalogSearchCandidate item,
+  ) =>
+      coreCatalogProjectionBuilder(item);
 
   @override
   LibraryKindAddDraft createManualDraft() =>
@@ -235,21 +340,87 @@ class StandardLibraryAddCapability<TDraft extends LibraryAddKindDraft>
     return previewPaneBuilder?.call(context, request);
   }
 
+  OwnedItemCreatePayload _buildOwnedPayload(CatalogSearchCandidate item,
+      LibraryAddCommonDraft common, TDraft draft, JsonEncodable details,
+      {String? kindValue}) {
+    try {
+      final payload = ownedPayloadBuilder?.call(
+        item,
+        common,
+        draft,
+        details,
+        kindValue: kindValue,
+      );
+      if (payload == null) {
+        throw StateError(
+          'Kind ${kind.apiValue} must provide an owned create payload.',
+        );
+      }
+      return payload;
+    } on TypeError catch (error) {
+      throw StateError(
+        'Kind ${kind.apiValue} received details owned by another kind: '
+        '$error',
+      );
+    }
+  }
+
   @override
-  AddOwnedItemCommand buildCommand(
-    LibraryMetadataItem item,
-    LibraryAddCommonDraft common,
-    LibraryAddKindDraft draft,
-  ) {
+  AddOwnedItemCommand buildCommand(CatalogSearchCandidate item,
+      LibraryAddCommonDraft common, LibraryAddKindDraft draft,
+      {CatalogEntityRef? targetRef,
+      LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft()}) {
     final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
+    final details = effectiveDraft.toOwnedDetailsDraft();
+    final typedPayload = _buildOwnedPayload(
+      item,
+      common,
+      effectiveDraft,
+      details,
+    );
     return AddOwnedItemCommand(
-      catalogRef: CatalogEntityRef(
-        kind: kind.apiValue,
-        entityType: CatalogEntityType.ownedCopy,
-        id: item.id,
+      catalogRef: item.catalogRef,
+      typedPayload: typedPayload,
+      targetRef: targetRef ?? item.catalogRef,
+      tracking: OwnedItemTrackingDraft(
+        status: mediaTrackingStatusFromValue(tracking.readStatus),
+        rating: tracking.rating,
+        startedAt: tracking.startedAt,
+        finishedAt: tracking.finishedAt,
+        notes: tracking.notes,
       ),
-      common: common.toOwnedItemCommonDraft(),
-      details: effectiveDraft.toOwnedDetailsDraft(),
+    );
+  }
+
+  @override
+  AddOwnedItemCommand buildCommandFromDetails(
+    CatalogSearchCandidate item,
+    LibraryAddCommonDraft common,
+    JsonEncodable details, {
+    LibraryAddKindDraft? draft,
+    CatalogEntityRef? targetRef,
+    LibraryAddTrackingDraft tracking = const LibraryAddTrackingDraft(),
+    String? kindValue,
+  }) {
+    final effectiveDraft = draft is TDraft ? draft : createInitialDraft();
+    final typedPayload = _buildOwnedPayload(
+      item,
+      common,
+      effectiveDraft,
+      details,
+      kindValue: kindValue,
+    );
+    return AddOwnedItemCommand(
+      catalogRef: item.catalogRef,
+      typedPayload: typedPayload,
+      targetRef: targetRef ?? item.catalogRef,
+      tracking: OwnedItemTrackingDraft(
+        status: mediaTrackingStatusFromValue(tracking.readStatus),
+        rating: tracking.rating,
+        startedAt: tracking.startedAt,
+        finishedAt: tracking.finishedAt,
+        notes: tracking.notes,
+      ),
     );
   }
 }

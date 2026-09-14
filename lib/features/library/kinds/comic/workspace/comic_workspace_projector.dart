@@ -1,6 +1,7 @@
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -12,34 +13,23 @@ final class ComicWorkspaceProjector
 
   @override
   ComicWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final catalog = source.catalogItem;
-    final rawMetadata = catalog?.kindMetadata;
-    final ComicCatalogMetadata metadata;
-    if (rawMetadata is ComicCatalogMetadata) {
-      metadata = rawMetadata;
-    } else if (rawMetadata != null) {
-      metadata = ComicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
-    } else {
-      throw StateError('Expected ComicCatalogMetadata for comic workspace');
-    }
-    final comic = ComicCatalogMapper.mapMetadataToComic(
-      metadata,
-      id: catalog!.identity.id,
-    );
+    final catalog = _catalogFor(source);
+    final ownedItem =
+        ComicOwnedItemProjection.fromDispatch(source.ownedItemDispatch);
     return ComicWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _comicCommonProjection(source, node, catalog.comic),
       personal: PersonalCopyProjection.fromShelf(source),
-      comic: comic,
-      metadata: metadata,
+      comic: catalog.comic,
+      ownedItem: ownedItem,
     );
   }
 
   @override
   ComicWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
@@ -49,10 +39,30 @@ final class ComicWorkspaceProjector
 
   @override
   ComicWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
     throw UnsupportedError(
         'Copy projection is not supported for ComicWorkspaceProjector');
   }
+}
+
+ComicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final ComicWorkspaceCatalogData catalog) return catalog;
+  throw StateError('Expected ComicWorkspaceCatalogData for comic workspace');
+}
+
+WorkspaceCommonProjection _comicCommonProjection(
+  LibraryWorkspaceSource source,
+  LibraryNodeRef node,
+  ComicMedia metadata,
+) {
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: metadata.title,
+    overrideSynopsis: metadata.synopsis,
+    overrideReleaseDate: metadata.releaseDate,
+  );
 }

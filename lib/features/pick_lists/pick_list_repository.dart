@@ -1,19 +1,24 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
+import 'pick_list_definition_contributor.dart';
 import 'models/pick_list_value.dart';
 
 const _entityType = 'pick_list_value';
 
 class PickListRepository {
-  PickListRepository(this._db);
+  PickListRepository(
+    this._db, {
+    Iterable<PickListDefinitionContributor> contributors = const [],
+  }) : _contributors = contributors.toList(growable: false);
 
   final LocalDatabase _db;
+  final List<PickListDefinitionContributor> _contributors;
   late final _syncQueue = SyncQueueRepository(_db);
 
   Future<List<PickListValue>> valuesForList({
@@ -198,7 +203,11 @@ class PickListRepository {
     );
     final counts = <String, int>{};
     for (final value in values) {
-      counts[value.id] = await _usageCountForValue(listName, value.value);
+      counts[value.id] = await _usageCountForValue(
+        listName,
+        value.value,
+        mediaKind: mediaKind,
+      );
     }
     return counts;
   }
@@ -387,98 +396,61 @@ class PickListRepository {
     );
   }
 
-  Future<int> _usageCountForValue(String listName, String value) async {
+  Future<int> _usageCountForValue(
+    String listName,
+    String value, {
+    required String? mediaKind,
+  }) async {
     final normalized = normalizePickListValue(value);
     if (normalized.isEmpty) {
       return 0;
     }
-    final directColumns = <String, List<(String table, String column)>>{
-      'condition': [('owned_items_cache', 'condition')],
-      'grade': [('owned_items_cache', 'grade')],
-      'raw_or_slabbed': [('owned_items_cache', 'rawOrSlabbed')],
-      'grading_company': [('owned_items_cache', 'gradingCompany')],
-      'label_type': [('owned_items_cache', 'labelType')],
-      'page_quality': [('owned_items_cache', 'pageQuality')],
-      'key_category': [('owned_items_cache', 'keyCategory')],
-      'key_severity': [('owned_items_cache', 'keySeverity')],
-      'purchase_store': [('owned_items_cache', 'purchaseStore')],
-      'sold_to': [('owned_items_cache', 'soldTo')],
-      'region': [('owned_items_cache', 'region')],
-      'packaging': [('owned_items_cache', 'packaging')],
-      'distributor': [('owned_items_cache', 'distributor')],
-      'collection_status': [('owned_items_cache', 'collectionStatus')],
-      'features': [('owned_items_cache', 'features')],
-    };
-    final catalogPayloadFields = <String, List<String>>{
-      'publisher': ['publisher'],
-      'imprint': ['imprint'],
-      'language': ['language'],
-      'country': ['country'],
-      'age_rating': ['age_rating'],
-      'series_group': ['series_group'],
-      'physical_format': ['physical_format', 'physical_format_label'],
-      'format': ['physical_format', 'physical_format_label'],
-    };
     final semanticName = pickListSemanticName(listName);
-    final ownedColumns =
-        directColumns[semanticName] ?? const <(String table, String column)>[];
     var total = 0;
-    for (final column in ownedColumns) {
-      total += await _countTextColumn(column.$1, column.$2, normalized);
+    final requestedKind =
+        mediaKind == null ? null : catalogMediaKindFromApiValue(mediaKind);
+    for (final contributor in _contributors) {
+      if (requestedKind != null && contributor.kind != requestedKind) {
+        continue;
+      }
+      total += await contributor.countOwnedValue(
+        _db,
+        semanticName,
+        normalized,
+      );
     }
-    for (final field
-        in catalogPayloadFields[semanticName] ?? const <String>[]) {
-      total += await _countCatalogPayloadField(field, normalized);
+    for (final codec in collectarrKindCatalogTransportCodecs) {
+      if (requestedKind != null && codec.kind != requestedKind) {
+        continue;
+      }
+      total += await codec.countCatalogValue(
+        _db,
+        semanticName,
+        normalized,
+      );
     }
-    if (semanticName == 'tags') {
-      total += await _countTagField(normalized);
-    }
-    total += await _countCustomFieldValues(normalized);
+    total += await _countCustomFieldValues(normalized, mediaKind: mediaKind);
     return total;
   }
 
-  Future<int> _countTextColumn(
-    String tableName,
-    String columnName,
-    String normalized,
-  ) async {
+  Future<int> _countCustomFieldValues(
+    String normalized, {
+    required String? mediaKind,
+  }) async {
+    final kindFilter = mediaKind ?? '';
     final result = await _db.customSelect(
-      'SELECT COUNT(*) AS count FROM $tableName WHERE lower(trim(coalesce($columnName, \'\'))) = ?',
-      variables: [Variable.withString(normalized)],
-    ).getSingle();
-    return result.read<int>('count');
-  }
-
-  Future<int> _countCatalogPayloadField(
-    String fieldName,
-    String normalized,
-  ) async {
-    final rows = await _db.select(_db.catalogCache).get();
-    var count = 0;
-    for (final row in rows) {
-      final payload = jsonDecode(row.payloadJson);
-      if (payload is Map<String, dynamic> && payload[fieldName] is String) {
-        if (normalizePickListValue(payload[fieldName] as String) ==
-            normalized) {
-          count++;
-        }
-      }
-    }
-    return count;
-  }
-
-  Future<int> _countTagField(String normalized) async {
-    final result = await _db.customSelect(
-      'SELECT COUNT(*) AS count FROM owned_items_cache WHERE lower(coalesce(tags, \'\')) LIKE ?',
-      variables: [Variable.withString('%${normalized.replaceAll("'", "''")}%')],
-    ).getSingle();
-    return result.read<int>('count');
-  }
-
-  Future<int> _countCustomFieldValues(String normalized) async {
-    final result = await _db.customSelect(
-      'SELECT COUNT(*) AS count FROM custom_field_values_cache WHERE lower(trim(coalesce(value, \'\'))) = ?',
-      variables: [Variable.withString(normalized)],
+      'SELECT COUNT(*) AS count '
+      'FROM custom_field_values_cache field_values '
+      'LEFT JOIN custom_field_definitions_cache definitions '
+      'ON definitions.id = field_values.field_definition_id '
+      'WHERE lower(trim(coalesce(field_values.value, \'\'))) = ? '
+      'AND (? = \'\' OR definitions.media_kind IS NULL '
+      'OR definitions.media_kind = ?)',
+      variables: [
+        Variable.withString(normalized),
+        Variable.withString(kindFilter),
+        Variable.withString(kindFilter),
+      ],
     ).getSingle();
     return result.read<int>('count');
   }
@@ -486,7 +458,7 @@ class PickListRepository {
   Future<void> _enqueueChange(
     String entityId,
     String action,
-    Map<String, dynamic> payload,
+    Map<String, dynamic> data,
   ) async {
     await _syncQueue.enqueue(
       SyncChange(
@@ -494,7 +466,7 @@ class PickListRepository {
         entityType: _entityType,
         entityId: entityId,
         action: action,
-        payload: payload,
+        payload: data,
         clientChangedAt: DateTime.now().toUtc(),
       ),
     );

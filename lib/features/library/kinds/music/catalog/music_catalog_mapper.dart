@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_release.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 
 class MusicCatalogMapper {
   const MusicCatalogMapper._();
@@ -65,7 +64,7 @@ class MusicCatalogMapper {
         );
       }).toList();
 
-      return MusicRelease(
+      return MusicCatalogRelease(
         id: edition.id,
         title: edition.title,
         artist: artistName,
@@ -86,16 +85,16 @@ class MusicCatalogMapper {
     );
   }
 
-  static MusicCatalogItem mapMetadataItemToMusic(LibraryMetadataItem item) {
+  static MusicCatalogItem mapMetadataItemToMusic(CatalogItemDto item) {
     final rawMetadata = item.kindMetadata;
     final MusicCatalogMetadata metadata;
     if (rawMetadata is MusicCatalogMetadata) {
       metadata = rawMetadata;
     } else {
-      metadata = MusicCatalogMetadata.fromJson(rawMetadata.toSyncPayload());
+      metadata = MusicCatalogMetadata.fromJson(item.payload);
     }
     final music = metadata.music;
-    final List<MusicRelease> releases;
+    final List<MusicCatalogRelease> releases;
     if (metadata.releases.isNotEmpty) {
       releases = metadata.releases.map((release) {
         final discsByNumber = <int, List<MusicTrackMetadata>>{};
@@ -118,7 +117,7 @@ class MusicCatalogMapper {
             tracks: tracks,
           );
         }).toList();
-        return MusicRelease(
+        return MusicCatalogRelease(
           id: release.id,
           title: release.title,
           artist: metadata.artist,
@@ -149,7 +148,7 @@ class MusicCatalogMapper {
             tracks: tracks,
           );
         }).toList();
-        return MusicRelease(
+        return MusicCatalogRelease(
           id: edition.id,
           title: edition.title,
           artist: metadata.artist,
@@ -184,7 +183,7 @@ class MusicCatalogMapper {
         );
       }).toList();
       releases = [
-        MusicRelease(
+        MusicCatalogRelease(
           id: '${item.id}-release',
           title: metadata.title,
           artist: metadata.artist,

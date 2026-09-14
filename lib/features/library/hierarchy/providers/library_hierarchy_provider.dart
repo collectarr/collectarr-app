@@ -5,6 +5,23 @@ import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Resolves hierarchy behavior only for registered kinds.
+///
+/// Unknown/provider-only kinds must not silently acquire the generic hierarchy
+/// behavior. They have no owning hierarchy semantics and therefore fail at
+/// the dispatch boundary.
+LibraryHierarchyCapability requireLibraryHierarchyForKind(
+  CatalogMediaKind kind,
+) {
+  final module = collectarrKindRegistrations[kind];
+  if (module == null) {
+    throw UnsupportedError(
+      'Hierarchy is not supported for unregistered kind: $kind',
+    );
+  }
+  return module.hierarchy;
+}
+
 final libraryHierarchyProvider = FutureProvider.autoDispose.family<
     List<LibraryHierarchyNode>,
     ({
@@ -14,9 +31,8 @@ final libraryHierarchyProvider = FutureProvider.autoDispose.family<
       String? providerItemId,
       bool canHydrateFromCore,
     })>((ref, params) async {
-  final kindRuntime = lookupLibraryKind(params.kind);
-  final hierarchy = kindRuntime?.hierarchy;
-  if (hierarchy != null && params.itemId != null) {
+  final hierarchy = requireLibraryHierarchyForKind(params.kind);
+  if (params.itemId != null) {
     try {
       final api = ref.watch(apiClientProvider);
       final nodes = await hierarchy.fetchChildren(
@@ -38,9 +54,9 @@ final libraryHierarchyProvider = FutureProvider.autoDispose.family<
       try {
         final envelope = await adapter.fetchItem(
           params.providerItemId!,
-          kind: params.kind.apiValue,
+          kind: params.kind,
         );
-        final list = envelope.normalized['children'];
+        final list = envelope.payload['children'];
         if (list is List) {
           return [
             for (var i = 0; i < list.length; i++)
@@ -77,7 +93,7 @@ LibraryHierarchyNode _mapRawNode(Map<String, dynamic> raw, int fallbackIndex) {
     imageUrl: posterUrl,
     totalCount: itemCount,
     children: children,
-    metadata: raw,
+    extras: raw,
   );
 }
 

@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -8,8 +8,10 @@ import 'package:collectarr_app/features/library/add/library_add_shared.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
+import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,10 +24,10 @@ final class LibraryAddSessionState {
     required this.selection,
     required this.preview,
     required this.commonDraft,
+    required this.trackingDraft,
     required this.manualDraft,
     required this.submitState,
-    this.defaultCondition = 'Near Mint',
-    this.defaultGrade = 'Ungraded',
+    required this.defaultCondition,
     this.defaultPurchaseDate,
     this.defaultLocationId,
     this.defaultReadStatus,
@@ -40,10 +42,10 @@ final class LibraryAddSessionState {
   final LibraryAddSelectionState selection;
   final LibraryAddPreviewState preview;
   final LibraryAddCommonDraft commonDraft;
+  final LibraryAddTrackingDraft trackingDraft;
   final LibraryAddKindDraft manualDraft;
   final AsyncValue<void> submitState;
   final String defaultCondition;
-  final String defaultGrade;
   final DateTime? defaultPurchaseDate;
   final String? defaultLocationId;
   final String? defaultReadStatus;
@@ -51,14 +53,13 @@ final class LibraryAddSessionState {
   final String? physicalFormatId;
   final bool isAdding;
 
-  LibraryMetadataItem? get selectedItem {
+  CatalogSearchCandidate? get selectedItem {
     if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
-    final hydrated = preview.hydratedResultFor(id);
-    if (hydrated != null) return hydrated;
     for (final item in search.results) {
-      if (item.id == id) return item;
+      if (item.id != id) continue;
+      return preview.hydratedResultFor(item.catalogRef) ?? item;
     }
     return null;
   }
@@ -73,7 +74,7 @@ final class LibraryAddSessionState {
     return null;
   }
 
-  BundleReleaseDetail? get selectedBundleReleaseDetail {
+  LibraryBundleDetail? get selectedBundleReleaseDetail {
     final bundleReleaseId = selection.selectedBundleReleaseId;
     if (bundleReleaseId == null) return null;
     return preview.bundleReleaseDetailForId(bundleReleaseId);
@@ -85,19 +86,21 @@ final class LibraryAddSessionState {
     return preview.providerPreviewFor(candidate.localCatalogId);
   }
 
-  List<LibraryMetadataItem> visibleCoreResults(
+  List<CatalogSearchCandidate> visibleCoreResults(
     LibraryAddResultPolicy policy, {
-    required bool Function(String id) isOwnedCatalogItem,
+    required bool Function(CatalogSearchCandidate item) isOwnedCatalogItem,
   }) {
-    if (!selection.showCoreResults) return const <LibraryMetadataItem>[];
-    final ownedIds = <String>{
+    if (!selection.showCoreResults) {
+      return const <CatalogSearchCandidate>[];
+    }
+    final ownedRefs = <CatalogEntityRef>{
       for (final item in search.results)
-        if (isOwnedCatalogItem(item.id)) item.id,
+        if (isOwnedCatalogItem(item)) item.catalogRef,
     };
     return policy.filterCoreResults(
       items: search.results,
       state: selection.resultPolicyState,
-      ownedCatalogItemIds: ownedIds,
+      ownedCatalogRefs: ownedRefs,
     );
   }
 
@@ -118,10 +121,10 @@ final class LibraryAddSessionState {
     LibraryAddSelectionState? selection,
     LibraryAddPreviewState? preview,
     LibraryAddCommonDraft? commonDraft,
+    LibraryAddTrackingDraft? trackingDraft,
     LibraryAddKindDraft? manualDraft,
     AsyncValue<void>? submitState,
     String? defaultCondition,
-    String? defaultGrade,
     DateTime? defaultPurchaseDate,
     bool clearDefaultPurchaseDate = false,
     String? defaultLocationId,
@@ -141,10 +144,10 @@ final class LibraryAddSessionState {
       selection: selection ?? this.selection,
       preview: preview ?? this.preview,
       commonDraft: commonDraft ?? this.commonDraft,
+      trackingDraft: trackingDraft ?? this.trackingDraft,
       manualDraft: manualDraft ?? this.manualDraft,
       submitState: submitState ?? this.submitState,
       defaultCondition: defaultCondition ?? this.defaultCondition,
-      defaultGrade: defaultGrade ?? this.defaultGrade,
       defaultPurchaseDate: clearDefaultPurchaseDate
           ? null
           : (defaultPurchaseDate ?? this.defaultPurchaseDate),

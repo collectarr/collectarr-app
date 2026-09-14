@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,12 +26,53 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('OpenLibraryProvider', () {
+    test('decodes native search, work, and edition models', () {
+      final searchDoc = OpenLibrarySearchDoc.fromJson({
+        'key': '/works/OL27479W',
+        'title': 'The Hobbit',
+        'author_name': ['J.R.R. Tolkien'],
+        'first_publish_year': 1937,
+        'edition_key': ['OL82563M'],
+        'isbn': ['9780261102354'],
+        'publisher': ['George Allen & Unwin'],
+        'cover_i': 12345,
+      });
+      final work = OpenLibraryWork.fromJson({
+        'key': '/works/OL27479W',
+        'title': 'The Hobbit',
+        'description': {'value': 'A fantasy adventure.'},
+        'subjects': ['Fantasy'],
+      });
+      final edition = OpenLibraryEdition.fromJson({
+        'key': '/books/OL82563M',
+        'title': 'The Hobbit',
+        'subtitle': 'There and Back Again',
+        'publish_date': '1937',
+        'number_of_pages': 310,
+        'isbn_13': ['9780261102354'],
+        'covers': [12345],
+        'works': [
+          {'key': '/works/OL27479W'},
+        ],
+      });
+
+      expect(searchDoc.editionKeys.single, 'OL82563M');
+      expect(searchDoc.authorNames.single, 'J.R.R. Tolkien');
+      expect(searchDoc.coverId, 12345);
+      expect(work.description, 'A fantasy adventure.');
+      expect(work.subjects.single, 'Fantasy');
+      expect(edition.subtitle, 'There and Back Again');
+      expect(edition.numberOfPages, 310);
+      expect(edition.works.single.key, '/works/OL27479W');
+      expect(edition.toJson()['publish_date'], '1937');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = OpenLibraryProvider();
       expect(provider.name, 'openlibrary');
       expect(provider.descriptor.displayName, 'Open Library');
-      expect(provider.descriptor.kind, 'book');
-      expect(provider.descriptor.supportedKinds, ['book']);
+      expect(provider.descriptor.kind, CatalogMediaKind.book);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.book]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.statusMessage, contains('without an API key'));
@@ -154,15 +196,14 @@ void main() {
       final envelope = await provider.fetchItem('OL82563M');
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'openlibrary');
-      expect(envelope.kind, 'book');
-      expect(envelope.normalized['title'], 'The Fellowship of the Ring');
-      expect(envelope.normalized['subtitle'],
+      expect(envelope.kind, CatalogMediaKind.book);
+      expect(envelope.payload['title'], 'The Fellowship of the Ring');
+      expect(envelope.payload['subtitle'],
           'Being the First Part of The Lord of the Rings');
-      expect(envelope.normalized['page_count'], 423);
-      expect(envelope.normalized['publisher'], 'George Allen & Unwin');
-      expect(envelope.normalized['isbn'], '9780261102354');
-      expect(
-          envelope.normalized['genres'], containsAll(['Fantasy', 'Adventure']));
+      expect(envelope.payload['page_count'], 423);
+      expect(envelope.payload['publisher'], 'George Allen & Unwin');
+      expect(envelope.payload['isbn'], '9780261102354');
+      expect(envelope.payload['genres'], containsAll(['Fantasy', 'Adventure']));
       expect(envelope.images, hasLength(1));
       expect(envelope.images.first.url,
           'https://covers.openlibrary.org/b/id/12345-L.jpg');
@@ -182,7 +223,7 @@ void main() {
       );
       expect(olFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(olFixtureRaw as Map),
       );
 
@@ -208,15 +249,15 @@ void main() {
         },
       );
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['subtitle'], goldenEnvelope.normalized['subtitle']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['page_count'], goldenEnvelope.normalized['page_count']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['isbn'], goldenEnvelope.normalized['isbn']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['subtitle'], goldenEnvelope.payload['subtitle']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['page_count'], goldenEnvelope.payload['page_count']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['isbn'], goldenEnvelope.payload['isbn']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(normalized['cover_image_url'],
-          goldenEnvelope.normalized['cover_image_url']);
+          goldenEnvelope.payload['cover_image_url']);
     });
   });
 }

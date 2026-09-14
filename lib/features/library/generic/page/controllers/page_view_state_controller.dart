@@ -33,7 +33,7 @@ abstract final class _LibraryViewStateControllerOps {
       return;
     }
     GenericLibraryPageState._viewStateCacheWarmupStarted = true;
-    for (final module in collectarrKindModules) {
+    for (final module in collectarrKindRegistrationsList) {
       try {
         await module.viewProfile.load();
       } catch (error, stackTrace) {

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/watch_history_section.dart';
+import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:flutter/material.dart';
 
 class InspectorSessionHistorySection extends StatelessWidget {
@@ -18,9 +18,8 @@ class InspectorSessionHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WatchHistorySection(
-      itemId: request.item.node.titleItemId,
-      accent: request.accent,
       catalogRef: seriesRef,
+      accent: request.accent,
       defaultTargetRef: seriesRef,
       targetOptions: releaseOptions,
     );

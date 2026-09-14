@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add_dialog.dart';
@@ -10,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace_view.dart'
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -18,57 +17,67 @@ import 'package:collectarr_app/features/library/config/library_toolbar_config.da
 import 'package:collectarr_app/features/library/kinds/comic/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
 
 import '../../../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit/media/manga_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/manga/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_detail_page.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/detail/library_release_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/manga/tracking/manga_tracking_profile.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-LibraryFieldIdRuntime _field(LibraryKindRuntime runtime, String value) =>
-    runtime.fields.decodeColumnId(value);
+LibraryFieldIdRuntime _field(LibraryKindRegistration runtime, String value) =>
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeColumnId(value);
 
-LibrarySortIdRuntime _sort(LibraryKindRuntime runtime, String value) =>
-    runtime.fields.decodeSortId(value);
+LibrarySortIdRuntime _sort(LibraryKindRegistration runtime, String value) =>
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeSortId(value);
 
-LibraryGroupIdRuntime _group(LibraryKindRuntime runtime, String value) =>
-    runtime.fields.decodeGroupId(value);
+LibraryGroupIdRuntime _group(LibraryKindRegistration runtime, String value) =>
+    libraryKindWorkspaceForKind(runtime.kind).fields.decodeGroupId(value);
 
 void main() {
   test('comic runtime groups reusable media behavior', () {
-    expect(comicKindModule.kind, CatalogMediaKind.comic);
+    expect(comicKindModule.identity.kind, CatalogMediaKind.comic);
     expect(comicKindModule.identity.singularLabel, 'Comic');
     expect(comicKindModule.identity.pluralLabel, 'Comics');
     expect(comicKindModule.metadata.defaultProviderId, 'gcd');
     expect(
-      comicKindModule.metadata.defaultSupportedOption(comicKindModule.kind)?.id,
+      comicKindModule.metadata
+          .defaultSupportedOption(comicKindModule.identity.kind)
+          ?.id,
       'gcd',
     );
     expect(
-      comicKindModule.metadata.defaultSupportedOption(comicKindModule.kind)?.id,
+      comicKindModule.metadata
+          .defaultSupportedOption(comicKindModule.identity.kind)
+          ?.id,
       'gcd',
     );
     expect(
-      comicKindModule.metadata.supportsProvider('gcd', comicKindModule.kind),
+      comicKindModule.metadata
+          .supportsProvider('gcd', comicKindModule.identity.kind),
       isTrue,
     );
     expect(
       comicKindModule.metadata.supportsProvider(
         'comicvine',
-        comicKindModule.kind,
+        comicKindModule.identity.kind,
       ),
       isTrue,
     );
     expect(
       comicKindModule.metadata
-          .defaultSupportedOption(comicKindModule.kind)
+          .defaultSupportedOption(comicKindModule.identity.kind)
           ?.usagePolicy
           ?.summary,
       contains('CC BY-SA'),
@@ -87,7 +96,9 @@ void main() {
     expect(comicKindModule.trackingProfile, comicTrackingProfile);
     expect(comicKindModule.presentation, comicLibraryMediaPresentation);
     expect(comicKindModule.add.dialogLauncher, same(showComicLibraryAddDialog));
-    expect(comicKindModule.edit.editDialogBuilder,
+    expect(
+        comicKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildComicLibraryEditDialog));
     expect(comicKindModule.inspector.sectionsBuilder,
         same(buildComicInspectorSections));
@@ -96,31 +107,42 @@ void main() {
   });
 
   test('manga runtime is a first-class comic-family kind', () {
-    expect(mangaKindModule.kind, CatalogMediaKind.manga);
+    expect(mangaKindModule.identity.kind, CatalogMediaKind.manga);
     expect(mangaKindModule.identity.singularLabel, 'Manga');
     expect(mangaKindModule.identity.pluralLabel, 'Manga');
     expect(mangaKindModule.metadata.defaultProviderId, 'hardcover');
     expect(
-      mangaKindModule.metadata.defaultSupportedOption(mangaKindModule.kind)?.id,
+      mangaKindModule.metadata
+          .defaultSupportedOption(mangaKindModule.identity.kind)
+          ?.id,
       'hardcover',
     );
     expect(
       mangaKindModule.metadata.supportsProvider(
         'mangadex',
-        mangaKindModule.kind,
+        mangaKindModule.identity.kind,
       ),
       isTrue,
     );
     expect(
       mangaKindModule.metadata.supportsProvider(
         'anilist',
-        mangaKindModule.kind,
+        mangaKindModule.identity.kind,
       ),
       isTrue,
     );
-    expect(mangaKindModule.trackingProfile, comicTrackingProfile);
+    expect(mangaKindModule.trackingProfile, mangaTrackingProfile);
     expect(mangaKindModule.presentation, mangaLibraryMediaPresentation);
-    expect(mangaKindModule.edit.editDialogBuilder, isNotNull);
+    expect(
+        mangaKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
+        isNotNull);
+    expect(
+        mangaKindModule
+            .editCapabilities.presentationCapability.mediaEditDialogBuilder,
+        same(buildMangaMediaLibraryEditDialog));
+    expect(mangaKindModule.editCapabilities.presentationCapability.presentation,
+        same(mangaLibraryEditPresentation));
     expect(mangaKindModule.identity.countLabel(1), 'Manga');
     expect(mangaKindModule.identity.countLabel(2), 'Manga');
   });
@@ -151,13 +173,10 @@ void main() {
   });
 
   test('books do not create series subgroups for volume metadata', () {
-    final source = ShelfEntry(
+    final source = testLibraryWorkspaceSource(
       itemId: 'book-1',
-      catalogItem: testCatalogItem(
-        id: 'book-1',
-        kind: 'book',
-        title: 'Dune',
-      ),
+      kind: 'book',
+      title: 'Dune',
     );
     const node = LibraryTitleNodeRef(titleItemId: 'book-1');
     final dto = const BookWorkspaceProjector().projectTitle(
@@ -171,33 +190,41 @@ void main() {
     );
 
     expect(
-      bookKindModule.subgroupKeyForEntry(
-          item, _group(bookKindModule, 'series')),
+      libraryKindWorkspaceForKind(CatalogMediaKind.book).subgroupKeyForEntry(
+          item, _group(const BookRegistration(), 'series')),
       isNull,
     );
   });
 
   test('anime and tv runtimes are first-class video kinds', () {
-    expect(animeKindModule.kind, CatalogMediaKind.anime);
+    expect(animeKindModule.identity.kind, CatalogMediaKind.anime);
     expect(animeKindModule.metadata.defaultProviderId, 'anilist');
     expect(
       animeKindModule.metadata.supportsProvider(
         'anilist',
-        animeKindModule.kind,
+        animeKindModule.identity.kind,
       ),
       isTrue,
     );
-    expect(animeKindModule.edit.editDialogBuilder, isNotNull);
+    expect(
+        animeKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
+        isNotNull);
 
-    expect(tvKindModule.kind, CatalogMediaKind.tv);
+    expect(tvKindModule.identity.kind, CatalogMediaKind.tv);
     expect(tvKindModule.metadata.defaultProviderId, 'tmdb');
     expect(
-      tvKindModule.metadata.supportsProvider('tmdb', tvKindModule.kind),
+      tvKindModule.metadata
+          .supportsProvider('tmdb', tvKindModule.identity.kind),
       isTrue,
     );
-    expect(tvKindModule.edit.editDialogBuilder, isNotNull);
+    expect(
+        tvKindModule.editCapabilities.presentationCapability.editDialogBuilder,
+        isNotNull);
     expect(tvKindModule.inspector.detailPageBuilder,
-        same(buildVideoLibraryDetailPage));
+        same(buildLibraryReleaseDetailPage));
+    expect(tvKindModule.inspector.mediaDetailContributionBuilder, isNotNull);
+    expect(movieKindModule.inspector.mediaDetailContributionBuilder, isNull);
   });
 
   test('tv edit presentation splits media and release tabs', () {
@@ -208,15 +235,17 @@ void main() {
       hasWishlistContext: false,
       isDigitalFormat: false,
       hasPhysicalFormats: true,
-      hasEditionAnchors: true,
-      hasBundleReleaseAnchors: false,
+      hasOwnedTargetOptions: true,
+      hasAdditionalTargetOptions: false,
       hasCustomFields: false,
     );
 
-    final mediaTabs = tvKindModule.edit.presentation
+    final mediaTabs = tvKindModule
+        .editCapabilities.presentationCapability.presentation
         .builderForScope(LibraryEditScope.media)
         .buildTabs(context: context);
-    final releaseTabs = tvKindModule.edit.presentation
+    final releaseTabs = tvKindModule
+        .editCapabilities.presentationCapability.presentation
         .builderForScope(LibraryEditScope.release)
         .buildTabs(context: context);
 
@@ -230,22 +259,26 @@ void main() {
 
   test('index reassignment capability is kind-owned', () {
     expect(
-      comicKindModule.toolbarActionAvailability
+      const ComicRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.reassignIndex),
       isTrue,
     );
     expect(
-      mangaKindModule.toolbarActionAvailability
+      const MangaRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.reassignIndex),
       isTrue,
     );
     expect(
-      movieKindModule.toolbarActionAvailability
+      const MovieRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.reassignIndex),
       isFalse,
     );
     expect(
-      bookKindModule.toolbarActionAvailability
+      const BookRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.reassignIndex),
       isFalse,
     );
@@ -280,39 +313,75 @@ void main() {
     expect(bookKindModule.hierarchy.supportsMediaReleaseSplit, isTrue);
     expect(movieKindModule.inspector.showsCreatorSpotlight, isFalse);
     expect(
-      bookKindModule.toolbarActionAvailability
+      const BookRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.readingQueue),
       isTrue,
     );
     expect(
-      movieKindModule.toolbarActionAvailability
+      const MovieRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.readingQueue),
       isFalse,
     );
   });
 
+  test('book runtime registers typed add and edit hierarchy surfaces', () {
+    expect(
+      bookKindModule
+          .editCapabilities.presentationCapability.mediaEditDialogBuilder,
+      same(buildBookMediaLibraryEditDialog),
+    );
+    expect(
+      bookKindModule
+          .editCapabilities.presentationCapability.releaseEditDialogBuilder,
+      same(buildBookReleaseLibraryEditDialog),
+    );
+    expect(bookKindModule.hierarchy.childrenTitle(2), 'Editions (2)');
+
+    const context = LibraryEditPresentationContext(
+      isOwned: true,
+      isTrackingOnly: false,
+      hasTrackingContext: false,
+      hasWishlistContext: false,
+      isDigitalFormat: false,
+      hasPhysicalFormats: true,
+      hasOwnedTargetOptions: true,
+      hasAdditionalTargetOptions: false,
+      hasCustomFields: false,
+    );
+    final tabs = bookKindModule
+        .editCapabilities.presentationCapability.presentation
+        .builderForScope(LibraryEditScope.media)
+        .buildTabs(context: context);
+    expect(tabs.map((tab) => tab.id), contains('owned'));
+  });
+
   test('book and boardgame runtimes own their scoped browser options', () {
     final bookRuntime = bookKindModule;
     expect(
-      bookRuntime.availableGroupIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookRuntime.identity.kind)
+          .availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
     );
     expect(
-      bookRuntime.availableGroupIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookRuntime.identity.kind)
+          .availableGroupIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.releases,
       ),
       isNotEmpty,
     );
     expect(
-      bookRuntime.availableSortIdsForBrowserMode(
+      libraryKindWorkspaceForKind(bookRuntime.identity.kind)
+          .availableSortIdsForBrowserMode(
         LibraryWorkspaceBrowserMode.media,
       ),
       isNotEmpty,
     );
     expect(
-      boardGameKindModule.fields.sorts.map((d) => d.id.value),
+      boardGameKindWorkspace.fields.sorts.map((d) => d.id.value),
       contains('boardgame.title'),
     );
   });
@@ -324,18 +393,21 @@ void main() {
       comicKindModule.hierarchy.scopesOptionsByBrowserMode,
       isFalse,
     );
-    final comicMediaGroups = comicRuntime
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
-        .map((id) => id.value)
-        .toSet();
+    final comicMediaGroups =
+        libraryKindWorkspaceForKind(comicRuntime.identity.kind)
+            .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+            .map((id) => id.value)
+            .toSet();
     expect(comicMediaGroups, containsAll(['comic.series', 'comic.publisher']));
 
     final movieRuntime = movieKindModule;
-    final movieMediaGroups = movieRuntime
-        .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
-        .map((id) => id.value)
-        .toSet();
-    final movieReleaseGroups = movieRuntime
+    final movieMediaGroups =
+        libraryKindWorkspaceForKind(movieRuntime.identity.kind)
+            .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.media)
+            .map((id) => id.value)
+            .toSet();
+    final movieReleaseGroups = libraryKindWorkspaceForKind(
+            movieRuntime.identity.kind)
         .availableGroupIdsForBrowserMode(LibraryWorkspaceBrowserMode.releases)
         .map((id) => id.value)
         .toSet();
@@ -372,133 +444,100 @@ void main() {
   });
 
   test('library kind registry resolves runtimes and providers', () {
-    final runtimes = defaultLibraryKindRegistry.allRuntimes;
-    expect(runtimes.map((runtime) => runtime.kind.apiValue).toList(), [
-      'comic',
-      'manga',
-      'book',
-      'game',
-      'boardgame',
-      'movie',
-      'tv',
-      'anime',
-      'music',
-    ]);
+    final registrations = defaultLibraryKindRegistry.allModules;
+    expect(
+        registrations
+            .map((registration) => registration.kind.apiValue)
+            .toList(),
+        [
+          'anime',
+          'boardgame',
+          'book',
+          'comic',
+          'game',
+          'manga',
+          'movie',
+          'music',
+          'tv',
+        ]);
     expect(defaultLibraryKindRegistry.getByKind(CatalogMediaKind.comic),
-        same(comicKindModule));
+        same(const ComicRegistration()));
     expect(defaultLibraryKindRegistry.getByKind(CatalogMediaKind.manga),
-        same(mangaKindModule));
-    expect(
-        defaultLibraryKindRegistry
-            .getByKind(CatalogMediaKind.game)
-            .metadata
-            .defaultProviderId,
-        'igdb');
-    expect(
-        defaultLibraryKindRegistry
-            .getByKind(CatalogMediaKind.boardgame)
-            .metadata
-            .defaultProviderId,
-        'bgg');
-    expect(
-        defaultLibraryKindRegistry
-            .getByKind(CatalogMediaKind.book)
-            .metadata
-            .defaultProviderId,
-        'hardcover');
-    expect(
-        defaultLibraryKindRegistry
-            .getByKind(CatalogMediaKind.movie)
-            .metadata
-            .defaultProviderId,
-        'tmdb');
-    expect(
-        defaultLibraryKindRegistry
-            .getByKind(CatalogMediaKind.tv)
-            .metadata
-            .defaultProviderId,
-        'tmdb');
-    expect(
-        defaultLibraryKindRegistry
-            .getByKind(CatalogMediaKind.anime)
-            .metadata
-            .defaultProviderId,
-        'anilist');
-    expect(
-        defaultLibraryKindRegistry
-            .getByKind(CatalogMediaKind.music)
-            .metadata
-            .defaultProviderId,
-        'musicbrainz');
+        same(const MangaRegistration()));
+    for (final kind in [
+      CatalogMediaKind.game,
+      CatalogMediaKind.boardgame,
+      CatalogMediaKind.book,
+      CatalogMediaKind.movie,
+      CatalogMediaKind.tv,
+      CatalogMediaKind.anime,
+      CatalogMediaKind.music,
+    ]) {
+      final expectedProvider = switch (kind) {
+        CatalogMediaKind.game => 'igdb',
+        CatalogMediaKind.boardgame => 'bgg',
+        CatalogMediaKind.book => 'hardcover',
+        CatalogMediaKind.movie || CatalogMediaKind.tv => 'tmdb',
+        CatalogMediaKind.anime => 'anilist',
+        CatalogMediaKind.music => 'musicbrainz',
+        _ => throw ArgumentError.value(kind),
+      };
+      expect(
+        collectarrKindMetadata[kind]!.defaultProviderId,
+        expectedProvider,
+      );
+    }
     expect(defaultLibraryKindRegistry.tryGet(CatalogMediaKind.unknown), isNull);
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.comic)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.comic]!
           .providers
           .map((row) => row.id),
       containsAll(['gcd', 'comicvine']),
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.manga)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.manga]!
           .providers
           .map((row) => row.id),
       ['hardcover', 'comicvine', 'anilist', 'mangadex'],
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.book)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.book]!
           .providers
           .map((row) => row.id),
       ['hardcover', 'openlibrary'],
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.game)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.game]!
           .providers
           .map((row) => row.id),
       ['igdb'],
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.boardgame)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.boardgame]!
           .providers
           .map((row) => row.id),
       ['bgg'],
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.movie)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.movie]!
           .providers
           .map((row) => row.id),
       ['tmdb'],
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.tv)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.tv]!
           .providers
           .map((row) => row.id),
       ['tmdb'],
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.anime)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.anime]!
           .providers
           .map((row) => row.id),
       ['anilist'],
     );
     expect(
-      defaultLibraryKindRegistry
-          .getByKind(CatalogMediaKind.music)
-          .metadata
+      collectarrKindMetadata[CatalogMediaKind.music]!
           .providers
           .map((row) => row.id),
       ['musicbrainz'],
@@ -509,28 +548,34 @@ void main() {
     );
     expect(movieKindModule.add.dialogLauncher, same(showMovieLibraryAddDialog));
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie).edit.editDialogBuilder,
+      libraryKindRegistration(CatalogMediaKind.movie)
+          .editPresentation
+          .editDialogBuilder,
       isNotNull,
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie).inspector.detailPageBuilder,
+      libraryKindRegistration(CatalogMediaKind.movie)
+          .inspector
+          .detailPageBuilder,
       isNotNull,
     );
   });
 
   test('all registered kinds declare an explicit edit dialog builder', () {
-    for (final runtime in defaultLibraryKindRegistry.allRuntimes) {
+    for (final registration in defaultLibraryKindRegistry.allModules) {
       expect(
-        runtime.edit.editDialogBuilder,
+        collectarrKindEditCapabilities[registration.kind]!
+            .presentationCapability
+            .editDialogBuilder,
         isNotNull,
         reason:
-            'Expected ${runtime.kind.apiValue} to declare an explicit edit dialog builder.',
+            'Expected ${registration.kind.apiValue} to declare an explicit edit dialog builder.',
       );
     }
   });
 
   test('library kind registry covers all active kinds', () {
-    final registeredKinds = defaultLibraryKindRegistry.allRuntimes
+    final registeredKinds = defaultLibraryKindRegistry.allModules
         .map((runtime) => runtime.kind.apiValue)
         .toList();
     expect(
@@ -547,7 +592,7 @@ void main() {
         'music',
       ]),
     );
-    for (final runtime in defaultLibraryKindRegistry.allRuntimes) {
+    for (final runtime in defaultLibraryKindRegistry.allModules) {
       expect(
         defaultLibraryKindRegistry.getByKind(runtime.kind),
         same(runtime),
@@ -557,8 +602,10 @@ void main() {
   });
 
   test('transferable field keys are kind-owned', () {
-    expect(bookKindModule.transfer.transferableFieldKeys,
-        kDefaultTransferableFieldKeys);
+    expect(
+      bookKindModule.transfer.transferableFieldKeys,
+      containsAll([...kDefaultTransferableFieldKeys, 'grade']),
+    );
     expect(
       comicKindModule.transfer.transferableFieldKeys,
       containsAll([
@@ -576,11 +623,11 @@ void main() {
 
   test('add wording chrome is kind-owned', () {
     expect(
-      LibraryAddReferenceType.media.labelForType(bookKindModule),
+      LibraryAddReferenceType.media.labelForType(const BookRegistration()),
       'Media',
     );
     expect(
-      LibraryAddReferenceType.media.labelForType(musicKindModule),
+      LibraryAddReferenceType.media.labelForType(const MusicRegistration()),
       'Album',
     );
     expect(
@@ -588,162 +635,210 @@ void main() {
       'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
     );
     expect(
-      LibraryAddReferenceType.edition.helperLabelForType(musicKindModule),
+      LibraryAddReferenceType.edition
+          .helperLabelForType(const MusicRegistration()),
       'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
     );
     expect(
-      movieKindModule.add.chrome.videoKindFilterOptions
+      movieKindModule.add.chrome.kindFilterOptions
+          .map((option) => option.scope),
+      [
+        const LibraryAddSearchScope(
+          kind: CatalogMediaKind.movie,
+          providerValue: 'movie',
+        ),
+        const LibraryAddSearchScope(
+          kind: CatalogMediaKind.movie,
+          providerValue: 'collection',
+        ),
+      ],
+    );
+    expect(
+      movieKindModule.add.chrome.kindFilterOptions
           .map((option) => option.label),
       ['Movies', 'Box Sets'],
     );
     expect(
-      movieKindModule.add.chrome.defaultVideoKindFilters,
-      {'movie'},
+      movieKindModule.add.chrome.defaultKindFilters,
+      {
+        const LibraryAddSearchScope(
+          kind: CatalogMediaKind.movie,
+          providerValue: 'movie',
+        ),
+      },
+    );
+    expect(
+      const LibraryAddSearchScope(
+        kind: CatalogMediaKind.movie,
+        providerValue: 'collection',
+      ).kind,
+      CatalogMediaKind.movie,
     );
   });
 
   test('comic kind uses dedicated edit dialog builder', () {
-    expect(comicKindModule.edit.editDialogBuilder,
+    expect(
+        comicKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildComicLibraryEditDialog));
   });
 
   test('music kind uses dedicated edit dialog builder', () {
-    expect(musicKindModule.edit.editDialogBuilder,
+    expect(
+        musicKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildMusicLibraryEditDialog));
   });
 
   test('game kinds use dedicated edit dialog builders', () {
-    expect(gameKindModule.edit.editDialogBuilder,
+    expect(
+        gameKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildGameLibraryEditDialog));
-    expect(boardGameKindModule.edit.editDialogBuilder,
+    expect(
+        boardGameKindModule
+            .editCapabilities.presentationCapability.editDialogBuilder,
         same(buildBoardGameLibraryEditDialog));
   });
 
   test('video physical formats are variants under movies', () {
     expect(
-      videoPhysicalMediaFormats.map((format) => format.id),
+      moviePhysicalMediaFormats.map((format) => format.id),
       ['dvd', 'blu-ray', '4k-uhd', 'vhs', 'laserdisc', 'digital'],
     );
     expect(
       physicalMediaFormatById(
         ' blu-ray ',
-        formats: videoPhysicalMediaFormats,
+        formats: moviePhysicalMediaFormats,
       )?.label,
       'Blu-ray',
     );
     expect(
-      physicalMediaFormatById('bluray', formats: videoPhysicalMediaFormats)
+      physicalMediaFormatById('bluray', formats: moviePhysicalMediaFormats)
           ?.label,
       'Blu-ray',
     );
     expect(
-      physicalMediaFormatById('4k blu-ray', formats: videoPhysicalMediaFormats)
+      physicalMediaFormatById('4k blu-ray', formats: moviePhysicalMediaFormats)
           ?.label,
       '4K UHD',
     );
     expect(
-      physicalMediaFormatById('digital', formats: videoPhysicalMediaFormats)
+      physicalMediaFormatById('digital', formats: moviePhysicalMediaFormats)
           ?.variantType,
       'digital',
     );
   });
 
   test('comics runtime exposes reusable workspace table behavior', () {
-    final comicRuntime = libraryKindRuntime(CatalogMediaKind.comic);
-    expect(comicRuntime, same(comicKindModule));
+    final comicRuntime = libraryKindRegistration(CatalogMediaKind.comic);
+    expect(comicRuntime, same(const ComicRegistration()));
     expect(comicRuntime.kind, CatalogMediaKind.comic);
     expect(
-      comicRuntime.columnDisplayName(_field(comicKindModule, 'comic.series')),
+      libraryKindWorkspaceForKind(comicRuntime.kind)
+          .columnDisplayName(_field(const ComicRegistration(), 'comic.series')),
       'Series',
     );
-    expect(comicRuntime.columnLabel(_field(comicKindModule, 'cover')), '');
     expect(
-      comicRuntime.columnGroup(_field(comicKindModule, 'location')),
+      libraryKindWorkspaceForKind(comicRuntime.kind)
+          .columnLabel(_field(const ComicRegistration(), 'comic.cover')),
+      '',
+    );
+    expect(
+      libraryKindWorkspaceForKind(comicRuntime.kind)
+          .columnGroup(_field(const ComicRegistration(), 'comic.location')),
       LibraryTableColumnGroup.personal,
     );
     expect(
-      comicRuntime.columnIsNumeric(_field(comicKindModule, 'price')),
+      libraryKindWorkspaceForKind(comicRuntime.kind).columnIsNumeric(
+          _field(const ComicRegistration(), 'comic.price_paid')),
       isTrue,
     );
     expect(
-      comicRuntime.columnSort(
-        _field(comicKindModule, 'comic.release_date'),
+      libraryKindWorkspaceForKind(comicRuntime.kind).columnSort(
+        _field(const ComicRegistration(), 'comic.release_date'),
       ),
-      _sort(comicKindModule, 'comic.release_date'),
+      _sort(const ComicRegistration(), 'comic.release_date'),
     );
     expect(
       comicsTableColumnPresets.map((preset) => preset.label),
       ['Essential', 'Ownership', 'Value', 'Full'],
     );
     expect(
-      comicRuntime.orderedTableColumns(const {}).first,
-      _field(comicKindModule, 'comic.status'),
+      libraryKindWorkspaceForKind(comicRuntime.kind)
+          .orderedTableColumns(const {}).first,
+      _field(const ComicRegistration(), 'comic.status'),
     );
   });
 
   test('kind runtimes cover workspace defaults', () {
     expect(
-      defaultLibraryKindRegistry.allRuntimes
+      defaultLibraryKindRegistry.allModules
           .map((runtime) => runtime.kind.apiValue)
           .toList(),
       [
-        'comic',
-        'manga',
-        'book',
-        'game',
-        'boardgame',
-        'movie',
-        'tv',
         'anime',
+        'boardgame',
+        'book',
+        'comic',
+        'game',
+        'manga',
+        'movie',
         'music',
+        'tv',
       ],
     );
-    expect(libraryKindRuntime(CatalogMediaKind.book), same(bookKindModule));
+    expect(libraryKindRegistration(CatalogMediaKind.book),
+        same(const BookRegistration()));
     expect(
-      libraryKindRuntime(CatalogMediaKind.boardgame),
-      same(boardGameKindModule),
+      libraryKindRegistration(CatalogMediaKind.boardgame),
+      same(const BoardgameRegistration()),
     );
-    expect(libraryKindRuntime(CatalogMediaKind.manga), same(mangaKindModule));
-    expect(libraryKindRuntime(CatalogMediaKind.tv), same(tvKindModule));
-    expect(libraryKindRuntime(CatalogMediaKind.anime), same(animeKindModule));
+    expect(libraryKindRegistration(CatalogMediaKind.manga),
+        same(const MangaRegistration()));
+    expect(libraryKindRegistration(CatalogMediaKind.tv),
+        same(const TvRegistration()));
+    expect(libraryKindRegistration(CatalogMediaKind.anime),
+        same(const AnimeRegistration()));
     expect(
       movieKindModule.viewProfile
           .defaults()
           .visibleColumnIds
-          .contains(_field(movieKindModule, 'movie.title')),
+          .contains(_field(const MovieRegistration(), 'movie.title')),
       isTrue,
     );
-    expect(libraryKindRuntime(CatalogMediaKind.music), same(musicKindModule));
+    expect(libraryKindRegistration(CatalogMediaKind.music),
+        same(const MusicRegistration()));
     expect(
-      libraryKindRuntime(CatalogMediaKind.game).columnSort(
-        _field(gameKindModule, 'game.release_date'),
+      libraryKindWorkspaceForKind(CatalogMediaKind.game).columnSort(
+        _field(const GameRegistration(), 'game.release_date'),
       ),
-      _sort(gameKindModule, 'game.release_date'),
+      _sort(const GameRegistration(), 'game.release_date'),
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie)
-          .columnLabel(_field(movieKindModule, 'variant')),
+      libraryKindWorkspaceForKind(CatalogMediaKind.movie)
+          .columnLabel(_field(const MovieRegistration(), 'variant')),
       'Variant',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.game)
-          .columnLabel(_field(gameKindModule, 'variant')),
+      libraryKindWorkspaceForKind(CatalogMediaKind.game)
+          .columnLabel(_field(const GameRegistration(), 'variant')),
       'Variant',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book)
-          .columnLabel(_field(bookKindModule, 'barcode')),
+      libraryKindWorkspaceForKind(CatalogMediaKind.book)
+          .columnLabel(_field(const BookRegistration(), 'barcode')),
       'Barcode',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book).tableColumnWidth(
-        _field(bookKindModule, 'title'),
-        {_field(bookKindModule, 'title'): 999},
+      libraryKindWorkspaceForKind(CatalogMediaKind.book).tableColumnWidth(
+        _field(const BookRegistration(), 'book.title'),
+        {_field(const BookRegistration(), 'book.title'): 999},
       ),
       520,
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.music)
+      libraryKindWorkspaceForKind(CatalogMediaKind.music)
           .availableGroupIds
           .map((id) => id.value),
       [
@@ -761,7 +856,7 @@ void main() {
       ['title_asc', 'release_latest', 'recent', 'value_desc'],
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.book)
+      libraryKindWorkspaceForKind(CatalogMediaKind.book)
           .availableGroupIds
           .map((id) => id.value),
       [
@@ -774,7 +869,7 @@ void main() {
       ],
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.game)
+      libraryKindWorkspaceForKind(CatalogMediaKind.game)
           .availableGroupIds
           .map((id) => id.value),
       [
@@ -785,7 +880,7 @@ void main() {
         'game.completeness',
       ],
     );
-    expect(comicKindModule.facets!.externalFacetBucketIdsByMode.keys, [
+    expect(comicLibraryFacetModule.externalFacetBucketIdsByMode.keys, [
       'comic.story_arc',
       'comic.character',
     ]);
@@ -814,7 +909,7 @@ void main() {
       ' Physical formats are tracked as editions.',
     );
     expect(
-      libraryKindRuntime(CatalogMediaKind.movie)
+      libraryKindWorkspaceForKind(CatalogMediaKind.movie)
           .availableGroupIds
           .map((id) => id.value),
       [

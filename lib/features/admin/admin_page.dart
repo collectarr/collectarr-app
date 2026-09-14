@@ -4,19 +4,24 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/admin/admin_image_cache_panel.dart';
 import 'package:collectarr_app/features/admin/admin_diagnostics_panel.dart';
 import 'package:collectarr_app/features/admin/admin_users_panel.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_catalog_correction.dart';
+import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/metadata/metadata_correction_form_widgets.dart';
 import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/settings/collection_schema_management_panel.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -907,9 +912,9 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _showMetadataCorrectionDialog(AdminMetadataItem item) async {
     final physicalFormats = physicalMediaFormatsForKind(
       _mediaTypes.isEmpty ? fallbackMediaCatalog : _mediaTypes,
-      item.kind,
+      catalogMediaKindFromApiValue(item.kind),
     );
-    final correction = await showDialog<_CatalogCorrection>(
+    final correction = await showDialog<AdminCatalogCorrection>(
       context: context,
       builder: (context) => _MetadataCorrectionDialog(
         item: item,
@@ -1032,7 +1037,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   Set<String> _catalogCorrectionExplicitFields(
     AdminMetadataItem item,
-    _CatalogCorrection correction,
+    AdminCatalogCorrection correction,
   ) {
     final fields = <String>{};
     void addField(String key, Object? before, Object? after) {
@@ -1061,8 +1066,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
     void addTrackListField(
       String key,
-      List<CatalogTrack>? before,
-      List<CatalogTrack>? after,
+      List<CatalogTrackDto>? before,
+      List<CatalogTrackDto>? after,
     ) {
       final normalizedBefore = _normalizedTracksForCompare(before);
       final normalizedAfter = _normalizedTracksForCompare(after);
@@ -1073,8 +1078,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
     void addTrailerListField(
       String key,
-      List<TrailerLink>? before,
-      List<TrailerLink>? after,
+      List<TrailerLinkDto>? before,
+      List<TrailerLinkDto>? after,
     ) {
       final normalizedBefore = _normalizedLinksForCompare(before);
       final normalizedAfter = _normalizedLinksForCompare(after);
@@ -1142,11 +1147,11 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       'item_number' => item.itemNumber,
       'edition_title' => edition?.title,
       'release_date' => edition?.releaseDate ?? item.coverDate,
-      'publisher' => edition?.publisher ?? item.publisher,
-      'imprint' => item.publishing?.imprint,
+      'publisher' => item.valueForAdminField(key),
+      'imprint' => item.valueForAdminField(key),
       'subtitle' => item.publishing?.subtitle,
       'series_group' => item.publishing?.seriesGroup,
-      'barcode' => variant?.barcode ?? item.barcode,
+      'barcode' => item.valueForAdminField(key),
       'variant_name' => variant?.name,
       'page_count' => item.publishing?.pageCount,
       'runtime_minutes' => item.video?.runtimeMinutes,
@@ -1175,7 +1180,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     };
   }
 
-  Object? _catalogScalarAfterValue(_CatalogCorrection correction, String key) {
+  Object? _catalogScalarAfterValue(
+    AdminCatalogCorrection correction,
+    String key,
+  ) {
     return switch (key) {
       'title' => correction.title,
       'original_title' => correction.originalTitle,
@@ -1264,14 +1272,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         .toList(growable: false);
   }
 
-  List<String> _normalizedTracksForCompare(List<CatalogTrack>? tracks) {
-    return (tracks ?? const <CatalogTrack>[])
+  List<String> _normalizedTracksForCompare(List<CatalogTrackDto>? tracks) {
+    return (tracks ?? const <CatalogTrackDto>[])
         .map((track) => jsonEncode(track.toJson()))
         .toList(growable: false);
   }
 
-  List<String> _normalizedLinksForCompare(List<TrailerLink>? links) {
-    return (links ?? const <TrailerLink>[])
+  List<String> _normalizedLinksForCompare(List<TrailerLinkDto>? links) {
+    return (links ?? const <TrailerLinkDto>[])
         .map((link) => jsonEncode(link.toJson()))
         .toList(growable: false);
   }
@@ -1770,7 +1778,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
           .map(
             (row) => ProviderCandidate.fromJson(
               row,
-              fallbackKind: selectedKind ?? _fallbackProviderKind(),
             ),
           )
           .toList(growable: false);
@@ -1940,7 +1947,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       proposalId: proposalId,
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
-      kind: candidate.kind,
+      kind: candidate.kind.apiValue,
       successMessage: 'Proposal approved with selected provider item.',
     );
   }
@@ -2059,7 +2066,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     await _ingestProvider(
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
-      kind: candidate.kind,
+      kind: candidate.kind.apiValue,
     );
   }
 
@@ -2294,30 +2301,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
     }
     return null;
-  }
-
-  String _fallbackProviderKind() {
-    final catalogOptions = _catalogKindOptions();
-    return _selectedProviderKind() ??
-        _catalogKindFilter ??
-        (catalogOptions.isEmpty ? 'comic' : catalogOptions.first);
-  }
-
-  List<String> _catalogKindOptions() {
-    final kinds = <String>{
-      for (final type in _mediaTypes)
-        if (type.isTopLevel && type.kind.isNotEmpty) type.kind,
-    };
-    for (final provider in _providers) {
-      for (final kind in provider.effectiveKinds) {
-        if (kind.isNotEmpty) {
-          kinds.add(kind);
-        }
-      }
-    }
-    final labels = _catalogKindLabels();
-    return kinds.toList(growable: false)
-      ..sort((left, right) => _compareMediaKinds(left, right, labels));
   }
 
   List<String> _providerKindOptions({required bool forSearch}) {

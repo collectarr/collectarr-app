@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -14,7 +13,6 @@ import 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 import 'package:collectarr_app/features/library/workspace/tiles/library_item_badges.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -482,11 +480,10 @@ class _FlowBackdrop extends StatelessWidget {
                   opacity: 0.34,
                   child: LibraryCoverImage(
                     title: item.dto.title,
-                    itemNumber: (item.dto is WorkspaceDtoAdapter
-                        ? (item.dto as WorkspaceDtoAdapter).itemNumber
-                        : null),
+                    itemNumber:
+                        libraryCardPresentationForEntry(item).itemNumber,
                     imageUrl: item.dto.coverImageUrl,
-                    ownedItemId: item.source.ownedItem?.id,
+                    ownedRef: item.source.ownedRef,
                     borderRadius: 0,
                     fit: BoxFit.cover,
                   ),
@@ -610,17 +607,17 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
   @override
   Widget build(BuildContext context) {
     final dto = widget.item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(widget.item);
     final palette = appPalette(context);
     final title = dto.title;
-    final itemNumber = adapter?.itemNumber;
-    final publisher = adapter?.publisher;
-    final releaseDate = adapter?.releaseDate;
+    final itemNumber = presentation.itemNumber;
+    final format = presentation.format;
+    final releaseDate = presentation.releaseDate;
     final subtitle = [
       if (itemNumber != null && itemNumber.trim().isNotEmpty) '#$itemNumber',
-      if (publisher != null && publisher.trim().isNotEmpty) publisher,
+      if (format != null && format.trim().isNotEmpty) format,
       if (releaseDate != null) releaseDate.year.toString(),
-    ].join('  ·  ');
+    ].join('  Ã‚Â·  ');
     final cardColor = widget.focused
         ? Color.alphaBlend(
             widget.accent.withValues(alpha: 0.12),
@@ -681,7 +678,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             title: title,
                             itemNumber: itemNumber,
                             imageUrl: dto.coverImageUrl,
-                            ownedItemId: widget.item.source.ownedItem?.id,
+                            ownedRef: widget.item.source.ownedRef,
                             accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,
@@ -697,13 +694,12 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                           isWishlisted: widget.item.source.isWishlisted,
                           hasMissingCover: dto.coverImageUrl == null ||
                               dto.coverImageUrl!.isEmpty,
-                          hasMissingMetadata:
-                              publisher == null || publisher.isEmpty,
+                          hasMissingMetadata: format == null || format.isEmpty,
                           contractDiagnosticLabel:
                               libraryHierarchyContractDiagnosticLabel(
                                   widget.item),
                           notesLabel: libraryNotesMarkerLabel(
-                              widget.item.source.personalNotes),
+                              widget.item.source.ownedSummary?.notes),
                         ),
                       ),
                       if (showEditButton)
@@ -770,7 +766,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
     );
   }
 
-  Widget _cardScopeBadge(BuildContext context, LibraryProjectionRuntime item) {
+  Widget _cardScopeBadge(BuildContext context, LibraryProjectionView item) {
     final palette = appPalette(context);
     final scope = resolveLibraryCollectionStatusScope(item);
     return LibraryTileScopePill(
@@ -816,31 +812,27 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
   @override
   Widget build(BuildContext context) {
     final dto = widget.item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final presentation = libraryCardPresentationForEntry(widget.item);
     final metadataPresentation = _metadataPresentationForEntry(widget.item);
     final palette = appPalette(context);
-    final publisher = adapter?.publisher;
-    final releaseDate = adapter?.releaseDate;
-    final formatLabel = adapter?.referenceFormatLabel;
+    final releaseDate = presentation.releaseDate;
+    final formatLabel = presentation.format;
     final meta = [
       _metadataFactValue(metadataPresentation, 'Series'),
       _metadataFactValue(metadataPresentation, 'Artist'),
-      if (publisher != null && publisher.trim().isNotEmpty) publisher,
+      _metadataFactValue(metadataPresentation, 'Publisher'),
       if (releaseDate != null)
         '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       if (formatLabel != null) formatLabel,
-    ].whereType<String>().join('  ·  ');
+    ].whereType<String>().join('  Ã‚Â·  ');
 
-    final payload =
-        widget.item.source.catalogItem?.kindMetadata.toSyncPayload();
-    final editions = (payload?['editions'] as List?)
-            ?.whereType<Map<Object?, Object?>>()
-            .map((e) => CatalogEdition.fromJson(Map<String, dynamic>.from(e)))
-            .toList() ??
-        const <CatalogEdition>[];
+    final module = libraryKindRegistrationForKind(widget.item.source.mediaKind);
+    final editions = module.presentation.builder.buildWorkspaceReleases(
+      widget.item.source,
+    );
     final hasReleases = editions.length > 1;
 
-    final itemNumber = adapter?.itemNumber;
+    final itemNumber = presentation.itemNumber;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -948,8 +940,12 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                 for (final edition in editions)
                   _FlowCarouselReleaseRow(
                     edition: edition,
-                    isOwned:
-                        edition.id == widget.item.source.ownedItem?.editionId,
+                    isOwned: edition.id ==
+                        defaultLibraryKindRegistry
+                            .require(widget.item.source.mediaKind)
+                            .catalogTarget
+                            .parts(widget.item.source.ownedSummary?.targetRef)
+                            .firstId,
                     accent: widget.accent,
                   ),
               ],
@@ -962,10 +958,10 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 ) {
   final type = defaultLibraryKindRegistry.tryGet(
-    catalogMediaKindFromValue(item.source.catalogItem?.kind),
+    item.source.mediaKind,
   );
   if (type == null) {
     return null;
@@ -1003,7 +999,7 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
     required this.accent,
   });
 
-  final CatalogEdition edition;
+  final LibraryWorkspaceReleaseSummary edition;
   final bool isOwned;
   final Color accent;
 
@@ -1019,12 +1015,12 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
             Icon(Icons.circle_outlined,
                 size: 14, color: appPalette(context).textMuted),
           const SizedBox(width: 8),
-          if (edition.physicalFormat != null)
+          if (edition.formatLabel != null)
             Padding(
               padding: const EdgeInsets.only(right: 6),
               child: FormatBadge.fromFormat(
-                id: edition.physicalFormat!,
-                label: edition.physicalFormatLabel ?? edition.physicalFormat!,
+                id: edition.formatLabel!,
+                label: edition.formatLabel!,
                 compact: true,
               ),
             ),
@@ -1040,9 +1036,9 @@ class _FlowCarouselReleaseRow extends StatelessWidget {
               ),
             ),
           ),
-          if (edition.variants.isNotEmpty)
+          if (edition.variantCount > 0)
             Text(
-              '${edition.variants.length} variant${edition.variants.length > 1 ? 's' : ''}',
+              '${edition.variantCount} variant${edition.variantCount > 1 ? 's' : ''}',
               style: TextStyle(
                 color: appPalette(context).textMuted,
                 fontSize: 11,

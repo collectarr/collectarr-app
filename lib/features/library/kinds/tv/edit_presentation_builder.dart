@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_custom_tab_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
 const _tvMediaTabs = [
@@ -140,44 +140,68 @@ const _tvAllTabs = [
 ];
 
 class TvLibraryEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const TvLibraryEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvAllTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildTvCustomTabView,
         );
 }
 
 class TvLibraryMediaEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const TvLibraryMediaEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvMediaTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildTvCustomTabView,
         );
 }
 
 class TvLibraryReleaseEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const TvLibraryReleaseEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _tvReleaseTabs,
           trackedTabs: _tvReleaseTabs,
           catalogTabs: _tvReleaseTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildTvCustomTabView,
         );
 }
 

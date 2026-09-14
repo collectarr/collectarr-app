@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/library_value_capability.dart';
 
 class LibraryToolbarCounts {
   const LibraryToolbarCounts({
@@ -9,9 +10,9 @@ class LibraryToolbarCounts {
     this.missingCover = 0,
     this.missingMetadata = 0,
     this.totalPricePaidCents = 0,
-    this.totalCoverPriceCents = 0,
     this.totalSellPriceCents = 0,
     this.priceCurrency,
+    this.collectionValue,
   });
 
   final int shown;
@@ -21,9 +22,9 @@ class LibraryToolbarCounts {
   final int missingCover;
   final int missingMetadata;
   final int totalPricePaidCents;
-  final int totalCoverPriceCents;
   final int totalSellPriceCents;
   final String? priceCurrency;
+  final LibraryCollectionValueSummary? collectionValue;
 }
 
 enum LibraryQuickView {

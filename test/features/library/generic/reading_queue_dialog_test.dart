@@ -1,4 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:drift/native.dart';
@@ -21,8 +27,16 @@ void main() {
       (
     tester,
   ) async {
-    await ReadingQueueRepository(db).addToQueue('owned-1');
-    await ReadingQueueRepository(db).addToQueue('owned-2');
+    const ownedRef1 = OwnedItemRef(
+      kind: CatalogMediaKind.book,
+      id: OwnedItemId('owned-1'),
+    );
+    const ownedRef2 = OwnedItemRef(
+      kind: CatalogMediaKind.book,
+      id: OwnedItemId('owned-2'),
+    );
+    await ReadingQueueRepository(db).addToQueue(ownedRef1);
+    await ReadingQueueRepository(db).addToQueue(ownedRef2);
 
     String? selectedItemId;
 
@@ -37,28 +51,45 @@ void main() {
                   db: db,
                   mediaKind: 'book',
                   ownedItems: [
-                    testOwnedItem(
-                      id: 'owned-1',
-                      itemId: 'book-1',
-                      readStatus: 'Reading',
-                      updatedAt: DateTime.utc(2026, 1, 1),
+                    OwnedItemSummary(
+                      ref: const OwnedItemRef(
+                        kind: CatalogMediaKind.book,
+                        id: OwnedItemId('owned-1'),
+                      ),
+                      title: 'Dune',
+                      catalogRef: testCatalogRef('book-1', kind: 'book'),
                     ),
-                    testOwnedItem(
-                      id: 'owned-2',
-                      itemId: 'book-2',
-                      personalNotes: 'Signed copy',
+                    OwnedItemSummary(
+                      ref: const OwnedItemRef(
+                        kind: CatalogMediaKind.book,
+                        id: OwnedItemId('owned-2'),
+                      ),
+                      title: 'Foundation',
+                      catalogRef: testCatalogRef('book-2', kind: 'book'),
+                      notes: 'Signed copy',
+                      hasNotes: true,
+                    ),
+                  ],
+                  trackingSummaries: [
+                    TrackingSummary(
+                      id: 'tracking-1',
+                      catalogRef: testCatalogRef('book-1', kind: 'book'),
+                      ownedRef: OwnedItemRef.fromKey('book:owned-1'),
+                      status: MediaTrackingStatus.inProgress,
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),
                   ],
-                  catalogItemsById: {
-                    'book-1': testCatalogItem(
+                  catalogSummariesByRef: {
+                    testCatalogRef('book-1', kind: 'book'):
+                        CatalogDisplaySummary.root(
                       id: 'book-1',
-                      kind: 'book',
+                      kind: CatalogMediaKind.book,
                       title: 'Dune',
                     ),
-                    'book-2': testCatalogItem(
+                    testCatalogRef('book-2', kind: 'book'):
+                        CatalogDisplaySummary.root(
                       id: 'book-2',
-                      kind: 'book',
+                      kind: CatalogMediaKind.book,
                       title: 'Foundation',
                     ),
                   },

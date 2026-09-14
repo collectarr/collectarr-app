@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -68,7 +69,7 @@ final class BookCatalog {
   final String? language;
   final List<Map<String, dynamic>> creators;
   final CatalogPublishingDetailsDto? publishing;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final String? coverImageData;
@@ -96,15 +97,15 @@ final class BookCatalog {
     final publishing =
         pubMap != null ? CatalogPublishingDetailsDto.fromJson(pubMap) : null;
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map(TrailerLink.fromJson) ??
-          const <TrailerLink>[]),
+              .map(TrailerLinkDto.fromJson) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map(TrailerLink.fromJson) ??
-          const <TrailerLink>[]),
+              .map(TrailerLinkDto.fromJson) ??
+          const <TrailerLinkDto>[]),
     ];
 
     final rawCreators = (json['creators'] as List<dynamic>?)
@@ -230,8 +231,8 @@ final class BookCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'book',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.book,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.book,
       common: CatalogCommonDto(
@@ -255,14 +256,14 @@ final class BookEntry {
   const BookEntry({
     required this.catalog,
     this.ownedDetails,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final BookCatalog catalog;
   final BookOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
@@ -271,21 +272,25 @@ final class BookEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory BookEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? BookCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : BookCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.book,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory BookEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      BookWorkspaceCatalogData data when data.metadata != null =>
+        BookCatalog.fromJson(data.metadata!.toSyncPayload()),
+      _ => BookCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.book,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return BookEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.bookDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedDetails:
+          BookOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

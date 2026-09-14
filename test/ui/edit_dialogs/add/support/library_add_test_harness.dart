@@ -11,11 +11,12 @@ void configureLibraryAddDesktopViewport(WidgetTester tester) {
 }
 
 class TestAdminAuthController extends AuthController {
-  TestAdminAuthController(super.ref) : super() {
-    state = const AuthState(
-      token: 'test-token',
-      isAdmin: true,
-      isRestoring: false,
-    );
-  }
+  TestAdminAuthController();
+
+  @override
+  AuthState build() => const AuthState(
+        token: 'test-token',
+        isAdmin: true,
+        isRestoring: false,
+      );
 }

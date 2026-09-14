@@ -4,11 +4,11 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 import 'package:flutter/material.dart';
 
 typedef LibraryFilterValueBuilder<T> = T? Function(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
 );
 
 typedef LibraryFilterMatchBuilder = bool Function(
-  LibraryProjectionRuntime item,
+  LibraryProjectionView item,
   String value,
 );
 
@@ -37,12 +37,20 @@ class LibraryFilterDefinition<T> {
   final LibraryFilterInputKind inputKind;
   final LibraryFilterMatchBuilder? matches;
 
-  bool matchesItem(LibraryProjectionRuntime item, String selectedValue) {
+  bool matchesItem(LibraryProjectionView item, String selectedValue) {
     final matcher = matches;
     if (matcher != null) {
       return matcher(item, selectedValue);
     }
-    return value?.call(item)?.toString().trim() == selectedValue;
+    final candidate = value?.call(item);
+    if (candidate is Iterable) {
+      final normalizedSelection = selectedValue.trim().toLowerCase();
+      return candidate.any(
+        (value) =>
+            value?.toString().trim().toLowerCase() == normalizedSelection,
+      );
+    }
+    return candidate?.toString().trim() == selectedValue;
   }
 }
 
@@ -56,12 +64,6 @@ class LibraryPresentationLabels {
   }
 }
 
-typedef LibraryMediaFilterLabels = LibraryPresentationLabels;
-typedef LibraryMediaGroupLabels = LibraryPresentationLabels;
-typedef LibraryBucketLabelOverrides = LibraryPresentationLabels;
-typedef LibraryReferenceLabels = LibraryPresentationLabels;
-typedef LibraryStatusLabels = LibraryPresentationLabels;
-
 class LibraryBucketingContext {
   const LibraryBucketingContext({
     required this.source,
@@ -69,8 +71,8 @@ class LibraryBucketingContext {
     required this.groupId,
   });
 
-  final ShelfEntry source;
-  final LibraryProjectionRuntime item;
+  final LibraryWorkspaceSource source;
+  final LibraryProjectionView item;
   final LibraryGroupIdRuntime groupId;
 }
 

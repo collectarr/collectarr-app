@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 MetadataSearchQuery libraryMetadataSearchQuery(
-  LibraryKindRuntime type, {
+  CatalogMediaKind kind, {
   String? query,
   String? series,
   String? issueNumber,
@@ -16,7 +16,7 @@ MetadataSearchQuery libraryMetadataSearchQuery(
 }) {
   return MetadataSearchQuery(
     query: query,
-    kind: type.kind.apiValue,
+    kind: kind.apiValue,
     series: series,
     issueNumber: issueNumber,
     publisher: publisher,
@@ -26,9 +26,9 @@ MetadataSearchQuery libraryMetadataSearchQuery(
   );
 }
 
-Future<List<LibraryMetadataItem>> searchLibraryMetadata(
+Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
   ApiClient api,
-  LibraryKindRuntime type, {
+  CatalogMediaKind kind, {
   String? query,
   String? series,
   String? issueNumber,
@@ -39,7 +39,7 @@ Future<List<LibraryMetadataItem>> searchLibraryMetadata(
 }) async {
   final rows = await api.searchMetadata(
     libraryMetadataSearchQuery(
-      type,
+      kind,
       query: query,
       series: series,
       issueNumber: issueNumber,
@@ -49,20 +49,62 @@ Future<List<LibraryMetadataItem>> searchLibraryMetadata(
       limit: limit,
     ),
   );
-  return rows
-      .map(LibraryMetadataTransportCodec.fromMetadataMap)
-      .toList(growable: false);
+  final decoder =
+      libraryKindRegistrationForKind(kind).metadata.catalogMetadataDecoder;
+  return [
+    for (final row in rows)
+      CatalogSearchCandidate.fromApiJson(
+        json: row,
+        metadataDecoder: decoder,
+      ),
+  ];
 }
 
-Future<LibraryMetadataItem> lookupLibraryBarcode(
+/// Searches the Core transport and immediately projects results into the
+/// small shape required by mixed/global import UI. The full DTO remains
+/// available only behind [CatalogSearchCandidate.toTransport].
+Future<List<CatalogSearchCandidate>> searchLibraryMetadataCandidates(
   ApiClient api,
-  LibraryKindRuntime type,
+  CatalogMediaKind kind, {
+  String? query,
+  String? series,
+  String? issueNumber,
+  String? publisher,
+  int? year,
+  String? barcode,
+  int? limit,
+}) async {
+  return searchLibraryMetadata(
+    api,
+    kind,
+    query: query,
+    series: series,
+    issueNumber: issueNumber,
+    publisher: publisher,
+    year: year,
+    barcode: barcode,
+    limit: limit,
+  );
+}
+
+Future<CatalogSearchCandidate> lookupLibraryBarcode(
+  ApiClient api,
+  CatalogMediaKind kind,
   String barcode,
 ) async {
-  return LibraryMetadataTransportCodec.fromMetadataMap(
-    await api.lookupBarcode(
-      barcode,
-      kind: type.kind.apiValue,
+  final resolvedBarcode = resolveLibraryBarcodeForKind(kind, barcode);
+  if (resolvedBarcode == null) {
+    throw FormatException(
+      'Barcode is not supported for ${kind.apiValue}: $barcode',
+    );
+  }
+  final decoder =
+      libraryKindRegistrationForKind(kind).metadata.catalogMetadataDecoder;
+  return CatalogSearchCandidate.fromApiJson(
+    json: await api.lookupBarcode(
+      resolvedBarcode,
+      kind: kind.apiValue,
     ),
+    metadataDecoder: decoder,
   );
 }

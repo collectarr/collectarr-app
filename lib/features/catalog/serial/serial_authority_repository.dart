@@ -1,0 +1,459 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
+import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
+
+class SerialAuthorityEntry {
+  const SerialAuthorityEntry({
+    required this.id,
+    required this.mediaKind,
+    required this.title,
+    required this.sortTitle,
+    required this.coreSeriesId,
+    required this.itemCount,
+  });
+
+  final String id;
+  final String mediaKind;
+  final String title;
+  final String? sortTitle;
+  final String? coreSeriesId;
+  final int itemCount;
+}
+
+class SerialAuthorityRepository {
+  SerialAuthorityRepository(this._db);
+
+  final LocalDatabase _db;
+
+  Future<List<SerialAuthorityEntry>> searchEntries({
+    required String mediaKind,
+    String? query,
+    String? selectedTitle,
+    String? selectedSeriesId,
+  }) async {
+    final normalizedKind = mediaKind.trim().toLowerCase();
+    final normalizedQuery = _normalize(query);
+    final rows = await (_db.select(_db.serialAuthorityCache)
+          ..where((table) => table.mediaKind.equals(normalizedKind))
+          ..orderBy([
+            (table) => OrderingTerm.asc(table.normalizedSortTitle),
+            (table) => OrderingTerm.asc(table.normalizedTitle),
+          ]))
+        .get();
+    final counts = await _countsBySeriesKey(normalizedKind);
+    final entries = <SerialAuthorityEntry>[
+      for (final row in rows)
+        if (normalizedQuery == null ||
+            row.normalizedTitle.contains(normalizedQuery) ||
+            (row.normalizedSortTitle?.contains(normalizedQuery) ?? false))
+          _entryFromRow(
+            row,
+            itemCount: counts[_seriesKey(
+                  coreSeriesId: row.coreSeriesId,
+                  normalizedTitle: row.normalizedTitle,
+                )] ??
+                0,
+          ),
+    ];
+
+    final selectedNormalizedTitle = _normalize(selectedTitle);
+    final hasSelected = entries.any(
+      (entry) =>
+          (selectedSeriesId != null &&
+              entry.coreSeriesId == selectedSeriesId) ||
+          _normalize(entry.title) == selectedNormalizedTitle,
+    );
+    if (!hasSelected && selectedNormalizedTitle != null) {
+      entries.insert(
+        0,
+        SerialAuthorityEntry(
+          id: 'selected:$normalizedKind:$selectedNormalizedTitle',
+          mediaKind: normalizedKind,
+          title: selectedTitle!.trim(),
+          sortTitle: null,
+          coreSeriesId: selectedSeriesId,
+          itemCount: counts[_seriesKey(
+                coreSeriesId: selectedSeriesId,
+                normalizedTitle: selectedNormalizedTitle,
+              )] ??
+              0,
+        ),
+      );
+    }
+
+    return entries;
+  }
+
+  Future<SerialAuthorityEntry?> findById(String id) async {
+    final normalized = id.trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    final row = await (_db.select(_db.serialAuthorityCache)
+          ..where((table) => table.id.equals(normalized))
+          ..limit(1))
+        .getSingleOrNull();
+    if (row == null) {
+      return null;
+    }
+    final counts = await _countsBySeriesKey(row.mediaKind);
+    return _entryFromRow(
+      row,
+      itemCount: counts[_seriesKey(
+            coreSeriesId: row.coreSeriesId,
+            normalizedTitle: row.normalizedTitle,
+          )] ??
+          0,
+    );
+  }
+
+  Future<SerialAuthorityEntry> upsertManualEntry({
+    required String mediaKind,
+    required String title,
+    String? sortTitle,
+  }) async {
+    final normalizedKind = mediaKind.trim().toLowerCase();
+    final normalizedTitle = _normalize(title);
+    if (normalizedTitle == null) {
+      throw ArgumentError.value(title, 'title', 'Series title cannot be empty');
+    }
+    final normalizedSortTitle = _normalize(sortTitle);
+    final now = DateTime.now().toUtc();
+    final existing = await _findMatchingRow(
+      mediaKind: normalizedKind,
+      coreSeriesId: null,
+      normalizedTitle: normalizedTitle,
+    );
+    if (existing == null) {
+      final id = const Uuid().v4();
+      await _db.into(_db.serialAuthorityCache).insert(
+            SerialAuthorityCacheCompanion.insert(
+              id: id,
+              mediaKind: normalizedKind,
+              title: title.trim(),
+              normalizedTitle: normalizedTitle,
+              sortTitle: Value(_emptyToNull(sortTitle)),
+              normalizedSortTitle: Value(normalizedSortTitle),
+              coreSeriesId: const Value.absent(),
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+      return SerialAuthorityEntry(
+        id: id,
+        mediaKind: normalizedKind,
+        title: title.trim(),
+        sortTitle: _emptyToNull(sortTitle),
+        coreSeriesId: null,
+        itemCount: 0,
+      );
+    }
+    await (_db.update(_db.serialAuthorityCache)
+          ..where((table) => table.id.equals(existing.id)))
+        .write(
+      SerialAuthorityCacheCompanion(
+        title: Value(title.trim()),
+        normalizedTitle: Value(normalizedTitle),
+        sortTitle: Value(_emptyToNull(sortTitle)),
+        normalizedSortTitle: Value(normalizedSortTitle),
+        updatedAt: Value(now),
+      ),
+    );
+    final updated = await findById(existing.id);
+    return updated ??
+        SerialAuthorityEntry(
+          id: existing.id,
+          mediaKind: normalizedKind,
+          title: title.trim(),
+          sortTitle: _emptyToNull(sortTitle),
+          coreSeriesId: existing.coreSeriesId,
+          itemCount: 0,
+        );
+  }
+
+  /// Persists candidates projected by an owning kind.
+  Future<void> captureCandidatesWithoutTransaction(
+    Iterable<SerialAuthorityCandidate> candidates,
+  ) async {
+    final byKey = <String, _SeriesCandidate>{};
+    for (final candidate in candidates) {
+      final title = _emptyToNull(candidate.title);
+      if (title == null) continue;
+      final normalizedTitle = _normalize(title);
+      if (normalizedTitle == null) continue;
+      final coreSeriesId = _emptyToNull(candidate.coreSeriesId);
+      final key = _seriesKey(
+        coreSeriesId: coreSeriesId,
+        normalizedTitle: normalizedTitle,
+      );
+      byKey[key] = _SeriesCandidate(
+        mediaKind: candidate.mediaKind.apiValue,
+        title: title,
+        normalizedTitle: normalizedTitle,
+        sortTitle: _emptyToNull(candidate.sortTitle) ?? title,
+        normalizedSortTitle: _normalize(candidate.sortTitle) ?? normalizedTitle,
+        coreSeriesId: coreSeriesId,
+      );
+    }
+    await _captureSeriesCandidates(byKey.values);
+  }
+
+  Future<void> _captureSeriesCandidates(
+    Iterable<_SeriesCandidate> candidates,
+  ) async {
+    final list = candidates.toList(growable: false);
+    if (list.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    for (final candidate in list) {
+      final existing = await _findMatchingRow(
+        mediaKind: candidate.mediaKind,
+        coreSeriesId: candidate.coreSeriesId,
+        normalizedTitle: candidate.normalizedTitle,
+      );
+      if (existing == null) {
+        await _db.into(_db.serialAuthorityCache).insert(
+              SerialAuthorityCacheCompanion.insert(
+                id: const Uuid().v4(),
+                mediaKind: candidate.mediaKind,
+                title: candidate.title,
+                normalizedTitle: candidate.normalizedTitle,
+                sortTitle: Value(candidate.sortTitle),
+                normalizedSortTitle: Value(candidate.normalizedSortTitle),
+                coreSeriesId: Value(candidate.coreSeriesId),
+                createdAt: now,
+                updatedAt: now,
+              ),
+            );
+        continue;
+      }
+      await (_db.update(_db.serialAuthorityCache)
+            ..where((table) => table.id.equals(existing.id)))
+          .write(
+        SerialAuthorityCacheCompanion(
+          title: Value(candidate.title),
+          normalizedTitle: Value(candidate.normalizedTitle),
+          sortTitle: Value(candidate.sortTitle),
+          normalizedSortTitle: Value(candidate.normalizedSortTitle),
+          coreSeriesId: Value(candidate.coreSeriesId ?? existing.coreSeriesId),
+          updatedAt: Value(now),
+        ),
+      );
+    }
+  }
+
+  Future<void> renameEntry({
+    required String entryId,
+    required String title,
+    String? sortTitle,
+    bool applyToCatalog = true,
+  }) async {
+    final row = await (_db.select(_db.serialAuthorityCache)
+          ..where((table) => table.id.equals(entryId))
+          ..limit(1))
+        .getSingleOrNull();
+    if (row == null) {
+      return;
+    }
+    final normalizedTitle = _normalize(title);
+    if (normalizedTitle == null) {
+      return;
+    }
+    final normalizedSortTitle = _normalize(sortTitle);
+    final now = DateTime.now().toUtc();
+    await (_db.update(_db.serialAuthorityCache)
+          ..where((table) => table.id.equals(entryId)))
+        .write(
+      SerialAuthorityCacheCompanion(
+        title: Value(title.trim()),
+        normalizedTitle: Value(normalizedTitle),
+        sortTitle: Value(_emptyToNull(sortTitle)),
+        normalizedSortTitle: Value(normalizedSortTitle),
+        updatedAt: Value(now),
+      ),
+    );
+    if (!applyToCatalog) {
+      return;
+    }
+    final contributor = _contributorFor(row.mediaKind);
+    if (contributor == null) return;
+    final itemIds = (await contributor.catalogRecords(_db))
+        .where((item) => _catalogMatchesSeries(item, row))
+        .map((item) => item.itemId)
+        .toList(growable: false);
+    await contributor.assignSeries(
+      _db,
+      itemIds: itemIds,
+      coreSeriesId: row.coreSeriesId,
+      seriesTitle: title.trim(),
+    );
+  }
+
+  Future<void> mergeEntries({
+    required String targetEntryId,
+    required List<String> sourceEntryIds,
+  }) async {
+    if (sourceEntryIds.isEmpty) {
+      return;
+    }
+    final target = await (_db.select(_db.serialAuthorityCache)
+          ..where((table) => table.id.equals(targetEntryId))
+          ..limit(1))
+        .getSingleOrNull();
+    if (target == null) {
+      return;
+    }
+    final uniqueSourceIds = sourceEntryIds
+        .toSet()
+        .where((id) => id != target.id)
+        .toList(growable: false);
+    if (uniqueSourceIds.isEmpty) {
+      return;
+    }
+    final sources = await (_db.select(_db.serialAuthorityCache)
+          ..where((table) => table.id.isIn(uniqueSourceIds)))
+        .get();
+    if (sources.isEmpty) {
+      return;
+    }
+    final contributor = _contributorFor(target.mediaKind);
+    if (contributor == null) return;
+    final itemIds = (await contributor.catalogRecords(_db))
+        .where(
+          (item) => sources.any(
+            (source) => _catalogMatchesSeries(item, source),
+          ),
+        )
+        .map((item) => item.itemId)
+        .toList(growable: false);
+    await contributor.assignSeries(
+      _db,
+      itemIds: itemIds,
+      coreSeriesId: target.coreSeriesId,
+      seriesTitle: target.title,
+    );
+    await (_db.delete(_db.serialAuthorityCache)
+          ..where((table) => table.id.isIn(uniqueSourceIds)))
+        .go();
+  }
+
+  Future<Map<String, int>> _countsBySeriesKey(String mediaKind) async {
+    final counts = <String, int>{};
+    final contributor = _contributorFor(mediaKind);
+    if (contributor == null) return counts;
+    final catalogItems = await contributor.catalogRecords(_db);
+    for (final catalogItem in catalogItems) {
+      final normalizedTitle = _normalize(catalogItem.seriesTitle);
+      if (normalizedTitle == null) {
+        continue;
+      }
+      final key = _seriesKey(
+        coreSeriesId: _emptyToNull(catalogItem.coreSeriesId),
+        normalizedTitle: normalizedTitle,
+      );
+      counts.update(key, (count) => count + 1, ifAbsent: () => 1);
+    }
+    return counts;
+  }
+
+  Future<SerialAuthorityCacheData?> _findMatchingRow({
+    required String mediaKind,
+    required String? coreSeriesId,
+    required String normalizedTitle,
+  }) async {
+    if (coreSeriesId != null) {
+      final byCoreId = await (_db.select(_db.serialAuthorityCache)
+            ..where((table) =>
+                table.mediaKind.equals(mediaKind) &
+                table.coreSeriesId.equals(coreSeriesId))
+            ..limit(1))
+          .getSingleOrNull();
+      if (byCoreId != null) {
+        return byCoreId;
+      }
+    }
+    return (_db.select(_db.serialAuthorityCache)
+          ..where((table) =>
+              table.mediaKind.equals(mediaKind) &
+              table.normalizedTitle.equals(normalizedTitle))
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  SerialAuthorityEntry _entryFromRow(
+    SerialAuthorityCacheData row, {
+    required int itemCount,
+  }) {
+    return SerialAuthorityEntry(
+      id: row.id,
+      mediaKind: row.mediaKind,
+      title: row.title,
+      sortTitle: row.sortTitle,
+      coreSeriesId: row.coreSeriesId,
+      itemCount: itemCount,
+    );
+  }
+
+  bool _catalogMatchesSeries(
+    SerialAuthorityCatalogRecord catalogItem,
+    SerialAuthorityCacheData registryRow,
+  ) {
+    final registryCoreSeriesId = _emptyToNull(registryRow.coreSeriesId);
+    final catalogCoreSeriesId = _emptyToNull(catalogItem.coreSeriesId);
+    if (registryCoreSeriesId != null &&
+        catalogCoreSeriesId == registryCoreSeriesId) {
+      return true;
+    }
+    return _normalize(catalogItem.seriesTitle) == registryRow.normalizedTitle;
+  }
+
+  static SerialAuthorityContributor? _contributorFor(String mediaKind) {
+    final kind = catalogMediaKindFromApiValue(mediaKind);
+    for (final contributor in collectarrSerialAuthorityContributors) {
+      if (contributor.kind == kind) return contributor;
+    }
+    return null;
+  }
+
+  static String? _normalize(String? value) {
+    final trimmed = _emptyToNull(value);
+    if (trimmed == null) {
+      return null;
+    }
+    return trimmed.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  static String _seriesKey({
+    required String? coreSeriesId,
+    required String normalizedTitle,
+  }) {
+    return coreSeriesId == null
+        ? 'title:$normalizedTitle'
+        : 'core:$coreSeriesId';
+  }
+
+  static String? _emptyToNull(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+}
+
+class _SeriesCandidate {
+  const _SeriesCandidate({
+    required this.mediaKind,
+    required this.title,
+    required this.normalizedTitle,
+    required this.sortTitle,
+    required this.normalizedSortTitle,
+    required this.coreSeriesId,
+  });
+
+  final String mediaKind;
+  final String title;
+  final String normalizedTitle;
+  final String? sortTitle;
+  final String? normalizedSortTitle;
+  final String? coreSeriesId;
+}

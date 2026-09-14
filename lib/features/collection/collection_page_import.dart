@@ -11,7 +11,7 @@ class _ImportCsvDialog extends ConsumerStatefulWidget {
 
 class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
   final _controller = TextEditingController();
-  final _csv = CollectionCsv();
+  final _csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
   CollectionImportPreview? _preview;
   String? _error;
   bool _isWorking = false;
@@ -35,7 +35,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Paste Collectarr CSV or CLZ-style CSV. Rows with no item ID are matched locally by barcode, then by series + issue.',
+                'Paste Collectarr CSV or CLZ-style CSV. Rows with no item ID are resolved by the selected kind through Collectarr Core.',
               ),
               const SizedBox(height: 10),
               TextField(
@@ -108,7 +108,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     try {
       final rows = _csv.parse(_controller.text);
       final preview = await ref
-          .read(collectionImportServiceProvider)
+          .read(collectionImportOrchestratorProvider)
           .previewImportRows(rows);
       if (mounted) {
         setState(() => _preview = preview);
@@ -136,7 +136,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     setState(() => _isWorking = true);
     try {
       final imported = await ref
-          .read(collectionImportServiceProvider)
+          .read(collectionImportOrchestratorProvider)
           .importRows(preview.resolvedRows);
       if (mounted) {
         Navigator.of(context).pop(imported);
@@ -148,20 +148,27 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
   }
 
-  Future<void> _resolveRow(CollectionCsvRow row) async {
-    final item = await showDialog<LibraryMetadataItem>(
+  Future<void> _resolveRow(CollectionImportRow row) async {
+    final item = await showDialog<CatalogSearchCandidate>(
       context: context,
       builder: (context) => _ResolveImportRowDialog(
-        type: comicKindModule,
+        kind: _kindForImportRow(row),
         row: row,
       ),
     );
     if (item == null || !mounted || _preview == null) {
       return;
     }
-    await CatalogCacheRepository(ref.read(localDatabaseProvider))
-        .upsertMetadataItems([item]);
-    final resolvedRow = row.copyWith(itemId: item.id);
+    await CatalogTransportRepository(ref.read(localDatabaseProvider))
+        .upsertTransports([item.toImportTransport()]);
+    final resolvedRow = row.copyWith(
+      itemId: item.id,
+      catalogRef: item.catalogRef,
+      mediaKind: item.mediaKind,
+      title: item.title,
+      kindDisplayTitle: item.title,
+      kindDisplaySubtitle: item.subtitle,
+    );
     setState(() {
       final preview = _preview!;
       _preview = CollectionImportPreview(
@@ -188,25 +195,36 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
     try {
       final resolvedRows = [...preview.resolvedRows];
-      final unresolvedRows = <CollectionCsvRow>[];
-      final resolvedItems = <LibraryMetadataItem>[];
+      final unresolvedRows = <CollectionImportRow>[];
+      final resolvedItems = <CatalogSearchCandidate>[];
       for (final row in preview.unresolvedRows) {
         final results = await _searchCoreForRow(
           ref,
-          comicKindModule,
+          _kindForImportRow(row),
           row,
           limit: 5,
         );
-        final match = _confidentImportMatch(row, results);
+        final match = _confidentImportMatch(results);
         if (match == null) {
           unresolvedRows.add(row);
           continue;
         }
-        resolvedRows.add(row.copyWith(itemId: match.id));
+        resolvedRows.add(
+          row.copyWith(
+            itemId: match.catalogRef.id,
+            catalogRef: match.catalogRef,
+            mediaKind: match.kind,
+            title: match.title,
+            kindDisplayTitle: match.title,
+            kindDisplaySubtitle: match.subtitle,
+          ),
+        );
         resolvedItems.add(match);
       }
-      await CatalogCacheRepository(ref.read(localDatabaseProvider))
-          .upsertMetadataItems(resolvedItems);
+      await CatalogTransportRepository(ref.read(localDatabaseProvider))
+          .upsertTransports(
+        resolvedItems.map((item) => item.toImportTransport()),
+      );
       if (!mounted) {
         return;
       }
@@ -237,7 +255,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     }
   }
 
-  void _skipRow(CollectionCsvRow row) {
+  void _skipRow(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -256,7 +274,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  void _updateConflict(CollectionCsvRow row) {
+  void _updateConflict(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -275,7 +293,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  void _wishlistConflict(CollectionCsvRow row) {
+  void _wishlistConflict(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -297,7 +315,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  void _skipConflict(CollectionCsvRow row) {
+  void _skipConflict(CollectionImportRow row) {
     final preview = _preview;
     if (preview == null) {
       return;
@@ -316,7 +334,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
   }
 
-  Future<void> _proposeRow(CollectionCsvRow row) async {
+  Future<void> _proposeRow(CollectionImportRow row) async {
     final draft = await showDialog<_ImportProposalDraft>(
       context: context,
       builder: (context) => _ImportProposalDialog(row: row),
@@ -329,17 +347,17 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       _error = null;
     });
     try {
-      final type = ref.read(resolvedLibraryTypeProvider(comicKindModule));
+      final kind = _kindForImportRow(row);
       final response = await createLibraryMetadataProposal(
         api: ref.read(apiClientProvider),
-        type: type,
+        kind: kind,
         query: draft.query,
         title: draft.title.trim().isEmpty ? null : draft.title.trim(),
         summary: draft.summary,
       );
       await recordLibraryMetadataProposalResponse(
         response: response,
-        type: type,
+        kind: kind,
         query: draft.query,
         title: draft.title,
         source: 'CSV import',
@@ -378,13 +396,13 @@ class _ImportPreviewPanel extends StatelessWidget {
   });
 
   final CollectionImportPreview preview;
-  final ValueChanged<CollectionCsvRow> onResolveRow;
+  final ValueChanged<CollectionImportRow> onResolveRow;
   final VoidCallback? onResolveAll;
-  final ValueChanged<CollectionCsvRow>? onProposeRow;
-  final ValueChanged<CollectionCsvRow> onSkipRow;
-  final ValueChanged<CollectionCsvRow> onUpdateConflict;
-  final ValueChanged<CollectionCsvRow> onWishlistConflict;
-  final ValueChanged<CollectionCsvRow> onSkipConflict;
+  final ValueChanged<CollectionImportRow>? onProposeRow;
+  final ValueChanged<CollectionImportRow> onSkipRow;
+  final ValueChanged<CollectionImportRow> onUpdateConflict;
+  final ValueChanged<CollectionImportRow> onWishlistConflict;
+  final ValueChanged<CollectionImportRow> onSkipConflict;
 
   @override
   Widget build(BuildContext context) {
@@ -425,13 +443,8 @@ class _ImportPreviewPanel extends StatelessWidget {
                 items: [
                   for (final row in preview.conflictRows.take(8))
                     ImportReviewItem(
-                      title: row.title ?? 'Catalog item ${row.itemId}',
-                      description: [
-                        if (row.itemNumber != null) '#${row.itemNumber}',
-                        if (row.publisher != null) row.publisher,
-                        if (row.grade != null) 'grade ${row.grade}',
-                        if (row.condition != null) row.condition,
-                      ].join(' | '),
+                      title: _importRowTitle(row),
+                      description: _importRowDescription(row),
                       severity: ImportReviewSeverity.warning,
                       actions: [
                         ImportReviewAction(
@@ -493,12 +506,8 @@ class _ImportPreviewPanel extends StatelessWidget {
                 items: [
                   for (final row in preview.duplicateRows.take(8))
                     ImportReviewItem(
-                      title: row.title ?? 'Catalog item ${row.itemId}',
-                      description: [
-                        if (row.itemNumber != null) '#${row.itemNumber}',
-                        if (row.publisher != null) row.publisher,
-                        if (row.barcode != null) row.barcode,
-                      ].join(' | '),
+                      title: _importRowTitle(row),
+                      description: _importRowDescription(row),
                       severity: ImportReviewSeverity.info,
                     ),
                 ],
@@ -521,19 +530,14 @@ class _UnresolvedImportRow extends StatelessWidget {
     required this.onSkip,
   });
 
-  final CollectionCsvRow row;
-  final ValueChanged<CollectionCsvRow> onResolve;
-  final ValueChanged<CollectionCsvRow>? onPropose;
-  final ValueChanged<CollectionCsvRow> onSkip;
+  final CollectionImportRow row;
+  final ValueChanged<CollectionImportRow> onResolve;
+  final ValueChanged<CollectionImportRow>? onPropose;
+  final ValueChanged<CollectionImportRow> onSkip;
 
   @override
   Widget build(BuildContext context) {
-    final text = [
-      row.title ?? 'Unknown title',
-      if (row.itemNumber != null) '#${row.itemNumber}',
-      if (row.publisher != null) row.publisher,
-      if (row.barcode != null) row.barcode,
-    ].join(' | ');
+    final text = _importRowDescription(row);
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Row(
@@ -570,12 +574,12 @@ class _UnresolvedImportRow extends StatelessWidget {
 
 class _ResolveImportRowDialog extends ConsumerStatefulWidget {
   const _ResolveImportRowDialog({
-    required this.type,
+    required this.kind,
     required this.row,
   });
 
-  final LibraryKindRuntime type;
-  final CollectionCsvRow row;
+  final CatalogMediaKind kind;
+  final CollectionImportRow row;
 
   @override
   ConsumerState<_ResolveImportRowDialog> createState() =>
@@ -585,7 +589,7 @@ class _ResolveImportRowDialog extends ConsumerStatefulWidget {
 class _ResolveImportRowDialogState
     extends ConsumerState<_ResolveImportRowDialog> {
   late final TextEditingController _queryController;
-  var _results = const <LibraryMetadataItem>[];
+  var _results = const <CatalogSearchCandidate>[];
   String? _error;
   bool _isSearching = false;
 
@@ -650,7 +654,7 @@ class _ResolveImportRowDialogState
                   ? const Align(
                       alignment: Alignment.topLeft,
                       child: Text(
-                        'Search Core and choose the matching comic.',
+                        'Search Core and choose the matching item.',
                       ),
                     )
                   : ListView.separated(
@@ -685,7 +689,8 @@ class _ResolveImportRowDialogState
 
   Future<void> _search() async {
     if (_queryController.text.trim().isEmpty &&
-        (widget.row.barcode == null || widget.row.barcode!.trim().isEmpty)) {
+        (_importRowBarcode(widget.row) == null ||
+            _importRowBarcode(widget.row)!.trim().isEmpty)) {
       return;
     }
     setState(() {
@@ -695,7 +700,7 @@ class _ResolveImportRowDialogState
     try {
       final items = await _searchCoreForRow(
         ref,
-        widget.type,
+        widget.kind,
         widget.row,
         queryOverride: _queryController.text,
       );
@@ -713,31 +718,19 @@ class _ResolveImportRowDialogState
     }
   }
 
-  String _initialQuery(CollectionCsvRow row) {
-    final parts = [
-      if (row.title?.trim().isNotEmpty ?? false) row.title!.trim(),
-      if (row.itemNumber?.trim().isNotEmpty ?? false) '#${row.itemNumber}',
-    ];
-    if (parts.isNotEmpty) {
-      return parts.join(' ');
-    }
-    return row.barcode?.trim() ?? '';
+  String _initialQuery(CollectionImportRow row) {
+    return _importRowSearchQuery(row);
   }
 
-  String _rowSummary(CollectionCsvRow row) {
-    return [
-      row.title ?? 'Unknown title',
-      if (row.itemNumber != null) 'Issue ${row.itemNumber}',
-      if (row.publisher != null) row.publisher,
-      if (row.barcode != null) 'Barcode ${row.barcode}',
-    ].join(' | ');
+  String _rowSummary(CollectionImportRow row) {
+    return _importRowDescription(row);
   }
 }
 
 class _ImportProposalDialog extends StatefulWidget {
   const _ImportProposalDialog({required this.row});
 
-  final CollectionCsvRow row;
+  final CollectionImportRow row;
 
   @override
   State<_ImportProposalDialog> createState() => _ImportProposalDialogState();
@@ -746,21 +739,18 @@ class _ImportProposalDialog extends StatefulWidget {
 class _ImportProposalDialogState extends State<_ImportProposalDialog> {
   late final _titleController =
       TextEditingController(text: widget.row.title ?? '');
-  late final _issueController =
-      TextEditingController(text: widget.row.itemNumber ?? '');
   late final _barcodeController =
-      TextEditingController(text: widget.row.barcode ?? '');
-  late final _publisherController =
-      TextEditingController(text: widget.row.publisher ?? '');
+      TextEditingController(text: _importRowBarcode(widget.row) ?? '');
+  late final _queryController =
+      TextEditingController(text: _importRowSearchQuery(widget.row));
   final _sourceController = TextEditingController();
   final _notesController = TextEditingController();
 
   @override
   void dispose() {
     _titleController.dispose();
-    _issueController.dispose();
     _barcodeController.dispose();
-    _publisherController.dispose();
+    _queryController.dispose();
     _sourceController.dispose();
     _notesController.dispose();
     super.dispose();
@@ -779,25 +769,20 @@ class _ImportProposalDialogState extends State<_ImportProposalDialog> {
             _ImportProposalField(
               width: 350,
               controller: _titleController,
-              label: 'Series / title',
+              label: 'Title',
               onChanged: (_) => setState(() {}),
             ),
             _ImportProposalField(
-              width: 120,
-              controller: _issueController,
-              label: 'Issue #',
+              width: 540,
+              controller: _queryController,
+              label: 'Search query',
             ),
             _ImportProposalField(
               width: 220,
               controller: _barcodeController,
-              label: 'Barcode / UPC',
+              label: 'Identifier / barcode',
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
-            ),
-            _ImportProposalField(
-              width: 220,
-              controller: _publisherController,
-              label: 'Publisher',
             ),
             _ImportProposalField(
               width: 540,
@@ -824,9 +809,8 @@ class _ImportProposalDialogState extends State<_ImportProposalDialog> {
               : () => Navigator.of(context).pop(
                     _ImportProposalDraft(
                       title: _titleController.text,
-                      issueNumber: _issueController.text,
-                      barcode: _barcodeController.text,
-                      publisher: _publisherController.text,
+                      searchQuery: _queryController.text,
+                      identifier: _barcodeController.text,
                       sourceUrl: _sourceController.text,
                       notes: _notesController.text,
                     ),
@@ -883,26 +867,20 @@ class _ImportProposalField extends StatelessWidget {
 class _ImportProposalDraft {
   const _ImportProposalDraft({
     required this.title,
-    required this.issueNumber,
-    required this.barcode,
-    required this.publisher,
+    required this.searchQuery,
+    required this.identifier,
     required this.sourceUrl,
     required this.notes,
   });
 
   final String title;
-  final String issueNumber;
-  final String barcode;
-  final String publisher;
+  final String searchQuery;
+  final String identifier;
   final String sourceUrl;
   final String notes;
 
   String get query {
-    return [
-      title.trim(),
-      if (issueNumber.trim().isNotEmpty) '#${issueNumber.trim()}',
-      if (barcode.trim().isNotEmpty) barcode.trim(),
-    ].where((value) => value.isNotEmpty).join(' ');
+    return searchQuery.trim().isNotEmpty ? searchQuery.trim() : title.trim();
   }
 
   String get summary {
@@ -911,9 +889,7 @@ class _ImportProposalDraft {
       '',
       'Suggested metadata:',
       if (title.trim().isNotEmpty) 'title: ${title.trim()}',
-      if (issueNumber.trim().isNotEmpty) 'issue: ${issueNumber.trim()}',
-      if (barcode.trim().isNotEmpty) 'barcode: ${barcode.trim()}',
-      if (publisher.trim().isNotEmpty) 'publisher: ${publisher.trim()}',
+      if (identifier.trim().isNotEmpty) 'identifier: ${identifier.trim()}',
       if (sourceUrl.trim().isNotEmpty) 'source: ${sourceUrl.trim()}',
       if (notes.trim().isNotEmpty) ...['', 'Notes:', notes.trim()],
     ];
@@ -924,11 +900,11 @@ class _ImportProposalDraft {
 class _CatalogThumb extends StatelessWidget {
   const _CatalogThumb({required this.item});
 
-  final LibraryMetadataItem item;
+  final CatalogSearchCandidate item;
 
   @override
   Widget build(BuildContext context) {
-    final url = item.displayCoverUrl;
+    final url = item.imageUrl;
     if (url == null || url.isEmpty) {
       return const SizedBox.square(
         dimension: 42,
@@ -960,29 +936,50 @@ class _CatalogThumb extends StatelessWidget {
   }
 }
 
-String _catalogTitle(LibraryMetadataItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
-  final pub = payload['publishing'] as Map?;
-  final issue = (payload['item_number'] ?? pub?['issue_number'])?.toString();
-  if (issue == null || issue.isEmpty) {
-    return item.title;
-  }
-  return '${item.title} #$issue';
+String _catalogTitle(CatalogSearchCandidate item) => item.title;
+
+String _catalogSubtitle(CatalogSearchCandidate item) => item.subtitle ?? '';
+
+String _importRowTitle(CollectionImportRow row) {
+  final kindTitle = row.kindDisplayTitle?.trim();
+  if (kindTitle != null && kindTitle.isNotEmpty) return kindTitle;
+  final title = row.title?.trim();
+  return title == null || title.isEmpty ? 'Catalog item ${row.itemId}' : title;
 }
 
-String _catalogSubtitle(LibraryMetadataItem item) {
-  final payload = item.kindMetadata.toSyncPayload();
-  final pub = payload['publishing'] as Map?;
-  final variant = (payload['variant'] ?? pub?['variant'])?.toString();
-  final publisher =
-      (payload['publisher'] ?? pub?['original_publisher'])?.toString();
-  final barcode = (payload['barcode'] ?? pub?['barcode'])?.toString();
+String _importRowDescription(CollectionImportRow row) {
+  final subtitle = row.kindDisplaySubtitle ?? '';
+  final barcode = _importRowBarcode(row);
   return [
-    if (variant != null && variant.isNotEmpty) variant,
-    if (publisher != null && publisher.isNotEmpty) publisher,
-    if (payload['release_year'] != null) payload['release_year'].toString(),
-    if (barcode != null && barcode.isNotEmpty) barcode,
+    _importRowTitle(row),
+    if (subtitle.trim().isNotEmpty) subtitle,
+    if (barcode != null && barcode.trim().isNotEmpty) 'Identifier $barcode',
   ].join(' | ');
+}
+
+String _importRowSearchQuery(CollectionImportRow row) {
+  final title = row.kindDisplayTitle?.trim() ?? row.title?.trim() ?? '';
+  final barcode = _importRowBarcode(row);
+  return [
+    if (title.trim().isNotEmpty && title != 'Unknown title') title.trim(),
+    if (barcode != null && barcode.trim().isNotEmpty) barcode.trim(),
+  ].join(' ');
+}
+
+String? _importRowBarcode(CollectionImportRow row) {
+  return row.kindIdentifier;
+}
+
+CatalogMediaKind _kindForImportRow(CollectionImportRow row) {
+  final kind = row.mediaKind;
+  if (kind.isUnknown) {
+    throw ArgumentError.value(
+      row.mediaKind,
+      'row.mediaKind',
+      'Unsupported kind',
+    );
+  }
+  return kind;
 }
 
 String _friendlyImportError(Object error) {
@@ -999,56 +996,39 @@ String _friendlyImportError(Object error) {
   return 'Search failed: $error';
 }
 
-Future<List<LibraryMetadataItem>> _searchCoreForRow(
+Future<List<CatalogSearchCandidate>> _searchCoreForRow(
   WidgetRef ref,
-  LibraryKindRuntime type,
-  CollectionCsvRow row, {
+  CatalogMediaKind kind,
+  CollectionImportRow row, {
   String? queryOverride,
   int limit = 20,
 }) async {
-  final resolvedType = ref.read(resolvedLibraryTypeProvider(type));
-  return await searchLibraryMetadata(
+  return await searchLibraryMetadataCandidates(
     ref.read(apiClientProvider),
-    resolvedType,
+    kind,
     query: _searchQueryForRow(row, queryOverride: queryOverride),
-    barcode: row.barcode,
-    issueNumber: row.itemNumber,
+    barcode: _importRowBarcode(row),
     limit: limit,
   );
 }
 
-String? _searchQueryForRow(CollectionCsvRow row, {String? queryOverride}) {
+String? _searchQueryForRow(CollectionImportRow row, {String? queryOverride}) {
   final override = queryOverride?.trim();
   if (override != null && override.isNotEmpty) {
     return override;
   }
-  final title = row.title?.trim();
-  if (title != null && title.isNotEmpty) {
-    return title;
+  final query = _importRowSearchQuery(row);
+  if (query.isNotEmpty) {
+    return query;
   }
   return null;
 }
 
-LibraryMetadataItem? _confidentImportMatch(
-  CollectionCsvRow row,
-  List<LibraryMetadataItem> results,
+CatalogSearchCandidate? _confidentImportMatch(
+  List<CatalogSearchCandidate> results,
 ) {
   if (results.isEmpty) {
     return null;
-  }
-  final barcode = row.barcode == null
-      ? null
-      : MetadataSearchQuery.normalizeBarcode(row.barcode!);
-  if (barcode != null && barcode.isNotEmpty) {
-    final barcodeMatches = results.where((item) {
-      final itemBarcode =
-          item.kindMetadata.toSyncPayload()['barcode'] as String?;
-      return itemBarcode != null &&
-          MetadataSearchQuery.normalizeBarcode(itemBarcode) == barcode;
-    }).toList(growable: false);
-    if (barcodeMatches.length == 1) {
-      return barcodeMatches.single;
-    }
   }
   if (results.length == 1) {
     return results.single;

@@ -4,33 +4,29 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_disc_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_edition_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
-export 'package:collectarr_app/core/api/dto/catalog/catalog_kind_codec.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_track_dto.dart';
 export 'package:collectarr_app/core/api/dto/catalog/catalog_variant_dto.dart';
 export 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-class GameCatalogDetails {
-  const GameCatalogDetails({this.platforms = const []});
+class GameCatalogDetailsDto {
+  const GameCatalogDetailsDto({this.platforms = const []});
   final List<String> platforms;
   bool get hasData => platforms.isNotEmpty;
   Map<String, dynamic> toJson() => {'platforms': platforms};
 }
 
-class VideoCatalogDetails {
-  const VideoCatalogDetails({
+class VideoCatalogDetailsDto {
+  const VideoCatalogDetailsDto({
     this.runtimeMinutes,
     this.color,
     this.nrDiscs,
@@ -67,8 +63,8 @@ class VideoCatalogDetails {
       };
 }
 
-class MusicCatalogDetails {
-  const MusicCatalogDetails({
+class MusicCatalogDetailsDto {
+  const MusicCatalogDetailsDto({
     this.trackCount,
     this.tracks = const [],
     this.discs = const [],
@@ -99,11 +95,23 @@ class MusicCatalogDetails {
 
 @immutable
 final class CatalogItemDto {
+  factory CatalogItemDto({
+    required LibraryItemIdentity identity,
+    required Object? kindMetadata,
+  }) =>
+      CatalogItemDto._raw(
+        id: identity.id,
+        mediaKind: identity.mediaKind,
+        payload: const <String, dynamic>{},
+        kindMetadata: kindMetadata,
+      );
+
   factory CatalogItemDto.raw({
     required String id,
     required CatalogMediaKind mediaKind,
     required CatalogCommonDto common,
     Map<String, dynamic> payload = const <String, dynamic>{},
+    Object? kindMetadata,
   }) {
     return CatalogItemDto._raw(
       id: id,
@@ -112,18 +120,49 @@ final class CatalogItemDto {
         ...common.toJson(),
         ...payload,
       },
+      kindMetadata: kindMetadata,
     );
   }
 
   const CatalogItemDto._raw({
     required this.id,
     required this.mediaKind,
-    required this.payload,
-  });
+    required Map<String, dynamic> payload,
+    Object? kindMetadata,
+  })  : _payload = payload,
+        _kindMetadata = kindMetadata;
 
   final String id;
   final CatalogMediaKind mediaKind;
-  final Map<String, dynamic> payload;
+  final Map<String, dynamic> _payload;
+  final Object? _kindMetadata;
+
+  Map<String, dynamic> get payload {
+    final base = <String, dynamic>{
+      ..._payload,
+      // Kind mappers receive this map at the transport boundary. Preserve
+      // identity here so a mapper can reconstruct the concrete aggregate
+      // without reaching back into the erased DTO envelope.
+      'id': id,
+      'kind': mediaKind.apiValue,
+    };
+    final metadata = _kindMetadata;
+    if (metadata is Map) {
+      return {...base, ...Map<String, dynamic>.from(metadata)};
+    }
+    if (metadata is JsonEncodable) {
+      return {
+        ...base,
+        ...metadata.toJson(),
+      };
+    }
+    return base;
+  }
+
+  Object? get kindMetadata => _kindMetadata ?? payload;
+
+  LibraryItemIdentity get identity =>
+      LibraryItemIdentity(id: id, mediaKind: mediaKind);
 
   CatalogCommonDto get common => CatalogCommonDto.fromJson(payload);
 
@@ -155,6 +194,7 @@ final class CatalogItemDto {
   String? get barcode =>
       (payload['barcode'] ?? (payload['publishing'] as Map?)?['barcode'])
           as String?;
+  String? get identifierCode => barcode;
   String? get physicalFormat => (payload['physical_format'] ??
       (payload['publishing'] as Map?)?['physical_format']) as String?;
   String? get physicalFormatLabel => (payload['physical_format_label'] ??
@@ -165,53 +205,24 @@ final class CatalogItemDto {
   String get resolvedDisplayTitle => common.resolvedDisplayTitle;
   String? get displayCoverUrl => common.displayCoverUrl;
 
-  CatalogEntityRef get catalogRef => catalogRefForAnchor();
+  CatalogEntityRef get catalogRef => CatalogEntityRef(
+        kind: mediaKind,
+        entityType: CatalogEntityTypeId.root,
+        id: id,
+      );
 
-  CatalogEntityRef catalogRefForAnchor({
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-  }) {
-    final anchor = PersonalItemAnchor.fromRaw(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    if (anchor == null || anchor.type == PersonalItemAnchorType.item) {
+  CatalogEntityRef catalogRefForTarget(CatalogEntityRef? targetRef) {
+    if (targetRef == null) {
       return CatalogEntityRef(
-        kind: kind,
-        entityType: CatalogEntityType.work,
+        kind: mediaKind,
+        entityType: CatalogEntityTypeId.root,
         id: id,
       );
     }
-    switch (anchor.type) {
-      case PersonalItemAnchorType.edition:
-        return CatalogEntityRef(
-          kind: kind,
-          entityType: CatalogEntityType.edition,
-          id: anchor.editionId ?? id,
-        );
-      case PersonalItemAnchorType.variant:
-        return CatalogEntityRef(
-          kind: kind,
-          entityType: CatalogEntityType.release,
-          id: anchor.variantId ?? anchor.editionId ?? id,
-        );
-      case PersonalItemAnchorType.bundleRelease:
-        return CatalogEntityRef(
-          kind: kind,
-          entityType: CatalogEntityType.bundleRelease,
-          id: anchor.bundleReleaseId ?? id,
-        );
-      default:
-        return CatalogEntityRef(
-          kind: kind,
-          entityType: CatalogEntityType.work,
-          id: id,
-        );
-    }
+    return targetRef.copyWith(
+      kind: mediaKind,
+      rootId: targetRef.rootId ?? (targetRef.id == id ? null : id),
+    );
   }
 
   factory CatalogItemDto.fromEnvelope(CatalogItemEnvelopeDto envelope) {
@@ -248,17 +259,88 @@ final class CatalogItemDto {
     );
   }
 
-  LibraryMetadataItem toLibraryMetadataItem() {
-    return LibraryMetadataItem(
-      identity: LibraryItemIdentity(
-        id: id,
-        mediaKind: mediaKind,
-      ),
-      kindMetadata:
-          LibraryKindMetadataDecoders.decode(mediaKind, toSyncPayload()),
+  CatalogItemDto copyWith({
+    LibraryItemIdentity? identity,
+    String? title,
+    Object? displayTitle = _unset,
+    Object? localizedTitle = _unset,
+    Object? originalTitle = _unset,
+    Object? titleExtension = _unset,
+    Object? searchAliases = _unset,
+    Object? sortKey = _unset,
+    Object? synopsis = _unset,
+    Object? coverImageUrl = _unset,
+    Object? thumbnailImageUrl = _unset,
+    Object? coverImageData = _unset,
+    Object? releaseDate = _unset,
+    Object? releaseYear = _unset,
+    List<CatalogEditionDto>? editions,
+    List<TrailerLinkDto>? trailerUrls,
+    Object? physicalFormat = _unset,
+    Object? physicalFormatLabel = _unset,
+    Object? kindMetadata,
+  }) {
+    final json = <String, dynamic>{
+      ...payload,
+      ...common.toJson(),
+      'title': title ?? this.title,
+      if (!identical(displayTitle, _unset)) 'display_title': displayTitle,
+      if (!identical(localizedTitle, _unset)) 'localized_title': localizedTitle,
+      if (!identical(originalTitle, _unset)) 'original_title': originalTitle,
+      if (!identical(titleExtension, _unset)) 'title_extension': titleExtension,
+      if (!identical(searchAliases, _unset)) 'search_aliases': searchAliases,
+      if (!identical(sortKey, _unset)) 'sort_key': sortKey,
+      if (!identical(synopsis, _unset)) 'synopsis': synopsis,
+      if (!identical(coverImageUrl, _unset)) 'cover_image_url': coverImageUrl,
+      if (!identical(thumbnailImageUrl, _unset))
+        'thumbnail_image_url': thumbnailImageUrl,
+      if (!identical(coverImageData, _unset))
+        'cover_image_data': coverImageData,
+      if (!identical(releaseDate, _unset))
+        'release_date': (releaseDate as DateTime?)?.toIso8601String(),
+      if (!identical(releaseYear, _unset)) 'release_year': releaseYear,
+      if (editions != null)
+        'editions': [for (final edition in editions) edition.toJson()],
+      if (trailerUrls != null)
+        'trailer_urls': [for (final link in trailerUrls) link.toJson()],
+      if (!identical(physicalFormat, _unset)) 'physical_format': physicalFormat,
+      if (!identical(physicalFormatLabel, _unset))
+        'physical_format_label': physicalFormatLabel,
+    };
+    final updatedIdentity = identity ?? this.identity;
+    final commonChanged = title != null ||
+        !identical(displayTitle, _unset) ||
+        !identical(localizedTitle, _unset) ||
+        !identical(originalTitle, _unset) ||
+        !identical(titleExtension, _unset) ||
+        !identical(searchAliases, _unset) ||
+        !identical(sortKey, _unset) ||
+        !identical(synopsis, _unset) ||
+        !identical(coverImageUrl, _unset) ||
+        !identical(thumbnailImageUrl, _unset) ||
+        !identical(coverImageData, _unset) ||
+        !identical(releaseDate, _unset) ||
+        !identical(releaseYear, _unset) ||
+        editions != null ||
+        trailerUrls != null ||
+        !identical(physicalFormat, _unset) ||
+        !identical(physicalFormatLabel, _unset);
+    return CatalogItemDto._raw(
+      id: updatedIdentity.id,
+      mediaKind: updatedIdentity.mediaKind,
+      payload: json,
+      kindMetadata: kindMetadata ?? (commonChanged ? json : _kindMetadata),
+    );
+  }
+
+  CatalogItemDto withKindMetadata(Object? kindMetadata) {
+    return CatalogItemDto._raw(
+      id: id,
+      mediaKind: mediaKind,
+      payload: _payload,
+      kindMetadata: kindMetadata,
     );
   }
 }
 
-typedef CatalogItem = CatalogItemDto;
-typedef TrailerLink = TrailerLinkDto;
+const _unset = Object();

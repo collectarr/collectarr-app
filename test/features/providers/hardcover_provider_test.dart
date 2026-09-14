@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,13 +27,62 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('HardcoverProvider', () {
+    test('decodes native Hardcover search and book models', () {
+      final searchHits = decodeHardcoverSearchHits([
+        {
+          'document': {
+            'id': 1234,
+            'title': 'Dune',
+            'author_names': ['Frank Herbert'],
+            'featured_series': {'id': 42, 'name': 'Dune', 'slug': 'dune'},
+            'release_year': 1965,
+            'image': {'url': 'https://assets.hardcover.app/covers/dune.jpg'},
+          },
+        },
+      ]);
+      final book = HardcoverBook.fromJson({
+        'id': 1234,
+        'title': 'Dune',
+        'description': 'A story on Arrakis.',
+        'pages': 688,
+        'book_series': [
+          {
+            'series': {'id': 42, 'name': 'Dune', 'slug': 'dune'},
+            'position': 1,
+          },
+        ],
+        'editions': [
+          {
+            'isbn_13': '9780441172719',
+            'pages': 688,
+            'publisher': {'name': 'Chilton Books'},
+          },
+        ],
+        'taggings': [
+          {
+            'tag': {'tag': 'Science Fiction'},
+          },
+        ],
+      });
+
+      expect(searchHits.single.document.id, 1234);
+      expect(searchHits.single.document.authorNames, ['Frank Herbert']);
+      expect(searchHits.single.document.featuredSeries?.name, 'Dune');
+      expect(book.id, 1234);
+      expect(book.bookSeries.single.series?.slug, 'dune');
+      expect(book.editions.single.isbn13, '9780441172719');
+      expect(book.editions.single.publisher?.name, 'Chilton Books');
+      expect(book.taggings.single.name, 'Science Fiction');
+      expect(book.toJson()['title'], 'Dune');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = HardcoverProvider();
       expect(provider.name, 'hardcover');
       expect(provider.descriptor.displayName, 'Hardcover');
-      expect(provider.descriptor.kind, 'book');
-      expect(
-          provider.descriptor.supportedKinds, containsAll(['book', 'manga']));
+      expect(provider.descriptor.kind, CatalogMediaKind.book);
+      expect(provider.descriptor.supportedKinds,
+          containsAll([CatalogMediaKind.book, CatalogMediaKind.manga]));
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '60 req/min');
@@ -95,7 +145,7 @@ void main() {
       expect(item.provider, 'hardcover');
       expect(item.providerItemId, '1234');
       expect(item.title, 'Dune');
-      expect(item.kind, 'book');
+      expect(item.kind, CatalogMediaKind.book);
       expect(item.summary, 'Frank Herbert · 1965');
       expect(item.imageUrl, 'https://assets.hardcover.app/covers/dune.jpg');
     });
@@ -162,19 +212,19 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'hardcover');
       expect(envelope.providerItemId, '1234');
-      expect(envelope.kind, 'book');
-      expect(envelope.normalized['title'], 'Dune');
-      expect(envelope.normalized['synopsis'],
-          contains('Set on the desert planet'));
-      expect(envelope.normalized['publisher'], 'Chilton Books');
-      expect(envelope.normalized['page_count'], 688);
-      expect(envelope.normalized['genres'],
+      expect(envelope.kind, CatalogMediaKind.book);
+      expect(envelope.payload['title'], 'Dune');
+      expect(
+          envelope.payload['synopsis'], contains('Set on the desert planet'));
+      expect(envelope.payload['publisher'], 'Chilton Books');
+      expect(envelope.payload['page_count'], 688);
+      expect(envelope.payload['genres'],
           containsAll(['Science Fiction', 'Space Opera']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Frank Herbert');
-      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
-          'Author');
+      expect(
+          jsonObjectList(envelope.payload['creators']).first['role'], 'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -192,7 +242,7 @@ void main() {
       );
       expect(hcFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(hcFixtureRaw as Map),
       );
 
@@ -227,17 +277,17 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['page_count'], goldenEnvelope.normalized['page_count']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['page_count'], goldenEnvelope.payload['page_count']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(jsonObject(normalized['provider_ids'])['hardcover'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['hardcover']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['hardcover']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
       expect(jsonObjectList(normalized['creators']).first['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['role']);
     });
   });
 }

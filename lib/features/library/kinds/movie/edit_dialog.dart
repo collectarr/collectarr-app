@@ -1,8 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
-import 'package:collectarr_app/features/library/edit/default_kind_edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_custom_tab_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/movie/edit/movie_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
 const _movieMediaTabs = [
@@ -116,44 +117,68 @@ const _movieCombinedTabs = [
 ];
 
 class MovieLibraryCombinedEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const MovieLibraryCombinedEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _movieCombinedTabs,
           trackedTabs: _movieCombinedTabs,
           catalogTabs: _movieCombinedTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildMovieCustomTabView,
         );
 }
 
 class MovieLibraryMediaEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const MovieLibraryMediaEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _movieMediaTabs,
           trackedTabs: _movieMediaTabs,
           catalogTabs: _movieMediaTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildMovieCustomTabView,
         );
 }
 
 class MovieLibraryReleaseEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const MovieLibraryReleaseEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
           ownershipReferenceTitle: 'Release / copy reference',
           ownedBundleLabel: 'Owned release bundle',
           ownedTabs: _movieReleaseTabs,
           trackedTabs: _movieReleaseTabs,
           catalogTabs: _movieReleaseTabs,
-          customTabBuilder: buildVideoCustomTabView,
+          customTabBuilder: buildMovieCustomTabView,
         );
 }
 
@@ -170,7 +195,12 @@ class MovieLibraryEditDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return buildDefaultKindEditDialog(request: request);
+    return LibraryEditRenderer.fromDraft(
+      draft: LibraryEditDraft.fromRequest(request),
+      onPrevious: request.onPrevious,
+      onNext: request.onNext,
+      scope: request.resolvedScope,
+    );
   }
 }
 

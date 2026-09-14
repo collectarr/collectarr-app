@@ -46,14 +46,14 @@ class MusicCatalogItem {
   final String id;
   final MusicWorkMetadata work;
   final MusicRecordingMetadata recording;
-  final List<MusicRelease> releases;
+  final List<MusicCatalogRelease> releases;
 
   String get title => work.title;
   String? get originalTitle => work.originalTitle;
   String? get synopsis => work.synopsis;
   List<String> get genres => work.genres;
-  CatalogSeriesDetails? get series => null;
-  CatalogPublishingDetails? get publishing => null;
+  CatalogSeriesDetailsDto? get series => null;
+  CatalogPublishingDetailsDto? get publishing => null;
   List<Map<String, dynamic>>? get contributors => null;
   String? get coverImageUrl =>
       releases.isEmpty ? null : releases.first.coverImageUrl;
@@ -69,7 +69,7 @@ class MusicCatalogItem {
   String? get barcode => releases.isEmpty ? null : releases.first.upc;
   bool get hasMissingCoreMetadata => work.title.isEmpty;
 
-  // Extended getters for workspace_entry_builder compatibility
+  // Presentation getters used by the Music workspace entry builder.
   String? get displayTitle => null;
   String? get localizedTitle => null;
   List<String>? get searchAliases => null;
@@ -78,9 +78,9 @@ class MusicCatalogItem {
   String? get displayEditionLabel => null;
   String? get crossover => null;
   String? get displayCoverUrl => coverImageUrl;
-  List<TrailerLink> get trailerUrls => const <TrailerLink>[];
+  List<TrailerLinkDto> get trailerUrls => const <TrailerLinkDto>[];
   List<Map<String, dynamic>>? get creators => null;
   List<String>? get characters => null;
   List<String>? get storyArcs => null;
-  List<CatalogEdition> get editions => const <CatalogEdition>[];
+  List<CatalogEditionDto> get editions => const <CatalogEditionDto>[];
 }

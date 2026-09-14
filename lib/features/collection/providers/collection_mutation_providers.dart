@@ -1,34 +1,49 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/collection/sync/provider_local_state_bridge.dart';
+import 'package:collectarr_app/features/providers/domain/engine/provider_sync_coordinator.dart';
+import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
+import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
+import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/coordinators/collection_command_coordinator.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-import 'package:collectarr_app/features/collection/mutations/collection_import_service.dart';
-import 'package:collectarr_app/features/collection/mutations/custom_episode_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/collection_import_orchestrator.dart';
+import 'package:collectarr_app/features/collection/mutations/catalog_transport_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/metadata_override_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/custom_episodes_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_summary_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final syncQueueRepositoryProvider = Provider<SyncQueueRepository>((ref) {
   return SyncQueueRepository(ref.watch(localDatabaseProvider));
 });
 
-final ownedItemsCacheRepositoryProvider =
-    Provider<OwnedItemsCacheRepository>((ref) {
-  return OwnedItemsCacheRepository(ref.watch(localDatabaseProvider));
+final ownedItemsRepositoryProvider = Provider<OwnedItemsRepository>((ref) {
+  return OwnedItemsRepository(ref.watch(localDatabaseProvider));
 });
 
 final wishlistItemsCacheRepositoryProvider =
@@ -36,23 +51,32 @@ final wishlistItemsCacheRepositoryProvider =
   return WishlistItemsCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final catalogCacheRepositoryProvider = Provider<CatalogCacheRepository>((ref) {
-  return CatalogCacheRepository(ref.watch(localDatabaseProvider));
+final catalogTransportRepositoryProvider =
+    Provider<CatalogTransportRepository>((ref) {
+  return CatalogTransportRepository(ref.watch(localDatabaseProvider));
 });
 
-final trackingEntriesCacheRepositoryProvider =
-    Provider<TrackingEntriesCacheRepository>((ref) {
-  return TrackingEntriesCacheRepository(ref.watch(localDatabaseProvider));
+final trackingRecordRepositoryProvider =
+    Provider<TrackingStorageRepository>((ref) {
+  return TrackingStorageRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrTrackingStorageCodecs,
+  );
 });
 
-final trackingUnitsCacheRepositoryProvider =
-    Provider<TrackingUnitsCacheRepository>((ref) {
-  return TrackingUnitsCacheRepository(ref.watch(localDatabaseProvider));
+final trackingUnitStorageRepositoryProvider =
+    Provider<TrackingUnitStorageRepository>((ref) {
+  return TrackingUnitStorageRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrTrackingUnitStorageCodecs,
+  );
 });
 
-final watchSessionsCacheRepositoryProvider =
-    Provider<WatchSessionsCacheRepository>((ref) {
-  return WatchSessionsCacheRepository(ref.watch(localDatabaseProvider));
+final watchSessionRepositoryProvider = Provider<WatchSessionsRepository>((ref) {
+  return WatchSessionsRepository(
+    ref.watch(localDatabaseProvider),
+    codecs: collectarrWatchSessionCodecs,
+  );
 });
 
 final userMetadataOverridesCacheRepositoryProvider =
@@ -60,15 +84,38 @@ final userMetadataOverridesCacheRepositoryProvider =
   return UserMetadataOverridesCacheRepository(ref.watch(localDatabaseProvider));
 });
 
-final customEpisodesCacheRepositoryProvider =
-    Provider<CustomEpisodesCacheRepository>((ref) {
-  return CustomEpisodesCacheRepository(ref.watch(localDatabaseProvider));
-});
-
 final collectionEventBusProvider = Provider<CollectionEventBus>((ref) {
   final bus = CollectionEventBus();
   ref.onDispose(bus.dispose);
   return bus;
+});
+
+final providerLocalStateBridgeProvider =
+    Provider<ProviderLocalStateBridge>((ref) {
+  return ProviderLocalStateBridge(
+    catalogSummaries: CatalogDisplaySummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
+    trackingSummaries: TrackingSummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
+    wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
+  );
+});
+
+final providerSyncCoordinatorProvider =
+    FutureProvider<ProviderSyncCoordinator>((ref) async {
+  final registry = await ref.watch(providerRegistryProvider.future);
+  final bridge = ref.watch(providerLocalStateBridgeProvider);
+  return ProviderSyncCoordinator(
+    engine: const ExternalStateEngine(),
+    registry: registry,
+    accountStore: ref.watch(providerAccountStoreProvider),
+    linkStore: ref.watch(providerLinkStoreProvider),
+    localStateReader: bridge.read,
+    localStateApplier: (localRef, remoteEntry, origin) =>
+        _applyProviderEntry(ref, localRef, remoteEntry, origin),
+  );
 });
 
 final collectionMutationRunnerProvider =
@@ -81,16 +128,36 @@ final collectionMutationRunnerProvider =
         ref.read(syncControllerProvider.notifier).syncNow();
       }
     },
+    localMutationHandler: (localRef, origin) async {
+      final link =
+          await ref.read(providerLinkStoreProvider).getLinkByLocalRef(localRef);
+      if (link == null) {
+        return;
+      }
+      final bridge = ref.read(providerLocalStateBridgeProvider);
+      final localEntry = await bridge.read(localRef, link: link);
+      if (localEntry == null) {
+        return;
+      }
+      final coordinator =
+          await ref.read(providerSyncCoordinatorProvider.future);
+      await coordinator.handleLocalMutation(
+        localRef: localRef,
+        localEntry: localEntry,
+        origin: origin,
+      );
+    },
   );
 });
 
 final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
   final auth = ref.watch(authControllerProvider);
   return OwnedItemMutations(
-    ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
+    ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    catalogSummaries: CatalogDisplaySummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
     userId: auth.userId,
@@ -98,12 +165,21 @@ final ownedItemMutationsProvider = Provider<OwnedItemMutations>((ref) {
   );
 });
 
+final catalogTransportMutationsProvider =
+    Provider<CatalogTransportMutations>((ref) {
+  return CatalogTransportMutations(
+    catalogTransport: ref.watch(catalogTransportRepositoryProvider),
+    wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
+    trackingRecords: ref.watch(trackingRecordRepositoryProvider),
+    syncQueue: ref.watch(syncQueueRepositoryProvider),
+    mutationRunner: ref.watch(collectionMutationRunnerProvider),
+  );
+});
+
 final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
   return WishlistMutations(
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
-    trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
+    catalogTransport: ref.watch(catalogTransportRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -111,11 +187,10 @@ final wishlistMutationsProvider = Provider<WishlistMutations>((ref) {
 
 final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
   return TrackingMutations(
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
-    trackingUnits: ref.watch(trackingUnitsCacheRepositoryProvider),
-    watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
-    ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
+    trackingRecords: ref.watch(trackingRecordRepositoryProvider),
+    trackingUnits: ref.watch(trackingUnitStorageRepositoryProvider),
+    watchSessions: ref.watch(watchSessionRepositoryProvider),
+    ownedItems: ref.watch(ownedItemsRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -123,7 +198,7 @@ final trackingMutationsProvider = Provider<TrackingMutations>((ref) {
 
 final watchSessionMutationsProvider = Provider<WatchSessionMutations>((ref) {
   return WatchSessionMutations(
-    watchSessions: ref.watch(watchSessionsCacheRepositoryProvider),
+    watchSessions: ref.watch(watchSessionRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -138,21 +213,20 @@ final metadataOverrideMutationsProvider =
   );
 });
 
-final customEpisodeMutationsProvider = Provider<CustomEpisodeMutations>((ref) {
-  return CustomEpisodeMutations(
-    customEpisodes: ref.watch(customEpisodesCacheRepositoryProvider),
-    syncQueue: ref.watch(syncQueueRepositoryProvider),
-    mutationRunner: ref.watch(collectionMutationRunnerProvider),
-  );
-});
-
-final collectionImportServiceProvider =
-    Provider<CollectionImportService>((ref) {
-  return CollectionImportService(
-    ownedItems: ref.watch(ownedItemsCacheRepositoryProvider),
+final collectionImportOrchestratorProvider =
+    Provider<CollectionImportOrchestrator>((ref) {
+  return CollectionImportOrchestrator(
+    ownedItems: ref.watch(ownedItemsRepositoryProvider),
     wishlist: ref.watch(wishlistItemsCacheRepositoryProvider),
-    catalogCache: ref.watch(catalogCacheRepositoryProvider),
-    trackingEntries: ref.watch(trackingEntriesCacheRepositoryProvider),
+    catalogTransport: ref.watch(catalogTransportRepositoryProvider),
+    catalogSummaries: CatalogDisplaySummaryRepository(
+      ref.watch(localDatabaseProvider),
+    ),
+    catalogLookup: CatalogLookupRepository(
+      ref.watch(localDatabaseProvider),
+    ),
+    csvProfiles: collectionCsvKindProfiles,
+    trackingRecords: ref.watch(trackingRecordRepositoryProvider),
     syncQueue: ref.watch(syncQueueRepositoryProvider),
     mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
@@ -165,3 +239,100 @@ final collectionCommandCoordinatorProvider =
     trackingMutations: ref.watch(trackingMutationsProvider),
   );
 });
+
+Future<void> _applyProviderEntry(
+  Ref ref,
+  CatalogEntityRef localRef,
+  ProviderPersonalEntry remoteEntry,
+  MutationOrigin origin,
+) async {
+  final bridge = ref.read(providerLocalStateBridgeProvider);
+  final trackingSummaries =
+      await ref.read(trackingRecordRepositoryProvider).listActiveSummaries();
+  TrackingSummary? localTracking;
+  for (final entry in trackingSummaries) {
+    if (bridge.matches(entry.catalogRef, localRef)) {
+      localTracking = entry;
+      break;
+    }
+  }
+
+  final status = _trackingStatusForProvider(remoteEntry);
+  final rating = remoteEntry.rating == null
+      ? null
+      : (remoteEntry.rating! / 10).round().clamp(1, 10);
+
+  if (localTracking != null) {
+    await ref.read(trackingMutationsProvider).updateTrackingSummary(
+          localTracking,
+          status: status,
+          rating: rating,
+          startedAt: remoteEntry.startedAt,
+          finishedAt: remoteEntry.completedAt,
+          progress: TrackingProgressSnapshot(
+            current: remoteEntry.progress,
+            total: remoteEntry.totalProgress,
+            timesCompleted: remoteEntry.repeatCount,
+          ),
+          notes: remoteEntry.notes,
+          origin: origin,
+        );
+    return;
+  }
+
+  final wishlistItems =
+      await ref.read(wishlistItemsCacheRepositoryProvider).listActive();
+  var hasWishlistItem = false;
+  String? wishlistItemId;
+  for (final item in wishlistItems) {
+    if (bridge.matches(item.catalogRef, localRef)) {
+      hasWishlistItem = true;
+      wishlistItemId = item.id;
+      break;
+    }
+  }
+  if (!hasWishlistItem || !_hasProviderState(remoteEntry)) {
+    return;
+  }
+
+  await ref.read(trackingMutationsProvider).upsertTrackingState(
+        TrackingTarget.catalog(localRef),
+        status: status ?? MediaTrackingStatus.planned,
+        rating: rating,
+        progressCurrent: remoteEntry.progress,
+        progressTotal: remoteEntry.totalProgress,
+        startedAt: remoteEntry.startedAt,
+        finishedAt: remoteEntry.completedAt,
+        timesCompleted: remoteEntry.repeatCount,
+        notes: remoteEntry.notes,
+        origin: origin,
+      );
+  await ref.read(wishlistMutationsProvider).removeFromWishlist(
+        catalogRef: localRef,
+        wishlistItemId: wishlistItemId,
+        origin: origin,
+      );
+}
+
+MediaTrackingStatus? _trackingStatusForProvider(ProviderPersonalEntry entry) {
+  return switch (entry.status) {
+    ProviderEntryStatus.planning => MediaTrackingStatus.planned,
+    ProviderEntryStatus.current => MediaTrackingStatus.inProgress,
+    ProviderEntryStatus.completed => MediaTrackingStatus.completed,
+    ProviderEntryStatus.paused => MediaTrackingStatus.paused,
+    ProviderEntryStatus.dropped => MediaTrackingStatus.dropped,
+    ProviderEntryStatus.repeating => MediaTrackingStatus.repeating,
+    null => null,
+  };
+}
+
+bool _hasProviderState(ProviderPersonalEntry entry) {
+  return entry.status != null ||
+      entry.rating != null ||
+      entry.progress != null ||
+      entry.totalProgress != null ||
+      entry.startedAt != null ||
+      entry.completedAt != null ||
+      entry.repeatCount != 0 ||
+      entry.notes != null;
+}

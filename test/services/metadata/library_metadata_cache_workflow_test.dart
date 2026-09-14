@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:drift/native.dart';
@@ -15,15 +16,15 @@ void main() {
 
     final items = await searchAndCacheLibraryMetadata(
       api: api,
-      type: comicKindModule,
-      catalog: CatalogCacheRepository(db),
-      input: const LibraryMetadataSearchInput(
+      kind: comicKindModule.identity.kind,
+      catalog: CatalogTransportRepository(db),
+      input: const MetadataSearchQuery(
         query: 'Batman',
         issueNumber: '1',
         limit: 25,
       ),
     );
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await CatalogSnapshotRepository(db).findAll();
 
     expect(api.lastSearchQuery?.kind, 'comic');
     expect(api.lastSearchQuery?.query, 'Batman');
@@ -41,31 +42,31 @@ void main() {
 
     final results = await lookupAndCacheLibraryBarcodes(
       api: api,
-      type: comicKindModule,
-      catalog: CatalogCacheRepository(db),
-      barcodes: const ['good-code', 'missing-code'],
+      kind: comicKindModule.identity.kind,
+      catalog: CatalogTransportRepository(db),
+      codes: const ['012345678905', '000000000000'],
       onResult: seen.add,
     );
-    final rows = await db.select(db.catalogCache).get();
+    final rows = await CatalogSnapshotRepository(db).findAll();
 
     expect(results.length, 2);
     expect(results.first.found, isTrue);
     expect(results.last.found, isFalse);
-    expect(seen.map((result) => result.barcode), [
-      'good-code',
-      'missing-code',
+    expect(seen.map((result) => result.code), [
+      '012345678905',
+      '000000000000',
     ]);
-    expect(rows.single.id, 'comic-good-code');
+    expect(rows.single.id, 'comic-012345678905');
   });
 
   test('search input detects blank requests', () {
-    expect(const LibraryMetadataSearchInput().isEmpty, isTrue);
+    expect(const MetadataSearchQuery().isEmpty, isTrue);
     expect(
-      const LibraryMetadataSearchInput(query: '   ', barcode: '').isEmpty,
+      const MetadataSearchQuery(query: '   ', barcode: '').isEmpty,
       isTrue,
     );
-    expect(const LibraryMetadataSearchInput(series: 'Batman').isEmpty, isFalse);
-    expect(const LibraryMetadataSearchInput(year: 2024).isEmpty, isFalse);
+    expect(const MetadataSearchQuery(series: 'Batman').isEmpty, isFalse);
+    expect(const MetadataSearchQuery(year: 2024).isEmpty, isFalse);
   });
 }
 
@@ -94,7 +95,7 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
     String barcode, {
     String? kind,
   }) async {
-    if (barcode.contains('missing')) {
+    if (barcode == '000000000000') {
       throw Exception('missing barcode');
     }
     return {

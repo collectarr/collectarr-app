@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_connector.dart';
 import 'package:collectarr_app/features/providers/domain/contracts/provider_registry.dart';
 import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
@@ -11,6 +10,7 @@ import 'package:collectarr_app/features/providers/domain/models/provider_descrip
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_item_link.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_account_store.dart';
 import 'package:collectarr_app/features/providers/domain/repositories/provider_link_store.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,8 +70,8 @@ void main() {
         descriptor: const ProviderDescriptor(
           name: 'anilist',
           displayName: 'AniList',
-          kind: 'anime',
-          supportedKinds: ['anime', 'manga'],
+          kind: CatalogMediaKind.anime,
+          supportedKinds: [CatalogMediaKind.anime, CatalogMediaKind.manga],
         ),
         personalRead: mockCapability,
         personalWrite: mockCapability,
@@ -98,8 +98,8 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
-        kind: 'anime',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.anime,
+        entityType: CatalogEntityTypeId('work'),
       );
 
       // BASE snapshot
@@ -180,8 +180,8 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-anime-1',
-        kind: 'anime',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.anime,
+        entityType: CatalogEntityTypeId('work'),
       );
 
       await linkStore.saveLink(
@@ -216,7 +216,14 @@ void main() {
       expect(pushedExternal, isFalse);
       expect(mockCapability.writtenEntries, isEmpty);
 
-      // Case 2: Mutation originated from user -> PUSH TO EXTERNAL PROVIDER
+      final pushedFileImport = await coordinator.handleLocalMutation(
+        localRef: localRef,
+        localEntry: modifiedLocal,
+        origin: MutationOrigin.fileImport,
+      );
+      expect(pushedFileImport, isFalse);
+      expect(mockCapability.writtenEntries, isEmpty);
+
       final pushedUser = await coordinator.handleLocalMutation(
         localRef: localRef,
         localEntry: modifiedLocal,
@@ -244,8 +251,8 @@ void main() {
 
       const localRef = CatalogEntityRef(
         id: 'local-anime-55',
-        kind: 'anime',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.anime,
+        entityType: CatalogEntityTypeId('work'),
       );
 
       const entry = ProviderPersonalEntry(
@@ -273,6 +280,101 @@ void main() {
       final fetched = await linkStore.getLinkByLocalRef(localRef);
       expect(fetched?.remoteItemId, '55');
       expect(fetched?.baseSnapshot?.status, ProviderEntryStatus.completed);
+    });
+
+    test('sync policy filters pull and push fields independently', () async {
+      const policy = ProviderSyncPolicy(
+        status: SyncDirection.pullOnly,
+        rating: SyncDirection.pushOnly,
+        progress: SyncDirection.disabled,
+        history: SyncDirection.disabled,
+      );
+      const account = ProviderAccount(
+        id: 'acc-policy',
+        provider: ProviderId.aniList,
+        displayName: 'Policy User',
+        authType: ProviderAuthType.accessToken,
+        syncPolicy: policy,
+      );
+      await accountStore.saveAccount(account, accessToken: 'token-123');
+
+      const localRef = CatalogEntityRef(
+        id: 'local-anime-policy',
+        kind: CatalogMediaKind.anime,
+        entityType: CatalogEntityTypeId('work'),
+      );
+      const base = ProviderPersonalEntry(
+        provider: ProviderId.aniList,
+        remoteItemId: '21',
+        kind: CatalogMediaKind.anime,
+        status: ProviderEntryStatus.current,
+        rating: 80,
+        progress: 10,
+      );
+      await linkStore.saveLink(
+        const ProviderItemLink(
+          accountId: 'acc-policy',
+          provider: ProviderId.aniList,
+          remoteItemId: '21',
+          localEntityRef: localRef,
+          baseSnapshot: base,
+        ),
+      );
+      mockCapability.remoteEntries = [
+        const ProviderPersonalEntry(
+          provider: ProviderId.aniList,
+          remoteItemId: '21',
+          kind: CatalogMediaKind.anime,
+          status: ProviderEntryStatus.completed,
+          rating: 90,
+          progress: 11,
+        ),
+      ];
+
+      ProviderPersonalEntry? localEntry = const ProviderPersonalEntry(
+        provider: ProviderId.aniList,
+        remoteItemId: '21',
+        kind: CatalogMediaKind.anime,
+        status: ProviderEntryStatus.current,
+        rating: 85,
+        progress: 12,
+      );
+      final coordinator = ProviderSyncCoordinator(
+        engine: engine,
+        registry: registry,
+        accountStore: accountStore,
+        linkStore: linkStore,
+        localStateReader: (ref) async => localEntry,
+        localStateApplier: (ref, entry, origin) async {
+          localEntry = entry;
+        },
+      );
+
+      final pull = await coordinator.pullAccount(accountId: 'acc-policy');
+
+      expect(pull.appliedCount, 1);
+      expect(localEntry?.status, ProviderEntryStatus.completed);
+      expect(localEntry?.rating, 85);
+      expect(localEntry?.progress, 12);
+
+      final pushed = await coordinator.handleLocalMutation(
+        localRef: localRef,
+        localEntry: const ProviderPersonalEntry(
+          provider: ProviderId.aniList,
+          remoteItemId: '21',
+          kind: CatalogMediaKind.anime,
+          status: ProviderEntryStatus.dropped,
+          rating: 85,
+          progress: 12,
+        ),
+        origin: MutationOrigin.user,
+      );
+
+      expect(pushed, isTrue);
+      expect(mockCapability.writtenEntries.single.status,
+          ProviderEntryStatus.completed);
+      expect(mockCapability.writtenEntries.single.rating, 85);
+      expect(mockCapability.writtenEntries.single.progress, 11);
     });
   });
 }

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -17,9 +18,9 @@ class LibraryFilterEngine {
     required LibraryProjectionItem item,
     required LibraryProjectionQuery query,
     required LibrarySearchDocument searchDoc,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     LibraryProjectionIndex? index,
-    Set<String> activeLoanOwnedItemIds = const {},
+    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
   }) {
@@ -42,7 +43,7 @@ class LibraryFilterEngine {
     if (!_matchesCollectionStatusScope(item, query.collectionStatusScope)) {
       return false;
     }
-    if (!_matchesQuickView(item, query.quickView)) {
+    if (!_matchesQuickView(item, type, query.quickView)) {
       return false;
     }
     if (!_matchesFilter(
@@ -62,7 +63,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucket(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryGroupIdRuntime groupId,
     String? selectedBucket,
     LibraryProjectionIndex? index,
@@ -80,7 +81,7 @@ class LibraryFilterEngine {
 
   bool _matchesBucketScopeFilters(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     List<LibraryBucketScopeFilter> filters,
     LibraryProjectionIndex? index,
   ) {
@@ -101,10 +102,10 @@ class LibraryFilterEngine {
   }
 
   LibraryGroupIdRuntime _defaultGroupId(
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryProjectionQuery query,
   ) {
-    final fields = type.fields;
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
     return query.groupId ?? fields.defaultGroup ?? fields.groups.first.id;
   }
 
@@ -112,23 +113,19 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryCollectionStatusScope scope,
   ) {
-    final ownedItem = item.source.ownedItem;
-    final isSold = ownedItem?.isSold == true;
-    final collectionStatus =
-        item.source.ownedItem?.collectionStatus?.trim().toLowerCase();
+    final isSold = item.source.ownedSummary?.soldAt != null;
     final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
     final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
-    final isForSale = !isSold && collectionStatus == 'for_sale';
-    final isOnOrder = !isSold && collectionStatus == 'on_order';
-    final isInCollection =
-        item.source.isOwned && !isSold && !isForSale && !isOnOrder;
+    final isInCollection = item.source.isOwned && !isSold;
 
     return switch (scope) {
       LibraryCollectionStatusScope.all => true,
       LibraryCollectionStatusScope.inCollection => isInCollection,
-      LibraryCollectionStatusScope.forSale => isForSale,
+      // For-sale and on-order are kind-owned states. The mixed workspace has
+      // no semantic status field and therefore cannot infer either one.
+      LibraryCollectionStatusScope.forSale => false,
       LibraryCollectionStatusScope.wishList => isWishlistOnly,
-      LibraryCollectionStatusScope.onOrder => isOnOrder,
+      LibraryCollectionStatusScope.onOrder => false,
       LibraryCollectionStatusScope.sold => isSold,
       LibraryCollectionStatusScope.notInCollection => isCatalogOnly,
     };
@@ -136,25 +133,28 @@ class LibraryFilterEngine {
 
   bool _matchesQuickView(
     LibraryProjectionItem item,
+    LibraryKindRegistration type,
     LibraryQuickView? quickView,
   ) {
+    if (quickView == null) return true;
+    final kindResult =
+        type.presentation.quickViewMatcher?.call(item, quickView);
+    if (kindResult != null) return kindResult;
     return switch (quickView) {
-      null => true,
       LibraryQuickView.owned => item.source.isOwned,
       LibraryQuickView.wishlist => item.source.isWishlisted,
       LibraryQuickView.missingCovers =>
         item.dto.coverImageUrl == null || item.dto.coverImageUrl!.isEmpty,
       LibraryQuickView.missingMetadata => false,
-      LibraryQuickView.missingGrade => item.source.isOwned &&
-          (item.source.grade == null || item.source.grade!.trim().isEmpty),
+      LibraryQuickView.missingGrade => false,
     };
   }
 
   bool _matchesFilter(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryFilterSelection filters,
-    Set<String> activeLoanOwnedItemIds,
+    Set<OwnedItemRef> activeLoanOwnedItemIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
   ) {
     if (!filters.hasActiveFilters) {
@@ -168,7 +168,7 @@ class LibraryFilterEngine {
       return false;
     }
     if (!libraryTrackingStatusMatchesFilter(
-      item.source.tracking.status,
+      item.source.trackingStatus,
       filters.trackingStatusFilter,
     )) {
       return false;
@@ -199,11 +199,11 @@ class LibraryFilterEngine {
     if (definitionId == null || definitionId.isEmpty) {
       return true;
     }
-    final ownedItemId = item.source.ownedItem?.id;
-    if (ownedItemId == null) {
+    final ownedRefKey = item.source.ownedRef?.key;
+    if (ownedRefKey == null) {
       return false;
     }
-    final values = customFieldValuesByDefinitionByItem[ownedItemId];
+    final values = customFieldValuesByDefinitionByItem[ownedRefKey];
     final actualValue = values?[definitionId]?.trim();
     if (actualValue == null || actualValue.isEmpty) {
       return false;
@@ -222,16 +222,16 @@ class LibraryFilterEngine {
   bool _matchesLoanFilter(
     LibraryProjectionItem item,
     LibraryLoanStatusFilter filter,
-    Set<String> activeLoanOwnedItemIds,
+    Set<OwnedItemRef> activeLoanOwnedItemIds,
   ) {
     if (filter == LibraryLoanStatusFilter.all) {
       return true;
     }
-    final ownedItemId = item.source.ownedItem?.id;
-    if (ownedItemId == null) {
+    final ownedRef = item.source.ownedRef;
+    if (ownedRef == null) {
       return false;
     }
-    final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedItemId);
+    final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedRef);
     return switch (filter) {
       LibraryLoanStatusFilter.all => true,
       LibraryLoanStatusFilter.onLoan => hasActiveLoan,
@@ -270,22 +270,18 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryDateRangeField field,
   ) {
-    final ownedItem = item.source.ownedItem;
-    final trackingEntry = item.source.trackingEntry;
     return switch (field) {
       LibraryDateRangeField.updated => item.source.updatedAt,
-      LibraryDateRangeField.purchased => ownedItem?.purchaseDate,
-      LibraryDateRangeField.started =>
-        trackingEntry?.startedAt ?? ownedItem?.startedAt,
-      LibraryDateRangeField.finished =>
-        trackingEntry?.finishedAt ?? ownedItem?.finishedAt,
+      LibraryDateRangeField.purchased => item.source.purchaseDate,
+      LibraryDateRangeField.started => item.source.trackingStartedAt,
+      LibraryDateRangeField.finished => item.source.trackingCompletedAt,
     };
   }
 
   bool _matchesLinkedMetadata(
     LibraryProjectionItem item,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) {
     if (linkedMetadataFilter == null) {
       return true;

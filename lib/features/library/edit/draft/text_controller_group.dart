@@ -9,7 +9,7 @@ class TextControllerGroup {
     return controller;
   }
 
-  void track(TextEditingController controller) {
+  void register(TextEditingController controller) {
     _controllers.add(controller);
   }
 

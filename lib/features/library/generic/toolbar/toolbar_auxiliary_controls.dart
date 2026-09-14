@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -13,7 +13,7 @@ const libraryManageSortFavoritesMenuValue = 'manage_sort_favorites';
 
 Future<Set<String>?> showSortFavoritesManagerDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required List<LibrarySortFavorite> favorites,
   required Set<String> initialPinnedIds,
   String? activeSortFavoriteId,
@@ -363,7 +363,7 @@ class _SortFavoritesManagerDialog extends StatefulWidget {
     this.activeSortFavoriteId,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final List<LibrarySortFavorite> favorites;
   final Set<String> initialPinnedIds;
   final String? activeSortFavoriteId;
@@ -723,7 +723,7 @@ class _PinnedSortFavoriteTile extends StatelessWidget {
     required this.onRemove,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibrarySortFavorite favorite;
   final bool active;
   final int index;
@@ -818,7 +818,7 @@ class _AvailableSortFavoriteTile extends StatelessWidget {
     required this.onAdd,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibrarySortFavorite favorite;
   final bool active;
   final VoidCallback onAdd;
@@ -882,7 +882,7 @@ class _AvailableSortFavoriteTile extends StatelessWidget {
 }
 
 String _sortFavoriteSummary(
-    LibraryKindRuntime type, List<LibrarySortRule> rules) {
+    LibraryKindRegistration type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
@@ -891,11 +891,9 @@ String _sortFavoriteSummary(
       .join('  |  ');
 }
 
-String _sortColumnLabel(LibraryKindRuntime type, String column) {
-  final module = type;
-  return module.fields
-          .findSortDefinition(module.fields.decodeSortId(column))
-          ?.label ??
+String _sortColumnLabel(LibraryKindRegistration type, String column) {
+  final fields = libraryKindWorkspaceForKind(type.kind).fields;
+  return fields.findSortDefinition(fields.decodeSortId(column))?.label ??
       column;
 }
 

@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -11,9 +13,9 @@ import 'package:flutter/services.dart';
 
 /// Supported export formats for collection integration.
 enum ExportFormat {
-  csv('CSV', 'Spreadsheet-compatible', Icons.table_chart_outlined),
+  csv('CSV', 'Spreadsheet', Icons.table_chart_outlined),
   json('JSON', 'Structured data for APIs', Icons.data_object),
-  xml('XML', 'For CLZ/legacy import', Icons.code),
+  xml('XML', 'For CLZ import', Icons.code),
   markdown('Markdown', 'Readable checklist', Icons.text_snippet_outlined);
 
   const ExportFormat(this.label, this.description, this.icon);
@@ -25,7 +27,7 @@ enum ExportFormat {
 /// Shows an export dialog with multiple format options.
 Future<void> showIntegrationExportDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required ShelfState shelfState,
 }) {
   return showDialog<void>(
@@ -43,7 +45,7 @@ class _IntegrationExportDialog extends StatelessWidget {
     required this.shelfState,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final ShelfState shelfState;
 
   @override
@@ -88,12 +90,11 @@ class _IntegrationExportDialog extends StatelessWidget {
   }
 
   void _export(BuildContext context, ExportFormat format) {
-    final module = type;
     final data = switch (format) {
-      ExportFormat.csv => _toCsv(module),
-      ExportFormat.json => _toJson(module),
-      ExportFormat.xml => _toXml(module),
-      ExportFormat.markdown => _toMarkdown(module),
+      ExportFormat.csv => _toCsv(type),
+      ExportFormat.json => _toJson(),
+      ExportFormat.xml => _toXml(),
+      ExportFormat.markdown => _toMarkdown(type),
     };
     Clipboard.setData(ClipboardData(text: data));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -102,55 +103,25 @@ class _IntegrationExportDialog extends StatelessWidget {
     Navigator.pop(context);
   }
 
-  String _toCsv(LibraryKindRuntime module) {
-    final buffer = StringBuffer();
-    buffer.writeln('Title,Number,Series,Publisher,Barcode,Condition,Grade');
-    for (final entry in shelfState.entries) {
-      final projection = module.project(
-        source: entry,
-        node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogItem?.id ?? entry.itemId,
-        ),
-      );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final own = entry.ownedItem;
-      buffer.writeln([
-        _escapeCsv(entry.title),
-        _escapeCsv(adapter?.itemNumber ?? ''),
-        _escapeCsv(adapter?.seriesTitle ?? ''),
-        _escapeCsv(adapter?.publisher ?? ''),
-        _escapeCsv(adapter?.barcode ?? ''),
-        _escapeCsv(own?.condition ?? ''),
-        _escapeCsv(own?.grade ?? ''),
-      ].join(','));
-    }
-    return buffer.toString();
+  String _toCsv(LibraryKindRegistration module) {
+    return CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf(
+      shelfState.entries,
+    );
   }
 
-  String _toJson(LibraryKindRuntime module) {
-    final items = shelfState.entries.map((e) {
-      final projection = module.project(
-        source: e,
-        node: LibraryTitleNodeRef(
-          titleItemId: e.catalogItem?.id ?? e.itemId,
-        ),
-      );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final cat = e.catalogItem;
-      final own = e.ownedItem;
-      return {
-        'title': e.title,
-        if (adapter?.itemNumber != null) 'number': adapter!.itemNumber,
-        if (adapter?.seriesTitle != null) 'series': adapter!.seriesTitle,
-        if (adapter?.publisher != null) 'publisher': adapter!.publisher,
-        if (adapter?.barcode != null) 'barcode': adapter!.barcode,
-        if (own?.condition != null) 'condition': own!.condition,
-        if (own?.grade != null) 'grade': own!.grade,
-        if (cat?.releaseYear != null) 'year': cat!.releaseYear,
-      };
-    }).toList();
+  String _toJson() {
+    final items = shelfState.entries
+        .map(
+          (entry) => {
+            'id': entry.catalogRef?.id ?? entry.itemId,
+            'kind': entry.mediaKind.apiValue,
+            'title': entry.title,
+            'owned': entry.isOwned,
+            'wishlist': entry.isWishlisted,
+            if (entry.isOwned) 'quantity': entry.quantity,
+          },
+        )
+        .toList();
     return const JsonEncoder.withIndent('  ').convert({
       'collection': type.identity.title,
       'exported_at': DateTime.now().toIso8601String(),
@@ -159,81 +130,55 @@ class _IntegrationExportDialog extends StatelessWidget {
     });
   }
 
-  String _toXml(LibraryKindRuntime module) {
+  String _toXml() {
     final buffer = StringBuffer();
     buffer.writeln('<?xml version="1.0" encoding="UTF-8"?>');
     buffer.writeln(
         '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
-      final projection = module.project(
-        source: entry,
-        node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogItem?.id ?? entry.itemId,
-        ),
-      );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-      final own = entry.ownedItem;
-      buffer.writeln('  <item>');
+      buffer.writeln(
+          '  <item id="${_escapeXml(entry.catalogRef?.id ?? entry.itemId)}" kind="${entry.mediaKind.apiValue}">');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
-      if (adapter?.itemNumber != null) {
-        buffer.writeln(
-            '    <number>${_escapeXml(adapter!.itemNumber!)}</number>');
-      }
-      if (adapter?.seriesTitle != null) {
-        buffer.writeln(
-            '    <series>${_escapeXml(adapter!.seriesTitle!)}</series>');
-      }
-      if (adapter?.publisher != null) {
-        buffer.writeln(
-            '    <publisher>${_escapeXml(adapter!.publisher!)}</publisher>');
-      }
-      if (adapter?.barcode != null) {
-        buffer
-            .writeln('    <barcode>${_escapeXml(adapter!.barcode!)}</barcode>');
-      }
-      if (own?.condition != null) {
-        buffer.writeln(
-            '    <condition>${_escapeXml(own!.condition!)}</condition>');
-      }
+      buffer.writeln('    <owned>${entry.isOwned}</owned>');
+      buffer.writeln('    <wishlist>${entry.isWishlisted}</wishlist>');
       buffer.writeln('  </item>');
     }
     buffer.writeln('</collection>');
     return buffer.toString();
   }
 
-  String _toMarkdown(LibraryKindRuntime module) {
+  String _toMarkdown(LibraryKindRegistration module) {
     final buffer = StringBuffer();
     buffer.writeln('# ${type.identity.title}');
     buffer.writeln('');
     buffer.writeln('**${shelfState.entries.length} items**');
     buffer.writeln('');
     for (final entry in shelfState.entries) {
-      final projection = module.project(
+      final projection = libraryKindWorkspaceForKind(module.kind).project(
         source: entry,
         node: LibraryTitleNodeRef(
-          titleItemId: entry.catalogItem?.id ?? entry.itemId,
+          titleItemId: entry.catalogRef?.id ?? entry.itemId,
         ),
       );
-      final dto = projection.dto;
-      final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+      final card = libraryCardPresentationForEntry(
+        LibraryProjectionItem(
+          source: entry,
+          node: LibraryTitleNodeRef(
+            titleItemId: entry.catalogRef?.id ?? entry.itemId,
+          ),
+          dto: projection.dto,
+        ),
+      );
       final parts = <String>[entry.title];
-      if (adapter?.itemNumber != null && adapter!.itemNumber!.isNotEmpty) {
-        parts.add('#${adapter.itemNumber}');
+      if (card.itemNumber != null && card.itemNumber!.isNotEmpty) {
+        parts.add('#${card.itemNumber}');
       }
-      if (adapter?.seriesTitle != null && adapter!.seriesTitle!.isNotEmpty) {
-        parts.add('(${adapter.seriesTitle})');
+      if (card.seriesTitle != null && card.seriesTitle!.isNotEmpty) {
+        parts.add('(${card.seriesTitle})');
       }
       buffer.writeln('- [ ] ${parts.join(' ')}');
     }
     return buffer.toString();
-  }
-
-  String _escapeCsv(String value) {
-    if (value.contains(',') || value.contains('"') || value.contains('\n')) {
-      return '"${value.replaceAll('"', '""')}"';
-    }
-    return value;
   }
 
   String _escapeXml(String value) {

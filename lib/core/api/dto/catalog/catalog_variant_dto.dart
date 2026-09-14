@@ -37,6 +37,12 @@ class CatalogVariantDto {
   final Map<String, dynamic>? metadata;
   final bool isPrimary;
 
+  /// Neutral identifier projection for structural Add/presentation hosts.
+  String? get identifierCode => barcode;
+
+  /// Best available display label for the transport-level format value.
+  String? get displayFormat => physicalFormatLabel ?? physicalFormat;
+
   factory CatalogVariantDto.fromJson(Map<String, dynamic> json) {
     return CatalogVariantDto(
       id: json['id'] as String,
@@ -81,5 +87,3 @@ class CatalogVariantDto {
     };
   }
 }
-
-typedef CatalogVariant = CatalogVariantDto;

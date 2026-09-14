@@ -1,39 +1,41 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/imports/framework/import_models.dart';
 import 'package:collectarr_app/features/imports/framework/import_runner.dart';
 import 'package:collectarr_app/features/providers/domain/engine/external_state_engine.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
 import 'package:collectarr_app/features/providers/domain/models/sync_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-ImportRow _row(String id, String title, {String kind = 'anime'}) {
-  return ImportRow(
-    sourceId: id,
+ProviderPersonalEntry _entry(String id, String title,
+    {CatalogMediaKind kind = CatalogMediaKind.anime}) {
+  return ProviderPersonalEntry(
+    provider: ProviderId.myAnimeList,
+    remoteItemId: id,
+    kind: kind,
     title: title,
-    mediaKind: kind,
     status: ProviderEntryStatus.completed,
-    rating: 80,
+    rating: 80.0,
   );
 }
 
 CatalogEntityRef _ref(String id) => CatalogEntityRef(
-      kind: 'anime',
-      entityType: CatalogEntityType.work,
+      kind: CatalogMediaKind.anime,
+      entityType: const CatalogEntityTypeId('work'),
       id: id,
     );
 
 class _Source implements ImportSource {
   _Source(this.rows);
 
-  final List<ImportRow> rows;
+  final List<ProviderPersonalEntry> rows;
 
   @override
   ProviderId get provider => ProviderId.myAnimeList;
 
   @override
-  Future<List<ImportRow>> readRows() async => rows;
+  Future<List<ProviderPersonalEntry>> readRows() async => rows;
 }
 
 void main() {
@@ -46,13 +48,13 @@ void main() {
 
   test('runner imports matched rows and counts them', () async {
     final runner = ImportRunner(
-      matcher: (row) async => ImportMapping.matched(
-          row, _ref('anime-${(row as ImportRow).sourceId}')),
+      matcher: (row) async =>
+          ImportMapping.matched(row, _ref('anime-${row.remoteItemId}')),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
     );
 
     final result = await runner.run(
-      [_row('1', 'Cowboy Bebop'), _row('2', 'Trigun')],
+      [_entry('1', 'Cowboy Bebop'), _entry('2', 'Trigun')],
       config,
     );
 
@@ -61,6 +63,28 @@ void main() {
     expect(result.imported, 2);
     expect(result.unmatched, 0);
     expect(result.hasConflicts, isFalse);
+  });
+
+  test('runner passes the configured mutation origin to the applier', () async {
+    MutationOrigin? appliedOrigin;
+    final runner = ImportRunner(
+      matcher: (entry) async => ImportMapping.matched(entry, _ref('anime-1')),
+      applier: (mapping, config) async {
+        appliedOrigin = config.origin;
+        return ImportRowOutcome.imported;
+      },
+    );
+
+    await runner.run(
+      [_entry('1', 'Cowboy Bebop')],
+      const ImportRunConfig(
+        provider: ProviderId.myAnimeList,
+        collectionLabel: 'Anime',
+        origin: MutationOrigin.fileImport,
+      ),
+    );
+
+    expect(appliedOrigin, MutationOrigin.fileImport);
   });
 
   test('runner surfaces conflicts and keeps local when applier says so',
@@ -78,7 +102,7 @@ void main() {
       applier: (mapping, cfg) async => ImportRowOutcome.keptLocal,
     );
 
-    final result = await runner.run([_row('1', 'Berserk')], config);
+    final result = await runner.run([_entry('1', 'Berserk')], config);
 
     expect(result.matched, 1);
     expect(result.keptLocal, 1);
@@ -93,7 +117,7 @@ void main() {
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
     );
 
-    final result = await runner.run([_row('99', 'Obscure OVA')], config);
+    final result = await runner.run([_entry('99', 'Obscure OVA')], config);
 
     expect(result.matched, 0);
     expect(result.unmatched, 1);
@@ -108,12 +132,12 @@ void main() {
       matcher: (row) async => ImportMapping.unmatched(row),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
       unmatchedHandler: (row, cfg) async {
-        handled.add((row as ImportRow).sourceId);
+        handled.add(row.remoteItemId);
       },
     );
 
     final result = await runner.runSource(
-      _Source([_row('7', 'Baki')]),
+      _Source([_entry('7', 'Baki')]),
       config,
     );
 
@@ -124,11 +148,11 @@ void main() {
 
   test('result maps onto a provider history entry', () async {
     final runner = ImportRunner(
-      matcher: (row) async => ImportMapping.matched(
-          row, _ref('anime-${(row as ImportRow).sourceId}')),
+      matcher: (row) async =>
+          ImportMapping.matched(row, _ref('anime-${row.remoteItemId}')),
       applier: (mapping, cfg) async => ImportRowOutcome.imported,
     );
-    final result = await runner.run([_row('1', 'Steins;Gate')], config);
+    final result = await runner.run([_entry('1', 'Steins;Gate')], config);
 
     final entry = result.toHistoryEntry(
       id: 'run-1',
@@ -172,7 +196,6 @@ void main() {
     expect(diff.hasConflicts, isTrue);
 
     final runner = ImportRunner(
-      engine: engine,
       matcher: (e) async => ImportMapping.matched(
         e,
         _ref('anime-1'),

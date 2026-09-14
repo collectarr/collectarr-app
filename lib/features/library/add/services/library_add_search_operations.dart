@@ -1,12 +1,12 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 
 class LibraryAddCoreSearchResult {
@@ -15,7 +15,7 @@ class LibraryAddCoreSearchResult {
     required this.shouldSearchProvider,
   });
 
-  final List<LibraryMetadataItem> items;
+  final List<CatalogSearchCandidate> items;
   final bool shouldSearchProvider;
 }
 
@@ -53,9 +53,9 @@ LibraryAddProviderSearchDebounceDecision
 
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required ApiClient api,
-  required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
-  required LibraryMetadataSearchInput input,
+  required LibraryKindRegistration type,
+  required CatalogTransportRepository catalog,
+  required MetadataSearchQuery input,
   required Duration timeout,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
@@ -63,11 +63,17 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
 }) async {
   final items = await searchAndCacheLibraryMetadata(
     api: api,
-    type: type,
+    kind: type.kind,
     catalog: catalog,
     input: input,
   ).timeout(timeout);
-  final rankedItems = ranking.rankMetadata(items, searchContext);
+  final rankedItems = ranking.rankMetadata(
+    [
+      for (final item in items)
+        CatalogSearchCandidate.fromItem(item.toTransport()),
+    ],
+    searchContext,
+  );
   return LibraryAddCoreSearchResult(
     items: rankedItems,
     shouldSearchProvider: providerSearchAvailable &&
@@ -75,45 +81,49 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   );
 }
 
-Future<List<LibraryMetadataItem>> fetchLibraryAddSuggestions({
+Future<List<CatalogSearchCandidate>> fetchLibraryAddSuggestions({
   required ApiClient api,
-  required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
-  required LibraryMetadataSearchInput input,
+  required LibraryKindRegistration type,
+  required CatalogTransportRepository catalog,
+  required MetadataSearchQuery input,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
   Duration timeout = const Duration(seconds: 5),
 }) async {
   final items = await searchAndCacheLibraryMetadata(
     api: api,
-    type: type,
+    kind: type.kind,
     catalog: catalog,
     input: input,
   ).timeout(timeout);
-  return filterAndRankLibraryMetadataItems(
-    items,
+  return filterAndRankCatalogItems(
+    [
+      for (final item in items)
+        CatalogSearchCandidate.fromItem(item.toTransport()),
+    ],
     ranking,
     searchContext,
   );
 }
 
-Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
+Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   required ApiClient api,
-  required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
-  required String barcode,
+  required LibraryKindRegistration type,
+  required CatalogTransportRepository catalog,
+  required String identifierCode,
   required Duration timeout,
   required bool providerSearchAvailable,
 }) async {
   final results = await lookupAndCacheLibraryBarcodes(
     api: api,
-    type: type,
+    kind: type.kind,
     catalog: catalog,
-    barcodes: [barcode],
+    codes: [identifierCode],
   ).timeout(timeout);
-  final foundItems = [
+  final foundItems = <CatalogSearchCandidate>[
     for (final result in results)
-      if (result.item != null) result.item!,
+      if (result.item != null)
+        CatalogSearchCandidate.fromItem(result.item!.toTransport()),
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,
@@ -123,15 +133,15 @@ Future<LibraryAddCoreSearchResult> runLibraryAddBarcodeLookup({
 
 Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
   ApiClient? api,
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required String provider,
   required String query,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
-  ProviderRegistry? providerRegistry,
-  String? kindOverride,
+  ProviderConnectorRegistry? providerRegistry,
+  LibraryAddSearchScope? kindOverride,
 }) async {
-  final targetKind = kindOverride ?? type.kind.apiValue;
+  final targetKind = kindOverride == null ? type.kind : kindOverride.kind;
   final normalizedProvider =
       provider.trim().isEmpty ? null : provider.trim().toLowerCase();
   final effectiveQuery = query.trim();
@@ -143,21 +153,11 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final p = providerRegistry.get(normalizedProvider);
       if (p != null) {
         try {
-          final results = await p.search(effectiveQuery, kind: targetKind);
-          candidates = results
-              .map((r) => ProviderCandidate(
-                    provider: r.provider,
-                    providerItemId: r.providerItemId,
-                    title: r.title,
-                    kind: r.kind,
-                    summary: r.summary,
-                    imageUrl: r.imageUrl,
-                    series: r.seriesTitle != null
-                        ? CatalogSeriesDetailsDto(seriesTitle: r.seriesTitle)
-                        : null,
-                    issueNumber: r.issueNumber,
-                  ))
-              .toList();
+          candidates = await type.add.search.searchProvider(
+            p,
+            query: effectiveQuery,
+            kind: targetKind,
+          );
         } catch (_) {
           candidates = const [];
         }
@@ -166,28 +166,22 @@ Future<List<ProviderCandidate>> runLibraryAddProviderSearch({
       final providers = providerRegistry.getForKind(targetKind);
       final futures = providers.map((p) async {
         try {
-          final results = await p.search(effectiveQuery, kind: targetKind);
-          return results
-              .map((r) => ProviderCandidate(
-                    provider: r.provider,
-                    providerItemId: r.providerItemId,
-                    title: r.title,
-                    kind: r.kind,
-                    summary: r.summary,
-                    imageUrl: r.imageUrl,
-                    series: r.seriesTitle != null
-                        ? CatalogSeriesDetailsDto(seriesTitle: r.seriesTitle)
-                        : null,
-                    issueNumber: r.issueNumber,
-                  ))
-              .toList();
+          return await type.add.search.searchProvider(
+            p,
+            query: effectiveQuery,
+            kind: targetKind,
+          );
         } catch (_) {
           // A broken provider must NOT destroy the rest of the search!
           return const <ProviderCandidate>[];
         }
       });
       final lists = await Future.wait(futures);
-      candidates = lists.expand((l) => l).toList();
+      candidates = lists
+          .expand<ProviderCandidate>(
+            (list) => list,
+          )
+          .toList();
     }
   }
 

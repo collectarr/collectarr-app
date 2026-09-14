@@ -1,7 +1,9 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -21,7 +23,8 @@ void main() {
     test('all 9 production kinds are registered and have explicit capabilities',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = testKindRegistration(kind);
+        final workspace = testKindWorkspace(kind);
         expect(runtime, isNotNull,
             reason: '$kind must be registered in LibraryKindRegistry');
 
@@ -41,32 +44,34 @@ void main() {
             reason: '$kind initial add draft must be non-null');
 
         // Edit capability
-        final editCap = runtime.edit;
+        final editCap = runtime.editCapabilities;
         expect(editCap, isNotNull,
             reason: '$kind must have explicit edit capability');
-        expect(editCap.createDraft, isNotNull,
+        expect(editCap.draft.createDraft, isNotNull,
             reason: '$kind must have explicit edit draft factory');
 
-        // Owned details and codec
-        expect(runtime.defaultOwnedDetails(), isNotNull,
+        // Owned details and codec live in the kind-owned serialization registry.
+        final ownedCodec = ownedDetailsFixtureForTest(kind);
+        expect(ownedCodec.defaultDetails(), isNotNull,
             reason: '$kind defaultOwnedDetails must not be null');
-        expect(runtime.defaultOwnedDetailsDraft(), isNotNull,
+        expect(
+            runtime.add.createInitialDraft().toOwnedDetailsDraft(), isNotNull,
             reason: '$kind defaultOwnedDetailsDraft must not be null');
 
         // Fields & Schema
-        expect(runtime.fields, isNotNull,
+        expect(workspace.fields, isNotNull,
             reason: '$kind must have a field registry');
-        expect(runtime.fields.kindNamespace, equals(kind.apiValue),
+        expect(workspace.fields.kindNamespace, equals(kind.apiValue),
             reason: '$kind field registry namespace must match kind');
-        expect(runtime.fields.columns.isNotEmpty, isTrue,
+        expect(workspace.fields.columns.isNotEmpty, isTrue,
             reason: '$kind field registry must declare columns');
-        expect(runtime.fields.sorts.isNotEmpty, isTrue,
+        expect(workspace.fields.sorts.isNotEmpty, isTrue,
             reason: '$kind field registry must declare sorts');
-        expect(runtime.fields.groups.isNotEmpty, isTrue,
+        expect(workspace.fields.groups.isNotEmpty, isTrue,
             reason: '$kind field registry must declare groups');
 
         // Projector
-        expect(runtime.projector, isNotNull,
+        expect(workspace.projector, isNotNull,
             reason: '$kind must have a workspace projector');
 
         // View Profile, Hierarchy, Metadata, Inspector, Transfer
@@ -87,10 +92,57 @@ void main() {
 
     test('no production kind uses generic fallback for core capabilities', () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = testKindRegistration(kind);
         expect(runtime.kind, isNot(equals(CatalogMediaKind.unknown)));
         expect(runtime.identity.singularLabel.isNotEmpty, isTrue);
         expect(runtime.identity.pluralLabel.isNotEmpty, isTrue);
+      }
+    });
+
+    test('serialization detail registry covers every active kind', () {
+      final decodedTypes = <Type>{};
+      for (final kind in activeKinds) {
+        final codec = ownedDetailsFixtureForTest(kind);
+        final details = codec.defaultDetails();
+        final decoded = codec.fromJson(details.toJson());
+        expect(decoded.runtimeType, details.runtimeType,
+            reason: '$kind codec must round-trip its concrete details type');
+        codec.validate(decoded);
+        decodedTypes.add(decoded.runtimeType);
+      }
+
+      expect(decodedTypes, hasLength(activeKinds.length));
+      expect(
+        () => ownedDetailsFixtureForTest(CatalogMediaKind.unknown),
+        throwsArgumentError,
+      );
+    });
+
+    test('generated kind registry covers typed catalog and vocabulary inputs',
+        () {
+      final catalogKinds = collectarrKindCatalogTransportCodecs
+          .map((codec) => codec.kind)
+          .toSet();
+      expect(catalogKinds, equals(activeKinds.toSet()));
+
+      final vocabularyKinds = collectarrKindPickListDefinitionContributors
+          .map((contributor) => contributor.kind)
+          .toSet();
+      expect(vocabularyKinds, equals(activeKinds.toSet()));
+
+      final serialKinds = collectarrKindSerialAuthorityContributors
+          .map((contributor) => contributor.kind)
+          .toSet();
+      expect(serialKinds,
+          equals({CatalogMediaKind.comic, CatalogMediaKind.manga}));
+
+      expect(
+        collectarrKindExportPreviewContributors.keys,
+        equals({CatalogMediaKind.comic}),
+      );
+
+      for (final kind in activeKinds) {
+        expect(collectarrOwnedItemSummaryReaders, contains(kind));
       }
     });
 
@@ -99,10 +151,9 @@ void main() {
         () {
       final detailsTypes = <Type>{};
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
-        final defaultDetails = runtime.defaultOwnedDetails();
+        final defaultDetails =
+            ownedDetailsFixtureForTest(kind).defaultDetails();
         expect(defaultDetails, isNotNull);
-        expect(defaultDetails.runtimeType, isNot(equals(GenericOwnedDetails)));
         detailsTypes.add(defaultDetails.runtimeType);
       }
       expect(detailsTypes.length, equals(9),
@@ -114,7 +165,7 @@ void main() {
         () {
       final addDraftTypes = <Type>{};
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
+        final runtime = testKindRegistration(kind);
         final initialDraft = runtime.add.createInitialDraft();
         expect(initialDraft.kind, equals(runtime.kind),
             reason: '$kind add draft kind must match runtime.kind');
@@ -131,8 +182,8 @@ void main() {
         'all fields are explicitly and strictly classified into correct scopes (Plan D)',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
-        for (final field in runtime.fields.fields) {
+        final workspace = testKindWorkspace(kind);
+        for (final field in workspace.fields.fields) {
           final id = field.id.value.toLowerCase();
 
           // 1. Copy / Personal fields
@@ -191,9 +242,9 @@ void main() {
         'edit draft creation produces kind-owned edit drafts with non-null factories',
         () {
       for (final kind in activeKinds) {
-        final runtime = libraryKindRuntimeForKind(kind);
-        expect(runtime.edit, isNotNull);
-        expect(runtime.edit.createDraft, isNotNull);
+        final runtime = testKindRegistration(kind);
+        expect(runtime.editDraft, isNotNull);
+        expect(runtime.editDraft.createDraft, isNotNull);
       }
     });
   });

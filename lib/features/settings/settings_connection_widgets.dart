@@ -456,12 +456,12 @@ class _SyncConflictDiffDialog extends StatelessWidget {
                     _PayloadPanel(
                       title: 'Local rejected payload',
                       timestamp: change.localClientChangedAt,
-                      payload: localPayload,
+                      data: localPayload,
                     ),
                     _PayloadPanel(
                       title: 'Service kept payload',
                       timestamp: change.currentClientChangedAt,
-                      payload: servicePayload,
+                      data: servicePayload,
                     ),
                   ];
                   if (constraints.maxWidth < 720) {
@@ -501,18 +501,18 @@ class _SyncConflictDiffDialog extends StatelessWidget {
 class _PayloadPanel extends StatelessWidget {
   const _PayloadPanel({
     required this.title,
-    required this.payload,
+    required this.data,
     this.timestamp,
   });
 
   final String title;
   final DateTime? timestamp;
-  final Map<String, dynamic> payload;
+  final Map<String, dynamic> data;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final encoded = const JsonEncoder.withIndent('  ').convert(payload);
+    final encoded = const JsonEncoder.withIndent('  ').convert(data);
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: colorScheme.outlineVariant),

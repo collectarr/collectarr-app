@@ -1,30 +1,32 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/manga/contracts/manga_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/provider/manga_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_projector.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Manga Kind Vertical Slice Tests (C1)', () {
     test('MangaMetadata serializes and deserializes full domain fields', () {
       const metadata = MangaMetadata(
-        nativeTitle: '葬送のフリーレン',
+        nativeTitle: 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
         romajiTitle: 'Sousou no Frieren',
         englishTitle: 'Frieren: Beyond Journey\'s End',
         alternateTitles: ['Frieren the Slayer'],
@@ -51,7 +53,7 @@ void main() {
       final json = metadata.toJson();
       final restored = MangaMetadata.fromJson(json);
 
-      expect(restored.nativeTitle, '葬送のフリーレン');
+      expect(restored.nativeTitle, 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³');
       expect(restored.romajiTitle, 'Sousou no Frieren');
       expect(restored.englishTitle, 'Frieren: Beyond Journey\'s End');
       expect(restored.authors, contains('Kanehito Yamada'));
@@ -97,7 +99,7 @@ void main() {
 
     test('MangaWorkspaceProjector projects metadata and ownedDetails', () {
       const mangaMeta = MangaMetadata(
-        nativeTitle: '葬送のフリーレン',
+        nativeTitle: 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
         romajiTitle: 'Sousou no Frieren',
         demographic: MangaDemographic.shonen,
         totalVolumes: 13,
@@ -106,29 +108,29 @@ void main() {
         localizedPublisher: 'VIZ Media',
       );
 
-      final shelfEntry = ShelfEntry(
+      final owned = testOwnedItem(
+        id: 'owned_1',
+        catalogRef: const CatalogEntityRef(
+          id: 'manga_1',
+          kind: CatalogMediaKind.manga,
+          entityType: CatalogEntityTypeId('work'),
+        ),
+        condition: 'Near Mint',
+        updatedAt: DateTime.now(),
+        obiStripPresent: true,
+      );
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'manga_1',
-        catalogItem: const LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'manga_1',
             mediaKind: CatalogMediaKind.manga,
           ),
           kindMetadata: mangaMeta,
-        ),
-        ownedItem: OwnedItem(
-          id: 'owned_1',
-          catalogRef: const CatalogEntityRef(
-            id: 'manga_1',
-            kind: 'manga',
-            entityType: CatalogEntityType.work,
-          ),
-          condition: 'Near Mint',
-          updatedAt: DateTime.now(),
-          details: const MangaOwnedDetails(
-            obiStripPresent: true,
-            printing: '1st Print',
-            localizedEdition: 'VIZ Signature',
-          ),
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(owned),
+        ownedItemDispatch: testMangaOwnedItemDispatchFrom(
+          MangaOwnedItem.fromJson(owned.toJson()),
         ),
       );
 
@@ -141,7 +143,7 @@ void main() {
         node: node,
       );
 
-      expect(dto.metadata?.nativeTitle, '葬送のフリーレン');
+      expect(dto.metadata?.nativeTitle, 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³');
       expect(dto.metadata?.demographic, MangaDemographic.shonen);
       expect(dto.metadata?.totalVolumes, 13);
       expect(dto.ownedDetails?.obiStripPresent, isTrue);
@@ -156,7 +158,7 @@ void main() {
 
       expect(
         MangaKindSchema.nativeTitle.getValue(ctx),
-        '葬送のフリーレン',
+        'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
       );
       expect(
         MangaKindSchema.demographic.getValue(ctx),
@@ -179,15 +181,15 @@ void main() {
     test('MangaEditDraft builds complete MangaOwnedDetailsDraft', () {
       final textControllers = TextControllerGroup();
       const mapper = MangaLibraryKindProviderMapper();
-      final metaItem = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final metaItem = mapper.catalogCandidateFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'anilist',
           providerItemId: '123',
-          kind: 'manga',
-          normalized: const {
+          kind: CatalogMediaKind.manga,
+          payload: const ProviderMetadataPayload({
             'title': 'Frieren',
             'publisher': 'Shogakukan',
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -198,19 +200,21 @@ void main() {
 
       final draft = createMangaEditDraft(
         item: metaItem,
-        ownedItem: OwnedItem(
-          id: 'owned_1',
-          catalogRef: const CatalogEntityRef(
-            id: 'manga_1',
-            kind: 'manga',
-            entityType: CatalogEntityType.work,
-          ),
-          updatedAt: DateTime.now(),
-          details: const MangaOwnedDetails(
-            obiStripPresent: true,
-            slipcoverPresent: true,
-            printing: '1st Print',
-            localizedEdition: 'VIZ Signature',
+        ownedItemDispatch: testMangaOwnedItemDispatchFrom(
+          MangaOwnedItem(
+            id: const MangaOwnedItemId('owned_1'),
+            catalogRef: const CatalogEntityRef(
+              id: 'manga_1',
+              kind: CatalogMediaKind.manga,
+              entityType: CatalogEntityTypeId('work'),
+            ),
+            updatedAt: DateTime.now(),
+            details: const MangaOwnedDetails(
+              obiStripPresent: true,
+              slipcoverPresent: true,
+              printing: '1st Print',
+              localizedEdition: 'VIZ Signature',
+            ),
           ),
         ),
         textControllers: textControllers,
@@ -238,7 +242,7 @@ void main() {
         'id': 'manga_frieren',
         'kind': 'manga',
         'title': 'Frieren: Beyond Journey\'s End',
-        'native_title': '葬送のフリーレン',
+        'native_title': 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
         'romaji_title': 'Sousou no Frieren',
         'english_title': 'Frieren: Beyond Journey\'s End',
         'authors': ['Kanehito Yamada'],
@@ -269,7 +273,7 @@ void main() {
       expect(catalog.id, 'manga_frieren');
       expect(catalog.mediaKind, CatalogMediaKind.manga);
       expect(catalog.title, 'Frieren: Beyond Journey\'s End');
-      expect(catalog.nativeTitle, '葬送のフリーレン');
+      expect(catalog.nativeTitle, 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³');
       expect(catalog.demographic, MangaDemographic.shonen);
       expect(catalog.readingDirection, MangaReadingDirection.rightToLeft);
       expect(catalog.displayCoverUrl, 'https://example.com/frieren_thumb.jpg');
@@ -284,15 +288,15 @@ void main() {
       expect(restored.artists, contains('Tsukasa Abe'));
       expect(restored.totalVolumes, 13);
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'manga_frieren',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'manga_frieren',
             mediaKind: CatalogMediaKind.manga,
           ),
           kindMetadata: MangaMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = MangaEntry.fromShelf(shelfEntry);

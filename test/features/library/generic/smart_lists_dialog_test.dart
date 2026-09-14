@@ -72,7 +72,7 @@ void main() {
                     CustomFieldDefinition(
                       id: 'cf-location',
                       name: 'Location',
-                      fieldType: 'select',
+                      fieldType: 'singleSelect',
                       createdAt: DateTime.utc(2026, 1, 1),
                     ),
                   ],

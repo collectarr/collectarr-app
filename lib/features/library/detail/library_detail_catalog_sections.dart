@@ -1,17 +1,18 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildLibraryDetailCatalogSections({
   required BuildContext context,
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
   required Color accent,
   ValueChanged<String>? onFilterByValue,
 }) {
@@ -34,8 +35,8 @@ class LibraryDetailMetadataSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -61,8 +62,8 @@ class LibraryDetailContextSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -87,8 +88,8 @@ class LibraryDetailCreditsSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -112,8 +113,8 @@ class LibraryDetailProvenanceSection extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
   final Color accent;
 
   @override
@@ -150,8 +151,8 @@ class LibraryDetailMetadataHealthSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -199,7 +200,7 @@ class LibraryDetailCoverStatusSection extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryProjectionRuntime item;
+  final LibraryProjectionView item;
   final Color accent;
 
   @override
@@ -246,7 +247,7 @@ class LibraryDetailProviderSection extends StatelessWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final ValueChanged<String>? onFilterByValue;
 
@@ -355,8 +356,8 @@ class _MetadataHealth {
 }
 
 _MetadataHealth _buildMetadataHealth(
-  LibraryKindRuntime type,
-  LibraryProjectionRuntime item,
+  LibraryKindRegistration type,
+  LibraryProjectionView item,
 ) {
   var score = 0;
   final missingSignals = <String>[];
@@ -384,25 +385,36 @@ _MetadataHealth _buildMetadataHealth(
   }
 
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-  final catalogItem = item.source.catalogItem;
+  final presentation = libraryCardPresentationForEntry(item);
   addSignal(
     present: dto.coverImageUrl != null && dto.coverImageUrl!.isNotEmpty,
     weight: 18,
     missingLabel: 'Cover image',
   );
   addSignal(
-    present: catalogItem?.synopsis?.trim().isNotEmpty ?? false,
+    present: presentation.synopsis?.trim().isNotEmpty ?? false,
     weight: 16,
     missingLabel: 'Synopsis',
   );
+  final hasPublisherFact = metadata.allFacts.any(
+    (fact) =>
+        const {
+          'Publisher',
+          'Studio',
+          'Label',
+          'Developer',
+          'Network',
+          'Distributor'
+        }.contains(fact.label) &&
+        fact.value.trim().isNotEmpty,
+  );
   addSignal(
-    present: adapter?.publisher?.trim().isNotEmpty ?? false,
+    present: hasPublisherFact,
     weight: 10,
     missingLabel: 'Publisher',
   );
   addSignal(
-    present: adapter?.releaseDate != null,
+    present: presentation.releaseDate != null,
     weight: 10,
     missingLabel: 'Release date',
   );
@@ -414,7 +426,7 @@ _MetadataHealth _buildMetadataHealth(
     missingLabel: 'Series',
   );
   addSignal(
-    present: adapter?.itemNumber?.trim().isNotEmpty ?? false,
+    present: presentation.itemNumber?.trim().isNotEmpty ?? false,
     weight: 6,
     missingLabel: 'Item number',
   );
@@ -426,7 +438,7 @@ _MetadataHealth _buildMetadataHealth(
     );
   }
   addSignal(
-    present: !(adapter?.publisher == null || dto.coverImageUrl == null),
+    present: !(dto.coverImageUrl == null || !hasPublisherFact),
     weight: 4,
     missingLabel: 'Catalog refresh',
   );

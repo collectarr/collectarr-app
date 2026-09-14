@@ -1,11 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -15,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import '../../../helpers/secure_storage_mock.dart';
 
@@ -39,7 +35,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               searchController: searchController,
               viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -176,7 +172,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     Future<void> expectScanCover({
-      required LibraryKindRuntime type,
+      required LibraryKindRegistration type,
       required LibraryWorkspaceViewState viewState,
       required bool expected,
     }) async {
@@ -219,27 +215,27 @@ void main() {
     }
 
     await expectScanCover(
-      type: movieKindModule,
+      type: const MovieRegistration(),
       viewState: movieKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: bookKindModule,
+      type: const BookRegistration(),
       viewState: bookKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: gameKindModule,
+      type: const GameRegistration(),
       viewState: gameKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: boardGameKindModule,
+      type: const BoardgameRegistration(),
       viewState: boardGameKindModule.viewProfile.defaults(),
       expected: true,
     );
     await expectScanCover(
-      type: comicKindModule,
+      type: const ComicRegistration(),
       viewState: comicKindModule.viewProfile.defaults(),
       expected: true,
     );
@@ -260,7 +256,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               searchController: searchController,
               viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -298,7 +294,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: bookKindModule,
+              type: const BookRegistration(),
               searchController: searchController,
               viewState: bookKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -346,7 +342,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: movieKindModule,
+              type: const MovieRegistration(),
               searchController: searchController,
               viewState: movieKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -383,7 +379,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -430,7 +426,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -481,7 +477,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -537,7 +533,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               searchController: searchController,
               viewState: comicKindModule.viewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
@@ -598,7 +594,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    for (final type in defaultLibraryKindRegistry.allRuntimes) {
+    for (final type in defaultLibraryKindRegistry.allModules) {
       final runtime = type;
       await tester.pumpWidget(
         ProviderScope(
@@ -666,26 +662,22 @@ void main() {
   });
 
   test('comic kind exposes a module-owned missing issues toolbar action', () {
-    final descriptor = comicKindModule.toolbar!.actions
+    final action = comicKindModule.toolbar.actions
         .firstWhere((a) => a.id == 'comic.missing_issues');
-    expect(descriptor.id, 'comic.missing_issues');
-    expect(descriptor.label, 'Missing issues report...');
-    expect(descriptor.icon, Icons.find_in_page_outlined);
+    expect(action.id, 'comic.missing_issues');
+    expect(action.label, 'Missing issues report...');
+    expect(action.icon, Icons.find_in_page_outlined);
 
-    final action = descriptor.buildAction(
-      _FakeBuildContext(),
-      LibraryToolbarActionContext(
-        type: comicKindModule,
-        projection: null,
-        onJumpToNumberSubmitted: (_) {},
-        onMissingSequenceReport: (_) {},
-      ),
+    final context = LibraryToolbarActionContext(
+      buildContext: _FakeBuildContext(),
+      type: const ComicRegistration(),
+      projection: null,
+      onJumpToNumberSubmitted: (_) {},
+      onMissingSequenceReport: (_) {},
     );
 
-    expect(action.label, 'Missing issues report...');
-    expect(action.section, 'Collection');
-    expect(action.enabled, isFalse);
-    expect(action.onSelected, isNull);
+    expect(action.isVisible(context), isFalse);
+    expect(action.isEnabled(context), isFalse);
   });
 }
 

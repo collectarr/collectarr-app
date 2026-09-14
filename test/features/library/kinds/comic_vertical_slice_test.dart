@@ -1,28 +1,28 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/provider/comic_provider_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_fields.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Comic Kind Vertical Slice Tests (C9)', () {
     test(
-        'ComicCatalogMetadata and ComicKeyEvent serialize and deserialize full domain fields',
+        'ComicMedia and ComicKeyEvent serialize and deserialize full domain fields',
         () {
-      final metadata = ComicCatalogMetadata(
+      final metadata = ComicMedia(
         title: 'Amazing Fantasy #15',
         seriesTitle: 'Amazing Fantasy',
         issueNumber: '15',
@@ -65,7 +65,7 @@ void main() {
       );
 
       final json = metadata.toJson();
-      final restored = ComicCatalogMetadata.fromJson(json);
+      final restored = ComicMedia.fromJson(json);
 
       expect(restored.title, 'Amazing Fantasy #15');
       expect(restored.seriesTitle, 'Amazing Fantasy');
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('ComicWorkspaceProjector projects metadata and schema fields', () {
-      const comicMeta = ComicCatalogMetadata(
+      const comicMeta = ComicMedia(
         title: 'Amazing Fantasy #15',
         seriesTitle: 'Amazing Fantasy',
         issueNumber: '15',
@@ -96,34 +96,36 @@ void main() {
         variant: 'Direct',
       );
 
-      final shelfEntry = ShelfEntry(
+      final owned = testOwnedItem(
+        id: 'owned_1',
+        catalogRef: const CatalogEntityRef(
+          id: 'comic_1',
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId('work'),
+        ),
+        condition: '9.8',
+        grade: '9.8',
+        keyComic: true,
+        keyReason: '1st Spider-Man',
+        keyCategory: '1st Appearance',
+        keySeverity: 'Major',
+        rawOrSlabbed: 'Slabbed',
+        gradingCompany: 'CGC',
+        signedBy: 'Stan Lee',
+        updatedAt: DateTime.now(),
+      );
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'comic_1',
-        catalogItem: const LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'comic_1',
             mediaKind: CatalogMediaKind.comic,
           ),
           kindMetadata: comicMeta,
-        ),
-        ownedItem: OwnedItem(
-          id: 'owned_1',
-          catalogRef: const CatalogEntityRef(
-            id: 'comic_1',
-            kind: 'comic',
-            entityType: CatalogEntityType.work,
-          ),
-          condition: '9.8',
-          grade: '9.8',
-          details: const ComicOwnedDetails(
-            keyComic: true,
-            keyReason: '1st Spider-Man',
-            keyCategory: '1st Appearance',
-            keySeverity: 'Major',
-            rawOrSlabbed: 'Slabbed',
-            gradingCompany: 'CGC',
-            signedBy: 'Stan Lee',
-          ),
-          updatedAt: DateTime.now(),
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(owned),
+        ownedItemDispatch: testComicOwnedItemDispatchFrom(
+          ComicOwnedItem.fromJson(owned.toJson()),
         ),
       );
 
@@ -136,7 +138,11 @@ void main() {
         node: node,
       );
 
-      expect(dto.metadata?.title, 'Amazing Fantasy #15');
+      expect(dto.comic.title, 'Amazing Fantasy #15');
+      expect(dto.ownedItem?.id.value, 'owned_1');
+      expect(dto.ownedItem?.condition, '9.8');
+      expect(dto.ownedItem?.details.keyComic, isTrue);
+      expect(dto.ownedItem?.details.gradingCompany, 'CGC');
       expect(dto.writer, 'Stan Lee');
       expect(dto.artist, 'Steve Ditko');
       expect(dto.coverArtist, 'Jack Kirby');
@@ -165,15 +171,15 @@ void main() {
     });
 
     test(
-        'ComicLibraryKindProviderMapper parses ComicVine/GCD envelope into ComicCatalogMetadata',
+        'ComicLibraryKindProviderMapper parses ComicVine/GCD envelope into ComicMedia',
         () {
       const mapper = ComicLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'comicvine',
           providerItemId: '4000-12345',
-          kind: 'comic',
-          normalized: const {
+          kind: CatalogMediaKind.comic,
+          payload: const ProviderMetadataPayload({
             'title': 'Amazing Fantasy #15',
             'series_title': 'Amazing Fantasy',
             'issue_number': '15',
@@ -186,7 +192,7 @@ void main() {
             'characters': ['Peter Parker', 'Spider-Man'],
             'is_key_comic': true,
             'key_reason': '1st appearance of Spider-Man',
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -195,14 +201,12 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<ComicCatalogMetadata>());
-      final meta = item.kindMetadata as ComicCatalogMetadata;
-      expect(meta.title, 'Amazing Fantasy #15');
-      expect(meta.seriesTitle, 'Amazing Fantasy');
-      expect(meta.issueNumber, '15');
-      expect(meta.writers, contains('Stan Lee'));
-      expect(meta.artists, contains('Steve Ditko'));
-      expect(meta.isKeyComic, isTrue);
+      expect(item.title, 'Amazing Fantasy #15');
+      expect(item.seriesTitle, 'Amazing Fantasy');
+      expect(item.issueNumber, '15');
+      expect(item.characters, contains('Peter Parker'));
+      expect(item.characters, contains('Spider-Man'));
+      expect(item.isKeyComic, isTrue);
     });
 
     test('ComicCatalog and ComicEntry round-trip and preserve all kind fields',
@@ -335,13 +339,13 @@ void main() {
         ],
       );
 
-      final metadata = ComicCatalogMetadata.fromJson(comic.toJson());
-      final item = LibraryMetadataItem(
+      final metadata = ComicMedia.fromJson(comic.toJson());
+      final item = CatalogItemDto(
         identity: comic.identity,
         kindMetadata: metadata,
       );
 
-      final itemMeta = item.kindMetadata as ComicCatalogMetadata;
+      final itemMeta = item.kindMetadata as ComicMedia;
       expect(itemMeta.issueNumber, '1');
       expect(itemMeta.publisher, 'Image Comics');
       expect(itemMeta.country, 'US');

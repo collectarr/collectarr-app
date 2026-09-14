@@ -12,7 +12,7 @@ Future<LibraryAddDialogResult?> showTvLibraryAddDialog(
       type: request.type,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
     ),
   );
 }

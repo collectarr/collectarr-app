@@ -43,16 +43,11 @@ class LibraryTableInkRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolvedDensity = density ?? LibraryDensityScope.of(context);
-    final resolvedHorizontalMargin = switch (resolvedDensity) {
-      LibraryDensity.comfortable => horizontalMargin,
-      LibraryDensity.compact => horizontalMargin * 0.82,
-      LibraryDensity.dense => horizontalMargin * 0.68,
-    };
-    final resolvedVerticalPadding = switch (resolvedDensity) {
-      LibraryDensity.comfortable => verticalPadding,
-      LibraryDensity.compact => verticalPadding * 0.8,
-      LibraryDensity.dense => verticalPadding * 0.66,
-    };
+    final densityMetrics = resolvedDensity.metrics;
+    final resolvedHorizontalMargin =
+        horizontalMargin * densityMetrics.tableHorizontalMarginScale;
+    final resolvedVerticalPadding =
+        verticalPadding * densityMetrics.tableVerticalPaddingScale;
     final baseColor = odd ? oddColor : evenColor;
     final resolvedSelectedColor = Color.alphaBlend(
       selectedColor.withValues(alpha: 0.52),

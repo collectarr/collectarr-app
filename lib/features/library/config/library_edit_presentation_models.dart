@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 
 class LibraryEditPresentationContext {
@@ -11,8 +12,8 @@ class LibraryEditPresentationContext {
     required this.hasWishlistContext,
     required this.isDigitalFormat,
     required this.hasPhysicalFormats,
-    required this.hasEditionAnchors,
-    required this.hasBundleReleaseAnchors,
+    required this.hasOwnedTargetOptions,
+    required this.hasAdditionalTargetOptions,
     required this.hasCustomFields,
     this.scope = LibraryEditScope.media,
   });
@@ -23,8 +24,8 @@ class LibraryEditPresentationContext {
   final bool hasWishlistContext;
   final bool isDigitalFormat;
   final bool hasPhysicalFormats;
-  final bool hasEditionAnchors;
-  final bool hasBundleReleaseAnchors;
+  final bool hasOwnedTargetOptions;
+  final bool hasAdditionalTargetOptions;
   final bool hasCustomFields;
   final LibraryEditScope scope;
 }
@@ -46,16 +47,6 @@ class LibraryEditTabSpec {
   final List<String> sectionIds;
   final List<String> Function(LibraryEditPresentationContext context)?
       sectionIdsForContext;
-}
-
-class LibraryEditFooterSpec {
-  const LibraryEditFooterSpec({
-    this.label,
-    this.fieldIds = const [],
-  });
-
-  final String? label;
-  final List<String> fieldIds;
 }
 
 class LibraryEditPresentationState {
@@ -85,6 +76,14 @@ class LibraryEditPresentationState {
 abstract class LibraryEditPresentationBuilder {
   const LibraryEditPresentationBuilder();
 
+  String buildDialogTitle({
+    required CatalogEditMetadata item,
+    CatalogSearchCandidate? kindItem,
+  }) {
+    final yearSuffix = item.releaseYear == null ? '' : ' (${item.releaseYear})';
+    return item.displayTitle ?? '${item.title}$yearSuffix';
+  }
+
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   });
@@ -92,10 +91,6 @@ abstract class LibraryEditPresentationBuilder {
   List<String> buildTabSectionIds({
     required LibraryEditPresentationContext context,
     required String tabId,
-  });
-
-  LibraryEditFooterSpec buildFooter({
-    required LibraryEditPresentationContext context,
   });
 
   LibraryEditPresentationState build({
@@ -108,7 +103,7 @@ abstract class LibraryEditPresentationBuilder {
     required LibraryEditDraft draft,
     required Color accent,
     required LibraryEditScope scope,
-    required LibraryMetadataItem item,
+    required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   }) =>
       null;

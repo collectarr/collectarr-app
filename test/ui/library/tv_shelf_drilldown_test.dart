@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/models/season.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
@@ -17,16 +17,16 @@ void main() {
   testWidgets('tv shelf drilldown shows seasons and episode details', (
     tester,
   ) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'series-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'series-1',
         kind: 'tv',
         title: 'Cowboy Bebop',
         displayTitle: 'Cowboy Bebop',
         coverImageUrl: null,
         releaseDate: DateTime.utc(1998, 4, 3),
-      ),
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'series-1');
     final dto = const GenericWorkspaceProjector()
@@ -44,30 +44,40 @@ void main() {
             onRefreshFromCore: () async {},
             onOpenTitleDetails: () {},
             seasonsOverride: [
-              Season(
+              TvSeason(
+                id: 'series-1:season:1',
+                seriesId: 'series-1',
                 seasonNumber: 1,
                 title: 'Season 1',
                 episodeCount: 1,
-                posterUrl: null,
+                coverImageUrl: null,
                 episodes: [
-                  Episode(
+                  TvEpisode(
+                    id: 'series-1:season:1:episode:1',
+                    seriesId: 'series-1',
+                    seasonId: 'series-1:season:1',
                     episodeNumber: 1,
                     title: 'Asteroid Blues',
-                    airDate: '1998-04-03T00:00:00.000Z',
+                    airDate: DateTime.utc(1998, 4, 3),
                     runtimeMinutes: 24,
                   ),
                 ],
               ),
-              Season(
+              TvSeason(
+                id: 'series-1:season:2',
+                seriesId: 'series-1',
                 seasonNumber: 2,
                 title: 'Season 2',
                 episodeCount: 1,
-                posterUrl: null,
+                coverImageUrl: null,
                 episodes: [
-                  Episode(
+                  TvEpisode(
+                    id: 'series-1:season:2:episode:1',
+                    seriesId: 'series-1',
+                    seasonId: 'series-1:season:2',
                     episodeNumber: 1,
                     title: 'Stray Dog Strut',
-                    airDate: '1998-04-10T00:00:00.000Z',
+                    airDate: DateTime.utc(1998, 4, 10),
                     runtimeMinutes: 24,
                   ),
                 ],

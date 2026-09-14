@@ -1,0 +1,95 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
+import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
+
+/// Orchestrates tracking-unit lifecycle across kind-owned persistence codecs.
+///
+/// There is deliberately no universal tracking-unit table. This class
+/// owns only mixed-feature query/mutation mechanics; each registered kind owns
+/// its table, row mapper, coordinates, and concrete unit reconstruction.
+class TrackingUnitStorageRepository {
+  TrackingUnitStorageRepository(
+    this._db, {
+    required Iterable<TrackingUnitStorageCodec> codecs,
+  }) : _codecs = {
+          for (final codec in codecs) codec.kind: codec,
+        };
+
+  final LocalDatabase _db;
+  final Map<CatalogMediaKind, TrackingUnitStorageCodec> _codecs;
+
+  Future<List<TrackingUnitSummary>> listActive() async {
+    final units = <TrackingUnitSummary>[];
+    for (final codec in _codecs.values) {
+      units.addAll(await codec.listFromStorage(_db));
+    }
+    units.sort(_compareForDisplay);
+    return units;
+  }
+
+  Future<List<TrackingUnitSummary>> findActiveByCatalogRefs(
+    Iterable<CatalogEntityRef> catalogRefs,
+  ) async {
+    final wanted = catalogRefs.toSet();
+    if (wanted.isEmpty) return const <TrackingUnitSummary>[];
+    return (await listActive())
+        .where((unit) => wanted.contains(unit.targetRef))
+        .toList(growable: false);
+  }
+
+  Future<TrackingUnitSummary?> findByRef(TrackingUnitRef ref) {
+    return _codecForKind(ref.kind).findFromStorage(_db, ref);
+  }
+
+  Future<void> upsert(TrackingUnitSummary unit) async {
+    requireKnownCatalogRef(unit.targetRef, 'trackingUnit.targetRef');
+    if (unit.ownedRef != null) {
+      requireMatchingOwnedCatalogKinds(unit.targetRef, unit.ownedRef!);
+    }
+    final codec = _codecForKind(unit.targetRef.mediaKind);
+    await _db.transaction(() => codec.upsertToStorage(_db, unit));
+  }
+
+  Future<void> upsertAll(Iterable<TrackingUnitSummary> units) async {
+    final values = units.toList(growable: false);
+    if (values.isEmpty) return;
+    await _db.transaction(() async {
+      for (final unit in values) {
+        requireKnownCatalogRef(unit.targetRef, 'trackingUnit.targetRef');
+        if (unit.ownedRef != null) {
+          requireMatchingOwnedCatalogKinds(unit.targetRef, unit.ownedRef!);
+        }
+        await _codecForKind(unit.targetRef.mediaKind)
+            .upsertToStorage(_db, unit);
+      }
+    });
+  }
+
+  Future<void> markDeleted(TrackingUnitSummary unit, DateTime deletedAt) {
+    return _codecForKind(unit.targetRef.mediaKind)
+        .markDeletedInStorage(_db, unit, deletedAt);
+  }
+
+  TrackingUnitStorageCodec _codecForKind(CatalogMediaKind kind) {
+    final codec = _codecs[kind];
+    if (codec == null) {
+      throw StateError(
+        'No tracking-unit codec is registered for kind "${kind.apiValue}".',
+      );
+    }
+    return codec;
+  }
+
+  int _compareForDisplay(TrackingUnitSummary a, TrackingUnitSummary b) {
+    final itemCompare = (a.targetRef.rootId ?? a.targetRef.id)
+        .compareTo(b.targetRef.rootId ?? b.targetRef.id);
+    if (itemCompare != 0) return itemCompare;
+    final coordinatesCompare =
+        _codecs[a.targetRef.mediaKind]?.compareCoordinates(a, b) ?? 0;
+    if (coordinatesCompare != 0) return coordinatesCompare;
+    return b.updatedAt.compareTo(a.updatedAt);
+  }
+}

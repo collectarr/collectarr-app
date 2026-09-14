@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:flutter/material.dart';
 
 class InspectorReleasesSection extends StatelessWidget {
@@ -14,21 +16,19 @@ class InspectorReleasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final payload =
-        request.item.source.catalogItem?.toSyncPayload() ?? const {};
-    final video = (payload['video'] as Map?) ?? payload;
-    final nrDiscs =
-        video['nr_discs'] is num ? (video['nr_discs'] as num).toInt() : null;
-    final runtimeMinutes = video['runtime_minutes'] is num
-        ? (video['runtime_minutes'] as num).toInt()
-        : null;
-    final editions = request.item.source.catalogItem?.editions ?? const [];
-    final discCount = nrDiscs ??
-        editions.fold<int>(
-          0,
-          (total, edition) => total + edition.discs.length,
-        );
-    if (discCount == 0 && editions.isEmpty) {
+    final releases = request.type.presentation.builder.buildWorkspaceReleases(
+      request.item.source,
+    );
+    final discCount = releases.fold<int>(
+      0,
+      (int total, LibraryWorkspaceReleaseSummary release) =>
+          total + release.mediaCount,
+    );
+    final runtimeMinutes = releases
+        .map((release) => release.runtimeMinutes)
+        .whereType<int>()
+        .firstOrNull;
+    if (discCount == 0 && releases.isEmpty) {
       return const SizedBox.shrink();
     }
     return LibraryDetailSection(
@@ -38,16 +38,16 @@ class InspectorReleasesSection extends StatelessWidget {
         LibraryDetailFieldTable(
           fields: [
             LibraryDetailField(
-                label: 'Releases', value: editions.length.toString()),
+                label: 'Releases', value: releases.length.toString()),
             LibraryDetailField(label: 'Discs', value: discCount.toString()),
             if (runtimeMinutes != null)
               LibraryDetailField(
                   label: 'Runtime', value: '$runtimeMinutes min'),
           ],
         ),
-        if (editions.isNotEmpty) ...[
+        if (releases.isNotEmpty) ...[
           const SizedBox(height: 8),
-          for (final edition in editions)
+          for (final release in releases)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: DecoratedBox(
@@ -68,30 +68,30 @@ class InspectorReleasesSection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        edition.title,
+                        release.title,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                               fontWeight: FontWeight.w800,
                             ),
                       ),
-                      if (edition.format?.trim().isNotEmpty == true) ...[
+                      if (release.formatLabel?.trim().isNotEmpty == true) ...[
                         const SizedBox(height: 4),
                         Text(
-                          edition.format!,
+                          release.formatLabel!,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
-                      if (edition.discs.isNotEmpty) ...[
+                      if (release.mediaLabels.isNotEmpty) ...[
                         const SizedBox(height: 6),
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,
                           children: [
-                            for (final disc in edition.discs)
+                            for (final mediaLabel in release.mediaLabels)
                               Chip(
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap,
                                 label: Text(
-                                  disc.discName ?? 'Disc ${disc.discNumber}',
+                                  mediaLabel,
                                 ),
                               ),
                           ],

@@ -3,15 +3,37 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/imports/framework/import_models.dart';
-import 'package:collectarr_app/features/settings/tmdb_import_service.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/integrations/tmdb/movie_tmdb_import_contribution.dart';
+import 'package:collectarr_app/features/library/kinds/tv/integrations/tmdb/tv_tmdb_import_contribution.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/adapters/tmdb/tmdb_import_service.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+extension on CatalogItemDto {
+  TmdbCatalogMatchCandidate toTmdbCandidate() => TmdbCatalogMatchCandidate(
+        id: id,
+        kind: mediaKind,
+        title: title,
+        releaseYear: releaseYear,
+        searchAliases: searchAliases ?? const [],
+      );
+}
+
 void main() {
   group('TmdbImportService', () {
     final service = TmdbImportService();
+
+    setUpAll(() {
+      expect(
+        defaultLibraryKindRegistry.tryGet(CatalogMediaKind.movie),
+        isNotNull,
+      );
+    });
 
     test('parses TMDB object payload results', () {
       final entries = service.parseCollectionPayload(
@@ -55,7 +77,8 @@ void main() {
         rawPayload: const <String, dynamic>{'id': 603, 'title': 'The Matrix'},
       );
 
-      final item = service.localSyntheticCatalogItem(entry);
+      final item =
+          const MovieTmdbImportContribution().localSyntheticCatalogItem(entry);
 
       expect(item.displayTitle, 'The Matrix');
       expect(item.localizedTitle, 'The Matrix');
@@ -86,10 +109,11 @@ void main() {
         },
       );
 
-      final syntheticItem = service.localSyntheticCatalogItem(entry);
+      final syntheticItem =
+          const TvTmdbImportContribution().localSyntheticCatalogItem(entry);
       final seasons = service.seasonEntriesFor(entry);
 
-      expect(syntheticItem.kind, 'tv');
+      expect(syntheticItem.kind, CatalogMediaKind.tv);
       expect(seasons, hasLength(1));
       expect(seasons.single.mediaType, TmdbMediaType.tv);
       expect(seasons.single.title, 'Season 1');
@@ -97,7 +121,7 @@ void main() {
       expect(seasons.single.rawPayload['season_number'], 1);
     });
 
-    test('normalizes TMDB entries into import rows', () async {
+    test('normalizes TMDB entries into provider personal entries', () async {
       final entry = TmdbImportEntry(
         tmdbId: 603,
         mediaType: TmdbMediaType.movie,
@@ -114,12 +138,12 @@ void main() {
       final rows = await source.readRows();
 
       expect(rows, hasLength(1));
-      expect(rows.single.sourceId, 'movie:603');
-      expect(rows.single.mediaKind, 'movie');
-      expect(rows.single.status, ImportItemStatus.completed);
-      expect(rows.single.rating, 90);
+      expect(rows.single.remoteItemId, 'movie:603');
+      expect(rows.single.kind.name, 'movie');
+      expect(rows.single.status, ProviderEntryStatus.completed);
+      expect(rows.single.rating, 90.0);
       expect(rows.single.externalIds, containsPair('tmdb', '603'));
-      expect(rows.single.raw['tmdb_id'], 603);
+      expect(rows.single.rawPayload['tmdb_id'], 603);
     });
 
     test('matches on exact title and year before falling back', () async {
@@ -137,20 +161,22 @@ void main() {
         entries: [entry],
         searchCatalog: (_) async => [
           testCatalogItem(
-              id: 'movie-1984',
-              kind: 'movie',
-              title: 'Dune',
-              releaseYear: 1984),
+                  id: 'movie-1984',
+                  kind: 'movie',
+                  title: 'Dune',
+                  releaseYear: 1984)
+              .toTmdbCandidate(),
           testCatalogItem(
-              id: 'movie-2021',
-              kind: 'movie',
-              title: 'Dune',
-              releaseYear: 2021),
+                  id: 'movie-2021',
+                  kind: 'movie',
+                  title: 'Dune',
+                  releaseYear: 2021)
+              .toTmdbCandidate(),
         ],
       );
 
       expect(preview.matched, hasLength(1));
-      expect(preview.matched.single.catalogItem?.id, 'movie-2021');
+      expect(preview.matched.single.catalogCandidate?.id, 'movie-2021');
       expect(
         preview.matched.single.quality,
         TmdbImportMatchQuality.exactTitleAndYear,
@@ -272,10 +298,11 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
           if (entry.tmdbId == 603) {
             return [
               testCatalogItem(
-                  id: 'movie-603', kind: 'movie', title: 'The Matrix'),
+                      id: 'movie-603', kind: 'movie', title: 'The Matrix')
+                  .toTmdbCandidate(),
             ];
           }
-          return const <CatalogItem>[];
+          return const <TmdbCatalogMatchCandidate>[];
         },
       );
 
@@ -283,8 +310,9 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
       final proposed = <int>[];
       final result = await service.importPreview(
         preview: preview,
-        importMatch: (item, entry) async {
+        importMatch: (item, entry, origin) async {
           imported.add('${item.id}:${entry.tmdbId}');
+          expect(origin, MutationOrigin.fileImport);
         },
         proposeUnmatched: (entry) async {
           proposed.add(entry.tmdbId);
@@ -389,20 +417,24 @@ TMDb ID,IMDb ID,Type,Name,Release Date,Season Number,Episode Number,Rating,Your 
         },
       );
 
-      final merged = service.mergeMatchedCatalogItem(item, entry);
+      final merged =
+          const MovieTmdbImportContribution().mergeMatchedCatalogItem(
+        CatalogSearchCandidate.fromItem(item),
+        entry,
+      );
 
       expect(merged.coverImageUrl, entry.posterUrl);
       expect(merged.thumbnailImageUrl, entry.posterUrl);
-      expect(merged.payload['publisher'], 'Miramax');
+      final payload = merged.toSyncPayload();
+      expect(payload['publisher'], 'Miramax');
       expect(merged.synopsis, contains('burger-loving hitman'));
       expect(merged.releaseDate, DateTime.utc(1994, 9, 10));
       expect(merged.releaseYear, 1994);
-      final videoMap = merged.payload['video'] as Map?;
-      expect(videoMap?['runtime_minutes'] ?? merged.payload['runtime_minutes'],
-          154);
-      expect(merged.payload['genres'], containsAll(['Crime', 'Drama']));
-      expect(merged.payload['country'], 'United States of America');
-      expect(merged.payload['language'], 'English');
+      final videoMap = payload['video'] as Map?;
+      expect(videoMap?['runtime_minutes'] ?? payload['runtime_minutes'], 154);
+      expect(payload['genres'], containsAll(['Crime', 'Drama']));
+      expect(payload['country'], 'United States of America');
+      expect(payload['language'], 'English');
     });
   });
 }

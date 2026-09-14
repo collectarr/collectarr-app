@@ -1,20 +1,111 @@
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/api/mappers/tv_mapper.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_domain.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('TvCoreMapper maps generated Core DTOs into TV-owned models', () {
+    final dto = TvSeriesDto.fromJson({
+      'id': 'series-typed',
+      'title': 'The Expanse',
+      'description': 'A political space opera.',
+      'original_air_date': '2015-12-14T00:00:00Z',
+      'end_date': '2022-01-14T00:00:00Z',
+      'season_count': 6,
+      'episode_count': 62,
+      'network': 'Syfy',
+      'original_language': 'en',
+      'status': 'Ended',
+      'seasons': [
+        {
+          'id': 'season-typed',
+          'series_id': 'series-typed',
+          'season_number': 1,
+          'episode_count': 10,
+          'episodes': [
+            {
+              'id': 'episode-typed',
+              'series_id': 'series-typed',
+              'season_id': 'season-typed',
+              'season_number': 1,
+              'episode_number': 1,
+              'episode_title': 'Dulcinea',
+              'runtime_minutes': 43,
+            },
+          ],
+        },
+      ],
+      'releases': [
+        {
+          'id': 'release-typed',
+          'series_id': 'series-typed',
+          'title': 'Season One Blu-ray',
+          'format': 'Blu-ray',
+          'media': [
+            {
+              'id': 'media-typed',
+              'release_id': 'release-typed',
+              'media_number': 1,
+              'media_type': 'disc',
+              'episode_count': 5,
+            },
+          ],
+          'episode_mappings': [
+            {
+              'id': 'map-typed',
+              'release_id': 'release-typed',
+              'media_id': 'media-typed',
+              'episode_id': 'episode-typed',
+              'disc_number': 1,
+              'sequence_number': 1,
+            },
+          ],
+        },
+      ],
+      'contributions': [
+        {'name': 'Mark Fergus', 'role': 'Creator'},
+      ],
+      'identifiers': [
+        {
+          'id': 'id-typed',
+          'identifier_type': 'imdb',
+          'value': 'tt3230854',
+          'is_primary': true,
+        },
+      ],
+      'character_appearances': [
+        {
+          'id': 'character-typed',
+          'character_id': 'holden',
+          'character_name': 'James Holden',
+          'role': 'Lead',
+        },
+      ],
+      'kind': 'tv',
+    });
+
+    final series = TvCoreMapper.fromSeriesDto(dto);
+
+    expect(series.id, 'series-typed');
+    expect(series.originalAirDate, DateTime.utc(2015, 12, 14));
+    expect(series.seasons.single.episodes.single.episodeNumber, 1);
+    expect(series.releases.single.format, 'Blu-ray');
+    expect(series.releases.single.media.single.mediaNumber, 1);
+    expect(series.releases.single.episodeMappings.single.discNumber, 1);
+    expect(series.contributions.single.name, 'Mark Fergus');
+    expect(series.identifiers.single.value, 'tt3230854');
+    expect(series.characterAppearances.single.characterName, 'James Holden');
+  });
+
   test('maps typed tv dto data and raw release graph into domain models', () {
     final mediaJson = {
       'id': 'media-1',
       'release_id': 'release-1',
       'title': 'Disc 1',
-      'format_label': 'Blu-ray',
-      'disc_number': 1,
-      'sequence_number': 1,
-      'features': ['dub'],
+      'format': 'Blu-ray',
+      'media_number': 1,
+      'media_type': 'disc',
       'episodes': [
         {
           'id': 'episode-1',
@@ -67,7 +158,7 @@ void main() {
       'kind': 'tv',
     });
 
-    final series = tvSeriesFromDto(seriesDto);
+    final series = TvCoreMapper.fromSeriesDto(seriesDto);
     expect(series.id, 'series-1');
     expect(series.title, 'Cowboy Bebop');
     expect(series.seasons, isEmpty);
@@ -100,22 +191,27 @@ void main() {
     final Map<String, dynamic> raw = seriesDto.raw;
     final releaseJson =
         (raw['releases'] as List<dynamic>).cast<Map<String, dynamic>>()[0];
-    final release = tvReleaseFromDto(TvReleaseDto.fromJson(releaseJson));
+    final release =
+        TvCoreMapper.fromReleaseDto(TvReleaseDto.fromJson(releaseJson));
     expect(release.media, hasLength(1));
     expect(release.media.single.episodes, hasLength(1));
 
-    final media = tvReleaseMediaFromDto(TvReleaseMediaDto.fromJson(mediaJson));
-    expect(media.discNumber, 1);
+    final media = TvCoreMapper.fromReleaseMediaDto(
+      TvReleaseMediaDto.fromJson(mediaJson),
+    );
+    expect(media.mediaNumber, 1);
     expect(media.episodes, hasLength(1));
 
-    final map = tvReleaseEpisodeMapFromDto(TvReleaseEpisodeMapDto.fromJson({
-      'id': 'map-1',
-      'release_id': 'release-1',
-      'media_id': 'media-1',
-      'episode_id': 'episode-1',
-      'disc_number': 1,
-      'sequence_number': 1,
-    }));
+    final map = TvCoreMapper.fromReleaseEpisodeMapDto(
+      TvReleaseEpisodeMapDto.fromJson({
+        'id': 'map-1',
+        'release_id': 'release-1',
+        'media_id': 'media-1',
+        'episode_id': 'episode-1',
+        'disc_number': 1,
+        'sequence_number': 1,
+      }),
+    );
     expect(map.releaseId, 'release-1');
     expect(map.mediaId, 'media-1');
     expect(map.episodeId, 'episode-1');
@@ -193,10 +289,10 @@ void main() {
   });
 
   test('TvKindModule uses TV-owned capabilities', () {
-    expect(tvKindModule.kind, CatalogMediaKind.tv);
+    expect(tvKindModule.identity.kind, CatalogMediaKind.tv);
     expect(tvKindModule.add.kind, CatalogMediaKind.tv);
     expect(tvKindModule.add.createInitialDraft(), isA<TvAddDraft>());
-    expect(tvKindModule.ownedDetailsCodec, isA<TvOwnedDetailsCodec>());
-    expect(tvKindModule.defaultOwnedDetails(), isA<TvOwnedDetails>());
+    expect(const TvOwnedDetailsCodec(), isA<TvOwnedDetailsCodec>());
+    expect(const TvOwnedDetailsCodec().defaultDetails(), isA<TvOwnedDetails>());
   });
 }

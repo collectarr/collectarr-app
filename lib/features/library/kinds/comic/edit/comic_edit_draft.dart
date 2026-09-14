@@ -1,19 +1,28 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/edit/owned/comic_owned_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_controller.dart';
 
-class ComicEditDraft extends KindEditDraft {
+class ComicEditDraft extends LibraryEditKindDraft {
   ComicEditDraft({
+    this.ownedItem,
     required this.rawOrSlabbedController,
     required this.gradingCompanyController,
     required this.graderNotesController,
@@ -26,8 +35,11 @@ class ComicEditDraft extends KindEditDraft {
     required this.keyCategoryController,
     required this.keyComic,
     required this.lastBagBoardDate,
+    required this.ownedEdit,
     required this.comicEdit,
   });
+
+  final ComicOwnedItem? ownedItem;
 
   final TextEditingController rawOrSlabbedController;
   final TextEditingController gradingCompanyController;
@@ -43,69 +55,130 @@ class ComicEditDraft extends KindEditDraft {
   bool keyComic;
   DateTime? lastBagBoardDate;
 
+  final ComicOwnedEditDraft ownedEdit;
   final ComicEditController comicEdit;
   Future<List<SerialAuthorityEntry>>? seriesEntriesFuture;
 
   @override
-  OwnedDetailsDraft toDetailsDraft() => ComicOwnedDetailsDraft(
-        rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
-        gradingCompany: emptyToNull(gradingCompanyController.text),
-        graderNotes: emptyToNull(graderNotesController.text),
-        signedBy: emptyToNull(signedByController.text),
-        labelType: emptyToNull(labelTypeController.text),
-        pageQuality: emptyToNull(pageQualityController.text),
-        certificationNumber: emptyToNull(certificationNumberController.text),
-        keyComic: keyComic,
-        keyReason: emptyToNull(keyReasonController.text),
-        keyCategory: emptyToNull(keyCategoryController.text),
-        coverPriceCents: parseMoneyCents(coverPriceController.text),
-        lastBagBoardDate: lastBagBoardDate,
-      );
+  JsonEncodable toDetailsDraft() => ownedEdit.toDetailsDraft();
+
+  @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
+
+  @override
+  ComicOwnedItemUpdatePayload buildOwnedUpdatePayload({
+    required OwnedItemRef ownedRef,
+    required PersonalStateDraft personal,
+  }) {
+    final targetRef = personal.selectedOwnedTargetRef;
+    return ComicOwnedItemUpdatePayload(
+      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
+      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+      isDigital: const Patch.unchanged(),
+      marketValueCents: const Patch.unchanged(),
+      indexNumber: const Patch.unchanged(),
+      condition: personal.conditionController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.conditionController.text.trim()),
+      grade: personal.gradeController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.gradeController.text.trim()),
+      purchaseDate: personal.purchaseDateController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseDate(personal.purchaseDateController.text)),
+      pricePaidCents: personal.priceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.priceController.text)),
+      currency: personal.currencyController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.currencyController.text.trim()),
+      personalNotes: personal.notesController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.notesController.text.trim()),
+      locationId: personal.selectedLocationId != null
+          ? Patch.set(personal.selectedLocationId)
+          : const Patch.clear(),
+      purchaseStore: personal.purchaseStoreController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.purchaseStoreController.text.trim()),
+      collectionStatus: personal.collectionStatus != null
+          ? Patch.set(personal.collectionStatus)
+          : const Patch.clear(),
+      tags: personal.tagsController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.tagsController.text.trim()),
+      soldAt: personal.soldAt != null
+          ? Patch.set(personal.soldAt)
+          : const Patch.clear(),
+      sellPriceCents: personal.sellPriceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.sellPriceController.text)),
+      soldTo: personal.soldToController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.soldToController.text.trim()),
+      details: Patch.set(toDetailsDraft() as ComicOwnedDetailsDraft),
+    );
+  }
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = comicEdit.applySelectionEdits(selection);
-    if (result.personal != null) {
-      result = result.copyWith(
-        personal: result.personal!.copyWith(
-          rawOrSlabbed: emptyToNull(rawOrSlabbedController.text),
-          gradingCompany: emptyToNull(gradingCompanyController.text),
-          graderNotes: emptyToNull(graderNotesController.text),
-          signedBy: emptyToNull(signedByController.text),
-          labelType: emptyToNull(labelTypeController.text),
-          pageQuality: emptyToNull(pageQualityController.text),
-          certificationNumber: emptyToNull(certificationNumberController.text),
-          keyComic: keyComic,
-          keyReason: emptyToNull(keyReasonController.text),
-          keyCategory: emptyToNull(keyCategoryController.text),
-          coverPriceCents: parseMoneyCents(coverPriceController.text),
-          lastBagBoardDate: lastBagBoardDate,
-        ),
-      );
-    }
-    return result;
+    return comicEdit.applySelectionEdits(selection);
   }
 
   @override
   void dispose() {
+    ownedEdit.dispose();
     comicEdit.dispose();
   }
 }
 
-KindEditDraft createComicEditDraft({
-  required LibraryMetadataItem item,
-  OwnedItem? ownedItem,
-  TrackingEntry? trackingEntry,
+LibraryEditKindDraft createComicEditDraft({
+  required CatalogSearchCandidate item,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final comic = ownedItem?.comicDetails;
+  final owned = ComicOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final comic = owned?.details;
+  final ownedEdit = ComicOwnedEditDraft.fromDetails(
+    comic ?? const ComicOwnedDetails(),
+  );
   final comicEdit = ComicEditController(
-    item: item.kindMetadata as ComicCatalogMetadata,
+    item:
+        item.mapTransport((transport) => transport).kindMetadata as ComicMedia,
     itemImages: const [],
   );
   comicEdit.initialize();
 
   return ComicEditDraft(
+    ownedItem: owned,
     rawOrSlabbedController:
         textControllers.create(text: comic?.rawOrSlabbed ?? ''),
     gradingCompanyController:
@@ -128,6 +201,7 @@ KindEditDraft createComicEditDraft({
         textControllers.create(text: comic?.keyCategory ?? ''),
     keyComic: comic?.keyComic ?? false,
     lastBagBoardDate: comic?.lastBagBoardDate,
+    ownedEdit: ownedEdit,
     comicEdit: comicEdit,
   );
 }

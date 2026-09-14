@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 enum AnimeFormat {
   tv('TV'),
@@ -135,7 +135,7 @@ class AnimeRelation {
 }
 
 @immutable
-class AnimeMetadata implements LibraryKindMetadataRuntime {
+class AnimeMetadata implements JsonEncodable {
   const AnimeMetadata({
     this.title = '',
     this.nativeTitle,
@@ -174,10 +174,8 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
     this.rawPayload = const <String, dynamic>{},
   });
 
-  @override
   CatalogMediaKind get mediaKind => CatalogMediaKind.anime;
 
-  @override
   Map<String, dynamic> toSyncPayload() => toJson();
 
   final String title;
@@ -213,9 +211,10 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
   final String? variant;
   final List<CatalogEditionDto> editions;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
   final Map<String, dynamic> rawPayload;
 
+  @override
   Map<String, dynamic> toJson() => {
         ...rawPayload,
         'title': title,
@@ -305,7 +304,7 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
     String? variant,
     List<CatalogEditionDto>? editions,
     List<Map<String, dynamic>>? creators,
-    List<TrailerLink>? links,
+    List<TrailerLinkDto>? links,
   }) {
     return AnimeMetadata(
       title: title ?? this.title,
@@ -369,15 +368,17 @@ class AnimeMetadata implements LibraryKindMetadataRuntime {
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     return AnimeMetadata(

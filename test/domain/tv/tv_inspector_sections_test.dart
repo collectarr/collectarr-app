@@ -7,22 +7,22 @@ import 'package:collectarr_app/features/library/kinds/tv/inspector/episode_grid_
 import 'package:collectarr_app/features/library/inspector/sections/metadata_fact_section.dart';
 import 'package:collectarr_app/features/library/inspector/sections/releases_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector/session_history_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tv_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/inspector_sections.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_external_links_section.dart';
+import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   testWidgets('tv inspector builds tv-specific sections', (tester) async {
-    final type = tvKindModule;
+    const type = TvRegistration();
     late List<Widget> sections;
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'series-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'series-1',
         kind: 'tv',
         title: 'Cowboy Bebop',
@@ -33,7 +33,7 @@ void main() {
           'layers': 'Dual layer',
         },
         editions: [
-          CatalogEdition(
+          CatalogEditionDto(
             id: 'release-1',
             title: 'Blu-ray',
             physicalFormat: 'Blu-ray',
@@ -42,9 +42,9 @@ void main() {
           ),
         ],
         trailerUrls: const [
-          TrailerLink(url: 'https://example.com/trailer'),
+          TrailerLinkDto(url: 'https://example.com/trailer'),
         ],
-      ),
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'series-1');
     final dto =
@@ -62,7 +62,6 @@ void main() {
                   type: type,
                   item: item,
                   ownedItem: null,
-                  trackingEntry: null,
                   accent: Colors.teal,
                 ),
               );
@@ -86,6 +85,6 @@ void main() {
     expect(sections.whereType<InspectorSessionHistorySection>(), hasLength(1));
     expect(sections.whereType<InspectorReleasesSection>(), hasLength(1));
     expect(sections.whereType<InspectorContributorsSection>(), hasLength(1));
-    expect(sections.whereType<VideoExternalLinksSection>(), hasLength(1));
+    expect(sections.whereType<LibraryExternalLinksSection>(), hasLength(1));
   });
 }

@@ -1,15 +1,15 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final _issueNumberRegExp = RegExp(r'^\s*(\d+)');
+final _sequenceNumberRegExp = RegExp(r'^\s*(\d+)');
 
 int? _parseWholeNumber(String? value) {
   if (value == null || value.trim().isEmpty) return null;
-  final match = _issueNumberRegExp.firstMatch(value);
+  final match = _sequenceNumberRegExp.firstMatch(value);
   return match == null ? null : int.tryParse(match.group(1)!);
 }
 
@@ -22,15 +22,15 @@ class LibraryGroupingEngine {
 
   String getGroupBucketForItem(
     LibraryProjectionItem item,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryGroupIdRuntime groupId,
   ) {
-    final runtime = type;
-    final groupDefinition = runtime.fields.findGroupDefinition(
+    final workspace = libraryKindWorkspaceForKind(type.kind);
+    final groupDefinition = workspace.fields.findGroupDefinition(
       groupId,
     );
     if (groupDefinition != null) {
-      final value = runtime.groupValue(item, groupDefinition.id);
+      final value = workspace.groupValue(item, groupDefinition.id);
       final normalizedValue = value?.toString().trim();
       if (normalizedValue != null && normalizedValue.isNotEmpty) {
         return normalizedValue;
@@ -47,14 +47,14 @@ class LibraryGroupingEngine {
 
   List<LibraryBucket> buildBuckets(
     List<LibraryProjectionItem> items,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryGroupIdRuntime groupId, {
     LibraryProjectionIndex? index,
   }) {
-    final runtime = type;
+    final workspace = libraryKindWorkspaceForKind(type.kind);
     final allBucketLabel = genericAllBucketLabel(type);
     final counts = <String, int>{allBucketLabel: items.length};
-    final hasSequence = runtime.groupModeSupportsCompletion(groupId);
+    final hasSequence = workspace.groupModeSupportsCompletion(groupId);
     final ownedCounts = hasSequence
         ? <String, int>{
             allBucketLabel: items.where((item) => item.source.isOwned).length,
@@ -77,7 +77,7 @@ class LibraryGroupingEngine {
       counts[bucket] = (counts[bucket] ?? 0) + 1;
       final number = hasSequence
           ? _parseWholeNumber(
-              runtime.groupSequenceValueForEntry(item, groupId),
+              workspace.groupSequenceValueForEntry(item, groupId),
             )
           : null;
       if (number != null) {
@@ -92,11 +92,7 @@ class LibraryGroupingEngine {
       if (!coverUrls.containsKey(bucket)) {
         coverUrls[bucket] = item.dto.coverImageUrl;
       }
-      final adapter = item.dto is WorkspaceDtoAdapter
-          ? item.dto as WorkspaceDtoAdapter
-          : null;
-      final year = adapter?.releaseDate?.year ??
-          item.source.catalogItem?.releaseDate?.year;
+      final year = libraryCardPresentationForEntry(item).releaseDate?.year;
       if (year != null) {
         final existing = startYears[bucket];
         if (existing == null || year < existing) {
@@ -148,7 +144,7 @@ class LibraryGroupingEngine {
 
   List<GroupShelfEntry> buildGroupEntries(
     List<LibraryProjectionItem> items,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
     LibraryGroupIdRuntime groupId, {
     LibraryGroupPresentation? presentationOverride,
     LibraryProjectionIndex? index,

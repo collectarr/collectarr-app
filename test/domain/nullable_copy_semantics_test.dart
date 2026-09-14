@@ -1,7 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/updater/app_update_service.dart';
@@ -9,16 +13,34 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Nullable copy semantics', () {
-    test(
-        'OwnedItem.copyWith allows preserving, updating, and clearing nullable fields',
-        () {
-      final item = OwnedItem(
-        id: 'item-1',
+    test('ComicOwnedItem exposes typed kind-owned details', () {
+      final item = ComicOwnedItem(
+        id: const ComicOwnedItemId('item-typed'),
         catalogRef: CatalogEntityRef(
-          kind: CatalogMediaKind.comic.apiValue,
-          id: 'cat-1',
-          entityType: CatalogEntityType.issue,
+          kind: CatalogMediaKind.comic,
+          id: 'cat-typed',
+          entityType: const CatalogEntityTypeId('issue'),
         ),
+        details: const ComicOwnedDetails(gradingCompany: 'CGC'),
+        updatedAt: DateTime.utc(2025, 1, 1),
+      );
+
+      expect(item.details.gradingCompany, 'CGC');
+      expect(item.copyWith(details: const ComicOwnedDetails()).details,
+          isA<ComicOwnedDetails>());
+    });
+
+    test(
+        'ComicOwnedItem.copyWith allows preserving, updating, and clearing nullable fields',
+        () {
+      final item = ComicOwnedItem(
+        id: const ComicOwnedItemId('item-1'),
+        catalogRef: CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          id: 'cat-1',
+          entityType: const CatalogEntityTypeId('issue'),
+        ),
+        details: const ComicOwnedDetails(),
         condition: 'Near Mint',
         grade: '9.8',
         purchaseDate: DateTime.utc(2025, 1, 1),
@@ -187,9 +209,9 @@ void main() {
       final wishlist = WishlistItem(
         id: 'wish-1',
         catalogRef: CatalogEntityRef(
-          kind: CatalogMediaKind.book.apiValue,
+          kind: CatalogMediaKind.book,
           id: 'b-1',
-          entityType: CatalogEntityType.work,
+          entityType: const CatalogEntityTypeId('work'),
         ),
         targetPriceCents: 1500,
         currency: 'USD',
@@ -212,14 +234,14 @@ void main() {
     });
 
     test(
-        'TrackingEntry.copyWith allows preserving, updating, and clearing fields',
+        'TrackingStorageRecord.copyWith allows preserving, updating, and clearing fields',
         () {
-      final tracking = TrackingEntry(
+      final tracking = MovieTrackingState(
         id: 'track-1',
         catalogRef: CatalogEntityRef(
-          kind: CatalogMediaKind.movie.apiValue,
+          kind: CatalogMediaKind.movie,
           id: 'm-1',
-          entityType: CatalogEntityType.release,
+          entityType: const CatalogEntityTypeId('release'),
         ),
         rating: 9,
         notes: 'Great movie',

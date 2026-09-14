@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -160,15 +160,32 @@ const _comicCombinedTabs = [
   ),
 ];
 
+const _comicOwnedTabs = [
+  ..._comicCombinedTabs,
+  LibraryEditTabSpec(
+    id: 'owned',
+    icon: Icons.inventory_2,
+    label: 'Owned',
+    sectionIds: ['comic_owned'],
+  ),
+];
+
 class ComicLibraryCombinedEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const ComicLibraryCombinedEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
-          ownedTabs: _comicCombinedTabs,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
+          ownedTabs: _comicOwnedTabs,
           trackedTabs: _comicCombinedTabs,
           catalogTabs: _comicCombinedTabs,
           customTabBuilder: buildComicCustomTabView,
@@ -176,13 +193,20 @@ class ComicLibraryCombinedEditPresentationBuilder
 }
 
 class ComicLibraryMediaEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const ComicLibraryMediaEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _comicMediaTabs,
           trackedTabs: _comicMediaTabs,
           catalogTabs: _comicMediaTabs,
@@ -191,13 +215,20 @@ class ComicLibraryMediaEditPresentationBuilder
 }
 
 class ComicLibraryReleaseEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const ComicLibraryReleaseEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
           useOwnedMainArtworkLayout: true,
           useDetailsTab: true,
           useArtworkCoverTab: true,
           useArtworkPhotosTab: true,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _comicReleaseTabs,
           trackedTabs: _comicReleaseTabs,
           catalogTabs: _comicReleaseTabs,

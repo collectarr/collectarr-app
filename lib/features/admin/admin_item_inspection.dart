@@ -164,8 +164,8 @@ class _CanonicalItemSummary extends StatelessWidget {
                     _MiniChip(label: item.kind),
                     if (item.series?.seriesTitle != null)
                       _MiniChip(label: item.series!.seriesTitle!),
-                    if (edition?.physicalFormatLabel != null)
-                      _MiniChip(label: edition!.physicalFormatLabel!),
+                    if (edition?.formatLabel != null)
+                      _MiniChip(label: edition!.formatLabel!),
                     if (item.publisher != null)
                       _MiniChip(label: item.publisher!),
                     if (item.barcode != null) _MiniChip(label: item.barcode!),

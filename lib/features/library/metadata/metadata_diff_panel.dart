@@ -1,5 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
 class MetadataDiffEntry {
@@ -171,4 +171,23 @@ class _DiffValue extends StatelessWidget {
       ],
     );
   }
+}
+
+String formatDiffText(String? value) {
+  final normalized = value?.trim() ?? '';
+  return normalized.isEmpty ? '—' : normalized;
+}
+
+String formatDiffDate(DateTime? value) =>
+    value == null ? '—' : formatDate(value);
+
+String formatDiffList(Iterable<String>? values) {
+  if (values == null) {
+    return '—';
+  }
+  final normalized = values
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
+  return normalized.isEmpty ? '—' : normalized.join(', ');
 }

@@ -1,26 +1,23 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Decomposed Projection Pipeline Parity & Performance Tests', () {
-    late LibraryKindRuntime comicType;
-    late final comicModule = comicKindModule;
+    late LibraryKindRegistration comicType;
 
     setUp(() {
-      comicType = comicModule;
+      comicType = const ComicRegistration();
     });
 
     LibraryProjectionItem createTestProjectionItem({
@@ -39,18 +36,16 @@ void main() {
       DateTime? releaseDate,
     }) {
       final owned = isOwned
-          ? OwnedItem(
+          ? testOwnedItem(
               id: 'owned-$id',
               updatedAt: DateTime.utc(2026, 1, 1),
               pricePaidCents: pricePaidCents,
               sellPriceCents: sellPriceCents,
               currency: 'USD',
-              details: coverPriceCents != null
-                  ? ComicOwnedDetails(coverPriceCents: coverPriceCents)
-                  : const ComicOwnedDetails(),
+              coverPriceCents: coverPriceCents,
               catalogRef: CatalogEntityRef(
-                kind: 'comic',
-                entityType: CatalogEntityType.ownedCopy,
+                kind: CatalogMediaKind.comic,
+                entityType: const CatalogEntityTypeId('owned_copy'),
                 id: id,
               ),
             )
@@ -60,8 +55,8 @@ void main() {
           ? WishlistItem(
               id: 'wish-$id',
               catalogRef: CatalogEntityRef(
-                kind: 'comic',
-                entityType: CatalogEntityType.issue,
+                kind: CatalogMediaKind.comic,
+                entityType: const CatalogEntityTypeId('issue'),
                 id: id,
               ),
               createdAt: DateTime.utc(2026, 1, 1),
@@ -83,15 +78,19 @@ void main() {
         releaseDate: releaseDate,
       );
 
-      final shelf = ShelfEntry(
+      final shelf = LibraryWorkspaceSource(
         itemId: id,
-        catalogItem: LibraryMetadataItem.fromCatalogItem(catalog),
-        ownedItem: owned,
+        catalogData: testWorkspaceCatalogData(
+            testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem),
+        ownedSummary: owned == null ? null : testOwnedSummary(owned),
+        ownedItemDispatch: owned == null
+            ? null
+            : testComicOwnedItemDispatchFrom(testComicOwnedItemFrom(owned)),
         wishlistItem: wishlist,
       );
 
       final node = LibraryTitleNodeRef(titleItemId: id);
-      final dto = comicModule.projector.projectTitle(
+      final dto = comicKindWorkspace.projector.projectTitle(
         source: shelf,
         node: node,
       );
@@ -145,13 +144,18 @@ void main() {
       );
 
       expect(index.extractorCallCount, 0);
-      final publisherGroup = comicModule.fields.decodeGroupId('publisher');
-      final seriesGroup = comicModule.fields.decodeGroupId('series');
+      final publisherGroup =
+          comicKindWorkspace.fields.decodeGroupId('publisher');
+      final seriesGroup = comicKindWorkspace.fields.decodeGroupId('series');
 
       final bucket1 = index.getGroupBucket(
         item,
         publisherGroup,
-        (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
+        (it, mode) =>
+            (it.dto is ComicWorkspaceDto
+                ? (it.dto as ComicWorkspaceDto).publisher
+                : null) ??
+            'Unknown',
       );
       expect(bucket1, 'Marvel Comics');
       expect(index.extractorCallCount, 1);
@@ -160,7 +164,11 @@ void main() {
       final bucket2 = index.getGroupBucket(
         item,
         publisherGroup,
-        (it, mode) => (it.dto as WorkspaceDtoAdapter).publisher ?? 'Unknown',
+        (it, mode) =>
+            (it.dto is ComicWorkspaceDto
+                ? (it.dto as ComicWorkspaceDto).publisher
+                : null) ??
+            'Unknown',
       );
       expect(bucket2, 'Marvel Comics');
       expect(index.extractorCallCount, 1);
@@ -214,7 +222,7 @@ void main() {
       final buckets = groupingEngine.buildBuckets(
         items,
         comicType,
-        comicModule.fields.decodeGroupId('series'),
+        comicKindWorkspace.fields.decodeGroupId('series'),
       );
       expect(buckets.isNotEmpty, isTrue);
 
@@ -258,9 +266,9 @@ void main() {
 
     test('LibrarySequenceGapAnalyzer computes gaps accurately', () {
       const analyzer = LibrarySequenceGapAnalyzer();
-      final gaps1 = analyzer.calculateMissingIssues(
-        ownedIssues: [1, 2, 4, 5, 8],
-        maxIssue: 8,
+      final gaps1 = analyzer.calculateMissingSequence(
+        ownedValues: [1, 2, 4, 5, 8],
+        maxValue: 8,
       );
       expect(gaps1, [3, 6, 7]);
 
@@ -302,6 +310,7 @@ void main() {
       final stats = calculator.calculate(
         allItems: items,
         shownCount: 2,
+        type: comicType,
       );
 
       expect(stats.total, 3);
@@ -309,7 +318,7 @@ void main() {
       expect(stats.owned, 2);
       expect(stats.wishlist, 1);
       expect(stats.totalPricePaidCents, 900);
-      expect(stats.totalCoverPriceCents, 698);
+      expect(stats.collectionValue?.totalValueCents, 698);
       expect(stats.totalSellPriceCents, 1800);
       expect(stats.priceCurrency, 'USD');
     });
@@ -332,12 +341,9 @@ void main() {
       ];
 
       final shelf = ShelfState(
-        entries: [
-          for (final it in items) it.source,
-        ],
+        entries: [for (final it in items) it.source],
         ownedCount: 2,
         wishlistCount: 0,
-        missingGradeCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
         primaryCurrency: 'USD',
@@ -351,7 +357,7 @@ void main() {
           viewMode: LibraryViewMode.grid,
           detailsLayout: LibraryDetailsLayout.hidden,
           isSidebarVisible: true,
-          sortId: comicModule.fields.decodeSortId('title'),
+          sortId: comicKindWorkspace.fields.decodeSortId('title'),
           sortAscending: true,
           coverSize: 128,
           sidebarWidth: 200,
@@ -362,7 +368,7 @@ void main() {
         ),
         query: LibraryProjectionQuery(
           searchQuery: 'Spider',
-          groupId: comicModule.fields.decodeGroupId('publisher'),
+          groupId: comicKindWorkspace.fields.decodeGroupId('publisher'),
         ),
       );
 

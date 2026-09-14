@@ -1,8 +1,8 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
 import 'library_add_pane_dependencies.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
 import 'library_add_search_unified.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 
 class LibraryAddSearchPane extends StatelessWidget {
   const LibraryAddSearchPane({
@@ -20,7 +20,7 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     this.coreMatchSummary,
     this.providerMatchSummary,
     required this.isWideLayout,
@@ -38,11 +38,11 @@ class LibraryAddSearchPane extends StatelessWidget {
     required this.onSearchCore,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final bool isBusy;
   final String? error;
   final Color accent;
-  final List<LibraryMetadataItem> results;
+  final List<CatalogSearchCandidate> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String selectedProvider;
@@ -51,8 +51,8 @@ class LibraryAddSearchPane extends StatelessWidget {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
-  final Set<String> ownedCatalogItemIds;
-  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
+  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final bool isWideLayout;
   final LibraryAddResultPolicy resultPolicy;
@@ -106,7 +106,7 @@ class LibraryAddSearchPane extends StatelessWidget {
               selectedProviderCandidateId: selectedProviderCandidateId,
               checkedResultIds: checkedResultIds,
               checkedProviderIds: checkedProviderIds,
-              ownedCatalogItemIds: ownedCatalogItemIds,
+              ownedCatalogRefs: ownedCatalogRefs,
               coreMatchSummary: coreMatchSummary,
               providerMatchSummary: providerMatchSummary,
               onSearchCore: onSearchCore,
@@ -345,7 +345,7 @@ class _SearchResultsList extends StatelessWidget {
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
     required this.checkedProviderIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     this.coreMatchSummary,
     this.providerMatchSummary,
     required this.onSearchCore,
@@ -355,14 +355,14 @@ class _SearchResultsList extends StatelessWidget {
     required this.onToggleProviderCheck,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final bool useGridResults;
   final String selectedProvider;
   final bool isBusy;
   final String? error;
   final bool searchedProvider;
-  final List<LibraryMetadataItem> results;
+  final List<CatalogSearchCandidate> results;
   final List<ProviderCandidate> providerResults;
   final LibraryAddResultPolicy resultPolicy;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
@@ -370,8 +370,8 @@ class _SearchResultsList extends StatelessWidget {
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
   final Set<String> checkedProviderIds;
-  final Set<String> ownedCatalogItemIds;
-  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
+  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final VoidCallback onSearchCore;
   final ValueChanged<String> onSelectResult;
@@ -419,7 +419,7 @@ class _SearchResultsList extends StatelessWidget {
         selectedResultId: selectedResultId,
         selectedProviderCandidateId: selectedProviderCandidateId,
         checkedResultIds: checkedResultIds,
-        ownedCatalogItemIds: ownedCatalogItemIds,
+        ownedCatalogRefs: ownedCatalogRefs,
         providerLabel: type.metadata.providerLabel,
         coreMatchSummary: coreMatchSummary,
         providerMatchSummary: providerMatchSummary,
@@ -455,7 +455,7 @@ class _SearchResultsList extends StatelessWidget {
             selectedResultId: selectedResultId,
             selectedProviderCandidateId: selectedProviderCandidateId,
             checkedResultIds: checkedResultIds,
-            ownedCatalogItemIds: ownedCatalogItemIds,
+            ownedCatalogRefs: ownedCatalogRefs,
             queuedProviderIngests: queuedProviderIngests,
             providerLabel: type.metadata.providerLabel,
             onSelectResult: onSelectResult,
@@ -505,7 +505,7 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.selectedResultId,
     required this.selectedProviderCandidateId,
     required this.checkedResultIds,
-    required this.ownedCatalogItemIds,
+    required this.ownedCatalogRefs,
     required this.providerLabel,
     this.coreMatchSummary,
     this.providerMatchSummary,
@@ -514,17 +514,17 @@ class _SearchResultsGrid extends StatelessWidget {
     required this.onToggleResultCheck,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
-  final List<LibraryMetadataItem> results;
+  final List<CatalogSearchCandidate> results;
   final List<ProviderCandidate> providerResults;
   final Map<String, LibraryQueuedProviderIngest> queuedProviderIngests;
   final String? selectedResultId;
   final String? selectedProviderCandidateId;
   final Set<String> checkedResultIds;
-  final Set<String> ownedCatalogItemIds;
+  final Set<CatalogEntityRef> ownedCatalogRefs;
   final String Function(String providerId) providerLabel;
-  final String? Function(LibraryMetadataItem item)? coreMatchSummary;
+  final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final String? Function(ProviderCandidate candidate)? providerMatchSummary;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onSelectProviderCandidate;
@@ -540,11 +540,7 @@ class _SearchResultsGrid extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final densityScale = switch (density) {
-      LibraryDensity.comfortable => 1.0,
-      LibraryDensity.compact => 0.9,
-      LibraryDensity.dense => 0.82,
-    };
+    final densityScale = density.metrics.searchScale;
     return GridView.builder(
       padding: EdgeInsets.all(12 * densityScale),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
@@ -559,29 +555,29 @@ class _SearchResultsGrid extends StatelessWidget {
         final item = entry.item;
         final candidate = entry.candidate;
         final isCore = item != null;
-        final isOwned = isCore && ownedCatalogItemIds.contains(item.id);
+        final isOwned = isCore && ownedCatalogRefs.contains(item.catalogRef);
         final selected = isCore
             ? item.id == selectedResultId
             : candidate!.localCatalogId == selectedProviderCandidateId;
         final checked = isCore && checkedResultIds.contains(item.id);
-        final title = isCore ? item.title : candidate!.title;
-        final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
-        final corePublisher = isCore
-            ? ((item.kindMetadata.toSyncPayload()['publisher'] ??
-                (item.kindMetadata.toSyncPayload()['publishing']
-                    as Map?)?['original_publisher']) as String?)
+        final coreDisplay = isCore
+            ? type.presentation.builder.buildSearchResultDisplay(item: item)
             : null;
+        final title =
+            isCore ? coreDisplay?.title ?? item.title : candidate!.title;
+        final coverUrl = isCore ? item.displayCoverUrl : candidate!.imageUrl;
+        final corePublisher = coreDisplay?.secondaryLine;
         final subtitle = isCore
             ? [
-                if (libraryKindReleaseYear(item) != null)
-                  libraryKindReleaseYear(item).toString(),
+                if ((item.releaseYear ?? item.releaseDate?.year) != null)
+                  (item.releaseYear ?? item.releaseDate?.year).toString(),
                 if (corePublisher != null) corePublisher,
-              ].whereType<String>().join(' · ')
+              ].whereType<String>().join(' Ã‚Â· ')
             : [
                 if (candidate != null) providerLabel(candidate.provider),
                 if (candidate?.summary?.trim().isNotEmpty == true)
                   candidate?.summary,
-              ].whereType<String>().join(' · ');
+              ].whereType<String>().join(' Ã‚Â· ');
         final matchSummary = isCore
             ? coreMatchSummary?.call(item)
             : providerMatchSummary?.call(candidate!);
@@ -768,7 +764,7 @@ class _SearchGridEntry {
   const _SearchGridEntry.core(this.item) : candidate = null;
   const _SearchGridEntry.provider(this.candidate) : item = null;
 
-  final LibraryMetadataItem? item;
+  final CatalogSearchCandidate? item;
   final ProviderCandidate? candidate;
 }
 
@@ -923,10 +919,10 @@ class SearchResultTile extends StatelessWidget {
     required this.onToggleCheck,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryMetadataItem item;
+  final LibraryKindRegistration type;
+  final CatalogSearchCandidate item;
   final Color accent;
-  final String? Function(LibraryMetadataItem item)? matchSummary;
+  final String? Function(CatalogSearchCandidate item)? matchSummary;
   final bool selected;
   final bool checked;
   final bool isOwned;
@@ -938,29 +934,12 @@ class SearchResultTile extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final densityScale = switch (density) {
-      LibraryDensity.comfortable => 1.0,
-      LibraryDensity.compact => 0.9,
-      LibraryDensity.dense => 0.82,
-    };
+    final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(item);
-    final resultDisplay =
-        type.presentation.builder.buildSearchResultDisplay(item: item);
-    final payload = item.kindMetadata.toSyncPayload();
-    final publisher = (payload['publisher'] ??
-        (payload['publishing'] as Map?)?['original_publisher']) as String?;
-    final physicalFormatLabel = payload['physical_format_label'] as String?;
-    final barcode = payload['barcode'] as String?;
-    final itemNumber = (payload['item_number'] ??
-        (payload['publishing'] as Map?)?['issue_number']) as String?;
-    final subtitle = resultDisplay?.secondaryLine ??
-        [
-          if (publisher != null) publisher,
-          if (libraryKindReleaseYear(item) != null)
-            libraryKindReleaseYear(item).toString(),
-          if (physicalFormatLabel != null) physicalFormatLabel,
-          if (barcode != null) barcode,
-        ].whereType<String>().join(' | ');
+    final resultDisplay = type.presentation.builder.buildSearchResultDisplay(
+      item: item,
+    );
+    final subtitle = resultDisplay?.secondaryLine ?? '';
     final detailLine = resultDisplay?.detailLine;
     final ownedTone = Theme.of(context).colorScheme.tertiary;
     final ownedFill = Color.alphaBlend(
@@ -1021,7 +1000,7 @@ class SearchResultTile extends StatelessWidget {
                 height: 56,
                 child: LibraryCoverImage(
                   title: item.title,
-                  itemNumber: itemNumber,
+                  itemNumber: null,
                   imageUrl: item.displayCoverUrl,
                 ),
               ),
@@ -1049,10 +1028,7 @@ class SearchResultTile extends StatelessWidget {
                           const SizedBox(height: 4),
                         ],
                         Text(
-                          resultDisplay?.title ??
-                              (itemNumber == null
-                                  ? item.title
-                                  : '${item.title} #$itemNumber'),
+                          resultDisplay?.title ?? item.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -1106,7 +1082,7 @@ class SearchResultTile extends StatelessWidget {
                             children: [
                               const LibraryAddResultBadge('core'),
                               const SizedBox(width: 4),
-                              LibraryAddResultBadge(item.kind),
+                              LibraryAddResultBadge(item.mediaKind.apiValue),
                             ],
                           ),
                         ),
@@ -1136,7 +1112,7 @@ class ProviderCandidateTile extends StatelessWidget {
     required this.onSelect,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final ProviderCandidate candidate;
   final Color accent;
   final String providerLabel;
@@ -1150,11 +1126,7 @@ class ProviderCandidateTile extends StatelessWidget {
     final palette = appPalette(context);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
-    final densityScale = switch (density) {
-      LibraryDensity.comfortable => 1.0,
-      LibraryDensity.compact => 0.9,
-      LibraryDensity.dense => 0.82,
-    };
+    final densityScale = density.metrics.searchScale;
     final summary = matchSummary?.call(candidate);
     final subtitle = [
       providerLabel,
@@ -1275,7 +1247,7 @@ class _NoSearchResults extends StatelessWidget {
     required this.searchedProvider,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
   final String selectedProvider;
   final bool searchedProvider;

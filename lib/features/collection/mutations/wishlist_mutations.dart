@@ -1,17 +1,14 @@
 import 'dart:async';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/domain/models/mutation_origin.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IdGenerator = String Function();
@@ -20,122 +17,79 @@ String _defaultIdGenerator() => const Uuid().v4();
 final class WishlistMutations {
   const WishlistMutations({
     required this.wishlist,
-    required this.catalogCache,
-    required this.trackingEntries,
-    required this.trackingUnits,
+    required this.catalogTransport,
     required this.syncQueue,
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
   });
 
   final WishlistItemsCacheRepository wishlist;
-  final CatalogCacheRepository catalogCache;
-  final TrackingEntriesCacheRepository trackingEntries;
-  final TrackingUnitsCacheRepository trackingUnits;
+  final CatalogTransportRepository catalogTransport;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
 
   Future<void> addToWishlist(
-    String itemId, {
-    String? fallbackKind,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    CatalogEntityRef catalogRef, {
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
+    if (!catalogRef.isKnown ||
+        catalogRef.mediaKind == CatalogMediaKind.unknown) {
+      throw StateError(
+        'Cannot add wishlist item without a registered catalog kind: '
+        '${catalogRef.id}',
+      );
+    }
     final now = DateTime.now().toUtc();
+    final catalogRootRef = catalogRef.rootScope;
+    final existing = await wishlist.findActiveByCatalogRef(catalogRef);
+    final localRef = existing?.catalogRef ?? catalogRef;
     await mutationRunner.run(
+      origin: origin,
+      localRef: localRef,
       action: () async {
-        final catalogItem = await catalogCache.findById(itemId);
-        final existing = await wishlist.findActiveByItemAnchor(
-          itemId,
-          anchorType: anchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
-        );
+        final existing = await wishlist.findActiveByCatalogRef(catalogRef);
         if (existing == null) {
-          final normalizedAnchorType = resolvePersonalItemAnchorType(
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
-          );
           final item = WishlistItem(
             id: idGenerator(),
-            catalogRef: _catalogRefForItem(
-              itemId,
-              catalogItem,
-              fallbackKind: fallbackKind,
-              anchorType: normalizedAnchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            ),
-            anchorType: normalizedAnchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            catalogRef: catalogRef,
             createdAt: now,
             updatedAt: now,
           );
           await wishlist.upsert(item);
-          if (!itemId.startsWith('tmdb-local:')) {
+          if (!catalogRootRef.id.startsWith('tmdb-local:')) {
             await syncQueue
                 .enqueue(_syncChangeForWishlistItem(item, 'upsert', now));
-            await syncQueue.enqueue(_syncChangeForCatalogItemId(itemId, now));
+            await syncQueue
+                .enqueue(_syncChangeForCatalogRef(catalogRootRef, now));
           }
         }
       },
-      eventsToEmit: [WishlistChanged(itemId)],
+      eventsToEmit: [WishlistChanged(localRef)],
     );
   }
 
-  Future<void> addLocalOnlyWishlistItem(
-    dynamic item, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+  Future<void> addLocalOnlyCatalog(
+    CatalogImportTransport item, {
+    CatalogEntityRef? catalogRef,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final itemId =
-        item is LibraryMetadataItem ? item.id : (item as CatalogItem).id;
+    final itemId = item.ref.id;
     final isLocalItem = itemId.startsWith('tmdb-local:');
+    final localRef = catalogRef ?? item.ref;
     await mutationRunner.run(
+      origin: origin,
+      localRef: localRef,
       action: () async {
-        await catalogCache.upsertAll([item]);
-        final existing = await wishlist.findActiveByItemAnchor(
-          itemId,
-          anchorType: anchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
-        );
+        await catalogTransport.upsertTransports([item]);
+        final existing = await wishlist.findActiveByCatalogRef(localRef);
         if (existing == null) {
-          final normalizedAnchorType = resolvePersonalItemAnchorType(
-            anchorType: anchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
-          );
           final wishlistItem = WishlistItem(
             id: idGenerator(),
-            catalogRef: _catalogRefForItem(
-              itemId,
-              item,
-              anchorType: normalizedAnchorType,
-              editionId: editionId,
-              variantId: variantId,
-              bundleReleaseId: bundleReleaseId,
-            ),
-            anchorType: normalizedAnchorType,
-            editionId: editionId,
-            variantId: variantId,
-            bundleReleaseId: bundleReleaseId,
+            catalogRef: localRef,
             createdAt: now,
             updatedAt: now,
           );
@@ -146,35 +100,24 @@ final class WishlistMutations {
           }
         }
       },
-      eventsToEmit: [WishlistChanged(itemId)],
+      eventsToEmit: [WishlistChanged(localRef)],
     );
   }
 
   Future<WishlistItem> updateWishlistItem(
     WishlistItem item, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    CatalogEntityRef? catalogRef,
     int? targetPriceCents,
     String? currency,
     String? notes,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: anchorType ?? item.anchorType,
-      editionId: editionId ?? item.editionId,
-      variantId: variantId ?? item.variantId,
-      bundleReleaseId: bundleReleaseId ?? item.bundleReleaseId,
-    );
+    final updatedCatalogRef = catalogRef ?? item.catalogRef;
     final updated = WishlistItem(
       id: item.id,
-      catalogRef: item.catalogRef,
-      anchorType: normalizedAnchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
+      catalogRef: updatedCatalogRef,
       targetPriceCents: targetPriceCents,
       currency: currency,
       notes: notes,
@@ -183,36 +126,41 @@ final class WishlistMutations {
       deletedAt: item.deletedAt,
     );
     await mutationRunner.run(
+      origin: origin,
+      localRef: item.catalogRef,
       action: () async {
         await wishlist.upsert(updated);
         await syncQueue
             .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
-        await syncQueue.enqueue(_syncChangeForCatalogItemId(item.itemId, now));
+        await syncQueue.enqueue(
+          _syncChangeForCatalogRef(updatedCatalogRef.rootScope, now),
+        );
       },
-      eventsToEmit: [WishlistChanged(item.itemId)],
+      eventsToEmit: [WishlistChanged(updatedCatalogRef)],
     );
     return updated;
   }
 
-  Future<void> removeFromWishlist(
-    String itemId, {
+  Future<void> removeFromWishlist({
     String? wishlistItemId,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    CatalogEntityRef? catalogRef,
     bool notify = true,
+    MutationOrigin origin = MutationOrigin.user,
   }) async {
     final now = DateTime.now().toUtc();
+    final items = await _wishlistItemsForMutation(
+      wishlistItemId: wishlistItemId,
+      catalogRef: catalogRef,
+    );
+    final eventRef = items.isEmpty ? catalogRef : items.first.catalogRef;
+    final localRef = items.isEmpty ? null : items.first.catalogRef;
     await mutationRunner.run(
+      origin: origin,
+      localRef: localRef,
       action: () async {
         final existing = await _wishlistItemsForMutation(
-          itemId,
           wishlistItemId: wishlistItemId,
-          anchorType: anchorType,
-          editionId: editionId,
-          variantId: variantId,
-          bundleReleaseId: bundleReleaseId,
+          catalogRef: catalogRef,
         );
         for (final item in existing) {
           await wishlist.markDeleted(item, now);
@@ -225,119 +173,45 @@ final class WishlistMutations {
           );
         }
       },
-      eventsToEmit: [WishlistChanged(itemId)],
+      eventsToEmit: [
+        if (eventRef != null) WishlistChanged(eventRef),
+      ],
     );
   }
 
   Future<void> toggleWishlist(
-    String itemId, {
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-  }) async {
-    final existing = await wishlist.findActiveByItemAnchor(
-      itemId,
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
+    CatalogEntityRef catalogRef,
+  ) async {
+    final existing = await wishlist.findActiveByCatalogRef(catalogRef);
     if (existing == null) {
       await addToWishlist(
-        itemId,
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
+        catalogRef,
       );
     } else {
       await removeFromWishlist(
-        itemId,
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
+        catalogRef: catalogRef,
+        wishlistItemId: existing.id,
       );
     }
   }
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
-  Future<List<WishlistItem>> _wishlistItemsForMutation(
-    String itemId, {
+  Future<List<WishlistItem>> _wishlistItemsForMutation({
     String? wishlistItemId,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
+    CatalogEntityRef? catalogRef,
   }) async {
     if (wishlistItemId != null) {
       final item = await wishlist.findById(wishlistItemId);
       return item != null ? [item] : const [];
     }
 
-    final normalizedAnchorType = resolvePersonalItemAnchorType(
-      anchorType: anchorType,
-      editionId: editionId,
-      variantId: variantId,
-      bundleReleaseId: bundleReleaseId,
-    );
-    final isSpecificAnchor = normalizedAnchorType != null ||
-        editionId != null ||
-        variantId != null ||
-        bundleReleaseId != null;
-
-    if (isSpecificAnchor) {
-      final match = await wishlist.findActiveByItemAnchor(
-        itemId,
-        anchorType: normalizedAnchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
+    if (catalogRef != null) {
+      final match = await wishlist.findActiveByCatalogRef(catalogRef);
       return match != null ? [match] : const [];
     }
 
-    return await wishlist.findActiveByItemIds([itemId]);
-  }
-
-  CatalogEntityRef _catalogRefForItem(
-    String itemId,
-    dynamic item, {
-    String? fallbackKind,
-    String? anchorType,
-    String? editionId,
-    String? variantId,
-    String? bundleReleaseId,
-  }) {
-    if (item is CatalogItem) {
-      return item.catalogRefForAnchor(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
-    }
-    if (item is LibraryMetadataItem) {
-      return item.catalogRefForAnchor(
-        anchorType: anchorType,
-        editionId: editionId,
-        variantId: variantId,
-        bundleReleaseId: bundleReleaseId,
-      );
-    }
-    final resolvedKind = fallbackKind?.trim();
-    if (resolvedKind == null || resolvedKind.isEmpty) {
-      throw StateError(
-        'Cannot resolve CatalogEntityRef for item "$itemId": no catalog item found and no fallback kind provided.',
-      );
-    }
-    return CatalogEntityRef(
-      kind: resolvedKind,
-      entityType: CatalogEntityType.work,
-      id: itemId,
-    );
+    return const [];
   }
 
   SyncChange _syncChangeForWishlistItem(
@@ -352,13 +226,17 @@ final class WishlistMutations {
     );
   }
 
-  SyncChange _syncChangeForCatalogItemId(String itemId, DateTime now) {
+  SyncChange _syncChangeForCatalogRef(
+    CatalogEntityRef catalogRef,
+    DateTime now,
+  ) {
+    final root = catalogRef.rootScope;
     return SyncChange(
-      id: 'catalog:$itemId:upsert:${now.millisecondsSinceEpoch}',
+      id: 'catalog:${root.id}:upsert:${now.millisecondsSinceEpoch}',
       entityType: 'catalog_item',
-      entityId: itemId,
+      entityId: root.id,
       action: 'upsert',
-      payload: {'id': itemId},
+      payload: {'id': root.id, 'kind': root.kind.apiValue},
       clientChangedAt: now,
     );
   }

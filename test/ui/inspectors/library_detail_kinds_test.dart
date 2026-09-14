@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -6,10 +7,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_worksp
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/game/game_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
@@ -27,15 +25,15 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = comicKindModule;
-      final source = ShelfEntry(
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+      final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           publisher: 'Marvel Comics',
-        ),
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().projectTitle(
@@ -55,7 +53,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.red,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -79,16 +77,16 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = musicKindModule;
-      final source = ShelfEntry(
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
+      final source = LibraryWorkspaceSource(
         itemId: 'music-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'music-1',
           kind: 'music',
           title: 'Discovery',
           publisher: 'Virgin Records',
           genres: ['Electronic', 'House'],
-        ),
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'music-1');
       final dto = const MusicWorkspaceProjector().projectTitle(
@@ -108,7 +106,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: musicItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.cyan,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -130,16 +128,16 @@ void main() {
     testWidgets('renders game-specific fields', (tester) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = gameKindModule;
-      final source = ShelfEntry(
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.game);
+      final source = LibraryWorkspaceSource(
         itemId: 'game-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'game-1',
           kind: 'game',
           title: 'The Legend of Zelda: Tears of the Kingdom',
           publisher: 'Nintendo',
           genres: ['Action', 'Adventure'],
-        ),
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'game-1');
       final dto = const GameWorkspaceProjector().projectTitle(
@@ -159,7 +157,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: gameItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.green,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -184,10 +182,10 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = bookKindModule;
-      final source = ShelfEntry(
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
+      final source = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
@@ -195,7 +193,7 @@ void main() {
           creators: [
             {'name': 'Frank Herbert', 'role': 'Author'},
           ],
-        ),
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto = const BookWorkspaceProjector().projectTitle(
@@ -215,7 +213,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: bookItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.amber,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -239,15 +237,15 @@ void main() {
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
       addTearDown(db.close);
-      final type = comicKindModule;
-      final source = ShelfEntry(
+      final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+      final source = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Saga #1',
           publisher: 'Image Comics',
-        ),
+        ).asShelfCatalogItem),
       );
       const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto = const ComicWorkspaceProjector().projectTitle(
@@ -267,7 +265,7 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              ownedItem: null,
+              ownedSummary: null,
               accent: Colors.purple,
               onAddOwned: () {},
               onRemoveOwned: () {},

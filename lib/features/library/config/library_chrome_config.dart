@@ -1,4 +1,25 @@
 import 'package:flutter/widgets.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+
+@immutable
+class LibraryAddSearchScope {
+  const LibraryAddSearchScope({
+    required this.kind,
+    required this.providerValue,
+  });
+
+  final CatalogMediaKind kind;
+  final String providerValue;
+
+  @override
+  bool operator ==(Object other) =>
+      other is LibraryAddSearchScope &&
+      other.kind == kind &&
+      other.providerValue == providerValue;
+
+  @override
+  int get hashCode => Object.hash(kind, providerValue);
+}
 
 class LibraryEditChromeConfig {
   const LibraryEditChromeConfig({
@@ -23,8 +44,8 @@ class LibraryAddChromeConfig {
     this.mediaReferenceHelperLabel = 'Track or save the canonical item itself.',
     this.editionReferenceHelperLabel =
         'Attach ownership to a specific edition. Pick a variant only if you want one exact physical version.',
-    this.videoKindFilterOptions = const [],
-    this.defaultVideoKindFilters = const {},
+    this.kindFilterOptions = const [],
+    this.defaultKindFilters = const {},
   });
 
   final bool canScanCover;
@@ -32,18 +53,18 @@ class LibraryAddChromeConfig {
   final String trackScopeSummary;
   final String mediaReferenceHelperLabel;
   final String editionReferenceHelperLabel;
-  final List<LibraryAddVideoKindFilterOption> videoKindFilterOptions;
-  final Set<String> defaultVideoKindFilters;
+  final List<LibraryAddKindFilterOption> kindFilterOptions;
+  final Set<LibraryAddSearchScope> defaultKindFilters;
 }
 
-class LibraryAddVideoKindFilterOption {
-  const LibraryAddVideoKindFilterOption({
-    required this.kind,
+class LibraryAddKindFilterOption {
+  const LibraryAddKindFilterOption({
+    required this.scope,
     required this.label,
     required this.icon,
   });
 
-  final String kind;
+  final LibraryAddSearchScope scope;
   final String label;
   final IconData icon;
 }

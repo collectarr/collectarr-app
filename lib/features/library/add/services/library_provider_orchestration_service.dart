@@ -1,15 +1,14 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/services/provider_add_result_merge.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:dio/dio.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 
-typedef BuildProviderCorrections = Map<String, Object?> Function({
-  required LibraryMetadataItem preview,
-  required LibraryMetadataItem edited,
+typedef BuildProviderCorrections = ProviderCorrectionPatch Function({
+  required CatalogSearchCandidate preview,
+  required CatalogSearchCandidate edited,
 });
 
 class LibraryProviderOrchestrationService {
@@ -17,8 +16,8 @@ class LibraryProviderOrchestrationService {
 
   static const _workflow = LibraryAddWorkflowService();
 
-  LibraryMetadataItem proposalDraftFromCandidate({
-    required LibraryKindRuntime type,
+  CatalogSearchCandidate proposalDraftFromCandidate({
+    required LibraryKindRegistration type,
     required ProviderCandidate candidate,
   }) {
     final mediaKind = type.kind;
@@ -27,19 +26,13 @@ class LibraryProviderOrchestrationService {
       provider: candidate.provider,
       providerItemId: candidate.providerItemId,
     );
-    return LibraryMetadataItem(
-      identity: LibraryItemIdentity(
-        id: id,
-        mediaKind: mediaKind,
-      ),
-      kindMetadata: LibraryKindMetadataDecoders.decode(mediaKind, {
-        'id': id,
-        'kind': mediaKind.apiValue,
-        'title': candidate.title,
-        'synopsis': candidate.summary,
-        'cover_image_url': candidate.imageUrl,
-      }),
-    );
+    return CatalogSearchCandidate.fromJson({
+      'id': id,
+      'kind': mediaKind.apiValue,
+      'title': candidate.title,
+      'synopsis': candidate.summary,
+      'cover_image_url': candidate.imageUrl,
+    });
   }
 
   Future<void> applyIngestCorrections({
@@ -47,8 +40,8 @@ class LibraryProviderOrchestrationService {
     required BuildProviderCorrections providerMapper,
     required String kind,
     required String itemId,
-    required LibraryMetadataItem preview,
-    required LibraryMetadataItem edited,
+    required CatalogSearchCandidate preview,
+    required CatalogSearchCandidate edited,
   }) async {
     final corrections = providerMapper(
       preview: preview,
@@ -57,12 +50,11 @@ class LibraryProviderOrchestrationService {
     if (corrections.isEmpty) {
       return;
     }
-    await applyProviderIngestCorrections(
+    await submitProviderIngestCorrections(
       api: api,
       kind: kind,
       itemId: itemId,
       corrections: corrections,
-      edited: edited,
     );
   }
 

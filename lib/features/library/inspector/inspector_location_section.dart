@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -11,12 +12,12 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 class InspectorLocationSection extends StatefulWidget {
   const InspectorLocationSection({
     super.key,
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.db,
     required this.accent,
   });
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -39,7 +40,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
   Future<void> _load() async {
     final repo = LocationRepository(widget.db);
     final all = await repo.getAll();
-    final currentId = await repo.getItemLocationId(widget.ownedItemId);
+    final currentId = await repo.getItemLocationId(widget.ownedRef);
     if (mounted) {
       setState(() {
         _allLocations = all;
@@ -67,7 +68,7 @@ class _InspectorLocationSectionState extends State<InspectorLocationSection> {
     if (newId == _currentLocationId) {
       return;
     }
-    await repo.assignItemToLocation(widget.ownedItemId, newId);
+    await repo.assignItemToLocation(widget.ownedRef, newId);
     unawaited(_load());
   }
 

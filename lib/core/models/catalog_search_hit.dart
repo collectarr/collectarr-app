@@ -1,0 +1,93 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:flutter/foundation.dart';
+
+/// The intentionally small result shape used when a search crosses kinds.
+///
+/// A hit is enough to render a result and route a click. Full catalog payloads
+/// must be loaded by the repository owned by [kind] after dispatch.
+@immutable
+final class CatalogSearchHit {
+  const CatalogSearchHit({
+    required this.ref,
+    required this.kind,
+    required this.title,
+    this.subtitle,
+    this.imageUrl,
+  });
+
+  factory CatalogSearchHit.fromJson(Map<String, Object?> json) {
+    final id = json['id']?.toString().trim() ?? '';
+    if (id.isEmpty) {
+      throw const FormatException('Catalog search hit is missing id');
+    }
+
+    final rawKind = json['kind']?.toString().trim() ?? '';
+    final kind = catalogMediaKindFromValue(rawKind);
+    final title = json['title']?.toString().trim() ?? '';
+    if (title.isEmpty) {
+      throw const FormatException('Catalog search hit is missing title');
+    }
+
+    return CatalogSearchHit(
+      ref: CatalogEntityRef(
+        kind: kind,
+        entityType: json['entity_type'] == null
+            ? CatalogEntityTypeId.root
+            : CatalogEntityTypeId.fromApiValue(
+                json['entity_type']?.toString(),
+              ),
+        id: id,
+        rootId: _nullableString(json['root_id']),
+        parentId: _nullableString(json['parent_id']),
+      ),
+      kind: kind,
+      title: title,
+      subtitle: _nullableString(json['subtitle'] ?? json['summary']),
+      imageUrl: _nullableString(json['image_url']),
+    );
+  }
+
+  final CatalogEntityRef ref;
+  final CatalogMediaKind kind;
+  final String title;
+  final String? subtitle;
+  final String? imageUrl;
+
+  Map<String, Object?> toJson() {
+    return {
+      'id': ref.id,
+      'kind': kind.apiValue,
+      'entity_type': ref.entityType.apiValue,
+      'title': title,
+      if (ref.rootId != null) 'root_id': ref.rootId,
+      if (ref.parentId != null) 'parent_id': ref.parentId,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (imageUrl != null) 'image_url': imageUrl,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is CatalogSearchHit &&
+            ref == other.ref &&
+            kind == other.kind &&
+            title == other.title &&
+            subtitle == other.subtitle &&
+            imageUrl == other.imageUrl;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        ref,
+        kind,
+        title,
+        subtitle,
+        imageUrl,
+      );
+}
+
+String? _nullableString(Object? value) {
+  final normalized = value?.toString().trim();
+  return normalized == null || normalized.isEmpty ? null : normalized;
+}

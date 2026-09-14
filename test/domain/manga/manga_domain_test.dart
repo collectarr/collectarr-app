@@ -38,16 +38,15 @@ void main() {
           CatalogEditionDto(id: 'edition-1', title: 'Volume 1'),
         ],
       );
-      final shelf = ShelfEntry(
+      final shelf = LibraryWorkspaceSource(
         itemId: 'manga-1',
-        catalogItem: catalogItem,
-        ownedItem: testOwnedItem(
+        catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned-manga-1',
           itemId: 'manga-1',
           rawOrSlabbed: 'Raw',
           updatedAt: DateTime.utc(2026, 5, 30),
-        ),
-        trackingEntry: null,
+        )),
         wishlistItem: null,
         locationPath: 'Shelf A / Box 3',
         watchSessions: const [],
@@ -61,12 +60,15 @@ void main() {
       );
 
       expect(dto.seriesTitle, 'Vagabond');
-      expect(shelf.catalogItem?.editions, hasLength(1));
+      expect(
+        catalogItem.editions,
+        hasLength(1),
+      );
     });
 
     test('MangaMetadata serialization and deserialization roundtrip', () {
       final metadata = MangaMetadata(
-        nativeTitle: 'バガボンド',
+        nativeTitle: 'Ã£Æ’ÂÃ£â€šÂ¬Ã£Æ’Å“Ã£Æ’Â³Ã£Æ’â€°',
         romajiTitle: 'Bagabondo',
         englishTitle: 'Vagabond',
         alternateTitles: const ['Takehiko Inoue Vagabond'],
@@ -96,7 +98,7 @@ void main() {
       final json = metadata.toJson();
       final fromJson = MangaMetadata.fromJson(json);
 
-      expect(fromJson.nativeTitle, 'バガボンド');
+      expect(fromJson.nativeTitle, 'Ã£Æ’ÂÃ£â€šÂ¬Ã£Æ’Å“Ã£Æ’Â³Ã£Æ’â€°');
       expect(fromJson.romajiTitle, 'Bagabondo');
       expect(fromJson.englishTitle, 'Vagabond');
       expect(fromJson.demographic, MangaDemographic.seinen);
@@ -138,11 +140,12 @@ void main() {
     });
 
     test('MangaKindModule uses Manga-owned capabilities exclusively', () {
-      expect(mangaKindModule.kind, CatalogMediaKind.manga);
+      expect(mangaKindModule.identity.kind, CatalogMediaKind.manga);
       expect(mangaKindModule.add.kind, CatalogMediaKind.manga);
       expect(mangaKindModule.add.createInitialDraft(), isA<MangaAddDraft>());
-      expect(mangaKindModule.ownedDetailsCodec, isA<MangaOwnedDetailsCodec>());
-      expect(mangaKindModule.defaultOwnedDetails(), isA<MangaOwnedDetails>());
+      expect(const MangaOwnedDetailsCodec(), isA<MangaOwnedDetailsCodec>());
+      expect(const MangaOwnedDetailsCodec().defaultDetails(),
+          isA<MangaOwnedDetails>());
     });
   });
 }

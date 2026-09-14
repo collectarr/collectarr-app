@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -12,11 +11,11 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   test('combines provider, manual, purchase, sold, and insurance values', () {
-    final ownedItem = OwnedItem(
+    final ownedItem = testOwnedItem(
       id: 'owned-1',
       catalogRef: const CatalogEntityRef(
-        kind: 'comic',
-        entityType: CatalogEntityType.ownedCopy,
+        kind: CatalogMediaKind.comic,
+        entityType: CatalogEntityTypeId('owned_copy'),
         id: 'comic-1',
       ),
       updatedAt: DateTime.utc(2026, 7, 5),
@@ -25,17 +24,17 @@ void main() {
       marketValueCents: 1800,
       currency: 'USD',
     );
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Sample Comic',
         publishing: const CatalogPublishingDetailsDto(
           coverPriceCents: 2500,
         ),
-      ),
-      ownedItem: ownedItem,
+      ).asShelfCatalogItem),
+      ownedSummary: testOwnedSummary(ownedItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final dto = const ComicWorkspaceProjector().projectTitle(
@@ -50,7 +49,10 @@ void main() {
 
     final snapshot = LibraryValueSnapshot.fromItem(
       item,
-      ownedItem: ownedItem,
+      purchasePriceCents: ownedItem.pricePaidCents,
+      soldPriceCents: ownedItem.sellPriceCents,
+      manualEstimatedValueCents: ownedItem.marketValueCents,
+      ownedCurrency: ownedItem.currency,
       providerName: 'Comic provider',
     );
 

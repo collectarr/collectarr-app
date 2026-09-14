@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -9,16 +10,16 @@ import 'package:url_launcher/url_launcher.dart';
 class LibraryDetailUserLinksSection extends ConsumerWidget {
   const LibraryDetailUserLinksSection({
     super.key,
-    required this.itemId,
+    required this.catalogRef,
     required this.accent,
   });
 
-  final String itemId;
+  final CatalogEntityRef catalogRef;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final linksAsync = ref.watch(userExternalLinksByItemProvider(itemId));
+    final linksAsync = ref.watch(userExternalLinksByItemProvider(catalogRef));
     return linksAsync.when(
       data: (links) {
         final userLinks = links
@@ -72,6 +73,7 @@ class _LinkGroupSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return LibraryDetailSection(
       title: title,
       accentColor: accent,
@@ -111,9 +113,8 @@ class _LinkGroupSection extends StatelessWidget {
                             link.url,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: theme.textTheme.libraryCaption.copyWith(
                               color: palette.textMuted,
-                              fontSize: 11,
                             ),
                           ),
                         ],
@@ -122,7 +123,9 @@ class _LinkGroupSection extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       link.kind,
-                      style: TextStyle(color: palette.textMuted, fontSize: 11),
+                      style: theme.textTheme.libraryCaption.copyWith(
+                        color: palette.textMuted,
+                      ),
                     ),
                   ],
                 ),

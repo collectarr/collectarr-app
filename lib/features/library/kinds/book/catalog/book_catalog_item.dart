@@ -130,7 +130,7 @@ class BookCatalogItem {
   String? get displayEditionLabel => primaryRelease?.title;
   List<String>? get characters => work.characters;
   List<String>? get storyArcs => work.storyArcs;
-  List<TrailerLink>? get trailerUrls => const [];
+  List<TrailerLinkDto>? get trailerUrls => const [];
   String? get crossover => null;
   String? get displayCoverUrl => primaryRelease?.coverImageUrl;
   String? get physicalFormatLabel => primaryRelease?.physicalFormatLabel;

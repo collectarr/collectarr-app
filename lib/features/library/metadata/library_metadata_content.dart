@@ -1,5 +1,6 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -7,8 +8,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 LibraryMetadataPresentation buildLibraryMetadataPresentation({
-  required LibraryKindRuntime type,
-  required LibraryProjectionRuntime item,
+  required LibraryKindRegistration type,
+  required LibraryProjectionView item,
   ValueChanged<String>? onFilterByValue,
   bool includeIdentityFacts = false,
 }) {
@@ -36,8 +37,8 @@ class LibraryMetadataContent extends StatelessWidget {
     this.includeIdentityFacts = false,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
   final ValueChanged<String>? onFilterByValue;
   final bool includeIdentityFacts;
 

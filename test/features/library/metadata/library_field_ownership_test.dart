@@ -13,6 +13,9 @@ void main() {
     expect(personalKeys, contains('owner_label'));
     expect(personalKeys, contains('front_cover'));
     expect(personalKeys, contains('back_cover'));
+    expect(personalKeys, isNot(contains('season_number')));
+    expect(personalKeys, isNot(contains('episode_number')));
+    expect(personalKeys, isNot(contains('episode_ratings')));
   });
 
   test('syncable personal fields are owned by the app', () {

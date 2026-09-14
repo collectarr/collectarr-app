@@ -5,14 +5,18 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('comic group mode categories are provided by runtime capabilities', () {
+  test('comic group mode categories are provided by registration capabilities',
+      () {
     const modes = [
       'series',
       'grade',
       'publisher',
     ];
 
-    final categories = libraryGroupModeCategories(comicKindModule, modes);
+    final categories = libraryGroupModeCategories(
+      const ComicRegistration(),
+      modes,
+    );
 
     expect(categories, isNotEmpty);
     expect(
@@ -21,9 +25,9 @@ void main() {
     );
   });
 
-  test('comic-only toolbar actions stay in the kind runtime', () {
+  test('comic-only toolbar actions stay in the kind registration', () {
     final actionIds =
-        comicKindModule.toolbar!.actions.map((action) => action.id);
+        comicKindModule.toolbar.actions.map((action) => action.id);
     expect(actionIds, contains('comic.jump_to_issue'));
     expect(actionIds, contains('comic.missing_issues'));
   });
@@ -34,13 +38,13 @@ void main() {
       viewMode: LibraryViewMode.grid,
       detailsLayout: LibraryDetailsLayout.bottom,
       isSidebarVisible: true,
-      sortId: bookModule.fields.defaultSort,
+      sortId: bookKindWorkspace.fields.defaultSort,
       sortAscending: true,
       coverSize: 180,
       sidebarWidth: 320,
       detailsWidth: 420,
       detailsHeight: 260,
-      visibleColumnIds: bookModule.fields.defaultVisibleColumns,
+      visibleColumnIds: bookKindWorkspace.fields.defaultVisibleColumns,
       columnWidths: const {},
     );
 
@@ -49,7 +53,10 @@ void main() {
   });
 
   test('comic edit capability exposes its dialog builder', () {
-    expect(comicKindModule.edit.editDialogBuilder, isNotNull);
+    expect(
+      comicKindModule.editCapabilities.presentationCapability.editDialogBuilder,
+      isNotNull,
+    );
   });
 
   test('release browser mode is owned by video hierarchy', () {

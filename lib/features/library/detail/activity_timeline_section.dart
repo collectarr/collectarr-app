@@ -1,12 +1,14 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/detail/activity_event_aggregator.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,15 +18,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ActivityTimelineSection extends ConsumerStatefulWidget {
   const ActivityTimelineSection({
     super.key,
-    required this.itemId,
-    required this.ownedItemIds,
+    required this.itemRef,
+    required this.ownedItemRefs,
     required this.accent,
   });
 
-  final String itemId;
+  final CatalogEntityRef itemRef;
 
-  /// All owned-item IDs for this catalog item (needed for loan lookup).
-  final List<String> ownedItemIds;
+  /// All owned-item references for this catalog item (needed for loan lookup).
+  final List<OwnedItemRef> ownedItemRefs;
   final Color accent;
 
   @override
@@ -45,7 +47,7 @@ class _ActivityTimelineSectionState
   @override
   void didUpdateWidget(covariant ActivityTimelineSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.itemId != oldWidget.itemId) {
+    if (widget.itemRef != oldWidget.itemRef) {
       _loans = null;
       _loadLoans();
     }
@@ -55,8 +57,8 @@ class _ActivityTimelineSectionState
     final db = ref.read(localDatabaseProvider);
     final repo = LoanRepository(db);
     final allLoans = <Loan>[];
-    for (final ownedItemId in widget.ownedItemIds) {
-      allLoans.addAll(await repo.getLoansForItem(ownedItemId));
+    for (final ownedItemRef in widget.ownedItemRefs) {
+      allLoans.addAll(await repo.getLoansForItem(ownedItemRef));
     }
     if (mounted) setState(() => _loans = allLoans);
   }
@@ -64,27 +66,37 @@ class _ActivityTimelineSectionState
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final ownedItems = ref.watch(collectionProvider).maybeWhen(
-          data: (items) =>
-              items.where((i) => i.itemId == widget.itemId).toList(),
-          orElse: () => const <OwnedItem>[],
+    final theme = Theme.of(context);
+    final ownedItems = ref.watch(collectionSummariesProvider).maybeWhen(
+          data: (items) => items
+              .where(
+                (i) =>
+                    i.catalogRef != null &&
+                    i.catalogRef!.rootScope == widget.itemRef,
+              )
+              .toList(growable: false),
+          orElse: () => const <OwnedItemSummary>[],
         );
-    final trackingEntries =
-        ref.watch(trackingEntriesByCatalogItemProvider)[widget.itemId] ??
-            const <TrackingEntry>[];
+    final trackingSummaries =
+        ref.watch(trackingSummariesByCatalogRefProvider)[widget.itemRef] ??
+            const <TrackingSummary>[];
     final watchSessions =
-        ref.watch(watchSessionsByItemProvider)[widget.itemId] ??
-            const <WatchSession>[];
+        ref.watch(watchSessionsByCatalogRefProvider(widget.itemRef));
     final wishlistItems =
-        ref.watch(wishlistByCatalogItemProvider)[widget.itemId] ??
+        ref.watch(wishlistByCatalogRefProvider)[widget.itemRef] ??
             const <WishlistItem>[];
 
     final events = ActivityEventAggregator.aggregate(
       ownedItems: ownedItems,
-      trackingEntries: trackingEntries,
-      watchSessions: watchSessions,
+      trackingRecords: [
+        for (final summary in trackingSummaries)
+          TrackingActivitySummary.fromSummary(summary),
+      ],
       wishlistItems: wishlistItems,
       loans: _loans ?? const [],
+      watchSessions: watchSessions,
+      hasKindContributor: (kind) =>
+          libraryActivityContributorForKind(kind) != null,
     );
 
     return DecoratedBox(
@@ -100,18 +112,19 @@ class _ActivityTimelineSectionState
           children: [
             Text(
               'Activity',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: widget.accent,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                  ),
+              style: theme.textTheme.libraryBody.copyWith(
+                color: widget.accent,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             if (events.isEmpty)
               Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(
                   'No activity recorded yet.',
-                  style: TextStyle(color: palette.textMuted, fontSize: 12),
+                  style: theme.textTheme.libraryMeta.copyWith(
+                    color: palette.textMuted,
+                  ),
                 ),
               )
             else ...[
@@ -169,6 +182,7 @@ class _ActivityEventTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final theme = Theme.of(context);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,36 +222,32 @@ class _ActivityEventTile extends StatelessWidget {
                 children: [
                   Text(
                     event.label,
-                    style: TextStyle(
+                    style: theme.textTheme.libraryBody.copyWith(
                       color: palette.textPrimary,
-                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${_fmtDate(event.timestamp)} · ${_fmtTime(event.timestamp)}',
-                    style: TextStyle(
+                    style: theme.textTheme.libraryCaption.copyWith(
                       color: palette.textMuted,
-                      fontSize: 11,
                     ),
                   ),
                   if (event.detail != null) ...[
                     const SizedBox(height: 2),
                     Text(
                       event.detail!,
-                      style: TextStyle(
+                      style: theme.textTheme.libraryMeta.copyWith(
                         color: accent.withValues(alpha: 0.8),
-                        fontSize: 12,
                       ),
                     ),
                   ],
                   if (event.secondaryDetail != null)
                     Text(
                       event.secondaryDetail!,
-                      style: TextStyle(
+                      style: theme.textTheme.libraryCaption.copyWith(
                         color: palette.textMuted,
-                        fontSize: 11,
                       ),
                     ),
                   if (event.rating != null)

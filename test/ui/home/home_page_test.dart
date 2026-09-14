@@ -1,5 +1,8 @@
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/loan.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -35,18 +38,20 @@ void main() {
       barcode: '123456789012',
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-1',
           itemId: game.id,
+          kind: 'game',
           condition: 'New',
           pricePaidCents: 2499,
           currency: 'USD',
           updatedAt: now,
-        ),
+        )),
       ],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
 
     await tester.pumpWidget(
@@ -57,7 +62,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -103,11 +109,17 @@ void main() {
       releaseYear: 2020,
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(id: 'owned-1', itemId: game.id, updatedAt: now),
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
+          id: 'owned-1',
+          itemId: game.id,
+          kind: 'game',
+          updatedAt: now,
+        )),
       ],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
 
     await tester.pumpWidget(
@@ -118,7 +130,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -141,7 +154,7 @@ void main() {
     expect(find.text('Hades'), findsWidgets);
   });
 
-  testWidgets('catalog-defined libraries use generic workspace controls',
+  testWidgets('catalog-defined unregistered libraries are not dispatched',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(1220, 900);
@@ -158,7 +171,6 @@ void main() {
       providers: ['podindex'],
       isTopLevel: true,
     );
-    final now = DateTime.utc(2026, 5, 15);
     final podcast = testCatalogItem(
       id: 'podcast-1',
       kind: 'podcast',
@@ -167,12 +179,11 @@ void main() {
       releaseYear: 2026,
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
-            id: 'owned-podcast-1', itemId: podcast.id, updatedAt: now),
-      ],
+      ownedSummaries: const [],
       wishlistItems: const [],
-      catalogItems: {podcast.id: podcast},
+      catalogSummariesByRef: {
+        podcast.catalogRef: podcast.asShelfCatalogSummary,
+      },
     );
 
     await tester.pumpWidget(
@@ -184,7 +195,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -193,21 +205,9 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    await tester.dragUntilVisible(
-      find.widgetWithText(MediaLibraryNavButton, 'Podcasts'),
-      find.byType(Scrollable).first,
-      const Offset(-100, 0),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(MediaLibraryNavButton, 'Podcasts'));
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Add Podcasts'), findsOneWidget);
-    expect(find.byTooltip('Library tools'), findsOneWidget);
-    expect(find.text('Search podcasts...'), findsOneWidget);
-    expect(find.text('[All Podcasts]'), findsOneWidget);
-    expect(find.text('The Library Feed'), findsWidgets);
-    expect(find.text('No podcast selected'), findsOneWidget);
+    expect(
+        find.widgetWithText(MediaLibraryNavButton, 'Podcasts'), findsNothing);
+    expect(find.text('The Library Feed'), findsNothing);
   });
 
   testWidgets('library navigation preferences hide comics and use left rail',
@@ -231,11 +231,17 @@ void main() {
       releaseYear: 2018,
     );
     final shelf = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(id: 'owned-game-rail-1', itemId: game.id, updatedAt: now),
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
+          id: 'owned-game-rail-1',
+          itemId: game.id,
+          kind: 'game',
+          updatedAt: now,
+        )),
       ],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
 
     await tester.pumpWidget(
@@ -246,7 +252,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(routeUri: Uri(path: '/libraries')),
@@ -284,17 +291,22 @@ void main() {
     final owned = testOwnedItem(
       id: 'owned-overdue-1',
       itemId: game.id,
+      kind: 'game',
       updatedAt: now,
     );
     final shelf = ShelfState.from(
-      ownedItems: [owned],
+      ownedSummaries: [testOwnedItemSummary(owned)],
       wishlistItems: const [],
-      catalogItems: {game.id: game},
+      catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
+      catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
     );
     await LoanRepository(db).create(
       Loan(
         id: 'loan-overdue-1',
-        ownedItemId: owned.id,
+        ownedRef: OwnedItemRef(
+          kind: CatalogMediaKind.game,
+          id: OwnedItemId(owned.id),
+        ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2020, 1, 1),
         dueDate: DateTime.utc(2020, 1, 10),
@@ -309,7 +321,8 @@ void main() {
           shelfProvider.overrideWith((ref) async => shelf),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
           localDatabaseProvider.overrideWithValue(db),
         ],
         child: MaterialApp(
@@ -347,7 +360,6 @@ void main() {
               entries: [],
               ownedCount: 0,
               wishlistCount: 0,
-              missingGradeCount: 0,
               pricedCount: 0,
               totalPaidCents: null,
               primaryCurrency: null,
@@ -356,7 +368,8 @@ void main() {
           ),
           collectionProvider.overrideWith((ref) async => const []),
           wishlistProvider.overrideWith((ref) async => const []),
-          wishlistIdsProvider.overrideWith((ref) async => const <String>{}),
+          wishlistRefsProvider
+              .overrideWith((ref) async => const <CatalogEntityRef>{}),
         ],
         child: MaterialApp(
           home: LibraryHomePage(

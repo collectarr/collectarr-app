@@ -69,7 +69,7 @@ void main() {
       ],
     });
 
-    final book = BookWork.fromDto(dto);
+    final book = BookCatalogItem.fromDto(dto);
 
     expect(book.title, 'Guards! Guards!');
     expect(book.series?.seriesTitle, 'Discworld');

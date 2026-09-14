@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -40,7 +42,11 @@ abstract final class MovieKindSchema {
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = MovieOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is MovieOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -56,7 +62,7 @@ abstract final class MovieKindSchema {
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -89,7 +95,7 @@ abstract final class MovieKindSchema {
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -127,7 +133,7 @@ abstract final class MovieKindSchema {
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.watchStatus,
     label: 'Watch Status',
-    getValue: (context) => context.source.ownedItem?.readStatus,
+    getValue: (context) => context.dto.personal.trackingStatus,
     scope: LibraryFieldScope.copy,
   );
 
@@ -146,9 +152,7 @@ abstract final class MovieKindSchema {
   static final genre = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.genre,
     label: 'Genre',
-    getValue: (dto) => dto.movie.work.genres.isNotEmpty
-        ? dto.movie.work.genres.join(', ')
-        : null,
+    getValue: (dto) => dto.genres.isNotEmpty ? dto.genres.join(', ') : null,
   );
 
   static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
@@ -167,23 +171,28 @@ abstract final class MovieKindSchema {
     id: MovieFieldIds.edition,
     label: 'Edition',
     getValue: (dto) =>
-        dto.movie.releases.isNotEmpty ? dto.movie.releases.first.title : null,
+        dto.media.primaryRelease?.title ??
+        (dto.movie.releases.isNotEmpty ? dto.movie.releases.first.title : null),
     scope: LibraryFieldScope.release,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
-    getValue: (dto) => dto.movie.technical.audioTracks,
+    getValue: (dto) =>
+        dto.media.primaryRelease?.media.firstOrNull?.audioTracks ??
+        dto.movie.technical.audioTracks,
     scope: LibraryFieldScope.release,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.editionReleaseDate,
     label: 'Edition Release Date',
-    getValue: (dto) => dto.movie.releases.isNotEmpty
-        ? dto.movie.releases.first.releaseDate
-        : null,
+    getValue: (dto) =>
+        dto.media.primaryRelease?.releaseDate ??
+        (dto.movie.releases.isNotEmpty
+            ? dto.movie.releases.first.releaseDate
+            : null),
     scope: LibraryFieldScope.release,
   );
 
@@ -242,9 +251,8 @@ final movieLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['studio'],
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
+      ['publisher', 'studio'],
     ),
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
@@ -253,7 +261,7 @@ final movieLibraryGroupDefinitions = [
     category: 'Main',
     icon: Icons.category_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringListBucketValueMutator('genres'),
+    bucketValueMutator: catalogTransportStringListBucketValueMutator('genres'),
   ),
   groupFromField<MovieKind, MovieWorkspaceDto, num?>(
     MovieKindSchema.releaseYear,
@@ -419,8 +427,8 @@ final movieLibraryColumnDefinitions = [
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, int?>(
     MovieKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -436,8 +444,7 @@ final movieLibraryColumnDefinitions = [
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: MovieKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, num?>(

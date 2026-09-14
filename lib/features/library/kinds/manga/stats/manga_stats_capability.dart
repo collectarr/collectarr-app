@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
 
@@ -7,9 +9,49 @@ class MangaStatsCapability implements LibraryStatsCapability {
   const MangaStatsCapability();
 
   @override
+  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
+      LibraryWorkspaceSource entry) {
+    return LibraryOwnedFinancialSummary(
+      pricePaidCents: entry.pricePaidCents,
+      sellPriceCents: entry.sellPriceCents,
+      currency: entry.currency,
+    );
+  }
+
+  @override
+  LibraryStatsMetadataProjection? buildMetadataProjection(
+      LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    final metadata = _mangaMetadata(entry);
+    if (catalog == null || metadata == null) return null;
+    final primary =
+        (metadata.seriesTitle ?? metadata.series?.seriesTitle ?? catalog.title)
+            .trim();
+    final secondary = (metadata.publisher ??
+            metadata.originalPublisher ??
+            metadata.localizedPublisher)
+        ?.trim();
+    return LibraryStatsMetadataProjection(
+      primaryGroup: primary,
+      secondaryGroup: secondary,
+      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: catalog.synopsis?.trim().isNotEmpty == true,
+      hasSecondaryMetadata: secondary?.isNotEmpty == true ||
+          metadata.physicalFormat?.trim().isNotEmpty == true,
+      hasReleaseDate: metadata.localizedReleaseDate != null ||
+          metadata.originalPublicationDate != null ||
+          catalog.releaseDate != null,
+      hasItemNumber: (metadata.itemNumber ?? metadata.volumeNumber?.toString())
+              ?.trim()
+              .isNotEmpty ==
+          true,
+    );
+  }
+
+  @override
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) =>
       const [];
 
@@ -17,20 +59,9 @@ class MangaStatsCapability implements LibraryStatsCapability {
   List<Widget> buildCustomCards(
     BuildContext context,
     ShelfState state,
-    LibraryKindRuntime type,
+    LibraryKindRegistration type,
   ) {
-    final volumeGap = _numberedGapSummary(
-      state.entries,
-      (entry) {
-        final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
-        final rawVolume = payload?['volume_number'] ??
-            (payload?['series'] as Map?)?['volume_number'];
-        if (rawVolume == null) return null;
-        final volume = double.tryParse(rawVolume.toString());
-        if (volume == null || volume % 1 != 0) return null;
-        return volume.toInt();
-      },
-    );
+    final volumeGap = _bestMissingVolumeSummary(state.entries);
 
     return [
       if (volumeGap != null)
@@ -43,24 +74,21 @@ class MangaStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static _MissingNumberSummary? _numberedGapSummary(
-    List<ShelfEntry> entries,
-    int? Function(ShelfEntry entry) numberFor,
+  static Map<String, List<int>> missingVolumeNumbers(
+    Iterable<LibraryWorkspaceSource> entries,
   ) {
-    _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
       if (!entry.isOwned) continue;
-      final payload = entry.catalogItem?.kindMetadata.toSyncPayload();
-      final seriesTitle = ((payload?['series_title'] ??
-              (payload?['series'] as Map?)?['series_title']) as String?)
-          ?.trim();
-      final number = numberFor(entry);
-      if (seriesTitle == null || seriesTitle.isEmpty || number == null) {
-        continue;
-      }
-      seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(number);
+      final metadata = _mangaMetadata(entry);
+      if (metadata == null) continue;
+      final seriesTitle = _seriesTitle(metadata);
+      final volumeNumber = _volumeNumber(metadata);
+      if (seriesTitle == null || volumeNumber == null) continue;
+      seriesNumbers.putIfAbsent(seriesTitle, () => <int>{}).add(volumeNumber);
     }
+
+    final missingBySeries = <String, List<int>>{};
     for (final series in seriesNumbers.entries) {
       final sorted = series.value.toList(growable: false)..sort();
       if (sorted.length < 2) continue;
@@ -68,14 +96,47 @@ class MangaStatsCapability implements LibraryStatsCapability {
       for (var number = sorted.first; number <= sorted.last; number++) {
         if (!series.value.contains(number)) missing.add(number);
       }
-      if (missing.isEmpty) continue;
-      final summary = _MissingNumberSummary(series.key, missing);
+      if (missing.isNotEmpty) missingBySeries[series.key] = missing;
+    }
+    return missingBySeries;
+  }
+
+  static _MissingNumberSummary? _bestMissingVolumeSummary(
+    Iterable<LibraryWorkspaceSource> entries,
+  ) {
+    final missingBySeries = missingVolumeNumbers(entries);
+    _MissingNumberSummary? best;
+    for (final series in missingBySeries.entries) {
+      final summary = _MissingNumberSummary(series.key, series.value);
       if (best == null ||
           summary.missingNumbers.length > best.missingNumbers.length) {
         best = summary;
       }
     }
     return best;
+  }
+
+  static MangaMetadata? _mangaMetadata(LibraryWorkspaceSource entry) {
+    final catalog = entry.catalogData;
+    return catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
+  }
+
+  static String? _seriesTitle(MangaMetadata metadata) {
+    final title = metadata.seriesTitle ?? metadata.series?.seriesTitle;
+    final trimmed = title?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+
+  static int? _volumeNumber(MangaMetadata metadata) {
+    if (metadata.volumeNumber != null) return metadata.volumeNumber;
+    final seriesNumber = metadata.series?.volumeNumber;
+    if (seriesNumber != null) {
+      final parsed = int.tryParse(seriesNumber.trim());
+      if (parsed != null) return parsed;
+    }
+    final itemNumber = metadata.itemNumber?.trim();
+    if (itemNumber == null || itemNumber.isEmpty) return null;
+    return int.tryParse(itemNumber);
   }
 }
 

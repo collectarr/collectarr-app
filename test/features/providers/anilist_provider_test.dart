@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,13 +27,75 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('AniListProvider', () {
+    test('decodes native media payload models', () {
+      final media = AniListMedia.fromJson({
+        'id': 30002,
+        'idMal': 2,
+        'type': 'MANGA',
+        'title': {
+          'english': 'Berserk',
+          'romaji': 'Berserk',
+          'native': 'ベルセルク',
+        },
+        'description': 'A dark fantasy manga.',
+        'startDate': {'year': 1989, 'month': 8},
+        'coverImage': {'large': 'https://example.test/large.jpg'},
+        'genres': ['Action', 'Adventure'],
+        'staff': {
+          'edges': [
+            {
+              'role': 'Story & Art',
+              'node': {
+                'name': {'full': 'Kentarou Miura'},
+                'siteUrl': 'https://anilist.co/staff/1',
+              },
+            },
+          ],
+        },
+        'characters': {
+          'edges': [
+            {
+              'role': 'MAIN',
+              'node': {
+                'name': {'full': 'Guts'},
+                'image': {'medium': 'https://example.test/guts.jpg'},
+              },
+            },
+          ],
+        },
+        'relations': {
+          'edges': [
+            {
+              'relationType': 'ADAPTATION',
+              'node': {
+                'id': 100,
+                'type': 'ANIME',
+                'title': {'romaji': 'Berserk'},
+              },
+            },
+          ],
+        },
+      });
+
+      expect(media.id, 30002);
+      expect(media.idMal, 2);
+      expect(media.title?.native, 'ベルセルク');
+      expect(media.startDate?.year, 1989);
+      expect(media.coverImage?.large, 'https://example.test/large.jpg');
+      expect(media.genres, containsAll(['Action', 'Adventure']));
+      expect(media.staff.single.name, 'Kentarou Miura');
+      expect(media.characters.single.name, 'Guts');
+      expect(media.relations.single.media?.id, 100);
+      expect(media.toJson()['idMal'], 2);
+    });
+
     test('exposes correct descriptor metadata for manga and anime', () {
       final provider = AniListProvider();
       expect(provider.name, 'anilist');
       expect(provider.descriptor.displayName, 'AniList');
-      expect(provider.descriptor.kind, 'manga');
-      expect(
-          provider.descriptor.supportedKinds, containsAll(['manga', 'anime']));
+      expect(provider.descriptor.kind, CatalogMediaKind.manga);
+      expect(provider.descriptor.supportedKinds,
+          containsAll([CatalogMediaKind.manga, CatalogMediaKind.anime]));
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '90 req/min');
@@ -98,7 +161,10 @@ void main() {
       );
       final provider = AniListProvider(httpClient: client);
 
-      final results = await provider.search('Berserk', kind: 'manga');
+      final results = await provider.search(
+        'Berserk',
+        kind: CatalogMediaKind.manga,
+      );
       expect(sentQuery, contains('MANGA'));
       expect(results, hasLength(1));
 
@@ -106,7 +172,7 @@ void main() {
       expect(item.provider, 'anilist');
       expect(item.providerItemId, '30002');
       expect(item.title, 'Berserk');
-      expect(item.kind, 'manga');
+      expect(item.kind, CatalogMediaKind.manga);
       expect(item.summary, contains('MANGA'));
       expect(item.summary, contains('1989'));
       expect(item.characterPreview, containsAll(['Guts', 'Griffith']));
@@ -160,24 +226,26 @@ void main() {
       );
       final provider = AniListProvider(httpClient: client);
 
-      final envelope = await provider.fetchItem('30002', kind: 'manga');
+      final envelope = await provider.fetchItem(
+        '30002',
+        kind: CatalogMediaKind.manga,
+      );
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'anilist');
       expect(envelope.providerItemId, '30002');
-      expect(envelope.kind, 'manga');
-      expect(envelope.normalized['title'], 'Berserk');
-      expect(envelope.normalized['synopsis'],
-          contains('Guts, a former mercenary'));
-      expect(envelope.normalized['genres'],
-          containsAll(['Action', 'Adventure', 'Dark Fantasy']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
-          'Kentarou Miura');
-      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
-          'Story & Art');
+      expect(envelope.kind, CatalogMediaKind.manga);
+      expect(envelope.payload['title'], 'Berserk');
       expect(
-          jsonObject(envelope.normalized['provider_ids'])['anilist'], '30002');
-      expect(jsonObject(envelope.normalized['provider_ids'])['mal'], '2');
+          envelope.payload['synopsis'], contains('Guts, a former mercenary'));
+      expect(envelope.payload['genres'],
+          containsAll(['Action', 'Adventure', 'Dark Fantasy']));
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
+          'Kentarou Miura');
+      expect(jsonObjectList(envelope.payload['creators']).first['role'],
+          'Story & Art');
+      expect(jsonObject(envelope.payload['provider_ids'])['anilist'], '30002');
+      expect(jsonObject(envelope.payload['provider_ids'])['mal'], '2');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -195,7 +263,7 @@ void main() {
       );
       expect(aniFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(aniFixtureRaw as Map),
       );
 
@@ -224,19 +292,19 @@ void main() {
         },
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(normalized['cover_image_url'],
-          goldenEnvelope.normalized['cover_image_url']);
+          goldenEnvelope.payload['cover_image_url']);
       expect(jsonObject(normalized['provider_ids'])['anilist'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['anilist']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['anilist']);
       expect(jsonObject(normalized['provider_ids'])['mal'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['mal']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['mal']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
       expect(jsonObjectList(normalized['creators']).first['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['role']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['role']);
     });
   });
 }

@@ -2,8 +2,11 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.da
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_values.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
@@ -15,9 +18,26 @@ Widget? buildGameCustomTabView({
   required LibraryEditDraft draft,
   required Color accent,
   required LibraryEditScope scope,
-  required LibraryMetadataItem item,
+  required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
+  if (tabId == 'owned') {
+    final kindDraft = draft.kindDetails;
+    if (kindDraft is! GameEditDraft) {
+      throw StateError('Expected GameEditDraft for Game owned editing');
+    }
+    final detailsDraft = kindDraft.toDetailsDraft() as GameOwnedDetailsDraft;
+    final details = detailsDraft.toDetails();
+    return EditSchemaRenderer<GameOwnedDetails, GameEditDraft>(
+      schema: gameOwnedEditSchema,
+      model: details,
+      draft: kindDraft,
+      showTabBar: false,
+      showFooter: false,
+      onSave: (_) {},
+      onCancel: () {},
+    );
+  }
   if (tabId == 'release') {
     return EditTabShell(
       children: [
@@ -29,7 +49,12 @@ Widget? buildGameCustomTabView({
             children: [
               LibraryReleaseIdentityFields(
                 editionTitleController: TextEditingController(
-                  text: libraryKindTitleExtension(item) ?? '',
+                  text: (item.titleExtension ??
+                              item
+                                  .mapTransport((transport) => transport)
+                                  .editionTitle)
+                          ?.trim() ??
+                      '',
                 ),
                 variantController: TextEditingController(),
                 barcodeController: TextEditingController(),

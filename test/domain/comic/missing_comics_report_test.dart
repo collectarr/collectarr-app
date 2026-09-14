@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/missing_comics_report.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,64 +17,64 @@ void main() {
     );
 
     final owned = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-1',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-1',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '1',
           series: series,
-        ),
+        )),
         ownedItem: testOwnedItem(itemId: 'issue-1'),
       ),
-      comicKindModule,
+      libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );
     final variantA = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-2a',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-2a',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '2',
           variant: 'Variant A',
           series: series,
-        ),
+        )),
       ),
-      comicKindModule,
+      libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );
     final variantB = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-2b',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-2b',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '2',
           variant: 'Variant B',
           series: series,
-        ),
+        )),
       ),
-      comicKindModule,
+      libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );
     final unreleased = LibraryProjectionItem.fromShelf(
-      testShelfEntry(
+      testLibraryWorkspaceSource(
         itemId: 'issue-3',
         title: 'Amazing Spider-Man',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'issue-3',
           kind: 'comic',
           title: 'Amazing Spider-Man',
           itemNumber: '3',
           series: series,
           releaseDate: DateTime.utc(2027, 1, 1),
-        ),
+        )),
       ),
-      comicKindModule,
+      libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );
 
     final reports = buildMissingComicSeriesReports(

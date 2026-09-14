@@ -1,10 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -43,24 +42,14 @@ final mediaCatalogProvider =
   return fallbackMediaCatalog;
 });
 
-final resolvedLibraryTypesProvider = Provider<LibraryKindRegistry>((ref) {
-  final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
-  return defaultLibraryKindRegistry.resolveWithCatalog(catalog);
-});
-
-final resolvedLibraryTypeProvider =
-    Provider.family<LibraryKindRuntime, LibraryKindRuntime>((ref, type) {
-  final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
-  return type.resolveWithCatalog(catalog);
-});
-
 final videoPhysicalMediaFormatsProvider = Provider<List<PhysicalMediaFormat>>(
   (ref) {
     final catalog = _catalogOrFallback(ref.watch(mediaCatalogProvider));
     final formats = physicalMediaFormatsFromCatalog(catalog);
-    return formats.isEmpty
-        ? fallbackPhysicalMediaFormatsForKind(CatalogMediaKind.movie)
-        : formats;
+    return formats.isNotEmpty
+        ? formats
+        : collectarrKindRegistrations[CatalogMediaKind.movie]!
+            .physicalMediaFormats;
   },
 );
 
@@ -76,16 +65,15 @@ List<CatalogMediaType> _catalogOrFallback(
 
 List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   Iterable<CatalogMediaType> catalog,
-  Object? kind,
+  CatalogMediaKind kind,
 ) {
-  final mediaKind = catalogMediaKindFromValue(kind);
-  final mediaFamily = catalogMediaFamilyForKind(mediaKind);
+  final mediaFamily = catalogMediaFamilyForKind(kind);
   final formats = physicalMediaFormatsFromCatalog(catalog,
-      kind: mediaKind.apiValue, mediaFamily: mediaFamily);
+      kind: kind, mediaFamily: mediaFamily);
   if (formats.isNotEmpty) {
     return formats;
   }
-  return fallbackPhysicalMediaFormatsForKind(mediaKind);
+  return collectarrKindRegistrations[kind]?.physicalMediaFormats ?? const [];
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(
@@ -96,80 +84,27 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
   ];
 }
 
-const fallbackMediaCatalog = <CatalogMediaType>[
-  CatalogMediaType(
-    kind: 'comic',
-    singularLabel: 'Comic',
-    pluralLabel: 'Comics',
-    routeSegments: ['comics', 'comic'],
-    defaultProvider: 'gcd',
-    providers: ['gcd', 'comicvine', 'mangadex', 'anilist', 'hardcover'],
-  ),
-  CatalogMediaType(
-    kind: 'manga',
-    singularLabel: 'Manga',
-    pluralLabel: 'Manga',
-    routeSegments: ['manga'],
-    defaultProvider: 'hardcover',
-    providers: ['hardcover', 'comicvine', 'anilist', 'mangadex'],
-  ),
-  CatalogMediaType(
-    kind: 'movie',
-    singularLabel: 'Movie',
-    pluralLabel: 'Movies',
-    routeSegments: ['movies', 'movie'],
-    defaultProvider: 'tmdb',
-    providers: ['tmdb'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
-  ),
-  CatalogMediaType(
-    kind: 'tv',
-    singularLabel: 'TV Show',
-    pluralLabel: 'TV Shows',
-    routeSegments: ['tv', 'tv-shows', 'tvshows'],
-    defaultProvider: 'tmdb',
-    providers: ['tmdb'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
-  ),
-  CatalogMediaType(
-    kind: 'anime',
-    singularLabel: 'Anime',
-    pluralLabel: 'Anime',
-    routeSegments: ['anime'],
-    defaultProvider: 'anilist',
-    providers: ['anilist'],
-    physicalFormats: fallbackVideoCatalogPhysicalFormats,
-  ),
-  CatalogMediaType(
-    kind: 'game',
-    singularLabel: 'Game',
-    pluralLabel: 'Games',
-    routeSegments: ['games', 'game'],
-    defaultProvider: 'igdb',
-    providers: ['igdb'],
-  ),
-  CatalogMediaType(
-    kind: 'boardgame',
-    singularLabel: 'Board Game',
-    pluralLabel: 'Board Games',
-    routeSegments: ['board-games', 'boardgames', 'boardgame'],
-    defaultProvider: 'bgg',
-    providers: ['bgg'],
-  ),
-  CatalogMediaType(
-    kind: 'book',
-    singularLabel: 'Book',
-    pluralLabel: 'Books',
-    routeSegments: ['books', 'book'],
-    defaultProvider: 'openlibrary',
-    providers: ['openlibrary'],
-  ),
-  CatalogMediaType(
-    kind: 'music',
-    singularLabel: 'Music',
-    pluralLabel: 'Music',
-    routeSegments: ['music'],
-    defaultProvider: 'musicbrainz',
-    providers: ['musicbrainz'],
-  ),
+final fallbackMediaCatalog = [
+  for (final module in collectarrKindRegistrationsList)
+    CatalogMediaType(
+      kind: module.kind.apiValue,
+      singularLabel: module.identity.singularLabel,
+      pluralLabel: module.identity.pluralLabel,
+      routeSegments: module.identity.routeSegments,
+      defaultProvider: module.metadata.defaultProviderId,
+      providers: [
+        for (final provider in module.metadata.providers) provider.id,
+      ],
+      isTopLevel: module.identity.isTopLevel,
+      physicalFormats: [
+        for (final format in module.physicalMediaFormats)
+          CatalogPhysicalFormat(
+            id: format.id,
+            label: format.label,
+            mediaFamily: format.mediaFamily,
+            variantType: format.variantType,
+            aliases: format.aliases.toList(growable: false),
+          ),
+      ],
+    ),
 ];

@@ -1,9 +1,17 @@
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -53,7 +61,11 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = MusicOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is MusicOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -69,7 +81,7 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
     id: MusicFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -95,7 +107,7 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, int?>(
     id: MusicFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -156,7 +168,11 @@ abstract final class MusicKindSchema {
       LibraryFieldDefinition<MusicKind, MusicWorkspaceDto, String?>(
     id: MusicFieldIds.signedBy,
     label: 'Signed By',
-    getValue: (context) => context.source.ownedItem?.signedBy,
+    getValue: (context) {
+      final owned = MusicOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is MusicOwnedItem ? owned.details.signedBy : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 }
@@ -184,9 +200,8 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Artists',
     icon: Icons.person_outline,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'artist',
-      mirrorKeys: ['series_title'],
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
+      ['artist', 'series_title'],
     ),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
@@ -194,9 +209,8 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Labels',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['record_label'],
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
+      ['publisher', 'record_label'],
     ),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
@@ -214,7 +228,7 @@ final musicLibraryGroupDefinitions = [
     sidebarTitle: 'Conditions',
     icon: Icons.verified_outlined,
     supportsBucketManagement: true,
-    ownedBucketValueMutator: libraryOwnedConditionBucketValueMutator(),
+    ownedBucketValueMutator: musicOwnedConditionBucketValueMutator(),
   ),
   groupFromField<MusicKind, MusicWorkspaceDto, String?>(
     MusicKindSchema.location,
@@ -222,6 +236,44 @@ final musicLibraryGroupDefinitions = [
     icon: Icons.place_outlined,
   ),
 ];
+
+LibraryOwnedGroupBucketValueMutator musicOwnedConditionBucketValueMutator() {
+  return (item, currentLabel, {String? replacement}) {
+    if (item is! MusicOwnedItemDispatch) return null;
+    final owned = item.value;
+    if (owned.condition?.trim() != currentLabel.trim()) return null;
+    final next = replacement?.trim();
+    return UpdateOwnedItemCommand(
+      ownedRef: OwnedItemRef(
+        kind: CatalogMediaKind.music,
+        id: OwnedItemId(owned.id.value),
+      ),
+      payload: MusicOwnedItemUpdatePayload(
+        targetRef: const Patch<CatalogEntityRef?>.unchanged(),
+        quantity: const Patch.unchanged(),
+        condition: next == null || next.isEmpty
+            ? const Patch.clear()
+            : Patch.set(next),
+        grade: const Patch.unchanged(),
+        purchaseDate: const Patch.unchanged(),
+        pricePaidCents: const Patch.unchanged(),
+        currency: const Patch.unchanged(),
+        personalNotes: const Patch.unchanged(),
+        locationId: const Patch.unchanged(),
+        purchaseStore: const Patch.unchanged(),
+        collectionStatus: const Patch.unchanged(),
+        isDigital: const Patch.unchanged(),
+        tags: const Patch.unchanged(),
+        soldAt: const Patch.unchanged(),
+        sellPriceCents: const Patch.unchanged(),
+        soldTo: const Patch.unchanged(),
+        marketValueCents: const Patch.unchanged(),
+        indexNumber: const Patch.unchanged(),
+        details: const Patch.unchanged(),
+      ),
+    );
+  };
+}
 
 final musicLibrarySortDefinitions = [
   sortFromField<MusicKind, MusicWorkspaceDto, String>(MusicKindSchema.artist),
@@ -351,8 +403,8 @@ final musicLibraryColumnDefinitions = [
   ),
   columnFromField<MusicKind, MusicWorkspaceDto, int?>(
     MusicKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -368,8 +420,7 @@ final musicLibraryColumnDefinitions = [
     id: MusicFieldIds.rating,
     label: 'Rating',
     getValue: MusicKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<MusicKind, MusicWorkspaceDto, String?>(

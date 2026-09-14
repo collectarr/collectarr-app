@@ -2,12 +2,9 @@ import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   test('library route state round-trips reproducible view params', () {
@@ -37,7 +34,8 @@ void main() {
       isSidebarVisible: true,
     );
 
-    final uri = state.toUri(Uri.parse('/libraries'), type: movieKindModule);
+    final uri =
+        state.toUri(Uri.parse('/libraries'), type: const MovieRegistration());
     final parsed = LibraryRouteState.fromUri(uri);
 
     expect(uri.queryParameters['kind'], 'movie');
@@ -98,14 +96,12 @@ void main() {
     expect(parsed.isSidebarVisible, isNull);
   });
 
-  test('legacy sort params still decode', () {
+  test('old sort params are ignored', () {
     final parsed = LibraryRouteState.fromUri(
       Uri.parse('/libraries?kind=movie&sort=title.asc,updated.desc'),
     );
 
-    expect(parsed.sortRules, hasLength(2));
-    expect(parsed.sortRules!.first.column, 'title');
-    expect(parsed.sortRules!.last.column, 'updated');
+    expect(parsed.sortRules, isNull);
   });
 
   test('filtered route state drops explicit state when route kind mismatches',
@@ -119,7 +115,7 @@ void main() {
       ),
     );
 
-    final filtered = state.filteredForType(musicKindModule);
+    final filtered = state.filteredForType(const MusicRegistration());
 
     expect(filtered.kind, 'music');
     expect(filtered.hasExplicitViewState, isFalse);
@@ -138,14 +134,14 @@ void main() {
       ),
     );
 
-    final filtered = state.filteredForType(musicKindModule);
+    final filtered = state.filteredForType(const MusicRegistration());
 
     expect(filtered.quickView, isNull);
     expect(
         filtered.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
     expect(filtered.filterSelection.fieldValue('grade'), isNull);
 
-    final comicsFiltered = state.filteredForType(comicKindModule);
+    final comicsFiltered = state.filteredForType(const ComicRegistration());
     expect(comicsFiltered.quickView, isNull);
     expect(comicsFiltered.filterSelection.ownershipFilter,
         LibraryOwnershipFilter.all);
@@ -158,7 +154,7 @@ void main() {
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
     );
 
-    final filtered = state.filteredForType(bookKindModule);
+    final filtered = state.filteredForType(const BookRegistration());
     expect(filtered.groupMode, 'book.publisher');
     expect(filtered.bucketCompletionScope, LibraryBucketCompletionScope.all);
 
@@ -166,7 +162,7 @@ void main() {
       kind: 'book',
       groupMode: 'series',
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
-    ).filteredForType(bookKindModule);
+    ).filteredForType(const BookRegistration());
     expect(
       seriesFiltered.bucketCompletionScope,
       LibraryBucketCompletionScope.completed,

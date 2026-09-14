@@ -10,9 +10,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('comic relation capability exposes a typed serial target', () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Saga #1',
@@ -20,7 +20,7 @@ void main() {
           seriesId: 'series-1',
           seriesTitle: 'Saga',
         ),
-      ),
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'comic-1');
     final item = LibraryProjectionItem(
@@ -32,7 +32,7 @@ void main() {
       ),
     );
 
-    final target = comicKindModule.relations!.targetFor(item);
+    final target = comicKindModule.relations.targetFor(item);
 
     expect(target?.id, 'series-1');
     expect(target?.title, 'Saga');

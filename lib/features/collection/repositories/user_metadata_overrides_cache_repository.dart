@@ -1,44 +1,48 @@
+import 'dart:convert';
+
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:drift/drift.dart';
 
+/// Persistence mechanics for opaque, kind-owned metadata corrections.
 class UserMetadataOverridesCacheRepository {
   UserMetadataOverridesCacheRepository(this._db);
 
   final LocalDatabase _db;
 
-  /// All active (non-deleted) overrides for a single item, ordered by field.
-  Future<List<UserMetadataOverride>> listActiveByItemId(String itemId) async {
-    final rows = await (_db.select(_db.userMetadataOverridesCache)
-          ..where(
-            (tbl) => tbl.deletedAt.isNull() & tbl.itemId.equals(itemId),
-          )
-          ..orderBy([(tbl) => OrderingTerm.asc(tbl.fieldPath)]))
-        .get();
-    return rows.map(_toModel).toList(growable: false);
-  }
-
-  /// Active overrides for multiple items (batch).
-  Future<List<UserMetadataOverride>> listActiveByItemIds(
-    Iterable<String> itemIds,
+  Future<List<UserMetadataOverride>> listActiveByTarget(
+    CatalogEntityRef target,
   ) async {
-    final ids =
-        itemIds.where((v) => v.isNotEmpty).toSet().toList(growable: false);
-    if (ids.isEmpty) return const <UserMetadataOverride>[];
-    final rows = await (_db.select(_db.userMetadataOverridesCache)
-          ..where((tbl) => tbl.deletedAt.isNull() & tbl.itemId.isIn(ids))
-          ..orderBy([(tbl) => OrderingTerm.asc(tbl.fieldPath)]))
-        .get();
-    return rows.map(_toModel).toList(growable: false);
+    requireKnownCatalogRef(target, 'metadataOverride.targetRef');
+    final overrides = await listActive();
+    return overrides
+        .where((override) => _sameTarget(override.targetRef, target))
+        .toList(growable: false);
   }
 
-  /// All active overrides across the entire library.
+  Future<List<UserMetadataOverride>> listActiveByTargets(
+    Iterable<CatalogEntityRef> targets,
+  ) async {
+    final targetSet = targets.toSet();
+    if (targetSet.isEmpty) return const <UserMetadataOverride>[];
+    for (final target in targetSet) {
+      requireKnownCatalogRef(target, 'metadataOverride.targetRef');
+    }
+    final overrides = await listActive();
+    return overrides
+        .where((override) => targetSet.contains(override.targetRef))
+        .toList(growable: false);
+  }
+
   Future<List<UserMetadataOverride>> listActive() async {
     final rows = await (_db.select(_db.userMetadataOverridesCache)
           ..where((tbl) => tbl.deletedAt.isNull())
           ..orderBy([
-            (tbl) => OrderingTerm.asc(tbl.itemId),
-            (tbl) => OrderingTerm.asc(tbl.fieldPath),
+            (tbl) => OrderingTerm.asc(tbl.targetRefJson),
+            (tbl) => OrderingTerm.asc(tbl.fieldKey),
           ]))
         .get();
     return rows.map(_toModel).toList(growable: false);
@@ -51,36 +55,19 @@ class UserMetadataOverridesCacheRepository {
     return row == null ? null : _toModel(row);
   }
 
-  /// Find the active override for a specific (item, field, edition?, variant?)
-  /// combination.
   Future<UserMetadataOverride?> findByField(
-    String itemId,
-    String fieldPath, {
-    String? editionId,
-    String? variantId,
-  }) async {
-    final query = _db.select(_db.userMetadataOverridesCache)
-      ..where(
-        (tbl) =>
-            tbl.deletedAt.isNull() &
-            tbl.itemId.equals(itemId) &
-            tbl.fieldPath.equals(fieldPath),
-      );
-    if (editionId != null) {
-      query.where((tbl) => tbl.editionId.equals(editionId));
-    } else {
-      query.where((tbl) => tbl.editionId.isNull());
+    CatalogEntityRef target,
+    MetadataFieldId fieldId,
+  ) async {
+    final overrides = await listActiveByTarget(target);
+    for (final override in overrides) {
+      if (override.fieldId == fieldId) return override;
     }
-    if (variantId != null) {
-      query.where((tbl) => tbl.variantId.equals(variantId));
-    } else {
-      query.where((tbl) => tbl.variantId.isNull());
-    }
-    final row = await query.getSingleOrNull();
-    return row == null ? null : _toModel(row);
+    return null;
   }
 
   Future<void> upsert(UserMetadataOverride override) async {
+    _validate(override);
     await _db
         .into(_db.userMetadataOverridesCache)
         .insertOnConflictUpdate(_toCompanion(override));
@@ -88,6 +75,9 @@ class UserMetadataOverridesCacheRepository {
 
   Future<void> upsertAll(List<UserMetadataOverride> overrides) async {
     if (overrides.isEmpty) return;
+    for (final override in overrides) {
+      _validate(override);
+    }
     final companions = overrides.map(_toCompanion).toList(growable: false);
     await _db.batch((batch) {
       batch.insertAllOnConflictUpdate(
@@ -111,35 +101,80 @@ class UserMetadataOverridesCacheRepository {
     );
   }
 
-  // ── Mapping ──────────────────────────────────────────────────────────
-
   UserMetadataOverridesCacheCompanion _toCompanion(
-    UserMetadataOverride o,
+    UserMetadataOverride override,
   ) {
     return UserMetadataOverridesCacheCompanion(
-      id: Value(o.id),
-      itemId: Value(o.itemId),
-      editionId: Value(o.editionId),
-      variantId: Value(o.variantId),
-      fieldPath: Value(o.fieldPath),
-      originalValue: Value(o.originalValue),
-      overrideValue: Value(o.overrideValue),
-      updatedAt: Value(o.updatedAt),
-      deletedAt: Value(o.deletedAt),
+      id: Value(override.id),
+      targetRefJson: Value(jsonEncode(override.targetRef.toJson())),
+      fieldKey: Value(override.fieldId.serializedValue),
+      originalValue: Value(override.originalValue),
+      overrideValue: Value(override.overrideValue),
+      updatedAt: Value(override.updatedAt),
+      deletedAt: Value(override.deletedAt),
     );
   }
 
   UserMetadataOverride _toModel(UserMetadataOverridesCacheData row) {
+    final rawTarget = jsonDecode(row.targetRefJson);
+    if (rawTarget is! Map) {
+      throw const FormatException('Metadata override target_ref is invalid');
+    }
+    final targetRef = CatalogEntityRef.fromJson(
+      Map<String, Object?>.from(rawTarget),
+    );
+    requireKnownCatalogRef(targetRef, 'metadataOverride.targetRef');
+    final fieldId = MetadataFieldId(
+      kind: targetRef.mediaKind,
+      value: row.fieldKey,
+    );
+    _validateField(targetRef, fieldId);
     return UserMetadataOverride(
       id: row.id,
-      itemId: row.itemId,
-      editionId: row.editionId,
-      variantId: row.variantId,
-      fieldPath: row.fieldPath,
+      targetRef: targetRef,
+      fieldId: fieldId,
       originalValue: row.originalValue,
       overrideValue: row.overrideValue,
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
+  }
+
+  bool _sameTarget(CatalogEntityRef left, CatalogEntityRef right) =>
+      left == right;
+
+  void _validate(UserMetadataOverride override) {
+    requireKnownCatalogRef(override.targetRef, 'metadataOverride.targetRef');
+    _validateField(override.targetRef, override.fieldId);
+    if (override.id.trim().isEmpty) {
+      throw ArgumentError.value(
+        override.id,
+        'metadataOverride.id',
+        'Metadata override id must not be empty.',
+      );
+    }
+    if (override.overrideValue.trim().isEmpty) {
+      throw ArgumentError.value(
+        override.overrideValue,
+        'metadataOverride.overrideValue',
+        'Metadata override value must not be empty.',
+      );
+    }
+  }
+
+  void _validateField(CatalogEntityRef target, MetadataFieldId fieldId) {
+    if (fieldId.kind.isUnknown || fieldId.value.trim().isEmpty) {
+      throw ArgumentError.value(
+        fieldId,
+        'metadataOverride.fieldId',
+        'Metadata override field id must have a known kind and non-empty key.',
+      );
+    }
+    if (!fieldId.appliesTo(target)) {
+      throw ArgumentError(
+        'Metadata override field kind ${fieldId.kind.apiValue} does not '
+        'match target kind ${target.kind.apiValue}.',
+      );
+    }
   }
 }

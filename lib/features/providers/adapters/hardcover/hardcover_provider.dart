@@ -2,17 +2,20 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
+import '../../../../core/models/catalog_media_kind.dart';
+
 import '../../credentials/models/hardcover_credentials.dart';
-import '../../domain/models/normalized_provider_envelope_v1.dart';
+import '../../transport/provider_metadata_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_image_ref.dart';
 import '../../domain/models/provider_provenance.dart';
-import '../../domain/models/provider_search_result.dart';
+import '../../transport/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/hardcover_book.dart';
 
 const String _hardcoverSearchQuery = '''
 query SearchBooks(\$query: String!, \$perPage: Int!, \$page: Int!) {
@@ -103,8 +106,8 @@ class HardcoverProvider extends ProviderAdapter {
   static const ProviderDescriptor hardcoverDescriptor = ProviderDescriptor(
     name: 'hardcover',
     displayName: 'Hardcover',
-    kind: 'book',
-    supportedKinds: ['book', 'manga'],
+    kind: CatalogMediaKind.book,
+    supportedKinds: [CatalogMediaKind.book, CatalogMediaKind.manga],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: true,
@@ -133,7 +136,7 @@ class HardcoverProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -141,7 +144,7 @@ class HardcoverProvider extends ProviderAdapter {
 
     _ensureConfigured();
 
-    final targetKind = _resolveTargetKind(kind);
+    final targetKind = _resolveTargetKind(kind?.apiValue);
     final payload = await _graphql(
       _hardcoverSearchQuery,
       {
@@ -160,37 +163,16 @@ class HardcoverProvider extends ProviderAdapter {
     final rawResults = searchResult['results'];
     if (rawResults == null) return [];
 
-    List<dynamic> resultsList;
-    if (rawResults is String) {
-      try {
-        resultsList = jsonDecode(rawResults) as List<dynamic>;
-      } catch (_) {
-        return [];
-      }
-    } else if (rawResults is List) {
-      resultsList = rawResults;
-    } else {
-      return [];
-    }
-
     final hits = <ProviderSearchResult>[];
-    for (final hit in resultsList) {
-      if (hit is! Map) continue;
-      final doc = hit['document'] is Map
-          ? Map<String, dynamic>.from(hit['document'] as Map)
-          : Map<String, dynamic>.from(hit);
-      final bookId = doc['id'];
+    for (final hit in decodeHardcoverSearchHits(rawResults)) {
+      final document = hit.document;
+      final bookId = document.id;
       if (bookId == null) continue;
 
-      final title = _optionalText(doc['title']) ?? 'Unknown';
-      final authorNames = doc['author_names'] is List
-          ? (doc['author_names'] as List<dynamic>)
-          : const <dynamic>[];
-      final series = doc['featured_series'] is Map
-          ? Map<String, dynamic>.from(doc['featured_series'] as Map)
-          : null;
-      final seriesName = _optionalText(series?['name']);
-      final releaseYear = _optionalText(doc['release_year']);
+      final title = document.title ?? 'Unknown';
+      final authorNames = document.authorNames;
+      final seriesName = document.featuredSeries?.name;
+      final releaseYear = document.releaseYear;
 
       final summaryParts = <String>[
         if (authorNames.isNotEmpty)
@@ -199,15 +181,14 @@ class HardcoverProvider extends ProviderAdapter {
         if (releaseYear != null && releaseYear.isNotEmpty) releaseYear,
       ];
 
-      final image = doc['image'] is Map ? doc['image'] as Map : null;
-      final imageUrl = _optionalText(image?['url']);
+      final imageUrl = document.image?.url;
 
       hits.add(
         ProviderSearchResult(
           provider: name,
           providerItemId: _formatProviderItemId(targetKind, bookId.toString()),
           title: title,
-          kind: targetKind,
+          kind: catalogMediaKindFromApiValue(targetKind),
           summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
           imageUrl: imageUrl,
           seriesTitle: seriesName,
@@ -218,14 +199,14 @@ class HardcoverProvider extends ProviderAdapter {
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     _ensureConfigured();
 
     final (targetKind, bookId) =
-        _parseKindAndBookId(providerItemId, defaultKind: kind);
+        _parseKindAndBookId(providerItemId, defaultKind: kind?.apiValue);
     final intId = int.tryParse(bookId);
     if (intId == null) {
       throw ProviderNotFoundException(
@@ -239,11 +220,8 @@ class HardcoverProvider extends ProviderAdapter {
     final data = dataPayload is Map
         ? Map<String, dynamic>.from(dataPayload)
         : const <String, dynamic>{};
-    final books = data['books'] is List
-        ? data['books'] as List<dynamic>
-        : const <dynamic>[];
-
-    if (books.isEmpty || books.first is! Map) {
+    final books = data['books'];
+    if (books is! List || books.isEmpty || books.first is! Map) {
       throw ProviderNotFoundException(
         provider: name,
         message: 'Hardcover book not found for ID: $providerItemId',
@@ -251,9 +229,9 @@ class HardcoverProvider extends ProviderAdapter {
     }
 
     final raw = Map<String, dynamic>.from(books.first as Map);
-    raw['_collectarr_kind'] = targetKind;
+    final book = HardcoverBook.fromJson(raw);
 
-    final normalized = normalize(raw);
+    final normalized = normalizeBook(book, targetKind);
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -271,15 +249,15 @@ class HardcoverProvider extends ProviderAdapter {
 
     final canonicalItemId = intId.toString();
 
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
-      kind: targetKind,
-      normalized: normalized,
+      kind: catalogMediaKindFromApiValue(targetKind),
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
-        sourceUrl: 'https://hardcover.app/books/${raw['slug'] ?? intId}',
+        sourceUrl: 'https://hardcover.app/books/${book.slug ?? intId}',
         rawPayloadHash: sha256.convert(utf8.encode(jsonEncode(raw))).toString(),
         providerVersion: '1.0.0',
       ),
@@ -294,39 +272,29 @@ class HardcoverProvider extends ProviderAdapter {
   }
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
-    final title = _optionalText(data['title']) ?? 'Unknown';
-    final bookId = _parseInt(data['id']);
-    final synopsis = _optionalText(data['description']);
-    final creators = _extractCreators(data['contributions']);
-    final genres = _extractTags(data['taggings']);
+    final targetKind = _optionalText(data['_collectarr_kind']) ?? 'book';
+    return normalizeBook(HardcoverBook.fromJson(data), targetKind);
+  }
 
-    final image = data['image'] is Map
-        ? Map<String, dynamic>.from(data['image'] as Map)
-        : null;
-    var coverUrl = _optionalText(image?['url']);
+  Map<String, dynamic> normalizeBook(HardcoverBook book, String targetKind) {
+    final title = book.title ?? 'Unknown';
+    final bookId = book.id;
+    final synopsis = book.description;
+    final creators = _extractCreators(book.contributions);
+    final genres = _extractTags(book.taggings);
+    var coverUrl = book.image?.url;
 
-    final editions = data['editions'] is List
-        ? data['editions'] as List<dynamic>
-        : const <dynamic>[];
-    final defaultEdition = editions.isNotEmpty && editions.first is Map
-        ? Map<String, dynamic>.from(editions.first as Map)
-        : null;
+    final defaultEdition =
+        book.editions.isNotEmpty ? book.editions.first : null;
 
     String? publisher;
-    int? pageCount = _parseInt(data['pages']);
+    int? pageCount = book.pages;
     if (defaultEdition != null) {
-      final pub = defaultEdition['publisher'] is Map
-          ? Map<String, dynamic>.from(defaultEdition['publisher'] as Map)
-          : null;
-      publisher = _optionalText(pub?['name']);
-      pageCount = pageCount ?? _parseInt(defaultEdition['pages']);
-      final edImage = defaultEdition['image'] is Map
-          ? Map<String, dynamic>.from(defaultEdition['image'] as Map)
-          : null;
-      coverUrl ??= _optionalText(edImage?['url']);
+      publisher = defaultEdition.publisher?.name;
+      pageCount = pageCount ?? defaultEdition.pages;
+      coverUrl ??= defaultEdition.image?.url;
     }
 
-    final targetKind = _optionalText(data['_collectarr_kind']) ?? 'book';
     final providerIds = <String, String>{};
     if (bookId != null) {
       providerIds['hardcover'] = bookId.toString();
@@ -428,16 +396,15 @@ class HardcoverProvider extends ProviderAdapter {
     return '$kind:$bookId';
   }
 
-  List<Map<String, dynamic>> _extractCreators(dynamic contributions) {
-    if (contributions is! List) return [];
+  List<Map<String, dynamic>> _extractCreators(
+    List<HardcoverContribution> contributions,
+  ) {
     final creators = <Map<String, dynamic>>[];
 
     for (final contrib in contributions) {
-      if (contrib is! Map) continue;
-      final author = contrib['author'];
-      final name = author is Map ? _optionalText(author['name']) : null;
+      final name = contrib.author?.name;
       if (name != null && name.isNotEmpty) {
-        final role = _optionalText(contrib['contribution_type']) ?? 'Author';
+        final role = contrib.contributionType ?? 'Author';
         creators.add(<String, dynamic>{
           'name': name,
           'role': role,
@@ -448,28 +415,15 @@ class HardcoverProvider extends ProviderAdapter {
     return creators;
   }
 
-  List<String> _extractTags(dynamic taggings) {
-    if (taggings is! List) return [];
+  List<String> _extractTags(List<HardcoverTagging> taggings) {
     final list = <String>[];
     for (final t in taggings) {
-      if (t is! Map) continue;
-      final tagObj = t['tag'];
-      final tagName = tagObj is Map
-          ? _optionalText(tagObj['tag'])
-          : _optionalText(t['tag']);
+      final tagName = t.name;
       if (tagName != null && tagName.isNotEmpty) {
         list.add(tagName);
       }
     }
     return list;
-  }
-
-  int? _parseInt(dynamic value) {
-    if (value is num) return value.toInt();
-    if (value != null) {
-      return int.tryParse(value.toString().trim());
-    }
-    return null;
   }
 
   String? _optionalText(dynamic value) {

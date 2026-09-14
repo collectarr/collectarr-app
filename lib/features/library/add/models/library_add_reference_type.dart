@@ -1,9 +1,10 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 
 enum LibraryAddReferenceType { media, edition, bundleRelease }
 
 extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
-  String labelForType(LibraryKindRuntime type) {
+  String labelForType(LibraryKindRegistration type) {
     return switch (this) {
       LibraryAddReferenceType.media => type.addChrome.mediaReferenceLabel,
       LibraryAddReferenceType.edition => 'Edition',
@@ -11,7 +12,7 @@ extension LibraryAddReferenceTypeLabels on LibraryAddReferenceType {
     };
   }
 
-  String helperLabelForType(LibraryKindRuntime type) {
+  String helperLabelForType(LibraryKindRegistration type) {
     return switch (this) {
       LibraryAddReferenceType.media => type.addChrome.mediaReferenceHelperLabel,
       LibraryAddReferenceType.edition =>

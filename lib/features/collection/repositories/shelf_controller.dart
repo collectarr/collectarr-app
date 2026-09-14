@@ -1,53 +1,78 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/watch_sessions_cache_repository.dart';
-import 'package:collectarr_app/features/library/models/library_entry.dart';
-import 'package:collectarr_app/features/library/api/library_metadata_transport_codec.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+export 'package:collectarr_app/core/models/tracking_summary.dart';
+
 final shelfProvider = FutureProvider<ShelfState>((ref) async {
-  final owned = await ref.watch(collectionProvider.future);
+  final ownedSummaries = await ref.watch(collectionSummariesProvider.future);
   final wishlist = await ref.watch(wishlistProvider.future);
-  final trackingEntries = await ref.watch(trackingEntriesProvider.future);
+  final trackingSummaries = await ref.watch(trackingSummariesProvider.future);
   final auth = ref.watch(authControllerProvider);
   final db = ref.watch(localDatabaseProvider);
-  final ids = {
-    for (final item in owned) item.catalogRef.id,
-    for (final item in wishlist) item.catalogRef.id,
-    for (final item in trackingEntries) item.catalogRef.id,
+  final ownedRepository = CollectarrOwnedItemPersistence(db);
+  final typedOwnedResults = await Future.wait(
+    ownedSummaries.map(
+      (summary) => ownedRepository.ownedItemForLibraryByRef(summary.ref),
+    ),
+  );
+  final ownedItemDispatchesByRef = <OwnedItemRef, LibraryOwnedItemDispatch>{};
+  for (var index = 0; index < typedOwnedResults.length; index++) {
+    final result = typedOwnedResults[index];
+    if (result != null) {
+      ownedItemDispatchesByRef[ownedSummaries[index].ref] = result;
+    }
+  }
+  final catalogRefs = <CatalogEntityRef>{
+    for (final item in ownedSummaries)
+      if (item.catalogRef != null) item.catalogRef!.rootScope,
+    for (final item in wishlist) item.catalogRef.rootScope,
+    for (final item in trackingSummaries) item.catalogRef.rootScope,
   };
-  final catalogItems = await CatalogCacheRepository(db).findByIds(ids);
-  final libraryCatalogItems = {
-    for (final entry in catalogItems.entries)
-      entry.key: LibraryMetadataTransportCodec.fromCatalogItem(entry.value),
-  };
+  final catalogSummaries =
+      await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
+  // Read transport only at the repository boundary, then immediately
+  // dispatch into structural kind-owned workspace data. Shelf never carries
+  // a generic catalog snapshot.
+  final catalogDataByRef =
+      await CatalogWorkspaceDataRepository(db).findByRefs(catalogRefs);
   final locations = await LocationRepository(db).getAll();
-  final watchSessions =
-      await WatchSessionsCacheRepository(db).listActiveByItemIds(ids);
-  final itemImagesByOwnedItem =
-      await ItemImageRepository(db).listForOwnedItemIds(
-    owned.map((item) => item.id),
+  final watchSessions = await WatchSessionsRepository(
+    db,
+    codecs: collectarrWatchSessionCodecs,
+  ).listActiveByCatalogRefs(catalogRefs);
+  final itemImagesByOwnedItem = await ItemImageRepository(db).listForOwnedRefs(
+    ownedSummaries.map((item) => item.ref),
   );
   return ShelfState.from(
-    ownedItems: owned,
+    ownedSummaries: ownedSummaries,
     wishlistItems: wishlist,
-    trackingEntries: trackingEntries,
+    trackingSummaries: trackingSummaries,
     watchSessions: watchSessions,
-    catalogItems: libraryCatalogItems,
+    catalogSummariesByRef: catalogSummaries,
+    catalogDataByRef: catalogDataByRef,
     locations: locations,
     itemImagesByOwnedItem: itemImagesByOwnedItem,
+    ownedItemDispatchesByRef: ownedItemDispatchesByRef,
     fallbackOwnerLabel: auth.email,
   );
 });
@@ -57,23 +82,13 @@ class ShelfState {
     required this.entries,
     required this.ownedCount,
     required this.wishlistCount,
-    required this.missingGradeCount,
     required this.pricedCount,
     required this.totalPaidCents,
     required this.primaryCurrency,
     required this.hasMixedCurrencies,
     this.totalQuantity = 0,
-    this.keyComicCount = 0,
     this.missingMetadataCount = 0,
-    this.gradeCounts = const {},
-    this.conditionCounts = const {},
-    this.readStatusCounts = const {},
     this.locationCounts = const {},
-    this.seriesCounts = const {},
-    this.coverPricedCount = 0,
-    this.totalCoverPriceCents,
-    this.coverPriceCurrency,
-    this.hasMixedCoverPriceCurrencies = false,
     this.soldCount = 0,
     this.totalSellCents,
     this.marketValuedCount = 0,
@@ -81,98 +96,111 @@ class ShelfState {
   });
 
   factory ShelfState.from({
-    required List<OwnedItem> ownedItems,
+    Iterable<OwnedItemSummary>? ownedSummaries,
     required List<WishlistItem> wishlistItems,
-    List<TrackingEntry> trackingEntries = const [],
+    Iterable<TrackingSummary>? trackingSummaries,
+    Map<OwnedItemRef, LibraryOwnedItemDispatch> ownedItemDispatchesByRef =
+        const <OwnedItemRef, LibraryOwnedItemDispatch>{},
     List<WatchSession> watchSessions = const [],
-    required Map<String, dynamic> catalogItems,
+    Map<CatalogEntityRef, CatalogDisplaySummary>? catalogSummariesByRef,
+    Map<CatalogEntityRef, LibraryWorkspaceCatalogData>? catalogDataByRef,
     List<StorageLocation> locations = const [],
-    Map<String, List<ItemImage>> itemImagesByOwnedItem =
-        const <String, List<ItemImage>>{},
+    Map<OwnedItemRef, List<ItemImage>> itemImagesByOwnedItem =
+        const <OwnedItemRef, List<ItemImage>>{},
     String? fallbackOwnerLabel,
   }) {
+    final workspaceCatalogByRef =
+        <CatalogEntityRef, LibraryWorkspaceCatalogData>{
+      ...?catalogDataByRef,
+    };
+    final resolvedCatalogSummariesByRef =
+        Map<CatalogEntityRef, CatalogDisplaySummary>.unmodifiable(
+      catalogSummariesByRef ??
+          const <CatalogEntityRef, CatalogDisplaySummary>{},
+    );
+    final resolvedOwnedSummaries =
+        ownedSummaries?.toList(growable: false) ?? const <OwnedItemSummary>[];
+    final resolvedTrackingSummaries =
+        trackingSummaries?.toList(growable: false) ?? const <TrackingSummary>[];
     final locationPathsById = {
       for (final location in locations)
         location.id: location.fullPath(locations),
     };
-    final ownedByItemId = {
-      for (final item in ownedItems)
-        if (!item.isDeleted) item.catalogRef.id: item,
+    final ownedByCatalogRef = <CatalogEntityRef, OwnedItemSummary>{
+      for (final item in resolvedOwnedSummaries)
+        if (!item.isDeleted && item.catalogRef != null)
+          item.catalogRef!.rootScope: item,
     };
-    final wishlistByItemId = {
+    final wishlistByCatalogRef = <CatalogEntityRef, WishlistItem>{
       for (final item in wishlistItems)
-        if (!item.isDeleted) item.catalogRef.id: item,
+        if (!item.isDeleted) item.catalogRef.rootScope: item,
     };
-    final trackingByItemId = <String, TrackingEntry>{};
-    for (final entry in trackingEntries) {
-      if (entry.isDeleted ||
-          trackingByItemId.containsKey(entry.catalogRef.id)) {
+    final trackingByCatalogRef = <CatalogEntityRef, TrackingSummary>{};
+    for (final entry in resolvedTrackingSummaries) {
+      final catalogRef = entry.catalogRef.rootScope;
+      if (entry.isDeleted || trackingByCatalogRef.containsKey(catalogRef)) {
         continue;
       }
-      trackingByItemId[entry.catalogRef.id] = entry;
+      trackingByCatalogRef[catalogRef] = entry;
     }
-    final watchSessionsByItemId = <String, List<WatchSession>>{};
+    final watchSessionsByCatalogRef = <CatalogEntityRef, List<WatchSession>>{};
     for (final session in watchSessions) {
       if (session.isDeleted) {
         continue;
       }
-      watchSessionsByItemId
-          .putIfAbsent(session.itemId, () => <WatchSession>[])
+      final catalogRef = session.targetRef.rootScope;
+      watchSessionsByCatalogRef
+          .putIfAbsent(catalogRef, () => <WatchSession>[])
           .add(session);
     }
-    for (final sessions in watchSessionsByItemId.values) {
+    for (final sessions in watchSessionsByCatalogRef.values) {
       sessions.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
     }
-    final ids = {
-      ...ownedByItemId.keys,
-      ...wishlistByItemId.keys,
-      ...trackingByItemId.keys,
+    final refs = <CatalogEntityRef>{
+      ...ownedByCatalogRef.keys,
+      ...wishlistByCatalogRef.keys,
+      ...trackingByCatalogRef.keys,
     };
     final entries = [
-      for (final id in ids)
-        ShelfEntry(
-          itemId: id,
-          catalogItem: () {
-            final item = catalogItems[id];
-            if (item is LibraryMetadataItem) return item;
-            if (item is CatalogItemDto) {
-              return LibraryMetadataTransportCodec.fromCatalogItem(item);
-            }
-            return null;
-          }(),
-          ownedItem: ownedByItemId[id],
-          trackingEntry: trackingByItemId[id],
-          wishlistItem: wishlistByItemId[id],
-          locationPath: locationPathsById[ownedByItemId[id]?.locationId],
-          watchSessions: watchSessionsByItemId[id] ?? const <WatchSession>[],
-          itemImages: itemImagesByOwnedItem[ownedByItemId[id]?.id] ??
+      for (final ref in refs) ...[
+        LibraryWorkspaceSource(
+          itemId: ref.id,
+          // Mixed/global Shelf rendering is summary-only. The transport
+          // snapshot below is retained solely for the owning kind's typed
+          // workspace projector.
+          catalogSummary: resolvedCatalogSummariesByRef[ref],
+          catalogSearchTokens: [
+            if (resolvedCatalogSummariesByRef[ref]?.title case final title?)
+              title,
+          ],
+          ownedSummary: ownedByCatalogRef[ref],
+          trackingSummary: trackingByCatalogRef[ref],
+          catalogData: workspaceCatalogByRef[ref],
+          ownedItemDispatch: ownedByCatalogRef[ref] == null
+              ? null
+              : ownedItemDispatchesByRef[ownedByCatalogRef[ref]!.ref],
+          wishlistItem: wishlistByCatalogRef[ref],
+          locationPath: locationPathsById[ownedByCatalogRef[ref]?.locationId],
+          watchSessions:
+              watchSessionsByCatalogRef[ref] ?? const <WatchSession>[],
+          itemImages: itemImagesByOwnedItem[ownedByCatalogRef[ref]?.ref] ??
               const <ItemImage>[],
           fallbackOwnerLabel: fallbackOwnerLabel,
         ),
+      ],
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-
-    final pricedOwned = ownedItems
+    final pricedOwned = resolvedOwnedSummaries
         .where((item) => item.pricePaidCents != null && item.currency != null)
         .toList(growable: false);
     final currencies = {
       for (final item in pricedOwned) item.currency!,
     };
     final hasMixedCurrencies = currencies.length > 1;
-    final activeOwned = ownedByItemId.values.toList(growable: false);
-    final coverPricedOwned = activeOwned.where((item) {
-      final comic = item.comicDetails;
-      return comic?.coverPriceCents != null && item.currency != null;
-    }).toList(growable: false);
-    final coverCurrencies = {
-      for (final item in coverPricedOwned) item.currency!,
-    };
-    final hasMixedCoverPriceCurrencies = coverCurrencies.length > 1;
+    final activeOwned = ownedByCatalogRef.values.toList(growable: false);
     return ShelfState(
       entries: entries,
-      ownedCount: ownedByItemId.length,
-      wishlistCount: wishlistByItemId.length,
-      missingGradeCount:
-          ownedByItemId.values.where((item) => item.grade == null).length,
+      ownedCount: ownedByCatalogRef.length,
+      wishlistCount: wishlistByCatalogRef.length,
       pricedCount: pricedOwned.length,
       totalPaidCents: hasMixedCurrencies
           ? null
@@ -186,44 +214,14 @@ class ShelfState {
         0,
         (total, item) => total + item.quantity,
       ),
-      keyComicCount: activeOwned.where((item) {
-        final comic = item.comicDetails;
-        return comic?.keyComic == true;
-      }).length,
       missingMetadataCount:
-          entries.where((entry) => entry.catalogItem == null).length,
-      gradeCounts: _counts(activeOwned.map((item) => item.grade ?? 'Ungraded')),
-      conditionCounts: _counts(
-        activeOwned.map((item) => item.condition ?? 'Unknown'),
-      ),
-      readStatusCounts: _counts(
-        entries.map((entry) => entry.tracking.statusLabel),
-      ),
+          entries.where((entry) => entry.catalogSummary == null).length,
       locationCounts: _counts(
         entries
             .where((entry) => entry.isOwned)
             .map((entry) => entry.locationPath ?? 'No location'),
       ),
-      seriesCounts: _counts(
-        entries
-            .map((entry) => entry.catalogItem?.title)
-            .whereType<String>()
-            .where((title) => title.trim().isNotEmpty),
-      ),
-      soldCount: activeOwned.where((item) => item.isSold).length,
-      coverPricedCount: coverPricedOwned.length,
-      totalCoverPriceCents: hasMixedCoverPriceCurrencies
-          ? null
-          : coverPricedOwned.fold<int>(
-              0,
-              (total, item) {
-                final comic = item.comicDetails;
-                return total + (comic?.coverPriceCents ?? 0);
-              },
-            ),
-      coverPriceCurrency:
-          coverCurrencies.length == 1 ? coverCurrencies.single : null,
-      hasMixedCoverPriceCurrencies: hasMixedCoverPriceCurrencies,
+      soldCount: activeOwned.where((item) => item.soldAt != null).length,
       totalSellCents: hasMixedCurrencies
           ? null
           : activeOwned
@@ -239,26 +237,22 @@ class ShelfState {
     );
   }
 
-  final List<ShelfEntry> entries;
   final int ownedCount;
+
+  /// Structural workspace sources used by mixed Shelf hosts and by the
+  /// kind-specific Library projection pipeline.
+  final List<LibraryWorkspaceSource> entries;
+
+  /// Aggregate projection for the Stats dashboard. Keep kind semantics in
+  /// their contributors rather than exposing them as universal Shelf filters.
   final int wishlistCount;
-  final int missingGradeCount;
   final int pricedCount;
   final int? totalPaidCents;
   final String? primaryCurrency;
   final bool hasMixedCurrencies;
   final int totalQuantity;
-  final int keyComicCount;
   final int missingMetadataCount;
-  final Map<String, int> gradeCounts;
-  final Map<String, int> conditionCounts;
-  final Map<String, int> readStatusCounts;
   final Map<String, int> locationCounts;
-  final Map<String, int> seriesCounts;
-  final int coverPricedCount;
-  final int? totalCoverPriceCents;
-  final String? coverPriceCurrency;
-  final bool hasMixedCoverPriceCurrencies;
   final int soldCount;
   final int? totalSellCents;
   final int marketValuedCount;
@@ -271,45 +265,4 @@ class ShelfState {
     }
     return counts;
   }
-}
-
-class ShelfEntry extends LibraryEntry {
-  const ShelfEntry({
-    required super.itemId,
-    super.catalogItem,
-    super.ownedItem,
-    super.trackingEntry,
-    super.wishlistItem,
-    this.locationPath,
-    this.watchSessions = const <WatchSession>[],
-    this.itemImages = const <ItemImage>[],
-    this.fallbackOwnerLabel,
-  });
-
-  final String? locationPath;
-  final List<WatchSession> watchSessions;
-  final List<ItemImage> itemImages;
-  final String? fallbackOwnerLabel;
-
-  String? get condition => ownedItem?.condition;
-  String? get grade => ownedItem?.grade;
-  int? get pricePaidCents => ownedItem?.pricePaidCents;
-  int? get marketValueCents => ownedItem?.marketValueCents;
-  String? get currency => ownedItem?.currency;
-  String? get purchaseStore => ownedItem?.purchaseStore;
-  DateTime? get purchaseDate => ownedItem?.purchaseDate;
-  String? get personalNotes => ownedItem?.personalNotes;
-  String? get tags => ownedItem?.tags;
-  List<String> get tagList {
-    final raw = ownedItem?.tags?.trim();
-    if (raw == null || raw.isEmpty) return const <String>[];
-    return raw
-        .split(',')
-        .map((t) => t.trim())
-        .where((t) => t.isNotEmpty)
-        .toList();
-  }
-
-  String? get ownerLabel => ownedItem?.ownerLabel ?? fallbackOwnerLabel;
-  int get quantity => ownedItem?.quantity ?? (isOwned ? 1 : 0);
 }

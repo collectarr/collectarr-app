@@ -25,7 +25,7 @@ abstract interface class LibraryWorkspacePreferenceCodec<TKind> {
   String encodeGroup(LibraryGroupIdRuntime id);
 }
 
-/// Default identity codec when legacy short-ID translation is not needed.
+/// Default identity codec for kind-owned persisted identifiers.
 class IdentityLibraryWorkspacePreferenceCodec<TKind>
     implements LibraryWorkspacePreferenceCodec<TKind> {
   const IdentityLibraryWorkspacePreferenceCodec();

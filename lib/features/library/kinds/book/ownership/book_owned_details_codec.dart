@@ -1,29 +1,25 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/config/owned_details_codec.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 
-class BookOwnedDetailsCodec implements OwnedDetailsCodec<BookOwnedDetails> {
+final class BookOwnedDetailsCodec {
   const BookOwnedDetailsCodec();
 
-  @override
   BookOwnedDetails fromJson(Map<String, dynamic> json) =>
       BookOwnedDetails.fromJson(json);
 
-  @override
   Map<String, dynamic> toJson(BookOwnedDetails details) => details.toJson();
 
-  @override
   Map<String, dynamic> toSyncPayload(BookOwnedDetails details) =>
       details.toJson();
 
-  @override
   BookOwnedDetails defaultDetails() => const BookOwnedDetails();
 
-  @override
-  OwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
+  BookOwnedDetailsDraft draftFromDetails(BookOwnedDetails details) =>
+      BookOwnedDetailsDraft(
+        signedBy: details.signedBy,
+        dustJacketPresent: details.dustJacketPresent,
+        dustJacketCondition: details.dustJacketCondition,
+      );
 
-  @override
-  OwnedDetailsDraft buildDraft(LibraryPersonalEditSelection personal) =>
-      const BookOwnedDetailsDraft();
+  BookOwnedDetailsDraft defaultDraft() => const BookOwnedDetailsDraft();
 }

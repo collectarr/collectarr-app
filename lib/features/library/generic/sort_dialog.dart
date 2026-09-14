@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
@@ -34,7 +34,7 @@ class _LibrarySortDialog extends StatefulWidget {
     this.availableColumns,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final List<LibrarySortRule> currentRules;
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
@@ -509,7 +509,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column = widget.type.fields.defaultSort.value;
+    final column =
+        libraryKindWorkspaceForKind(widget.type.kind).fields.defaultSort.value;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -564,7 +565,11 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   List<String> _filteredColumns() {
     final query = _query.trim().toLowerCase();
     final available = widget.availableColumns ??
-        [for (final def in widget.type.fields.sorts) def.id.value];
+        [
+          for (final def
+              in libraryKindWorkspaceForKind(widget.type.kind).fields.sorts)
+            def.id.value,
+        ];
     return available.where((column) {
       if (query.isEmpty) {
         return true;
@@ -1126,7 +1131,8 @@ bool _sameSortRules(List<LibrarySortRule> first, List<LibrarySortRule> second) {
   return true;
 }
 
-String _sortRuleSummary(LibraryKindRuntime type, List<LibrarySortRule> rules) {
+String _sortRuleSummary(
+    LibraryKindRegistration type, List<LibrarySortRule> rules) {
   return rules
       .map(
         (rule) =>
@@ -1136,10 +1142,10 @@ String _sortRuleSummary(LibraryKindRuntime type, List<LibrarySortRule> rules) {
 }
 
 LibraryTableColumnGroup _sortFieldGroup(
-  LibraryKindRuntime type,
+  LibraryKindRegistration type,
   String column,
 ) {
-  final fields = type.fields;
+  final fields = libraryKindWorkspaceForKind(type.kind).fields;
   final groupStr =
       fields.sortDefinitionFor(fields.decodeSortId(column)).group.toLowerCase();
   return LibraryTableColumnGroup.values.firstWhere(
@@ -1157,8 +1163,8 @@ String _groupLabel(LibraryTableColumnGroup group) {
   };
 }
 
-bool _defaultSortAscending(LibraryKindRuntime type, String column) {
-  final fields = type.fields;
+bool _defaultSortAscending(LibraryKindRegistration type, String column) {
+  final fields = libraryKindWorkspaceForKind(type.kind).fields;
   return fields.sortDefinitionFor(fields.decodeSortId(column)).defaultAscending;
 }
 
@@ -1173,9 +1179,9 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
   return deduped;
 }
 
-String _sortColumnLabel(LibraryKindRuntime type, String column) {
+String _sortColumnLabel(LibraryKindRegistration type, String column) {
   try {
-    final fields = type.fields;
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
     return fields.sortDefinitionFor(fields.decodeSortId(column)).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);

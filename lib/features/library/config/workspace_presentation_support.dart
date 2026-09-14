@@ -3,8 +3,8 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 
 String defaultLibraryBucketLabel(
   LibraryBucketingContext context,
-  LibraryMediaGroupLabels labels, [
-  LibraryBucketLabelOverrides overrides = const LibraryBucketLabelOverrides(),
+  LibraryPresentationLabels labels, [
+  LibraryPresentationLabels overrides = const LibraryPresentationLabels(),
 ]) {
   final mode = _unqualifiedGroupMode(context.groupId.value);
   final explicitOverride = overrides.labelFor(mode);

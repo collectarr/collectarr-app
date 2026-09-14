@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,23 +23,34 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: ImportExportWizardDialog(
+              profiles: collectionCsvKindProfiles,
               entries: [
-                ShelfEntry(
+                LibraryWorkspaceSource(
                   itemId: 'comic-1',
-                  catalogItem: testCatalogItem(
+                  catalogData: testWorkspaceCatalogData(testCatalogItem(
                     id: 'comic-1',
                     kind: 'comic',
                     title: 'The Amazing Spider-Man',
                     itemNumber: '520',
                     publisher: 'Marvel Comics',
                     releaseDate: DateTime.utc(2005, 7, 1),
-                  ),
-                  ownedItem: testOwnedItem(
+                  ).asShelfCatalogItem),
+                  ownedSummary: testOwnedSummary(testOwnedItem(
                     id: 'owned-1',
                     itemId: 'comic-1',
                     quantity: 1,
                     updatedAt: DateTime.utc(2026, 5, 24),
-                  ),
+                  )),
+                ),
+              ],
+              additionalExports: [
+                ExportPreviewArtifact(
+                  id: 'comic.comic_info_xml',
+                  label: 'ComicInfo.xml',
+                  icon: Icons.code_outlined,
+                  filename: 'comicinfo.xml',
+                  mimeType: 'application/xml',
+                  content: '<ComicInfo />',
                 ),
               ],
             ),
@@ -47,14 +60,14 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(find.text('Import or export collection'), findsOneWidget);
+    expect(find.text('Import or export'), findsOneWidget);
     expect(find.text('Collectarr CSV'), findsOneWidget);
     expect(find.text('CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('ComicInfo.xml'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
 
-    await tester.tap(find.text('Import collection'));
+    await tester.tap(find.text('Import'));
     await pumpUntilSettled(tester);
 
     expect(

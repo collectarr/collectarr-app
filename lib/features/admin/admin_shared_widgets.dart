@@ -281,10 +281,19 @@ class _MetadataProposalTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            if ((proposal.metadataPayload ?? const <String, dynamic>{})
-                .isNotEmpty) ...[
+            if ((proposal.metadataPayload ?? JsonMap()).isNotEmpty) ...[
               const SizedBox(height: 8),
-              _ProposalPayloadPreview(payload: proposal.metadataPayload!),
+              _ProposalPayloadPreview(
+                kind: catalogMediaKindFromValue(
+                  _inferProposalKind(
+                    proposal.provider,
+                    proposal.metadataPayload,
+                  ),
+                ),
+                payload: Map<String, Object?>.from(
+                  proposal.metadataPayload!,
+                ),
+              ),
             ],
             if (proposal.isPending) ...[
               const SizedBox(height: 12),
@@ -340,21 +349,23 @@ class _MetadataProposalTile extends StatelessWidget {
 }
 
 class _ProposalPayloadPreview extends StatelessWidget {
-  const _ProposalPayloadPreview({required this.payload});
+  const _ProposalPayloadPreview({
+    required this.kind,
+    required this.payload,
+  });
 
-  final Map<String, dynamic> payload;
+  final CatalogMediaKind kind;
+  final Map<String, Object?> payload;
 
   @override
   Widget build(BuildContext context) {
-    final genres = _payloadStringList(payload['genres']);
-    final platforms = _payloadStringList(payload['platforms']);
-    final tracks = _payloadTrackRows(payload['tracks']);
-    final links = _payloadLinkRows(payload['external_links']);
+    final fields = libraryAdminContributorForKind(kind)?.proposalFields ??
+        const <LibraryAdminProposalField>[];
+    final values = LibraryMetadataCorrectionValues.fromSerialized(payload);
     final badges = <String>[
-      if (genres.isNotEmpty) 'Genres: ${genres.take(3).join(', ')}',
-      if (platforms.isNotEmpty) 'Platforms: ${platforms.take(3).join(', ')}',
-      if (tracks.isNotEmpty) '${tracks.length} tracks',
-      if (links.isNotEmpty) '${links.length} external links',
+      for (final field in fields)
+        if (field.read(values).trim().isNotEmpty)
+          '${field.label}: ${field.read(values).trim()}',
     ];
     if (badges.isEmpty) {
       return const SizedBox.shrink();
@@ -384,7 +395,7 @@ class _ProposalMetadataEditResult {
   final String? title;
   final String? summary;
   final String? imageUrl;
-  final Map<String, dynamic> metadataPayload;
+  final JsonMap metadataPayload;
 }
 
 class _ProposalMetadataEditDialog extends StatefulWidget {
@@ -404,15 +415,9 @@ class _ProposalMetadataEditDialogState
   late final TextEditingController _titleController;
   late final TextEditingController _summaryController;
   late final TextEditingController _imageUrlController;
-  late final TextEditingController _itemNumberController;
-  late final TextEditingController _subtitleController;
-  late final TextEditingController _publisherController;
-  late final TextEditingController _synopsisController;
-  late final TextEditingController _genresController;
-  late final TextEditingController _platformsController;
-  late final TextEditingController _tracksController;
-  late final TextEditingController _externalLinksController;
   late final TextEditingController _payloadController;
+  late CatalogMediaKind _catalogKind;
+  late Map<String, TextEditingController> _kindFieldControllers;
   late String _kind;
   var _showRawPayload = false;
   String? _errorMessage;
@@ -421,54 +426,20 @@ class _ProposalMetadataEditDialogState
   void initState() {
     super.initState();
     final proposal = widget.proposal;
-    final payload = Map<String, dynamic>.from(
-      proposal.metadataPayload ?? const <String, dynamic>{},
+    final payload = JsonMap.from(
+      proposal.metadataPayload ?? JsonMap(),
     );
     _kind = _inferProposalKind(proposal.provider, payload);
+    _catalogKind = catalogMediaKindFromValue(_kind);
     _queryController = TextEditingController(text: proposal.query);
     _providerItemIdController =
         TextEditingController(text: proposal.providerItemId ?? '');
     _titleController = TextEditingController(text: proposal.title ?? '');
     _summaryController = TextEditingController(text: proposal.summary ?? '');
     _imageUrlController = TextEditingController(text: proposal.imageUrl ?? '');
-    _itemNumberController =
-        TextEditingController(text: payload['item_number']?.toString() ?? '');
-    _subtitleController =
-        TextEditingController(text: payload['subtitle']?.toString() ?? '');
-    _publisherController =
-        TextEditingController(text: payload['publisher']?.toString() ?? '');
-    _synopsisController =
-        TextEditingController(text: payload['synopsis']?.toString() ?? '');
-    _genresController = TextEditingController(
-      text: _payloadStringList(payload['genres']).join(', '),
-    );
-    _platformsController = TextEditingController(
-      text: _payloadStringList(payload['platforms']).join(', '),
-    );
-    _tracksController = TextEditingController(
-      text: _payloadTrackRows(payload['tracks'])
-          .map(
-            (track) => [
-              track['title']?.toString() ?? '',
-              track['artist']?.toString() ?? '',
-              track['disc_number']?.toString() ?? '',
-              track['position']?.toString() ?? '',
-              track['duration_seconds']?.toString() ?? '',
-            ].join(' | '),
-          )
-          .join('\n'),
-    );
-    _externalLinksController = TextEditingController(
-      text: _payloadLinkRows(payload['external_links'])
-          .map(
-            (link) => [
-              link['label']?.toString() ?? '',
-              link['url']?.toString() ?? '',
-              link['kind']?.toString() ?? '',
-              link['description']?.toString() ?? '',
-            ].join(' | '),
-          )
-          .join('\n'),
+    _kindFieldControllers = _createKindFieldControllers(
+      _catalogKind,
+      Map<String, Object?>.from(payload),
     );
     _payloadController = TextEditingController(
       text: const JsonEncoder.withIndent('  ').convert(payload),
@@ -482,16 +453,74 @@ class _ProposalMetadataEditDialogState
     _titleController.dispose();
     _summaryController.dispose();
     _imageUrlController.dispose();
-    _itemNumberController.dispose();
-    _subtitleController.dispose();
-    _publisherController.dispose();
-    _synopsisController.dispose();
-    _genresController.dispose();
-    _platformsController.dispose();
-    _tracksController.dispose();
-    _externalLinksController.dispose();
+    _disposeKindFieldControllers();
     _payloadController.dispose();
     super.dispose();
+  }
+
+  LibraryAdminContributor? get _adminContributor =>
+      libraryAdminContributorForKind(_catalogKind);
+
+  List<LibraryAdminProposalField> get _adminProposalFields =>
+      _adminContributor?.proposalFields ?? const [];
+
+  Map<String, TextEditingController> _createKindFieldControllers(
+    CatalogMediaKind kind,
+    Map<String, Object?> payload,
+  ) {
+    final contributor = libraryAdminContributorForKind(kind);
+    if (contributor == null) {
+      return <String, TextEditingController>{};
+    }
+    final values = LibraryMetadataCorrectionValues.fromSerialized(payload);
+    return {
+      for (final field in contributor.proposalFields)
+        field.key: TextEditingController(text: field.read(values)),
+    };
+  }
+
+  void _disposeKindFieldControllers() {
+    for (final controller in _kindFieldControllers.values) {
+      controller.dispose();
+    }
+  }
+
+  Widget _kindProposalField(LibraryAdminProposalField field) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: TextFormField(
+        controller: _kindFieldControllers[field.key],
+        minLines: field.minLines,
+        maxLines: field.maxLines,
+        decoration: InputDecoration(
+          labelText: field.label,
+          border: const OutlineInputBorder(),
+          alignLabelWithHint: field.minLines > 1,
+        ),
+      ),
+    );
+  }
+
+  JsonMap? _payloadForKindSwitch() {
+    final rawPayload = _payloadController.text.trim();
+    try {
+      final decoded = rawPayload.isEmpty ? JsonMap() : jsonDecode(rawPayload);
+      if (decoded is! Map) {
+        throw const FormatException('Metadata payload must be a JSON object.');
+      }
+      final values = LibraryMetadataCorrectionValues.fromSerialized(
+        Map<String, Object?>.from(decoded),
+      );
+      for (final field in _adminProposalFields) {
+        field.write(values, _kindFieldControllers[field.key]!.text);
+      }
+      return JsonMap.from(values.toSerialized());
+    } on FormatException catch (error) {
+      setState(() {
+        _errorMessage = error.message;
+      });
+      return null;
+    }
   }
 
   void _save() {
@@ -501,11 +530,10 @@ class _ProposalMetadataEditDialogState
       return;
     }
     final rawPayload = _payloadController.text.trim();
-    Map<String, dynamic> payload;
+    JsonMap payload;
     try {
-      final decoded =
-          rawPayload.isEmpty ? <String, dynamic>{} : jsonDecode(rawPayload);
-      if (decoded is! Map<String, dynamic>) {
+      final decoded = rawPayload.isEmpty ? JsonMap() : jsonDecode(rawPayload);
+      if (decoded is! JsonMap) {
         setState(() {
           _errorMessage = 'Metadata payload must be a JSON object.';
         });
@@ -518,54 +546,31 @@ class _ProposalMetadataEditDialogState
       });
       return;
     }
-    _setPayloadTextValue(payload, 'kind', _kind);
-    _setPayloadTextValue(payload, 'item_number', _itemNumberController.text);
-    _setPayloadTextValue(payload, 'subtitle', _subtitleController.text);
-    _setPayloadTextValue(payload, 'publisher', _publisherController.text);
-    _setPayloadTextValue(payload, 'synopsis', _synopsisController.text);
-    _setPayloadListValue(
-      payload,
-      'genres',
-      _splitCommaSeparated(_genresController.text),
+    final semanticValues = LibraryMetadataCorrectionValues.fromSerialized(
+      Map<String, Object?>.from(payload),
     );
-    if (_kind == 'game') {
-      _setPayloadListValue(
-        payload,
-        'platforms',
-        _splitCommaSeparated(_platformsController.text),
-      );
-    } else {
-      payload.remove('platforms');
-    }
-    if (_kind == 'music') {
-      final tracksParse = _parseTrackLinesStrict(_tracksController.text);
-      if (tracksParse.error != null) {
-        setState(() {
-          _errorMessage = tracksParse.error;
-        });
-        return;
+    semanticValues.write('kind', _kind);
+    for (final contributor in libraryAdminContributors) {
+      if (contributor.kind == _catalogKind) {
+        continue;
       }
-      _setPayloadListValue(
-        payload,
-        'tracks',
-        tracksParse.rows,
-      );
-    } else {
-      payload.remove('tracks');
+      for (final field in contributor.proposalFields) {
+        semanticValues.remove(field.key);
+      }
     }
-    final linksParse =
-        _parseExternalLinkLinesStrict(_externalLinksController.text);
-    if (linksParse.error != null) {
+    try {
+      for (final field in _adminProposalFields) {
+        field.write(
+          semanticValues,
+          _kindFieldControllers[field.key]!.text,
+        );
+      }
+    } on FormatException catch (error) {
       setState(() {
-        _errorMessage = linksParse.error;
+        _errorMessage = error.message;
       });
       return;
     }
-    _setPayloadListValue(
-      payload,
-      'external_links',
-      linksParse.rows,
-    );
     setState(() {
       _errorMessage = null;
     });
@@ -576,7 +581,9 @@ class _ProposalMetadataEditDialogState
         title: _emptyToNull(_titleController.text),
         summary: _emptyToNull(_summaryController.text),
         imageUrl: _emptyToNull(_imageUrlController.text),
-        metadataPayload: payload,
+        metadataPayload: JsonMap.from(
+          semanticValues.toSerialized(),
+        ),
       ),
     );
   }
@@ -622,8 +629,16 @@ class _ProposalMetadataEditDialogState
                         if (value == null || value == _kind) {
                           return;
                         }
+                        final payload = _payloadForKindSwitch();
+                        if (payload == null) {
+                          return;
+                        }
+                        _disposeKindFieldControllers();
                         setState(() {
                           _kind = value;
+                          _catalogKind = catalogMediaKindFromValue(value);
+                          _kindFieldControllers = _createKindFieldControllers(
+                              _catalogKind, payload);
                         });
                       },
                     ),
@@ -658,36 +673,6 @@ class _ProposalMetadataEditDialogState
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 220,
-                    child: TextFormField(
-                      controller: _itemNumberController,
-                      decoration: const InputDecoration(
-                        labelText: 'Item number',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 320,
-                    child: TextFormField(
-                      controller: _subtitleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Subtitle',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 320,
-                    child: TextFormField(
-                      controller: _publisherController,
-                      decoration: const InputDecoration(
-                        labelText: 'Publisher',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -703,67 +688,14 @@ class _ProposalMetadataEditDialogState
               ),
               const SizedBox(height: 10),
               TextFormField(
-                controller: _synopsisController,
-                minLines: 2,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Synopsis',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
                 controller: _imageUrlController,
                 decoration: const InputDecoration(
                   labelText: 'Image URL',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _genresController,
-                decoration: const InputDecoration(
-                  labelText: 'Genres (comma separated)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              if (_kind == 'game') ...[
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _platformsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Platforms (comma separated)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-              if (_kind == 'music') ...[
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _tracksController,
-                  minLines: 2,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    labelText:
-                        'Tracks (title | artist | disc | pos | duration)',
-                    border: OutlineInputBorder(),
-                    alignLabelWithHint: true,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _externalLinksController,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText:
-                      'External links (label | url | kind | description)',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-              ),
+              for (final field in _adminProposalFields)
+                _kindProposalField(field),
               const SizedBox(height: 10),
               SwitchListTile.adaptive(
                 value: _showRawPayload,
@@ -1368,102 +1300,6 @@ class _ReleaseMappingRuleDialogState extends State<_ReleaseMappingRuleDialog> {
   }
 }
 
-class _CatalogCorrection {
-  const _CatalogCorrection({
-    this.title,
-    this.originalTitle,
-    this.localizedTitle,
-    this.sortKey,
-    this.searchAliases,
-    this.titleExtension,
-    this.itemNumber,
-    this.synopsis,
-    this.crossover,
-    this.plotSummary,
-    this.plotDescription,
-    this.genres,
-    this.platforms,
-    this.characters,
-    this.storyArcs,
-    this.creators,
-    this.tracks,
-    this.trailerUrls,
-    this.externalLinks,
-    this.editionTitle,
-    this.pageCount,
-    this.runtimeMinutes,
-    this.color,
-    this.nrDiscs,
-    this.screenRatio,
-    this.audioTracks,
-    this.subtitles,
-    this.layers,
-    this.publisher,
-    this.releaseDate,
-    this.imprint,
-    this.subtitle,
-    this.seriesGroup,
-    this.country,
-    this.language,
-    this.ageRating,
-    this.audienceRating,
-    this.catalogNumber,
-    this.releaseStatus,
-    this.physicalFormat,
-    this.variantName,
-    this.barcode,
-    this.coverImageUrl,
-    this.thumbnailImageUrl,
-    this.seriesTags,
-  });
-
-  final String? title;
-  final String? originalTitle;
-  final String? localizedTitle;
-  final String? sortKey;
-  final List<String>? searchAliases;
-  final String? titleExtension;
-  final String? itemNumber;
-  final String? synopsis;
-  final String? crossover;
-  final String? plotSummary;
-  final String? plotDescription;
-  final List<String>? genres;
-  final List<String>? platforms;
-  final List<String>? characters;
-  final List<String>? storyArcs;
-  final List<Map<String, dynamic>>? creators;
-  final List<CatalogTrack>? tracks;
-  final List<TrailerLink>? trailerUrls;
-  final List<TrailerLink>? externalLinks;
-  final String? editionTitle;
-  final int? pageCount;
-  final int? runtimeMinutes;
-  final String? color;
-  final int? nrDiscs;
-  final String? screenRatio;
-  final String? audioTracks;
-  final String? subtitles;
-  final String? layers;
-  final String? publisher;
-  final DateTime? releaseDate;
-  final String? imprint;
-  final String? subtitle;
-  final String? seriesGroup;
-  final String? country;
-  final String? language;
-  final String? ageRating;
-  final String? audienceRating;
-  final String? catalogNumber;
-  final String? releaseStatus;
-  final String? physicalFormat;
-  final String? variantName;
-  final String? barcode;
-  final String? coverImageUrl;
-  final String? thumbnailImageUrl;
-  final List<String>? seriesTags;
-}
-
 class _CorrectionPreviewEntry {
   const _CorrectionPreviewEntry({
     required this.label,
@@ -1634,16 +1470,13 @@ class _MiniChip extends StatelessWidget {
 }
 
 String _proposalKindLabel(String kind) {
-  return switch (kind) {
-    'boardgame' => 'Board game',
-    'tv' => 'TV',
-    _ =>
-      kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}',
-  };
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  return _adminKindLabelForType(mediaKind, plural: false) ??
+      _fallbackKindLabel(kind);
 }
 
-String _inferProposalKind(String provider, Map<String, dynamic>? payload) {
-  final map = payload ?? const <String, dynamic>{};
+String _inferProposalKind(String provider, JsonMap? payload) {
+  final map = payload ?? JsonMap();
   final explicit = _emptyToNull(map['kind']?.toString() ?? '');
   if (explicit != null) {
     return explicit;
@@ -1680,173 +1513,14 @@ List<String> _payloadStringList(Object? value) {
   ];
 }
 
-List<Map<String, dynamic>> _payloadTrackRows(Object? value) {
+List<JsonMap> _payloadTrackRows(Object? value) {
   if (value is! List) {
     return const [];
   }
   return [
     for (final row in value)
-      if (row is Map<String, dynamic>) row,
+      if (row is JsonMap) row,
   ];
-}
-
-List<Map<String, dynamic>> _payloadLinkRows(Object? value) {
-  if (value is! List) {
-    return const [];
-  }
-  return [
-    for (final row in value)
-      if (row is Map<String, dynamic> &&
-          _emptyToNull(row['url']?.toString() ?? '') != null)
-        row,
-  ];
-}
-
-List<String> _splitCommaSeparated(String value) {
-  return [
-    for (final row in value.split(','))
-      if (row.trim().isNotEmpty) row.trim(),
-  ];
-}
-
-class _LinesParseResult {
-  const _LinesParseResult({
-    required this.rows,
-    this.error,
-  });
-
-  final List<Map<String, dynamic>> rows;
-  final String? error;
-}
-
-_LinesParseResult _parseTrackLinesStrict(String value) {
-  final rows = <Map<String, dynamic>>[];
-  final lines = value.split('\n');
-  for (var index = 0; index < lines.length; index++) {
-    final rawLine = lines[index];
-    final line = rawLine.trim();
-    if (line.isEmpty) {
-      continue;
-    }
-    final columns =
-        line.split('|').map((row) => row.trim()).toList(growable: false);
-    final title = columns.isNotEmpty ? columns[0] : '';
-    if (title.isEmpty) {
-      return _LinesParseResult(
-        rows: const [],
-        error:
-            'Tracks line ${index + 1} is invalid: title is required before "|"',
-      );
-    }
-    final track = <String, dynamic>{'title': title};
-    if (columns.length > 1 && columns[1].isNotEmpty) {
-      track['artist'] = columns[1];
-    }
-    if (columns.length > 2) {
-      final disc = int.tryParse(columns[2]);
-      if (columns[2].isNotEmpty) {
-        if (disc == null) {
-          return _LinesParseResult(
-            rows: const [],
-            error:
-                'Tracks line ${index + 1} has invalid disc number "${columns[2]}"',
-          );
-        }
-        track['disc_number'] = disc;
-      }
-    }
-    if (columns.length > 3) {
-      final position = int.tryParse(columns[3]);
-      if (columns[3].isNotEmpty) {
-        if (position == null) {
-          return _LinesParseResult(
-            rows: const [],
-            error:
-                'Tracks line ${index + 1} has invalid position "${columns[3]}"',
-          );
-        }
-        track['position'] = position;
-      }
-    }
-    if (columns.length > 4) {
-      final duration = int.tryParse(columns[4]);
-      if (columns[4].isNotEmpty) {
-        if (duration == null) {
-          return _LinesParseResult(
-            rows: const [],
-            error:
-                'Tracks line ${index + 1} has invalid duration "${columns[4]}"',
-          );
-        }
-        track['duration_seconds'] = duration;
-      }
-    }
-    rows.add(track);
-  }
-  return _LinesParseResult(rows: rows);
-}
-
-_LinesParseResult _parseExternalLinkLinesStrict(String value) {
-  final rows = <Map<String, dynamic>>[];
-  final lines = value.split('\n');
-  for (var index = 0; index < lines.length; index++) {
-    final rawLine = lines[index];
-    final line = rawLine.trim();
-    if (line.isEmpty) {
-      continue;
-    }
-    final columns =
-        line.split('|').map((row) => row.trim()).toList(growable: false);
-    final label = columns.length > 1 ? columns[0] : '';
-    final url = columns.length > 1 ? columns[1] : columns[0];
-    final kind = columns.length > 2 ? columns[2] : '';
-    final description = columns.length > 3 ? columns[3] : '';
-    if (url.isEmpty) {
-      return _LinesParseResult(
-        rows: const [],
-        error: 'External links line ${index + 1} is invalid: URL is required',
-      );
-    }
-    final uri = Uri.tryParse(url);
-    final scheme = uri?.scheme.toLowerCase();
-    final isWebUrl = uri != null &&
-        uri.hasScheme &&
-        (scheme == 'http' || scheme == 'https') &&
-        (uri.host.isNotEmpty);
-    if (!isWebUrl) {
-      return _LinesParseResult(
-        rows: const [],
-        error:
-            'External links line ${index + 1} has invalid URL "$url" (use full http/https URL)',
-      );
-    }
-    rows.add({
-      if (label.isNotEmpty) 'label': label,
-      'url': url,
-      if (kind.isNotEmpty) 'kind': kind,
-      if (description.isNotEmpty) 'description': description,
-    });
-  }
-  return _LinesParseResult(rows: rows);
-}
-
-void _setPayloadTextValue(
-    Map<String, dynamic> payload, String key, String value) {
-  final normalized = _emptyToNull(value);
-  if (normalized == null) {
-    payload.remove(key);
-    return;
-  }
-  payload[key] = normalized;
-}
-
-void _setPayloadListValue(
-    Map<String, dynamic> payload, String key, List<dynamic> value) {
-  if (value.isEmpty) {
-    payload.remove(key);
-    return;
-  }
-  payload[key] = value;
 }
 
 String _adminErrorMessage(Object error) {
@@ -1890,18 +1564,30 @@ String _providerKindLabel(String kind, Map<String, String> labels) {
   if (label != null && label.isNotEmpty) {
     return label;
   }
-  return switch (kind) {
-    'boardgame' => 'Board game',
-    'tv' => 'TV',
-    _ => kind.isEmpty ? kind : '${kind[0].toUpperCase()}${kind.substring(1)}',
-  };
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  return _adminKindLabelForType(mediaKind, plural: false) ??
+      _fallbackKindLabel(kind);
 }
 
+String? _adminKindLabelForType(
+  CatalogMediaKind kind, {
+  required bool plural,
+}) {
+  if (kind.isUnknown) return null;
+  final identity = defaultLibraryKindRegistry.tryGet(kind)?.identity;
+  if (identity == null) return null;
+  return plural ? identity.pluralLabel : identity.singularLabel;
+}
+
+String _fallbackKindLabel(String kind) =>
+    kind.isEmpty ? 'Unknown' : '${kind[0].toUpperCase()}${kind.substring(1)}';
+
 String _mediaTypeDisplayLabel(CatalogMediaType type) {
-  if (type.kind == 'tv') {
-    return 'TV';
-  }
-  return type.pluralLabel.isNotEmpty ? type.pluralLabel : type.kind;
+  return _adminKindLabelForType(
+        catalogMediaKindFromApiValue(type.kind),
+        plural: true,
+      ) ??
+      (type.pluralLabel.isNotEmpty ? type.pluralLabel : type.kind);
 }
 
 int _compareMediaKinds(String left, String right, Map<String, String> labels) {

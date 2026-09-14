@@ -1,11 +1,12 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
@@ -18,90 +19,23 @@ import 'package:collectarr_app/features/library/inspector/inspector_custom_field
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_loan_section.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
-import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/library/config/library_metadata_correction_source.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-@immutable
-class _InspectorConditionGradeOptionsRequest {
-  const _InspectorConditionGradeOptionsRequest({
-    required this.db,
-    required this.mediaKind,
-    required this.builtInConditions,
-    required this.builtInGrades,
-    this.conditionListName,
-    this.gradeListName,
-    required this.selectedCondition,
-    required this.selectedGrade,
-  });
-
-  final LocalDatabase db;
-  final String mediaKind;
-  final List<String> builtInConditions;
-  final List<String> builtInGrades;
-  final String? conditionListName;
-  final String? gradeListName;
-  final String? selectedCondition;
-  final String? selectedGrade;
-
-  @override
-  bool operator ==(Object other) {
-    return other is _InspectorConditionGradeOptionsRequest &&
-        identical(db, other.db) &&
-        mediaKind == other.mediaKind &&
-        listEquals(builtInConditions, other.builtInConditions) &&
-        listEquals(builtInGrades, other.builtInGrades) &&
-        conditionListName == other.conditionListName &&
-        gradeListName == other.gradeListName &&
-        selectedCondition == other.selectedCondition &&
-        selectedGrade == other.selectedGrade;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        db,
-        mediaKind,
-        Object.hashAll(builtInConditions),
-        Object.hashAll(builtInGrades),
-        conditionListName,
-        gradeListName,
-        selectedCondition,
-        selectedGrade,
-      );
-}
-
-final _inspectorConditionGradeOptionsProvider = FutureProvider.autoDispose
-    .family<PickListConditionGradeOptions,
-        _InspectorConditionGradeOptionsRequest>(
-  (ref, request) async {
-    return loadConditionGradePickListOptions(
-      request.db,
-      mediaKind: request.mediaKind,
-      builtInConditions: request.builtInConditions,
-      builtInGrades: request.builtInGrades,
-      conditionListName: request.conditionListName,
-      gradeListName: request.gradeListName,
-      selectedCondition: request.selectedCondition,
-      selectedGrade: request.selectedGrade,
-    );
-  },
-);
 
 class LibraryInspector extends ConsumerStatefulWidget {
   const LibraryInspector({
@@ -109,6 +43,8 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.item,
     required this.ownedItem,
+    this.ownedItemDispatch,
+    this.ownedCopies,
     this.detailsLayout = LibraryDetailsLayout.hidden,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.accent,
@@ -125,9 +61,11 @@ class LibraryInspector extends ConsumerStatefulWidget {
     this.contextLabel,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime? item;
-  final OwnedItem? ownedItem;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView? item;
+  final OwnedItemSummary? ownedItem;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final List<OwnedItemSummary>? ownedCopies;
   final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
   final Color accent;
@@ -135,7 +73,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
-  final void Function(OwnedItem? ownedItem)? onEdit;
+  final void Function(OwnedItemSummary? ownedItem)? onEdit;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final ValueChanged<String>? onFilterByValue;
   final String? searchQuery;
@@ -148,27 +86,27 @@ class LibraryInspector extends ConsumerStatefulWidget {
 }
 
 class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
-  String? _selectedOwnedItemId;
+  OwnedItemRef? _selectedOwnedItemRef;
   bool _selectNewestOwnedItem = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedOwnedItemId = widget.ownedItem?.id;
+    _selectedOwnedItemRef = widget.ownedItem?.ref;
   }
 
   @override
   void didUpdateWidget(covariant LibraryInspector oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.item?.node.id != oldWidget.item?.node.id) {
-      _selectedOwnedItemId = widget.ownedItem?.id;
+      _selectedOwnedItemRef = widget.ownedItem?.ref;
       _selectNewestOwnedItem = false;
       return;
     }
-    if (widget.ownedItem?.id != oldWidget.ownedItem?.id &&
+    if (widget.ownedItem?.ref != oldWidget.ownedItem?.ref &&
         widget.ownedItem != null &&
-        _selectedOwnedItemId == null) {
-      _selectedOwnedItemId = widget.ownedItem!.id;
+        _selectedOwnedItemRef == null) {
+      _selectedOwnedItemRef = widget.ownedItem!.ref;
     }
   }
 
@@ -178,41 +116,38 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
-    final ownedCopies = ref.watch(collectionProvider).maybeWhen(
-          data: (items) {
-            final matches = items
-                .where((item) =>
-                    !item.isDeleted &&
-                    item.itemId == selected.source.catalogItem?.id)
-                .toList(growable: false)
-              ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-            return matches;
-          },
-          orElse: () => widget.ownedItem == null
-              ? const <OwnedItem>[]
-              : <OwnedItem>[widget.ownedItem!],
-        );
-    final ownedResolution = resolveActiveOwnedItem(
+    final ownedItemDispatch =
+        widget.ownedItemDispatch ?? selected.source.ownedItemDispatch;
+    // Mixed inspector state carries only the structural summary. Concrete
+    // kind-owned data remains available through ownedItemDispatch after dispatch.
+    final ownedCopies = widget.ownedCopies ??
+        (widget.ownedItem == null
+            ? const <OwnedItemSummary>[]
+            : <OwnedItemSummary>[widget.ownedItem!]);
+    final ownedSummaryResolution = resolveActiveOwnedSummary(
       ownedCopies,
       fallback: widget.ownedItem,
-      selectedOwnedItemId: _selectedOwnedItemId,
+      selectedOwnedItemRef: _selectedOwnedItemRef,
       selectNewest: _selectNewestOwnedItem,
     );
-    final activeOwnedItem = ownedResolution.ownedItem;
-    if (ownedResolution.shouldScheduleSelection(
-      _selectedOwnedItemId,
-      _selectNewestOwnedItem,
-    )) {
+    final activeOwnedItem = ownedSummaryResolution.ownedItem;
+    if (ownedSummaryResolution.nextSelectedOwnedItemRef != null &&
+        (ownedSummaryResolution.nextSelectedOwnedItemRef !=
+                _selectedOwnedItemRef ||
+            (ownedSummaryResolution.clearNewest && _selectNewestOwnedItem))) {
       _scheduleOwnedCopySelection(
-        ownedResolution.nextSelectedOwnedItemId!,
-        clearNewest: ownedResolution.clearNewest,
+        ownedSummaryResolution.nextSelectedOwnedItemRef!,
+        clearNewest: ownedSummaryResolution.clearNewest,
       );
     }
-    final trackingEntries = ref.watch(trackingEntriesByCatalogItemProvider)[
-            selected.source.catalogItem?.id] ??
-        const <TrackingEntry>[];
-    final activeTrackingEntry = resolveActiveTrackingEntry(
-      trackingEntries,
+    final trackingSummaries = switch (selected.source.catalogRef) {
+      final catalogRef? =>
+        ref.watch(trackingSummariesByCatalogRefProvider)[catalogRef] ??
+            const <TrackingSummary>[],
+      _ => const <TrackingSummary>[],
+    };
+    final activeTrackingSummary = resolveActiveTrackingSummary(
+      trackingSummaries,
       activeOwnedItem,
     );
     final onToggleOwned = selected.source.isOwned
@@ -228,13 +163,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final onCorrectMetadata = widget.type.metadata
                 .supportedProvidersForKind(widget.type.kind)
                 .isNotEmpty &&
-            selected.source.catalogItem != null
-        ? () => showMetadataCorrectionDialog(
-              context: context,
-              ref: ref,
-              item: selected.source.catalogItem!,
-              type: widget.type,
-            )
+            selected.source.catalogRef != null
+        ? () => _showMetadataCorrection(context, selected)
         : null;
     final onDuplicate = activeOwnedItem == null
         ? null
@@ -245,7 +175,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               context,
               title: 'Loans',
               child: InspectorLoanSection(
-                ownedItemId: activeOwnedItem.id,
+                ownedRef: activeOwnedItem.ref,
                 db: widget.db!,
                 accent: widget.accent,
               ),
@@ -261,7 +191,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         request: LibraryDetailPageRequest(
           type: widget.type,
           item: selected,
-          ownedItem: activeOwnedItem,
+          ownedSummary: ownedSummaryResolution.ownedItem,
+          ownedItemDispatch: ownedItemDispatch,
           accent: widget.accent,
           onAddOwned: selected.source.isOwned
               ? () => _addOwnedCopy(
@@ -274,7 +205,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               : () => _removeOwnedCopy(activeOwnedItem),
           onAddWishlist: widget.onAddWishlist,
           onRemoveWishlist: widget.onRemoveWishlist,
-          onEdit: widget.onEdit,
+          onEdit: widget.onEdit == null
+              ? null
+              : (_) => widget.onEdit!(activeOwnedItem),
           onFilterByValue: widget.onFilterByValue,
         ),
       );
@@ -286,16 +219,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       selected,
       activeOwnedItem,
       ownedCopies,
-      activeTrackingEntry,
+      activeTrackingSummary,
       LibraryInspectorRequest(
         type: widget.type,
         item: selected,
         ownedItem: activeOwnedItem,
+        ownedItemDispatch: ownedItemDispatch,
         onEdit: widget.onEdit == null
             ? null
             : () => widget.onEdit!(activeOwnedItem),
         ownedCopies: ownedCopies,
-        trackingEntry: activeTrackingEntry,
+        trackingSummary: activeTrackingSummary,
         accent: widget.accent,
         detailsLayout: widget.detailsLayout,
         onFilterByValue: widget.onFilterByValue,
@@ -320,10 +254,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
-    LibraryProjectionRuntime selected,
-    OwnedItem? activeOwnedItem,
-    List<OwnedItem> ownedCopies,
-    TrackingEntry? activeTrackingEntry,
+    LibraryProjectionView selected,
+    OwnedItemSummary? activeOwnedItem,
+    List<OwnedItemSummary> ownedCopies,
+    TrackingSummary? activeTrackingSummary,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
     required String? activeBundleReleaseId,
@@ -338,9 +272,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     required VoidCallback onOpenDetails,
     required LibraryWorkspaceDensityPreset density,
   }) {
-    final runtime = widget.type;
-    final editCapability = runtime.edit;
-    final inspectorCapability = runtime.inspector;
+    final kindModule = widget.type;
+    final inspectorCapability = kindModule.inspector;
     final hero = inspectorCapability.heroBuilder?.call(
           context,
           inspectorRequest,
@@ -370,8 +303,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     if (ownedCopies.isNotEmpty) {
       ownedCopiesSection = _InspectorOwnedCopiesSection(
         copies: ownedCopies,
-        editions: selected.source.catalogItem?.editions ?? const [],
-        selectedOwnedItemId: activeOwnedItem?.id,
+        releases: widget.type.presentation.builder.buildWorkspaceReleases(
+          selected.source,
+        ),
+        collectionValueReader: widget.type.ownedEdit.readOwnedCollectionValue,
+        ownedItemDispatch: inspectorRequest.ownedItemDispatch,
+        selectedOwnedItemRef: activeOwnedItem?.ref,
         accent: widget.accent,
         onAddCopy: () => _addOwnedCopy(
           selected,
@@ -379,7 +316,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         ),
         onSelected: ownedCopies.length < 2
             ? null
-            : (value) => setState(() => _selectedOwnedItemId = value),
+            : (value) => setState(() => _selectedOwnedItemRef = value),
       );
     }
     final bundleSection = activeBundleReleaseId == null
@@ -388,98 +325,21 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             bundleReleaseId: activeBundleReleaseId,
             accent: widget.accent,
           );
-    Widget? conditionGradeSection;
-    if (!usesCustomInspectorPanel &&
-        activeOwnedItem != null &&
-        (editCapability.conditions.isNotEmpty ||
-            editCapability.grades.isNotEmpty) &&
-        resolveOwnedDigitalFlag(
-              activeOwnedItem,
-              selected.source.catalogItem?.editions ?? const [],
-              fallbackLabel: selected.dto is WorkspaceDtoAdapter
-                  ? (selected.dto as WorkspaceDtoAdapter).variant
-                  : null,
-            ) !=
-            true) {
-      conditionGradeSection = Builder(
-        builder: (context) {
-          final editCapability = widget.type.edit;
-          final conditionDefinition =
-              editCapability.vocabularies?.definitionForSuffix('condition');
-          final gradeDefinition =
-              editCapability.vocabularies?.definitionForSuffix('grade');
-          final builtInConditions = conditionDefinition == null
-              ? editCapability.conditions
-              : [
-                  for (final value in conditionDefinition.builtIns)
-                    value.toString()
-                ];
-          final builtInGrades = gradeDefinition == null
-              ? editCapability.grades
-              : [
-                  for (final value in gradeDefinition.builtIns) value.toString()
-                ];
-          final options = ref
-              .watch(
-                _inspectorConditionGradeOptionsProvider(
-                  _InspectorConditionGradeOptionsRequest(
-                    db: widget.db ?? ref.read(localDatabaseProvider),
-                    mediaKind: widget.type.kind.apiValue,
-                    builtInConditions: builtInConditions,
-                    builtInGrades: builtInGrades,
-                    conditionListName: conditionDefinition?.key,
-                    gradeListName: gradeDefinition?.key,
-                    selectedCondition: activeOwnedItem.condition,
-                    selectedGrade: activeOwnedItem.grade,
-                  ),
-                ),
-              )
-              .value;
-          return InspectorCollectionFields(
-            enabled: true,
-            condition: activeOwnedItem.condition,
-            grade: activeOwnedItem.grade,
-            conditions: options?.conditions ??
-                mergePickListValues(
-                  builtInValues: builtInConditions,
-                  selectedValues: [activeOwnedItem.condition],
-                ),
-            grades: options?.grades ??
-                mergePickListValues(
-                  builtInValues: builtInGrades,
-                  selectedValues: [activeOwnedItem.grade],
-                ),
-            accent: widget.accent,
-            onConditionChanged: (value) => _updateConditionGrade(
-              context,
-              activeOwnedItem,
-              condition: value,
-              grade: activeOwnedItem.grade,
-            ),
-            onGradeChanged: (value) => _updateConditionGrade(
-              context,
-              activeOwnedItem,
-              condition: activeOwnedItem.condition,
-              grade: value,
-            ),
-          );
-        },
-      );
-    }
     final trailingSections = <Widget>[
       if (activeOwnedItem != null && widget.db != null)
         InspectorCustomFieldsSection(
-          ownedItemId: activeOwnedItem.id,
-          mediaKind: widget.type.kind.apiValue,
+          ownedRef: activeOwnedItem.ref,
           db: widget.db!,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
       if (inspectorCapability.showsDefaultPersonalSection)
         InspectorPersonalSection(
+          type: widget.type,
           item: selected,
           ownedItem: activeOwnedItem,
-          trackingEntry: activeTrackingEntry,
+          ownedItemDispatch: inspectorRequest.ownedItemDispatch,
+          trackingSummary: activeTrackingSummary,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
@@ -487,7 +347,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           widget.db != null &&
           widget.type.inspector.supportsOwnedItemImages)
         InspectorItemImagesSection(
-          ownedItemId: activeOwnedItem.id,
+          ownedRef: activeOwnedItem.ref,
           db: widget.db!,
           accent: widget.accent,
         ),
@@ -497,7 +357,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               item: selected,
               accent: widget.accent,
               ownedItem: activeOwnedItem,
-              trackingEntry: activeTrackingEntry,
+              trackingSummary: activeTrackingSummary,
             )
           : null),
       ...?(!usesCustomInspectorPanel
@@ -560,46 +420,12 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             SizedBox(height: density.inspectorOuterGap),
             bundleSection!,
           ],
-          if (activeOwnedItem != null &&
-              (editCapability.conditions.isNotEmpty ||
-                  editCapability.grades.isNotEmpty) &&
-              resolveOwnedDigitalFlag(
-                    activeOwnedItem,
-                    selected.source.catalogItem?.editions ?? const [],
-                    fallbackLabel: selected.dto is WorkspaceDtoAdapter
-                        ? (selected.dto as WorkspaceDtoAdapter).variant
-                        : null,
-                  ) !=
-                  true) ...[
-            SizedBox(height: density.inspectorOuterGap),
-            conditionGradeSection!,
-          ],
           SizedBox(height: density.inspectorOuterGap),
           ...effectivePrimarySections,
           ...trailingSections,
         ],
       ),
     );
-  }
-
-  Future<void> _updateConditionGrade(
-    BuildContext context,
-    OwnedItem item, {
-    required String? condition,
-    required String? grade,
-  }) async {
-    await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          UpdateOwnedItemCommand(
-            ownedItemId: item.id,
-            condition: Patch.set(condition),
-            grade: Patch.set(grade),
-          ),
-        );
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Collection details updated')),
-      );
-    }
   }
 
   Future<void> _showOwnedSectionDialog(
@@ -615,13 +441,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         onClose: () => Navigator.of(context).pop(),
-        child: SingleChildScrollView(child: child),
+        body: SingleChildScrollView(child: child),
       ),
     );
   }
 
   void _scheduleOwnedCopySelection(
-    String ownedItemId, {
+    OwnedItemRef ownedItemRef, {
     bool clearNewest = true,
   }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -629,7 +455,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         return;
       }
       setState(() {
-        _selectedOwnedItemId = ownedItemId;
+        _selectedOwnedItemRef = ownedItemRef;
         if (clearNewest) {
           _selectNewestOwnedItem = false;
         }
@@ -638,84 +464,97 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }
 
   Future<void> _addOwnedCopy(
-    LibraryProjectionRuntime item, {
-    OwnedItem? ownedItem,
+    LibraryProjectionView item, {
+    OwnedItemSummary? ownedItem,
   }) async {
-    final anchor = resolveLibraryMutationAnchor(
-      item: item,
-      ownedItem: ownedItem,
-    );
+    final catalogRef = item.source.catalogRef;
+    if (catalogRef == null) {
+      return;
+    }
+    final catalogItem = await CatalogSnapshotRepository(
+      widget.db ?? ref.read(localDatabaseProvider),
+    ).findCandidateByRef(catalogRef.rootScope);
+    if (catalogItem == null) {
+      return;
+    }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: widget.type.kind.apiValue,
-              entityType: CatalogEntityType.work,
-              id: item.node.titleItemId,
-            ),
-            common: OwnedItemCommonDraft(
-              editionId: anchor.editionId,
-              variantId: anchor.variantId,
-              bundleReleaseId: anchor.bundleReleaseId,
-            ),
-            details: defaultDetailsDraftForKind(widget.type.kind),
+          widget.type.add.buildCommand(
+            catalogItem,
+            const LibraryAddCommonDraft(),
+            widget.type.add.createInitialDraft(),
+            targetRef: ownedItem?.targetRef ??
+                ownedItem?.catalogRef ??
+                catalogItem.catalogRef,
           ),
         );
     if (!mounted) {
       return;
     }
     setState(() {
-      _selectedOwnedItemId = null;
+      _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
   }
 
-  Future<void> _removeOwnedCopy(OwnedItem item) async {
-    await ref.read(ownedItemMutationsProvider).removeItem(item);
+  Future<void> _showMetadataCorrection(
+    BuildContext context,
+    LibraryProjectionView selected,
+  ) async {
+    final catalogRef = selected.source.catalogRef;
+    if (catalogRef == null) return;
+    final catalogItem = await CatalogSnapshotRepository(
+      widget.db ?? ref.read(localDatabaseProvider),
+    ).findCandidateByRef(catalogRef.rootScope);
+    if (!context.mounted || catalogItem == null) return;
+    await showMetadataCorrectionDialog(
+      context: context,
+      ref: ref,
+      source: LibraryMetadataCorrectionSource(
+        title: catalogItem.title,
+        values: LibraryMetadataCorrectionValues.fromSerialized(
+          catalogItem.toSyncPayload(),
+        ),
+      ),
+      type: widget.type,
+    );
+  }
+
+  Future<void> _removeOwnedCopy(OwnedItemSummary item) async {
+    await ref.read(ownedItemMutationsProvider).removeItem(item.ref);
     if (!mounted) {
       return;
     }
     setState(() {
-      if (_selectedOwnedItemId == item.id) {
-        _selectedOwnedItemId = null;
+      if (_selectedOwnedItemRef == item.ref) {
+        _selectedOwnedItemRef = null;
       }
       _selectNewestOwnedItem = false;
     });
   }
 
   Future<void> _duplicateOwnedCopy(
-    LibraryProjectionRuntime item,
-    OwnedItem ownedItem,
+    LibraryProjectionView item,
+    OwnedItemSummary ownedItem,
   ) async {
-    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: ownedItem.catalogRef,
-            common: OwnedItemCommonDraft(
-              isDigital: ownedItem.isDigital,
-              editionId: ownedItem.editionId,
-              variantId: ownedItem.variantId,
-              bundleReleaseId: ownedItem.bundleReleaseId,
-              condition: ownedItem.condition,
-              grade: ownedItem.grade,
-              purchaseDate: ownedItem.purchaseDate,
-              pricePaidCents: ownedItem.pricePaidCents,
-              currency: ownedItem.currency,
-              personalNotes: ownedItem.personalNotes,
-              quantity: ownedItem.quantity,
-              locationId: ownedItem.locationId,
-              rating: ownedItem.rating,
-              readStatus: ownedItem.readStatus,
-              startedAt: ownedItem.startedAt,
-              finishedAt: ownedItem.finishedAt,
-              tags: ownedItem.tags,
-            ),
-            details: ownedItem.details.toDraft(),
+    final duplicated = await ref.read(ownedItemMutationsProvider).duplicateItem(
+          ownedItem.ref,
+          targetRef: ownedItem.catalogRef,
+          tracking: OwnedItemTrackingDraft(
+            status: item.source.trackingSummary?.status,
+            rating: item.source.trackingSummary?.rating,
+            startedAt: item.source.trackingSummary?.startedAt,
+            finishedAt: item.source.trackingSummary?.completedAt,
+            notes: item.source.trackingSummary?.notes,
           ),
         );
+    if (duplicated == null) {
+      return;
+    }
     if (!mounted) {
       return;
     }
     setState(() {
-      _selectedOwnedItemId = null;
+      _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
@@ -723,8 +562,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  Future<void> _refreshSelectedEntryMetadata(
-      LibraryProjectionRuntime item) async {
+  Future<void> _refreshSelectedEntryMetadata(LibraryProjectionView item) async {
     final result = await showLibraryMetadataRefreshDialog(
       context: context,
       type: widget.type,
@@ -745,11 +583,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  void _shareInspectorEntry(LibraryProjectionRuntime item) {
+  void _shareInspectorEntry(LibraryProjectionView item) {
     showCollectionShareDialog(
       context: context,
       title: item.dto.title,
-      items: <LibraryProjectionRuntime>[item],
+      items: <LibraryProjectionView>[item],
     );
   }
 }
@@ -757,19 +595,23 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
 class _InspectorOwnedCopiesSection extends StatelessWidget {
   const _InspectorOwnedCopiesSection({
     required this.copies,
-    required this.editions,
-    required this.selectedOwnedItemId,
+    required this.releases,
+    required this.collectionValueReader,
+    required this.ownedItemDispatch,
+    required this.selectedOwnedItemRef,
     required this.accent,
     required this.onAddCopy,
     this.onSelected,
   });
 
-  final List<OwnedItem> copies;
-  final List<CatalogEdition> editions;
-  final String? selectedOwnedItemId;
+  final List<OwnedItemSummary> copies;
+  final List<LibraryWorkspaceReleaseSummary> releases;
+  final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final OwnedItemRef? selectedOwnedItemRef;
   final Color accent;
   final VoidCallback onAddCopy;
-  final ValueChanged<String?>? onSelected;
+  final ValueChanged<OwnedItemRef?>? onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -788,22 +630,25 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                     )
-                  : DropdownButtonFormField<String>(
-                      initialValue: selectedOwnedItemId,
+                  : DropdownButtonFormField<OwnedItemRef>(
+                      initialValue: selectedOwnedItemRef,
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Active copy',
                       ),
                       items: [
                         for (var index = 0; index < copies.length; index += 1)
-                          DropdownMenuItem<String>(
-                            value: copies[index].id,
+                          DropdownMenuItem<OwnedItemRef>(
+                            value: copies[index].ref,
                             child: Text(
-                              buildOwnedCopyLabel(
-                                copies[index],
-                                editions,
-                                index,
-                              ),
+                              buildOwnedCopyLabelFromWorkspaceReleases(
+                                    copies[index],
+                                    releases,
+                                    index,
+                                    collectionValue: collectionValueReader(
+                                        ownedItemDispatch),
+                                  ) ??
+                                  'Copy ${index + 1}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -837,12 +682,12 @@ class _InspectorOwnedCopiesSection extends StatelessWidget {
 
 class _InspectorReadingQueueActionButton extends StatefulWidget {
   const _InspectorReadingQueueActionButton({
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.db,
     required this.accent,
   });
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -865,7 +710,7 @@ class _InspectorReadingQueueActionButtonState
 
   Future<void> _load() async {
     final queue = await ReadingQueueRepository(widget.db).getQueue();
-    final index = queue.indexOf(widget.ownedItemId);
+    final index = queue.indexOf(widget.ownedRef);
     if (!mounted) {
       return;
     }
@@ -885,7 +730,7 @@ class _InspectorReadingQueueActionButtonState
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: InspectorReadingQueueSection(
-              ownedItemId: widget.ownedItemId,
+              ownedRef: widget.ownedRef,
               db: widget.db,
               accent: widget.accent,
             ),
@@ -901,7 +746,7 @@ class _InspectorReadingQueueActionButtonState
     final tooltip = _loading
         ? 'Reading queue'
         : _inQueue
-            ? 'Reading queue · position #$_position'
+            ? 'Reading queue Ãƒâ€šÃ‚Â· position #$_position'
             : 'Add to reading queue';
     return InspectorToolIconButton(
       tooltip: tooltip,
@@ -918,7 +763,7 @@ class EmptyInspector extends StatelessWidget {
     super.key,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
 
   @override

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,7 +23,7 @@ class _FakeTestProvider implements MetadataCapability {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    Object? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     return [
@@ -30,21 +31,21 @@ class _FakeTestProvider implements MetadataCapability {
         provider: name,
         providerItemId: 'item-1',
         title: 'Search Result: $query',
-        kind: kind?.toString() ?? descriptor.kind,
+        kind: kind ?? descriptor.kind,
       ),
     ];
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    Object? kind,
+    CatalogMediaKind? kind,
   }) async {
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       provider: name,
       providerItemId: providerItemId,
-      kind: kind?.toString() ?? descriptor.kind,
-      normalized: {'title': 'Item $providerItemId'},
+      kind: kind ?? descriptor.kind,
+      payload: ProviderMetadataPayload({'title': 'Item $providerItemId'}),
       provenance: const ProviderProvenance(fetchedAt: '2026-08-17T12:00:00Z'),
       images: [
         ProviderImageRef(provider: name, url: 'https://example.com/image.jpg'),
@@ -60,8 +61,8 @@ void main() {
       const descriptor = ProviderDescriptor(
         name: 'test_provider',
         displayName: 'Test Provider',
-        kind: 'book',
-        supportedKinds: ['book', 'manga'],
+        kind: CatalogMediaKind.book,
+        supportedKinds: [CatalogMediaKind.book, CatalogMediaKind.manga],
         requiresUserKey: true,
         requiresAttribution: true,
         termsUrl: 'https://example.com/terms',
@@ -71,9 +72,9 @@ void main() {
       final restored = ProviderDescriptor.fromJson(json);
 
       expect(restored, equals(descriptor));
-      expect(restored.supportsKind('book'), isTrue);
-      expect(restored.supportsKind('manga'), isTrue);
-      expect(restored.supportsKind('movie'), isFalse);
+      expect(restored.supportsKind(CatalogMediaKind.book), isTrue);
+      expect(restored.supportsKind(CatalogMediaKind.manga), isTrue);
+      expect(restored.supportsKind(CatalogMediaKind.movie), isFalse);
     });
 
     test('ProviderSearchResult serializes and equality checks correctly', () {
@@ -81,7 +82,7 @@ void main() {
         provider: 'openlibrary',
         providerItemId: 'OL123W',
         title: 'The Hobbit',
-        kind: 'book',
+        kind: CatalogMediaKind.book,
         characterPreview: ['Bilbo', 'Gandalf'],
         storyArcPreview: ['The Quest of Erebor'],
         externalIds: {'isbn': '1234567890'},
@@ -94,6 +95,29 @@ void main() {
       expect(restored.characterPreview, contains('Bilbo'));
       expect(restored.storyArcPreview, contains('The Quest of Erebor'));
       expect(restored.externalIds['isbn'], '1234567890');
+    });
+
+    test('ProviderConnector exposes summary-only typed search hits', () async {
+      final connector = _FakeTestProvider(
+        descriptor: const ProviderDescriptor(
+          name: 'openlibrary',
+          displayName: 'Open Library',
+          kind: CatalogMediaKind.book,
+        ),
+      ).toConnector();
+
+      final hits = await connector.searchHits(
+        'The Hobbit',
+        kind: CatalogMediaKind.book,
+      );
+
+      expect(hits, hasLength(1));
+      expect(hits.single.providerId, ProviderId.openLibrary);
+      expect(hits.single.kind, CatalogMediaKind.book);
+      expect(hits.single.remoteId, 'item-1');
+      expect(hits.single.title, 'Search Result: The Hobbit');
+      expect(hits.single.subtitle, isNull);
+      expect(hits.single.imageUrl, isNull);
     });
 
     test('ProviderException hierarchy retains codes and causes', () {
@@ -131,22 +155,22 @@ void main() {
     });
 
     test(
-        'InMemoryProviderRegistry registers, filters, and unregisters providers',
+        'InMemoryProviderConnectorRegistry registers, filters, and unregisters providers',
         () {
       final bookConnector = _FakeTestProvider(
         descriptor: const ProviderDescriptor(
           name: 'openlibrary',
           displayName: 'Book Provider',
-          kind: 'book',
-          supportedKinds: ['book'],
+          kind: CatalogMediaKind.book,
+          supportedKinds: [CatalogMediaKind.book],
         ),
       ).toConnector();
       final multiConnector = _FakeTestProvider(
         descriptor: const ProviderDescriptor(
           name: 'mangadex',
           displayName: 'Multi Provider',
-          kind: 'manga',
-          supportedKinds: ['manga', 'anime'],
+          kind: CatalogMediaKind.manga,
+          supportedKinds: [CatalogMediaKind.manga, CatalogMediaKind.anime],
         ),
       ).toConnector();
 
@@ -158,10 +182,22 @@ void main() {
 
       registry.register(multiConnector);
       expect(registry.getAll(), hasLength(2));
-      expect(registry.getForKind('book'), contains(bookConnector));
-      expect(registry.getForKind('book'), isNot(contains(multiConnector)));
-      expect(registry.getForKind('manga'), contains(multiConnector));
-      expect(registry.getForKind('anime'), contains(multiConnector));
+      expect(
+        registry.getForKind(CatalogMediaKind.book),
+        contains(bookConnector),
+      );
+      expect(
+        registry.getForKind(CatalogMediaKind.book),
+        isNot(contains(multiConnector)),
+      );
+      expect(
+        registry.getForKind(CatalogMediaKind.manga),
+        contains(multiConnector),
+      );
+      expect(
+        registry.getForKind(CatalogMediaKind.anime),
+        contains(multiConnector),
+      );
 
       final descriptors = registry.getDescriptors();
       expect(descriptors.map((d) => d.name),

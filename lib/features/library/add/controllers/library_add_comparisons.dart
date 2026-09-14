@@ -1,8 +1,5 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_kind_metadata_runtime.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 bool sameStringList(List<String>? a, List<String>? b) {
   final left = normalizeStringList(a);
@@ -34,8 +31,8 @@ List<String> normalizeStringList(List<String>? values) {
 }
 
 bool sameCreators(
-  List<Map<String, dynamic>>? a,
-  List<Map<String, dynamic>>? b,
+  List<JsonMap>? a,
+  List<JsonMap>? b,
 ) {
   final left = normalizeCreators(a);
   final right = normalizeCreators(b);
@@ -52,13 +49,13 @@ bool sameCreators(
   return true;
 }
 
-List<Map<String, dynamic>> normalizeCreators(
-  List<Map<String, dynamic>>? values,
+List<JsonMap> normalizeCreators(
+  List<JsonMap>? values,
 ) {
   if (values == null) {
-    return const <Map<String, dynamic>>[];
+    return const <JsonMap>[];
   }
-  final normalized = <Map<String, dynamic>>[];
+  final normalized = <JsonMap>[];
   for (final raw in values) {
     final name = (raw['name']?.toString() ?? '').trim();
     if (name.isEmpty) {
@@ -73,7 +70,7 @@ List<Map<String, dynamic>> normalizeCreators(
   return normalized;
 }
 
-bool sameTrailerLinks(List<TrailerLink>? a, List<TrailerLink>? b) {
+bool sameTrailerLinks(List<TrailerLinkDto>? a, List<TrailerLinkDto>? b) {
   final left = normalizeTrailerLinks(a);
   final right = normalizeTrailerLinks(b);
   if (left.length != right.length) {
@@ -87,9 +84,9 @@ bool sameTrailerLinks(List<TrailerLink>? a, List<TrailerLink>? b) {
   return true;
 }
 
-List<Map<String, dynamic>> normalizeTrailerLinks(List<TrailerLink>? links) {
+List<JsonMap> normalizeTrailerLinks(List<TrailerLinkDto>? links) {
   if (links == null) {
-    return const <Map<String, dynamic>>[];
+    return const <JsonMap>[];
   }
   return [
     for (final link in links)
@@ -107,7 +104,7 @@ List<Map<String, dynamic>> normalizeTrailerLinks(List<TrailerLink>? links) {
   ];
 }
 
-bool sameTracks(List<CatalogTrack>? a, List<CatalogTrack>? b) {
+bool sameTracks(List<CatalogTrackDto>? a, List<CatalogTrackDto>? b) {
   final left = normalizeTracks(a);
   final right = normalizeTracks(b);
   if (left.length != right.length) {
@@ -127,11 +124,11 @@ bool sameTracks(List<CatalogTrack>? a, List<CatalogTrack>? b) {
   return true;
 }
 
-List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
+List<JsonMap> normalizeTracks(List<CatalogTrackDto>? values) {
   if (values == null) {
-    return const <Map<String, dynamic>>[];
+    return const <JsonMap>[];
   }
-  final normalized = <Map<String, dynamic>>[];
+  final normalized = <JsonMap>[];
   for (final track in values) {
     final title = (track.title ?? '').trim();
     if (title.isEmpty) {
@@ -148,39 +145,4 @@ List<Map<String, dynamic>> normalizeTracks(List<CatalogTrack>? values) {
     });
   }
   return normalized;
-}
-
-LibraryMetadataItem metadataItemFromIngestResult(AdminMetadataItem item) {
-  final primaryEdition = item.primaryEdition;
-  final primaryVariant = item.primaryVariant;
-  final releaseDate = primaryEdition?.releaseDate;
-  final mediaKind = catalogMediaKindFromApiValue(item.kind);
-  return LibraryMetadataItem(
-    identity: LibraryItemIdentity(
-      id: item.id,
-      mediaKind: mediaKind,
-    ),
-    kindMetadata: LibraryKindMetadataDecoders.decode(
-      mediaKind,
-      {
-        'id': item.id,
-        'kind': item.kind,
-        'title': item.title,
-        'item_number': item.itemNumber,
-        'synopsis': item.synopsis,
-        'cover_image_url':
-            primaryVariant?.coverImageUrl ?? item.displayCoverUrl,
-        'thumbnail_image_url':
-            primaryVariant?.thumbnailImageUrl ?? item.displayCoverUrl,
-        'publisher': primaryEdition?.publisher ?? item.publisher,
-        'edition_title': primaryEdition?.title,
-        'physical_format': primaryEdition?.physicalFormat,
-        'physical_format_label': primaryEdition?.physicalFormatLabel,
-        'release_date': releaseDate?.toUtc().toIso8601String(),
-        'barcode': primaryVariant?.barcode ?? item.barcode,
-        'variant': primaryVariant?.name,
-        if (item.series != null) 'series_title': item.series!.seriesTitle,
-      },
-    ),
-  );
 }

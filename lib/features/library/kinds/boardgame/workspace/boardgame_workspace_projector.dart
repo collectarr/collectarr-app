@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/catalog/boardgame_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
@@ -12,40 +12,65 @@ final class BoardGameWorkspaceProjector
 
   @override
   BoardGameWorkspaceDto projectTitle({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryTitleNodeRef node,
   }) {
-    final boardgame =
-        BoardGameCatalogMapper.mapMetadataItemToBoardGame(source.catalogItem!);
-    BoardGameMetadata? metadata;
-    final km = source.catalogItem?.kindMetadata;
-    if (km is BoardGameMetadata) {
-      metadata = km;
-    }
+    final catalog = _catalogFor(source);
     return BoardGameWorkspaceDto(
-      common: WorkspaceCommonProjection.fromShelf(source, node),
+      common: _boardGameCommonProjection(source, node, catalog.boardgame),
       personal: PersonalCopyProjection.fromShelf(source),
-      boardgame: boardgame,
-      metadata: metadata,
+      boardgame: catalog.boardgame,
+      metadata: catalog.metadata,
     );
   }
 
   @override
   BoardGameWorkspaceDto projectRelease({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryReleaseNodeRef node,
     required LibraryReleaseState releaseState,
   }) {
-    throw UnsupportedError(
-        'Release projection is not supported for BoardGameWorkspaceProjector');
+    final catalog = _catalogFor(source);
+    return BoardGameWorkspaceDto(
+      common: _boardGameCommonProjection(source, node, catalog.boardgame),
+      personal:
+          PersonalCopyProjection.fromShelf(source, releaseState: releaseState),
+      boardgame: catalog.boardgame,
+      metadata: catalog.metadata,
+    );
   }
 
   @override
   BoardGameWorkspaceDto projectCopy({
-    required ShelfEntry source,
+    required LibraryWorkspaceSource source,
     required LibraryCopyNodeRef node,
   }) {
-    throw UnsupportedError(
-        'Copy projection is not supported for BoardGameWorkspaceProjector');
+    return projectTitle(
+      source: source,
+      node: LibraryTitleNodeRef(titleItemId: node.titleItemId),
+    );
   }
+}
+
+BoardGameWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  if (data case final BoardGameWorkspaceCatalogData catalog) return catalog;
+  throw StateError(
+    'Expected BoardGameWorkspaceCatalogData for board game workspace',
+  );
+}
+
+WorkspaceCommonProjection _boardGameCommonProjection(
+  LibraryWorkspaceSource source,
+  LibraryNodeRef node,
+  BoardGameCatalogItem boardgame,
+) {
+  return WorkspaceCommonProjection.fromStructuralShelf(
+    source,
+    node,
+    overrideTitle: boardgame.title,
+    overrideSynopsis: boardgame.synopsis,
+    overrideReleaseDate: boardgame.releaseDate,
+    overrideCoverImageUrl: boardgame.coverImageUrl,
+  );
 }

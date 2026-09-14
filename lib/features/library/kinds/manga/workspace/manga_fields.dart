@@ -1,7 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_kind_schema.dart';
@@ -46,7 +49,11 @@ abstract final class MangaKindSchema {
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
     id: MangaFieldIds.condition,
     label: 'Condition',
-    getValue: (context) => context.source.ownedItem?.condition,
+    getValue: (context) {
+      final owned = MangaOwnedItemProjection.fromDispatch(
+          context.source.ownedItemDispatch);
+      return owned is MangaOwnedItem ? owned.condition : null;
+    },
     scope: LibraryFieldScope.copy,
   );
 
@@ -62,7 +69,7 @@ abstract final class MangaKindSchema {
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, int?>(
     id: MangaFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.ownedItem?.pricePaidCents,
+    getValue: (context) => context.source.pricePaidCents,
     scope: LibraryFieldScope.copy,
   );
 
@@ -95,7 +102,7 @@ abstract final class MangaKindSchema {
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, int?>(
     id: MangaFieldIds.rating,
     label: 'Rating',
-    getValue: (context) => context.source.ownedItem?.rating,
+    getValue: (context) => context.dto.personal.rating,
     scope: LibraryFieldScope.copy,
   );
 
@@ -276,7 +283,40 @@ abstract final class MangaKindSchema {
   );
 }
 
+final mangaLibraryFacetDefinitions =
+    <LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>>[
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.publisher,
+    label: 'Publisher',
+    extractValues: (dto) => [
+      if (dto.publisher case final publisher?) publisher,
+    ],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.genre,
+    label: 'Genre',
+    extractValues: (dto) => dto.metadata?.genres ?? const <String>[],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.character,
+    label: 'Character',
+    extractValues: (_) => const <String>[],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.theme,
+    label: 'Theme',
+    extractValues: (dto) => dto.metadata?.themes ?? const <String>[],
+  ),
+  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+    id: MangaFacetIds.demographic,
+    label: 'Demographic',
+    extractValues: (dto) => [dto.metadata?.demographic.label ?? 'Other'],
+  ),
+];
+
 final mangaLibraryFieldDefinitions = [
+  MangaKindSchema.status,
+  MangaKindSchema.cover,
   MangaKindSchema.title,
   MangaKindSchema.series,
   MangaKindSchema.volumeNumber,
@@ -286,6 +326,10 @@ final mangaLibraryFieldDefinitions = [
   MangaKindSchema.location,
   MangaKindSchema.pricePaid,
   MangaKindSchema.barcode,
+  MangaKindSchema.rating,
+  MangaKindSchema.wishlist,
+  MangaKindSchema.updatedAt,
+  MangaKindSchema.addedAt,
   MangaKindSchema.nativeTitle,
   MangaKindSchema.romajiTitle,
   MangaKindSchema.englishTitle,
@@ -322,9 +366,8 @@ final mangaLibraryGroupDefinitions = [
     sidebarTitle: 'Publishers',
     icon: Icons.business_outlined,
     supportsBucketManagement: true,
-    bucketValueMutator: libraryStringBucketValueMutator(
-      'publisher',
-      mirrorKeys: ['original_publisher', 'localized_publisher'],
+    bucketValueMutator: catalogTransportStringBucketValueMutator(
+      ['publisher', 'original_publisher', 'localized_publisher'],
     ),
   ),
   groupFromField<MangaKind, MangaWorkspaceDto, String?>(
@@ -483,8 +526,8 @@ final mangaLibraryColumnDefinitions = [
   ),
   columnFromField<MangaKind, MangaWorkspaceDto, int?>(
     MangaKindSchema.pricePaid,
-    cellValue: (context) => Text(_formatCents(
-        context.source.ownedItem?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) =>
+        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -500,8 +543,7 @@ final mangaLibraryColumnDefinitions = [
     id: MangaFieldIds.rating,
     label: 'Rating',
     getValue: MangaKindSchema.rating.getValue,
-    cellValue: (context) =>
-        Text(context.source.ownedItem?.rating?.toString() ?? ''),
+    cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
   ),
   columnFromField<MangaKind, MangaWorkspaceDto, String?>(

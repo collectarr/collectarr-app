@@ -1,9 +1,14 @@
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 
 class LibraryPageBucketCoordinator {
   const LibraryPageBucketCoordinator(this._page);
@@ -55,45 +60,54 @@ class LibraryPageBucketCoordinator {
     String currentLabel, {
     String? replacement,
   }) async {
-    final runtime = _page.type;
-    final groupId = runtime.fields.decodeGroupId(mode);
-    final groupDefinition = runtime.fields.findGroupDefinition(groupId);
+    final kindModule = _page.type;
+    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
+    final groupId = fields.decodeGroupId(mode);
+    final groupDefinition = fields.findGroupDefinition(groupId);
     if (groupDefinition == null || !groupDefinition.supportsBucketManagement) {
       return 0;
     }
 
-    final catalogUpdates = <String, LibraryMetadataItem>{};
-    final ownedUpdates = <String, UpdateOwnedItemCommand<OwnedDetailsDraft>>{};
+    final catalogUpdates = <CatalogEntityRef, CatalogImportTransport>{};
+    final ownedUpdates = <OwnedItemRef, UpdateOwnedItemCommand>{};
+    final catalogRefs = [
+      for (final item in projection.allItems)
+        if (item.source.catalogRef case final ref?) ref.rootScope,
+    ];
+    final catalogCandidates = await CatalogSnapshotRepository(
+      _page.ref.read(localDatabaseProvider),
+    ).findTransportsByRefs(catalogRefs);
     for (final item in projection.allItems) {
       if (genericBucketForItemGroup(item, _page.type, groupId) !=
           currentLabel.trim()) {
         continue;
       }
 
-      final catalogItem = item.source.catalogItem;
-      if (catalogItem != null) {
-        final updatedCatalog = groupDefinition.bucketValueMutator?.call(
-          catalogItem,
+      final catalogTransport = switch (item.source.catalogRef) {
+        final ref? => catalogCandidates[ref.rootScope],
+        null => null,
+      };
+      if (groupDefinition.bucketValueMutator != null &&
+          catalogTransport != null) {
+        final updatedCatalog = groupDefinition.bucketValueMutator!.call(
+          catalogTransport,
           currentLabel,
           replacement: replacement,
         );
         if (updatedCatalog != null) {
-          catalogUpdates[catalogItem.id] = updatedCatalog;
+          catalogUpdates[updatedCatalog.ref] = updatedCatalog;
         }
       }
 
-      final ownedItem = item.source.ownedItem;
-      if (ownedItem != null) {
+      final ownedItemDispatch = item.source.ownedItemDispatch;
+      if (ownedItemDispatch != null) {
         final ownedUpdate = groupDefinition.ownedBucketValueMutator?.call(
-          ownedItem,
+          ownedItemDispatch,
           currentLabel,
           replacement: replacement,
         );
         if (ownedUpdate != null) {
-          ownedUpdates.putIfAbsent(
-            ownedUpdate.ownedItemId,
-            () => ownedUpdate,
-          );
+          ownedUpdates.putIfAbsent(ownedUpdate.ownedRef, () => ownedUpdate);
         }
       }
     }
@@ -101,12 +115,15 @@ class LibraryPageBucketCoordinator {
     if (catalogUpdates.isEmpty && ownedUpdates.isEmpty) {
       return 0;
     }
-    final mutations = _page.ref.read(ownedItemMutationsProvider);
+    final catalogMutations = _page.ref.read(catalogTransportMutationsProvider);
+    final ownedMutations = _page.ref.read(ownedItemMutationsProvider);
     if (catalogUpdates.isNotEmpty) {
-      await mutations.updateCatalogSnapshots(catalogUpdates.values);
+      await catalogMutations.upsertTransports(
+        catalogUpdates.values,
+      );
     }
     for (final update in ownedUpdates.values) {
-      await mutations.updateOwnedItem(update);
+      await ownedMutations.updateOwnedItem(update);
     }
     if (!_page.mounted) {
       return catalogUpdates.length + ownedUpdates.length;

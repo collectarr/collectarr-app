@@ -3,10 +3,11 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/kinds/movie/movie_domain.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/catalog/video_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/catalog/movie_catalog_item.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('movie work dto maps rich metadata into movie domain', () {
@@ -86,7 +87,7 @@ void main() {
       'kind': 'movie',
     });
 
-    final work = VideoCatalogItem.fromDto(dto);
+    final work = MovieCatalogItem.fromDto(dto);
 
     expect(work.title, 'The Matrix');
     expect(work.releases, hasLength(1));
@@ -119,9 +120,9 @@ void main() {
       'kind': 'movie',
     });
 
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: dto,
+      catalogData: testWorkspaceCatalogData(dto.asShelfCatalogItem),
     );
 
     final workspaceDto = const MovieWorkspaceProjector().projectTitle(
@@ -196,10 +197,11 @@ void main() {
   });
 
   test('MovieKindModule uses Movie-owned capabilities', () {
-    expect(movieKindModule.kind, CatalogMediaKind.movie);
+    expect(movieKindModule.identity.kind, CatalogMediaKind.movie);
     expect(movieKindModule.add.kind, CatalogMediaKind.movie);
     expect(movieKindModule.add.createInitialDraft(), isA<MovieAddDraft>());
-    expect(movieKindModule.ownedDetailsCodec, isA<MovieOwnedDetailsCodec>());
-    expect(movieKindModule.defaultOwnedDetails(), isA<MovieOwnedDetails>());
+    expect(const MovieOwnedDetailsCodec(), isA<MovieOwnedDetailsCodec>());
+    expect(const MovieOwnedDetailsCodec().defaultDetails(),
+        isA<MovieOwnedDetails>());
   });
 }

@@ -92,6 +92,13 @@ void main() {
     expect(find.text('No queued local TMDB proposals.'), findsOneWidget);
     await _scrollToText(tester, 'MyAnimeList');
     expect(find.text('MyAnimeList'), findsOneWidget);
+    expect(find.byType(DropdownButtonFormField<String>), findsNWidgets(3));
+    expect(find.text('Link imported items to'), findsWidgets);
+    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+    await pumpUntilSettled(tester);
+    expect(find.text('No account linking'), findsWidgets);
+    await tester.tap(find.text('No account linking').last);
+    await pumpUntilSettled(tester);
     expect(find.text('Available'), findsWidgets);
 
     await _openSettingsTab(tester, 'Account');
@@ -286,8 +293,7 @@ void main() {
       ProviderScope(
         overrides: [
           syncControllerProvider.overrideWith(
-            (ref) => _StaticSyncController(
-              ref,
+            () => _StaticSyncController(
               SyncState(
                 warningMessage: '1 sync change rejected',
                 rejectedChanges: [
@@ -339,8 +345,7 @@ void main() {
       ProviderScope(
         overrides: [
           syncControllerProvider.overrideWith(
-            (ref) => _KeepLocalSyncController(
-              ref,
+            () => _KeepLocalSyncController(
               SyncState(
                 pendingCount: 2,
                 warningMessage: '1 sync change rejected',
@@ -446,10 +451,11 @@ void main() {
   });
 
   testWidgets('settings page shows account session status', (tester) async {
+    final token = _jwtExpiringAt(
+      DateTime.now().toUtc().add(const Duration(hours: 1)),
+    );
+    setSecureStorageValue('collectarr.auth.token', token);
     SharedPreferences.setMockInitialValues({
-      'collectarr.auth.token': _jwtExpiringAt(
-        DateTime.now().toUtc().add(const Duration(hours: 1)),
-      ),
       'collectarr.auth.email': 'user@example.com',
     });
     tester.view.physicalSize = const Size(1000, 1200);
@@ -540,9 +546,12 @@ String _base64UrlJson(Map<String, Object> value) {
 }
 
 class _StaticSyncController extends SyncController {
-  _StaticSyncController(super.ref, SyncState initial) {
-    state = initial;
-  }
+  _StaticSyncController(this.initial);
+
+  final SyncState initial;
+
+  @override
+  SyncState build() => initial;
 
   @override
   Future<void> refreshPendingCount() async {}
@@ -553,12 +562,14 @@ class _StaticSyncController extends SyncController {
 
 class _KeepLocalSyncController extends SyncController {
   _KeepLocalSyncController(
-    super.ref,
-    SyncState initial, {
+    this.initial, {
     required this.pendingCountAfterQueue,
-  }) {
-    state = initial;
-  }
+  });
+
+  final SyncState initial;
+
+  @override
+  SyncState build() => initial;
 
   final int pendingCountAfterQueue;
 

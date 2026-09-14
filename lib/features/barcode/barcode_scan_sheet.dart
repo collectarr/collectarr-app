@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
+import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -11,7 +12,7 @@ class BarcodeScanSheet extends StatefulWidget {
     this.submitLabel = 'Lookup barcode',
     this.leadingIcon = Icons.qr_code_scanner,
     @visibleForTesting this.cameraSupported,
-    @visibleForTesting this.platform,
+    @visibleForTesting this.devicePlatform,
   });
 
   final String title;
@@ -20,7 +21,7 @@ class BarcodeScanSheet extends StatefulWidget {
   final String submitLabel;
   final IconData leadingIcon;
   final bool? cameraSupported;
-  final TargetPlatform? platform;
+  final TargetPlatform? devicePlatform;
 
   @override
   State<BarcodeScanSheet> createState() => _BarcodeScanSheetState();
@@ -36,7 +37,7 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
   void initState() {
     super.initState();
     _cameraSupported = widget.cameraSupported ??
-        barcodeScannerCameraSupported(platform: widget.platform);
+        barcodeScannerCameraSupported(devicePlatform: widget.devicePlatform);
     if (_cameraSupported) {
       _scannerController = MobileScannerController(
         formats: const [
@@ -121,7 +122,7 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
             else
               _ScannerFallback(
                 message: barcodeScannerUnavailableMessage(
-                  platform: widget.platform,
+                  devicePlatform: widget.devicePlatform,
                 ),
               ),
             const SizedBox(height: 12),
@@ -153,23 +154,22 @@ class _BarcodeScanSheetState extends State<BarcodeScanSheet> {
       return;
     }
     for (final barcode in capture.barcodes) {
-      final rawValue = barcode.rawValue;
-      final value = rawValue == null ? null : normalizeScannedBarcode(rawValue);
-      if (value != null && value.isNotEmpty) {
+      final scannedCode = scannedCodeFromBarcode(barcode);
+      if (scannedCode != null) {
         _hasReturned = true;
-        Navigator.of(context).pop(value);
+        Navigator.of(context).pop(scannedCode);
         return;
       }
     }
   }
 
   void _submitManual() {
-    final value = normalizeScannedBarcode(_manualController.text);
-    if (value.isEmpty || _hasReturned) {
+    final scannedCode = ScannedCode.tryFromRaw(_manualController.text);
+    if (scannedCode == null || _hasReturned) {
       return;
     }
     _hasReturned = true;
-    Navigator.of(context).pop(value);
+    Navigator.of(context).pop(scannedCode);
   }
 }
 

@@ -13,6 +13,10 @@ class LibraryKindIdentity {
     required this.icon,
     required this.accent,
     required this.preferencePrefix,
+    this.routeSegments = const [],
+    this.mediaFamily = 'video',
+    this.isTopLevel = true,
+    this.normalizeCatalogLabels = false,
     this.defaultDensityPreset = LibraryWorkspaceDensityPreset.compact,
     this.availableDensityPresets = const [
       LibraryWorkspaceDensityPreset.comfortable,
@@ -29,6 +33,10 @@ class LibraryKindIdentity {
   final IconData icon;
   final Color accent;
   final String preferencePrefix;
+  final List<String> routeSegments;
+  final String mediaFamily;
+  final bool isTopLevel;
+  final bool normalizeCatalogLabels;
   final LibraryWorkspaceDensityPreset defaultDensityPreset;
   final List<LibraryWorkspaceDensityPreset> availableDensityPresets;
   final List<LibraryToolbarActionId> toolbarActions;

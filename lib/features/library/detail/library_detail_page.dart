@@ -1,31 +1,52 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
+import 'package:collectarr_app/features/collection/collection_controller.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/detail/folder_assignment_dialog.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section_builder.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+
+final activeOwnedCopiesByCatalogItemProvider = FutureProvider.autoDispose
+    .family<List<OwnedItemSummary>, (CatalogMediaKind, String)>(
+  (ref, params) async {
+    final (kind, catalogItemId) = params;
+    final database = ref.watch(localDatabaseProvider);
+    final reader = collectarrOwnedItemSummaryReaders[kind];
+    if (reader == null) return const [];
+    final items = await reader(database);
+    return items
+        .where((i) => i.catalogRef?.id == catalogItemId)
+        .toList(growable: false)
+      ..sort(
+        (a, b) => (b.updatedAt ?? DateTime(0)).compareTo(
+          a.updatedAt ?? DateTime(0),
+        ),
+      );
+  },
+);
 
 class LibraryDetailPage extends ConsumerStatefulWidget {
   const LibraryDetailPage({
     super.key,
     required this.type,
     required this.item,
-    required this.ownedItem,
+    required this.ownedSummary,
+    this.ownedCopies,
     required this.accent,
     required this.onAddOwned,
     required this.onRemoveOwned,
@@ -35,15 +56,16 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
     this.onFilterByValue,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
-  final OwnedItem? ownedItem;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
+  final OwnedItemSummary? ownedSummary;
+  final List<OwnedItemSummary>? ownedCopies;
   final Color accent;
   final VoidCallback? onAddOwned;
   final VoidCallback? onRemoveOwned;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
-  final void Function(OwnedItem? ownedItem)? onEdit;
+  final void Function(OwnedItemSummary? ownedItem)? onEdit;
   final ValueChanged<String>? onFilterByValue;
 
   @override
@@ -51,62 +73,71 @@ class LibraryDetailPage extends ConsumerStatefulWidget {
 }
 
 class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
-  String? _selectedOwnedItemId;
+  OwnedItemRef? _selectedOwnedItemRef;
   bool _selectNewestOwnedItem = false;
 
   @override
   void initState() {
     super.initState();
-    _selectedOwnedItemId = widget.ownedItem?.id;
+    _selectedOwnedItemRef = widget.ownedSummary?.ref;
   }
 
   @override
   void didUpdateWidget(covariant LibraryDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.item.node.id != oldWidget.item.node.id) {
-      _selectedOwnedItemId = widget.ownedItem?.id;
+      _selectedOwnedItemRef = widget.ownedSummary?.ref;
       _selectNewestOwnedItem = false;
       return;
     }
-    if (widget.ownedItem?.id != oldWidget.ownedItem?.id &&
-        widget.ownedItem != null &&
-        _selectedOwnedItemId == null) {
-      _selectedOwnedItemId = widget.ownedItem!.id;
+    if (widget.ownedSummary?.ref != oldWidget.ownedSummary?.ref &&
+        widget.ownedSummary != null &&
+        _selectedOwnedItemRef == null) {
+      _selectedOwnedItemRef = widget.ownedSummary!.ref;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final ownedCopies = ref.watch(collectionProvider).maybeWhen(
-          data: (items) {
-            final matches = items
-                .where((item) =>
-                    !item.isDeleted &&
-                    item.itemId == widget.item.source.catalogItem?.id)
-                .toList(growable: false)
-              ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-            return matches;
-          },
-          orElse: () => widget.ownedItem == null
-              ? const <OwnedItem>[]
-              : <OwnedItem>[widget.ownedItem!],
-        );
-    final ownedResolution = resolveActiveOwnedItem(
+    final catalogItemId = widget.item.source.catalogRef?.rootId ??
+        widget.item.source.catalogRef?.id;
+    final loadedCopies = catalogItemId == null
+        ? null
+        : ref
+            .watch(
+              activeOwnedCopiesByCatalogItemProvider(
+                (widget.type.kind, catalogItemId),
+              ),
+            )
+            .asData
+            ?.value;
+
+    final ownedCopies = widget.ownedCopies == null
+        ? (loadedCopies != null && loadedCopies.isNotEmpty
+            ? loadedCopies
+            : (widget.ownedSummary == null
+                ? const <OwnedItemSummary>[]
+                : <OwnedItemSummary>[widget.ownedSummary!]))
+        : widget.ownedCopies!;
+    final ownedResolution = resolveActiveOwnedSummary(
       ownedCopies,
-      fallback: widget.ownedItem,
-      selectedOwnedItemId: _selectedOwnedItemId,
+      fallback: widget.ownedSummary,
+      selectedOwnedItemRef: _selectedOwnedItemRef,
       selectNewest: _selectNewestOwnedItem,
     );
-    final activeOwnedItem = ownedResolution.ownedItem;
-    final trackingEntries = ref.watch(trackingEntriesByCatalogItemProvider)[
-            widget.item.source.catalogItem?.id] ??
-        const <TrackingEntry>[];
-    final activeTrackingEntry = resolveActiveTrackingEntry(
-      trackingEntries,
-      activeOwnedItem,
+    final activeOwnedSummary = ownedResolution.ownedItem;
+    final trackingSummaries = switch (widget.item.source.catalogRef) {
+      final catalogRef? =>
+        ref.watch(trackingSummariesByCatalogRefProvider)[catalogRef] ??
+            const <TrackingSummary>[],
+      _ => const <TrackingSummary>[],
+    };
+    final activeTrackingSummary = resolveActiveTrackingSummary(
+      trackingSummaries,
+      activeOwnedSummary,
     );
     final isOwned = ownedCopies.isNotEmpty ||
-        activeOwnedItem != null ||
+        activeOwnedSummary != null ||
         widget.item.source.isOwned;
     final palette = appPalette(context);
     return Theme(
@@ -120,42 +151,42 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
               child: _LibraryDetailToolbar(
                 type: widget.type,
                 item: widget.item,
-                activeOwnedItem: activeOwnedItem,
+                activeOwnedItem: activeOwnedSummary,
                 ownedCopies: ownedCopies,
-                selectedOwnedItemId: activeOwnedItem?.id,
+                selectedOwnedItemRef: activeOwnedSummary?.ref,
                 accent: widget.accent,
                 onSelectOwnedItem: ownedCopies.length < 2
                     ? null
                     : (value) => setState(() {
-                          _selectedOwnedItemId = value;
+                          _selectedOwnedItemRef = value;
                           _selectNewestOwnedItem = false;
                         }),
                 onEdit: widget.onEdit == null
                     ? null
-                    : () => widget.onEdit!(activeOwnedItem),
+                    : () => widget.onEdit!(activeOwnedSummary),
                 onToggleOwned: isOwned
-                    ? activeOwnedItem == null
+                    ? activeOwnedSummary == null
                         ? widget.onRemoveOwned
-                        : () => _removeOwnedCopy(activeOwnedItem)
+                        : () => _removeOwnedCopy(activeOwnedSummary)
                     : widget.onAddOwned,
                 onAddCopy: isOwned
                     ? () => _addOwnedCopy(
                           widget.item,
-                          ownedItem: activeOwnedItem,
+                          ownedItem: activeOwnedSummary,
                         )
                     : null,
                 onToggleWishlist: widget.item.source.isWishlisted
                     ? widget.onRemoveWishlist
                     : widget.onAddWishlist,
                 onSearchOnEbay: () => _searchOnEbay(widget.item),
-                onAssignFolders: activeOwnedItem == null
+                onAssignFolders: activeOwnedSummary == null
                     ? null
                     : () {
                         final db = ref.read(localDatabaseProvider);
                         showFolderAssignmentDialog(
                           context: context,
                           db: db,
-                          ownedItemId: activeOwnedItem.id,
+                          ownedRef: activeOwnedSummary.ref,
                         );
                       },
               ),
@@ -167,7 +198,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                 hero: LibraryDetailHero(
                   type: widget.type,
                   item: widget.item,
-                  ownedItem: activeOwnedItem,
+                  ownedItem: activeOwnedSummary,
                   ownedCopies: ownedCopies,
                   accent: widget.accent,
                   isOwned: isOwned,
@@ -177,8 +208,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
                   type: widget.type,
                   item: widget.item,
                   accent: widget.accent,
-                  ownedItem: activeOwnedItem,
-                  trackingEntry: activeTrackingEntry,
+                  ownedSummary: activeOwnedSummary,
+                  trackingSummary: activeTrackingSummary,
                   ownedCopies: ownedCopies,
                   onFilterByValue: widget.onFilterByValue,
                 ),
@@ -190,55 +221,56 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     );
   }
 
-  Future<void> _searchOnEbay(LibraryProjectionRuntime item) async {
+  Future<void> _searchOnEbay(LibraryProjectionView item) async {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final query = adapter?.itemNumber != null
-        ? '${dto.title} #${adapter!.itemNumber}'
-        : dto.title;
+    final itemNumber = libraryCardPresentationForEntry(item).itemNumber;
+    final query = itemNumber != null ? '${dto.title} #$itemNumber' : dto.title;
     await launchEbaySearch(query);
   }
 
   Future<void> _addOwnedCopy(
-    LibraryProjectionRuntime item, {
-    OwnedItem? ownedItem,
+    LibraryProjectionView item, {
+    OwnedItemSummary? ownedItem,
   }) async {
-    final anchor = resolveLibraryMutationAnchor(
+    final targetRef = resolveLibraryMutationTargetFromSummary(
       item: item,
       ownedItem: ownedItem,
     );
+    final catalogRef = item.source.catalogRef;
+    if (catalogRef == null) {
+      return;
+    }
+    final catalogItem = await CatalogSnapshotRepository(
+      ref.read(localDatabaseProvider),
+    ).findCandidateByRef(catalogRef.rootScope);
+    if (catalogItem == null) {
+      return;
+    }
     await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          AddOwnedItemCommand(
-            catalogRef: CatalogEntityRef(
-              kind: widget.type.kind.apiValue,
-              entityType: CatalogEntityType.work,
-              id: item.node.titleItemId,
-            ),
-            common: OwnedItemCommonDraft(
-              editionId: anchor.editionId,
-              variantId: anchor.variantId,
-              bundleReleaseId: anchor.bundleReleaseId,
-            ),
-            details: defaultDetailsDraftForKind(widget.type.kind),
+          widget.type.add.buildCommand(
+            catalogItem,
+            const LibraryAddCommonDraft(),
+            widget.type.add.createInitialDraft(),
+            targetRef: targetRef,
           ),
         );
     if (!mounted) {
       return;
     }
     setState(() {
-      _selectedOwnedItemId = null;
+      _selectedOwnedItemRef = null;
       _selectNewestOwnedItem = true;
     });
   }
 
-  Future<void> _removeOwnedCopy(OwnedItem item) async {
-    await ref.read(ownedItemMutationsProvider).removeItem(item);
+  Future<void> _removeOwnedCopy(OwnedItemSummary item) async {
+    await ref.read(ownedItemMutationsProvider).removeItem(item.ref);
     if (!mounted) {
       return;
     }
     setState(() {
-      if (_selectedOwnedItemId == item.id) {
-        _selectedOwnedItemId = null;
+      if (_selectedOwnedItemRef == item.ref) {
+        _selectedOwnedItemRef = null;
       }
       _selectNewestOwnedItem = false;
     });
@@ -251,7 +283,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     required this.item,
     required this.activeOwnedItem,
     required this.ownedCopies,
-    required this.selectedOwnedItemId,
+    required this.selectedOwnedItemRef,
     required this.accent,
     required this.onSelectOwnedItem,
     required this.onEdit,
@@ -262,13 +294,13 @@ class _LibraryDetailToolbar extends StatelessWidget {
     required this.onAssignFolders,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
-  final OwnedItem? activeOwnedItem;
-  final List<OwnedItem> ownedCopies;
-  final String? selectedOwnedItemId;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
+  final OwnedItemSummary? activeOwnedItem;
+  final List<OwnedItemSummary> ownedCopies;
+  final OwnedItemRef? selectedOwnedItemRef;
   final Color accent;
-  final ValueChanged<String?>? onSelectOwnedItem;
+  final ValueChanged<OwnedItemRef?>? onSelectOwnedItem;
   final VoidCallback? onEdit;
   final VoidCallback? onToggleOwned;
   final VoidCallback? onAddCopy;
@@ -283,6 +315,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
     final isOwned = ownedCopies.isNotEmpty ||
         activeOwnedItem != null ||
         item.source.isOwned;
+    final identifierCode = libraryCardPresentationForEntry(item).identifierCode;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -328,7 +361,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
               ),
               if (hasCopyMenu) ...[
                 const SizedBox(width: 4),
-                LibraryDenseMenuButton<String>(
+                LibraryDenseMenuButton<OwnedItemRef>(
                   key: const ValueKey('detail-toolbar-copy-menu'),
                   label: 'Copy',
                   icon: Icons.copy_all_outlined,
@@ -337,16 +370,15 @@ class _LibraryDetailToolbar extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                   entries: [
                     for (var index = 0; index < ownedCopies.length; index += 1)
-                      LibraryDenseMenuEntry<String>(
-                        value: ownedCopies[index].id,
-                        label: ownedCopies[index].id == selectedOwnedItemId
-                            ? 'Viewing ${buildOwnedCopyLabel(ownedCopies[index], _releaseEditions(type, item), index)}'
-                            : buildOwnedCopyLabel(
+                      LibraryDenseMenuEntry<OwnedItemRef>(
+                        value: ownedCopies[index].ref,
+                        label: ownedCopies[index].ref == selectedOwnedItemRef
+                            ? 'Viewing ${buildOwnedCopySummaryLabel(ownedCopies[index], index)}'
+                            : buildOwnedCopySummaryLabel(
                                 ownedCopies[index],
-                                _releaseEditions(type, item),
                                 index,
                               ),
-                        icon: ownedCopies[index].id == selectedOwnedItemId
+                        icon: ownedCopies[index].ref == selectedOwnedItemRef
                             ? Icons.check_circle
                             : Icons.radio_button_unchecked,
                       ),
@@ -354,12 +386,7 @@ class _LibraryDetailToolbar extends StatelessWidget {
                   onSelected: (value) => onSelectOwnedItem?.call(value),
                 ),
               ],
-              if ((item.dto is WorkspaceDtoAdapter &&
-                  (item.dto as WorkspaceDtoAdapter)
-                          .barcode
-                          ?.trim()
-                          .isNotEmpty ==
-                      true)) ...[
+              if (identifierCode?.trim().isNotEmpty == true) ...[
                 const SizedBox(width: 4),
                 LibraryDenseButton(
                   label: 'eBay',
@@ -418,15 +445,4 @@ class _LibraryDetailToolbar extends StatelessWidget {
       ),
     );
   }
-}
-
-List<CatalogEditionDto> _releaseEditions(
-  LibraryKindRuntime type,
-  LibraryProjectionRuntime item,
-) {
-  final catalogItem = item.source.catalogItem;
-  if (catalogItem == null) {
-    return const [];
-  }
-  return type.presentation.builder.buildReleaseEditions(item: catalogItem);
 }

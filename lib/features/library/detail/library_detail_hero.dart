@@ -1,12 +1,13 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_metadata_presentation.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/book_author_spotlight.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/material.dart';
 
 class LibraryDetailHero extends StatelessWidget {
@@ -20,10 +21,10 @@ class LibraryDetailHero extends StatelessWidget {
     this.isOwned,
   });
 
-  final LibraryKindRuntime type;
-  final LibraryProjectionRuntime item;
-  final OwnedItem? ownedItem;
-  final List<OwnedItem> ownedCopies;
+  final LibraryKindRegistration type;
+  final LibraryProjectionView item;
+  final OwnedItemSummary? ownedItem;
+  final List<OwnedItemSummary> ownedCopies;
   final Color accent;
   final bool? isOwned;
 
@@ -31,13 +32,11 @@ class LibraryDetailHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final resolvedOwnedItemId = resolveLibraryOwnedItemId(item, ownedItem);
+    final presentation = libraryCardPresentationForEntry(item);
+    final resolvedOwnedRef = resolveLibraryOwnedSummaryRef(item, ownedItem);
     final resolvedIsOwned =
         isOwned ?? (ownedItem != null || item.source.isOwned);
-    final referenceLabel = libraryOwnedReferenceLabel(ownedItem,
-            mediaType: item.source.catalogItem?.kind) ??
-        adapter?.referenceFormatLabel;
+    final referenceLabel = presentation.format;
     final totalCopies =
         ownedCopies.isEmpty ? (ownedItem == null ? 0 : 1) : ownedCopies.length;
     final totalQuantity = ownedCopies.isEmpty
@@ -55,7 +54,9 @@ class LibraryDetailHero extends StatelessWidget {
         _detailHeroValueCurrency(ownedCopies, ownedItem, item);
     final selectedCopyIndex = ownedItem == null || ownedCopies.isEmpty
         ? null
-        : ownedCopies.indexWhere((i) => i.id == ownedItem!.id);
+        : ownedCopies.indexWhere(
+            (i) => i.ref == ownedItem!.ref,
+          );
     final summaryFacts = <({String label, String value})>[
       (label: 'Status', value: resolvedIsOwned ? 'Owned' : 'Not owned'),
       (label: 'Quantity', value: totalQuantity.toString()),
@@ -106,23 +107,21 @@ class LibraryDetailHero extends StatelessWidget {
               .withValues(alpha: palette.isDark ? 0.42 : 0.72),
           borderColor: palette.divider.withValues(alpha: 0.9),
         ),
-      if (ownedItem?.condition != null)
-        LibraryInfoChip(
-          icon: Icons.fact_check_outlined,
-          label: ownedItem!.condition!,
-          foreground: accent,
-          background: palette.surfaceSubtle
-              .withValues(alpha: palette.isDark ? 0.42 : 0.72),
-          borderColor: palette.divider.withValues(alpha: 0.9),
-        ),
     ];
-    final payload = item.source.catalogItem?.toSyncPayload() ?? const {};
-    final creatorsList =
-        (payload['creators'] as List?)?.cast<Map<String, dynamic>>() ??
-            const [];
-    final authorName =
-        creatorsList.isEmpty ? null : creatorsList.first['name'] as String?;
-    final seriesTitle = adapter?.seriesTitle;
+    final metadataPresentation =
+        type.presentation.builder.buildMetadataPresentation(
+      singularLabel: type.identity.singularLabel,
+      item: item,
+      includeIdentityFacts: true,
+      tapFor: (_) => null,
+    );
+    final creatorsList = [
+      for (final section in metadataPresentation.sections.values)
+        if (section.renderer == LibraryMetadataSectionRenderer.credits)
+          ...libraryMetadataCredits(section),
+    ];
+    final authorName = creatorsList.isEmpty ? null : creatorsList.first.name;
+    final seriesTitle = presentation.seriesTitle;
 
     return Container(
       decoration: BoxDecoration(
@@ -144,13 +143,13 @@ class LibraryDetailHero extends StatelessWidget {
                 width: 140,
                 child: LibraryCoverImage(
                   title: dto.title,
-                  itemNumber: adapter?.itemNumber,
+                  itemNumber: presentation.itemNumber,
                   imageUrl: dto.coverImageUrl,
                   targetCacheWidth: _targetCacheWidth(
                     context,
                     coverWidth: 140,
                   ),
-                  ownedItemId: resolvedOwnedItemId,
+                  ownedRef: resolvedOwnedRef,
                 ),
               ),
               const SizedBox(width: 20),
@@ -207,7 +206,7 @@ class LibraryDetailHero extends StatelessWidget {
                   ? creatorsList
                   : [
                       if (authorName != null)
-                        {'name': authorName, 'role': 'Author'}
+                        LibraryMetadataCredit(name: authorName, role: 'Author'),
                     ],
               accent: accent,
             ),
@@ -231,8 +230,8 @@ class LibraryDetailHero extends StatelessWidget {
 }
 
 int? _sumOwnedValueCents(
-  List<OwnedItem> items,
-  int? Function(OwnedItem item) selector,
+  List<OwnedItemSummary> items,
+  int? Function(OwnedItemSummary item) selector,
 ) {
   var hasValue = false;
   var total = 0;
@@ -248,9 +247,9 @@ int? _sumOwnedValueCents(
 }
 
 String? _detailHeroValueCurrency(
-  List<OwnedItem> ownedCopies,
-  OwnedItem? ownedItem,
-  LibraryProjectionRuntime item,
+  List<OwnedItemSummary> ownedCopies,
+  OwnedItemSummary? ownedItem,
+  LibraryProjectionView item,
 ) {
   for (final copy in ownedCopies) {
     final currency = copy.currency?.trim();
@@ -262,10 +261,7 @@ String? _detailHeroValueCurrency(
   if (ownedCurrency != null && ownedCurrency.isNotEmpty) {
     return ownedCurrency;
   }
-  final itemCurrency = (item.dto is WorkspaceDtoAdapter
-          ? (item.dto as WorkspaceDtoAdapter).currency
-          : null)
-      ?.trim();
+  final itemCurrency = libraryCardPresentationForEntry(item).currency?.trim();
   if (itemCurrency != null && itemCurrency.isNotEmpty) {
     return itemCurrency;
   }

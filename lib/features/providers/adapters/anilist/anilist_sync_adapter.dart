@@ -91,7 +91,9 @@ query {
     CatalogMediaKind? kind,
     ProviderAccountContext? context,
   }) async {
-    final type = kind == CatalogMediaKind.manga ? 'MANGA' : 'ANIME';
+    // Personal-list sync is provider-owned and only needs the protocol's
+    // collection discriminator. Catalog metadata stays in kind integrations.
+    final type = kind?.apiValue == 'manga' ? 'MANGA' : 'ANIME';
     const query = r'''
 query ($userName: String, $type: MediaType) {
   MediaListCollection(userName: $userName, type: $type) {

@@ -6,7 +6,6 @@ abstract final class LibraryPageShellPresenter {
     BuildContext context,
   ) {
     final shelf = state.ref.watch(shelfProvider);
-    final ownedCopiesValue = state.ref.watch(collectionProvider);
     final wishlistValue = state.ref.watch(wishlistProvider);
     final switchSnapshot = state.widget.switchLayoutSnapshot;
     final baseViewState = state._viewState ?? state._viewProfile.defaults();
@@ -14,7 +13,6 @@ abstract final class LibraryPageShellPresenter {
         ? baseViewState
         : baseViewState.withLayoutSnapshot(switchSnapshot);
     final shelfState = shelf.asData?.value;
-    final allOwnedCopies = state._activeOwnedCopies(ownedCopiesValue);
     final allWishlistItems = state._activeWishlistItems(wishlistValue);
     final projection = shelfState == null
         ? null
@@ -69,7 +67,16 @@ abstract final class LibraryPageShellPresenter {
                             state._projectionForShelf(stateValue, viewState),
                         viewState,
                         shelfState: stateValue,
-                        allOwnedCopies: allOwnedCopies,
+                        allOwnedCopies: [
+                          for (final item in (projection ??
+                                  state._projectionForShelf(
+                                    stateValue,
+                                    viewState,
+                                  ))
+                              .allItems)
+                            if (item.source.ownedSummary case final owned?)
+                              owned,
+                        ],
                         allWishlistItems: allWishlistItems,
                       ),
                       error: (error, _) => AppErrorCard(
@@ -107,10 +114,10 @@ abstract final class LibraryPageShellPresenter {
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
     required ShelfState shelfState,
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
-    final runtime = state.widget.type;
+    final kindModule = state.widget.type;
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
@@ -216,23 +223,31 @@ abstract final class LibraryPageShellPresenter {
       onGroupModeChanged: state._setGroupMode,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) => stateValue.withSortColumn(
-          runtime.fields.decodeSortId(column),
+          libraryKindWorkspaceForKind(kindModule.kind)
+              .fields
+              .decodeSortId(column),
           state._viewProfile,
         ),
       ),
       onColumnWidthChanged: (column, width) => state._updateViewState(
         (stateValue) => stateValue.withColumnWidth(
-          runtime.fields.decodeColumnId(column),
+          libraryKindWorkspaceForKind(kindModule.kind)
+              .fields
+              .decodeColumnId(column),
           width,
           state._viewProfile,
         ),
       ),
       onColumnReordered: (column, beforeColumn) => state._updateViewState(
         (stateValue) => stateValue.withReorderedColumn(
-          column: runtime.fields.decodeColumnId(column),
+          column: libraryKindWorkspaceForKind(kindModule.kind)
+              .fields
+              .decodeColumnId(column),
           beforeColumn: beforeColumn == null
               ? null
-              : runtime.fields.decodeColumnId(beforeColumn),
+              : libraryKindWorkspaceForKind(kindModule.kind)
+                  .fields
+                  .decodeColumnId(beforeColumn),
         ),
       ),
       onCoverSizeChanged: (size) => state._updateViewState(
@@ -387,12 +402,14 @@ abstract final class LibraryPageShellPresenter {
                 .allows(LibraryToolbarActionId.readingQueue)
             ? state._dialogCoordinator.showReadingQueueFlow
             : null,
-        onEditConditionPickList: state.widget.type.edit.hasConditionPickList
-            ? state._dialogCoordinator.showConditionPickListEditorFlow
-            : null,
-        onEditGradePickList: state.widget.type.edit.hasGradePickList
-            ? state._dialogCoordinator.showGradePickListEditorFlow
-            : null,
+        onEditConditionPickList:
+            state.widget.type.editPresentation.hasConditionPickList
+                ? state._dialogCoordinator.showConditionPickListEditorFlow
+                : null,
+        onEditGradePickList:
+            state.widget.type.editPresentation.hasCollectionValuePickList
+                ? state._dialogCoordinator.showGradePickListEditorFlow
+                : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
         onTransferFieldData: state._hasOwnedItemsInProjection(projection)
             ? () =>

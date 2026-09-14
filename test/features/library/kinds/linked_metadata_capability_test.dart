@@ -1,18 +1,20 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/anime/anime_kind_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   test('kind runtime projects linked metadata from typed catalog values', () {
-    const metadata = ComicCatalogMetadata(
+    const metadata = ComicMedia(
       title: 'Common Title',
       searchAliases: ['Alias'],
       seriesTitle: 'Typed Series',
@@ -25,10 +27,14 @@ void main() {
       ],
       genres: ['Typed Genre'],
     );
-    final candidates = libraryKindRuntimeForKind(CatalogMediaKind.comic)
+    final candidates = libraryKindRegistrationForKind(CatalogMediaKind.comic)
         .linkedMetadata
         .candidatesForEntry(
-          _shelfEntry(CatalogMediaKind.comic, metadata),
+          _shelfEntry(
+            CatalogMediaKind.comic,
+            metadata,
+            title: 'Common Title',
+          ),
         )
         .toList();
 
@@ -48,16 +54,16 @@ void main() {
     );
   });
 
-  test('typed capability ignores incompatible metadata runtimes', () {
-    const capability =
-        TypedLibraryLinkedMetadataCapability<ComicCatalogMetadata>(
+  test('typed capability ignores invalid metadata runtimes', () {
+    const capability = TypedLibraryLinkedMetadataCapability<ComicMedia>(
+      _comicMetadataReader,
       _comicPublisher,
     );
     final candidates = capability
         .candidatesForEntry(
           _shelfEntry(
             CatalogMediaKind.game,
-            const EmptyKindMetadata(CatalogMediaKind.game),
+            const Object(),
           ),
         )
         .toList();
@@ -70,19 +76,19 @@ void main() {
     final item = LibraryProjectionItem.fromShelf(
       _shelfEntry(
         CatalogMediaKind.comic,
-        const ComicCatalogMetadata(
+        const ComicMedia(
           title: 'Typed Comic',
           publisher: 'Typed Publisher',
         ),
       ),
-      comicKindModule,
+      const ComicRegistration(),
     );
 
     expect(
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'typed publisher',
-        comicKindModule,
+        const ComicRegistration(),
       ),
       isTrue,
     );
@@ -90,7 +96,7 @@ void main() {
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'missing publisher',
-        comicKindModule,
+        const ComicRegistration(),
       ),
       isFalse,
     );
@@ -103,38 +109,59 @@ void main() {
       producers: ['Aniplex'],
     );
     final entry = _shelfEntry(CatalogMediaKind.anime, metadata);
-    final candidates = libraryKindRuntimeForKind(CatalogMediaKind.anime)
+    final candidates = libraryKindRegistrationForKind(CatalogMediaKind.anime)
         .linkedMetadata
         .candidatesForEntry(entry)
         .toList();
 
     expect(candidates, containsAll(['Madhouse', 'Aniplex']));
 
-    final item = LibraryProjectionItem.fromShelf(entry, animeKindModule);
+    final item = LibraryProjectionItem.fromShelf(
+      entry,
+      const AnimeRegistration(),
+    );
     expect(
       libraryEntryMatchesLinkedMetadataFilter(
         item,
         'madhouse',
-        animeKindModule,
+        const AnimeRegistration(),
       ),
       isTrue,
     );
   });
 }
 
-Iterable<String?> _comicPublisher(ComicCatalogMetadata metadata) => [
+Iterable<String?> _comicPublisher(ComicMedia metadata) => [
       metadata.publisher,
     ];
 
-ShelfEntry _shelfEntry(
+ComicMedia? _comicMetadataReader(LibraryWorkspaceSource source) {
+  final data = source.catalogData;
+  return data is ComicWorkspaceCatalogData ? data.comic : null;
+}
+
+LibraryWorkspaceSource _shelfEntry(
   CatalogMediaKind kind,
-  LibraryKindMetadataRuntime metadata,
-) {
-  return ShelfEntry(
+  Object? metadata, {
+  String? title,
+}) {
+  final transport = CatalogItemDto(
+    identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
+    kindMetadata: metadata,
+  ).asShelfCatalogItem;
+  return LibraryWorkspaceSource(
     itemId: 'item-1',
-    catalogItem: LibraryMetadataItem(
-      identity: LibraryItemIdentity(id: 'item-1', mediaKind: kind),
-      kindMetadata: metadata,
-    ),
+    catalogSummary: title == null
+        ? null
+        : CatalogDisplaySummary.root(
+            kind: kind,
+            id: 'item-1',
+            title: title,
+          ),
+    catalogSearchTokens: [
+      transport.title,
+      ...?transport.searchAliases,
+    ],
+    catalogData: testWorkspaceCatalogData(transport),
   );
 }

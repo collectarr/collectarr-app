@@ -27,7 +27,7 @@ class LibraryProjectionRequest {
   });
 
   final ShelfState shelf;
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryWorkspaceViewState viewState;
   final LibraryWorkspaceBrowserMode browserMode;
   final String? releaseFolderTitleItemId;
@@ -45,7 +45,7 @@ class LibraryProjectionRequest {
   final Map<String, List<String>> customFieldValuesByItem;
   final Map<String, Map<String, String>> customFieldValuesByDefinitionByItem;
   final List<CustomFieldDefinition> customFieldDefinitions;
-  final Set<String> activeLoanOwnedItemIds;
+  final Set<OwnedItemRef> activeLoanOwnedItemIds;
   final LibrarySearchTarget searchTarget;
 
   @override

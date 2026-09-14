@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -225,9 +226,6 @@ final class LibrarySessionSelectionState {
   final Set<String> selectedIds;
   final String? anchorId;
 
-  /// Compatibility alias for [selectedIds].
-  Set<String> get itemIds => selectedIds;
-
   bool get isMultiSelecting => selectedIds.isNotEmpty;
   int get selectedCount => selectedIds.length;
 
@@ -281,9 +279,6 @@ final class LibrarySessionFolderState {
   final Set<String> treeExpandedNodeIds;
   final String? treeSelectedNodeId;
   final List<LibrarySidebarScopeSnapshot> scopeHistory;
-
-  /// Compatibility alias for [treeSelectedNodeId].
-  String? get selectedNodeId => treeSelectedNodeId;
 
   LibrarySessionFolderState copyWith({
     String? Function()? selectedBucket,
@@ -422,13 +417,13 @@ final class LibrarySessionAsyncState {
   final bool isLoading;
   final Object? error;
   final Set<String> detailHydrationInFlight;
-  final Set<String> activeLoanOwnedItemIds;
+  final Set<OwnedItemRef> activeLoanOwnedItemIds;
 
   LibrarySessionAsyncState copyWith({
     bool? isLoading,
     Object? Function()? error,
     Set<String>? detailHydrationInFlight,
-    Set<String>? activeLoanOwnedItemIds,
+    Set<OwnedItemRef>? activeLoanOwnedItemIds,
   }) {
     return LibrarySessionAsyncState(
       isLoading: isLoading ?? this.isLoading,

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -38,9 +38,8 @@ class LibrarySearchIndex {
 
     final tokens = <String>{};
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
+    final card = libraryCardPresentationForEntry(item);
     final source = item.source;
-    final catalog = source.catalogItem;
 
     void add(String? value) {
       if (value != null && value.trim().isNotEmpty) {
@@ -49,33 +48,26 @@ class LibrarySearchIndex {
     }
 
     add(dto.title);
-    add(adapter?.seriesTitle);
-    add(adapter?.itemNumber);
-    add(adapter?.publisher);
-    add(adapter?.variant);
-    add(adapter?.barcode);
-    if (adapter?.releaseDate != null) {
-      add(adapter!.releaseDate!.year.toString());
+    add(source.catalogSummary?.title);
+    add(source.catalogSummary?.subtitle);
+    for (final token in source.catalogSearchTokens) {
+      add(token);
     }
-    add(source.condition);
-    add(source.grade);
+    add(card.seriesTitle);
+    add(card.itemNumber);
+    add(card.variant);
+    add(card.format);
+    for (final token in dto.searchTokens) {
+      add(token);
+    }
+    if (card.releaseDate != null) {
+      add(card.releaseDate!.year.toString());
+    }
     add(source.locationPath);
 
-    if (catalog != null) {
-      add(catalog.originalTitle);
-      add(catalog.displayTitle);
-      add(catalog.localizedTitle);
-      final aliases = catalog.searchAliases;
-      if (aliases != null) {
-        for (final alias in aliases) {
-          add(alias);
-        }
-      }
-    }
-
-    final ownedId = source.ownedItem?.id;
-    if (ownedId != null) {
-      final cfValues = customFieldValuesByItem[ownedId];
+    final ownedRefKey = source.ownedRef?.key;
+    if (ownedRefKey != null) {
+      final cfValues = customFieldValuesByItem[ownedRefKey];
       if (cfValues != null) {
         for (final v in cfValues) {
           add(v);

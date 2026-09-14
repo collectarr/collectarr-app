@@ -2,12 +2,12 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_action_service.dart';
 import 'package:collectarr_app/features/library/add/services/library_provider_orchestration_service.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class LibraryAddProposalFlowService {
   Future<void> proposeCandidate({
     required BuildContext context,
     required ApiClient api,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required ProviderCandidate candidate,
     required LibraryProviderActionService providerActionService,
     required LibraryProviderOrchestrationService orchestrationService,
@@ -88,7 +88,7 @@ class LibraryAddProposalFlowService {
       setError(null);
     });
     try {
-      final proposalItem = result.item;
+      final proposalItem = result.kindItem;
       await providerActionService.proposeMetadata(
         api: api,
         type: type,
@@ -106,7 +106,7 @@ class LibraryAddProposalFlowService {
       Navigator.of(context).pop(
         LibraryAddDialogResult(
           target: LibraryAddTarget.track,
-          itemIds: [result.item.id],
+          itemIds: [result.kindItem.id],
         ),
       );
     } catch (error) {

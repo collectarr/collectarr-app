@@ -2,14 +2,14 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_units_cache_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:drift/native.dart';
@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late LocalDatabase db;
-  late CatalogCacheRepository catalogCache;
+  late CatalogTransportRepository catalogCache;
   late WishlistItemsCacheRepository wishlistRepo;
   late SyncQueueRepository syncQueue;
   late WishlistMutations wishlistMutations;
@@ -25,7 +25,7 @@ void main() {
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
-    catalogCache = CatalogCacheRepository(db);
+    catalogCache = CatalogTransportRepository(db);
     wishlistRepo = WishlistItemsCacheRepository(db);
     syncQueue = SyncQueueRepository(db);
     final runner = CollectionMutationRunner(
@@ -35,18 +35,15 @@ void main() {
 
     wishlistMutations = WishlistMutations(
       wishlist: wishlistRepo,
-      catalogCache: catalogCache,
-      trackingEntries: TrackingEntriesCacheRepository(db),
-      trackingUnits: TrackingUnitsCacheRepository(db),
+      catalogTransport: catalogCache,
       syncQueue: syncQueue,
       mutationRunner: runner,
     );
 
     ownedMutations = OwnedItemMutations(
-      ownedItems: OwnedItemsCacheRepository(db),
-      catalogCache: catalogCache,
+      ownedItems: OwnedItemsRepository(db),
+      catalogSummaries: CatalogDisplaySummaryRepository(db),
       wishlist: wishlistRepo,
-      trackingEntries: TrackingEntriesCacheRepository(db),
       syncQueue: syncQueue,
       mutationRunner: runner,
     );
@@ -60,7 +57,7 @@ void main() {
     test(
         'resolved catalog item in cache retains its own kind on wishlist mutation',
         () async {
-      await catalogCache.upsertAll([
+      await catalogCache.upsertTransportItems([
         testCatalogItem(
           id: 'movie-100',
           kind: 'movie',
@@ -68,7 +65,9 @@ void main() {
         ),
       ]);
 
-      await wishlistMutations.addToWishlist('movie-100');
+      await wishlistMutations.addToWishlist(
+        testCatalogRef('movie-100', kind: 'movie'),
+      );
 
       final changes = await syncQueue.listPending();
       final wishlistChange = changes.firstWhere(
@@ -80,11 +79,11 @@ void main() {
       expect(catalogRef['kind'], isNot('comic'));
     });
 
-    test('explicit fallbackKind is respected when item is not in catalog cache',
+    test(
+        'explicit catalog reference resolves an item absent from catalog cache',
         () async {
       await wishlistMutations.addToWishlist(
-        'game-500',
-        fallbackKind: 'game',
+        testCatalogRef('game-500', kind: 'game'),
       );
 
       final changes = await syncQueue.listPending();
@@ -98,10 +97,12 @@ void main() {
     });
 
     test(
-        'missing catalog item with no fallbackKind throws StateError and never defaults to comic',
+        'missing catalog item with an unknown reference kind throws StateError',
         () async {
       expect(
-        () => wishlistMutations.addToWishlist('unknown-unseeded-item'),
+        () => wishlistMutations.addToWishlist(
+          testCatalogRef('unknown-unseeded-item'),
+        ),
         throwsStateError,
       );
     });
@@ -110,19 +111,19 @@ void main() {
         'addOwnedItem with missing catalog cache item uses command catalogRef kind and never defaults to comic',
         () async {
       final owned = await ownedMutations.addOwnedItem(
-        const AddOwnedItemCommand(
+        typedAddOwnedItemCommand(
           catalogRef: CatalogEntityRef(
-            kind: 'music',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.music,
+            entityType: const CatalogEntityTypeId('work'),
             id: 'music-album-1',
           ),
-          common: OwnedItemCommonDraft(),
+          common: LibraryAddCommonDraft(),
           details: MusicOwnedDetailsDraft(),
         ),
       );
 
-      expect(owned.catalogRef.kind, 'music');
-      expect(owned.catalogRef.kind, isNot('comic'));
+      expect(owned.kind, CatalogMediaKind.music);
+      expect(owned.kind, isNot(CatalogMediaKind.comic));
     });
   });
 }

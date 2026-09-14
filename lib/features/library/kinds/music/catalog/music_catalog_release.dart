@@ -34,8 +34,9 @@ class MusicDiscRef {
   final List<MusicTrackRef> tracks;
 }
 
-class MusicRelease {
-  const MusicRelease({
+/// Music catalog release projection used by the Music workspace bridge.
+class MusicCatalogRelease {
+  const MusicCatalogRelease({
     required this.id,
     required this.title,
     this.artist,
@@ -65,7 +66,7 @@ class MusicRelease {
   final List<MusicDiscRef> discs;
   final List<MusicTrackRef> tracks;
 
-  // Extended getters for compatibility with inspector and server compare
+  // Presentation getters used by Music inspector and server compare.
   bool? get isLive => null;
   String? get frontCoverUrl => coverImageUrl;
   String? get backCoverUrl => null;
@@ -85,5 +86,5 @@ class MusicRelease {
   int? get rpm => null;
   List<MusicDiscRef> get media => discs;
   List<Map<String, dynamic>> get creators => const <Map<String, dynamic>>[];
-  List<CatalogDisc> get discsAsCatalog => const <CatalogDisc>[];
+  List<CatalogDiscDto> get discsAsCatalog => const <CatalogDiscDto>[];
 }

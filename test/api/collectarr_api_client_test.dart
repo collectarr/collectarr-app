@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
-import 'package:collectarr_app/core/models/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -170,6 +171,32 @@ void main() {
         expect(results[0]['title'], 'Batman #1');
         expect(results[1]['title'], 'Batman #2');
       });
+
+      test('returns compact typed search hits', () async {
+        final interceptor = _FakeApiInterceptor();
+        interceptor.onGet('/search', [
+          {
+            'id': 'movie-1',
+            'title': 'Arrival',
+            'kind': 'movie',
+            'summary': 'A linguist meets visitors.',
+            'image_url': 'https://example.test/arrival.jpg',
+            'payload': {'not': 'part of a search hit'},
+          },
+        ]);
+        final client = _createTestClient(interceptor);
+
+        final hits = await client.searchHits(
+          'Arrival',
+          kind: CatalogMediaKind.movie,
+        );
+
+        expect(hits, hasLength(1));
+        expect(hits.single.title, 'Arrival');
+        expect(hits.single.kind, CatalogMediaKind.movie);
+        expect(hits.single.ref.id, 'movie-1');
+        expect(hits.single.toJson().containsKey('payload'), isFalse);
+      });
     });
 
     group('catalog transport dtos', () {
@@ -190,8 +217,10 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        final dto =
-            await client.getTypedMetadataItem(kind: 'book', id: 'item-1');
+        final dto = await client.getTypedMetadataItem(
+          kind: CatalogMediaKind.book,
+          id: 'item-1',
+        );
 
         expect(dto.id, 'item-1');
         expect(dto.title, 'The Sample Book');
@@ -272,19 +301,29 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        expect(await client.getTypedMetadataItem(kind: 'comic', id: 'comic-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.comic, id: 'comic-1'),
             isA<ComicWorkDto>());
-        expect(await client.getTypedMetadataItem(kind: 'manga', id: 'manga-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.manga, id: 'manga-1'),
             isA<MangaWorkDto>());
-        expect(await client.getTypedMetadataItem(kind: 'anime', id: 'anime-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.anime, id: 'anime-1'),
             isA<AnimeSeriesDto>());
-        expect(await client.getTypedMetadataItem(kind: 'movie', id: 'movie-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.movie, id: 'movie-1'),
             isA<MovieWorkDto>());
-        expect(await client.getTypedMetadataItem(kind: 'tv', id: 'tv-1'),
+        expect(
+            await client.getTypedMetadataItem(
+                kind: CatalogMediaKind.tv, id: 'tv-1'),
             isA<TvSeriesDto>());
       });
 
-      test('uses typed volume and TV season routes when kind is known',
+      test('uses typed manga work and TV season routes when kind is known',
           () async {
         final interceptor = _FakeApiInterceptor();
         interceptor.onGet('/metadata/manga/works/manga-1', {
@@ -331,10 +370,8 @@ void main() {
         });
         final client = _createTestClient(interceptor);
 
-        expect(
-          await client.getItemVolumes('manga-1', kind: 'manga'),
-          hasLength(1),
-        );
+        final manga = await client.getMangaWorkDto('manga-1');
+        expect(manga.chapters, hasLength(1));
         expect(
           await client.getTvSeriesSeasonsDto('tv-1'),
           hasLength(1),

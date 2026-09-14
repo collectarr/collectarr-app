@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
-import 'package:collectarr_app/features/library/config/presentation/default_library_edit_presentation_builder.dart';
+import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
@@ -211,9 +211,20 @@ const _musicCombinedTabs = [
 ];
 
 class MusicLibraryCombinedEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const MusicLibraryCombinedEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _musicCombinedTabs,
           trackedTabs: _musicCombinedTabs,
           catalogTabs: _musicCombinedTabs,
@@ -222,37 +233,42 @@ class MusicLibraryCombinedEditPresentationBuilder
 }
 
 class MusicLibraryReleaseEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const MusicLibraryReleaseEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _musicReleaseTabs,
           trackedTabs: _musicReleaseTabs,
           catalogTabs: _musicReleaseTabs,
           customTabBuilder: buildMusicCustomTabView,
         );
-
-  @override
-  LibraryEditFooterSpec buildFooter({
-    required LibraryEditPresentationContext context,
-  }) {
-    return LibraryEditFooterSpec(
-      label: context.isOwned
-          ? 'Music catalog + collection'
-          : context.isTrackingOnly
-              ? 'Music catalog + tracking'
-              : 'Music catalog snapshot',
-      fieldIds: [
-        'title_sort',
-        if (context.isOwned) 'user_tags',
-      ],
-    );
-  }
 }
 
 class MusicLibraryMediaEditPresentationBuilder
-    extends DefaultLibraryEditPresentationBuilder {
+    extends LibraryEditPresentationBuilderBase {
   const MusicLibraryMediaEditPresentationBuilder()
       : super(
+          showOwnershipReferenceSection: true,
+          useOwnedMainArtworkLayout: false,
+          useDetailsTab: false,
+          useArtworkCoverTab: false,
+          useArtworkPhotosTab: false,
+          trackingSectionTitle: 'Tracking edition',
+          ownedDigitalTrackingSectionTitle: 'Ownership details',
+          ownedDigitalTrackingHint:
+              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
+          ownershipReferenceTitle: 'Ownership reference',
+          ownedBundleLabel: 'Owned bundle',
           ownedTabs: _musicMediaTabs,
           trackedTabs: _musicMediaTabs,
           catalogTabs: _musicMediaTabs,

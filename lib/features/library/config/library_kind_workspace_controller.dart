@@ -1,8 +1,8 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_kind_drilldown.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:flutter/material.dart';
@@ -18,16 +18,16 @@ class LibraryKindWorkspaceController
 
   @override
   bool canOpenItemDetailDrilldown(
-    LibraryKindRuntime type,
-    LibraryProjectionRuntime item,
+    LibraryKindRegistration type,
+    LibraryProjectionView item,
   ) {
     return canOpenKindDrilldown(type, item);
   }
 
   @override
   void openItemDetailDrilldown(
-    LibraryKindRuntime type,
-    LibraryProjectionRuntime item,
+    LibraryKindRegistration type,
+    LibraryProjectionView item,
   ) {
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
@@ -38,14 +38,14 @@ class LibraryKindWorkspaceController
   @override
   Widget? buildWorkspaceOverride({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryProjection projection,
-    required LibraryProjectionRuntime selectedItem,
+    required LibraryProjectionView selectedItem,
     required LibraryWorkspaceViewState viewState,
     required Color accent,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> allOwnedCopies,
+    required List<OwnedItemSummary> allOwnedCopies,
     required List<WishlistItem> allWishlistItems,
   }) {
     if (!canOpenKindDrilldown(type, selectedItem)) {

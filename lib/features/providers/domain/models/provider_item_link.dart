@@ -18,6 +18,25 @@ final class ProviderItemLink {
     this.metadata = const {},
   });
 
+  factory ProviderItemLink.fromImportedEntry({
+    required String accountId,
+    ProviderId? provider,
+    required CatalogEntityRef localEntityRef,
+    required ProviderPersonalEntry entry,
+    DateTime? linkedAt,
+  }) {
+    return ProviderItemLink(
+      accountId: accountId,
+      provider: provider ?? entry.provider,
+      remoteItemId: entry.remoteItemId,
+      remoteEntryId: entry.remoteEntryId,
+      localEntityRef: localEntityRef,
+      baseSnapshot: entry,
+      lastPulledAt: linkedAt ?? DateTime.now().toUtc(),
+      remoteRevision: entry.remoteRevision,
+    );
+  }
+
   final String accountId;
   final ProviderId provider;
   final String remoteItemId;
@@ -60,10 +79,7 @@ final class ProviderItemLink {
         'provider': provider.value,
         'remoteItemId': remoteItemId,
         if (remoteEntryId != null) 'remoteEntryId': remoteEntryId,
-        'localEntityRef': {
-          'id': localEntityRef.id,
-          'kind': localEntityRef.kind,
-        },
+        'localEntityRef': localEntityRef.toJson(),
         if (baseSnapshot != null) 'baseSnapshot': baseSnapshot!.toJson(),
         if (lastPulledAt != null)
           'lastPulledAt': lastPulledAt!.toIso8601String(),
@@ -83,8 +99,8 @@ final class ProviderItemLink {
       remoteEntryId: json['remoteEntryId']?.toString(),
       localEntityRef: CatalogEntityRef(
         id: refMap['id']?.toString() ?? '',
-        kind: refMap['kind']?.toString() ?? '',
-        entityType: CatalogEntityType.fromApiValue(
+        kind: catalogMediaKindFromApiValue(refMap['kind']?.toString()),
+        entityType: CatalogEntityTypeId.fromApiValue(
           refMap['entityType']?.toString() ?? refMap['entity_type']?.toString(),
         ),
       ),

@@ -4,16 +4,18 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/pick_list_repository.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/serial/authority/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +39,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final db = LocalDatabase(NativeDatabase.memory());
-    final catalog = CatalogCacheRepository(db);
+    final catalog = CatalogTransportRepository(db);
     final pickLists = PickListRepository(db);
     final seriesRegistry = SerialAuthorityRepository(db);
     addTearDown(db.close);
@@ -62,8 +64,19 @@ void main() {
         ),
       ),
     ];
-    await catalog.upsertAll(catalogItems);
-    await seriesRegistry.captureCatalogItems(catalogItems);
+    await catalog.upsertTransportItems(catalogItems);
+    await seriesRegistry.captureCandidatesWithoutTransaction([
+      const SerialAuthorityCandidate(
+        mediaKind: CatalogMediaKind.comic,
+        title: 'Saga',
+        coreSeriesId: 'series-1',
+      ),
+      const SerialAuthorityCandidate(
+        mediaKind: CatalogMediaKind.comic,
+        title: 'Over the Garden Wall',
+        coreSeriesId: 'series-2',
+      ),
+    ]);
     await pickLists.setValues(
       ComicVocabularyIds.crossover.value,
       ['Annihilation', 'Image United'],
@@ -74,8 +87,8 @@ void main() {
       ['Opening', 'Finale'],
       mediaKind: 'comic',
     );
-    final type = comicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
@@ -130,12 +143,10 @@ void main() {
       purchaseStore: 'Old Shop',
       updatedAt: DateTime.utc(2026, 5, 30),
     );
-    final trackingEntry = TrackingEntry(
+    final trackingRecord = ComicTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('comic-1', kind: 'comic'),
-      ownedItemId: 'owned-1',
-      editionId: 'edition-1',
-      variantId: 'variant-1',
+      ownedRef: OwnedItemRef.fromKey('comic:owned-1'),
       sourceType: 'physical',
       status: 'Reading',
       rating: 7,
@@ -151,7 +162,7 @@ void main() {
     );
     final customValue = CustomFieldValue(
       id: 'cfv-1',
-      targetId: 'owned-1',
+      targetId: 'comic:owned-1',
       targetScope: CustomFieldTargetScope.ownedCopy,
       fieldDefinitionId: 'cf-1',
       value: 'First print',
@@ -159,9 +170,9 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: item,
-      ownedItem: ownedItem,
-      trackingEntry: trackingEntry,
+      item: CatalogSearchCandidate.fromItem(item),
+      ownedItem: testOwnedSummary(ownedItem),
+      trackingSummary: trackingSummaryFromRecord(trackingRecord),
       accent: Colors.red,
       customFieldDefinitions: [customField],
       customFieldValues: [customValue],
@@ -292,8 +303,8 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(selection, isNotNull);
-    final savedItem = selection!.item;
-    final payload = savedItem.payload;
+    final savedItem = selection!.kindItem;
+    final payload = savedItem.mapTransport((transport) => transport.payload);
     expect(savedItem.title, 'Over the Garden Wall');
     expect(payload['crossover'], 'Image United');
     expect(payload['story_arcs'], ['Finale']);
@@ -303,12 +314,14 @@ void main() {
     expect(payload['genres'], ['Sci-Fi']);
     expect(DateTime.tryParse(payload['cover_date'] as String),
         DateTime(2026, 1, 1));
-    expect(savedItem.trailerUrls, hasLength(2));
-    expect(savedItem.trailerUrls.first.url, 'https://example.com/original');
-    expect(savedItem.trailerUrls.first.title, 'Original link');
-    expect(savedItem.trailerUrls.last.url, 'https://example.com/review');
-    expect(savedItem.trailerUrls.last.title, 'Review');
-    expect(savedItem.trailerUrls.last.isAutomatic, isFalse);
+    final trailers =
+        savedItem.mapTransport((transport) => transport.trailerUrls);
+    expect(trailers, hasLength(2));
+    expect(trailers.first.url, 'https://example.com/original');
+    expect(trailers.first.title, 'Original link');
+    expect(trailers.last.url, 'https://example.com/review');
+    expect(trailers.last.title, 'Review');
+    expect(trailers.last.isAutomatic, isFalse);
     expect(selection!.customFieldEdits, {'cf-1': 'Signed in person'});
   });
 
@@ -321,8 +334,8 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    final type = comicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-restore-order',
         kind: 'comic',
@@ -340,8 +353,8 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: item,
-      ownedItem: ownedItem,
+      item: CatalogSearchCandidate.fromItem(item),
+      ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
     );
 
@@ -407,8 +420,8 @@ void main() {
     const imageBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aS1cAAAAASUVORK5CYII=';
 
-    final type = comicKindModule;
-    final item = LibraryMetadataItem.fromCatalogItem(
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'comic-2',
         kind: 'comic',
@@ -433,8 +446,8 @@ void main() {
     );
     final request = LibraryEditDialogRequest(
       type: type,
-      item: item,
-      ownedItem: ownedItem,
+      item: CatalogSearchCandidate.fromItem(item),
+      ownedItem: testOwnedSummary(ownedItem),
       accent: Colors.red,
       customFieldDefinitions: [customField],
     );

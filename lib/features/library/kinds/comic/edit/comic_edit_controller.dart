@@ -1,7 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:flutter/material.dart';
 
@@ -66,7 +67,7 @@ class ComicEditController {
         releaseYearController = TextEditingController(
             text: item.releaseDate?.year.toString() ?? '');
 
-  final ComicCatalogMetadata item;
+  final ComicMedia item;
   final List<ItemImage> itemImages;
 
   final TextEditingController crossoverController;
@@ -176,8 +177,11 @@ class ComicEditController {
         .where((s) => s.isNotEmpty)
         .toList();
 
-    final currentMeta = selection.item.kindMetadata is ComicCatalogMetadata
-        ? selection.item.kindMetadata as ComicCatalogMetadata
+    final currentMeta = selection.kindItem
+            .mapTransport((transport) => transport)
+            .kindMetadata is ComicMedia
+        ? selection.kindItem.mapTransport((transport) => transport).kindMetadata
+            as ComicMedia
         : item;
 
     final updatedSeries = (currentMeta.series != null ||
@@ -208,6 +212,7 @@ class ComicEditController {
         : null;
 
     final updatedMeta = currentMeta.copyWith(
+      title: emptyToNull(seriesTitleController.text) ?? currentMeta.title,
       crossover: emptyToNull(crossoverController.text),
       storyArcs:
           parsedStoryArcs.isNotEmpty ? parsedStoryArcs : currentMeta.storyArcs,
@@ -236,10 +241,12 @@ class ComicEditController {
           : null,
     );
 
-    final updatedItem = selection.item.copyWith(
-      kindMetadata: updatedMeta,
+    final updatedItem = selection.kindItem.mapTransport(
+      (transport) => CatalogSearchCandidate.fromItem(
+        transport.withKindMetadata(updatedMeta),
+      ),
     );
-    final withMetadata = selection.copyWith(item: updatedItem);
+    final withMetadata = selection.copyWith(kindItem: updatedItem);
     return applyComicSelectionEdits(
       withMetadata,
       creators,

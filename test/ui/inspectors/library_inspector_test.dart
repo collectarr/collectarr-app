@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
@@ -8,8 +9,8 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/inspector/inspector_item_images_section.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
@@ -41,7 +42,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorHero(
-              type: bookKindModule,
+              type: const BookRegistration(),
               item: testProjectionItem(
                 id: 'book-hero-1',
                 kind: 'book',
@@ -78,22 +79,21 @@ void main() {
           home: Scaffold(
             body: ComicInspectorHero(
               request: LibraryInspectorRequest(
-                type: comicKindModule,
+                type: const ComicRegistration(),
                 item: testProjectionItem(
                   id: 'comic-hero-1',
                   kind: 'comic',
                   title: 'The Last Ronin',
                   barcode: '82771402051700111',
                 ),
-                ownedItem: testOwnedItem(
+                ownedItem: testOwnedSummary(testOwnedItem(
                   id: 'owned-comic-hero-1',
                   itemId: 'comic-hero-1',
                   isDigital: false,
                   condition: 'Near Mint',
                   grade: '9.8',
                   updatedAt: DateTime.utc(2026, 5, 23),
-                ),
-                trackingEntry: null,
+                )),
                 accent: Colors.red,
               ),
             ),
@@ -126,21 +126,20 @@ void main() {
                   width: 664,
                   child: ComicInspectorHero(
                     request: LibraryInspectorRequest(
-                      type: comicKindModule,
+                      type: const ComicRegistration(),
                       item: testProjectionItem(
                         id: 'comic-hero-narrow-1',
                         kind: 'comic',
                         title: 'The Last Ronin',
                       ),
-                      ownedItem: testOwnedItem(
+                      ownedItem: testOwnedSummary(testOwnedItem(
                         id: 'owned-comic-hero-narrow-1',
                         itemId: 'comic-hero-narrow-1',
                         isDigital: false,
                         condition: 'Near Mint',
                         grade: '9.8',
                         updatedAt: DateTime.utc(2026, 5, 23),
-                      ),
-                      trackingEntry: null,
+                      )),
                       accent: Colors.red,
                     ),
                   ),
@@ -161,8 +160,29 @@ void main() {
   testWidgets('library inspector uses the comic-specific full panel hook', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(900, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    final ownedItem = testOwnedItem(
+      id: 'owned-comic-hero-2',
+      itemId: 'comic-hero-2',
+      kind: 'comic',
+      isDigital: false,
+      condition: 'Near Mint',
+      grade: '9.8',
+      coverPriceCents: 899,
+      marketValueCents: 2499,
+      pricePaidCents: 1299,
+      rawOrSlabbed: 'Slabbed',
+      gradingCompany: 'CGC',
+      certificationNumber: '1234567890',
+      keyComic: true,
+      keyReason: 'First print finale',
+      updatedAt: DateTime.utc(2026, 5, 23),
+    );
 
     await tester.pumpWidget(
       ProviderScope(
@@ -170,28 +190,35 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryInspector(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               item: testProjectionItem(
                 id: 'comic-hero-2',
                 kind: 'comic',
                 title: 'The Last Ronin',
+                ownedItem: ownedItem,
               ),
-              ownedItem: testOwnedItem(
-                id: 'owned-comic-hero-2',
-                itemId: 'comic-hero-2',
-                isDigital: false,
-                condition: 'Near Mint',
-                grade: '9.8',
-                coverPriceCents: 899,
-                marketValueCents: 2499,
-                pricePaidCents: 1299,
-                rawOrSlabbed: 'Slabbed',
-                gradingCompany: 'CGC',
-                certificationNumber: '1234567890',
-                keyComic: true,
-                keyReason: 'First print finale',
-                updatedAt: DateTime.utc(2026, 5, 23),
+              ownedItem: testOwnedSummary(ownedItem),
+              ownedItemDispatch: testComicOwnedItemDispatchFrom(
+                testComicOwnedItemFrom(ownedItem),
               ),
+              ownedCopies: [
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-comic-hero-2',
+                  itemId: 'comic-hero-2',
+                  isDigital: false,
+                  condition: 'Near Mint',
+                  grade: '9.8',
+                  coverPriceCents: 899,
+                  marketValueCents: 2499,
+                  pricePaidCents: 1299,
+                  rawOrSlabbed: 'Slabbed',
+                  gradingCompany: 'CGC',
+                  certificationNumber: '1234567890',
+                  keyComic: true,
+                  keyReason: 'First print finale',
+                  updatedAt: DateTime.utc(2026, 5, 23),
+                )),
+              ],
               accent: Colors.red,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -221,23 +248,23 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-comic-1',
-            itemId: 'comic-multi-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-comic-2',
-            itemId: 'comic-multi-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
-    OwnedItem? editedOwnedItem;
+    await ComicOwnedRepository(db).upsertAll([
+      testComicOwnedItemFrom(testOwnedItem(
+        id: 'owned-comic-1',
+        itemId: 'comic-multi-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      )),
+      testComicOwnedItemFrom(testOwnedItem(
+        id: 'owned-comic-2',
+        itemId: 'comic-multi-1',
+        kind: 'comic',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      )),
+    ]);
+    OwnedItemSummary? editedOwnedItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -245,18 +272,32 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryInspector(
-              type: comicKindModule,
+              type: const ComicRegistration(),
               item: testProjectionItem(
                 id: 'comic-multi-1',
                 kind: 'comic',
                 title: 'The Last Ronin',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-comic-1',
                 itemId: 'comic-multi-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
+              ownedCopies: [
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-comic-1',
+                  itemId: 'comic-multi-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                )),
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-comic-2',
+                  itemId: 'comic-multi-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                )),
+              ],
               accent: Colors.red,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -287,7 +328,7 @@ void main() {
             body: BookInspectorPanel(
               request: LibraryInspectorPanelRequest(
                 inspector: LibraryInspectorRequest(
-                  type: bookKindModule,
+                  type: const BookRegistration(),
                   item: testProjectionItem(
                     id: 'book-1',
                     kind: 'book',
@@ -295,13 +336,12 @@ void main() {
                   ),
                   ownedItem: null,
                   accent: Colors.blue,
-                  trackingEntry: null,
                 ),
                 hero: const SizedBox(height: 20),
                 primarySections: const [SizedBox.shrink()],
                 trailingSections: const [SizedBox.shrink()],
                 ownedCopies: const [],
-                selectedOwnedItemId: null,
+                selectedOwnedItemRef: null,
                 extraActions: const [Text('Extra action')],
                 onAddCopy: () {},
                 onOpenDetails: () {},
@@ -369,27 +409,34 @@ void main() {
     expect(find.text('Near Mint'), findsOneWidget);
   });
 
-  testWidgets('personal section shows cover price for non-comic items',
+  testWidgets('personal section shows cover price for Comic-owned details',
       (tester) async {
+    final ownedItem = testOwnedItem(
+      id: 'owned-1',
+      itemId: 'comic-1',
+      kind: 'comic',
+      purchaseDate: DateTime.utc(2026, 5, 11),
+      pricePaidCents: 1299,
+      coverPriceCents: 1599,
+      soldAt: DateTime.utc(2026, 5, 20),
+      sellPriceCents: 1899,
+      currency: 'USD',
+      updatedAt: DateTime.utc(2026, 5, 22),
+    );
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
+            type: const ComicRegistration(),
             item: testProjectionItem(
-              id: 'movie-1',
-              kind: 'movie',
-              title: 'Blade Runner 2049',
+              id: 'comic-1',
+              kind: 'comic',
+              title: 'Saga',
+              ownedItem: ownedItem,
             ),
-            ownedItem: testOwnedItem(
-              id: 'owned-1',
-              itemId: 'movie-1',
-              purchaseDate: DateTime.utc(2026, 5, 11),
-              pricePaidCents: 1299,
-              coverPriceCents: 1599,
-              soldAt: DateTime.utc(2026, 5, 20),
-              sellPriceCents: 1899,
-              currency: 'USD',
-              updatedAt: DateTime.utc(2026, 5, 22),
+            ownedItem: testOwnedSummary(ownedItem),
+            ownedItemDispatch: testComicOwnedItemDispatchFrom(
+              testComicOwnedItemFrom(ownedItem),
             ),
             accent: Colors.orange,
           ),
@@ -410,19 +457,20 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorPersonalSection(
+            type: const MovieRegistration(),
             item: testProjectionItem(
               id: 'movie-1',
               kind: 'movie',
               title: 'Blade Runner 2049',
             ),
-            ownedItem: testOwnedItem(
+            ownedItem: testOwnedSummary(testOwnedItem(
               id: 'owned-1',
               itemId: 'movie-1',
               isDigital: true,
               pricePaidCents: 1299,
               currency: 'USD',
               updatedAt: DateTime.utc(2026, 5, 22),
-            ),
+            )),
             accent: Colors.orange,
           ),
         ),
@@ -439,7 +487,7 @@ void main() {
   testWidgets('inspector action bar avoids overflow on narrow widths', (
     tester,
   ) async {
-    final type = bookKindModule;
+    const type = BookRegistration();
 
     await tester.pumpWidget(
       MaterialApp(
@@ -452,7 +500,11 @@ void main() {
                 id: 'book-1',
                 kind: 'book',
                 title: 'The Fellowship of the Ring',
-                ownedItem: testOwnedItem(id: 'owned-1', itemId: 'book-1'),
+                ownedItem: testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  kind: 'book',
+                ),
               ),
               onToggleOwned: () {},
               onToggleWishlist: () {},
@@ -490,7 +542,7 @@ void main() {
   testWidgets('book inspector hides the item images section', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    const type = BookRegistration();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -504,11 +556,11 @@ void main() {
                 kind: 'book',
                 title: 'The Two Towers',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
-              ),
+              )),
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -540,7 +592,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            ownedItemId: 'owned-1',
+            ownedRefKey: 'book:owned-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -549,7 +601,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            ownedItemId: 'owned-1',
+            ownedRefKey: 'book:owned-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -561,7 +613,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorItemImagesSection(
-              ownedItemId: 'owned-1',
+              ownedRef: OwnedItemRef.fromKey('book:owned-1'),
               db: db,
               accent: Colors.orange,
             ),
@@ -581,23 +633,23 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    const type = BookRegistration();
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      )),
+    ]);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -611,12 +663,26 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
+              ownedCopies: [
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                )),
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                )),
+              ],
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -640,24 +706,24 @@ void main() {
   testWidgets('inspector edit uses the selected copy', (tester) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
-    OwnedItem? editedOwnedItem;
+    const type = BookRegistration();
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      )),
+    ]);
+    OwnedItemSummary? editedOwnedItem;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -671,12 +737,26 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
+              ownedCopies: [
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                )),
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                )),
+              ],
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -694,7 +774,7 @@ void main() {
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
     await pumpUntilSettled(tester);
-    await tester.tap(find.textContaining('Very Fine').last);
+    await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);
 
     await tester.tap(
@@ -707,7 +787,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(editedOwnedItem?.id, 'owned-2');
+    expect(editedOwnedItem?.ref.id.value, 'owned-2');
   });
 
   testWidgets(
@@ -717,28 +797,28 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final type = bookKindModule;
+    const type = BookRegistration();
 
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'book-1',
-            condition: const Value('Near Mint'),
-            updatedAt: DateTime.utc(2026, 5, 23, 10),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-2',
-            itemId: 'book-1',
-            condition: const Value('Very Fine'),
-            updatedAt: DateTime.utc(2026, 5, 23, 11),
-          ),
-        );
+    await BookOwnedRepository(db).upsertAll([
+      testBookOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Near Mint',
+        updatedAt: DateTime.utc(2026, 5, 23, 10),
+      )),
+      testBookOwnedItemFrom(testOwnedItem(
+        id: 'owned-2',
+        itemId: 'book-1',
+        kind: 'book',
+        condition: 'Very Fine',
+        updatedAt: DateTime.utc(2026, 5, 23, 11),
+      )),
+    ]);
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-owned-2',
-            ownedItemId: 'owned-2',
+            ownedRefKey: 'book:owned-2',
             imageType: const Value('back_cover'),
             imageData: base64Decode('AQIDBA=='),
             createdAt: DateTime.utc(2026, 5, 23, 11),
@@ -757,12 +837,26 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
-              ),
+              )),
+              ownedCopies: [
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-1',
+                  itemId: 'book-1',
+                  condition: 'Near Mint',
+                  updatedAt: DateTime.utc(2026, 5, 23, 10),
+                )),
+                testOwnedSummary(testOwnedItem(
+                  id: 'owned-2',
+                  itemId: 'book-1',
+                  condition: 'Very Fine',
+                  updatedAt: DateTime.utc(2026, 5, 23, 11),
+                )),
+              ],
               accent: Colors.orange,
               onAddOwned: () {},
               onRemoveOwned: () {},
@@ -783,7 +877,7 @@ void main() {
 
     await tester.tap(find.byType(DropdownButtonFormField<String>).first);
     await pumpUntilSettled(tester);
-    await tester.tap(find.textContaining('Very Fine').last);
+    await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);
 
     expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);

@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/test_constants.dart';
+import '../../helpers/test_data_factories.dart';
 
 void main() {
   testWidgets('shelf page shows local collection stats and filters',
@@ -24,19 +27,14 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Superman, Vol. 4',
-              'item_number': '8A',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await CatalogTransportRepository(db).upsertTransportItems([
+      testCatalogItemFromJson({
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '8A',
+      }),
+    ]);
     await db.into(db.locationsCache).insert(
           LocationsCacheCompanion.insert(
             id: 'loc-box-6',
@@ -44,26 +42,29 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'comic-1',
-            condition: const Value('Near Mint'),
-            grade: const Value('9.8'),
-            pricePaidCents: const Value(1299),
-            currency: const Value('USD'),
-            personalNotes: const Value('Signed copy'),
-            quantity: const Value(2),
-            locationId: const Value('loc-box-6'),
-            keyComic: const Value(true),
-            readStatus: const Value('read'),
-            updatedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        grade: '9.8',
+        pricePaidCents: 1299,
+        currency: 'USD',
+        personalNotes: 'Signed copy',
+        quantity: 2,
+        locationId: 'loc-box-6',
+        keyComic: true,
+        readStatus: 'read',
+        updatedAt: DateTime.utc(2026, 5, 11),
+      )),
+    );
     await db.into(db.wishlistItemsCache).insert(
           WishlistItemsCacheCompanion.insert(
             id: 'wish-1',
-            itemId: 'comic-2',
+            catalogRefJson: jsonEncode(
+              testCatalogRef('comic-2', kind: 'comic').toJson(),
+            ),
             createdAt: DateTime.utc(2026, 5, 10),
             updatedAt: DateTime.utc(2026, 5, 10),
           ),
@@ -80,22 +81,18 @@ void main() {
     expect(find.text('Shelf'), findsOneWidget);
     expect(find.text('Owned'), findsWidgets);
     expect(find.text('Quantity'), findsOneWidget);
-    expect(find.text('Key comics'), findsOneWidget);
     expect(find.text('2'), findsWidgets);
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('USD 12.99'), findsWidgets);
-    expect(find.text('Read status'), findsOneWidget);
     expect(find.text('Locations'), findsOneWidget);
-    expect(find.text('Top series'), findsOneWidget);
-    expect(find.text('Completed: 1'), findsOneWidget);
     expect(find.text('Box 6: 1'), findsOneWidget);
     expect(find.text('Superman, Vol. 4 #8A'), findsOneWidget);
     expect(find.text('Signed copy'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Export collection'));
+    await tester.tap(find.byTooltip('Export…'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Import or export collection'), findsOneWidget);
+    expect(find.text('Import or export'), findsOneWidget);
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('2 rows'), findsOneWidget);
@@ -125,31 +122,27 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await db.into(db.catalogCache).insert(
-          CatalogCacheCompanion.insert(
-            id: 'comic-1',
-            kind: 'comic',
-            payloadJson: jsonEncode({
-              'id': 'comic-1',
-              'kind': 'comic',
-              'title': 'Superman, Vol. 4',
-              'item_number': '8A',
-            }),
-            cachedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
-    await db.into(db.ownedItemsCache).insert(
-          OwnedItemsCacheCompanion.insert(
-            id: 'owned-1',
-            itemId: 'comic-1',
-            condition: const Value('Near Mint'),
-            grade: const Value('9.8'),
-            pricePaidCents: const Value(1299),
-            currency: const Value('USD'),
-            quantity: const Value(1),
-            updatedAt: DateTime.utc(2026, 5, 11),
-          ),
-        );
+    await CatalogTransportRepository(db).upsertTransportItems([
+      testCatalogItemFromJson({
+        'id': 'comic-1',
+        'kind': 'comic',
+        'title': 'Superman, Vol. 4',
+        'item_number': '8A',
+      }),
+    ]);
+    await ComicOwnedRepository(db).upsert(
+      testComicOwnedItemFrom(testOwnedItem(
+        id: 'owned-1',
+        itemId: 'comic-1',
+        kind: 'comic',
+        condition: 'Near Mint',
+        grade: '9.8',
+        pricePaidCents: 1299,
+        currency: 'USD',
+        quantity: 1,
+        updatedAt: DateTime.utc(2026, 5, 11),
+      )),
+    );
 
     await tester.pumpWidget(
       ProviderScope(

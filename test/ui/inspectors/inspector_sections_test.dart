@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -6,11 +7,11 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_shared_sections.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   group('LibraryDetailSectionSpec', () {
@@ -82,15 +83,15 @@ void main() {
 
   group('InspectorMetadataSection', () {
     testWidgets('renders metadata section title', (tester) async {
-      final type = comicKindModule;
-      final source1 = ShelfEntry(
+      const type = ComicRegistration();
+      final source1 = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man #1',
           publisher: 'Marvel',
-        ),
+        ).asShelfCatalogItem),
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto1 = const ComicWorkspaceProjector()
@@ -113,15 +114,15 @@ void main() {
     });
 
     testWidgets('triggers onFilterByValue callback', (tester) async {
-      final type = comicKindModule;
-      final source2 = ShelfEntry(
+      const type = ComicRegistration();
+      final source2 = LibraryWorkspaceSource(
         itemId: 'comic-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Spider-Man #1',
           publisher: 'Marvel',
-        ),
+        ).asShelfCatalogItem),
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'comic-1');
       final dto2 = const ComicWorkspaceProjector()
@@ -148,13 +149,13 @@ void main() {
 
   group('InspectorPersonalSection', () {
     testWidgets('shows tracking status and rating', (tester) async {
-      final source0a = ShelfEntry(
+      final source0a = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem),
       );
       const node0a = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto0a = const GenericWorkspaceProjector()
@@ -165,8 +166,9 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: const BookRegistration(),
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 rating: 8,
@@ -174,13 +176,16 @@ void main() {
                 condition: 'Near Mint',
                 grade: '9.4',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
-              trackingEntry: TrackingEntry(
+              )),
+              trackingSummary: TrackingSummary(
                 id: 'track-1',
                 catalogRef: testCatalogRef('book-1', kind: 'book'),
+                status: MediaTrackingStatus.completed,
                 rating: 8,
-                progressCurrent: 412,
-                progressTotal: 412,
+                progress: const TrackingProgressSnapshot(
+                  current: 412,
+                  total: 412,
+                ),
                 updatedAt: DateTime.utc(2026, 5, 22),
               ),
               accent: Colors.blue,
@@ -193,13 +198,13 @@ void main() {
     });
 
     testWidgets('shows quantity when more than 1', (tester) async {
-      final source0b = ShelfEntry(
+      final source0b = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem),
       );
       const node0b = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto0b = const GenericWorkspaceProjector()
@@ -210,13 +215,14 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: const BookRegistration(),
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 quantity: 3,
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
               accent: Colors.blue,
             ),
           ),
@@ -228,13 +234,13 @@ void main() {
     });
 
     testWidgets('shows sold information when soldAt is set', (tester) async {
-      final source1 = ShelfEntry(
+      final source1 = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem),
       );
       const node1 = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto1 = const GenericWorkspaceProjector()
@@ -245,8 +251,9 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: const BookRegistration(),
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 pricePaidCents: 1000,
@@ -255,7 +262,7 @@ void main() {
                 sellPriceCents: 1500,
                 soldTo: 'Collector X',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
               accent: Colors.blue,
             ),
           ),
@@ -266,15 +273,15 @@ void main() {
       expect(find.text('Profit / Loss'), findsOneWidget);
     });
 
-    testWidgets('shows tags when present', (tester) async {
-      String? tappedValue;
-      final source2 = ShelfEntry(
+    testWidgets('leaves kind-owned tags to the typed contributor',
+        (tester) async {
+      final source2 = LibraryWorkspaceSource(
         itemId: 'book-1',
-        catalogItem: testCatalogItem(
+        catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Dune',
-        ),
+        ).asShelfCatalogItem),
       );
       const node2 = LibraryTitleNodeRef(titleItemId: 'book-1');
       final dto2 = const GenericWorkspaceProjector()
@@ -285,33 +292,28 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: InspectorPersonalSection(
+              type: const BookRegistration(),
               item: bookItem,
-              ownedItem: testOwnedItem(
+              ownedItem: testOwnedSummary(testOwnedItem(
                 id: 'owned-1',
                 itemId: 'book-1',
                 tags: 'sci-fi, classic',
                 updatedAt: DateTime.utc(2026, 5, 22),
-              ),
+              )),
               accent: Colors.blue,
-              onFilterByValue: (value) => tappedValue = value,
             ),
           ),
         ),
       );
 
-      expect(find.text('sci-fi'), findsOneWidget);
-      expect(find.text('classic'), findsOneWidget);
-
-      await tester.tap(find.text('sci-fi'));
-      await tester.pumpAndSettle();
-
-      expect(tappedValue, 'sci-fi');
+      expect(find.text('sci-fi'), findsNothing);
+      expect(find.text('classic'), findsNothing);
     });
   });
 
   group('EmptyInspector', () {
     testWidgets('renders placeholder text', (tester) async {
-      final type = comicKindModule;
+      const type = ComicRegistration();
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

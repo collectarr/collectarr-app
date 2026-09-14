@@ -1,11 +1,13 @@
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_search_hit.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/transport/provider_series_hint.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  setUpAll(() {
-    collectarrKindModules;
-  });
   test('parses provider candidate wire format', () {
     final candidate = ProviderCandidate.fromJson(const {
       'provider': 'comicvine',
@@ -27,7 +29,7 @@ void main() {
     expect(candidate.provider, 'comicvine');
     expect(candidate.providerItemId, '4000-12345');
     expect(candidate.title, 'The Amazing Spider-Man #1');
-    expect(candidate.kind, 'comic');
+    expect(candidate.kind, CatalogMediaKind.comic);
     expect(candidate.summary, 'A provider candidate.');
     expect(candidate.imageUrl, 'https://example.test/cover.jpg');
     expect(candidate.candidateType, 'issue');
@@ -40,33 +42,53 @@ void main() {
     expect(candidate.storyArcPreview, ['Spider-Island']);
   });
 
-  test('rejects older provider responses without an explicit fallback kind',
-      () {
+  test('keeps provider series hints independent from Core catalog DTOs', () {
+    final hint = ProviderSeriesHint.fromJson(const {
+      'series_title': 'The Amazing Spider-Man',
+      'volume_start_year': '1963',
+    });
+
+    expect(hint.hasData, isTrue);
+    expect(hint.seriesTitle, 'The Amazing Spider-Man');
+    expect(hint.volumeStartYear, 1963);
+    expect(hint.toJson(), {
+      'series_title': 'The Amazing Spider-Man',
+      'volume_start_year': 1963,
+    });
+  });
+
+  test('converts summary-only provider search hits', () {
+    const hit = ProviderSearchHit(
+      providerId: ProviderId.openLibrary,
+      kind: CatalogMediaKind.book,
+      remoteId: 'OL123W',
+      title: 'The Hobbit',
+      subtitle: 'J. R. R. Tolkien',
+      imageUrl: 'https://example.test/hobbit.jpg',
+    );
+
+    final candidate = ProviderCandidate.fromSearchHit(hit);
+
+    expect(candidate.provider, 'openlibrary');
+    expect(candidate.providerItemId, 'OL123W');
+    expect(candidate.kind, CatalogMediaKind.book);
+    expect(candidate.title, 'The Hobbit');
+    expect(candidate.summary, 'J. R. R. Tolkien');
+    expect(candidate.imageUrl, 'https://example.test/hobbit.jpg');
+    expect(candidate.series, isNull);
+    expect(candidate.issueNumber, isNull);
+    expect(candidate.candidateType, isNull);
+  });
+
+  test('rejects provider responses without an explicit kind', () {
     expect(
       () => ProviderCandidate.fromJson(const {
         'provider': 'comicvine',
-        'provider_item_id': '4000-legacy',
-        'title': 'Legacy Candidate',
+        'provider_item_id': '4000-plain',
+        'title': 'Plain Candidate',
       }),
       throwsFormatException,
     );
-  });
-
-  test('uses caller fallback kind for older provider responses', () {
-    final candidate = ProviderCandidate.fromJson(
-      const {
-        'provider': 'openlibrary',
-        'provider_item_id': 'book-1',
-        'title': 'Legacy Book Candidate',
-      },
-      fallbackKind: 'book',
-    );
-
-    expect(candidate.kind, 'book');
-    final item = candidate.placeholderItem();
-    expect(item.id, 'provider:openlibrary:book:book-1');
-    expect(item.kind, 'book');
-    expect(item.title, 'Legacy Book Candidate');
   });
 
   test('marks stub provider candidates clearly', () {
@@ -86,7 +108,7 @@ void main() {
       'provider_item_id': '2665653',
       'title': 'Absolute Batman #1 [Jim Lee Cardstock Variant Cover]',
       'kind': 'comic',
-      'summary': 'December 2024 · 5.99 USD · variant',
+      'summary': 'December 2024 Ã‚Â· 5.99 USD Ã‚Â· variant',
       'candidate_type': 'variant',
       'is_variant': true,
     });
@@ -108,15 +130,18 @@ void main() {
       'is_variant': false,
     });
 
-    final item = candidate.placeholderItem();
-    final payload = item.kindMetadata.toSyncPayload();
+    final item =
+        comicKindModule.add.catalogCandidateFromProviderCandidate(candidate);
+    final payload = (item.mapTransport((transport) => transport).kindMetadata
+            as JsonEncodable)
+        .toJson();
 
     expect(payload['item_number'], '1');
     expect(item.releaseYear, 2024);
     expect(payload['variant'], 'Nick Dragotta Cover');
   });
 
-  test('candidate type wins over legacy variant text heuristics', () {
+  test('candidate type wins over variant text heuristics', () {
     final issueCandidate = ProviderCandidate.fromJson(const {
       'provider': 'gcd',
       'provider_item_id': 'issue-1',

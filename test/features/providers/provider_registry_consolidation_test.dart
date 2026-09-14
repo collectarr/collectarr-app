@@ -1,8 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/comic/comic_kind_module.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/library/runtime/library_catalog_resolution.dart';
 import 'package:collectarr_app/features/providers/runtime/provider_registry_provider.dart';
-import 'package:collectarr_app/features/settings/provider_import_models.dart';
+import 'package:collectarr_app/features/providers/ui/provider_import_descriptors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -15,8 +14,8 @@ void main() {
       expect(connector!.supportsMetadata, isTrue);
       expect(connector.supportsPersonalRead, isTrue);
       expect(connector.supportsPersonalWrite, isTrue);
-      expect(connector.supportsFileImport, isTrue);
-      expect(connector.canImport, isTrue);
+      expect(connector.supportsPersonalListFileImport, isTrue);
+      expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isTrue);
       expect(connector.canPush, isTrue);
       expect(connector.supportsBidirectionalSync, isTrue);
@@ -30,20 +29,21 @@ void main() {
       expect(connector!.supportsMetadata, isTrue);
       expect(connector.supportsPersonalRead, isFalse);
       expect(connector.supportsPersonalWrite, isFalse);
-      expect(connector.supportsFileImport, isFalse);
-      expect(connector.canImport, isFalse);
+      expect(connector.supportsPersonalListFileImport, isFalse);
+      expect(connector.canImportPersonalList, isFalse);
       expect(connector.canPull, isFalse);
       expect(connector.canPush, isFalse);
     });
 
-    test('ProviderConnector for MyAnimeList only exposes fileImport', () {
+    test('ProviderConnector for MyAnimeList exposes personal-list file import',
+        () {
       final connector =
           defaultProviderConnectorRegistry.getById(ProviderId.myAnimeList);
 
       expect(connector, isNotNull);
       expect(connector!.supportsMetadata, isFalse);
-      expect(connector.supportsFileImport, isTrue);
-      expect(connector.canImport, isTrue);
+      expect(connector.supportsPersonalListFileImport, isTrue);
+      expect(connector.canImportPersonalList, isTrue);
       expect(connector.canPull, isFalse);
       expect(connector.canPush, isFalse);
     });
@@ -60,16 +60,16 @@ void main() {
         (d) => d.id == ProviderId.myAnimeList,
       );
 
-      expect(aniListDesc.canImport, isTrue);
+      expect(aniListDesc.canImportPersonalList, isTrue);
       expect(aniListDesc.canPull, isTrue);
       expect(aniListDesc.canPush, isTrue);
       expect(aniListDesc.supportsAccountSync, isTrue);
-      expect(aniListDesc.supportsFileImport, isTrue);
+      expect(aniListDesc.supportsPersonalListFileImport, isTrue);
 
-      expect(tmdbDesc.canImport, isTrue);
-      expect(tmdbDesc.supportsFileImport, isTrue);
+      expect(tmdbDesc.canImportPersonalList, isTrue);
+      expect(tmdbDesc.supportsPersonalListFileImport, isTrue);
 
-      expect(malDesc.canImport, isTrue);
+      expect(malDesc.canImportPersonalList, isTrue);
       expect(malDesc.canPull, isFalse);
       expect(malDesc.supportsAccountSync, isFalse);
     });
@@ -84,11 +84,11 @@ void main() {
       expect(registry.byId('gcd'), isNotNull);
       expect(registry.getByName('gcd'), isNotNull);
 
-      final comicConnectors = registry.forKind('comic');
+      final comicConnectors = registry.forKind(CatalogMediaKind.comic);
       expect(comicConnectors.map((c) => c.id.value), contains('gcd'));
       expect(comicConnectors.map((c) => c.id.value), contains('comicvine'));
 
-      final mangaConnectors = registry.forKind('manga');
+      final mangaConnectors = registry.forKind(CatalogMediaKind.manga);
       expect(mangaConnectors.map((c) => c.id.value), contains('mangadex'));
       expect(mangaConnectors.map((c) => c.id.value), contains('anilist'));
     });
@@ -96,25 +96,14 @@ void main() {
     test(
         'collectarrMetadataProviderRegistry delegates to defaultProviderConnectorRegistry',
         () {
-      final options = collectarrMetadataProviderRegistry.forKind('comic');
+      final options = collectarrMetadataProviderRegistry.forKind(
+        CatalogMediaKind.comic,
+      );
       expect(options.map((o) => o.id), ['gcd', 'comicvine']);
 
       final comicvine = collectarrMetadataProviderRegistry.byId('comicvine');
       expect(comicvine?.requiresApiKey, isTrue);
       expect(comicvine?.label, 'Comic Vine');
-    });
-
-    test(
-        'resolveWithCatalog resolves metadata providers from ProviderConnectorRegistry',
-        () {
-      final resolved = comicKindModule.resolveWithCatalog(
-        const [],
-        providerRegistry: defaultProviderConnectorRegistry,
-      );
-
-      expect(resolved.metadata.supportsProvider('gcd'), isTrue);
-      expect(resolved.metadata.supportsProvider('comicvine'), isTrue);
-      expect(resolved.metadata.providerLabel('gcd'), 'GCD');
     });
   });
 }

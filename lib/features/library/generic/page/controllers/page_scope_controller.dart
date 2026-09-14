@@ -13,12 +13,13 @@ abstract final class _LibraryScopeControllerOps {
   static List<LibraryBucketScopeFilter> sidebarBucketScopeFilters(
     GenericLibraryPageState state,
   ) {
-    final runtime = state.widget.type;
+    final kindModule = state.widget.type;
+    final fields = libraryKindWorkspaceForKind(kindModule.kind).fields;
     return [
       for (final snapshot in state._scopeHistory)
         if (snapshot.selectedBucket != null)
           LibraryBucketScopeFilter(
-            groupId: runtime.fields.decodeGroupId(snapshot.groupMode),
+            groupId: fields.decodeGroupId(snapshot.groupMode),
             bucket: snapshot.selectedBucket!,
           ),
     ];
@@ -262,9 +263,11 @@ abstract final class _LibraryScopeControllerOps {
             state._viewProfile,
           );
         } else if (smartList.sortColumn != null) {
-          final runtime = state.widget.type;
+          final kindModule = state.widget.type;
           state._viewState = state._viewState!.copyWith(
-            sortId: runtime.fields.decodeSortId(smartList.sortColumn!),
+            sortId: libraryKindWorkspaceForKind(kindModule.kind)
+                .fields
+                .decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,
           );
         }

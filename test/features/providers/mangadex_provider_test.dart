@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,12 +27,51 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('MangaDexProvider', () {
+    test('decodes native MangaDex JSON:API models', () {
+      final manga = MangaDexManga.fromJson({
+        'id': 'd7037b2a-874a-4360-8a7b-07f2001542a9',
+        'attributes': {
+          'title': {'en': 'Chainsaw Man', 'ja-ro': 'チェンソーマン'},
+          'description': {'en': 'A devil hunter story.'},
+          'status': 'ongoing',
+          'year': 2018,
+          'publicationDemographic': 'shounen',
+          'tags': [
+            {
+              'attributes': {
+                'name': {'en': 'Action'},
+              },
+            },
+          ],
+        },
+        'relationships': [
+          {
+            'type': 'author',
+            'attributes': {'name': 'Tatsuki Fujimoto'},
+          },
+          {
+            'type': 'cover_art',
+            'attributes': {'fileName': 'cover.jpg'},
+          },
+        ],
+      });
+
+      expect(manga.id, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
+      expect(manga.attributes?.title?.preferred, 'Chainsaw Man');
+      expect(manga.attributes?.description?.preferred, 'A devil hunter story.');
+      expect(manga.attributes?.year, 2018);
+      expect(manga.attributes?.tags.single.name?.preferred, 'Action');
+      expect(manga.relationships.first.name, 'Tatsuki Fujimoto');
+      expect(manga.relationships.last.fileName, 'cover.jpg');
+      expect(manga.toJson()['id'], manga.id);
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = MangaDexProvider();
       expect(provider.name, 'mangadex');
       expect(provider.descriptor.displayName, 'MangaDex');
-      expect(provider.descriptor.kind, 'manga');
-      expect(provider.descriptor.supportedKinds, ['manga']);
+      expect(provider.descriptor.kind, CatalogMediaKind.manga);
+      expect(provider.descriptor.supportedKinds, [CatalogMediaKind.manga]);
       expect(provider.descriptor.requiresUserKey, isFalse);
       expect(provider.isConfigured, isTrue);
       expect(provider.descriptor.rateLimit, '5 req/sec');
@@ -84,7 +124,7 @@ void main() {
       expect(item.provider, 'mangadex');
       expect(item.providerItemId, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
       expect(item.title, 'Chainsaw Man');
-      expect(item.kind, 'manga');
+      expect(item.kind, CatalogMediaKind.manga);
       expect(item.summary, 'shounen · ongoing · 2018');
       expect(
         item.imageUrl,
@@ -150,17 +190,16 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'mangadex');
       expect(envelope.providerItemId, 'd7037b2a-874a-4360-8a7b-07f2001542a9');
-      expect(envelope.kind, 'manga');
-      expect(envelope.normalized['title'], 'Chainsaw Man');
+      expect(envelope.kind, CatalogMediaKind.manga);
+      expect(envelope.payload['title'], 'Chainsaw Man');
+      expect(envelope.payload['synopsis'], contains('Denji is a teenage boy'));
       expect(
-          envelope.normalized['synopsis'], contains('Denji is a teenage boy'));
-      expect(envelope.normalized['genres'],
-          containsAll(['Action', 'Supernatural']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators']).first['name'],
+          envelope.payload['genres'], containsAll(['Action', 'Supernatural']));
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators']).first['name'],
           'Tatsuki Fujimoto');
-      expect(jsonObjectList(envelope.normalized['creators']).first['role'],
-          'Author');
+      expect(
+          jsonObjectList(envelope.payload['creators']).first['role'], 'Author');
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -178,7 +217,7 @@ void main() {
       );
       expect(mdFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(mdFixtureRaw as Map),
       );
 
@@ -218,14 +257,14 @@ void main() {
         ]
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(jsonObject(normalized['provider_ids'])['mangadex'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['mangadex']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['mangadex']);
       expect(jsonObjectList(normalized['creators']).first['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators']).first['name']);
+          jsonObjectList(goldenEnvelope.payload['creators']).first['name']);
     });
   });
 }

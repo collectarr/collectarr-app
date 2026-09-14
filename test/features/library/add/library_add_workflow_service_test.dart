@@ -1,7 +1,7 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_series_details_dto.dart';
 import 'package:collectarr_app/features/library/add/services/library_add_workflow_service.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -40,9 +40,9 @@ void main() {
 
     final item = service.metadataItemFromPreview(preview);
 
-    expect(item, isA<LibraryMetadataItem>());
+    expect(item, isA<CatalogSearchCandidate>());
     expect(item.id, startsWith('preview-comic-'));
-    expect(item.kind, 'comic');
+    expect(item.mediaKind.apiValue, 'comic');
     expect(item.title, 'Example');
   });
 
@@ -61,9 +61,10 @@ void main() {
 
     final item = service.metadataItemFromPreview(preview);
 
-    expect(item.toSyncPayload()['item_number'], '1');
-    expect(item.toSyncPayload()['publisher'], 'Example Comics');
-    expect(item.toSyncPayload()['series_title'], 'Example Series');
-    expect(item.toSyncPayload()['genres'], ['superhero']);
+    final payload = item.mapTransport((transport) => transport.toSyncPayload());
+    expect(payload['item_number'], '1');
+    expect(payload['publisher'], 'Example Comics');
+    expect(payload['series_title'], 'Example Series');
+    expect(payload['genres'], ['superhero']);
   });
 }

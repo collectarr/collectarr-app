@@ -5,32 +5,57 @@ import 'package:flutter_test/flutter_test.dart';
 String _read(String relativePath) => File(relativePath).readAsStringSync();
 
 String _extractSyncPayloadBody(String content) {
-  final match = RegExp(
-    r'Map<String, dynamic> toSyncPayload\(\)\s*\{\s*return \{\s*([\s\S]*?)\s*\};\s*\}',
-    multiLine: true,
-  ).firstMatch(content);
-  expect(match, isNotNull);
-  return match!.group(1)!;
+  final signature = content.indexOf('Map<String, dynamic> toSyncPayload()');
+  expect(signature, greaterThanOrEqualTo(0));
+
+  final openingBrace = content.indexOf('{', signature);
+  expect(openingBrace, greaterThan(signature));
+
+  var depth = 0;
+  for (var index = openingBrace; index < content.length; index++) {
+    switch (content[index]) {
+      case '{':
+        depth++;
+      case '}':
+        depth--;
+        if (depth == 0) {
+          return content.substring(openingBrace + 1, index);
+        }
+    }
+  }
+
+  fail('Could not find the end of toSyncPayload()');
 }
 
 void main() {
   test('ref-based models no longer accept itemId in constructors', () {
-    final ownedItem = _read('lib/core/models/owned_item.dart');
+    final ownedItem = _read(
+      'lib/features/library/kinds/comic/domain/comic_owned_item.dart',
+    );
     final wishlistItem = _read('lib/core/models/wishlist_item.dart');
-    final trackingEntry = _read('lib/core/models/tracking_entry.dart');
+    final trackingRecord = _read(
+      'lib/features/library/tracking/tracking_storage_record.dart',
+    );
 
     expect(ownedItem, isNot(contains('String? itemId,')));
     expect(wishlistItem, isNot(contains('String? itemId,')));
-    expect(trackingEntry, isNot(contains('String? itemId,')));
+    expect(trackingRecord, isNot(contains('String? itemId,')));
   });
 
   test('sync payloads use catalog_ref instead of item_id', () {
-    final customEpisode = _read('lib/core/models/custom_episode.dart');
+    final tvCustomEpisode = _read(
+      'lib/features/library/kinds/tv/tracking/tv_custom_episode_codec.dart',
+    );
+    final animeCustomEpisode = _read(
+      'lib/features/library/kinds/anime/tracking/anime_custom_episode_codec.dart',
+    );
     final watchSession = _read('lib/core/models/watch_session.dart');
-    final trackingUnit = _read('lib/core/models/tracking_unit.dart');
+    final trackingUnit = _read('lib/core/models/tracking_unit_summary.dart');
 
-    expect(
-        _extractSyncPayloadBody(customEpisode), isNot(contains("'item_id'")));
+    expect(tvCustomEpisode, contains("'catalog_ref'"));
+    expect(tvCustomEpisode, isNot(contains("'item_id'")));
+    expect(animeCustomEpisode, contains("'catalog_ref'"));
+    expect(animeCustomEpisode, isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(watchSession), isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(trackingUnit), isNot(contains("'item_id'")));
   });

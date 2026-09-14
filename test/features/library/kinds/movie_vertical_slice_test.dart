@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/contracts/movie_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
@@ -7,15 +6,15 @@ import 'package:collectarr_app/features/library/kinds/movie/provider/movie_provi
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Movie Kind Vertical Slice Tests (C8)', () {
@@ -79,25 +78,25 @@ void main() {
         producers: const [MoviePersonCredit(name: 'Emma Thomas')],
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_1',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_1',
             mediaKind: CatalogMediaKind.movie,
           ),
           kindMetadata: movieMeta,
-        ),
-        ownedItem: OwnedItem(
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'movie_1',
-            kind: 'movie',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.movie,
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = MovieWorkspaceProjector();
@@ -138,12 +137,12 @@ void main() {
         'MovieLibraryKindProviderMapper parses TMDb envelope into MovieCatalogMetadata',
         () {
       const mapper = MovieLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'tmdb',
           providerItemId: '872585',
-          kind: 'movie',
-          normalized: const {
+          kind: CatalogMediaKind.movie,
+          payload: const ProviderMetadataPayload({
             'title': 'Oppenheimer',
             'original_title': 'Oppenheimer',
             'runtime_minutes': 180,
@@ -152,7 +151,7 @@ void main() {
             'directors': [
               {'name': 'Christopher Nolan', 'role': 'Director'}
             ],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -161,12 +160,10 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<MovieCatalogMetadata>());
-      final meta = item.kindMetadata as MovieCatalogMetadata;
-      expect(meta.title, 'Oppenheimer');
-      expect(meta.runtimeMinutes, 180);
-      expect(meta.ageRating, 'R');
-      expect(meta.directors.first.name, 'Christopher Nolan');
+      expect(item.title, 'Oppenheimer');
+      expect(item.runtimeMinutes, 180);
+      expect(item.ageRating, 'R');
+      expect(item.directors.first.name, 'Christopher Nolan');
     });
 
     test('MovieCatalog and MovieEntry round-trip and preserve all kind fields',
@@ -215,15 +212,15 @@ void main() {
       expect(restored.runtimeMinutes, 148);
       expect(restored.studio, 'Warner Bros. Pictures');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'movie_inception',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'movie_inception',
             mediaKind: CatalogMediaKind.movie,
           ),
           kindMetadata: MovieCatalogMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = MovieEntry.fromShelf(shelfEntry);

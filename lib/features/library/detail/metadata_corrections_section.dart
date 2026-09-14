@@ -1,26 +1,28 @@
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/dialog_action_buttons.dart';
+import 'package:collectarr_app/features/library/config/library_admin_contributor.dart';
+import 'package:collectarr_app/features/library/detail/metadata_override_form.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MetadataCorrectionsSection extends ConsumerWidget {
   const MetadataCorrectionsSection({
     super.key,
-    required this.itemId,
+    required this.targetRef,
     required this.accent,
   });
 
-  final String itemId;
+  final CatalogEntityRef targetRef;
   final Color accent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final overrides = ref.watch(metadataOverridesByItemProvider)[itemId] ??
+    final overrides = ref.watch(metadataOverridesByItemProvider)[targetRef] ??
         const <UserMetadataOverride>[];
     final palette = appPalette(context);
     return DecoratedBox(
@@ -72,24 +74,30 @@ class MetadataCorrectionsSection extends ConsumerWidget {
   }
 
   Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
-    final result = await showDialog<_OverrideFormResult>(
+    final contributor = libraryAdminContributorForKind(targetRef.mediaKind);
+    final fields = contributor?.metadataOverrideFields ??
+        const <LibraryMetadataOverrideField>[];
+    final result = await showDialog<MetadataOverrideFormResult>(
       context: context,
-      builder: (_) => _OverrideFormDialog(accent: accent),
+      builder: (_) => MetadataOverrideFormDialog(
+        accent: accent,
+        fields: fields,
+      ),
     );
     if (result == null || !context.mounted) {
       return;
     }
     await ref.read(metadataOverrideMutationsProvider).setMetadataOverride(
-          itemId,
-          fieldPath: result.fieldPath,
+          targetRef,
+          fieldId: result.fieldId,
           overrideValue: result.overrideValue,
           originalValue: result.originalValue,
         );
   }
 }
 
-String _humanFieldPath(String path) {
-  return path.replaceAll('_', ' ').replaceAll('.', ' > ');
+String _humanFieldPath(MetadataFieldId fieldId) {
+  return fieldId.value.replaceAll('_', ' ').replaceAll('.', ' > ');
 }
 
 class _OverrideTile extends ConsumerWidget {
@@ -118,7 +126,7 @@ class _OverrideTile extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _humanFieldPath(entry.fieldPath),
+                  _humanFieldPath(entry.fieldId),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: accent,
                         fontWeight: FontWeight.w700,
@@ -162,7 +170,7 @@ class _OverrideTile extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Remove Override'),
         content: Text(
-          'Revert "${_humanFieldPath(entry.fieldPath)}" back to standard metadata?',
+          'Revert "${_humanFieldPath(entry.fieldId)}" back to standard metadata?',
         ),
         actions: [
           TextButton(
@@ -205,9 +213,8 @@ class _DiffColumn extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          style: Theme.of(context).textTheme.libraryMicro.copyWith(
                 color: palette.textMuted,
-                fontSize: 10,
               ),
         ),
         const SizedBox(height: 2),
@@ -219,139 +226,6 @@ class _DiffColumn extends StatelessWidget {
               ),
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-}
-
-class _OverrideFormResult {
-  const _OverrideFormResult({
-    required this.fieldPath,
-    required this.overrideValue,
-    this.originalValue,
-  });
-
-  final String fieldPath;
-  final String overrideValue;
-  final String? originalValue;
-}
-
-class _OverrideFormDialog extends StatefulWidget {
-  const _OverrideFormDialog({required this.accent});
-
-  final Color accent;
-
-  @override
-  State<_OverrideFormDialog> createState() => _OverrideFormDialogState();
-}
-
-class _OverrideFormDialogState extends State<_OverrideFormDialog> {
-  static const _commonFields = [
-    'title',
-    'synopsis',
-    'publisher',
-    'release_year',
-    'barcode',
-    'variant',
-    'edition_title',
-    'cover_image_url',
-    'item_number',
-  ];
-
-  String? _selectedField;
-  final _customFieldController = TextEditingController();
-  final _originalController = TextEditingController();
-  final _overrideController = TextEditingController();
-
-  String get _fieldPath => _selectedField ?? _customFieldController.text.trim();
-
-  bool get _isValid =>
-      _fieldPath.isNotEmpty && _overrideController.text.trim().isNotEmpty;
-
-  @override
-  void dispose() {
-    _customFieldController.dispose();
-    _originalController.dispose();
-    _overrideController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AccentAlertDialog(
-      titlePadding: EdgeInsets.zero,
-      title: AccentDialogHeader(
-        title: 'Add metadata correction',
-        accent: widget.accent,
-        icon: Icons.tune,
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DropdownButtonFormField<String>(
-              initialValue: _selectedField,
-              decoration: const InputDecoration(labelText: 'Field'),
-              items: [
-                for (final field in _commonFields)
-                  DropdownMenuItem(
-                    value: field,
-                    child: Text(field.replaceAll('_', ' ')),
-                  ),
-                const DropdownMenuItem(value: null, child: Text('Custom...')),
-              ],
-              onChanged: (value) => setState(() => _selectedField = value),
-            ),
-            if (_selectedField == null) ...[
-              const SizedBox(height: 8),
-              TextField(
-                controller: _customFieldController,
-                decoration: const InputDecoration(
-                  labelText: 'Custom field path',
-                  hintText: 'e.g. edition.publisher',
-                ),
-                onChanged: (_) => setState(() {}),
-              ),
-            ],
-            const SizedBox(height: 12),
-            TextField(
-              controller: _originalController,
-              decoration: const InputDecoration(
-                labelText: 'Original value (optional)',
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _overrideController,
-              decoration: const InputDecoration(
-                labelText: 'Corrected value',
-              ),
-              maxLines: 2,
-              onChanged: (_) => setState(() {}),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        DialogActionButtons.cancel(
-          onPressed: () => Navigator.pop(context),
-        ),
-        DialogActionButtons.save(
-          onPressed: _isValid
-              ? () => Navigator.pop(
-                    context,
-                    _OverrideFormResult(
-                      fieldPath: _fieldPath,
-                      overrideValue: _overrideController.text.trim(),
-                      originalValue: _originalController.text.trim().isEmpty
-                          ? null
-                          : _originalController.text.trim(),
-                    ),
-                  )
-              : null,
         ),
       ],
     );

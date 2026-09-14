@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -113,8 +114,8 @@ final class MusicCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'music',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.music,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.music,
       common: CatalogCommonDto(
@@ -136,14 +137,14 @@ final class MusicEntry {
   const MusicEntry({
     required this.catalog,
     this.ownedDetails,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final MusicCatalog catalog;
   final MusicOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
@@ -152,21 +153,25 @@ final class MusicEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory MusicEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? MusicCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : MusicCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.music,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory MusicEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      MusicWorkspaceCatalogData data when data.metadata != null =>
+        MusicCatalog.fromJson(data.metadata!.toSyncPayload()),
+      _ => MusicCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.music,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return MusicEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.musicDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedDetails:
+          MusicOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

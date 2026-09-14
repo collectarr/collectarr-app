@@ -1,5 +1,6 @@
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/contracts/comic_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
 import 'package:flutter/material.dart';
@@ -133,7 +134,7 @@ class EditableComicCharacter {
   }
 }
 
-List<EditableComicCreator> initComicCreators(ComicCatalogMetadata item) {
+List<EditableComicCreator> initComicCreators(ComicMedia item) {
   final payload = item.toSyncPayload();
   final creators = payload['creators'];
   if (creators is List) {
@@ -145,7 +146,7 @@ List<EditableComicCreator> initComicCreators(ComicCatalogMetadata item) {
   return const [];
 }
 
-List<EditableComicCharacter> initComicCharacters(ComicCatalogMetadata item) {
+List<EditableComicCharacter> initComicCharacters(ComicMedia item) {
   final payload = item.toSyncPayload();
   final characterDetails = payload['character_details'];
   if (characterDetails is List && characterDetails.isNotEmpty) {
@@ -187,10 +188,13 @@ LibraryEditSelection applyComicSelectionEdits(
   final characterNames = characterDetails
       .map((character) => character['name']!.toString())
       .toList(growable: false);
-  final current = selection.item.kindMetadata is ComicCatalogMetadata
-      ? selection.item.kindMetadata as ComicCatalogMetadata
-      : ComicCatalogMetadata.fromJson(
-          selection.item.kindMetadata.toSyncPayload());
+  final current = selection.kindItem
+          .mapTransport((transport) => transport)
+          .kindMetadata is ComicMedia
+      ? selection.kindItem.mapTransport((transport) => transport).kindMetadata
+          as ComicMedia
+      : ComicMedia.fromJson(
+          selection.kindItem.mapTransport((transport) => transport).payload);
 
   final existingTrailerLinks = current.links.where((l) => l.isTrailerLink);
   final newComicLinks = <ComicLink>[
@@ -216,8 +220,10 @@ LibraryEditSelection applyComicSelectionEdits(
     links: newComicLinks,
   );
 
-  final updatedItem = selection.item.copyWith(
-    kindMetadata: updatedMetadata,
+  final updatedItem = selection.kindItem.mapTransport(
+    (transport) => CatalogSearchCandidate.fromItem(
+      transport.withKindMetadata(updatedMetadata),
+    ),
   );
-  return selection.copyWith(item: updatedItem);
+  return selection.copyWith(kindItem: updatedItem);
 }

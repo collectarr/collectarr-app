@@ -1,0 +1,484 @@
+import 'dart:math' as math;
+
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
+
+class VideoProgressPresenter {
+  const VideoProgressPresenter();
+
+  VideoProgressSummary build({
+    required List<TvSeason> seasons,
+    required List<TrackingUnitSummary> trackedUnits,
+    required List<WatchSession> watchSessions,
+    DateTime? now,
+  }) {
+    final referenceNow = now ?? DateTime.now().toUtc();
+    final regularSeasons = _regularSeasons(seasons);
+    final headlineSeasons = regularSeasons.isEmpty ? seasons : regularSeasons;
+    if (headlineSeasons.isEmpty) {
+      return const VideoProgressSummary.empty();
+    }
+
+    final episodes = _flattenEpisodes(headlineSeasons);
+    final totalSeasons = headlineSeasons.length;
+    final totalEpisodes = episodes.length;
+    final releasedEpisodes =
+        episodes.isEmpty ? 0 : _releasedEpisodes(episodes, referenceNow);
+    final watchedEpisodeKeys = _watchedEpisodeKeys(trackedUnits, watchSessions);
+    final releasedKeys = <String>{
+      for (final episode in episodes)
+        if (_isReleased(episode, referenceNow))
+          _episodeKeyForSeasonEpisode(episode)
+    };
+    final watchedReleasedCount =
+        watchedEpisodeKeys.where(releasedKeys.contains).length;
+    final watchedTotalCount = watchedEpisodeKeys.length;
+    final watchedEpisodes = watchedTotalCount;
+    final episodesLeft = math.max(releasedEpisodes - watchedReleasedCount, 0);
+    final completionPercent = releasedEpisodes == 0
+        ? 0.0
+        : (math.min(watchedReleasedCount, releasedEpisodes) / releasedEpisodes)
+            .toDouble();
+    final lastWatched = _lastWatchedEpisode(
+      episodes,
+      trackedUnits: trackedUnits,
+      watchSessions: watchSessions,
+    );
+    final nextEpisode =
+        _nextEpisode(episodes, watchedEpisodeKeys, referenceNow);
+    final currentSeasonNumber = nextEpisode?.seasonNumber ??
+        lastWatched?.seasonNumber ??
+        _firstRegularSeasonNumber(headlineSeasons);
+    final lastWatchedAt = _latestWatchSession(watchSessions)?.watchedAt ??
+        _latestWatchedTrackingUnit(trackedUnits)?.completedAt;
+    final nextAirDate = nextEpisode?.airDate;
+    final hasUnairedEpisodes = episodes.any(
+      (episode) => _episodeAirDate(episode)?.isAfter(referenceNow) == true,
+    );
+    final isFullyWatched =
+        releasedEpisodes > 0 && watchedReleasedCount >= releasedEpisodes;
+
+    return VideoProgressSummary(
+      totalSeasons: totalSeasons,
+      totalEpisodes: totalEpisodes,
+      releasedEpisodes: releasedEpisodes,
+      watchedEpisodes: watchedEpisodes,
+      episodesLeft: episodesLeft,
+      completionPercent: completionPercent,
+      currentSeasonNumber: currentSeasonNumber,
+      lastWatched: lastWatched,
+      nextEpisode: nextEpisode,
+      lastWatchedAt: lastWatchedAt,
+      nextAirDate: nextAirDate,
+      isFullyWatched: isFullyWatched,
+      hasUnairedEpisodes: hasUnairedEpisodes,
+    );
+  }
+
+  VideoSeasonProgressSummary seasonSummary({
+    required TvSeason season,
+    required List<TrackingUnitSummary> trackedUnits,
+    required List<WatchSession> watchSessions,
+    DateTime? now,
+  }) {
+    final referenceNow = now ?? DateTime.now().toUtc();
+    final episodes = season.episodes;
+    final seasonEpisodes = _flattenEpisodes([season]);
+    final releaseCount = episodes
+        .where((episode) => _isEpisodeReleased(episode, referenceNow))
+        .length;
+    final watchedKeys = _watchedEpisodeKeys(trackedUnits, watchSessions);
+    final watchedCount = episodes
+        .where(
+          (episode) => watchedKeys.contains(
+            _episodeKey(
+              seasonNumber: _seasonNumber(season),
+              episodeNumber: _episodeNumber(episode),
+            ),
+          ),
+        )
+        .length;
+    final completionPercent = releaseCount == 0
+        ? 0.0
+        : (math.min(watchedCount, releaseCount) / releaseCount).toDouble();
+    final lastWatched = _lastWatchedEpisode(
+      seasonEpisodes,
+      trackedUnits: trackedUnits,
+      watchSessions: watchSessions,
+    );
+    final lastWatchedAt = _latestWatchSessionForSeason(
+      _seasonNumber(season),
+      watchSessions,
+    )?.watchedAt;
+    final nextEpisode = _nextEpisode(seasonEpisodes, watchedKeys, referenceNow);
+    final statusLabel = _seasonStatusLabel(
+      season: season,
+      watchedCount: watchedCount,
+      releaseCount: releaseCount,
+      totalCount: episodes.length,
+      referenceNow: referenceNow,
+    );
+    return VideoSeasonProgressSummary(
+      seasonNumber: _seasonNumber(season),
+      title: season.title ?? 'Season ${_seasonNumber(season)}',
+      totalEpisodes: episodes.length,
+      releasedEpisodes: releaseCount,
+      watchedEpisodes: watchedCount,
+      completionPercent: completionPercent,
+      statusLabel: statusLabel,
+      startedAt: lastWatchedAt,
+      finishedAt: completionPercent >= 1.0 ? lastWatchedAt : null,
+      lastWatchedAt: lastWatchedAt,
+      lastWatched: lastWatched,
+      nextEpisode: nextEpisode,
+    );
+  }
+
+  List<VideoEpisodeProgressSummary> episodeRows({
+    required TvSeason season,
+    required List<TrackingUnitSummary> trackedUnits,
+    required List<WatchSession> watchSessions,
+  }) {
+    final watchedEpisodes = _watchedEpisodeMap(trackedUnits, watchSessions);
+    final sessionsByEpisode = <String, List<WatchSession>>{};
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
+      if (session.seasonNumber != _seasonNumber(season)) {
+        continue;
+      }
+      final key = _episodeKey(
+        seasonNumber: session.seasonNumber!,
+        episodeNumber: session.episodeNumber!,
+      );
+      sessionsByEpisode.putIfAbsent(key, () => <WatchSession>[]).add(session);
+    }
+    final rows = <VideoEpisodeProgressSummary>[];
+    for (final episode in season.episodes) {
+      final identity = VideoEpisodeIdentity(
+        seasonNumber: _seasonNumber(season),
+        episodeNumber: _episodeNumber(episode),
+        title: episode.title,
+        airDate: episode.airDate,
+        runtimeMinutes: episode.runtimeMinutes,
+      );
+      final key = _episodeKey(
+        seasonNumber: _seasonNumber(season),
+        episodeNumber: _episodeNumber(episode),
+      );
+      final sessions = sessionsByEpisode[key] ?? const <WatchSession>[];
+      rows.add(
+        VideoEpisodeProgressSummary(
+          episode: identity,
+          watchedCount: sessions.length,
+          isWatched: watchedEpisodes.containsKey(key),
+          lastWatchedAt: sessions.isEmpty ? null : sessions.first.watchedAt,
+          rating: sessions.isEmpty ? null : sessions.first.rating,
+          notes: sessions.isEmpty ? null : sessions.first.notes,
+          seenWhere: sessions.isEmpty ? null : sessions.first.seenWhere,
+        ),
+      );
+    }
+    return rows;
+  }
+
+  static List<TvSeason> _regularSeasons(List<TvSeason> seasons) {
+    final regular =
+        seasons.where((season) => _seasonNumber(season) > 0).toList();
+    return regular.isEmpty ? seasons : regular;
+  }
+
+  static List<_SeasonEpisode> _flattenEpisodes(List<TvSeason> seasons) {
+    final result = <_SeasonEpisode>[];
+    for (final season in seasons) {
+      for (final episode in season.episodes) {
+        result.add(_SeasonEpisode(season, episode));
+      }
+    }
+    return result;
+  }
+
+  static int _releasedEpisodes(
+    List<_SeasonEpisode> episodes,
+    DateTime now,
+  ) {
+    final hasAirDates = episodes.any(
+      (episode) => _episodeAirDate(episode) != null,
+    );
+    if (!hasAirDates) {
+      return episodes.length;
+    }
+    return episodes.where((episode) => _isReleased(episode, now)).length;
+  }
+
+  static bool _isReleased(_SeasonEpisode episode, DateTime now) {
+    final airDate = _episodeAirDate(episode);
+    return airDate == null || !airDate.isAfter(now);
+  }
+
+  static bool _isEpisodeReleased(TvEpisode episode, DateTime now) {
+    final airDate = episode.airDate;
+    return airDate == null || !airDate.isAfter(now);
+  }
+
+  static Set<String> _watchedEpisodeKeys(
+    List<TrackingUnitSummary> trackedUnits,
+    List<WatchSession> watchSessions,
+  ) {
+    final keys = <String>{};
+    for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
+      if (unit.isDeleted) {
+        continue;
+      }
+      final seasonNumber = unit.seasonNumber;
+      final episodeNumber = unit.episodeNumber;
+      if (seasonNumber == null || episodeNumber == null) {
+        continue;
+      }
+      keys.add(_episodeKey(
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+      ));
+    }
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
+      if (session.isDeleted) continue;
+      if (session.seasonNumber == null || session.episodeNumber == null) {
+        continue;
+      }
+      keys.add(_episodeKey(
+        seasonNumber: session.seasonNumber!,
+        episodeNumber: session.episodeNumber!,
+      ));
+    }
+    return keys;
+  }
+
+  static Map<String, List<WatchSession>> _watchedEpisodeMap(
+    List<TrackingUnitSummary> trackedUnits,
+    List<WatchSession> watchSessions,
+  ) {
+    final map = <String, List<WatchSession>>{};
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
+      if (session.isDeleted) continue;
+      final key = _episodeKey(
+        seasonNumber: session.seasonNumber!,
+        episodeNumber: session.episodeNumber!,
+      );
+      map.putIfAbsent(key, () => <WatchSession>[]).add(session);
+    }
+    for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
+      if (unit.isDeleted) {
+        continue;
+      }
+      final seasonNumber = unit.seasonNumber;
+      final episodeNumber = unit.episodeNumber;
+      if (seasonNumber == null || episodeNumber == null) {
+        continue;
+      }
+      final key = _episodeKey(
+        seasonNumber: seasonNumber,
+        episodeNumber: episodeNumber,
+      );
+      map.putIfAbsent(key, () => <WatchSession>[]).add(
+            TvWatchSession(
+              id: unit.id,
+              seriesId: TvSeriesId(unit.targetRef.rootId ?? unit.targetRef.id),
+              targetRef: unit.targetRef,
+              watchedAt: unit.completedAt,
+              updatedAt: unit.updatedAt,
+              seasonNumber: seasonNumber,
+              episodeNumber: episodeNumber,
+            ),
+          );
+    }
+    for (final sessions in map.values) {
+      sessions.sort((a, b) => b.watchedAt.compareTo(a.watchedAt));
+    }
+    return map;
+  }
+
+  static VideoEpisodeIdentity? _lastWatchedEpisode(
+    List<_SeasonEpisode> episodes, {
+    required List<TrackingUnitSummary> trackedUnits,
+    required List<WatchSession> watchSessions,
+  }) {
+    final latestSession = _latestWatchSession(watchSessions);
+    if (latestSession != null &&
+        latestSession.seasonNumber != null &&
+        latestSession.episodeNumber != null) {
+      return _lookupEpisode(
+        episodes,
+        latestSession.seasonNumber!,
+        latestSession.episodeNumber!,
+      );
+    }
+    final latestUnit = _latestWatchedTrackingUnit(trackedUnits);
+    if (latestUnit != null &&
+        latestUnit.seasonNumber != null &&
+        latestUnit.episodeNumber != null) {
+      return _lookupEpisode(
+        episodes,
+        latestUnit.seasonNumber!,
+        latestUnit.episodeNumber!,
+      );
+    }
+    return null;
+  }
+
+  static TvWatchSession? _latestWatchSession(
+    List<WatchSession> watchSessions,
+  ) {
+    final sessions = watchSessions.whereType<TvWatchSession>();
+    TvWatchSession? latest;
+    for (final session in sessions) {
+      if (latest == null || session.watchedAt.isAfter(latest.watchedAt)) {
+        latest = session;
+      }
+    }
+    return latest;
+  }
+
+  static TvTrackingUnit? _latestWatchedTrackingUnit(
+      List<TrackingUnitSummary> trackedUnits) {
+    TvTrackingUnit? latest;
+    for (final unit in trackedUnits.whereType<TvTrackingUnit>()) {
+      if (unit.isDeleted) {
+        continue;
+      }
+      if (latest == null || unit.completedAt.isAfter(latest.completedAt)) {
+        latest = unit;
+      }
+    }
+    return latest;
+  }
+
+  static TvWatchSession? _latestWatchSessionForSeason(
+    int seasonNumber,
+    List<WatchSession> watchSessions,
+  ) {
+    TvWatchSession? latest;
+    for (final session in watchSessions.whereType<TvWatchSession>()) {
+      if (session.seasonNumber != seasonNumber) {
+        continue;
+      }
+      if (latest == null || session.watchedAt.isAfter(latest.watchedAt)) {
+        latest = session;
+      }
+    }
+    return latest;
+  }
+
+  static VideoEpisodeIdentity? _lookupEpisode(
+    List<_SeasonEpisode> episodes,
+    int seasonNumber,
+    int episodeNumber,
+  ) {
+    for (final item in episodes) {
+      if (item.season.seasonNumber == seasonNumber &&
+          item.episode.episodeNumber == episodeNumber) {
+        return VideoEpisodeIdentity(
+          seasonNumber: seasonNumber,
+          episodeNumber: episodeNumber,
+          title: item.episode.title,
+          airDate: _episodeAirDate(item),
+          runtimeMinutes: item.episode.runtimeMinutes,
+        );
+      }
+    }
+    return VideoEpisodeIdentity(
+      seasonNumber: seasonNumber,
+      episodeNumber: episodeNumber,
+    );
+  }
+
+  static VideoEpisodeIdentity? _nextEpisode(
+    List<_SeasonEpisode> episodes,
+    Set<String> watchedKeys,
+    DateTime now,
+  ) {
+    for (final item in episodes) {
+      final key = _episodeKeyForSeasonEpisode(item);
+      if (watchedKeys.contains(key)) {
+        continue;
+      }
+      if (_isReleased(item, now)) {
+        return VideoEpisodeIdentity(
+          seasonNumber: _seasonNumber(item.season),
+          episodeNumber: _episodeNumber(item.episode),
+          title: item.episode.title,
+          airDate: _episodeAirDate(item),
+          runtimeMinutes: item.episode.runtimeMinutes,
+        );
+      }
+    }
+    return null;
+  }
+
+  static int? _firstRegularSeasonNumber(List<TvSeason> seasons) {
+    for (final season in seasons) {
+      if (_seasonNumber(season) > 0) {
+        return _seasonNumber(season);
+      }
+    }
+    return seasons.isEmpty ? null : _seasonNumber(seasons.first);
+  }
+
+  static String _seasonStatusLabel({
+    required TvSeason season,
+    required int watchedCount,
+    required int releaseCount,
+    required int totalCount,
+    required DateTime referenceNow,
+  }) {
+    final hasFutureEpisodes = season.episodes.any(
+      (episode) =>
+          _episodeAirDate(_SeasonEpisode(season, episode))
+              ?.isAfter(referenceNow) ==
+          true,
+    );
+    if (watchedCount == 0) {
+      return hasFutureEpisodes && releaseCount == 0
+          ? 'Upcoming'
+          : 'Not started';
+    }
+    if (releaseCount > 0 && watchedCount >= releaseCount) {
+      return hasFutureEpisodes && releaseCount < totalCount
+          ? 'Caught up'
+          : 'Completed';
+    }
+    return 'In progress';
+  }
+}
+
+class _SeasonEpisode {
+  const _SeasonEpisode(this.season, this.episode);
+
+  final TvSeason season;
+  final TvEpisode episode;
+}
+
+String _episodeKey({
+  required int seasonNumber,
+  required int episodeNumber,
+}) {
+  return '$seasonNumber:$episodeNumber';
+}
+
+String _episodeKeyForSeasonEpisode(_SeasonEpisode episode) {
+  return _episodeKey(
+    seasonNumber: _seasonNumber(episode.season),
+    episodeNumber: _episodeNumber(episode.episode),
+  );
+}
+
+DateTime? _episodeAirDate(_SeasonEpisode episode) {
+  return episode.episode.airDate;
+}
+
+int _seasonNumber(TvSeason season) => season.seasonNumber ?? 0;
+
+int _episodeNumber(TvEpisode episode) => episode.episodeNumber?.toInt() ?? 0;

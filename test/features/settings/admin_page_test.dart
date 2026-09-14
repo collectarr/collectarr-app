@@ -2,9 +2,9 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/admin_metadata.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -28,7 +28,7 @@ void main() {
       CustomFieldDefinition(
         id: 'cf-1',
         name: 'Signed',
-        fieldType: 'bool',
+        fieldType: 'boolean',
         mediaKind: 'comic',
         createdAt: DateTime.utc(2026, 5, 14),
       ),
@@ -45,7 +45,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -187,15 +187,26 @@ void main() {
     expect(api.lastApprovedProposalId, 'proposal-1');
     expect(api.lastApprovedProposalProviderItemId, '12345');
     expect(
-      find.text('Proposal approved with selected provider item.'),
+      find.text(
+        'Proposal approved with selected provider item.',
+        skipOffstage: false,
+      ),
       findsOneWidget,
     );
-
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Reject').first);
+    final rejectButtons = find.widgetWithText(
+      OutlinedButton,
+      'Reject',
+      skipOffstage: false,
+    );
+    await _scrollUntilVisible(tester, rejectButtons);
+    await tester.tap(rejectButtons.first);
     await pumpUntilSettled(tester);
 
     expect(api.lastRejectedProposalId, 'proposal-2');
-    expect(find.text('Proposal rejected.'), findsOneWidget);
+    expect(
+      find.text('Proposal rejected.', skipOffstage: false),
+      findsOneWidget,
+    );
 
     // Provider ingest by ID
     await tester.tap(find.widgetWithText(FilledButton, 'Open add dialog'));
@@ -278,7 +289,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -500,7 +511,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -546,7 +557,7 @@ void main() {
           apiClientProvider.overrideWithValue(api),
           localDatabaseProvider.overrideWithValue(db),
           authControllerProvider.overrideWith(
-            (ref) => _AdminAuthController(ref),
+            () => _AdminAuthController(),
           ),
         ],
         child: const MaterialApp(home: AdminPage()),
@@ -621,13 +632,14 @@ Future<void> _tapPreviewSaveCorrection(
 }
 
 class _AdminAuthController extends AuthController {
-  _AdminAuthController(super.ref) {
-    state = const AuthState(
-      token: 'test-token',
-      email: 'admin@example.com',
-      isAdmin: true,
-    );
-  }
+  _AdminAuthController();
+
+  @override
+  AuthState build() => const AuthState(
+        token: 'test-token',
+        email: 'admin@example.com',
+        isAdmin: true,
+      );
 }
 
 class _FakeAdminApiClient extends ApiClient {
@@ -663,9 +675,9 @@ class _FakeAdminApiClient extends ApiClient {
   List<String>? lastCatalogUpdateCharacters;
   List<String>? lastCatalogUpdateStoryArcs;
   List<Map<String, dynamic>>? lastCatalogUpdateCreators;
-  List<CatalogTrack>? lastCatalogUpdateTracks;
-  List<TrailerLink>? lastCatalogUpdateTrailerUrls;
-  List<TrailerLink>? lastCatalogUpdateExternalLinks;
+  List<CatalogTrackDto>? lastCatalogUpdateTracks;
+  List<TrailerLinkDto>? lastCatalogUpdateTrailerUrls;
+  List<TrailerLinkDto>? lastCatalogUpdateExternalLinks;
   String? lastCatalogUpdateTitleExtension;
   String? lastCatalogUpdateAudienceRating;
   String? lastCatalogUpdateColor;
@@ -971,7 +983,7 @@ class _FakeAdminApiClient extends ApiClient {
     String? audienceRating,
     List<String>? genres,
     List<String>? platforms,
-    List<CatalogTrack>? tracks,
+    List<CatalogTrackDto>? tracks,
     List<Map<String, dynamic>>? creators,
     List<String>? characters,
     List<String>? storyArcs,
@@ -981,8 +993,8 @@ class _FakeAdminApiClient extends ApiClient {
     String? audioTracks,
     String? subtitles,
     String? layers,
-    List<TrailerLink>? trailerUrls,
-    List<TrailerLink>? externalLinks,
+    List<TrailerLinkDto>? trailerUrls,
+    List<TrailerLinkDto>? externalLinks,
     String? crossover,
     String? plotSummary,
     String? plotDescription,

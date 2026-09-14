@@ -1,73 +1,41 @@
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 typedef LibraryBarcodeLookupResultCallback = void Function(
   LibraryBarcodeLookupResult result,
 );
 
-class LibraryMetadataSearchInput {
-  const LibraryMetadataSearchInput({
-    this.query,
-    this.series,
-    this.issueNumber,
-    this.publisher,
-    this.year,
-    this.barcode,
-    this.limit,
-  });
-
-  final String? query;
-  final String? series;
-  final String? issueNumber;
-  final String? publisher;
-  final int? year;
-  final String? barcode;
-  final int? limit;
-
-  bool get isEmpty {
-    return _isBlank(query) &&
-        _isBlank(series) &&
-        _isBlank(issueNumber) &&
-        _isBlank(publisher) &&
-        _isBlank(barcode) &&
-        year == null;
-  }
-
-  bool _isBlank(String? value) {
-    return value == null || value.trim().isEmpty;
-  }
-}
-
 class LibraryBarcodeLookupResult {
   const LibraryBarcodeLookupResult.found({
-    required this.barcode,
-    required LibraryMetadataItem this.item,
+    required this.code,
+    required CatalogSearchCandidate this.item,
   }) : error = null;
 
   const LibraryBarcodeLookupResult.missing({
-    required this.barcode,
+    required this.code,
     required Object this.error,
   }) : item = null;
 
-  final String barcode;
-  final LibraryMetadataItem? item;
+  final String code;
+  final CatalogSearchCandidate? item;
   final Object? error;
 
   bool get found => item != null;
 }
 
-Future<List<LibraryMetadataItem>> searchAndCacheLibraryMetadata({
+Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
   required ApiClient api,
-  required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
-  required LibraryMetadataSearchInput input,
+  required CatalogMediaKind kind,
+  required CatalogTransportRepository catalog,
+  required MetadataSearchQuery input,
 }) async {
   final items = await searchLibraryMetadata(
     api,
-    type,
+    kind,
     query: input.query,
     series: input.series,
     issueNumber: input.issueNumber,
@@ -76,38 +44,42 @@ Future<List<LibraryMetadataItem>> searchAndCacheLibraryMetadata({
     barcode: input.barcode,
     limit: input.limit,
   );
-  await catalog.upsertMetadataItems(items);
+  await catalog.upsertTransports(
+    items.map((item) => item.toImportTransport()),
+  );
   return items;
 }
 
 Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({
   required ApiClient api,
-  required LibraryKindRuntime type,
-  required CatalogCacheRepository catalog,
-  required Iterable<String> barcodes,
+  required CatalogMediaKind kind,
+  required CatalogTransportRepository catalog,
+  required Iterable<String> codes,
   LibraryBarcodeLookupResultCallback? onResult,
 }) async {
   final results = <LibraryBarcodeLookupResult>[];
-  final foundItems = <LibraryMetadataItem>[];
-  for (final barcode in barcodes) {
+  final foundItems = <CatalogSearchCandidate>[];
+  for (final code in codes) {
     try {
-      final item = await lookupLibraryBarcode(api, type, barcode);
+      final item = await lookupLibraryBarcode(api, kind, code);
       foundItems.add(item);
       final result = LibraryBarcodeLookupResult.found(
-        barcode: barcode,
+        code: code,
         item: item,
       );
       results.add(result);
       onResult?.call(result);
     } catch (error) {
       final result = LibraryBarcodeLookupResult.missing(
-        barcode: barcode,
+        code: code,
         error: error,
       );
       results.add(result);
       onResult?.call(result);
     }
   }
-  await catalog.upsertMetadataItems(foundItems);
+  await catalog.upsertTransports(
+    foundItems.map((item) => item.toImportTransport()),
+  );
   return results;
 }

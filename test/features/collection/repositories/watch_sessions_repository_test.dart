@@ -1,0 +1,83 @@
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_watch_session_codec.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('TV codec owns episode coordinates in sync payloads', () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = WatchSessionsRepository(
+      db,
+      codecs: collectarrWatchSessionCodecs,
+    );
+    final session = TvWatchSession(
+      id: 'tv-session-1',
+      seriesId: TvSeriesId('tv-1'),
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.tv,
+        entityType: CatalogEntityTypeId('episode'),
+        id: 'tv-1:s1:e2',
+      ),
+      seasonNumber: 1,
+      episodeNumber: 2,
+      watchedAt: DateTime.utc(2026, 9, 6, 18),
+      updatedAt: DateTime.utc(2026, 9, 6, 18),
+    );
+
+    expect(
+      repository.toSyncPayload(session),
+      containsPair('season_number', 1),
+    );
+    expect(
+      repository.toSyncPayload(session),
+      containsPair('episode_number', 2),
+    );
+
+    await repository.upsert(session);
+    expect(
+      await repository.findByRef(session.ref),
+      isA<TvWatchSession>(),
+    );
+
+    const codec = TvWatchSessionCodec();
+    final decoded = codec.fromSyncPayload(
+      payload: repository.toSyncPayload(session),
+      id: session.id,
+      updatedAt: session.updatedAt,
+    ) as TvWatchSession;
+    expect(decoded.targetRef.toJson(), session.targetRef.toJson());
+    expect(decoded.seasonNumber, 1);
+    expect(decoded.episodeNumber, 2);
+  });
+
+  test('unregistered watch-session kinds are rejected', () {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = WatchSessionsRepository(
+      db,
+      codecs: collectarrWatchSessionCodecs,
+    );
+    final session = WatchSession(
+      id: 'movie-session-1',
+      targetRef: const CatalogEntityRef(
+        kind: CatalogMediaKind.movie,
+        entityType: CatalogEntityTypeId('work'),
+        id: 'movie-1',
+      ),
+      watchedAt: DateTime.utc(2026, 9, 6, 18),
+      updatedAt: DateTime.utc(2026, 9, 6, 18),
+    );
+
+    expect(
+      () => repository.toSyncPayload(session),
+      throwsStateError,
+    );
+  });
+}

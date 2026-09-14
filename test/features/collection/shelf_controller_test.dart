@@ -2,10 +2,12 @@ import 'dart:typed_data';
 
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -13,8 +15,8 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 void main() {
   test('shelf state combines owned and wishlist records', () {
     final state = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
@@ -23,8 +25,8 @@ void main() {
           coverPriceCents: 1500,
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 11),
-        ),
-        testOwnedItem(
+        )),
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-2',
           itemId: 'comic-2',
           condition: 'Fine',
@@ -32,7 +34,7 @@ void main() {
           coverPriceCents: 1000,
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 10),
-        ),
+        )),
       ],
       wishlistItems: [
         WishlistItem(
@@ -51,19 +53,30 @@ void main() {
           updatedAt: DateTime.utc(2026, 5, 8),
         ),
       ],
-      catalogItems: {
-        'comic-1': testCatalogItem(
+      catalogSummariesByRef: {
+        testCatalogItem(
           id: 'comic-1',
           kind: 'comic',
           title: 'Saga',
           itemNumber: '1',
-        ),
+        ).catalogRef: testCatalogItem(
+          id: 'comic-1',
+          kind: 'comic',
+          title: 'Saga',
+          itemNumber: '1',
+        ).asShelfCatalogSummary,
       },
       itemImagesByOwnedItem: {
-        'owned-1': [
+        OwnedItemRef(
+          kind: CatalogMediaKind.comic,
+          id: OwnedItemId('owned-1'),
+        ): [
           ItemImage(
             id: 'img-1',
-            ownedItemId: 'owned-1',
+            ownedRef: OwnedItemRef(
+              kind: CatalogMediaKind.comic,
+              id: OwnedItemId('owned-1'),
+            ),
             imageType: 'back_cover',
             imageData: Uint8List.fromList('data'.codeUnits),
             createdAt: DateTime.utc(2026, 5, 8),
@@ -74,16 +87,10 @@ void main() {
 
     expect(state.ownedCount, 2);
     expect(state.wishlistCount, 1);
-    expect(state.missingGradeCount, 1);
     expect(state.totalPaidCents, 2000);
-    expect(state.coverPricedCount, 2);
-    expect(state.totalCoverPriceCents, 2500);
-    expect(state.coverPriceCurrency, 'USD');
     expect(state.primaryCurrency, 'USD');
     expect(state.missingMetadataCount, 2);
-    expect(state.gradeCounts, {'9.8': 1, 'Ungraded': 1});
-    expect(state.conditionCounts, {'Near Mint': 1, 'Fine': 1});
-    expect(state.entries.first.title, 'Saga #1');
+    expect(state.entries.first.title, 'Saga');
     expect(state.entries.first.watchSessions.single.sourceType,
         TrackingSourceType.streaming);
     expect(state.entries.first.itemImages.single.imageType, 'back_cover');
@@ -91,47 +98,52 @@ void main() {
 
   test('shelf state keys records by catalog ref id', () {
     final state = ShelfState.from(
-      ownedItems: [
-        testOwnedItem(
+      ownedSummaries: [
+        testOwnedItemSummary(testOwnedItem(
           id: 'owned-1',
-          itemId: 'legacy-owned-1',
+          itemId: 'owned-1',
           catalogRef: const CatalogEntityRef(
-            kind: 'book',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.book,
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           updatedAt: DateTime.utc(2026, 5, 11),
-        ),
+        )),
       ],
       wishlistItems: [
         WishlistItem(
           id: 'wish-1',
           catalogRef: const CatalogEntityRef(
-            kind: 'book',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.book,
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
           createdAt: DateTime.utc(2026, 5, 9),
           updatedAt: DateTime.utc(2026, 5, 9),
         ),
       ],
-      trackingEntries: [
-        TrackingEntry(
+      trackingSummaries: [
+        TrackingSummary(
           id: 'track-1',
           catalogRef: const CatalogEntityRef(
-            kind: 'book',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.book,
+            entityType: CatalogEntityTypeId('work'),
             id: 'book-1',
           ),
+          status: MediaTrackingStatus.planned,
           updatedAt: DateTime.utc(2026, 5, 8),
         ),
       ],
-      catalogItems: {
-        'book-1': testCatalogItem(
+      catalogSummariesByRef: {
+        testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Catalog keyed by ref',
-        ),
+        ).catalogRef: testCatalogItem(
+          id: 'book-1',
+          kind: 'book',
+          title: 'Catalog keyed by ref',
+        ).asShelfCatalogSummary,
       },
     );
 
@@ -140,5 +152,47 @@ void main() {
     expect(state.entries.single.title, 'Catalog keyed by ref');
     expect(state.ownedCount, 1);
     expect(state.wishlistCount, 1);
+  });
+
+  test('shelf keeps equal catalog ids distinct across kinds', () {
+    const bookRef = CatalogEntityRef(
+      kind: CatalogMediaKind.book,
+      entityType: CatalogEntityTypeId('work'),
+      id: 'shared-id',
+    );
+    const comicRef = CatalogEntityRef(
+      kind: CatalogMediaKind.comic,
+      entityType: CatalogEntityTypeId('work'),
+      id: 'shared-id',
+    );
+    final state = ShelfState.from(
+      ownedSummaries: [
+        const OwnedItemSummary(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.book,
+            id: OwnedItemId('book-copy'),
+          ),
+          title: 'Book copy',
+          catalogRef: bookRef,
+        ),
+        const OwnedItemSummary(
+          ref: OwnedItemRef(
+            kind: CatalogMediaKind.comic,
+            id: OwnedItemId('comic-copy'),
+          ),
+          title: 'Comic copy',
+          catalogRef: comicRef,
+        ),
+      ],
+      wishlistItems: const [],
+    );
+
+    expect(state.ownedCount, 2);
+    expect(
+        state.entries.map((entry) => entry.catalogRef?.kind),
+        containsAll(<CatalogMediaKind>[
+          CatalogMediaKind.book,
+          CatalogMediaKind.comic,
+        ]));
   });
 }

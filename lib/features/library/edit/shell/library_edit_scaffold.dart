@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
@@ -185,7 +185,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         maxHeight: maxHeight,
         density: LibraryDensity.comfortable,
         expandBody: false,
-        child: AnimatedSize(
+        body: AnimatedSize(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           alignment: Alignment.topCenter,
@@ -209,7 +209,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                     ),
                   Flexible(
                     fit: FlexFit.loose,
-                    child: ColoredBox(
+                    child: Material(
                       color: p.panel,
                       child: hasTabStrip
                           ? AnimatedBuilder(

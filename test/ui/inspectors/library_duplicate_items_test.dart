@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
@@ -137,11 +136,11 @@ void main() {
     expect(find.text('97% match'), findsOneWidget);
     expect(find.text('2 items'), findsOneWidget);
     expect(find.text('Same barcode'), findsOneWidget);
-    expect(find.text('Saga #1'), findsNWidgets(2));
+    expect(find.text('Saga'), findsNWidgets(2));
   });
 }
 
-ShelfEntry _entry({
+LibraryWorkspaceSource _entry({
   required String itemId,
   required String title,
   String? barcode,
@@ -152,9 +151,9 @@ ShelfEntry _entry({
   bool wishlisted = false,
 }) {
   final timestamp = DateTime.utc(2024, 1, 1);
-  return ShelfEntry(
+  return LibraryWorkspaceSource(
     itemId: itemId,
-    catalogItem: LibraryMetadataItem.fromMetadataMap({
+    catalogData: testWorkspaceCatalogData(testCatalogItemFromJson({
       'id': itemId,
       'kind': 'comic',
       'title': title,
@@ -162,14 +161,14 @@ ShelfEntry _entry({
       if (issue != null) 'item_number': issue,
       if (publisher != null) 'publisher': publisher,
       if (releaseYear != null) 'release_year': releaseYear,
-    }),
-    ownedItem: owned
-        ? testOwnedItem(
+    }).asShelfCatalogItem),
+    ownedSummary: owned
+        ? testOwnedSummary(testOwnedItem(
             id: 'owned-$itemId',
             itemId: itemId,
             quantity: 1,
             updatedAt: timestamp,
-          )
+          ))
         : null,
     wishlistItem: wishlisted
         ? WishlistItem(

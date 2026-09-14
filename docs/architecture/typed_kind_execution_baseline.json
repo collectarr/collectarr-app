@@ -1,0 +1,11 @@
+{
+  "head": "8f739e24e",
+  "branch": "work/typed-kind-full-implementation-plan",
+  "architectureViolations": 0,
+  "complexityReports": 403,
+  "analyzerIssues": 0,
+  "failingTests": 95,
+  "verificationScope": "architecture checker (0 AST violations, 403 informational complexity reports), flutter analyze --fatal-warnings --fatal-infos (0 issues), focused workspace bucket/metadata coordinator tests passed, dart format and diff checks passed; full flutter test was not rerun for this batch",
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-14"
+}

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
-import 'package:collectarr_app/core/models/media_catalog.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';

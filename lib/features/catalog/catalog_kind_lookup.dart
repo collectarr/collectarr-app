@@ -1,0 +1,55 @@
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_search_hit.dart';
+
+export 'package:collectarr_app/core/models/catalog_search_hit.dart';
+
+/// Typed lookup boundary for one catalog kind.
+///
+/// The returned hit is intentionally a small cross-kind projection. The
+/// lookup itself must inspect the owning kind's typed repository/domain.
+abstract interface class CatalogKindLookup {
+  CatalogMediaKind get kind;
+
+  /// Resolves one opaque import value using the owning kind's semantics.
+  ///
+  /// The collection/import host does not decide whether [value] is a
+  /// barcode, ISBN, issue number, catalog number, or another identifier.
+  Future<CatalogSearchHit?> resolve(CatalogLookupQuery query);
+}
+
+/// Structural lookup input shared by import and global discovery hosts.
+///
+/// [value] is deliberately opaque. Each kind decides how to interpret it
+/// when [title] is present or absent.
+final class CatalogLookupQuery {
+  const CatalogLookupQuery({this.title, this.value});
+
+  final String? title;
+  final String? value;
+}
+
+String normalizeCatalogLookupValue(String value) {
+  return value.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '');
+}
+
+String normalizeCatalogLookupTitle(String value) {
+  return value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+}
+
+CatalogSearchHit catalogLookupHit({
+  required CatalogMediaKind kind,
+  required String id,
+  required String title,
+  String? subtitle,
+}) {
+  return CatalogSearchHit(
+    ref: CatalogEntityRef(
+      kind: kind,
+      entityType: CatalogEntityTypeId.root,
+      id: id,
+    ),
+    kind: kind,
+    title: title,
+    subtitle: subtitle,
+  );
+}

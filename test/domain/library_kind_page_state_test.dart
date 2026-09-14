@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import '../helpers/test_data_factories.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
-import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_modules.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/page.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/page.dart';
 import 'package:collectarr_app/features/library/kinds/book/page.dart';
@@ -16,12 +17,11 @@ import 'package:collectarr_app/features/library/kinds/game/page.dart';
 import 'package:collectarr_app/features/library/kinds/manga/page.dart';
 import 'package:collectarr_app/features/library/kinds/movie/page.dart';
 import 'package:collectarr_app/features/library/kinds/music/page.dart';
-import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/kinds/tv/page.dart';
 import 'package:collectarr_app/features/library/generic/page.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/video_drilldown_library_page_state.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/generic/kind_drilldown_library_page_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,7 +29,7 @@ void main() {
   test('known kind pages create concrete state classes', () {
     expect(
         BookLibraryPage(
-                type: bookKindModule,
+                type: const BookRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/books'))
@@ -37,7 +37,7 @@ void main() {
         isA<BookLibraryPageState>());
     expect(
         GameLibraryPage(
-                type: gameKindModule,
+                type: const GameRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/games'))
@@ -45,7 +45,7 @@ void main() {
         isA<GameLibraryPageState>());
     expect(
         BoardGameLibraryPage(
-                type: boardGameKindModule,
+                type: const BoardgameRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/boardgames'))
@@ -53,7 +53,7 @@ void main() {
         isA<BoardGameLibraryPageState>());
     expect(
         MusicLibraryPage(
-                type: musicKindModule,
+                type: const MusicRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/music'))
@@ -61,7 +61,7 @@ void main() {
         isA<MusicLibraryPageState>());
     expect(
         ComicLibraryPage(
-                type: comicKindModule,
+                type: const ComicRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/comics'))
@@ -69,7 +69,7 @@ void main() {
         isA<ComicLibraryPageState>());
     expect(
         MangaLibraryPage(
-                type: mangaKindModule,
+                type: const MangaRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/manga'))
@@ -77,7 +77,7 @@ void main() {
         isA<MangaLibraryPageState>());
     expect(
         MovieLibraryPage(
-                type: movieKindModule,
+                type: const MovieRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/movies'))
@@ -85,7 +85,7 @@ void main() {
         isA<MovieLibraryPageState>());
     expect(
         TvLibraryPage(
-                type: tvKindModule,
+                type: const TvRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/tv'))
@@ -93,7 +93,7 @@ void main() {
         isA<TvLibraryPageState>());
     expect(
         AnimeLibraryPage(
-                type: animeKindModule,
+                type: const AnimeRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/anime'))
@@ -129,15 +129,15 @@ void main() {
   test('video-like kinds share the explicit video drilldown state base', () {
     expect(
         MovieLibraryPage(
-                type: movieKindModule,
+                type: const MovieRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/movies'))
             .createState(),
-        isA<VideoDrilldownLibraryPageState>());
+        isA<KindDrilldownLibraryPageState>());
     expect(
         TvLibraryPage(
-                type: tvKindModule,
+                type: const TvRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/tv'))
@@ -145,22 +145,24 @@ void main() {
         isA<GenericLibraryPageState>());
     expect(
         AnimeLibraryPage(
-                type: animeKindModule,
+                type: const AnimeRegistration(),
                 topBar: const SizedBox(),
                 accent: Colors.blue,
                 routeUri: Uri(path: '/anime'))
             .createState(),
-        isA<VideoDrilldownLibraryPageState>());
+        isA<KindDrilldownLibraryPageState>());
   });
 
   test('reading queue visibility is now kind-owned in toolbar actions', () {
     expect(
-      bookKindModule.toolbarActionAvailability
+      const BookRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.readingQueue),
       isTrue,
     );
     expect(
-      gameKindModule.toolbarActionAvailability
+      const GameRegistration()
+          .toolbarActionAvailability
           .allows(LibraryToolbarActionId.readingQueue),
       isFalse,
     );
@@ -179,7 +181,7 @@ void main() {
     );
 
     final comicCategories = libraryGroupModeCategories(
-      comicKindModule,
+      const ComicRegistration(),
       ['series', 'grade', 'writer'],
     );
     expect(comicCategories.map((category) => category.label), [
@@ -189,20 +191,19 @@ void main() {
     ]);
   });
 
-  testWidgets('book edit dialog resolves all-scope requests to media scope',
-      (tester) async {
+  testWidgets('book edit dialog preserves all-scope requests', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: SizedBox()));
     final context = tester.element(find.byType(SizedBox));
 
     final request = LibraryEditDialogRequest(
-      type: bookKindModule,
-      item: LibraryMetadataItem.fromCatalogItem(
+      type: const BookRegistration(),
+      item: CatalogSearchCandidate.fromItem(testCatalogItemWithKindMetadata(
         testCatalogItem(
           id: 'book-1',
           kind: 'book',
           title: 'Hyperion',
         ),
-      ),
+      )),
       ownedItem: null,
       accent: Colors.blue,
       scope: LibraryEditScope.all,
@@ -213,15 +214,13 @@ void main() {
       request,
     ) as LibraryEditRenderer;
 
-    expect(dialog.scope, LibraryEditScope.media);
+    expect(dialog.scope, LibraryEditScope.all);
   });
 
-  test(
-      'library kind page builder dispatches known kinds and falls back to generic',
-      () {
+  test('library kind page builder dispatches known kinds', () {
     expect(
       buildLibraryKindPage(
-        type: defaultLibraryKindRegistry.require(CatalogMediaKind.comic),
+        registration: const ComicRegistration(),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/comic'),
@@ -230,7 +229,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: defaultLibraryKindRegistry.require(CatalogMediaKind.movie),
+        registration: const MovieRegistration(),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/movie'),
@@ -239,7 +238,7 @@ void main() {
     );
     expect(
       buildLibraryKindPage(
-        type: defaultLibraryKindRegistry.require(CatalogMediaKind.tv),
+        registration: const TvRegistration(),
         topBar: const SizedBox(),
         accent: Colors.blue,
         routeUri: Uri(path: '/tv'),
@@ -247,13 +246,8 @@ void main() {
       isA<TvLibraryPage>(),
     );
     expect(
-      buildLibraryKindPage(
-        type: genericKindModule,
-        topBar: const SizedBox(),
-        accent: Colors.blue,
-        routeUri: Uri(path: '/unknown'),
-      ),
-      isA<GenericLibraryPage>(),
+      () => defaultLibraryKindRegistry.require(CatalogMediaKind.unknown),
+      throwsArgumentError,
     );
   });
 }

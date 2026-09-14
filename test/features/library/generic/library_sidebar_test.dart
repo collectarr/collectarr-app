@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/kinds/movie/movie_kind_module.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 void main() {
   testWidgets('group mode dropdown shows expandable folders sections',
@@ -24,7 +24,7 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: movieKindModule,
+                type: const MovieRegistration(),
                 accent: Colors.cyan,
                 buckets: const [
                   LibraryBucket(title: 'All Movies', count: 12),
@@ -53,14 +53,20 @@ void main() {
     );
 
     expect(
-      find.text(genericGroupModeFolderSetLabel(selectedMode, movieKindModule)),
+      find.text(genericGroupModeFolderSetLabel(
+        selectedMode,
+        const MovieRegistration(),
+      )),
       findsOneWidget,
     );
     expect(find.text('Folder set'), findsNothing);
     expect(find.text('Current folder'), findsNothing);
 
     await tester.tap(find
-        .text(genericGroupModeFolderSetLabel(selectedMode, movieKindModule))
+        .text(genericGroupModeFolderSetLabel(
+          selectedMode,
+          const MovieRegistration(),
+        ))
         .first);
     await tester.pumpAndSettle();
 
@@ -106,7 +112,7 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: movieKindModule,
+                type: const MovieRegistration(),
                 accent: Colors.cyan,
                 buckets: const [
                   LibraryBucket(title: 'All Movies', count: 12),
@@ -150,7 +156,7 @@ void main() {
               width: 320,
               height: 420,
               child: LibrarySidebar(
-                type: movieKindModule,
+                type: const MovieRegistration(),
                 accent: Colors.cyan,
                 buckets: const [
                   LibraryBucket(title: '[All Movies]', count: 12),
@@ -193,7 +199,7 @@ void main() {
                   width: 320,
                   height: 420,
                   child: LibrarySidebar(
-                    type: movieKindModule,
+                    type: const MovieRegistration(),
                     accent: Colors.cyan,
                     buckets: const [
                       LibraryBucket(

@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,7 +39,7 @@ abstract class LibraryCoverScanService {
 
   Future<LibraryCoverScanResult?> scanCover({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
   });
 }
 
@@ -61,7 +61,7 @@ class LocalLibraryCoverScanService implements LibraryCoverScanService {
   @override
   Future<LibraryCoverScanResult?> scanCover({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
   }) async {
     final action = await sourcePrompt.selectAction(
       context: context,
@@ -106,7 +106,7 @@ class NoopLibraryCoverScanService implements LibraryCoverScanService {
   @override
   Future<LibraryCoverScanResult?> scanCover({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
   }) async {
     return null;
   }
@@ -119,7 +119,7 @@ abstract class LibraryCoverScanSourcePrompt {
 
   Future<LibraryCoverScanAction?> selectAction({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
   });
 }
 
@@ -130,7 +130,7 @@ class BottomSheetLibraryCoverScanSourcePrompt
   @override
   Future<LibraryCoverScanAction?> selectAction({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
   }) {
     return showModalBottomSheet<LibraryCoverScanAction>(
       context: context,
@@ -198,7 +198,7 @@ abstract class LibraryCoverImageReview {
 
   Future<LibraryCoverReviewedImage?> reviewImage({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required XFile file,
   });
 }
@@ -219,7 +219,7 @@ abstract class LibraryCoverImagePreprocessor {
   const LibraryCoverImagePreprocessor();
 
   Future<LibraryCoverPreparedImage> prepareImage({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverReviewedImage image,
   });
 }
@@ -230,7 +230,7 @@ class LocalLibraryCoverImagePreprocessor
 
   @override
   Future<LibraryCoverPreparedImage> prepareImage({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverReviewedImage image,
   }) async {
     if (!_needsImageTransform(image)) {
@@ -370,7 +370,7 @@ abstract class LibraryCoverTextRecognizer {
   const LibraryCoverTextRecognizer();
 
   Future<String?> recognizeText({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverPreparedImage image,
   });
 }
@@ -381,7 +381,7 @@ class ReviewSeedLibraryCoverTextRecognizer
 
   @override
   Future<String?> recognizeText({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverPreparedImage image,
   }) async {
     final extracted = image.reviewedImage.extractedText?.trim();
@@ -418,7 +418,7 @@ class CompositeLibraryCoverTextRecognizer
 
   @override
   Future<String?> recognizeText({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverPreparedImage image,
   }) async {
     final nativeText = await nativeRecognizer.recognizeText(
@@ -438,7 +438,7 @@ class GoogleMlKitLibraryCoverTextRecognizer
 
   @override
   Future<String?> recognizeText({
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required LibraryCoverPreparedImage image,
   }) async {
     if (!localCoverTextRecognitionSupported()) {
@@ -586,7 +586,7 @@ class DialogLibraryCoverImageReview implements LibraryCoverImageReview {
   @override
   Future<LibraryCoverReviewedImage?> reviewImage({
     required BuildContext context,
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required XFile file,
   }) {
     return showDialog<LibraryCoverReviewedImage>(
@@ -610,7 +610,7 @@ class _LibraryCoverScanReviewDialog extends ConsumerStatefulWidget {
   });
 
   final XFile file;
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final LibraryCoverImagePreprocessor imagePreprocessor;
   final LibraryCoverTextRecognizer textRecognizer;
 
@@ -773,7 +773,7 @@ class _LibraryCoverScanReviewDialogState
                     key: const ValueKey('library-cover-review-rotation-label'),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Text(
-                      'Rotation: ${_rotationQuarterTurns * 90}°',
+                      'Rotation: ${_rotationQuarterTurns * 90}Ã‚Â°',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color:
                                 Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1108,9 +1108,6 @@ class _LibraryCoverCropOverlay extends StatelessWidget {
 class LibraryCoverScanResult {
   const LibraryCoverScanResult({
     this.query,
-    this.series,
-    this.issueNumber,
-    this.publisher,
     this.year,
     this.confidenceLabel,
     this.reviewSummary,
@@ -1118,27 +1115,17 @@ class LibraryCoverScanResult {
   });
 
   final String? query;
-  final String? series;
-  final String? issueNumber;
-  final String? publisher;
   final int? year;
   final String? confidenceLabel;
   final String? reviewSummary;
   final List<String> warnings;
 
   bool get hasAnyHint {
-    return (query?.trim().isNotEmpty ?? false) ||
-        (series?.trim().isNotEmpty ?? false) ||
-        (issueNumber?.trim().isNotEmpty ?? false) ||
-        (publisher?.trim().isNotEmpty ?? false) ||
-        year != null;
+    return (query?.trim().isNotEmpty ?? false) || year != null;
   }
 
   bool get showAdvancedFields {
-    return (series?.trim().isNotEmpty ?? false) ||
-        (issueNumber?.trim().isNotEmpty ?? false) ||
-        (publisher?.trim().isNotEmpty ?? false) ||
-        year != null;
+    return year != null;
   }
 }
 
@@ -1170,9 +1157,6 @@ LibraryCoverScanResult _analysisDerivedResult(
 
   return LibraryCoverScanResult(
     query: merged.query,
-    series: merged.series,
-    issueNumber: merged.issueNumber,
-    publisher: merged.publisher,
     year: merged.year,
     confidenceLabel: primaryHasReviewText ? 'medium' : 'low',
     reviewSummary: _reviewSummary(image),
@@ -1187,7 +1171,7 @@ LibraryCoverScanResult _analysisDerivedResult(
 String? _reviewSummary(LibraryCoverReviewedImage image) {
   final parts = <String>[
     if (image.rotationQuarterTurns != 0)
-      'rotated ${image.rotationQuarterTurns * 90}°',
+      'rotated ${image.rotationQuarterTurns * 90}Ã‚Â°',
     if (!image.cropBounds.isFullFrame)
       'cropped ${(image.cropBounds.width * 100).round()}% x ${(image.cropBounds.height * 100).round()}%',
     if (image.extractedText?.trim().isNotEmpty ?? false) 'review text added',
@@ -1217,24 +1201,14 @@ String? _normalizedAnalysisText(String? raw) {
 class _CoverHintDraft {
   const _CoverHintDraft({
     this.query,
-    this.series,
-    this.issueNumber,
-    this.publisher,
     this.year,
   });
 
   final String? query;
-  final String? series;
-  final String? issueNumber;
-  final String? publisher;
   final int? year;
 
   bool get hasAnyHint {
-    return (query?.isNotEmpty ?? false) ||
-        (series?.isNotEmpty ?? false) ||
-        (issueNumber?.isNotEmpty ?? false) ||
-        (publisher?.isNotEmpty ?? false) ||
-        year != null;
+    return (query?.isNotEmpty ?? false) || year != null;
   }
 }
 
@@ -1246,72 +1220,27 @@ _CoverHintDraft _draftFromText(String cleaned) {
     remainder = remainder.replaceFirst(yearMatch.group(0)!, ' ');
   }
 
-  final issueMatches = RegExp(r'(?:(?<=\s)|^)#?(\d{1,4}[A-Za-z]?)\b')
-      .allMatches(remainder)
-      .toList(growable: false);
-  final issueNumber = issueMatches.isEmpty ? null : issueMatches.last.group(1);
-  if (issueMatches.isNotEmpty) {
-    remainder = remainder.replaceFirst(issueMatches.last.group(0)!, ' ');
-  }
-
-  final publisher = _extractPublisher(remainder);
-  if (publisher != null) {
-    remainder = remainder.replaceFirst(
-      RegExp(r'\b' + RegExp.escape(publisher) + r'\b', caseSensitive: false),
-      ' ',
-    );
-  }
-
   final query = remainder.replaceAll(RegExp(r'\s+'), ' ').trim();
   final resolvedQuery = query.isEmpty ? cleaned : query;
   return _CoverHintDraft(
     query: resolvedQuery,
-    series: resolvedQuery,
-    issueNumber: issueNumber,
-    publisher: publisher,
     year: year,
   );
 }
 
 _CoverHintDraft _mergeDrafts(List<_CoverHintDraft> drafts) {
   var query = '';
-  var series = '';
-  String? issueNumber;
-  String? publisher;
   int? year;
   for (final draft in drafts) {
     if (query.isEmpty && draft.query?.trim().isNotEmpty == true) {
       query = draft.query!.trim();
     }
-    if (series.isEmpty && draft.series?.trim().isNotEmpty == true) {
-      series = draft.series!.trim();
-    }
-    issueNumber ??= draft.issueNumber?.trim().isEmpty == true
-        ? null
-        : draft.issueNumber?.trim();
-    publisher ??= draft.publisher?.trim().isEmpty == true
-        ? null
-        : draft.publisher?.trim();
     year ??= draft.year;
   }
   return _CoverHintDraft(
     query: query.isEmpty ? null : query,
-    series: series.isEmpty ? null : series,
-    issueNumber: issueNumber,
-    publisher: publisher,
     year: year,
   );
-}
-
-String? _extractPublisher(String value) {
-  const publishers = <String>['DC', 'Marvel', 'Image', 'Dark Horse', 'Boom'];
-  for (final publisher in publishers) {
-    if (RegExp(r'\b' + RegExp.escape(publisher) + r'\b', caseSensitive: false)
-        .hasMatch(value)) {
-      return publisher;
-    }
-  }
-  return null;
 }
 
 bool _looksLikeGenericCameraName(String value) {

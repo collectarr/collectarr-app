@@ -5,12 +5,12 @@ import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
-import 'package:collectarr_app/features/library/detail/character_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/creator_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/comic/detail/character_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/comic/detail/creator_detail_page.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
-import 'package:collectarr_app/features/library/kinds/comic/detail/comic_series_detail_page.dart';
-import 'package:collectarr_app/features/library/detail/story_arc_detail_page.dart';
+import 'package:collectarr_app/features/library/kinds/comic/detail/story_arc_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_routes.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/app_shell.dart';
@@ -33,7 +33,6 @@ abstract final class AppRoutes {
   static const admin = '/admin';
   static const settings = '/settings';
   static const detail = '/detail';
-  static const comicSeries = '/comic/series/:seriesId';
   static const creator = '/creator/:name';
   static const character = '/character/:name';
   static const storyArc = '/story-arc/:name';
@@ -140,7 +139,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Detail pages (outside shell — full-screen push).
+      // Detail pages (outside shell Ã¢â‚¬â€ full-screen push).
       GoRoute(
         path: AppRoutes.detail,
         redirect: (context, state) {
@@ -181,13 +180,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.activity,
         builder: (context, state) => const GlobalActivityPage(),
       ),
-      GoRoute(
-        path: AppRoutes.comicSeries,
-        builder: (context, state) => ComicSeriesDetailPage(
-          seriesId: state.pathParameters['seriesId']!,
-          seriesTitle: state.uri.queryParameters['title'] ?? '',
-        ),
-      ),
+      ...collectarrKindRoutes,
       GoRoute(
         path: AppRoutes.creator,
         builder: (context, state) => CreatorDetailPage(
@@ -217,7 +210,7 @@ Widget _buildDefaultDetailPage(
   return LibraryDetailPage(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
+    ownedSummary: request.ownedSummary,
     accent: request.accent,
     onAddOwned: request.onAddOwned,
     onRemoveOwned: request.onRemoveOwned,
@@ -229,7 +222,7 @@ Widget _buildDefaultDetailPage(
 }
 
 // ---------------------------------------------------------------------------
-// Auth-state → ChangeNotifier bridge for GoRouter.refreshListenable
+// Auth-state Ã¢â€ â€™ ChangeNotifier bridge for GoRouter.refreshListenable
 // ---------------------------------------------------------------------------
 
 class _AuthChangeNotifier extends ChangeNotifier {

@@ -148,14 +148,14 @@ void main() {
 }
 
 LibraryProjectionItem _item(String id, String title, {int? year}) {
-  final source = ShelfEntry(
+  final source = LibraryWorkspaceSource(
     itemId: id,
-    catalogItem: testCatalogItem(
+    catalogData: testWorkspaceCatalogData(testCatalogItem(
       id: id,
       kind: 'movie',
       title: title,
       releaseDate: year != null ? DateTime.utc(year, 1, 1) : null,
-    ),
+    ).asShelfCatalogItem),
   );
   final node = LibraryTitleNodeRef(titleItemId: id);
   final dto = const GenericWorkspaceProjector().projectTitle(

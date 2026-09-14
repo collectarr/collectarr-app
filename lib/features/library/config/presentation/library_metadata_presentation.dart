@@ -1,19 +1,23 @@
-import 'package:collectarr_app/core/models/admin_metadata.dart';
+import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/library_relation_capability.dart';
+import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:flutter/material.dart';
 
 import 'library_search_presentation.dart';
@@ -104,16 +108,109 @@ List<Map<String, dynamic>> libraryMetadataCreditValues(
       .toList(growable: false);
 }
 
+/// Structural credit projection used by generic presentation hosts.
+///
+/// Kinds still decide which source fields become credits.  Generic widgets
+/// only render the already-projected name, role, and optional image.
+@immutable
+class LibraryMetadataCredit {
+  const LibraryMetadataCredit({
+    required this.name,
+    this.role,
+    this.imageUrl,
+  });
+
+  final String name;
+  final String? role;
+  final String? imageUrl;
+}
+
+List<LibraryMetadataCredit> libraryMetadataCredits(
+  LibraryMetadataSection section,
+) {
+  return [
+    for (final value in section.values)
+      if (value is Map<Object?, Object?>)
+        if (value['name']?.toString().trim() case final name?
+            when name.isNotEmpty)
+          LibraryMetadataCredit(
+            name: name,
+            role: _normalizedMetadataText(value['role']),
+            imageUrl: _normalizedMetadataText(value['image_url']),
+          ),
+  ];
+}
+
+String? _normalizedMetadataText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
 abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 
-  List<CatalogEditionDto> buildReleaseEditions({
-    required LibraryMetadataItem item,
+  /// Builds semantic duplicate candidates for this kind.
+  ///
+  /// Generic duplicate UI only groups and renders the structural candidates.
+  /// The kind decides which identifiers and matching rules are meaningful.
+  List<LibraryDuplicateCandidate> buildDuplicateCandidates(
+    LibraryWorkspaceSource entry,
+  ) =>
+      const [];
+
+  List<LibraryAddReleaseOption> buildReleaseOptions({
+    required CatalogSearchCandidate item,
   }) =>
       const [];
 
-  List<TrailerLinkDto> buildLinks({
-    required LibraryMetadataItem item,
+  /// Projects the already-dispatched kind data for generic workspace chrome.
+  ///
+  /// This is intentionally a small read projection. Add/search continues to
+  /// use [buildReleaseOptions] at its kind-owned boundary, while workspace
+  /// hosts never rehydrate a catalog transport snapshot.
+  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
+    LibraryWorkspaceSource entry,
+  ) =>
+      const [];
+
+  List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
+    LibraryWorkspaceSource entry,
+  ) =>
+      const [];
+
+  /// Provides the kind-owned title used by the generic Add preview shell.
+  String buildAddPreviewTitle({required CatalogSearchCandidate item}) =>
+      item.title;
+
+  /// Keeps issue/number semantics inside the owning kind. The generic shell
+  /// only renders the returned structural label when one is applicable.
+  String? buildAddPreviewItemNumber({
+    required CatalogSearchCandidate item,
+  }) =>
+      null;
+
+  /// Returns only the structural format badges that the generic Add shell
+  /// should render. Physical-format meaning stays in the owning kind.
+  List<(String id, String label)> buildAddPreviewFormatBadges({
+    required CatalogSearchCandidate item,
+  }) =>
+      const [];
+
+  List<(String, String?)> buildAddPreviewMetadataRows({
+    required CatalogSearchCandidate item,
+    required LibraryMediaPreviewLabels previewLabels,
+  }) =>
+      const [];
+
+  List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
+    required ProviderCandidate candidate,
+    required LibraryMediaPreviewLabels previewLabels,
+  }) =>
+      const [];
+
+  List<(String, String?)> buildAddPreviewMetadataRowsForFullPreview({
+    required AdminProviderPreview preview,
+    required LibraryMediaPreviewLabels previewLabels,
   }) =>
       const [];
 
@@ -123,7 +220,7 @@ abstract class LibraryMediaPresentationBuilder {
       null;
 
   LibraryAddSearchResultDisplay? buildSearchResultDisplay({
-    required LibraryMetadataItem item,
+    required CatalogSearchCandidate item,
   }) {
     return null;
   }
@@ -133,7 +230,7 @@ abstract class LibraryMediaPresentationBuilder {
     required Color accent,
     required String singularLabel,
     required LibraryMediaPreviewLabels previewLabels,
-    required LibraryMetadataItem? item,
+    required CatalogSearchCandidate? item,
     required ProviderCandidate? candidate,
     required AdminProviderPreview? preview,
     required bool isFetchingPreview,
@@ -153,13 +250,13 @@ abstract class LibraryMediaPresentationBuilder {
 
   LibraryMetadataPresentation buildMetadataPresentation({
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required bool includeIdentityFacts,
     required LibraryMetadataFactTapResolver tapFor,
   });
 
   LibraryCardPresentation buildCardPresentation(
-    LibraryProjectionRuntime item, {
+    LibraryProjectionView item, {
     bool musicVertical = false,
   }) {
     return const LibraryCardPresentation();
@@ -167,24 +264,24 @@ abstract class LibraryMediaPresentationBuilder {
 
   List<Widget> buildInspectorSections({
     required BuildContext context,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
     return const [];
   }
 
-  bool canOpenKindDrilldown(LibraryProjectionRuntime item) => false;
+  bool canOpenKindDrilldown(LibraryProjectionView item) => false;
 
   Widget? buildKindDrilldown({
     required BuildContext context,
-    required LibraryProjectionRuntime selectedItem,
+    required LibraryProjectionView selectedItem,
     required Color accent,
     required double coverSize,
     required VoidCallback onBack,
     required Future<void> Function() onRefreshFromCore,
     required VoidCallback onOpenTitleDetails,
-    required List<OwnedItem> ownedCopies,
+    required List<OwnedItemSummary> ownedCopies,
     required List<WishlistItem> wishlistItems,
     required String? selectedReleaseId,
     required void Function(String releaseId) onSelectRelease,
@@ -195,7 +292,7 @@ abstract class LibraryMediaPresentationBuilder {
   List<Widget> buildDetailCatalogSections({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     LibraryRelationCapability? relationCapability,
     ValueChanged<String>? onFilterByValue,
@@ -229,7 +326,7 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailIdentitySection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     LibraryRelationCapability? relationCapability,
     ValueChanged<String>? onFilterByValue,
@@ -265,7 +362,7 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailContextSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
@@ -300,7 +397,7 @@ abstract class LibraryMediaPresentationBuilder {
   Widget buildDetailCreditsSection({
     required BuildContext context,
     required String singularLabel,
-    required LibraryProjectionRuntime item,
+    required LibraryProjectionView item,
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {

@@ -1,18 +1,30 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_catalog_target_capability.dart';
+import 'package:collectarr_app/features/library/kinds/book/book_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_pane.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
+import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_copy_semantics.dart';
+import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/media/book_media_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/release/book_release_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit_presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/kinds/book/provider/book_provider_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
+import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
+import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_toolbar_config.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -22,13 +34,15 @@ import 'package:collectarr_app/features/library/add/models/library_add_advanced_
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation.dart';
-import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_profile.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_providers.dart';
-import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 import 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -37,50 +51,121 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 
 import 'package:collectarr_app/features/library/kinds/book/stats/book_stats_capability.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/add/book_provider_candidate_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_hierarchy_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
 
 const _bookAuthorFilterId = LibraryAddFilterId('book.author');
 const _bookIsbnFilterId = LibraryAddFilterId('book.isbn');
 const _bookPublisherFilterId = LibraryAddFilterId('book.publisher');
 const _bookYearFilterId = LibraryAddFilterId('book.year');
 
+TransferableField _bookTransferField({
+  required String key,
+  required String label,
+  required IconData icon,
+  required TransferableFieldType type,
+  required String? Function(BookOwnedItem item) read,
+  required BookOwnedItem Function(BookOwnedItem item, String? value) write,
+  LibraryEditScope scope = LibraryEditScope.all,
+}) {
+  return TransferableField.typed<BookOwnedItem>(
+    key: key,
+    label: label,
+    icon: icon,
+    type: type,
+    scope: scope,
+    decode: (value) => value as BookOwnedItem,
+    read: read,
+    write: write,
+  );
+}
+
+final _bookUniversalTransferableFields =
+    TransferableField.universalForTyped<BookOwnedItem>(
+  decode: (value) => value as BookOwnedItem,
+  readCondition: (item) => item.condition,
+  writeCondition: (item, value) => item.copyWith(condition: value),
+  readPersonalNotes: (item) => item.personalNotes,
+  writePersonalNotes: (item, value) => item.copyWith(personalNotes: value),
+  readLocationId: (item) => item.locationId,
+  writeLocationId: (item, value) => item.copyWith(locationId: value),
+  readTags: (item) => item.tags,
+  writeTags: (item, value) => item.copyWith(tags: value),
+  readCurrency: (item) => item.currency,
+  writeCurrency: (item, value) => item.copyWith(currency: value),
+  readSoldTo: (item) => item.soldTo,
+  writeSoldTo: (item, value) => item.copyWith(soldTo: value),
+  readPurchaseStore: (item) => item.purchaseStore,
+  writePurchaseStore: (item, value) => item.copyWith(purchaseStore: value),
+  readPricePaidCents: (item) => item.pricePaidCents?.toString(),
+  writePricePaidCents: (item, value) => item.copyWith(
+    pricePaidCents: value == null ? null : int.tryParse(value),
+  ),
+  readSellPriceCents: (item) => item.sellPriceCents?.toString(),
+  writeSellPriceCents: (item, value) => item.copyWith(
+    sellPriceCents: value == null ? null : int.tryParse(value),
+  ),
+  readQuantity: (item) => item.quantity.toString(),
+  writeQuantity: (item, value) => item.copyWith(
+    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
+  ),
+  readIndexNumber: (item) => item.indexNumber?.toString(),
+  writeIndexNumber: (item, value) => item.copyWith(
+    indexNumber: value == null ? null : int.tryParse(value),
+  ),
+  readPurchaseDate: (item) => item.purchaseDate?.toIso8601String(),
+  writePurchaseDate: (item, value) => item.copyWith(
+    purchaseDate: value == null ? null : DateTime.tryParse(value),
+  ),
+  readSoldAt: (item) => item.soldAt?.toIso8601String(),
+  writeSoldAt: (item, value) => item.copyWith(
+    soldAt: value == null ? null : DateTime.tryParse(value),
+  ),
+);
+
 final _bookTransferableFields = <TransferableField>[
-  TransferableField(
+  _bookTransferField(
+    key: 'grade',
+    label: 'Grade',
+    icon: Icons.workspace_premium_outlined,
+    type: TransferableFieldType.text,
+    read: (item) => item.grade,
+    write: (item, value) => item.copyWith(grade: value),
+  ),
+  _bookTransferField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.bookDetails?.signedBy,
+    read: (item) => item.details.signedBy,
     write: (item, value) {
-      final details = item.bookDetails ?? const BookOwnedDetails();
-      return item.copyWith(details: details.copyWith(signedBy: value));
+      return item.copyWith(details: item.details.copyWith(signedBy: value));
     },
   ),
-  TransferableField(
+  _bookTransferField(
     key: 'dustJacketPresent',
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
     scope: LibraryEditScope.release,
-    read: (item) =>
-        (item.bookDetails?.dustJacketPresent == true) ? 'true' : null,
+    read: (item) => item.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
-      final details = item.bookDetails ?? const BookOwnedDetails();
       return item.copyWith(
-        details: details.copyWith(dustJacketPresent: value == 'true'),
+        details: item.details.copyWith(dustJacketPresent: value == 'true'),
       );
     },
   ),
-  TransferableField(
+  _bookTransferField(
     key: 'dustJacketCondition',
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
     scope: LibraryEditScope.release,
-    read: (item) => item.bookDetails?.dustJacketCondition,
+    read: (item) => item.details.dustJacketCondition,
     write: (item, value) {
-      final details = item.bookDetails ?? const BookOwnedDetails();
       return item.copyWith(
-        details: details.copyWith(dustJacketCondition: value),
+        details: item.details.copyWith(dustJacketCondition: value),
       );
     },
   ),
@@ -145,15 +230,56 @@ Iterable<String?> _bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
+BookCatalogMetadata? _bookLinkedMetadata(LibraryWorkspaceSource source) {
+  final catalog = source.catalogData;
+  return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
+}
+
+MetadataSearchQuery _bookMetadataSearchQuery({
+  required LibraryWorkspaceSource source,
+  required String title,
+}) {
+  final metadata = _bookLinkedMetadata(source);
+  return MetadataSearchQuery(
+    query: title,
+    barcode: metadata?.barcode,
+    issueNumber: metadata?.itemNumber,
+    publisher: metadata?.publisher,
+    year: metadata?.originalPublicationDate?.year,
+    limit: 5,
+  );
+}
+
+final bookLibraryFacetModule = TypedLibraryFacetModule<BookWorkspaceDto>(
+  loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+  getFacetValues: _getBookFacetValues,
+  externalFacetBucketIdsByMode: {
+    'book.genre': BookFacetIds.genre,
+    'book.subject': BookFacetIds.subject,
+  },
+);
+
+BookOwnedItem _bookTransferOwnedItem(Object value) {
+  if (value is BookOwnedItem) return value;
+  throw ArgumentError.value(value, 'updated', 'Expected BookOwnedItem');
+}
+
+final bookKindModule = (
   presentation: bookLibraryMediaPresentation,
-  trackingProfile: readingTrackingProfile,
-  projector: const BookWorkspaceProjector(),
-  ownedDetailsCodec: const BookOwnedDetailsCodec(),
-  fields: bookLibraryKindSchema.toRegistry(),
-  catalogCodec: const DefaultCatalogKindCodec<BookCatalogMetadata>(
-    BookCatalogMetadata.fromJson,
-    _encodeBookMetadata,
+  physicalMediaFormats: bookPhysicalMediaFormats,
+  trackingProfile: bookTrackingProfile,
+  titleCapability: const DefaultTitleProjectionCapability(),
+  releaseCapability: null,
+  releaseDetailSource: null,
+  catalogTarget: const BookCatalogTargetCapability(),
+  uiPolicy: const LibraryUiPolicy(),
+  value: null,
+  relations: null,
+  toolbar: null,
+  searchTargetOptions: const <LibrarySearchTarget>[],
+  viewProfile: standardMediaWorkspaceViewProfile(
+    CatalogMediaKind.book,
+    const LibraryUiPolicy(),
   ),
   identity: const LibraryKindIdentity(
     kind: CatalogMediaKind.book,
@@ -163,6 +289,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     icon: Icons.book_outlined,
     accent: Color(0xFFC78446),
     preferencePrefix: 'books',
+    routeSegments: ['books', 'book'],
+    mediaFamily: 'print',
     toolbarActions: [
       ...kDefaultLibraryToolbarActions,
       LibraryToolbarActionId.readingQueue,
@@ -170,6 +298,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   ),
   metadata: const LibraryMetadataCapability(
     defaultProviderId: 'hardcover',
+    catalogMetadataDecoder: BookCatalogMetadata.fromJson,
+    searchQueryBuilder: _bookMetadataSearchQuery,
     providers: [
       hardcoverMetadataProvider,
       openLibraryMetadataProvider,
@@ -178,6 +308,7 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
   hierarchy: LibraryHierarchyCapability(
     browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
     fetchChildrenCallback: _fetchBookVolumes,
+    childrenTitleBuilder: _bookChildrenTitle,
     supportsMediaReleaseSplit: true,
     mediaScopeGroupIds: _bookMediaGroupModes,
     releaseScopeGroupIds: _bookReleaseGroupModes,
@@ -190,16 +321,65 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     supportsOwnedItemImages: false,
   ),
   linkedMetadata: TypedLibraryLinkedMetadataCapability<BookCatalogMetadata>(
+    _bookLinkedMetadata,
     _bookLinkedMetadataValues,
   ),
   transfer: LibraryTransferCapability(
-    kindFields: _bookTransferableFields,
+    transferableFieldKeys: [
+      ...kDefaultTransferableFieldKeys,
+      for (final field in _bookTransferableFields) field.key,
+    ],
+    kindFields: [
+      ..._bookUniversalTransferableFields,
+      ..._bookTransferableFields,
+    ],
   ),
   stats: const BookStatsCapability(),
   add: StandardLibraryAddCapability<BookAddDraft>(
     kind: CatalogMediaKind.book,
     initialDraftBuilder: BookAddDraft.new,
+    providerCandidateProjectionBuilder:
+        bookCatalogTransportFromProviderCandidate,
+    coreCatalogProjectionBuilder: bookCatalogTransportFromCoreItem,
     manualDraftBuilder: BookAddManualDraft.new,
+    ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+        BookOwnedItemCreatePayload(
+      catalogRef: item.catalogRef,
+      details: details as BookOwnedDetailsDraft,
+      condition: common.condition,
+      grade: kindValue ?? draft.grade,
+      purchaseDate: common.purchaseDate,
+      pricePaidCents: common.pricePaidCents,
+      currency: common.currency,
+      personalNotes: common.personalNotes,
+      quantity: common.quantity,
+      tags: common.tags,
+      locationId: common.locationId,
+      purchaseStore: common.purchaseStore,
+      collectionStatus: common.collectionStatus,
+      isDigital: common.isDigital,
+    ),
+    digitalCopyFlagBuilder: (item) {
+      final payload = item.mapTransport((transport) => transport).payload;
+      final direct = payload['is_digital'];
+      if (direct is bool) return direct;
+      final format =
+          (payload['physical_format'] ?? payload['physical_format_label'])
+              ?.toString()
+              .toLowerCase();
+      if (format == 'digital' || format == 'ebook' || format == 'web') {
+        return true;
+      }
+      final series = payload['series'];
+      if (series is Map && series['is_digital'] is bool) {
+        return series['is_digital'] as bool;
+      }
+      final publishing = payload['publishing'];
+      if (publishing is Map && publishing['is_digital'] is bool) {
+        return publishing['is_digital'] as bool;
+      }
+      return null;
+    },
     search: LibraryAddSearchCapability(
       advancedFilterDescriptorsBuilder: buildBookAddAdvancedFilterFields,
       coreSearchInputBuilder: _buildBookCoreSearchInput,
@@ -211,7 +391,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? metadata.authors
                   : const <Object?>[];
@@ -223,7 +404,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
             exactWeight: 90,
             containsWeight: 30,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.barcode, metadata.itemNumber]
                   : const <Object?>[];
@@ -235,7 +417,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.publisher, metadata.originalPublisher]
                   : const <Object?>[];
@@ -247,7 +430,8 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindMetadata;
+              final metadata =
+                  item.mapTransport((transport) => transport).kindMetadata;
               return metadata is BookCatalogMetadata
                   ? [metadata.originalPublicationDate?.year]
                   : const <Object?>[];
@@ -259,8 +443,10 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
     ),
     manualPaneBuilder: buildBookAddManualPane,
   ),
-  edit: LibraryEditCapability(
+  editCapabilities: LibraryEditCapabilitySet(
     editDialogBuilder: buildBookLibraryEditDialog,
+    mediaEditDialogBuilder: buildBookMediaLibraryEditDialog,
+    releaseEditDialogBuilder: buildBookReleaseLibraryEditDialog,
     vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
     presentation: const LibraryEditPresentation(
       builder: BookLibraryMediaEditPresentationBuilder(),
@@ -268,11 +454,79 @@ final bookKindModule = LibraryKindSpec<BookWorkspaceDto, BookOwnedDetails>(
       releaseBuilder: BookLibraryReleaseEditPresentationBuilder(),
     ),
     conditions: BookVocabularies.condition.builtIns,
+    ownedCollectionValueReader: (ownedItem) =>
+        ownedItem?.map<String>(book: (item) => item.grade),
+    defaultCondition: 'Near Mint',
+    defaultCollectionValue: 'Ungraded',
     createDraft: createBookEditDraft,
-  ),
-  providerMapper: const BookLibraryKindProviderMapper(),
-  facets: const LibraryFacetModule(
-    loadRows: LibraryPageUtilities.libraryFacetRowsForId,
+    ownedDigitalFlagResolver: resolveBookOwnedDigitalFlag,
+    ownedFormatHintResolver: resolveBookOwnedFormatHint,
+    ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
+        BookOwnedItemUpdatePayload.partial(
+      indexNumber: Patch.set(indexNumber),
+    ),
+    ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+        BookOwnedItemUpdatePayload.partial(
+      condition: Patch.set(condition),
+      grade: Patch.set(collectionValue),
+    ),
+    ownedBulkUpdatePayloadBuilder:
+        (_, condition, collectionValue, locationId, tags) =>
+            BookOwnedItemUpdatePayload.partial(
+      condition:
+          condition == null ? const Patch.unchanged() : Patch.set(condition),
+      grade: collectionValue == null
+          ? const Patch.unchanged()
+          : Patch.set(collectionValue),
+      locationId:
+          locationId == null ? const Patch.unchanged() : Patch.set(locationId),
+      tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
+    ),
+    ownedPersonalDetailsUpdatePayloadBuilder: (
+      _,
+      purchaseDate,
+      pricePaidCents,
+      currency,
+      personalNotes,
+      purchaseStore,
+      locationChanged,
+      locationId,
+    ) =>
+        BookOwnedItemUpdatePayload.partial(
+      purchaseDate: Patch.set(purchaseDate),
+      pricePaidCents: Patch.set(pricePaidCents),
+      currency: Patch.set(currency),
+      personalNotes: Patch.set(personalNotes),
+      purchaseStore: Patch.set(purchaseStore),
+      locationId:
+          locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
+    ),
+    ownedTransferUpdatePayloadBuilder: (_, updated) {
+      final typed = _bookTransferOwnedItem(updated);
+      return BookOwnedItemUpdatePayload.partial(
+        condition: Patch.set(typed.condition),
+        grade: Patch.set(typed.grade),
+        personalNotes: Patch.set(typed.personalNotes),
+        locationId: Patch.set(typed.locationId),
+        tags: Patch.set(typed.tags),
+        currency: Patch.set(typed.currency),
+        soldTo: Patch.set(typed.soldTo),
+        purchaseStore: Patch.set(typed.purchaseStore),
+        pricePaidCents: Patch.set(typed.pricePaidCents),
+        sellPriceCents: Patch.set(typed.sellPriceCents),
+        quantity: Patch.set(typed.quantity),
+        indexNumber: Patch.set(typed.indexNumber),
+        purchaseDate: Patch.set(typed.purchaseDate),
+        soldAt: Patch.set(typed.soldAt),
+        details: Patch.set(
+          const BookOwnedDetailsCodec().draftFromDetails(
+            typed.details,
+          ),
+        ),
+      );
+    },
+    ownedDetailsResetPayloadBuilder: () =>
+        BookOwnedItemUpdatePayload.partial(details: const Patch.clear()),
   ),
 );
 
@@ -282,10 +536,25 @@ Future<List<LibraryHierarchyNode>> _fetchBookVolumes({
   String? provider,
   String? providerItemId,
 }) async {
-  return const [];
+  final work =
+      await api.getBookWorkDto(itemId).timeout(const Duration(seconds: 60));
+  final book = BookCoreMapper.fromWorkDto(work);
+  return BookHierarchyMapper.toLibraryNodes(book.editions);
 }
 
-Map<String, dynamic> _encodeBookMetadata(BookCatalogMetadata m) => m.toJson();
+String _bookChildrenTitle(int count) => 'Editions ($count)';
+
+Iterable<String> _getBookFacetValues(
+  BookWorkspaceDto dto,
+  LibraryFacetIdRuntime facetId,
+) {
+  for (final definition in bookLibraryFacetDefinitions) {
+    if (definition.id.sameIdentityAs(facetId)) {
+      return definition.extractValues(dto);
+    }
+  }
+  return const [];
+}
 
 List<LibraryAddAdvancedFilterField<String>> buildBookAddAdvancedFilterFields(
   LibraryAddModeBarRequest req,
@@ -322,20 +591,20 @@ List<LibraryAddAdvancedFilterField<String>> buildBookAddAdvancedFilterFields(
       ),
     ];
 
-LibraryMetadataSearchInput _buildBookCoreSearchInput(
+MetadataSearchQuery _buildBookCoreSearchInput(
   LibraryAddSearchContext context, {
   required int limit,
 }) {
   final author = context.textValueFor(_bookAuthorFilterId);
   final isbn = context.textValueFor(_bookIsbnFilterId);
-  return LibraryMetadataSearchInput(
+  return MetadataSearchQuery(
     query:
         _optionalBookText(buildLibraryAddSearchQuery([context.query, author])),
     publisher: _optionalBookText(
       context.textValueFor(_bookPublisherFilterId),
     ),
     year: int.tryParse(context.textValueFor(_bookYearFilterId)),
-    barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.barcode),
+    barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.identifierCode),
     limit: limit,
   );
 }
@@ -347,7 +616,7 @@ String _buildBookProviderQuery(LibraryAddSearchContext context) {
     context.textValueFor(_bookIsbnFilterId),
     context.textValueFor(_bookPublisherFilterId),
     context.textValueFor(_bookYearFilterId),
-    context.barcode,
+    context.identifierCode,
   ]);
 }
 
@@ -355,3 +624,9 @@ String? _optionalBookText(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
 }
+
+final bookKindWorkspace = TypedLibraryKindWorkspace<BookWorkspaceDto>(
+  fields: bookLibraryKindSchema.toRegistry(),
+  projector: const BookWorkspaceProjector(),
+  hierarchy: bookKindModule.hierarchy,
+);

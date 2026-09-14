@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'catalog_entity_ref.dart';
+import 'owned_item_projection.dart';
+
 /// The category of a calendar event.
 enum CalendarEventKind {
   releaseDate,
@@ -17,21 +20,25 @@ class CalendarEvent {
     required this.kind,
     required this.date,
     required this.title,
+    this.eventId,
     this.subtitle,
-    this.itemId,
-    this.ownedItemId,
+    this.catalogRef,
+    this.ownedRef,
   });
 
   final CalendarEventKind kind;
   final DateTime date;
   final String title;
+
+  /// Stable identity for synchronization/export.
+  final String? eventId;
   final String? subtitle;
 
-  /// Catalog item ID, if applicable.
-  final String? itemId;
+  /// Structural catalog target, if applicable.
+  final CatalogEntityRef? catalogRef;
 
-  /// Owned item ID, if applicable (for loans, purchases).
-  final String? ownedItemId;
+  /// Structural owned-copy target, if applicable (for loans, purchases).
+  final OwnedItemRef? ownedRef;
 
   String get label => switch (kind) {
         CalendarEventKind.releaseDate => 'Release',

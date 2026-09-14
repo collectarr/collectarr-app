@@ -14,8 +14,8 @@ void main() {
     final repo = CustomFieldRepository(db);
 
     final ref = CatalogEntityRef(
-      kind: 'book',
-      entityType: CatalogEntityType.edition,
+      kind: CatalogMediaKind.book,
+      entityType: const CatalogEntityTypeId('edition'),
       id: 'book-edition-1',
     );
     final value = CustomFieldValue(
@@ -39,7 +39,8 @@ void main() {
     expect(row.catalogRefJson, jsonEncode(ref.toJson()));
 
     final values = await repo.listValuesForTarget(
-      catalogRef: ref,
+      targetId: ref.id,
+      targetScope: CustomFieldTargetScope.edition,
     );
     expect(values, hasLength(1));
     expect(values.single.catalogRef!.toJson(), ref.toJson());

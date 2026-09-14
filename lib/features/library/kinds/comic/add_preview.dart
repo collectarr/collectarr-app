@@ -30,12 +30,16 @@ class _ComicAddPreviewPane extends StatelessWidget {
         selectedItem?.title ??
         selectedCandidate!.title;
     final itemNumber = selectedBundle == null
-        ? (selectedItem?.kindMetadata.toSyncPayload()['item_number'] as String?)
+        ? (selectedItem
+            ?.mapTransport((transport) => transport)
+            .payload['item_number'] as String?)
         : null;
-    final displayEditionLabel = (selectedItem?.kindMetadata
-            .toSyncPayload()['edition_title'] as String?) ??
-        (selectedItem?.kindMetadata.toSyncPayload()['physical_format_label']
-            as String?);
+    final displayEditionLabel = (selectedItem
+            ?.mapTransport((transport) => transport)
+            .payload['edition_title'] as String?) ??
+        (selectedItem
+            ?.mapTransport((transport) => transport)
+            .payload['physical_format_label'] as String?);
     final preview = request.candidatePreview;
     final synopsis = selectedItem?.synopsis ??
         preview?.synopsis ??
@@ -231,7 +235,7 @@ class _ComicAddPreviewPane extends StatelessWidget {
                         ],
                       )
                     else if (selectedBundle != null)
-                      BundleReleaseDetailCard(
+                      LibraryBundleDetailCard(
                         detail: selectedBundle,
                         accent: request.accent,
                       )

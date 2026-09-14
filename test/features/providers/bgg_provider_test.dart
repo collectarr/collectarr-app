@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:xml/xml.dart';
 import '../../helpers/json_test_helpers.dart';
 
 class _MockHttpAdapter implements HttpClientAdapter {
@@ -49,12 +51,30 @@ const String _gloomhavenXmlFixture = '''
 
 void main() {
   group('BGGProvider', () {
+    test('decodes native XML board game model', () {
+      final thing = BggThing.fromXml(
+        XmlDocument.parse(_gloomhavenXmlFixture).findAllElements('item').single,
+      );
+
+      expect(thing.id, '174430');
+      expect(thing.names.single.value, 'Gloomhaven');
+      expect(thing.description, contains('tactical combat'));
+      expect(thing.yearPublished, 2017);
+      expect(thing.minPlayers, 1);
+      expect(thing.playingTime, 120);
+      expect(thing.links.first.value, 'Adventure');
+      expect(thing.toJson()['maxplayers'], 4);
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = BGGProvider();
       expect(provider.name, 'bgg');
       expect(provider.descriptor.displayName, 'BoardGameGeek');
-      expect(provider.descriptor.kind, 'boardgame');
-      expect(provider.descriptor.supportedKinds, contains('boardgame'));
+      expect(provider.descriptor.kind, CatalogMediaKind.boardgame);
+      expect(
+        provider.descriptor.supportedKinds,
+        contains(CatalogMediaKind.boardgame),
+      );
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '2 req/sec');
@@ -105,7 +125,7 @@ void main() {
       expect(item.provider, 'bgg');
       expect(item.providerItemId, '174430');
       expect(item.title, 'Gloomhaven');
-      expect(item.kind, 'boardgame');
+      expect(item.kind, CatalogMediaKind.boardgame);
       expect(item.summary, '2017');
     });
 
@@ -136,20 +156,20 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'bgg');
       expect(envelope.providerItemId, '174430');
-      expect(envelope.kind, 'boardgame');
-      expect(envelope.normalized['title'], 'Gloomhaven');
-      expect(envelope.normalized['publisher'], 'Cephalofair Games');
-      expect(envelope.normalized['min_players'], 1);
-      expect(envelope.normalized['max_players'], 4);
-      expect(envelope.normalized['min_age'], 14);
-      expect(envelope.normalized['playing_time_minutes'], 120);
-      expect(envelope.normalized['genres'],
+      expect(envelope.kind, CatalogMediaKind.boardgame);
+      expect(envelope.payload['title'], 'Gloomhaven');
+      expect(envelope.payload['publisher'], 'Cephalofair Games');
+      expect(envelope.payload['min_players'], 1);
+      expect(envelope.payload['max_players'], 4);
+      expect(envelope.payload['min_age'], 14);
+      expect(envelope.payload['playing_time_minutes'], 120);
+      expect(envelope.payload['genres'],
           containsAll(['Adventure', 'Fantasy', 'Miniatures']));
-      expect(envelope.normalized['creators'], hasLength(1));
-      expect(jsonObjectList(envelope.normalized['creators'])[0]['name'],
+      expect(envelope.payload['creators'], hasLength(1));
+      expect(jsonObjectList(envelope.payload['creators'])[0]['name'],
           'Isaac Childres');
-      expect(jsonObjectList(envelope.normalized['creators'])[0]['role'],
-          'Designer');
+      expect(
+          jsonObjectList(envelope.payload['creators'])[0]['role'], 'Designer');
       expect(envelope.images, hasLength(1));
       expect(envelope.images[0].url,
           'https://cf.geekdo-images.com/gloomhaven.jpg');
@@ -169,7 +189,7 @@ void main() {
       );
       expect(bggFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(bggFixtureRaw as Map),
       );
 
@@ -206,23 +226,21 @@ void main() {
         ],
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(
-          normalized['min_players'], goldenEnvelope.normalized['min_players']);
-      expect(
-          normalized['max_players'], goldenEnvelope.normalized['max_players']);
-      expect(normalized['min_age'], goldenEnvelope.normalized['min_age']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['min_players'], goldenEnvelope.payload['min_players']);
+      expect(normalized['max_players'], goldenEnvelope.payload['max_players']);
+      expect(normalized['min_age'], goldenEnvelope.payload['min_age']);
       expect(normalized['playing_time_minutes'],
-          goldenEnvelope.normalized['playing_time_minutes']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+          goldenEnvelope.payload['playing_time_minutes']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(jsonObject(normalized['provider_ids'])['bgg'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['bgg']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['bgg']);
       expect(jsonObjectList(normalized['creators'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['name']);
       expect(jsonObjectList(normalized['creators'])[0]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['role']);
     });
   });
 }

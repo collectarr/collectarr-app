@@ -1,22 +1,24 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_state_ref.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/edit/edition_selection_helpers.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart'
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_editor_widgets.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
+import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_row.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -29,35 +31,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const double _kInspectorEditorLabelWidth = 92;
 
-/// Inline condition / grade dropdowns for any library type.
+/// Inline collection-value dropdowns for any library type.
+///
+/// The host owns only the layout. The owning kind supplies the secondary
+/// value label and vocabulary; the widget deliberately does not model a
+/// domain-specific field.
 class InspectorCollectionFields extends StatelessWidget {
   const InspectorCollectionFields({
     super.key,
     required this.enabled,
     required this.condition,
-    required this.grade,
+    required this.secondaryValue,
     required this.conditions,
-    required this.grades,
+    required this.secondaryOptions,
     required this.onConditionChanged,
-    required this.onGradeChanged,
+    required this.onSecondaryChanged,
     required this.accent,
   });
 
   final bool enabled;
   final String? condition;
-  final String? grade;
+  final String? secondaryValue;
   final List<String> conditions;
-  final List<String> grades;
+  final List<String> secondaryOptions;
   final ValueChanged<String?>? onConditionChanged;
-  final ValueChanged<String?>? onGradeChanged;
+  final ValueChanged<String?>? onSecondaryChanged;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final hasConditions = conditions.isNotEmpty;
-    final hasGrades = grades.isNotEmpty;
-    if (!hasConditions && !hasGrades) return const SizedBox.shrink();
+    final hasSecondaryOptions = secondaryOptions.isNotEmpty;
+    if (!hasConditions && !hasSecondaryOptions) {
+      return const SizedBox.shrink();
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -80,27 +88,29 @@ class InspectorCollectionFields extends StatelessWidget {
               onChanged: enabled ? onConditionChanged : null,
             ),
           ),
-        if (hasGrades)
+        if (hasSecondaryOptions)
           _InspectorEditorRow(
-            label: 'Grade',
+            label: 'Collection value',
             child: DropdownButtonFormField<String>(
               isExpanded: true,
               dropdownColor: palette.panelRaised,
               borderRadius: kAppMenuBorderRadius,
-              initialValue: grades.contains(grade) ? grade : null,
+              initialValue: secondaryOptions.contains(secondaryValue)
+                  ? secondaryValue
+                  : null,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 isDense: true,
               ),
               items: [
-                for (final option in grades)
+                for (final option in secondaryOptions)
                   DropdownMenuItem(value: option, child: Text(option)),
               ],
-              onChanged: enabled ? onGradeChanged : null,
+              onChanged: enabled ? onSecondaryChanged : null,
             ),
           ),
         Text(
-          'Condition and grade save immediately.',
+          'Collection values save immediately.',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: palette.textMuted,
               ),
@@ -119,7 +129,7 @@ class InspectorPersonalDetailsEditor extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final OwnedItem ownedItem;
+  final OwnedItemSummary ownedItem;
   final Color accent;
 
   @override
@@ -133,7 +143,6 @@ class _InspectorPersonalDetailsEditorState
   late final TextEditingController _currencyController;
   late final TextEditingController _notesController;
   late final TextEditingController _purchaseStoreController;
-  late final TextEditingController _boxSetNameController;
   DateTime? _purchaseDate;
   String? _priceError;
   List<StorageLocation> _availableLocations = const [];
@@ -147,7 +156,6 @@ class _InspectorPersonalDetailsEditorState
     _currencyController = TextEditingController();
     _notesController = TextEditingController();
     _purchaseStoreController = TextEditingController();
-    _boxSetNameController = TextEditingController();
     _syncFromItem(widget.ownedItem);
     unawaited(_loadAvailableLocations());
   }
@@ -155,7 +163,7 @@ class _InspectorPersonalDetailsEditorState
   @override
   void didUpdateWidget(covariant InspectorPersonalDetailsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.ownedItem.id != widget.ownedItem.id ||
+    if (oldWidget.ownedItem.ref.id != widget.ownedItem.ref.id ||
         oldWidget.ownedItem.updatedAt != widget.ownedItem.updatedAt) {
       _syncFromItem(widget.ownedItem);
     }
@@ -167,7 +175,6 @@ class _InspectorPersonalDetailsEditorState
     _currencyController.dispose();
     _notesController.dispose();
     _purchaseStoreController.dispose();
-    _boxSetNameController.dispose();
     super.dispose();
   }
 
@@ -291,18 +298,6 @@ class _InspectorPersonalDetailsEditorState
             ),
           ),
         ),
-        _InspectorEditorRow(
-          label: 'Box set',
-          child: TextField(
-            controller: _boxSetNameController,
-            decoration: const InputDecoration(
-              hintText: 'Box set name',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.inventory_2_outlined),
-              isDense: true,
-            ),
-          ),
-        ),
         if (_priceError != null) ...[
           _InspectorEditorRow(
             label: 'Error',
@@ -327,15 +322,14 @@ class _InspectorPersonalDetailsEditorState
     );
   }
 
-  void _syncFromItem(OwnedItem item) {
+  void _syncFromItem(OwnedItemSummary item) {
     _purchaseDate = item.purchaseDate;
     _priceController.text = item.pricePaidCents == null
         ? ''
         : (item.pricePaidCents! / 100).toStringAsFixed(2);
     _currencyController.text = item.currency ?? 'USD';
-    _notesController.text = item.personalNotes ?? '';
+    _notesController.text = item.notes ?? '';
     _purchaseStoreController.text = item.purchaseStore ?? '';
-    _boxSetNameController.text = item.videoLikeDetails?.boxSetName ?? '';
     _selectedLocationId = item.locationId;
     _locationChanged = false;
   }
@@ -401,35 +395,19 @@ class _InspectorPersonalDetailsEditorState
       return;
     }
     final currency = _currencyController.text.trim().toUpperCase();
-    final video = widget.ownedItem.videoLikeDetails;
-    OwnedDetailsDraft? detailsDraft;
-    if (_emptyToNull(_boxSetNameController.text) != null && video != null) {
-      detailsDraft = MovieOwnedDetailsDraft(
-        features: video.features,
-        hdrFormats: video.hdrFormats,
-        boxSetName: _emptyToNull(_boxSetNameController.text),
-        region: video.region,
-        packaging: video.packaging,
-        distributor: video.distributor,
-      );
-    }
-
     await ref.read(collectionCommandCoordinatorProvider).updateOwnedItem(
-          UpdateOwnedItemCommand(
-            ownedItemId: widget.ownedItem.id,
-            purchaseDate: Patch.set(_purchaseDate),
-            pricePaidCents: Patch.set(price),
-            currency: Patch.set(currency.isEmpty ? null : currency),
-            personalNotes: Patch.set(_emptyToNull(_notesController.text)),
-            purchaseStore:
-                Patch.set(_emptyToNull(_purchaseStoreController.text)),
-            locationId: _locationChanged
-                ? Patch.set(_selectedLocationId)
-                : const Patch.unchanged(),
-            details: detailsDraft != null
-                ? Patch.set(detailsDraft)
-                : const Patch.unchanged(),
-          ),
+          libraryKindRegistrationForKind(
+            widget.ownedItem.catalogRef?.mediaKind ?? widget.ownedItem.ref.kind,
+          ).ownedEdit.buildPersonalDetailsUpdateCommand(
+                ownedRef: widget.ownedItem.ref,
+                purchaseDate: _purchaseDate,
+                pricePaidCents: price,
+                currency: currency.isEmpty ? null : currency,
+                personalNotes: _emptyToNull(_notesController.text),
+                purchaseStore: _emptyToNull(_purchaseStoreController.text),
+                locationChanged: _locationChanged,
+                locationId: _selectedLocationId,
+              ),
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -457,18 +435,20 @@ class InspectorTrackingDetailsEditor extends ConsumerStatefulWidget {
     super.key,
     required this.itemId,
     required this.mediaType,
-    required this.trackingEntry,
+    required this.trackingSummary,
     required this.profile,
     required this.accent,
-    this.editions = const <CatalogEdition>[],
+    this.trackingEditor,
+    this.releases = const <LibraryWorkspaceReleaseSummary>[],
   });
 
   final String itemId;
   final String mediaType;
-  final TrackingEntry trackingEntry;
+  final TrackingSummary trackingSummary;
   final MediaTrackingProfile profile;
   final Color accent;
-  final List<CatalogEdition> editions;
+  final LibraryTrackingEditorCapability? trackingEditor;
+  final List<LibraryWorkspaceReleaseSummary> releases;
 
   @override
   ConsumerState<InspectorTrackingDetailsEditor> createState() =>
@@ -482,21 +462,12 @@ class _InspectorTrackingDetailsEditorState
   late final TextEditingController _progressCurrentController;
   late final TextEditingController _progressTotalController;
   late final TextEditingController _timesCompletedController;
-  late final TextEditingController _seasonNumberController;
-  late final TextEditingController _episodeNumberController;
   late final TextEditingController _trackingNotesController;
+  TrackingStateEditMutation? _trackingEditorMutation;
   DateTime? _startedAt;
   DateTime? _finishedAt;
   String? _selectedEditionId;
   String? _selectedVariantId;
-
-  bool get _showsEpisodeFields {
-    return widget.profile.name == videoTrackingProfile.name ||
-        _seasonNumberController.text.trim().isNotEmpty ||
-        _episodeNumberController.text.trim().isNotEmpty ||
-        widget.trackingEntry.seasonNumber != null ||
-        widget.trackingEntry.episodeNumber != null;
-  }
 
   @override
   void initState() {
@@ -506,18 +477,18 @@ class _InspectorTrackingDetailsEditorState
     _progressCurrentController = TextEditingController();
     _progressTotalController = TextEditingController();
     _timesCompletedController = TextEditingController();
-    _seasonNumberController = TextEditingController();
-    _episodeNumberController = TextEditingController();
     _trackingNotesController = TextEditingController();
-    _syncFromEntry(widget.trackingEntry);
+    _syncFromSummary(widget.trackingSummary);
   }
 
   @override
   void didUpdateWidget(covariant InspectorTrackingDetailsEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.trackingEntry.id != widget.trackingEntry.id ||
-        oldWidget.trackingEntry.updatedAt != widget.trackingEntry.updatedAt) {
-      _syncFromEntry(widget.trackingEntry);
+    if (oldWidget.trackingSummary.ref != widget.trackingSummary.ref ||
+        oldWidget.trackingSummary.updatedAt !=
+            widget.trackingSummary.updatedAt) {
+      _trackingEditorMutation = null;
+      _syncFromSummary(widget.trackingSummary);
     }
   }
 
@@ -528,8 +499,6 @@ class _InspectorTrackingDetailsEditorState
     _progressCurrentController.dispose();
     _progressTotalController.dispose();
     _timesCompletedController.dispose();
-    _seasonNumberController.dispose();
-    _episodeNumberController.dispose();
     _trackingNotesController.dispose();
     super.dispose();
   }
@@ -548,7 +517,7 @@ class _InspectorTrackingDetailsEditorState
                 'Quick actions save immediately. Editor changes save when applied.',
           ),
         ),
-        if (widget.editions.isNotEmpty) ...[
+        if (widget.releases.isNotEmpty) ...[
           _InspectorEditorRow(
             label: 'Edition',
             alignTop: true,
@@ -556,19 +525,17 @@ class _InspectorTrackingDetailsEditorState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _TrackingEditionBrowser(
-                  editions: widget.editions,
+                  releases: widget.releases,
                   selectedEditionId: _selectedEditionId,
                   selectedVariantId: _selectedVariantId,
                   accent: accent,
                   onEditionSelected: (editionId) {
-                    final edition = resolveLibraryEditionSelection(
-                      widget.editions,
-                      editionId: editionId,
-                    ).edition;
+                    final release = widget.releases
+                        .where((value) => value.id == editionId)
+                        .firstOrNull;
                     setState(() {
-                      _selectedEditionId = edition?.id;
-                      _selectedVariantId =
-                          resolveVariantForEdition(edition)?.id;
+                      _selectedEditionId = release?.id;
+                      _selectedVariantId = release?.variants.firstOrNull?.id;
                     });
                   },
                   onVariantSelected: (variantId) {
@@ -610,15 +577,22 @@ class _InspectorTrackingDetailsEditorState
             accent: accent,
             progressCurrentController: _progressCurrentController,
             progressTotalController: _progressTotalController,
-            seasonNumberController: _seasonNumberController,
-            episodeNumberController: _episodeNumberController,
-            showsEpisodeFields: _showsEpisodeFields,
             onDecrementProgress: () => _bumpProgress(-1),
             onIncrementProgress: () => _bumpProgress(1),
-            onDecrementEpisode: () => _bumpEpisode(-1),
-            onIncrementEpisode: () => _bumpEpisode(1),
           ),
         ),
+        if (widget.trackingEditor != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: widget.trackingEditor!.build(
+              context,
+              summary: widget.trackingSummary,
+              onChanged: (mutation) => setState(
+                () => _trackingEditorMutation = mutation,
+              ),
+              accent: accent,
+            ),
+          ),
         _InspectorEditorRow(
           label: 'Progress',
           child: Row(
@@ -661,38 +635,6 @@ class _InspectorTrackingDetailsEditorState
             ),
           ),
         ),
-        if (_showsEpisodeFields) ...[
-          _InspectorEditorRow(
-            label: 'Episode',
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _seasonNumberController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'Season',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _episodeNumberController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      hintText: 'Episode',
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
         _InspectorEditorRow(
           label: 'Notes',
           alignTop: true,
@@ -760,24 +702,34 @@ class _InspectorTrackingDetailsEditorState
     );
   }
 
-  void _syncFromEntry(TrackingEntry entry) {
-    _ratingController.text = entry.rating?.toString() ?? '';
-    _statusController.text = entry.statusStorageValue ?? '';
-    _progressCurrentController.text = entry.progressCurrent?.toString() ?? '';
-    _progressTotalController.text = entry.progressTotal?.toString() ?? '';
-    _timesCompletedController.text = entry.timesCompleted?.toString() ?? '';
-    _seasonNumberController.text = entry.seasonNumber?.toString() ?? '';
-    _episodeNumberController.text = entry.episodeNumber?.toString() ?? '';
-    _trackingNotesController.text = entry.notes ?? '';
-    _startedAt = entry.startedAt;
-    _finishedAt = entry.finishedAt;
-    final selection = resolveLibraryEditionSelection(
-      widget.editions,
-      editionId: entry.editionId,
-      variantId: entry.variantId,
-    );
-    _selectedEditionId = selection.edition?.id;
-    _selectedVariantId = selection.variant?.id;
+  void _syncFromSummary(TrackingSummary summary) {
+    final progress = summary.progress;
+    _ratingController.text = summary.rating?.toString() ?? '';
+    _statusController.text = summary.statusStorageValue ?? '';
+    _progressCurrentController.text = progress.current?.toString() ?? '';
+    _progressTotalController.text = progress.total?.toString() ?? '';
+    _timesCompletedController.text = progress.timesCompleted?.toString() ?? '';
+    _trackingNotesController.text = summary.notes ?? '';
+    _startedAt = summary.startedAt;
+    _finishedAt = summary.completedAt;
+    final targetCapability =
+        libraryKindRegistrationForKind(summary.catalogRef.kind).catalogTarget;
+    final targetParts = targetCapability.parts(summary.catalogRef);
+    final editionId = targetParts.firstId;
+    final variantId = targetParts.secondId;
+    final release = widget.releases
+        .where((value) =>
+            value.id == editionId ||
+            value.variants.any((variant) => variant.id == variantId))
+        .firstOrNull;
+    final selectedRelease =
+        release ?? (widget.releases.isEmpty ? null : widget.releases.first);
+    _selectedEditionId = selectedRelease?.id;
+    _selectedVariantId = selectedRelease?.variants
+            .where((variant) => variant.id == variantId)
+            .firstOrNull
+            ?.id ??
+        selectedRelease?.variants.firstOrNull?.id;
   }
 
   Widget _dateField(
@@ -831,14 +783,6 @@ class _InspectorTrackingDetailsEditorState
     );
     setState(() {
       _progressCurrentController.text = '$bounded';
-    });
-  }
-
-  void _bumpEpisode(int delta) {
-    final current = parseTrackingInt(_episodeNumberController.text) ?? 1;
-    final bounded = clampTrackingEpisode(current: current, delta: delta);
-    setState(() {
-      _episodeNumberController.text = '$bounded';
     });
   }
 
@@ -899,15 +843,23 @@ class _InspectorTrackingDetailsEditorState
   }
 
   Future<void> _save() async {
-    final target = widget.trackingEntry.ownedItemId != null
-        ? TrackingTarget.owned(widget.trackingEntry.ownedItemId!)
-        : TrackingTarget.catalog(widget.trackingEntry.catalogRef);
-    await ref.read(trackingMutationsProvider).upsertTrackingEntry(
+    final targetCapability = libraryKindRegistrationForKind(
+      widget.trackingSummary.catalogRef.kind,
+    ).catalogTarget;
+    final target = widget.trackingSummary.ownedRef != null
+        ? TrackingTarget.owned(widget.trackingSummary.ownedRef!)
+        : TrackingTarget.catalog(widget.trackingSummary.catalogRef);
+    await ref.read(trackingMutationsProvider).upsertTrackingState(
           target,
-          ownedItemId: widget.trackingEntry.ownedItemId,
-          editionId: _selectedEditionId,
-          variantId: _selectedVariantId,
-          sourceType: widget.trackingEntry.sourceType,
+          targetRef: targetCapability.resolve(
+            widget.trackingSummary.catalogRef,
+            LibraryCatalogTargetSelection(
+              referenceType: LibraryAddReferenceType.edition,
+              firstId: _selectedEditionId,
+              secondId: _selectedVariantId,
+            ),
+          ),
+          sourceType: widget.trackingSummary.sourceType,
           status: mediaTrackingStatusFromValue(
               _emptyToNull(_statusController.text)),
           rating: _parseInt(_ratingController.text),
@@ -917,8 +869,7 @@ class _InspectorTrackingDetailsEditorState
           progressTotal: _parseInt(_progressTotalController.text),
           timesCompleted: _parseInt(_timesCompletedController.text),
           notes: _emptyToNull(_trackingNotesController.text),
-          seasonNumber: _parseInt(_seasonNumberController.text),
-          episodeNumber: _parseInt(_episodeNumberController.text),
+          kindPatch: _trackingEditorMutation,
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -949,9 +900,12 @@ class _InspectorTrackingDetailsEditorState
       ),
     );
     if (confirmed != true || !mounted) return;
-    await ref
-        .read(trackingMutationsProvider)
-        .removeTrackingEntry(widget.trackingEntry);
+    await ref.read(trackingMutationsProvider).removeTrackingByRef(
+          TrackingStateRef(
+            kind: widget.trackingSummary.catalogRef.mediaKind,
+            id: widget.trackingSummary.id,
+          ),
+        );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Tracking removed')),
@@ -975,7 +929,7 @@ class _InspectorTrackingDetailsEditorState
 /// selected, variant tiles with cover thumbnails appear below.
 class _TrackingEditionBrowser extends StatelessWidget {
   const _TrackingEditionBrowser({
-    required this.editions,
+    required this.releases,
     required this.selectedEditionId,
     required this.selectedVariantId,
     required this.accent,
@@ -983,16 +937,16 @@ class _TrackingEditionBrowser extends StatelessWidget {
     required this.onVariantSelected,
   });
 
-  final List<CatalogEdition> editions;
+  final List<LibraryWorkspaceReleaseSummary> releases;
   final String? selectedEditionId;
   final String? selectedVariantId;
   final Color accent;
   final ValueChanged<String?> onEditionSelected;
   final ValueChanged<String?> onVariantSelected;
 
-  CatalogEdition? get _activeEdition {
+  LibraryWorkspaceReleaseSummary? get _activeRelease {
     if (selectedEditionId == null) return null;
-    for (final e in editions) {
+    for (final e in releases) {
       if (e.id == selectedEditionId) return e;
     }
     return null;
@@ -1001,7 +955,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final activeEdition = _activeEdition;
+    final activeRelease = _activeRelease;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1018,7 +972,7 @@ class _TrackingEditionBrowser extends StatelessWidget {
           height: 118,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: editions.length + 1,
+            itemCount: releases.length + 1,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, index) {
               if (index == 0) {
@@ -1030,27 +984,25 @@ class _TrackingEditionBrowser extends StatelessWidget {
                   onTap: () => onEditionSelected(null),
                 );
               }
-              final edition = editions[index - 1];
-              final coverUrl = edition.variants
+              final release = releases[index - 1];
+              final coverUrl = release.variants
                   .where((v) => v.coverImageUrl != null)
                   .map((v) => v.thumbnailImageUrl ?? v.coverImageUrl)
                   .firstOrNull;
               return _EditionCard(
-                title: edition.title,
+                title: release.title,
                 subtitle: [
-                  if (edition.physicalFormatLabel != null)
-                    edition.physicalFormatLabel!,
-                  if (edition.publisher != null) edition.publisher!,
-                ].join(' · '),
+                  if (release.formatLabel != null) release.formatLabel!,
+                ].join(' Ã‚Â· '),
                 coverUrl: coverUrl,
-                isSelected: selectedEditionId == edition.id,
+                isSelected: selectedEditionId == release.id,
                 accent: accent,
-                onTap: () => onEditionSelected(edition.id),
+                onTap: () => onEditionSelected(release.id),
               );
             },
           ),
         ),
-        if (activeEdition != null && activeEdition.variants.isNotEmpty) ...[
+        if (activeRelease != null && activeRelease.variants.isNotEmpty) ...[
           const SizedBox(height: 12),
           Text(
             'Variants',
@@ -1065,10 +1017,10 @@ class _TrackingEditionBrowser extends StatelessWidget {
             height: 118,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: activeEdition.variants.length,
+              itemCount: activeRelease.variants.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
-                final variant = activeEdition.variants[index];
+                final variant = activeRelease.variants[index];
                 return _VariantCard(
                   variant: variant,
                   isSelected: selectedVariantId == variant.id,
@@ -1128,7 +1080,7 @@ class _InspectorEditorRow extends StatelessWidget {
 
 @visibleForTesting
 Widget buildTrackingEditionBrowserForTesting({
-  required List<CatalogEdition> editions,
+  required List<LibraryWorkspaceReleaseSummary> releases,
   required String? selectedEditionId,
   required String? selectedVariantId,
   required Color accent,
@@ -1136,7 +1088,7 @@ Widget buildTrackingEditionBrowserForTesting({
   required ValueChanged<String?> onVariantSelected,
 }) {
   return _TrackingEditionBrowser(
-    editions: editions,
+    releases: releases,
     selectedEditionId: selectedEditionId,
     selectedVariantId: selectedVariantId,
     accent: accent,
@@ -1233,7 +1185,7 @@ class _VariantCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final CatalogVariant variant;
+  final LibraryWorkspaceVariantSummary variant;
   final bool isSelected;
   final Color accent;
   final VoidCallback onTap;
@@ -1280,10 +1232,10 @@ class _VariantCard extends StatelessWidget {
                     color: isSelected ? accent : onSurface,
                   ),
                 ),
-                if (variant.physicalFormatLabel != null) ...[
+                if (variant.formatLabel != null) ...[
                   const SizedBox(height: 2),
                   Text(
-                    variant.physicalFormatLabel!,
+                    variant.formatLabel!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

@@ -1,16 +1,19 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-import '../../domain/models/normalized_provider_envelope_v1.dart';
+import '../../../../core/models/catalog_media_kind.dart';
+
+import '../../transport/provider_metadata_envelope.dart';
 import '../../domain/models/provider_attribution.dart';
 import '../../domain/models/provider_descriptor.dart';
 import '../../domain/models/provider_exception.dart';
 import '../../domain/models/provider_image_ref.dart';
 import '../../domain/models/provider_provenance.dart';
-import '../../domain/models/provider_search_result.dart';
+import '../../transport/provider_search_result.dart';
 import '../../runtime/provider_http_client.dart';
 import '../../runtime/provider_rate_limiter.dart';
 import '../provider_adapter.dart';
+import 'models/anilist_media.dart';
 
 final RegExp _htmlTagRegex = RegExp(r'<[^>]+>');
 
@@ -117,8 +120,8 @@ class AniListProvider extends ProviderAdapter {
   static const ProviderDescriptor anilistDescriptor = ProviderDescriptor(
     name: 'anilist',
     displayName: 'AniList',
-    kind: 'manga',
-    supportedKinds: ['manga', 'anime'],
+    kind: CatalogMediaKind.manga,
+    supportedKinds: [CatalogMediaKind.manga, CatalogMediaKind.anime],
     supportsSearch: true,
     supportsIngest: true,
     requiresUserKey: false,
@@ -147,13 +150,13 @@ class AniListProvider extends ProviderAdapter {
   @override
   Future<List<ProviderSearchResult>> search(
     String query, {
-    String? kind,
+    CatalogMediaKind? kind,
     int limit = 25,
   }) async {
     final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (normalizedQuery.isEmpty) return [];
 
-    final targetKind = _resolveTargetKind(kind);
+    final targetKind = _resolveTargetKind(kind?.apiValue);
     final anilistType = targetKind == 'anime' ? 'ANIME' : 'MANGA';
 
     final payload = await _graphql(
@@ -208,19 +211,19 @@ class AniListProvider extends ProviderAdapter {
     final results = <ProviderSearchResult>[];
     for (final item in mediaList) {
       if (item is! Map) continue;
-      final itemMap = Map<String, dynamic>.from(item);
-      results.add(_searchResultFromMedia(itemMap, targetKind));
+      final media = AniListMedia.fromJson(Map<String, dynamic>.from(item));
+      results.add(_searchResultFromMedia(media, targetKind));
     }
     return results;
   }
 
   @override
-  Future<NormalizedProviderEnvelopeV1> fetchItem(
+  Future<ProviderMetadataEnvelope> fetchItem(
     String providerItemId, {
-    String? kind,
+    CatalogMediaKind? kind,
   }) async {
     final (resolvedKind, anilistId) =
-        _parseKindAndMediaId(providerItemId, defaultKind: kind);
+        _parseKindAndMediaId(providerItemId, defaultKind: kind?.apiValue);
     if (anilistId == null) {
       throw ProviderNotFoundException(
         provider: name,
@@ -259,7 +262,10 @@ class AniListProvider extends ProviderAdapter {
     final raw = Map<String, dynamic>.from(media);
     raw['media_type'] = resolvedKind;
 
-    final normalized = normalize(raw);
+    final normalized = normalizeMedia(
+      AniListMedia.fromJson(raw),
+      resolvedKind,
+    );
     final coverUrl = normalized['cover_image_url']?.toString();
 
     final images = <ProviderImageRef>[];
@@ -277,12 +283,12 @@ class AniListProvider extends ProviderAdapter {
 
     final canonicalItemId = _formatProviderItemId(resolvedKind, anilistId);
 
-    return NormalizedProviderEnvelopeV1(
+    return ProviderMetadataEnvelope(
       schemaVersion: 'v1',
       provider: name,
       providerItemId: canonicalItemId,
-      kind: resolvedKind,
-      normalized: normalized,
+      kind: catalogMediaKindFromApiValue(resolvedKind),
+      payload: ProviderMetadataPayload(normalized),
       provenance: ProviderProvenance(
         fetchedAt: DateTime.now().toUtc().toIso8601String(),
         sourceUrl: 'https://anilist.co/$resolvedKind/$anilistId',
@@ -301,34 +307,25 @@ class AniListProvider extends ProviderAdapter {
 
   Map<String, dynamic> normalize(Map<String, dynamic> data) {
     final kind = _kindFromRaw(data);
-    final anilistId = _parseInt(data['id']);
-    final title = _extractTitle(data) ?? 'Unknown $kind';
-    final genres = _extractListText(data['genres']);
-    final coverUrl = _extractCoverUrl(data);
-    final synopsis = _cleanHtmlDescription(data['description']);
+    return normalizeMedia(AniListMedia.fromJson(data), kind);
+  }
+
+  Map<String, dynamic> normalizeMedia(AniListMedia media, String kind) {
+    final anilistId = media.id;
+    final title = _extractTitle(media.title) ?? 'Unknown $kind';
+    final genres = media.genres;
+    final coverUrl = _extractCoverUrl(media.coverImage);
+    final synopsis = _cleanHtmlDescription(media.description);
 
     final creators = <Map<String, dynamic>>[];
-    final staff = data['staff'];
-    if (staff is Map) {
-      final edges = staff['edges'];
-      if (edges is List) {
-        for (final edge in edges) {
-          if (edge is! Map) continue;
-          final role = edge['role']?.toString() ?? 'Creator';
-          final node = edge['node'];
-          if (node is Map) {
-            final nameObj = node['name'];
-            final fullName =
-                nameObj is Map ? nameObj['full']?.toString() : null;
-            if (fullName != null && fullName.trim().isNotEmpty) {
-              creators.add(<String, dynamic>{
-                'name': fullName.trim(),
-                'role': role,
-                'external_ids': <String, dynamic>{},
-              });
-            }
-          }
-        }
+    for (final staffCredit in media.staff) {
+      final fullName = staffCredit.name;
+      if (fullName != null && fullName.trim().isNotEmpty) {
+        creators.add(<String, dynamic>{
+          'name': fullName.trim(),
+          'role': staffCredit.role ?? 'Creator',
+          'external_ids': <String, dynamic>{},
+        });
       }
     }
 
@@ -336,7 +333,7 @@ class AniListProvider extends ProviderAdapter {
     if (anilistId != null) {
       providerIds['anilist'] = anilistId.toString();
     }
-    final malId = _parseInt(data['idMal']);
+    final malId = media.idMal;
     if (malId != null) {
       providerIds['mal'] = malId.toString();
     }
@@ -398,48 +395,32 @@ class AniListProvider extends ProviderAdapter {
   }
 
   ProviderSearchResult _searchResultFromMedia(
-    Map<String, dynamic> item,
+    AniListMedia item,
     String targetKind,
   ) {
-    final title = _extractTitle(item) ?? 'Unknown AniList $targetKind';
-    final anilistId = _parseInt(item['id']);
+    final title = _extractTitle(item.title) ?? 'Unknown AniList $targetKind';
+    final anilistId = item.id;
     final providerItemId =
         anilistId != null ? _formatProviderItemId(targetKind, anilistId) : '';
-    final startDate = item['startDate'] is Map
-        ? Map<String, dynamic>.from(item['startDate'] as Map)
-        : null;
-    final year = startDate?['year']?.toString();
-    final titleMap = item['title'] is Map
-        ? Map<String, dynamic>.from(item['title'] as Map)
-        : null;
-    final romaji = titleMap?['romaji'] as String?;
-    final english = titleMap?['english'] as String?;
+    final year = item.startDate?.year?.toString();
+    final romaji = item.title?.romaji;
+    final english = item.title?.english;
     final altTitle = (english != null && romaji != null && romaji != english)
         ? romaji
         : null;
 
     final summaryParts = <String>[
       if (altTitle != null && altTitle.isNotEmpty) altTitle,
-      if (item['format'] != null) item['format'].toString(),
-      if (item['status'] != null) item['status'].toString(),
+      if (item.format != null) item.format!,
+      if (item.status != null) item.status!,
       if (year != null && year.isNotEmpty) year,
     ];
 
     final characterPreview = <String>[];
-    final characters = item['characters'];
-    if (characters is Map) {
-      final edges = characters['edges'];
-      if (edges is List) {
-        for (final edge in edges) {
-          if (edge is Map && edge['node'] is Map) {
-            final edgeMap = Map<String, dynamic>.from(edge);
-            final node = Map<String, dynamic>.from(edgeMap['node'] as Map);
-            final name = node['name'];
-            if (name is Map && name['full'] is String) {
-              characterPreview.add(name['full'] as String);
-            }
-          }
-        }
+    for (final character in item.characters) {
+      final characterName = character.name;
+      if (characterName != null && characterName.isNotEmpty) {
+        characterPreview.add(characterName);
       }
     }
 
@@ -447,9 +428,9 @@ class AniListProvider extends ProviderAdapter {
       provider: name,
       providerItemId: providerItemId,
       title: title,
-      kind: targetKind,
+      kind: catalogMediaKindFromApiValue(targetKind),
       summary: summaryParts.isNotEmpty ? summaryParts.join(' · ') : null,
-      imageUrl: _extractCoverUrl(item),
+      imageUrl: _extractCoverUrl(item.coverImage),
       characterPreview: characterPreview,
     );
   }
@@ -492,27 +473,21 @@ class AniListProvider extends ProviderAdapter {
     return 'anime:$anilistId';
   }
 
-  String? _extractTitle(Map<String, dynamic> data) {
-    final title = data['title'];
-    if (title is Map) {
-      final english = title['english']?.toString().trim();
-      if (english != null && english.isNotEmpty) return english;
-      final romaji = title['romaji']?.toString().trim();
-      if (romaji != null && romaji.isNotEmpty) return romaji;
-      final native = title['native']?.toString().trim();
-      if (native != null && native.isNotEmpty) return native;
-    }
+  String? _extractTitle(AniListTitle? title) {
+    final english = title?.english;
+    if (english != null && english.isNotEmpty) return english;
+    final romaji = title?.romaji;
+    if (romaji != null && romaji.isNotEmpty) return romaji;
+    final native = title?.native;
+    if (native != null && native.isNotEmpty) return native;
     return null;
   }
 
-  String? _extractCoverUrl(Map<String, dynamic> data) {
-    final cover = data['coverImage'];
-    if (cover is Map) {
-      final large = cover['large']?.toString().trim();
-      if (large != null && large.isNotEmpty) return large;
-      final medium = cover['medium']?.toString().trim();
-      if (medium != null && medium.isNotEmpty) return medium;
-    }
+  String? _extractCoverUrl(AniListCoverImage? cover) {
+    final large = cover?.large;
+    if (large != null && large.isNotEmpty) return large;
+    final medium = cover?.medium;
+    if (medium != null && medium.isNotEmpty) return medium;
     return null;
   }
 
@@ -522,19 +497,6 @@ class AniListProvider extends ProviderAdapter {
     if (text.isEmpty) return null;
     text = text.replaceAll(_htmlTagRegex, '').trim();
     return text.isNotEmpty ? text : null;
-  }
-
-  List<String> _extractListText(dynamic value) {
-    if (value is List) {
-      final list = <String>[];
-      for (final item in value) {
-        if (item != null && item.toString().trim().isNotEmpty) {
-          list.add(item.toString().trim());
-        }
-      }
-      return list;
-    }
-    return [];
   }
 
   int? _parseInt(dynamic value) {

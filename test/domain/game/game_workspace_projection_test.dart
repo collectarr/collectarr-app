@@ -8,13 +8,13 @@ void main() {
   test(
       'GameWorkspaceProjector produces a typed GameWorkspaceDto with correct title',
       () {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'game-1',
         title: 'Example Game',
         kind: 'game',
-      ),
+      ).asShelfCatalogItem),
     );
 
     final dto = const GameWorkspaceProjector().projectTitle(

@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/owned_item_details.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/grading_details.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/ownership/signature_details.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_grading_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_signature_details.dart';
 
 const Object _mangaDetailsUnset = Object();
 
 @immutable
-class MangaOwnedDetails extends OwnedItemDetails {
+class MangaOwnedDetails implements JsonEncodable {
   const MangaOwnedDetails({
-    this.grading = const GradingDetails(),
-    this.signature = const SignatureDetails(),
+    this.grading = const MangaGradingDetails(),
+    this.signature = const MangaSignatureDetails(),
     String? signedBy,
     String? gradingCompany,
     String? graderNotes,
@@ -25,8 +25,8 @@ class MangaOwnedDetails extends OwnedItemDetails {
         _gradingCompany = gradingCompany,
         _graderNotes = graderNotes;
 
-  final GradingDetails grading;
-  final SignatureDetails signature;
+  final MangaGradingDetails grading;
+  final MangaSignatureDetails signature;
 
   final String? _signedBy;
   final String? _gradingCompany;
@@ -62,9 +62,16 @@ class MangaOwnedDetails extends OwnedItemDetails {
 
   @override
   Map<String, dynamic> toJson() => {
+        if (grading.rawOrSlabbed != null)
+          'raw_or_slabbed': grading.rawOrSlabbed,
         if (signedBy != null) 'signed_by': signedBy,
         if (gradingCompany != null) 'grading_company': gradingCompany,
         if (graderNotes != null) 'grader_notes': graderNotes,
+        if (grading.labelType != null) 'label_type': grading.labelType,
+        if (grading.customLabel != null) 'custom_label': grading.customLabel,
+        if (grading.pageQuality != null) 'page_quality': grading.pageQuality,
+        if (grading.certificationNumber != null)
+          'certification_number': grading.certificationNumber,
         if (obiStripPresent) 'obi_strip_present': true,
         if (slipcoverPresent) 'slipcover_present': true,
         if (dustJacketPresent) 'dust_jacket_present': true,
@@ -78,8 +85,8 @@ class MangaOwnedDetails extends OwnedItemDetails {
       };
 
   factory MangaOwnedDetails.fromJson(Map<String, dynamic> json) {
-    final grading = GradingDetails.fromJson(json);
-    final signature = SignatureDetails.fromJson(json);
+    final grading = MangaGradingDetails.fromJson(json);
+    final signature = MangaSignatureDetails.fromJson(json);
     return MangaOwnedDetails(
       grading: grading,
       signature: signature,
@@ -98,8 +105,8 @@ class MangaOwnedDetails extends OwnedItemDetails {
     Object? signedBy = _mangaDetailsUnset,
     Object? gradingCompany = _mangaDetailsUnset,
     Object? graderNotes = _mangaDetailsUnset,
-    GradingDetails? grading,
-    SignatureDetails? signature,
+    MangaGradingDetails? grading,
+    MangaSignatureDetails? signature,
     bool? obiStripPresent,
     bool? slipcoverPresent,
     bool? dustJacketPresent,
@@ -145,9 +152,14 @@ class MangaOwnedDetails extends OwnedItemDetails {
       identical(this, other) ||
       other is MangaOwnedDetails &&
           runtimeType == other.runtimeType &&
+          grading.rawOrSlabbed == other.grading.rawOrSlabbed &&
           signedBy == other.signedBy &&
           gradingCompany == other.gradingCompany &&
           graderNotes == other.graderNotes &&
+          grading.labelType == other.grading.labelType &&
+          grading.customLabel == other.grading.customLabel &&
+          grading.pageQuality == other.grading.pageQuality &&
+          grading.certificationNumber == other.grading.certificationNumber &&
           obiStripPresent == other.obiStripPresent &&
           slipcoverPresent == other.slipcoverPresent &&
           dustJacketPresent == other.dustJacketPresent &&
@@ -159,9 +171,14 @@ class MangaOwnedDetails extends OwnedItemDetails {
 
   @override
   int get hashCode => Object.hash(
+        grading.rawOrSlabbed,
         signedBy,
         gradingCompany,
         graderNotes,
+        grading.labelType,
+        grading.customLabel,
+        grading.pageQuality,
+        grading.certificationNumber,
         obiStripPresent,
         slipcoverPresent,
         dustJacketPresent,

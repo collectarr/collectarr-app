@@ -13,14 +13,14 @@ void main() {
   testWidgets('context menu shows bulk actions for multi-selection', (
     tester,
   ) async {
-    final source = ShelfEntry(
+    final source = LibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogItem: testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Arrival',
         barcode: '1234567890',
-      ),
+      ).asShelfCatalogItem),
     );
     const node = LibraryTitleNodeRef(titleItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().projectTitle(

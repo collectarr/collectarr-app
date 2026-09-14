@@ -1,13 +1,15 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/grading_draft.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/add/signature_draft.dart';
+import 'manga_grading_draft.dart';
+import 'package:collectarr_app/features/library/add/models/signature_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
 final class MangaAddDraft extends LibraryAddKindDraft {
   const MangaAddDraft({
+    this.grade = 'Ungraded',
     this.grading = const GradingDraft(),
     this.signature = const SignatureDraft(),
     String? signedBy,
@@ -25,6 +27,7 @@ final class MangaAddDraft extends LibraryAddKindDraft {
         _gradingCompany = gradingCompany,
         _graderNotes = graderNotes;
 
+  final String? grade;
   final GradingDraft grading;
   final SignatureDraft signature;
 
@@ -49,10 +52,15 @@ final class MangaAddDraft extends LibraryAddKindDraft {
   CatalogMediaKind get kind => CatalogMediaKind.manga;
 
   @override
-  OwnedDetailsDraft toOwnedDetailsDraft() => MangaOwnedDetailsDraft(
+  JsonEncodable toOwnedDetailsDraft() => MangaOwnedDetailsDraft(
+        rawOrSlabbed: grading.rawOrSlabbed,
         signedBy: signedBy,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,
+        labelType: grading.labelType,
+        customLabel: grading.customLabel,
+        pageQuality: grading.pageQuality,
+        certificationNumber: grading.certificationNumber,
         obiStripPresent: obiStripPresent,
         slipcoverPresent: slipcoverPresent,
         dustJacketPresent: dustJacketPresent,

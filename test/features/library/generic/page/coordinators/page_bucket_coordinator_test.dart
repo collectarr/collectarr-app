@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
+import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
-import 'package:collectarr_app/features/collection/repositories/owned_items_cache_repository.dart';
-import 'package:collectarr_app/features/collection/repositories/tracking_entries_cache_repository.dart';
+import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
@@ -15,15 +16,16 @@ import 'package:collectarr_app/features/library/generic/page/coordinators/page_c
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
-import 'package:collectarr_app/features/library/kinds/book/book_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_kind_module.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.g.dart';
 
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -35,7 +37,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = bookKindModule;
+    final type = const BookRegistration();
     final firstCatalog = testCatalogItem(
       id: 'book-1',
       kind: 'book',
@@ -49,15 +51,15 @@ void main() {
     final projection = _projection(
       type,
       [
-        testShelfEntry(
+        testLibraryWorkspaceSource(
           itemId: firstCatalog.id,
           kind: firstCatalog.kind,
-          catalogItem: firstCatalog,
+          catalogData: testWorkspaceCatalogData(firstCatalog),
         ),
-        testShelfEntry(
+        testLibraryWorkspaceSource(
           itemId: secondCatalog.id,
           kind: secondCatalog.kind,
-          catalogItem: secondCatalog,
+          catalogData: testWorkspaceCatalogData(secondCatalog),
         ),
       ],
     );
@@ -75,11 +77,13 @@ void main() {
     expect(affected, 2);
     expect(harness.selectedBucket, 'New publisher');
     expect(harness.rebuildCount, 1);
-    final cached = await CatalogCacheRepository(db).findByIds(
-      [firstCatalog.id, secondCatalog.id],
+    final cached = await CatalogSnapshotRepository(db).findByRefs(
+      [firstCatalog.catalogRef, secondCatalog.catalogRef],
     );
-    expect(cached[firstCatalog.id]?.payload['publisher'], 'New publisher');
-    expect(cached[secondCatalog.id]?.payload['publisher'], 'New publisher');
+    expect(
+        cached[firstCatalog.catalogRef]?.payload['publisher'], 'New publisher');
+    expect(cached[secondCatalog.catalogRef]?.payload['publisher'],
+        'New publisher');
   });
 
   testWidgets('deletes catalog bucket values and clears selected bucket',
@@ -87,7 +91,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = bookKindModule;
+    final type = const BookRegistration();
     final catalog = testCatalogItem(
       id: 'book-delete-1',
       kind: 'book',
@@ -101,10 +105,10 @@ void main() {
       _projection(
         type,
         [
-          testShelfEntry(
+          testLibraryWorkspaceSource(
             itemId: catalog.id,
             kind: catalog.kind,
-            catalogItem: catalog,
+            catalogData: testWorkspaceCatalogData(catalog),
           ),
         ],
       ),
@@ -115,7 +119,9 @@ void main() {
     expect(affected, 1);
     expect(harness.selectedBucket, isNull);
     expect(harness.rebuildCount, 1);
-    final cached = await CatalogCacheRepository(db).findById(catalog.id);
+    final cached = await CatalogSnapshotRepository(db).findByRef(
+      catalog.catalogRef,
+    );
     expect(cached?.payload['publisher'], isNull);
   });
 
@@ -124,7 +130,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = musicKindModule;
+    final type = const MusicRegistration();
     final owned = testOwnedItem(
       id: 'owned-music-1',
       itemId: 'music-1',
@@ -136,26 +142,25 @@ void main() {
       kind: 'music',
       title: 'Test album',
     );
-    final ownedRepository = harness.ref.read(
-      ownedItemsCacheRepositoryProvider,
-    );
-    await ownedRepository.upsert(owned);
+    final ownedRepository = MusicOwnedRepository(db);
+    await ownedRepository.upsert(MusicOwnedItem.fromJson(owned.toJson()));
     harness.selectedBucket = 'Very Good';
 
+    final projection = _projection(
+      type,
+      [
+        testLibraryWorkspaceSource(
+          itemId: catalog.id,
+          kind: catalog.kind,
+          catalogData: testWorkspaceCatalogData(catalog),
+          ownedItem: owned,
+        ),
+      ],
+    );
     final affected =
         await LibraryPageBucketCoordinator(harness.contextFor(type))
             .mutateBucketValues(
-      _projection(
-        type,
-        [
-          testShelfEntry(
-            itemId: catalog.id,
-            kind: catalog.kind,
-            catalogItem: catalog,
-            ownedItem: owned,
-          ),
-        ],
-      ),
+      projection,
       'music.condition',
       'Very Good',
       replacement: 'Mint',
@@ -163,7 +168,7 @@ void main() {
 
     expect(affected, 1);
     expect(harness.selectedBucket, 'Mint');
-    final updated = await ownedRepository.findById(owned.id);
+    final updated = await ownedRepository.findById(MusicOwnedItemId(owned.id));
     expect(updated?.condition, 'Mint');
   });
 
@@ -172,7 +177,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final harness = await _pumpHarness(tester, db);
-    final type = bookKindModule;
+    final type = const BookRegistration();
     final catalog = testCatalogItem(
       id: 'book-noop-1',
       kind: 'book',
@@ -181,10 +186,10 @@ void main() {
     final projection = _projection(
       type,
       [
-        testShelfEntry(
+        testLibraryWorkspaceSource(
           itemId: catalog.id,
           kind: catalog.kind,
-          catalogItem: catalog,
+          catalogData: testWorkspaceCatalogData(catalog),
         ),
       ],
     );
@@ -224,8 +229,8 @@ void main() {
 }
 
 LibraryProjection _projection(
-  LibraryKindRuntime type,
-  List<ShelfEntry> sources,
+  LibraryKindRegistration type,
+  List<LibraryWorkspaceSource> sources,
 ) {
   final items = [
     for (final source in sources) LibraryProjectionItem.fromShelf(source, type),
@@ -246,10 +251,9 @@ Future<_CoordinatorHarness> _pumpHarness(
   final events = CollectionEventBus();
   addTearDown(events.dispose);
   final mutations = OwnedItemMutations(
-    ownedItems: OwnedItemsCacheRepository(db),
+    ownedItems: OwnedItemsRepository(db),
     wishlist: WishlistItemsCacheRepository(db),
-    catalogCache: CatalogCacheRepository(db),
-    trackingEntries: TrackingEntriesCacheRepository(db),
+    catalogSummaries: CatalogDisplaySummaryRepository(db),
     syncQueue: SyncQueueRepository(db),
     mutationRunner: CollectionMutationRunner(
       database: db,
@@ -291,7 +295,7 @@ final class _CoordinatorHarness {
     );
   }
 
-  LibraryPageCoordinatorContext contextFor(LibraryKindRuntime type) {
+  LibraryPageCoordinatorContext contextFor(LibraryKindRegistration type) {
     return LibraryPageCoordinatorContext(
       context: buildContext,
       ref: ref,
@@ -329,7 +333,7 @@ final class _CoordinatorHarness {
       setActiveSmartListName: (_) {},
       getScopeHistory: () => const [],
       setScopeHistory: (_) {},
-      getActiveLoanOwnedItemIds: () => const <String>{},
+      getActiveLoanOwnedItemIds: () => const <OwnedItemRef>{},
       getPinnedSortFavoriteIds: () => const <String>{},
       setPinnedSortFavoriteIds: (_) {},
       getPinnedColumnFavoriteKeys: () => const <String>{},

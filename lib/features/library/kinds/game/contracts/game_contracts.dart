@@ -1,10 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -58,7 +59,7 @@ final class GameCatalog {
   final String? coverImageUrl;
   final String? thumbnailImageUrl;
   final List<Map<String, dynamic>> creators;
-  final List<TrailerLink> links;
+  final List<TrailerLinkDto> links;
 
   String get id => identity.id;
   CatalogMediaKind get mediaKind => CatalogMediaKind.game;
@@ -92,15 +93,17 @@ final class GameCatalog {
             .toList() ??
         const <Map<String, dynamic>>[];
 
-    final rawLinks = <TrailerLink>[
+    final rawLinks = <TrailerLinkDto>[
       ...((json['trailer_urls'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
       ...((json['external_links'] as List<dynamic>?)
               ?.whereType<Map<String, dynamic>>()
-              .map((e) => TrailerLink.fromJson(Map<String, dynamic>.from(e))) ??
-          const <TrailerLink>[]),
+              .map((e) =>
+                  TrailerLinkDto.fromJson(Map<String, dynamic>.from(e))) ??
+          const <TrailerLinkDto>[]),
     ];
 
     return GameCatalog(
@@ -189,8 +192,8 @@ final class GameCatalog {
     return CatalogItemEnvelopeDto(
       ref: CatalogEntityRef(
         id: id,
-        kind: 'game',
-        entityType: CatalogEntityType.work,
+        kind: CatalogMediaKind.game,
+        entityType: const CatalogEntityTypeId('work'),
       ),
       kind: CatalogMediaKind.game,
       common: CatalogCommonDto(
@@ -212,14 +215,14 @@ final class GameEntry {
   const GameEntry({
     required this.catalog,
     this.ownedDetails,
-    this.trackingEntry,
+    this.trackingSummary,
     this.wishlistItem,
     this.customFields = const {},
   });
 
   final GameCatalog catalog;
   final GameOwnedDetails? ownedDetails;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final Map<String, dynamic> customFields;
 
@@ -228,21 +231,25 @@ final class GameEntry {
   bool get isOwned => ownedDetails != null;
   bool get isWishlisted => wishlistItem != null;
 
-  factory GameEntry.fromShelf(ShelfEntry shelf) {
-    final catalog = shelf.catalogItem != null
-        ? GameCatalog.fromJson(shelf.catalogItem!.toSyncPayload())
-        : GameCatalog(
-            identity: LibraryItemIdentity(
-              id: shelf.itemId,
-              mediaKind: CatalogMediaKind.game,
-            ),
-            title: shelf.catalogItem?.title ?? shelf.itemId,
-          );
+  factory GameEntry.fromShelf(LibraryWorkspaceSource shelf) {
+    final catalog = switch (shelf.catalogData) {
+      GameWorkspaceCatalogData data when data.metadata != null =>
+        GameCatalog.fromJson(data.metadata!.toSyncPayload()),
+      _ => GameCatalog(
+          identity: LibraryItemIdentity(
+            id: shelf.itemId,
+            mediaKind: CatalogMediaKind.game,
+          ),
+          title: shelf.title,
+        ),
+    };
 
     return GameEntry(
       catalog: catalog,
-      ownedDetails: shelf.ownedItem?.gameDetails,
-      trackingEntry: shelf.trackingEntry,
+      ownedDetails:
+          GameOwnedItemProjection.fromDispatch(shelf.ownedItemDispatch)
+              ?.details,
+      trackingSummary: shelf.trackingSummary,
       wishlistItem: shelf.wishlistItem,
       customFields: const {},
     );

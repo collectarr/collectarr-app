@@ -1,46 +1,49 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/bundle_release.dart';
+import 'package:collectarr_app/core/models/catalog_edit_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/personal_item_anchor.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/edit/custom_fields_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
-import 'package:collectarr_app/features/collection/pick_list/pick_list_options.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/collection/vocabulary/vocabulary_repository.dart';
+import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-export 'package:collectarr_app/features/library/edit/library_edit_models.dart';
+export 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 
 class LibraryEditRenderer extends ConsumerStatefulWidget {
   const LibraryEditRenderer({
     super.key,
     required this.type,
     required this.item,
+    required this.kindItem,
     required this.ownedItem,
+    this.ownedItemDispatch,
     this.wishlistItem,
-    this.trackingEntry,
+    this.trackingSummary,
     required this.accent,
-    this.availableBundleReleases = const [],
+    this.wishlistTargetOptions = const [],
     this.physicalFormats = const [],
     this.customFieldDefinitions = const [],
     this.customFieldValues = const [],
@@ -59,23 +62,31 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   })  : draft = draft,
         type = draft.type,
         item = draft.item,
+        kindItem = draft.kindItem,
         ownedItem = draft.ownedItem,
+        ownedItemDispatch = draft.ownedItemDispatch,
         wishlistItem = draft.wishlistItem,
-        trackingEntry = draft.trackingEntry,
+        trackingSummary = draft.trackingSummary,
         accent = draft.accent,
-        availableBundleReleases = draft.availableBundleReleases,
+        wishlistTargetOptions = draft.wishlistTargetOptions,
         physicalFormats = draft.physicalFormats,
         customFieldDefinitions = draft.customFieldDefinitions,
         customFieldValues = draft.customFieldValues,
         itemImages = draft.itemImages;
 
-  final LibraryKindRuntime type;
-  final LibraryMetadataItem item;
-  final OwnedItem? ownedItem;
+  final LibraryKindRegistration type;
+  final CatalogEditMetadata item;
+
+  /// Concrete candidate retained only for kind-owned draft/custom boundaries.
+  final CatalogSearchCandidate kindItem;
+  final OwnedItemSummary? ownedItem;
+
+  /// Concrete kind-owned aggregate passed through the typed edit boundary.
+  final LibraryOwnedItemDispatch? ownedItemDispatch;
   final WishlistItem? wishlistItem;
-  final TrackingEntry? trackingEntry;
+  final TrackingSummary? trackingSummary;
   final Color accent;
-  final List<BundleReleaseSummary> availableBundleReleases;
+  final List<CatalogTargetOption> wishlistTargetOptions;
   final List<PhysicalMediaFormat> physicalFormats;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final List<CustomFieldValue> customFieldValues;
@@ -94,12 +105,10 @@ class _LinkEntry {
   _LinkEntry({
     required this.urlController,
     required this.descriptionController,
-    this.original,
   });
 
   final TextEditingController urlController;
   final TextEditingController descriptionController;
-  final TrailerLinkDto? original;
 
   void dispose() {
     urlController.dispose();
@@ -117,7 +126,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   bool get _isOwned => _draft.isOwned;
 
-  LibraryEditCapability get _editCapability => widget.type.edit;
+  LibraryEditPresentationCapability get _editCapability =>
+      widget.type.editPresentation;
 
   LibraryEditPresentationContext get _editPresentationContext =>
       LibraryEditPresentationContext(
@@ -127,8 +137,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         hasWishlistContext: _draft.hasWishlistContext,
         isDigitalFormat: _draft.isDigitalFormat,
         hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
-        hasEditionAnchors: false,
-        hasBundleReleaseAnchors: widget.availableBundleReleases.isNotEmpty,
+        hasOwnedTargetOptions: false,
+        hasAdditionalTargetOptions: widget.wishlistTargetOptions.isNotEmpty,
         hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
         scope: widget.scope,
       );
@@ -139,32 +149,22 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     _draft = widget.draft ??
         LibraryEditDraft.fromItem(
           type: widget.type,
-          item: widget.item,
+          item: widget.kindItem,
           ownedItem: widget.ownedItem,
+          ownedItemDispatch: widget.ownedItemDispatch,
           wishlistItem: widget.wishlistItem,
-          trackingEntry: widget.trackingEntry,
+          trackingSummary: widget.trackingSummary,
           accent: widget.accent,
-          availableBundleReleases: widget.availableBundleReleases,
+          wishlistTargetOptions: widget.wishlistTargetOptions,
           physicalFormats: widget.physicalFormats,
           customFieldDefinitions: widget.customFieldDefinitions,
           customFieldValues: widget.customFieldValues,
           itemImages: widget.itemImages,
         );
 
-    final initialLinks = widget.type.presentation.builder.buildLinks(
-      item: widget.item,
-    );
-    _links = [
-      for (final link in initialLinks)
-        _LinkEntry(
-          urlController: TextEditingController(text: link.url),
-          descriptionController:
-              TextEditingController(text: link.title ?? link.description ?? ''),
-          original: link,
-        ),
-    ];
+    _links = [];
 
-    _tabSpecs = widget.type.edit.presentation
+    _tabSpecs = widget.type.editPresentation.presentation
         .builderForScope(widget.scope)
         .buildTabs(context: _editPresentationContext);
 
@@ -239,9 +239,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               url: l.urlController.text.trim(),
               title: emptyToNull(l.descriptionController.text.trim()),
               description: emptyToNull(l.descriptionController.text.trim()),
-              source: l.original?.source ?? 'manual',
-              isAutomatic: l.original?.isAutomatic ?? false,
-              kind: l.original?.kind ?? 'external',
+              source: 'manual',
+              isAutomatic: false,
+              kind: 'external',
             ),
       ];
       _draft.setExternalLinks(updatedLinks);
@@ -252,19 +252,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   @override
   Widget build(BuildContext context) {
-    final payload = widget.item.payload;
-    final creators = (payload['creators'] as List?)
-        ?.whereType<Map<Object?, Object?>>()
-        .toList();
-    final firstCreator = (creators != null && creators.isNotEmpty)
-        ? creators.first['name']?.toString()
-        : ((payload['authors'] as List?)?.firstOrNull?.toString());
-    final yearSuffix =
-        widget.item.releaseYear != null ? ' (${widget.item.releaseYear})' : '';
-    final title = widget.item.displayTitle ??
-        (firstCreator != null && firstCreator.trim().isNotEmpty
-            ? '${widget.item.title} / $firstCreator'
-            : '${widget.item.title}$yearSuffix');
+    final title = widget.type.editPresentation.presentation
+        .builderForScope(widget.scope)
+        .buildDialogTitle(item: widget.item, kindItem: widget.kindItem);
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
@@ -307,7 +297,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Widget _tabViewFor(String id) {
-    final customView = widget.type.edit.presentation
+    final customView = widget.type.editPresentation.presentation
         .builderForScope(widget.scope)
         .buildCustomTabView(
           tabId: id,
@@ -315,7 +305,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           draft: _draft,
           accent: widget.accent,
           scope: widget.scope,
-          item: widget.item,
+          item: widget.kindItem,
           markDirty: _markDirty,
         );
     if (customView != null) {
@@ -469,6 +459,16 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   Widget _personalTab() {
     if (_draft.hasWishlistContext) {
+      final wishlistRef = _draft.personal.selectedWishlistCatalogRef;
+      final targetOptions = widget.wishlistTargetOptions;
+      CatalogTargetOption? selectedTarget;
+      for (final option in targetOptions) {
+        if (option.ref == wishlistRef) {
+          selectedTarget = option;
+          break;
+        }
+      }
+      selectedTarget ??= targetOptions.firstOrNull;
       return EditTabShell(
         children: [
           EditSection(
@@ -477,35 +477,28 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DropdownButtonFormField<PersonalItemAnchorType>(
-                  key: const Key('library-edit-wishlist-anchor-field'),
-                  initialValue: _draft.personal.selectedWishlistAnchorType,
-                  decoration:
-                      const InputDecoration(labelText: 'Wishlist target'),
-                  items: [
-                    const DropdownMenuItem(
-                      value: PersonalItemAnchorType.item,
-                      child: Text('Item / Work'),
-                    ),
-                    if (widget.availableBundleReleases.isNotEmpty)
-                      const DropdownMenuItem(
-                        value: PersonalItemAnchorType.bundleRelease,
-                        child: Text('Bundle release'),
-                      ),
-                  ],
-                  onChanged: (val) {
-                    setState(() {
-                      _draft.personal.selectedWishlistAnchorType =
-                          val ?? PersonalItemAnchorType.item;
-                      if (val == PersonalItemAnchorType.bundleRelease &&
-                          widget.availableBundleReleases.isNotEmpty) {
-                        _draft.personal.selectedWishlistBundleReleaseId =
-                            widget.availableBundleReleases.first.id;
-                      }
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
+                if (targetOptions.isNotEmpty) ...[
+                  DropdownButtonFormField<CatalogTargetOption>(
+                    key: const Key('library-edit-wishlist-target-field'),
+                    initialValue: selectedTarget,
+                    decoration:
+                        const InputDecoration(labelText: 'Wishlist target'),
+                    items: [
+                      for (final option in targetOptions)
+                        DropdownMenuItem(
+                          value: option,
+                          child: Text(option.label),
+                        ),
+                    ],
+                    onChanged: (option) {
+                      if (option == null) return;
+                      setState(() {
+                        _draft.personal.selectedWishlistCatalogRef = option.ref;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 LibraryEditResponsiveRow(children: [
                   LibraryEditTextField(
                     controller: _draft.personal.wishlistPriceController,
@@ -578,7 +571,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     label: 'Grade',
                     options: _kindVocabularyOptions(
                       suffix: 'grade',
-                      fallback: _editCapability.grades,
+                      fallback: _editCapability.collectionValueOptions,
                     ),
                   ),
                 ]),

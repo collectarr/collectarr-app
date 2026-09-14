@@ -1,0 +1,338 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_id.dart';
+import 'package:collectarr_app/features/providers/domain/models/provider_personal_entry.dart';
+import 'package:collectarr_app/features/providers/domain/imports/provider_import_history.dart';
+
+class ProviderCsvImportService {
+  const ProviderCsvImportService();
+
+  List<ProviderPersonalEntry> parseFileBytes(
+    Uint8List bytes, {
+    required String fileName,
+    required ProviderId provider,
+  }) {
+    final text = utf8.decode(bytes, allowMalformed: true);
+    return parsePayload(text, provider: provider);
+  }
+
+  List<ProviderPersonalEntry> parsePayload(
+    String text, {
+    required ProviderId provider,
+  }) {
+    final normalized = text.trim();
+    if (normalized.isEmpty) {
+      throw const FormatException('Import payload cannot be empty.');
+    }
+    final rows = _parseCsvRows(normalized);
+    if (rows.isEmpty) {
+      throw const FormatException('CSV export does not contain rows.');
+    }
+    final header = rows.first.map(_cellText).toList(growable: false);
+    final index = {
+      for (var i = 0; i < header.length; i++)
+        if (header[i].isNotEmpty) _normalizeKey(header[i]): i,
+    };
+
+    final entries = <ProviderPersonalEntry>[];
+    for (var i = 1; i < rows.length; i++) {
+      final values = rows[i].map(_cellText).toList(growable: false);
+      final title = _value(index, values, const [
+            'title',
+            'name',
+            'series_title',
+            'book_title',
+            'game_title',
+          ]) ??
+          '';
+      if (title.trim().isEmpty) {
+        continue;
+      }
+      final sourceId = _sourceId(provider, index, values, title, i);
+      final mediaKindStr = _mediaKind(provider, index, values);
+      final mediaKind = mediaKindStr != null
+          ? catalogMediaKindFromValue(mediaKindStr)
+          : CatalogMediaKind.unknown;
+      final status = _status(provider, index, values);
+      final rating = _rating(provider, index, values);
+      final progress = _progress(provider, index, values);
+      entries.add(
+        ProviderPersonalEntry(
+          provider: provider,
+          remoteItemId: sourceId,
+          title: title,
+          kind: mediaKind,
+          status: status,
+          rating: rating?.toDouble(),
+          startedAt: _date(_value(index, values, const [
+            'started_at',
+            'start_date',
+            'created',
+            'date_started',
+          ])),
+          completedAt: _date(_value(index, values, const [
+            'finished_at',
+            'finish_date',
+            'date_read',
+            'completed_at',
+            'modified',
+          ])),
+          progress: progress,
+          externalIds: _externalIds(provider, index, values, sourceId),
+          rawPayload: {
+            for (final entry in index.entries)
+              entry.key: entry.value < values.length ? values[entry.value] : '',
+          },
+        ),
+      );
+    }
+    return entries;
+  }
+
+  String? _value(
+    Map<String, int> index,
+    List<String> values,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final ix = index[_normalizeKey(key)];
+      if (ix == null || ix >= values.length) {
+        continue;
+      }
+      final text = values[ix].trim();
+      if (text.isNotEmpty) {
+        return text;
+      }
+    }
+    return null;
+  }
+
+  String _sourceId(
+    ProviderId provider,
+    Map<String, int> index,
+    List<String> values,
+    String title,
+    int rowIndex,
+  ) {
+    final candidates = switch (provider) {
+      ProviderId.imdb => const ['const', 'id'],
+      ProviderId.goodReads => const ['book_id', 'book id', 'id', 'isbn13'],
+      ProviderId.howLongToBeat => const ['id', 'game_id'],
+      ProviderId.trakt => const ['trakt_id', 'id', 'slug'],
+      ProviderId.simkl => const ['id', 'simkl_id'],
+      ProviderId.kitsu => const ['id', 'kitsu_id'],
+      _ => const ['id'],
+    };
+    final source = _value(index, values, candidates);
+    if (source != null && source.isNotEmpty) {
+      return source;
+    }
+    return '${provider.storageValue}:$rowIndex:${title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}';
+  }
+
+  String? _mediaKind(
+    ProviderId provider,
+    Map<String, int> index,
+    List<String> values,
+  ) {
+    final direct = _value(index, values, const [
+      'media_kind',
+      'kind',
+      'type',
+      'title_type',
+    ])?.toLowerCase();
+    if (direct != null) {
+      if (direct.contains('anime')) return 'anime';
+      if (direct.contains('manga')) return 'manga';
+      if (direct.contains('book')) return 'book';
+      if (direct.contains('game')) return 'game';
+      if (direct.contains('tv')) return 'tv';
+      if (direct.contains('movie') || direct.contains('film')) return 'movie';
+    }
+    return switch (provider) {
+      ProviderId.goodReads => 'book',
+      ProviderId.howLongToBeat => 'game',
+      ProviderId.myAnimeList ||
+      ProviderId.aniList ||
+      ProviderId.kitsu =>
+        'anime',
+      ProviderId.trakt || ProviderId.simkl || ProviderId.imdb => 'movie',
+      _ => null,
+    };
+  }
+
+  ProviderEntryStatus? _status(
+    ProviderId provider,
+    Map<String, int> index,
+    List<String> values,
+  ) {
+    final raw = _value(index, values, const [
+      'exclusive_shelf',
+      'bookshelves',
+      'status',
+      'watch_status',
+      'completion_status',
+      'my_status',
+    ])?.toLowerCase();
+    if (raw == null || raw.isEmpty) {
+      return switch (provider) {
+        ProviderId.goodReads => ProviderEntryStatus.completed,
+        _ => null,
+      };
+    }
+    if (raw.contains('read') ||
+        raw.contains('watched') ||
+        raw.contains('completed')) {
+      return ProviderEntryStatus.completed;
+    }
+    if (raw.contains('currently') ||
+        raw.contains('watching') ||
+        raw.contains('reading') ||
+        raw.contains('playing') ||
+        raw.contains('in progress')) {
+      return ProviderEntryStatus.current;
+    }
+    if (raw.contains('plan') ||
+        raw.contains('to read') ||
+        raw.contains('to watch') ||
+        raw.contains('backlog') ||
+        raw.contains('wish') ||
+        raw.contains('favorite') ||
+        raw.contains('favourite')) {
+      return ProviderEntryStatus.planning;
+    }
+    if (raw.contains('hold') || raw.contains('paused')) {
+      return ProviderEntryStatus.paused;
+    }
+    if (raw.contains('drop') || raw.contains('abandon')) {
+      return ProviderEntryStatus.dropped;
+    }
+    return null;
+  }
+
+  int? _rating(
+    ProviderId provider,
+    Map<String, int> index,
+    List<String> values,
+  ) {
+    final raw = _value(index, values, const [
+      'my_rating',
+      'you rated',
+      'score',
+      'rating',
+    ]);
+    final numeric = num.tryParse(raw ?? '');
+    if (numeric == null || numeric <= 0) {
+      return null;
+    }
+    return switch (provider) {
+      ProviderId.goodReads => (numeric * 20).round().clamp(0, 100),
+      ProviderId.imdb => (numeric * 10).round().clamp(0, 100),
+      _ => (numeric * 10).round().clamp(0, 100),
+    };
+  }
+
+  int? _progress(
+    ProviderId provider,
+    Map<String, int> index,
+    List<String> values,
+  ) {
+    final raw = _value(index, values, const [
+      'my_watched_episodes',
+      'my_read_chapters',
+      'my_read_volumes',
+      'progress',
+      'episodes',
+      'chapters',
+      'hours',
+      'hours played',
+      'time',
+    ]);
+    final numeric = num.tryParse(raw ?? '');
+    if (numeric == null || numeric <= 0) {
+      return null;
+    }
+    return numeric.round();
+  }
+
+  Map<String, String> _externalIds(
+    ProviderId provider,
+    Map<String, int> index,
+    List<String> values,
+    String sourceId,
+  ) {
+    final result = <String, String>{};
+    if (sourceId.isNotEmpty) {
+      result[provider.storageValue] = sourceId;
+    }
+    final imdbId = _value(index, values, const ['const', 'imdb_id']);
+    if (imdbId != null && imdbId.isNotEmpty) {
+      result['imdb'] = imdbId;
+    }
+    final isbn13 = _value(index, values, const ['isbn13', 'isbn_13']);
+    if (isbn13 != null && isbn13.isNotEmpty) {
+      result['isbn13'] = isbn13;
+    }
+    final isbn = _value(index, values, const ['isbn', 'isbn_10']);
+    if (isbn != null && isbn.isNotEmpty) {
+      result['isbn'] = isbn;
+    }
+    return result;
+  }
+
+  String _cellText(Object? cell) {
+    return cell?.toString().trim() ?? '';
+  }
+
+  String _normalizeKey(String value) {
+    return value.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+  }
+
+  DateTime? _date(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(value.trim());
+  }
+
+  List<List<String>> _parseCsvRows(String text) {
+    final lines = const LineSplitter().convert(text);
+    final rows = <List<String>>[];
+    for (final line in lines) {
+      if (line.trim().isEmpty) {
+        continue;
+      }
+      rows.add(_parseCsvLine(line));
+    }
+    return rows;
+  }
+
+  List<String> _parseCsvLine(String line) {
+    final values = <String>[];
+    final buffer = StringBuffer();
+    var inQuotes = false;
+    for (var i = 0; i < line.length; i++) {
+      final char = line[i];
+      if (char == '"') {
+        final nextIsQuote = i + 1 < line.length && line[i + 1] == '"';
+        if (inQuotes && nextIsQuote) {
+          buffer.write('"');
+          i++;
+          continue;
+        }
+        inQuotes = !inQuotes;
+        continue;
+      }
+      if (char == ',' && !inQuotes) {
+        values.add(buffer.toString().trim());
+        buffer.clear();
+        continue;
+      }
+      buffer.write(char);
+    }
+    values.add(buffer.toString().trim());
+    return values;
+  }
+}

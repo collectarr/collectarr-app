@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,13 +27,63 @@ class _MockHttpAdapter implements HttpClientAdapter {
 
 void main() {
   group('TMDbProvider', () {
+    test('decodes native movie and TV payload models', () {
+      final movie = TmdbMovie.fromJson({
+        'id': 550,
+        'title': 'Fight Club',
+        'runtime': 139,
+        'genres': [
+          {'id': 18, 'name': 'Drama'},
+        ],
+        'production_companies': [
+          {'id': 711, 'name': '20th Century Fox'},
+        ],
+        'credits': {
+          'crew': [
+            {'name': 'David Fincher', 'job': 'Director'},
+          ],
+          'cast': [
+            {'name': 'Brad Pitt', 'character': 'Tyler Durden'},
+          ],
+        },
+        'external_ids': {'imdb_id': 'tt0137523'},
+      });
+      final tv = TmdbTvSeries.fromJson({
+        'id': 1399,
+        'name': 'Game of Thrones',
+        'first_air_date': '2011-04-17',
+        'episode_run_time': [55, 60],
+        'number_of_seasons': 8,
+      });
+
+      expect(movie.id, 550);
+      expect(movie.title, 'Fight Club');
+      expect(movie.runtime, 139);
+      expect(movie.genres.single.name, 'Drama');
+      expect(movie.productionCompanies.single.name, '20th Century Fox');
+      expect(movie.credits?.crew.single.job, 'Director');
+      expect(movie.credits?.cast.single.character, 'Tyler Durden');
+      expect(movie.externalIds?.imdbId, 'tt0137523');
+      expect(movie.toJson()['runtime'], 139);
+      expect(tv.name, 'Game of Thrones');
+      expect(tv.episodeRunTime, [55, 60]);
+      expect(tv.numberOfSeasons, 8);
+      expect(tv.toJson()['first_air_date'], '2011-04-17');
+    });
+
     test('exposes correct descriptor metadata', () {
       final provider = TMDbProvider();
       expect(provider.name, 'tmdb');
       expect(provider.descriptor.displayName, 'TMDb');
-      expect(provider.descriptor.kind, 'movie');
-      expect(provider.descriptor.supportedKinds,
-          containsAll(['movie', 'tv', 'anime']));
+      expect(provider.descriptor.kind, CatalogMediaKind.movie);
+      expect(
+        provider.descriptor.supportedKinds,
+        containsAll([
+          CatalogMediaKind.movie,
+          CatalogMediaKind.tv,
+          CatalogMediaKind.anime,
+        ]),
+      );
       expect(provider.descriptor.requiresUserKey, isTrue);
       expect(provider.isConfigured, isFalse);
       expect(provider.descriptor.rateLimit, '40 req/10s');
@@ -89,7 +140,7 @@ void main() {
       expect(item.provider, 'tmdb');
       expect(item.providerItemId, 'movie:550');
       expect(item.title, 'Fight Club');
-      expect(item.kind, 'movie');
+      expect(item.kind, CatalogMediaKind.movie);
       expect(item.summary, '1999-10-15 · en');
       expect(item.imageUrl,
           'https://image.tmdb.org/t/p/w500/bptfVGEQuv6vDTIMVCHjJ9Dz8PX.jpg');
@@ -148,16 +199,15 @@ void main() {
       expect(envelope.schemaVersion, 'v1');
       expect(envelope.provider, 'tmdb');
       expect(envelope.providerItemId, '550');
-      expect(envelope.kind, 'movie');
-      expect(envelope.normalized['title'], 'Fight Club');
-      expect(envelope.normalized['runtime_minutes'], 139);
-      expect(envelope.normalized['publisher'], '20th Century Fox');
-      expect(envelope.normalized['audience_rating'], '8.4');
-      expect(envelope.normalized['genres'], containsAll(['Drama', 'Thriller']));
-      expect(jsonObject(envelope.normalized['provider_ids'])['tmdb'], '550');
-      expect(
-          jsonObject(envelope.normalized['provider_ids'])['imdb'], 'tt0137523');
-      expect(envelope.normalized['creators'], hasLength(3));
+      expect(envelope.kind, CatalogMediaKind.movie);
+      expect(envelope.payload['title'], 'Fight Club');
+      expect(envelope.payload['runtime_minutes'], 139);
+      expect(envelope.payload['publisher'], '20th Century Fox');
+      expect(envelope.payload['audience_rating'], '8.4');
+      expect(envelope.payload['genres'], containsAll(['Drama', 'Thriller']));
+      expect(jsonObject(envelope.payload['provider_ids'])['tmdb'], '550');
+      expect(jsonObject(envelope.payload['provider_ids'])['imdb'], 'tt0137523');
+      expect(envelope.payload['creators'], hasLength(3));
       expect(envelope.images, hasLength(1));
       expect(envelope.attribution.required, isTrue);
     });
@@ -175,7 +225,7 @@ void main() {
       );
       expect(tmdbFixtureRaw, isNotNull);
 
-      final goldenEnvelope = NormalizedProviderEnvelopeV1.fromJson(
+      final goldenEnvelope = ProviderMetadataEnvelope.fromJson(
         Map<String, dynamic>.from(tmdbFixtureRaw as Map),
       );
 
@@ -209,22 +259,22 @@ void main() {
         }
       });
 
-      expect(normalized['title'], goldenEnvelope.normalized['title']);
+      expect(normalized['title'], goldenEnvelope.payload['title']);
       expect(normalized['runtime_minutes'],
-          goldenEnvelope.normalized['runtime_minutes']);
-      expect(normalized['publisher'], goldenEnvelope.normalized['publisher']);
-      expect(normalized['synopsis'], goldenEnvelope.normalized['synopsis']);
-      expect(normalized['genres'], goldenEnvelope.normalized['genres']);
+          goldenEnvelope.payload['runtime_minutes']);
+      expect(normalized['publisher'], goldenEnvelope.payload['publisher']);
+      expect(normalized['synopsis'], goldenEnvelope.payload['synopsis']);
+      expect(normalized['genres'], goldenEnvelope.payload['genres']);
       expect(normalized['audience_rating'],
-          goldenEnvelope.normalized['audience_rating']);
+          goldenEnvelope.payload['audience_rating']);
       expect(jsonObject(normalized['provider_ids'])['tmdb'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['tmdb']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['tmdb']);
       expect(jsonObject(normalized['provider_ids'])['imdb'],
-          jsonObject(goldenEnvelope.normalized['provider_ids'])['imdb']);
+          jsonObject(goldenEnvelope.payload['provider_ids'])['imdb']);
       expect(jsonObjectList(normalized['creators'])[0]['name'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['name']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['name']);
       expect(jsonObjectList(normalized['creators'])[0]['role'],
-          jsonObjectList(goldenEnvelope.normalized['creators'])[0]['role']);
+          jsonObjectList(goldenEnvelope.payload['creators'])[0]['role']);
     });
   });
 }

@@ -1,19 +1,30 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
-import 'package:collectarr_app/core/models/tracking_entry.dart';
+import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/edit/draft/kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/library_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_edit_controller.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-import 'package:collectarr_app/features/library/kinds/_shared/video/edit/video_kind_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 
-class AnimeEditDraft extends KindEditDraft implements VideoKindEditDraft {
+class AnimeEditDraft extends LibraryEditKindDraft
+    implements AnimeEditDraftContract {
   AnimeEditDraft({
+    this.ownedItem,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
@@ -26,8 +37,13 @@ class AnimeEditDraft extends KindEditDraft implements VideoKindEditDraft {
     required this.colorController,
     required this.nrDiscsController,
     required this.hdrFormats,
-    required this.videoEdit,
+    required this.seasonNumberController,
+    required this.episodeNumberController,
+    required this.episodeRatings,
+    required this.animeEdit,
   });
+
+  final AnimeOwnedItem? ownedItem;
 
   @override
   final TextEditingController featuresController;
@@ -54,11 +70,14 @@ class AnimeEditDraft extends KindEditDraft implements VideoKindEditDraft {
 
   @override
   List<String> hdrFormats;
+  final TextEditingController seasonNumberController;
+  final TextEditingController episodeNumberController;
+  final Map<String, int> episodeRatings;
   @override
-  final VideoEditController videoEdit;
+  final AnimeEditController animeEdit;
 
   @override
-  OwnedDetailsDraft toDetailsDraft() => AnimeOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => AnimeOwnedDetailsDraft(
         features: emptyToNull(featuresController.text),
         hdrFormats: hdrFormats,
         boxSetName: emptyToNull(boxSetNameController.text),
@@ -68,23 +87,144 @@ class AnimeEditDraft extends KindEditDraft implements VideoKindEditDraft {
       );
 
   @override
+  void initializePersonalState(PersonalStateDraft personal) {
+    final item = ownedItem;
+    if (item == null) return;
+    personal.ownerLabelController.text = item.ownerLabel ?? '';
+    personal.conditionController.text = item.condition ?? '';
+    personal.gradeController.text = item.grade ?? '';
+    personal.purchaseDateController.text =
+        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
+    personal.priceController.text = item.pricePaidCents == null
+        ? ''
+        : (item.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.currency ?? '';
+    personal.quantityController.text = item.quantity.toString();
+    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personalNotes ?? '';
+    personal.tagsController.text = item.tags ?? '';
+    personal.sellPriceController.text = item.sellPriceCents == null
+        ? ''
+        : (item.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.soldTo ?? '';
+    personal.purchaseStoreController.text = item.purchaseStore ?? '';
+    personal.marketValueController.text = item.marketValueCents == null
+        ? ''
+        : (item.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.locationId;
+    personal.soldAt = item.soldAt;
+    personal.collectionStatus = item.collectionStatus;
+  }
+
+  @override
+  AnimeOwnedItemUpdatePayload buildOwnedUpdatePayload({
+    required OwnedItemRef ownedRef,
+    required PersonalStateDraft personal,
+  }) {
+    final targetRef = personal.selectedOwnedTargetRef;
+    return AnimeOwnedItemUpdatePayload(
+      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
+      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+      isDigital: const Patch.unchanged(),
+      marketValueCents: const Patch.unchanged(),
+      indexNumber: const Patch.unchanged(),
+      condition: personal.conditionController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.conditionController.text.trim()),
+      grade: personal.gradeController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.gradeController.text.trim()),
+      purchaseDate: personal.purchaseDateController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseDate(personal.purchaseDateController.text)),
+      pricePaidCents: personal.priceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.priceController.text)),
+      currency: personal.currencyController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.currencyController.text.trim()),
+      personalNotes: personal.notesController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.notesController.text.trim()),
+      locationId: personal.selectedLocationId != null
+          ? Patch.set(personal.selectedLocationId)
+          : const Patch.clear(),
+      purchaseStore: personal.purchaseStoreController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.purchaseStoreController.text.trim()),
+      collectionStatus: personal.collectionStatus != null
+          ? Patch.set(personal.collectionStatus)
+          : const Patch.clear(),
+      tags: personal.tagsController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.tagsController.text.trim()),
+      soldAt: personal.soldAt != null
+          ? Patch.set(personal.soldAt)
+          : const Patch.clear(),
+      sellPriceCents: personal.sellPriceController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(parseMoneyCents(personal.sellPriceController.text)),
+      soldTo: personal.soldToController.text.trim().isEmpty
+          ? const Patch.clear()
+          : Patch.set(personal.soldToController.text.trim()),
+      details: Patch.set(toDetailsDraft() as AnimeOwnedDetailsDraft),
+    );
+  }
+
+  @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = videoEdit.applyVideoSelectionEdits(selection);
-    if (result.personal != null) {
+    var result = selection;
+    final metadata =
+        result.kindItem.mapTransport((transport) => transport).kindMetadata;
+    if (metadata is AnimeMetadata) {
+      final parsedGenres = animeEdit.genresEditController.text
+          .split(RegExp(r'[,\r\n]+'))
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .toList();
       result = result.copyWith(
-        personal: result.personal!.copyWith(
-          features: emptyToNull(featuresController.text),
-          hdrFormats: hdrFormats.isEmpty ? null : hdrFormats,
-          boxSetName: emptyToNull(boxSetNameController.text),
-          region: emptyToNull(regionController.text),
-          packaging: emptyToNull(packagingController.text),
-          distributor: emptyToNull(distributorController.text),
-          screenRatio: emptyToNull(screenRatioController.text),
-          audioTracks: emptyToNull(audioTracksController.text),
-          subtitles: emptyToNull(subtitlesController.text),
-          layers: emptyToNull(layersController.text),
-          color: emptyToNull(colorController.text),
-          nrDiscs: int.tryParse(nrDiscsController.text),
+        kindItem: result.kindItem.mapTransport(
+          (transport) => CatalogSearchCandidate.fromItem(
+            transport.withKindMetadata(
+              metadata.copyWith(
+                episodeRuntimeMinutes:
+                    int.tryParse(animeEdit.runtimeController.text),
+                genres:
+                    parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+                editionTitle:
+                    emptyToNull(animeEdit.editionTitleController.text),
+                variant: emptyToNull(animeEdit.variantController.text),
+                barcode: emptyToNull(animeEdit.barcodeController.text),
+                physicalFormat: animeEdit.physicalFormatId,
+                physicalFormatLabel:
+                    emptyToNull(animeEdit.physicalFormatLabelController.text),
+                publisher: emptyToNull(animeEdit.publisherController.text),
+                country: emptyToNull(animeEdit.countryController.text) ??
+                    metadata.country,
+                language: emptyToNull(animeEdit.languageController.text) ??
+                    metadata.language,
+                startDate: parseDate(animeEdit.releaseDateController.text),
+                links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    if (result.tracking != null) {
+      final seasonNumber = int.tryParse(seasonNumberController.text);
+      final episodeNumber = int.tryParse(episodeNumberController.text);
+      final episodeRatings = this.episodeRatings.isEmpty
+          ? null
+          : Map<String, int>.unmodifiable(this.episodeRatings);
+      result = result.copyWith(
+        trackingKindPatch: AnimeTrackingCoordinatesPatch(
+          seasonNumber: seasonNumber,
+          episodeNumber: episodeNumber?.toDouble(),
+          episodeRatings: episodeRatings,
+          setSeasonNumber: seasonNumber != null,
+          setEpisodeNumber: episodeNumber != null,
+          setEpisodeRatings: episodeRatings != null,
         ),
       );
     }
@@ -93,34 +233,67 @@ class AnimeEditDraft extends KindEditDraft implements VideoKindEditDraft {
 
   @override
   TextEditingController get releaseDateController =>
-      videoEdit.releaseDateController;
+      animeEdit.releaseDateController;
 
   @override
   TextEditingController get releaseYearController =>
-      videoEdit.releaseYearController;
+      animeEdit.releaseYearController;
 
   @override
   void dispose() {
-    videoEdit.dispose();
+    seasonNumberController.dispose();
+    episodeNumberController.dispose();
+    animeEdit.dispose();
   }
 }
 
-KindEditDraft createAnimeEditDraft({
-  required LibraryMetadataItem item,
-  OwnedItem? ownedItem,
-  TrackingEntry? trackingEntry,
+LibraryEditKindDraft createAnimeEditDraft({
+  required CatalogSearchCandidate item,
+  LibraryOwnedItemDispatch? ownedItemDispatch,
+  TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final video = ownedItem?.animeDetails;
-  final metadata = item.kindMetadata;
+  final owned = AnimeOwnedItemProjection.fromDispatch(ownedItemDispatch);
+  final video = owned?.details;
+  final metadata = item.mapTransport((transport) => transport).kindMetadata;
   final anime = metadata is AnimeMetadata ? metadata : null;
-  final videoEdit = VideoEditController(
-    item: item,
-    initialCreators: anime?.creators ?? const <Map<String, dynamic>>[],
+  final animeEdit = AnimeEditController(
+    itemId: item.id,
+    catalogRef: item.catalogRef,
+    initialRuntime: anime?.episodeRuntimeMinutes?.toString() ?? '',
+    initialGenres: anime?.genres.join(', ') ?? '',
+    initialEditionTitle: anime?.editionTitle ??
+        (item.titleExtension ??
+                item.mapTransport((transport) => transport).editionTitle)
+            ?.trim() ??
+        '',
+    initialVariant: anime?.variant ?? '',
+    initialBarcode: anime?.barcode ?? '',
+    initialPhysicalFormatLabel:
+        anime?.physicalFormatLabel ?? anime?.variant ?? '',
+    initialPhysicalFormatId: anime?.physicalFormat,
+    initialPublisher: anime?.publisher ?? '',
+    initialCountry: anime?.country ?? '',
+    initialLanguage: anime?.language ?? '',
+    initialReleaseDate:
+        anime?.startDate == null ? '' : formatDate(anime!.startDate!),
+    initialReleaseYear: anime?.seasonYear?.toString() ??
+        anime?.startDate?.year.toString() ??
+        '',
+    initialCreators: [
+      for (final creator in anime?.creators ?? const <Map<String, dynamic>>[])
+        AnimeCreditInput(
+          name: creator['name']?.toString() ?? '',
+          role: creator['role']?.toString() ?? creator['job']?.toString(),
+          sourceType: creator['source_type']?.toString() ?? 'provider',
+        ),
+    ],
+    initialTrailerLinks: anime?.links ?? const <TrailerLinkDto>[],
   );
-  videoEdit.initializeVideoEditors();
+  animeEdit.initializeAnimeEditors();
 
   return AnimeEditDraft(
+    ownedItem: owned,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
@@ -134,6 +307,11 @@ KindEditDraft createAnimeEditDraft({
     colorController: textControllers.create(text: ''),
     nrDiscsController: textControllers.create(text: ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
-    videoEdit: videoEdit,
+    seasonNumberController: TextEditingController(),
+    episodeNumberController: TextEditingController(
+      text: anime?.episodeCount?.toString() ?? '',
+    ),
+    episodeRatings: const <String, int>{},
+    animeEdit: animeEdit,
   );
 }

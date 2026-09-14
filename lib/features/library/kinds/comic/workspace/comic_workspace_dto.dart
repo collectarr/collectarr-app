@@ -1,28 +1,52 @@
-import 'package:collectarr_app/features/library/kinds/comic/catalog/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
-final class ComicWorkspaceDto extends WorkspaceDtoAdapter {
+final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   ComicWorkspaceDto({
     required this.common,
     required this.personal,
     required this.comic,
-    this.metadata,
+    this.ownedItem,
   });
 
-  @override
   final WorkspaceCommonProjection common;
-  @override
   final PersonalCopyProjection personal;
-  final ComicCatalogItem comic;
-  final ComicCatalogMetadata? metadata;
+  final ComicMedia comic;
+  final ComicOwnedItem? ownedItem;
+  @override
+  String get title => common.title;
+  @override
+  String? get coverImageUrl => common.coverImageUrl;
+
+  String? get synopsis => common.synopsis;
+  String? get currency => common.currency;
 
   // Domain convenience getters
-  String? get writer => metadata?.writers.firstOrNull;
-  String? get artist => metadata?.artists.firstOrNull;
-  String? get coverArtist => metadata?.coverArtists.firstOrNull;
-  String? get imprint => metadata?.imprint ?? comic.publishing.imprint;
+  String? get writer => comic.writers.firstOrNull;
+  String? get artist => comic.artists.firstOrNull;
+  String? get coverArtist => comic.coverArtists.firstOrNull;
+  String? get imprint => comic.imprint ?? comic.publishing?.imprint;
+  String? get publisher => comic.publisher ?? imprint;
+  String? get seriesTitle => comic.seriesTitle ?? comic.series?.seriesTitle;
+  String? get itemNumber => comic.issueNumber;
+  DateTime? get releaseDate => comic.releaseDate ?? common.releaseDate;
+  String? get country => comic.country;
+  String? get language => comic.language;
+  String? get identifierCode => comic.barcode;
+  String? get barcode => identifierCode;
+  String? get variant => comic.variant;
+  String? get referenceFormatLabel =>
+      comic.physicalFormatLabel ?? comic.physicalFormat;
+  String? get format => referenceFormatLabel;
+  int? get pageCount => comic.pageCount ?? comic.publishing?.pageCount;
   @override
-  String? get variant => metadata?.variant ?? comic.variant;
-  int? get pageCount => metadata?.pageCount ?? comic.publishing.pageCount;
+  Iterable<String> get searchTokens => [
+        if (publisher != null) publisher!,
+        if (identifierCode != null) identifierCode!,
+        if (writer != null) writer!,
+        if (artist != null) artist!,
+        if (coverArtist != null) coverArtist!,
+      ];
 }

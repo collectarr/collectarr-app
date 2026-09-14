@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -10,12 +11,12 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 class InspectorFolderSection extends StatefulWidget {
   const InspectorFolderSection({
     super.key,
-    required this.ownedItemId,
+    required this.ownedRef,
     required this.db,
     required this.accent,
   });
 
-  final String ownedItemId;
+  final OwnedItemRef ownedRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -36,7 +37,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
 
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
-    final itemFolders = await repo.getFoldersForItem(widget.ownedItemId);
+    final itemFolders = await repo.getFoldersForItem(widget.ownedRef);
     final all = await repo.getAll();
     if (mounted) {
       setState(() {
@@ -61,14 +62,14 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
       ),
     );
     if (result != null && result.isNotEmpty) {
-      await repo.addItemToFolder(result, widget.ownedItemId);
+      await repo.addItemToFolder(result, widget.ownedRef);
       unawaited(_load());
     }
   }
 
   Future<void> _removeFromFolder(String folderId) async {
     final repo = UserFolderRepository(widget.db);
-    await repo.removeItemFromFolder(folderId, widget.ownedItemId);
+    await repo.removeItemFromFolder(folderId, widget.ownedRef);
     unawaited(_load());
   }
 

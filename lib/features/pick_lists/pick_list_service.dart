@@ -6,9 +6,11 @@ import 'pick_list_registry.dart';
 import 'pick_list_repository.dart';
 
 class PickListService {
-  PickListService(LocalDatabase db, {PickListRegistry? registry})
-      : registry = registry ?? PickListRegistry(),
-        repository = PickListRepository(db);
+  PickListService(LocalDatabase db, {required this.registry})
+      : repository = PickListRepository(
+          db,
+          contributors: registry.contributors,
+        );
 
   final PickListRegistry registry;
   final PickListRepository repository;

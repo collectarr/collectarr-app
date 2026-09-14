@@ -23,6 +23,7 @@ class ActivityEvent {
     this.detail,
     this.secondaryDetail,
     this.rating,
+    this.sourceId,
   });
 
   final ActivityEventKind kind;
@@ -36,6 +37,9 @@ class ActivityEvent {
 
   /// Star rating if this is a rated event.
   final int? rating;
+
+  /// Stable source identity when the event is projected from a persisted row.
+  final String? sourceId;
 
   String get label => switch (kind) {
         ActivityEventKind.addedToCollection => 'Added to collection',

@@ -1,7 +1,8 @@
-import 'package:collectarr_app/core/models/owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_page_utilities.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -23,7 +24,7 @@ typedef LibraryPageRebuild = void Function([VoidCallback? fn]);
 
 typedef LibraryPageEditDialogLauncher = Future<void> Function(
   LibraryProjectionItem item,
-  OwnedItem? ownedItemOverride,
+  OwnedItemSummary? ownedItemOverride,
 );
 
 typedef LibraryPageCompareMetadataWithServer = Future<void> Function(
@@ -32,7 +33,7 @@ typedef LibraryPageCompareMetadataWithServer = Future<void> Function(
 });
 
 typedef LibraryPageAddDialogLauncher = Future<void> Function({
-  String? barcode,
+  String? identifierCode,
 });
 
 typedef LibraryPageSelectedProjectionItemResolver = LibraryProjectionItem?
@@ -46,7 +47,7 @@ class LibraryPageCoordinatorContext {
   LibraryPageCoordinatorContext({
     required this.context,
     required this.ref,
-    required LibraryKindRuntime Function() getType,
+    required LibraryKindRegistration Function() getType,
     required Color Function() getAccent,
     required bool Function() getMounted,
     required LibraryViewPreferenceStore Function() getViewPrefs,
@@ -84,7 +85,7 @@ class LibraryPageCoordinatorContext {
     required List<LibrarySidebarScopeSnapshot> Function() getScopeHistory,
     required void Function(List<LibrarySidebarScopeSnapshot> value)
         setScopeHistory,
-    required Set<String> Function() getActiveLoanOwnedItemIds,
+    required Set<OwnedItemRef> Function() getActiveLoanOwnedItemIds,
     required Set<String> Function() getPinnedSortFavoriteIds,
     required void Function(Set<String> value) setPinnedSortFavoriteIds,
     required Set<String> Function() getPinnedColumnFavoriteKeys,
@@ -115,7 +116,7 @@ class LibraryPageCoordinatorContext {
     }) confirmSingleRemove,
     required Future<LibraryBulkEditSelection?> Function(
       BuildContext context, {
-      required LibraryKindRuntime type,
+      required LibraryKindRegistration type,
       required int selectedCount,
     }) showBulkEditDialog,
   })  : _getType = getType,
@@ -177,7 +178,7 @@ class LibraryPageCoordinatorContext {
   final BuildContext context;
   final WidgetRef ref;
 
-  final LibraryKindRuntime Function() _getType;
+  final LibraryKindRegistration Function() _getType;
   final Color Function() _getAccent;
   final bool Function() _getMounted;
   final LibraryViewPreferenceStore Function() _getViewPrefs;
@@ -214,7 +215,7 @@ class LibraryPageCoordinatorContext {
   final void Function(String? value) _setActiveSmartListName;
   final List<LibrarySidebarScopeSnapshot> Function() _getScopeHistory;
   final void Function(List<LibrarySidebarScopeSnapshot> value) _setScopeHistory;
-  final Set<String> Function() _getActiveLoanOwnedItemIds;
+  final Set<OwnedItemRef> Function() _getActiveLoanOwnedItemIds;
   final Set<String> Function() _getPinnedSortFavoriteIds;
   final void Function(Set<String> value) _setPinnedSortFavoriteIds;
   final Set<String> Function() _getPinnedColumnFavoriteKeys;
@@ -245,11 +246,11 @@ class LibraryPageCoordinatorContext {
   }) _confirmSingleRemove;
   final Future<LibraryBulkEditSelection?> Function(
     BuildContext context, {
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required int selectedCount,
   }) _showBulkEditDialog;
 
-  LibraryKindRuntime get type => _getType();
+  LibraryKindRegistration get type => _getType();
   Color get accent => _getAccent();
   bool get mounted => _getMounted();
   LibraryWorkspaceViewProfile get viewProfile => type.viewProfile;
@@ -309,7 +310,7 @@ class LibraryPageCoordinatorContext {
   set scopeHistory(List<LibrarySidebarScopeSnapshot> value) =>
       _setScopeHistory(value);
 
-  Set<String> get activeLoanOwnedItemIds => _getActiveLoanOwnedItemIds();
+  Set<OwnedItemRef> get activeLoanOwnedItemIds => _getActiveLoanOwnedItemIds();
 
   Set<String> get pinnedSortFavoriteIds => _getPinnedSortFavoriteIds();
   set pinnedSortFavoriteIds(Set<String> value) =>
@@ -365,7 +366,7 @@ class LibraryPageCoordinatorContext {
 
   Future<LibraryBulkEditSelection?> showBulkEditDialog(
     BuildContext context, {
-    required LibraryKindRuntime type,
+    required LibraryKindRegistration type,
     required int selectedCount,
   }) {
     return _showBulkEditDialog(

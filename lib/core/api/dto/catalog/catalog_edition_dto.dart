@@ -36,6 +36,13 @@ class CatalogEditionDto {
   final List<CatalogVariantDto> variants;
   final List<CatalogDiscDto> discs;
 
+  /// Best available display label for the transport-level format value.
+  String? get displayFormat => physicalFormatLabel ?? physicalFormat;
+  String? get identifierCode =>
+      isbn ??
+      upc ??
+      (variants.isNotEmpty ? variants.first.identifierCode : null);
+
   factory CatalogEditionDto.fromJson(Map<String, dynamic> json) {
     return CatalogEditionDto(
       id: json['id'] as String,
@@ -106,5 +113,3 @@ class CatalogEditionDto {
     return DateTime.tryParse(raw);
   }
 }
-
-typedef CatalogEdition = CatalogEditionDto;

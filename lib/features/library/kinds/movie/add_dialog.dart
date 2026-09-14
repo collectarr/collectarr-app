@@ -42,7 +42,7 @@ class MovieLibraryAddDialog extends StatelessWidget {
       type: request.type,
       accent: request.accent,
       initialQuery: request.initialQuery,
-      initialBarcode: request.initialBarcode,
+      initialIdentifier: request.initialIdentifier,
       headerBuilder: buildMovieAddHeader,
       modeBarBuilder: buildMovieAddModeBar,
       searchPaneBuilder: buildMovieAddSearchPane,

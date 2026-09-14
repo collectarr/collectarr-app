@@ -1,0 +1,167 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
+import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
+
+typedef DevSeedCatalogFactory = List<CatalogItemDto> Function();
+typedef DevSeedItemEnricher = CatalogItemDto Function(CatalogItemDto item);
+typedef DevSeedCatalogPayloadEnricher = void Function(
+  CatalogItemDto item,
+  Map<String, dynamic> payload,
+);
+typedef DevSeedCatalogQualityValidator = List<String> Function(
+  CatalogItemDto item,
+);
+typedef DevSeedCatalogBarcodeValidator = void Function(
+  List<String> issues,
+  String prefix,
+  String? barcode,
+);
+typedef DevSeedCatalogGraphValidator = List<String> Function(
+  CatalogItemDto item,
+);
+typedef DevSeedOwnedSummaryFactory = List<OwnedItemSummary> Function(
+  DateTime now,
+);
+typedef DevSeedOwnedQualityValidator = List<String> Function(DateTime now);
+typedef DevSeedOwnedSeeder = Future<void> Function(
+  LocalDatabase db,
+  DateTime now,
+);
+typedef DevSeedTrackingFactory = List<TrackingStorageRecord> Function(
+    DateTime now);
+typedef DevSeedTrackingUnitFactory = Iterable<TrackingUnitSummary> Function(
+  Iterable<CatalogItemDto> items,
+  DateTime now,
+);
+typedef DevSeedWatchSessionFactory = List<WatchSession> Function(DateTime now);
+typedef DevSeedDatabaseSeeder = Future<void> Function(
+  LocalDatabase db,
+  Iterable<CatalogItemDto> items,
+  DateTime now,
+);
+
+/// Kind-owned defaults used only while enriching development catalog fixtures.
+///
+/// Keeping these values with each contributor prevents the generic seed
+/// runner from becoming a semantic switchboard for all kinds.
+final class DevSeedCatalogDefaults {
+  const DevSeedCatalogDefaults({
+    required this.includePublishingDetails,
+    required this.paperType,
+    required this.originalLanguage,
+    required this.pageCount,
+    required this.coverPriceCents,
+    required this.runtimeMinutes,
+    required this.ageRating,
+    required this.audienceRating,
+    required this.enrichPayload,
+  });
+
+  final bool includePublishingDetails;
+  final String? paperType;
+  final String originalLanguage;
+  final int pageCount;
+  final int coverPriceCents;
+  final int runtimeMinutes;
+  final String ageRating;
+  final String audienceRating;
+  final DevSeedCatalogPayloadEnricher enrichPayload;
+}
+
+/// The complete development-fixture contribution owned by one library kind.
+///
+/// This is a dev-only composition contract. It keeps fixture construction
+/// typed while allowing the seed entry point to remain unaware of concrete
+/// kind repositories and tracking models.
+abstract interface class DevSeedKindContributor {
+  CatalogMediaKind get kind;
+  DevSeedCatalogDefaults get catalogDefaults;
+  DevSeedCatalogFactory get catalogItems;
+  DevSeedItemEnricher get enrichItem;
+  DevSeedCatalogQualityValidator get validateCatalog;
+  DevSeedCatalogGraphValidator get validateCatalogGraph;
+  DevSeedCatalogBarcodeValidator get validateBarcode;
+  DevSeedOwnedSummaryFactory get ownedSummaries;
+  DevSeedOwnedQualityValidator get validateOwned;
+  DevSeedOwnedSeeder get seedOwned;
+  DevSeedTrackingFactory get trackingRecords;
+  DevSeedTrackingUnitFactory? get trackingUnits;
+  DevSeedWatchSessionFactory? get watchSessions;
+  DevSeedDatabaseSeeder? get seedDatabase;
+}
+
+/// Typed implementation used by every concrete kind seed.
+///
+/// The generated contributor registry is necessarily heterogeneous, so it
+/// exposes the small [DevSeedKindContributor] interface. The only erased
+/// boundary is this adapter; the seed declarations and validators remain
+/// concrete and cannot accidentally validate the wrong Owned model.
+final class TypedDevSeedKindContributor<TOwned extends Object>
+    implements DevSeedKindContributor {
+  const TypedDevSeedKindContributor({
+    required this.kind,
+    required this.catalogDefaults,
+    required this.catalogItems,
+    required this.enrichItem,
+    required this.validateCatalog,
+    required this.validateCatalogGraph,
+    required this.validateBarcode,
+    required this.ownedItemsTyped,
+    required this.ownedSummaryTyped,
+    required this.validateOwnedTyped,
+    required this.seedOwnedTyped,
+    required this.trackingRecords,
+    this.trackingUnits,
+    this.watchSessions,
+    this.seedDatabase,
+  });
+
+  @override
+  final CatalogMediaKind kind;
+  @override
+  final DevSeedCatalogDefaults catalogDefaults;
+  @override
+  final DevSeedCatalogFactory catalogItems;
+  @override
+  final DevSeedItemEnricher enrichItem;
+  @override
+  final DevSeedCatalogQualityValidator validateCatalog;
+  @override
+  final DevSeedCatalogGraphValidator validateCatalogGraph;
+  @override
+  final DevSeedCatalogBarcodeValidator validateBarcode;
+  final List<TOwned> Function(DateTime now) ownedItemsTyped;
+  final OwnedItemSummary Function(TOwned item) ownedSummaryTyped;
+  final List<String> Function(TOwned item) validateOwnedTyped;
+  final DevSeedOwnedSeeder seedOwnedTyped;
+  @override
+  final DevSeedTrackingFactory trackingRecords;
+  @override
+  final DevSeedTrackingUnitFactory? trackingUnits;
+  @override
+  final DevSeedWatchSessionFactory? watchSessions;
+  @override
+  final DevSeedDatabaseSeeder? seedDatabase;
+
+  @override
+  DevSeedOwnedSummaryFactory get ownedSummaries => (now) {
+        return ownedItemsTyped(now).map(ownedSummaryTyped).toList(
+              growable: false,
+            );
+      };
+
+  @override
+  DevSeedOwnedQualityValidator get validateOwned => (now) {
+        final issues = <String>[];
+        for (final item in ownedItemsTyped(now)) {
+          issues.addAll(validateOwnedTyped(item));
+        }
+        return issues;
+      };
+
+  @override
+  DevSeedOwnedSeeder get seedOwned => seedOwnedTyped;
+}

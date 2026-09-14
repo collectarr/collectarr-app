@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/edit/library_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_scope.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   required LibraryEditDialogRequest request,
   LibraryEditDialogRequestLoader? requestLoader,
 }) {
-  final editCapability = request.type.edit;
+  final editCapability = request.type.editPresentation;
   final builder = switch (request.resolvedScope) {
     LibraryEditScope.media =>
       editCapability.mediaEditDialogBuilder ?? editCapability.editDialogBuilder,

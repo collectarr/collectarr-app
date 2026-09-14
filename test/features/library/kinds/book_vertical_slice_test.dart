@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/contracts/book_contracts.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
@@ -7,15 +6,15 @@ import 'package:collectarr_app/features/library/kinds/book/provider/book_provide
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/providers/domain/models/normalized_provider_envelope_v1.dart';
+import 'package:collectarr_app/features/providers/transport/provider_metadata_envelope.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_attribution.dart';
 import 'package:collectarr_app/features/providers/domain/models/provider_provenance.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
   group('Book Kind Vertical Slice Tests (C4)', () {
@@ -94,25 +93,25 @@ void main() {
         ],
       );
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'book_1',
-        catalogItem: const LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: LibraryItemIdentity(
             id: 'book_1',
             mediaKind: CatalogMediaKind.book,
           ),
           kindMetadata: bookMeta,
-        ),
-        ownedItem: OwnedItem(
+        ).asShelfCatalogItem),
+        ownedSummary: testOwnedSummary(testOwnedItem(
           id: 'owned_1',
           catalogRef: const CatalogEntityRef(
             id: 'book_1',
-            kind: 'book',
-            entityType: CatalogEntityType.work,
+            kind: CatalogMediaKind.book,
+            entityType: CatalogEntityTypeId('work'),
           ),
           condition: 'Mint',
           updatedAt: DateTime.now(),
-        ),
+        )),
       );
 
       const projector = BookWorkspaceProjector();
@@ -153,12 +152,12 @@ void main() {
         'BookLibraryKindProviderMapper parses OpenLibrary/Hardcover envelope into BookCatalogMetadata',
         () {
       const mapper = BookLibraryKindProviderMapper();
-      final item = mapper.metadataItemFromEnvelope(
-        NormalizedProviderEnvelopeV1(
+      final item = mapper.catalogFromEnvelope(
+        ProviderMetadataEnvelope(
           provider: 'openlibrary',
           providerItemId: 'OL12345M',
-          kind: 'book',
-          normalized: const {
+          kind: CatalogMediaKind.book,
+          payload: const ProviderMetadataPayload({
             'title': 'Dune',
             'subtitle': 'Part One',
             'authors': ['Frank Herbert'],
@@ -173,7 +172,7 @@ void main() {
                 'first_edition': true,
               }
             ],
-          },
+          }),
           images: const [],
           provenance: ProviderProvenance(
             fetchedAt: DateTime.now().toIso8601String(),
@@ -182,14 +181,34 @@ void main() {
         ),
       );
 
-      expect(item.kindMetadata, isA<BookCatalogMetadata>());
-      final meta = item.kindMetadata as BookCatalogMetadata;
-      expect(meta.title, 'Dune');
-      expect(meta.subtitle, 'Part One');
-      expect(meta.authors, contains('Frank Herbert'));
-      expect(meta.editions.first.isbn, '9780441013593');
-      expect(meta.editions.first.pageCount, 896);
-      expect(meta.editions.first.firstEdition, isTrue);
+      expect(item.title, 'Dune');
+      expect(item.subtitle, 'Part One');
+      expect(item.authors, contains('Frank Herbert'));
+      expect(item.editions.first.isbn, '9780441013593');
+      expect(item.editions.first.pageCount, 896);
+      expect(item.editions.first.firstEdition, isTrue);
+    });
+
+    test('BookLibraryKindProviderMapper rejects a non-Book envelope', () {
+      const mapper = BookLibraryKindProviderMapper();
+      final envelope = ProviderMetadataEnvelope(
+        provider: 'comicvine',
+        providerItemId: 'comic-1',
+        kind: CatalogMediaKind.comic,
+        payload: const ProviderMetadataPayload({'title': 'Wrong kind'}),
+        images: const [],
+        provenance: ProviderProvenance(fetchedAt: ''),
+        attribution: const ProviderAttribution(required: false),
+      );
+
+      expect(
+        () => mapper.catalogCandidateFromEnvelope(envelope),
+        throwsA(isA<StateError>()),
+      );
+      expect(
+        () => mapper.catalogFromEnvelope(envelope),
+        throwsA(isA<StateError>()),
+      );
     });
 
     test('BookCatalog and BookEntry round-trip and preserve all kind fields',
@@ -250,15 +269,15 @@ void main() {
       expect(restored.authors, contains('J. R. R. Tolkien'));
       expect(restored.editions.first.format, 'Hardcover');
 
-      final shelfEntry = ShelfEntry(
+      final shelfEntry = LibraryWorkspaceSource(
         itemId: 'book_lotr',
-        catalogItem: LibraryMetadataItem(
+        catalogData: testWorkspaceCatalogData(CatalogItemDto(
           identity: const LibraryItemIdentity(
             id: 'book_lotr',
             mediaKind: CatalogMediaKind.book,
           ),
           kindMetadata: BookCatalogMetadata.fromJson(json),
-        ),
+        ).asShelfCatalogItem),
       );
 
       final entry = BookEntry.fromShelf(shelfEntry);

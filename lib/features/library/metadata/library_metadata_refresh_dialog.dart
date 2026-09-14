@@ -1,12 +1,13 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capabilities.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
-import 'package:collectarr_app/features/catalog/catalog_cache_repository.dart';
+import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_module.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +31,11 @@ class LibraryMetadataRefreshResult {
 
 Future<LibraryMetadataRefreshResult?> showLibraryMetadataRefreshDialog({
   required BuildContext context,
-  required LibraryKindRuntime type,
+  required LibraryKindRegistration type,
   required Color accent,
-  required List<LibraryProjectionRuntime> allEntries,
-  required List<LibraryProjectionRuntime> shownEntries,
-  required LibraryProjectionRuntime? selectedEntry,
+  required List<LibraryProjectionView> allEntries,
+  required List<LibraryProjectionView> shownEntries,
+  required LibraryProjectionView? selectedEntry,
 }) {
   return showDialog<LibraryMetadataRefreshResult>(
     context: context,
@@ -58,11 +59,11 @@ class LibraryMetadataRefreshDialog extends ConsumerStatefulWidget {
     required this.selectedEntry,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
-  final List<LibraryProjectionRuntime> allEntries;
-  final List<LibraryProjectionRuntime> shownEntries;
-  final LibraryProjectionRuntime? selectedEntry;
+  final List<LibraryProjectionView> allEntries;
+  final List<LibraryProjectionView> shownEntries;
+  final LibraryProjectionView? selectedEntry;
 
   @override
   ConsumerState<LibraryMetadataRefreshDialog> createState() =>
@@ -111,7 +112,7 @@ class _LibraryMetadataRefreshDialogState
       maxHeight: 820,
       padding: const EdgeInsets.all(12),
       // ignore: sort_child_properties_last
-      child: SizedBox(
+      body: SizedBox(
         width: 680,
         child: SingleChildScrollView(
           child: Column(
@@ -262,7 +263,7 @@ class _LibraryMetadataRefreshDialogState
     });
 
     final api = ref.read(apiClientProvider);
-    final catalog = CatalogCacheRepository(ref.read(localDatabaseProvider));
+    final catalog = CatalogTransportRepository(ref.read(localDatabaseProvider));
     for (final entry in targets) {
       if (!mounted) {
         return;
@@ -277,7 +278,7 @@ class _LibraryMetadataRefreshDialogState
       try {
         final results = await searchAndCacheLibraryMetadata(
           api: api,
-          type: widget.type,
+          kind: widget.type.kind,
           catalog: catalog,
           input: _inputForEntry(entry),
         );
@@ -322,19 +323,15 @@ class _LibraryMetadataRefreshDialogState
     });
   }
 
-  List<LibraryProjectionRuntime> _targetEntries() {
+  List<LibraryProjectionView> _targetEntries() {
     final values = switch (_scope) {
       _RefreshScope.selected => [
           if (widget.selectedEntry != null) widget.selectedEntry!,
         ],
       _RefreshScope.missing => widget.shownEntries.where((item) {
-          final adapter = item.dto is WorkspaceDtoAdapter
-              ? item.dto as WorkspaceDtoAdapter
-              : null;
           return item.dto.coverImageUrl == null ||
               item.dto.coverImageUrl!.isEmpty ||
-              adapter?.publisher == null ||
-              adapter!.publisher!.isEmpty;
+              item.dto.title.trim().isEmpty;
         }).toList(growable: false),
       _RefreshScope.shown => widget.shownEntries,
       _RefreshScope.all => widget.allEntries,
@@ -342,40 +339,20 @@ class _LibraryMetadataRefreshDialogState
     return _dedupe(values);
   }
 
-  LibraryMetadataSearchInput _inputForEntry(LibraryProjectionRuntime item) {
+  MetadataSearchQuery _inputForEntry(LibraryProjectionView item) {
     final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final barcode = adapter?.barcode?.trim();
-    if (barcode != null && barcode.isNotEmpty) {
-      return LibraryMetadataSearchInput(
-        query: dto.title,
-        barcode: barcode,
-        limit: 5,
-      );
-    }
-    return LibraryMetadataSearchInput(
-      query: dto.title,
-      issueNumber: adapter?.itemNumber,
-      publisher: adapter?.publisher,
-      year: adapter?.releaseDate?.year,
-      limit: 5,
+    return widget.type.metadata.searchQueryFor(
+      source: item.source,
+      title: dto.title,
     );
   }
 
-  String _describeSearch(LibraryProjectionRuntime item) {
-    final dto = item.dto;
-    final adapter = dto is WorkspaceDtoAdapter ? dto : null;
-    final barcode = adapter?.barcode?.trim();
-    if (barcode != null && barcode.isNotEmpty) {
-      return 'Barcode $barcode';
-    }
-    final parts = [
-      dto.title,
-      if (adapter?.itemNumber != null && adapter!.itemNumber!.isNotEmpty)
-        '#${adapter.itemNumber}',
-      if (adapter?.releaseDate != null) adapter!.releaseDate!.year.toString(),
-    ];
-    return parts.join(' ');
+  String _describeSearch(LibraryProjectionView item) {
+    final query = _inputForEntry(item);
+    final barcode = query.barcode?.trim();
+    return barcode == null || barcode.isEmpty
+        ? query.query ?? item.dto.title
+        : 'Barcode $barcode';
   }
 
   _RefreshSummary _summary() => _RefreshSummary.fromRows(_rows);
@@ -394,7 +371,7 @@ class _RefreshRow {
   });
 
   factory _RefreshRow.waiting({
-    required LibraryProjectionRuntime entry,
+    required LibraryProjectionView entry,
     required String message,
   }) {
     return _RefreshRow(
@@ -404,7 +381,7 @@ class _RefreshRow {
     );
   }
 
-  final LibraryProjectionRuntime entry;
+  final LibraryProjectionView entry;
   final _RefreshRowStatus status;
   final String message;
   final int cached;
@@ -461,7 +438,7 @@ class _RefreshSourcePanel extends StatelessWidget {
     required this.accent,
   });
 
-  final LibraryKindRuntime type;
+  final LibraryKindRegistration type;
   final Color accent;
 
   @override
@@ -516,7 +493,7 @@ class _RefreshTargetList extends StatelessWidget {
   });
 
   final List<_RefreshRow> rows;
-  final List<LibraryProjectionRuntime> targets;
+  final List<LibraryProjectionView> targets;
   final Color accent;
 
   @override
@@ -657,10 +634,9 @@ class _RefreshNotice extends StatelessWidget {
   }
 }
 
-List<LibraryProjectionRuntime> _dedupe(
-    Iterable<LibraryProjectionRuntime> values) {
+List<LibraryProjectionView> _dedupe(Iterable<LibraryProjectionView> values) {
   final seen = <String>{};
-  final result = <LibraryProjectionRuntime>[];
+  final result = <LibraryProjectionView>[];
   for (final value in values) {
     if (seen.add(value.node.titleItemId)) {
       result.add(value);
@@ -669,7 +645,7 @@ List<LibraryProjectionRuntime> _dedupe(
   return result;
 }
 
-String _providerSummary(LibraryKindRuntime type) {
+String _providerSummary(LibraryKindRegistration type) {
   final supportedProviders = type.metadata.supportedProvidersForKind(type.kind);
   if (supportedProviders.isEmpty) {
     return 'No providers are registered for this media type yet; existing Core catalog rows can still be searched.';

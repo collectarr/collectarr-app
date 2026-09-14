@@ -1,39 +1,50 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_node_ref.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
 /// Builds the [LibraryCardPresentation] for a movie workspace item.
 LibraryCardPresentation buildMovieCardPresentation(
-  LibraryProjectionRuntime item, {
+  LibraryProjectionView item, {
   required bool musicVertical,
 }) {
+  final movieDto =
+      item.dto is MovieWorkspaceDto ? item.dto as MovieWorkspaceDto : null;
   return LibraryCardPresentation(
+    itemNumber: movieDto?.itemNumber,
+    variant: movieDto?.variant,
+    releaseDate: movieDto?.releaseDate,
+    format: movieDto?.format,
+    synopsis: movieDto?.synopsis,
+    seriesTitle: movieDto?.seriesTitle,
+    identifierCode: movieDto?.identifierCode,
+    currency: movieDto?.currency,
     compactBadges: _movieCompactBadges(item),
   );
 }
 
-List<LibraryCardBadge> _movieCompactBadges(LibraryProjectionRuntime item) {
+List<LibraryCardBadge> _movieCompactBadges(LibraryProjectionView item) {
   final dto = item.dto;
-  final adapter = dto is WorkspaceDtoAdapter ? dto : null;
   final badges = <LibraryCardBadge>[];
-  final editionsPayload = item.source.catalogItem?.kindMetadata
-      .toSyncPayload()['editions'] as List?;
-  final firstEdition = editionsPayload != null &&
-          editionsPayload.isNotEmpty &&
-          editionsPayload.first is Map
-      ? CatalogEdition.fromJson(
-          Map<String, dynamic>.from(editionsPayload.first as Map))
+  final catalog = item.source.catalogData;
+  final firstEdition = catalog is MovieWorkspaceCatalogData
+      ? catalog.metadata?.editions.firstOrNull
       : null;
-  final edition = item.node is LibraryReleaseNodeRef
-      ? (item.node as LibraryReleaseNodeRef).edition
-      : firstEdition;
-  final format = adapter?.referenceFormatLabel?.trim() ??
-      edition?.format?.trim() ??
-      edition?.physicalFormatLabel?.trim();
-  final region = edition?.region?.trim() ?? adapter?.country?.trim();
+  final release = item.node is LibraryReleaseNodeRef
+      ? (item.node as LibraryReleaseNodeRef).release
+      : null;
+  final format = dto is MovieWorkspaceDto
+      ? dto.referenceFormatLabel?.trim() ??
+          release?.formatLabel?.trim() ??
+          firstEdition?.format?.trim() ??
+          firstEdition?.physicalFormatLabel?.trim()
+      : release?.formatLabel?.trim() ??
+          firstEdition?.format?.trim() ??
+          firstEdition?.physicalFormatLabel?.trim();
+  final region = (release == null ? firstEdition?.region : null)?.trim() ??
+      (dto is MovieWorkspaceDto ? dto.country?.trim() : null);
 
   if (format != null && format.isNotEmpty) {
     badges.add(LibraryCardBadge(icon: Icons.album_outlined, label: format));

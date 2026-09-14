@@ -1,45 +1,6 @@
-import 'package:collectarr_app/core/models/media_catalog.dart';
-
-const fallbackVideoCatalogPhysicalFormats = <CatalogPhysicalFormat>[
-  CatalogPhysicalFormat(
-    id: 'dvd',
-    label: 'DVD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'blu-ray',
-    label: 'Blu-ray',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: ['bluray', 'blu ray'],
-  ),
-  CatalogPhysicalFormat(
-    id: '4k-uhd',
-    label: '4K UHD',
-    mediaFamily: 'video',
-    variantType: 'physical',
-    aliases: ['4k', 'uhd', '4k blu-ray', '4k bluray', 'ultra hd'],
-  ),
-  CatalogPhysicalFormat(
-    id: 'vhs',
-    label: 'VHS',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'laserdisc',
-    label: 'LaserDisc',
-    mediaFamily: 'video',
-    variantType: 'physical',
-  ),
-  CatalogPhysicalFormat(
-    id: 'digital',
-    label: 'Digital',
-    mediaFamily: 'video',
-    variantType: 'digital',
-  ),
-];
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 
 class PhysicalMediaFormat {
   const PhysicalMediaFormat({
@@ -69,14 +30,13 @@ class PhysicalMediaFormat {
 
 List<PhysicalMediaFormat> physicalMediaFormatsFromCatalog(
   Iterable<CatalogMediaType> mediaTypes, {
-  String? kind,
+  CatalogMediaKind? kind,
   String mediaFamily = 'video',
 }) {
-  final normalizedKind = kind?.trim().toLowerCase();
   final normalizedMediaFamily = mediaFamily.trim().toLowerCase();
   final formatsById = <String, PhysicalMediaFormat>{};
   for (final type in mediaTypes) {
-    if (normalizedKind != null && type.kind != normalizedKind) {
+    if (kind != null && type.kind != kind.apiValue) {
       continue;
     }
     for (final format in type.physicalFormats) {
@@ -155,9 +115,73 @@ bool? digitalPhysicalMediaFormatFlag(
   return format == null ? null : format.variantType == 'digital';
 }
 
-String? ownedCopyTypeLabel(bool? isDigital) {
-  if (isDigital == null) {
-    return null;
+/// Technical release/format resolution shared by kind-owned semantics.
+///
+/// This helper deliberately receives primitive identity and explicit values;
+/// it does not inspect an Owned domain object or decide which kind's formats
+/// are valid.
+bool? resolveDigitalMediaFormatFlag({
+  required bool? explicitDigital,
+  required String? editionId,
+  required String? variantId,
+  required List<LibraryAddReleaseOption> releases,
+  String? fallbackFormat,
+  String? fallbackLabel,
+  required Iterable<PhysicalMediaFormat> formats,
+}) {
+  if (explicitDigital != null) {
+    return explicitDigital;
   }
-  return isDigital ? 'Digital copy' : 'Physical copy';
+
+  LibraryAddReleaseOption? matchedRelease;
+  LibraryAddVariantOption? matchedVariant;
+  if (editionId != null) {
+    for (final release in releases) {
+      if (release.id == editionId) {
+        matchedRelease = release;
+        break;
+      }
+    }
+  }
+  if (variantId != null) {
+    final releasePool = matchedRelease == null
+        ? releases
+        : <LibraryAddReleaseOption>[matchedRelease];
+    for (final release in releasePool) {
+      for (final variant in release.variants) {
+        if (variant.id == variantId) {
+          matchedRelease ??= release;
+          matchedVariant = variant;
+          break;
+        }
+      }
+      if (matchedVariant != null) {
+        break;
+      }
+    }
+  }
+
+  final variantFlag = digitalPhysicalMediaFormatFlag(
+    matchedVariant?.formatId,
+    label: matchedVariant?.formatLabel ?? matchedVariant?.name,
+    formats: formats,
+  );
+  if (variantFlag != null) {
+    return variantFlag;
+  }
+
+  final editionFlag = digitalPhysicalMediaFormatFlag(
+    matchedRelease?.formatId,
+    label: matchedRelease?.formatLabel ?? matchedRelease?.title,
+    formats: formats,
+  );
+  if (editionFlag != null) {
+    return editionFlag;
+  }
+
+  return digitalPhysicalMediaFormatFlag(
+    fallbackFormat,
+    label: fallbackLabel,
+    formats: formats,
+  );
 }

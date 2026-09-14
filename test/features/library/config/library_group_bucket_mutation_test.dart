@@ -1,17 +1,19 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/library/config/library_group_bucket_mutation.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
+import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
 
-LibraryMetadataItem _metadata(
+CatalogItemDto _metadata(
   String kind,
   Map<String, dynamic> payload,
 ) {
-  return LibraryMetadataItem.fromCatalogItem(
+  return testCatalogItemWithKindMetadata(
     testCatalogItem(
       id: '$kind-1',
       kind: kind,
@@ -21,20 +23,21 @@ LibraryMetadataItem _metadata(
   );
 }
 
-LibraryMetadataItem _mutateGroup(
-  LibraryMetadataItem item,
+CatalogSearchCandidate _mutateGroup(
+  CatalogItemDto item,
   CatalogMediaKind kind,
   String mode,
   String currentLabel, {
   String? replacement,
 }) {
-  final runtime = libraryKindRuntimeForKind(kind);
-  final definition = runtime.fields.findGroupDefinition(
-    runtime.fields.decodeGroupId(mode),
+  final runtime = libraryKindRegistrationForKind(kind);
+  final fields = libraryKindWorkspaceForKind(runtime.kind).fields;
+  final definition = fields.findGroupDefinition(
+    fields.decodeGroupId(mode),
   );
   expect(definition, isNotNull);
   final updated = definition!.bucketValueMutator?.call(
-    item,
+    CatalogSearchCandidate.fromItem(item),
     currentLabel,
     replacement: replacement,
   );
@@ -64,9 +67,10 @@ void main() {
       replacement: 'New publisher',
     );
 
-    expect(updated.payload['publisher'], 'New publisher');
-    expect(updated.payload['original_publisher'], 'New publisher');
-    final publishing = updated.payload['publishing'] as Map;
+    final payload = updated.toTransport().payload;
+    expect(payload['publisher'], 'New publisher');
+    expect(payload['original_publisher'], 'New publisher');
+    final publishing = payload['publishing'] as Map;
     expect(publishing['original_publisher'], 'New publisher');
     expect(publishing['imprint'], 'Old imprint');
   });
@@ -86,8 +90,9 @@ void main() {
       replacement: 'New studio',
     );
 
-    expect(updated.payload['publisher'], 'New studio');
-    expect(updated.payload['studio'], 'New studio');
+    final payload = updated.toTransport().payload;
+    expect(payload['publisher'], 'New studio');
+    expect(payload['studio'], 'New studio');
   });
 
   test('replaces one genre without duplicating a case-insensitive value', () {
@@ -104,7 +109,7 @@ void main() {
       replacement: 'drama',
     );
 
-    expect(updated.payload['genres'], ['drama']);
+    expect(updated.toTransport().payload['genres'], ['drama']);
   });
 
   test('replaces a joined list bucket as one value', () {
@@ -121,7 +126,7 @@ void main() {
       replacement: 'Adventure',
     );
 
-    expect(updated.payload['genres'], ['Adventure']);
+    expect(updated.toTransport().payload['genres'], ['Adventure']);
   });
 
   test('preserves an explicit scalar alias when a list supplies the bucket',
@@ -133,18 +138,19 @@ void main() {
         'publisher': 'Explicit publisher',
       },
     );
-    final updated = libraryStringListBucketValueMutator(
+    final updated = catalogTransportStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      item,
+      CatalogSearchCandidate.fromItem(item),
       'Old studio',
       replacement: 'New studio',
     );
 
     expect(updated, isNotNull);
-    expect(updated!.payload['studios'], ['New studio']);
-    expect(updated.payload['publisher'], 'Explicit publisher');
+    final payload = updated!.toTransport().payload;
+    expect(payload['studios'], ['New studio']);
+    expect(payload['publisher'], 'Explicit publisher');
   });
 
   test('updates a matching scalar alias with a list bucket', () {
@@ -155,18 +161,19 @@ void main() {
         'publisher': 'Old studio',
       },
     );
-    final updated = libraryStringListBucketValueMutator(
+    final updated = catalogTransportStringListBucketValueMutator(
       'studios',
       scalarMirrorKeys: ['publisher'],
     )(
-      item,
+      CatalogSearchCandidate.fromItem(item),
       'Old studio',
       replacement: 'New studio',
     );
 
     expect(updated, isNotNull);
-    expect(updated!.payload['studios'], ['New studio']);
-    expect(updated.payload['publisher'], 'New studio');
+    final payload = updated!.toTransport().payload;
+    expect(payload['studios'], ['New studio']);
+    expect(payload['publisher'], 'New studio');
   });
 
   test('returns no update when the current label does not match', () {
@@ -177,8 +184,8 @@ void main() {
       },
     );
 
-    final updated = libraryStringBucketValueMutator('artist')(
-      item,
+    final updated = catalogTransportStringBucketValueMutator(['artist'])(
+      CatalogSearchCandidate.fromItem(item),
       'Different artist',
       replacement: 'New artist',
     );
@@ -187,22 +194,26 @@ void main() {
   });
 
   test('builds an owned condition update and clears empty replacements', () {
-    final item = testOwnedItem(
-      id: 'owned-music-1',
-      itemId: 'music-1',
-      kind: 'music',
-      condition: 'Very Good',
+    final item = testMusicOwnedItemFrom(
+      testOwnedItem(
+        id: 'owned-music-1',
+        itemId: 'music-1',
+        kind: 'music',
+        condition: 'Very Good',
+      ),
     );
-    final mutator = libraryOwnedConditionBucketValueMutator();
+    final mutator = musicOwnedConditionBucketValueMutator();
 
     final update = mutator(item, 'Very Good', replacement: 'Mint');
     expect(update, isNotNull);
-    expect(update!.ownedItemId, 'owned-music-1');
-    expect(update.condition, isA<SetValue<String?>>());
-    expect((update.condition as SetValue<String?>).value, 'Mint');
+    expect(update!.ownedRef.id.value, 'owned-music-1');
+    final payload = update.payload as MusicOwnedItemUpdatePayload;
+    expect(payload.condition, isA<SetValue<String?>>());
+    expect((payload.condition as SetValue<String?>).value, 'Mint');
 
     final clear = mutator(item, 'Very Good', replacement: '   ');
     expect(clear, isNotNull);
-    expect(clear!.condition, isA<ClearValue<String?>>());
+    final clearPayload = clear!.payload as MusicOwnedItemUpdatePayload;
+    expect(clearPayload.condition, isA<ClearValue<String?>>());
   });
 }

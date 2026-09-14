@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
-import 'package:collectarr_app/features/library/models/library_metadata_item.dart';
-import 'package:collectarr_app/features/library/metadata/provider_candidate.dart';
+import 'package:collectarr_app/features/providers/transport/provider_candidate.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 class LibraryAddSearchController {
@@ -13,9 +13,9 @@ class LibraryAddSearchController {
   }) : _advancedFilters = Map.from(initialAdvancedFilters);
 
   final queryController = TextEditingController();
-  final barcodeController = TextEditingController();
+  final identifierController = TextEditingController();
 
-  List<LibraryMetadataItem> results = const [];
+  List<CatalogSearchCandidate> results = const [];
   List<ProviderCandidate> providerResults = const [];
   String? error;
   String selectedProvider;
@@ -29,7 +29,7 @@ class LibraryAddSearchController {
   int coreSearchGeneration = 0;
   int providerSearchGeneration = 0;
   Timer? autocompleteTimer;
-  List<LibraryMetadataItem> suggestions = const [];
+  List<CatalogSearchCandidate> suggestions = const [];
   bool showSuggestions = false;
   final Map<LibraryAddFilterId, Object?> _advancedFilters;
 
@@ -40,10 +40,10 @@ class LibraryAddSearchController {
 
   void setInitialInput({
     String? query,
-    String? barcode,
+    String? identifierCode,
   }) {
     queryController.text = query?.trim() ?? '';
-    barcodeController.text = barcode?.trim() ?? '';
+    identifierController.text = identifierCode?.trim() ?? '';
   }
 
   void updateAdvancedFilter(LibraryAddFilterId id, Object? value) {
@@ -66,7 +66,7 @@ class LibraryAddSearchController {
   void dispose() {
     autocompleteTimer?.cancel();
     queryController.dispose();
-    barcodeController.dispose();
+    identifierController.dispose();
   }
 }
 
@@ -74,7 +74,7 @@ class LibraryAddSearchController {
 class LibraryAddSearchState {
   LibraryAddSearchState({
     this.query = '',
-    this.barcode = '',
+    this.identifierCode = '',
     this.isSearching = false,
     this.isSearchingProvider = false,
     this.searchedProvider = false,
@@ -104,17 +104,17 @@ class LibraryAddSearchState {
       );
 
   final String query;
-  final String barcode;
+  final String identifierCode;
   final bool isSearching;
   final bool isSearchingProvider;
   final bool searchedProvider;
   final bool isScanningCover;
   final bool showAdvancedSearch;
-  final List<LibraryMetadataItem> results;
+  final List<CatalogSearchCandidate> results;
   final List<ProviderCandidate> providerResults;
   final String selectedProvider;
   final Map<LibraryAddFilterId, Object?> advancedFilters;
-  final List<LibraryMetadataItem> suggestions;
+  final List<CatalogSearchCandidate> suggestions;
   final bool showSuggestions;
   final String? error;
   final int coreSearchGeneration;
@@ -127,17 +127,17 @@ class LibraryAddSearchState {
 
   LibraryAddSearchState copyWith({
     String? query,
-    String? barcode,
+    String? identifierCode,
     bool? isSearching,
     bool? isSearchingProvider,
     bool? searchedProvider,
     bool? isScanningCover,
     bool? showAdvancedSearch,
-    List<LibraryMetadataItem>? results,
+    List<CatalogSearchCandidate>? results,
     List<ProviderCandidate>? providerResults,
     String? selectedProvider,
     Map<LibraryAddFilterId, Object?>? advancedFilters,
-    List<LibraryMetadataItem>? suggestions,
+    List<CatalogSearchCandidate>? suggestions,
     bool? showSuggestions,
     String? error,
     bool clearError = false,
@@ -150,7 +150,7 @@ class LibraryAddSearchState {
   }) {
     return LibraryAddSearchState(
       query: query ?? this.query,
-      barcode: barcode ?? this.barcode,
+      identifierCode: identifierCode ?? this.identifierCode,
       isSearching: isSearching ?? this.isSearching,
       isSearchingProvider: isSearchingProvider ?? this.isSearchingProvider,
       searchedProvider: searchedProvider ?? this.searchedProvider,
